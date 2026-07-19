@@ -15,7 +15,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { changePasswordSchema } from "@/features/auth/types/validation";
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token") || "";
 
@@ -149,5 +149,19 @@ export default function ResetPasswordPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <React.Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-950 flex justify-center items-center text-white">
+          <Spinner size="lg" />
+        </div>
+      }
+    >
+      <ResetPasswordForm />
+    </React.Suspense>
   );
 }

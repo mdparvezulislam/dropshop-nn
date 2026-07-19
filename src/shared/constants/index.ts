@@ -36,6 +36,7 @@ export const ROUTES = {
   COURIER: "/dashboard/couriers",
   INVENTORY: "/dashboard/inventory",
   PRICING: "/dashboard/pricing",
+  RESELLERS: "/dashboard/resellers",
   WALLET: "/dashboard/wallet",
   INVOICES: "/dashboard/invoices",
 } as const;
@@ -51,6 +52,63 @@ export const PERMISSIONS = {
   VIEW_WALLET: "view:wallet",
   MANAGE_WALLET: "manage:wallet",
   VIEW_INVOICES: "view:invoices",
+  INVENTORY_VIEW: "Inventory.View",
+  INVENTORY_UPDATE: "Inventory.Update",
+  INVENTORY_ADJUST: "Inventory.Adjust",
+  PRICING_VIEW: "Pricing.View",
+  PRICING_UPDATE: "Pricing.Update",
+  PRICING_OVERRIDE: "Pricing.Override",
+  RESELLER_CREATE: "Reseller.Create",
+  RESELLER_VIEW: "Reseller.View",
+  RESELLER_UPDATE: "Reseller.Update",
+  RESELLER_SUSPEND: "Reseller.Suspend",
+} as const;
+
+export const STOCK_AVAILABILITY = {
+  IN_STOCK: "in_stock",
+  LOW_STOCK: "low_stock",
+  OUT_OF_STOCK: "out_of_stock",
+  PRE_ORDER: "pre_order",
+  BACKORDER: "backorder",
+} as const;
+
+export const STOCK_OPERATIONS = {
+  STOCK_IN: "stock_in",
+  STOCK_OUT: "stock_out",
+  ADJUSTMENT: "adjustment",
+  RESERVATION: "reservation",
+  RELEASE: "release",
+  TRANSFER: "transfer",
+} as const;
+
+export const PRICING_RULES = {
+  FIXED: "fixed",
+  PERCENTAGE: "percentage",
+  SUPPLIER_BASED: "supplier_based",
+  CATEGORY_BASED: "category_based",
+  BRAND_BASED: "brand_based",
+  DYNAMIC: "dynamic",
+} as const;
+
+export const AUDIT_EVENTS = {
+  PRICE_CHANGED: "Price Changed",
+  STOCK_UPDATED: "Stock Updated",
+  STOCK_ADJUSTED: "Stock Adjusted",
+  SUPPLIER_PRICE_CHANGED: "Supplier Price Changed",
+  INVENTORY_IMPORTED: "Inventory Imported",
+  RESELLER_CREATED: "Reseller Created",
+  RESELLER_UPDATED: "Reseller Updated",
+  PRODUCT_ADDED: "Product Added",
+  PRODUCT_REMOVED: "Product Removed",
+  RESELLER_PRICE_UPDATED: "Price Updated",
+} as const;
+
+export const RESELLER_STATUS = {
+  PENDING: "pending",
+  ACTIVE: "active",
+  SUSPENDED: "suspended",
+  BLOCKED: "blocked",
+  ARCHIVED: "archived",
 } as const;
 
 export const FILE_LIMITS = {

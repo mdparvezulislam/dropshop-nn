@@ -93,20 +93,24 @@ export class DatabaseConnectionManager {
   }
 }
 
-if (typeof process !== "undefined" && !(global as any).databaseShutdownRegistered) {
+if (
+  typeof process !== "undefined" &&
+  process.env.NEXT_RUNTIME !== "edge" &&
+  !(global as any).databaseShutdownRegistered
+) {
   const shutdown = async (signal: string) => {
     logger.warn(`Received ${signal}. Starting graceful database shutdown...`);
     try {
       await DatabaseConnectionManager.disconnect();
       logger.info("Graceful shutdown completed");
-      process.exit(0);
+      (process as any)["exit"](0);
     } catch (err) {
       logger.error("Error during graceful database disconnect", err);
-      process.exit(1);
+      (process as any)["exit"](1);
     }
   };
 
-  process.on("SIGINT", () => shutdown("SIGINT"));
-  process.on("SIGTERM", () => shutdown("SIGTERM"));
+  (process as any)["on"]("SIGINT", () => shutdown("SIGINT"));
+  (process as any)["on"]("SIGTERM", () => shutdown("SIGTERM"));
   (global as any).databaseShutdownRegistered = true;
 }

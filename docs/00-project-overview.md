@@ -14,11 +14,13 @@ DropshopNN is a modern, high-performance, enterprise-grade dropshipping manageme
 ### Target Domains (Modules)
 
 - **Auth**: Multi-role authentication (Admin, Merchant, Courier, Customer).
-- **Products**: Global catalog, vendor mappings, configuration.
-- **Orders**: Status management, split-shipments, merchant processing.
-- **Payments**: Transactions processing, refunds, reconciliation.
-- **Courier**: Real-time integration, rate optimization, dispatch routing.
-- **Inventory**: Real-time stock counts, reservations, warehouse logic.
-- **Pricing**: Dynamic margins, tier discounts, rule engine.
-- **Wallet**: Digital ledger, credits, merchant pay-outs.
-- **Invoices**: Tax calculations, legal document rendering.
+- **Products**: Global catalog only (no price/stock on product).
+- **Suppliers**: Supplier onboarding, profiles, settings.
+- **Pricing**: Independent pricing foundation — costs, sell tiers, rules, profit, tax/commission ready.
+- **Inventory**: Independent inventory foundation — stock buckets, history, supplier stock maps, warehouse-ready.
+- **Resellers**: Independent reseller platform — profiles, private catalogs, reseller-only pricing (master product never modified).
+- **Orders**: Status management, split-shipments, merchant processing (future).
+- **Payments**: Transactions processing, refunds, reconciliation (future).
+- **Courier**: Real-time integration, rate optimization, dispatch routing (future).
+- **Wallet**: Digital ledger, credits, merchant pay-outs (future).
+- **Invoices**: Tax calculations, legal document rendering (future).

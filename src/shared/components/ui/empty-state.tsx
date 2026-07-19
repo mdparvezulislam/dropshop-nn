@@ -19,25 +19,25 @@ export function EmptyState({
   onAction,
   icon: Icon = FolderOpen,
   ...props
-}: EmptyStateProps) {
+}: EmptyStateProps): React.ReactElement {
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center text-center p-8 border border-dashed rounded-xl bg-slate-900/5 dark:bg-slate-900/20",
+        "flex flex-col items-center justify-center text-center p-10 border border-dashed border-border rounded-xl bg-muted/20",
         className,
       )}
       {...props}
     >
-      <div className="p-4 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-400 mb-4">
-        <Icon className="h-8 w-8" />
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-xs">
+        <Icon className="h-6 w-6" />
       </div>
-      <h3 className="text-lg font-semibold text-slate-200 mb-1">{title}</h3>
-      <p className="text-sm text-slate-400 max-w-sm mb-6">{description}</p>
-      {actionLabel && onAction && (
+      <h3 className="text-base font-semibold text-foreground mb-1">{title}</h3>
+      <p className="text-sm text-muted-foreground max-w-sm mb-5">{description}</p>
+      {actionLabel && onAction ? (
         <Button onClick={onAction} variant="outline" size="sm">
           {actionLabel}
         </Button>
-      )}
+      ) : null}
     </div>
   );
 }

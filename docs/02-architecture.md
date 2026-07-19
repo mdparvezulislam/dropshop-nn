@@ -37,3 +37,14 @@ graph TD
 
 - Next.js Server Actions, Route Handlers, and UI.
 - Validates user input using Zod before calling the service layer.
+
+## Module Boundaries (Critical)
+
+| Module        | Owns                                                                   | Must NOT own                         |
+| ------------- | ---------------------------------------------------------------------- | ------------------------------------ |
+| **Product**   | Catalog, variants, media, SEO, brand/category                          | Price, stock, availability           |
+| **Pricing**   | All monetary fields, margins, rules, tax/commission config             | Stock levels                         |
+| **Inventory** | Stock buckets, reservations, history, supplier stock maps              | Catalog content, sell prices         |
+| **Reseller**  | Reseller profiles, private catalog (ResellerProduct), reseller pricing | Master Product writes, Supplier data |
+
+Cross-module references use `productId` + optional `variantSku` only. See `docs/16-pricing-architecture.md`, `docs/17-inventory-architecture.md`, and `docs/18-reseller-architecture.md`.

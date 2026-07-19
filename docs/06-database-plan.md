@@ -18,7 +18,7 @@ All Mongoose schemas automatically extend the custom Mongoose foundation feature
 ## MongoDB Indexing Guidelines
 
 1. **Single Fields**: Add index attributes to unique fields and lookup fields (e.g., `sku` in products, `email` in users).
-2. **Compound Indexes**: Construct indexes for combined filter queries (e.g., `{ userId: 1, status: 1 }` for order listings).
+2. **Compound Indexes**: Construct indexes for combined filter queries (e.g., `{ productId: 1, variantSku: 1 }` for pricing/inventory).
 3. **Text Search**: Add text indexing configurations for text searches.
 4. **TTL Indexes**: Leverage TTL indexes on temp entries (e.g., email verification codes, temporary queues).
 
@@ -35,38 +35,111 @@ All Mongoose schemas automatically extend the custom Mongoose foundation feature
 - `role`: Enum ("admin", "user", "courier")
 - Base schema audit and tracking parameters...
 
-### Products (`products`)
+### Products (`products`) — Catalog only
 
 - `_id`: ObjectId
 - `sku`: String (indexed, unique)
 - `name`: String
-- `price`: Number
-- `imagekitUrl`: String
+- `slug`: String
+- `supplierId`: ObjectId → Supplier
+- `brandId` / `categoryId`: optional ObjectIds
+- `variants[]`: catalog attributes + variant SKU (no price/stock)
+- **No price or stock fields** — owned by Pricing & Inventory modules
 - Base schema audit and tracking parameters...
 
-### Orders (`orders`)
+### ProductPricing (`productpricings`)
 
-- `_id`: ObjectId
-- `userId`: ObjectId (indexed)
-- `items`: Array of items (sku, quantity, price)
-- `totalAmount`: Number
-- `status`: Enum ("pending", "processing", "shipped", "delivered", "cancelled")
-- Base schema audit and tracking parameters...
+- `productId`: ObjectId → Product (indexed)
+- `variantSku`: String (optional, indexed)
+- Unique compound: `{ productId, variantSku }`
+- Money fields stored as **integer cents**: `baseCostPrice`, `purchasePrice`, `supplierPrice`, `sellingPrice`, `wholesalePrice`, `resellerPrice`, `comparePrice`, `promotionalPrice`, `discountAmount`, `profitAmount`
+- `discountPercentage`, `profitMargin`, `taxRate`, `commissionRate`
+- `currency`: ISO 3-letter code
+- `taxInclusive`: Boolean
+- `pricingRule`: fixed | percentage | supplier_based | category_based | brand_based | dynamic
+- `ruleConfig`: embedded rule parameters
+- `status`: active | inactive | scheduled | expired
+- `effectiveFrom` / `effectiveTo`
 
-### Payments (`payments`)
+### ProductInventory (`productinventories`)
 
-- `_id`: ObjectId
-- `orderId`: ObjectId (indexed)
-- `transactionId`: String (indexed, unique)
-- `amount`: Number
-- `gateway`: String (e.g., "stripe")
-- `status`: Enum ("pending", "completed", "failed", "refunded")
-- Base schema audit and tracking parameters...
+- `productId`: ObjectId → Product (indexed)
+- `variantSku`: String (optional)
+- `warehouseId`: ObjectId (optional, null = default / global) — warehouse-ready
+- Unique compound: `{ productId, variantSku, warehouseId }`
+- Stock buckets: `availableStock`, `reservedStock`, `incomingStock`, `damagedStock`, `returnedStock`
+- Thresholds: `safetyStock`, `reorderLevel`, `lowStockThreshold`
+- `availability`: in_stock | low_stock | out_of_stock | pre_order | backorder
+- `allowPreOrder`, `allowBackorder`
+- `status`: active | inactive | frozen
+
+### InventoryHistory (`inventoryhistories`)
+
+- `inventoryId`: ObjectId → ProductInventory
+- `productId`: ObjectId → Product
+- `operation`: stock_in | stock_out | adjustment | reservation | release | transfer
+- `quantity`, `previousAvailable`, `newAvailable`, `previousReserved`, `newReserved`
+- `reason`, `referenceId`, `notes`, `performedBy`
+- Indexes on `{ inventoryId, createdAt }`, `{ productId, createdAt }`
+
+### SupplierInventory (`supplierinventories`)
+
+- `productId` + `supplierId` + optional `variantSku` (unique compound)
+- `supplierSku`, `supplierCost` (cents), `supplierStock`
+- `leadTimeDays`, `minimumOrderQuantity`, `isPreferred`, `currency`
+- `status`: active | inactive | discontinued
+
+### Suppliers (`suppliers`)
+
+- See Phase 4 supplier schema (business profile, contacts, banking, documents, settings).
+
+### Reseller (`resellers`)
+
+- `code`: unique (RSL-####)
+- Profile: businessName, ownerName, contactPerson, email, phone, logo, coverImage
+- `address`: country, division, district, upazila, area, postalCode, fullAddress
+- `businessType`, `nidNumber`, `nidVerified`, `tradeLicenseNumber`, `tradeLicenseVerified`
+- `status`: pending | active | suspended | blocked | archived
+- `userId` optional → User
+- `collections[]`, `tags[]`, `notes`
+
+### ResellerProduct (`resellerproducts`)
+
+- `resellerId` → Reseller, `productId` → Product (reference only — Product never updated)
+- Optional `variantSku`
+- `customTitle`, `customDescription`, `personalNotes`
+- `sellingStatus`: draft | active | hidden | out_of_catalog
+- `isFavorite`, `isHidden`, `collectionIds[]`, `groupIds[]`, `tags[]`
+- Embedded `pricing` (cents): sellingPrice, discounts, recommendedPrice, costBasis, profit*, currency, isCustomPrice
+- Unique compound: `{ resellerId, productId, variantSku }`
+
+### ResellerCollection / ResellerProductGroup
+
+- Per-reseller named sets with `slug` and `productIds[]`
+
+### Orders / Payments (planned)
+
+- Not implemented in Phase 6/7.
+
+---
+
+## Relationships
+
+```
+Supplier
+   ↓
+SupplierInventory
+   ↓
+Product (catalog)
+   ├── ProductPricing
+   ├── ProductInventory → InventoryHistory
+   └── ResellerProduct → Reseller
+```
 
 ---
 
 ## Redis Caching Schema
 
-- Cache Keys structure: `dropshop:cache:<domain>:<identifier>` (e.g., `dropshop:cache:products:sku123`).
+- Cache Keys structure: `dropshop:cache:<domain>:<identifier>` (e.g., `dropshop:cache:pricing:productId`).
 - Cache expiry: TTL configurations of 15 minutes default for database payloads.
 - BullMQ Redis prefix: `dropshop:queue:<queue-name>` to isolate job lists.

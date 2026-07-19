@@ -1,0 +1,278 @@
+"use client";
+
+import * as React from "react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
+import { Input } from "@/shared/components/ui/input";
+import { Button } from "@/shared/components/ui/button";
+import { Badge } from "@/shared/components/ui/badge";
+import {
+  updatePricingAction,
+  overridePricingAction,
+} from "@/features/pricing/actions/pricing-actions";
+import { toast } from "sonner";
+import { ArrowLeft, Save, Shield } from "lucide-react";
+import { currencyToCents, formatCentsToCurrency } from "@/shared/utils/currency-utils";
+
+const MOCK = {
+  id: "1",
+  productId: "507f1f77bcf86cd799439011",
+  productName: "iPhone 16 Pro Max",
+  variantSku: "APL-IPH16PM-256-BLK",
+  baseCostPrice: 89000,
+  purchasePrice: 90000,
+  supplierPrice: 92000,
+  sellingPrice: 119900,
+  wholesalePrice: 109900,
+  resellerPrice: 104900,
+  comparePrice: 129900,
+  promotionalPrice: 114900,
+  discountPercentage: 11.5,
+  profitMargin: 25.8,
+  profitAmount: 30900,
+  currency: "USD",
+  taxRate: 5,
+  taxInclusive: false,
+  commissionRate: 2,
+  pricingRule: "fixed" as const,
+  status: "active" as const,
+};
+
+export default function PricingEditorPage() {
+  const params = useParams();
+  const router = useRouter();
+  const id = String(params.id);
+  const [loading, setLoading] = React.useState(false);
+  const [overrideMode, setOverrideMode] = React.useState(false);
+
+  const [form, setForm] = React.useState({
+    baseCostPrice: (MOCK.baseCostPrice / 100).toFixed(2),
+    purchasePrice: (MOCK.purchasePrice / 100).toFixed(2),
+    supplierPrice: (MOCK.supplierPrice / 100).toFixed(2),
+    sellingPrice: (MOCK.sellingPrice / 100).toFixed(2),
+    wholesalePrice: (MOCK.wholesalePrice / 100).toFixed(2),
+    resellerPrice: (MOCK.resellerPrice / 100).toFixed(2),
+    comparePrice: (MOCK.comparePrice / 100).toFixed(2),
+    promotionalPrice: MOCK.promotionalPrice ? (MOCK.promotionalPrice / 100).toFixed(2) : "",
+    discountPercentage: String(MOCK.discountPercentage),
+    currency: MOCK.currency,
+    taxRate: String(MOCK.taxRate),
+    taxInclusive: MOCK.taxInclusive,
+    commissionRate: String(MOCK.commissionRate),
+    pricingRule: MOCK.pricingRule,
+    status: MOCK.status,
+  });
+
+  const set = (key: string, value: string | boolean) =>
+    setForm((prev) => ({ ...prev, [key]: value }));
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const payload = {
+        baseCostPrice: currencyToCents(Number(form.baseCostPrice)),
+        purchasePrice: currencyToCents(Number(form.purchasePrice)),
+        supplierPrice: currencyToCents(Number(form.supplierPrice)),
+        sellingPrice: currencyToCents(Number(form.sellingPrice)),
+        wholesalePrice: currencyToCents(Number(form.wholesalePrice)),
+        resellerPrice: currencyToCents(Number(form.resellerPrice)),
+        comparePrice: currencyToCents(Number(form.comparePrice)),
+        promotionalPrice: form.promotionalPrice
+          ? currencyToCents(Number(form.promotionalPrice))
+          : undefined,
+        discountPercentage: Number(form.discountPercentage) || 0,
+        currency: form.currency,
+        taxRate: Number(form.taxRate) || 0,
+        taxInclusive: form.taxInclusive,
+        commissionRate: Number(form.commissionRate) || 0,
+        pricingRule: form.pricingRule,
+        status: form.status,
+      };
+
+      const res = overrideMode
+        ? await overridePricingAction(id, payload)
+        : await updatePricingAction(id, payload);
+
+      if (res.success) {
+        toast.success(overrideMode ? "Price override applied" : "Pricing updated");
+        router.push("/dashboard/pricing");
+      } else {
+        toast.error(res.error || "Update failed");
+      }
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Update failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-950 p-4 sm:p-6 text-white space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/dashboard/pricing"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-800 text-slate-400 hover:bg-slate-900 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Link>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{MOCK.productName}</h1>
+              <Badge variant="success">{MOCK.status}</Badge>
+            </div>
+            <p className="text-sm text-slate-400 font-mono">{MOCK.variantSku}</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => setOverrideMode((v) => !v)}
+          className={`flex h-10 items-center gap-2 rounded-md border px-4 text-sm transition-colors ${
+            overrideMode
+              ? "border-amber-600 bg-amber-950/40 text-amber-300"
+              : "border-slate-700 text-slate-300 hover:bg-slate-900"
+          }`}
+        >
+          <Shield className="h-4 w-4" />
+          {overrideMode ? "Override Mode On" : "Enable Override"}
+        </button>
+      </div>
+
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <Card className="border-slate-800 bg-slate-900/50">
+          <CardHeader className="p-4 pb-2">
+            <span className="text-xs text-slate-400">Profit Amount</span>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            <div className="text-xl font-bold text-emerald-400">
+              {formatCentsToCurrency(MOCK.profitAmount, MOCK.currency)}
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="border-slate-800 bg-slate-900/50">
+          <CardHeader className="p-4 pb-2">
+            <span className="text-xs text-slate-400">Profit Margin</span>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            <div className="text-xl font-bold text-indigo-400">{MOCK.profitMargin}%</div>
+          </CardContent>
+        </Card>
+        <Card className="border-slate-800 bg-slate-900/50">
+          <CardHeader className="p-4 pb-2">
+            <span className="text-xs text-slate-400">Rule</span>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            <div className="text-xl font-bold capitalize">{MOCK.pricingRule.replace("_", " ")}</div>
+          </CardContent>
+        </Card>
+        <Card className="border-slate-800 bg-slate-900/50">
+          <CardHeader className="p-4 pb-2">
+            <span className="text-xs text-slate-400">Currency</span>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            <div className="text-xl font-bold">{MOCK.currency}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
+        <Card className="border-slate-800 bg-slate-900/50">
+          <CardHeader>
+            <CardTitle className="text-white text-lg">Edit Prices</CardTitle>
+          </CardHeader>
+          <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {(
+              [
+                ["baseCostPrice", "Base Cost"],
+                ["purchasePrice", "Purchase"],
+                ["supplierPrice", "Supplier"],
+                ["sellingPrice", "Selling"],
+                ["wholesalePrice", "Wholesale"],
+                ["resellerPrice", "Reseller"],
+                ["comparePrice", "Compare At"],
+                ["promotionalPrice", "Promotional"],
+              ] as const
+            ).map(([key, label]) => (
+              <div key={key} className="space-y-2">
+                <label className="text-xs text-slate-400">{label}</label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form[key]}
+                  onChange={(e) => set(key, e.target.value)}
+                  className="bg-slate-950 border-slate-800 text-white"
+                />
+              </div>
+            ))}
+            <div className="space-y-2">
+              <label className="text-xs text-slate-400">Discount %</label>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                value={form.discountPercentage}
+                onChange={(e) => set("discountPercentage", e.target.value)}
+                className="bg-slate-950 border-slate-800 text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs text-slate-400">Tax Rate %</label>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                value={form.taxRate}
+                onChange={(e) => set("taxRate", e.target.value)}
+                className="bg-slate-950 border-slate-800 text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs text-slate-400">Commission %</label>
+              <Input
+                type="number"
+                min="0"
+                max="100"
+                value={form.commissionRate}
+                onChange={(e) => set("commissionRate", e.target.value)}
+                className="bg-slate-950 border-slate-800 text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs text-slate-400">Status</label>
+              <select
+                value={form.status}
+                onChange={(e) => set("status", e.target.value)}
+                className="h-10 w-full rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-white"
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="expired">Expired</option>
+              </select>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end">
+          <Link
+            href="/dashboard/pricing"
+            className="flex h-10 items-center justify-center rounded-md border border-slate-700 px-4 text-sm text-slate-300 hover:bg-slate-900 transition-colors"
+          >
+            Cancel
+          </Link>
+          <Button
+            type="submit"
+            disabled={loading}
+            className="bg-indigo-600 hover:bg-indigo-500 text-white gap-2"
+          >
+            <Save className="h-4 w-4" />
+            {loading ? "Saving..." : overrideMode ? "Override & Save" : "Save Changes"}
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+}
