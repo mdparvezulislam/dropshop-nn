@@ -59,20 +59,14 @@ export class DatabaseConnectionManager {
 
     try {
       cached.conn = await cached.promise;
-      
-      // Bootstrap feature flags and event subscribers on the server
+
+      // Bootstrap platform engines on connection
       if (typeof window === "undefined") {
         try {
-          const { registerOrderFeatureFlags } = await import("@/features/order/init");
-          registerOrderFeatureFlags();
+          const { ensurePlatformInitialized } = await import("@/shared/platform/bootstrap-server");
+          await ensurePlatformInitialized();
         } catch (err) {
-          logger.warn("DatabaseConnectionManager: failed to bootstrap order feature flags", { error: err });
-        }
-        try {
-          const { registerFinanceFeatureFlags } = await import("@/features/finance/init");
-          registerFinanceFeatureFlags();
-        } catch (err) {
-          logger.warn("DatabaseConnectionManager: failed to bootstrap finance feature flags", { error: err });
+          logger.warn("DatabaseConnectionManager: platform bootstrap failed", { error: err });
         }
       }
     } catch (e) {

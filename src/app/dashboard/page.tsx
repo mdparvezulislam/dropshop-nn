@@ -16,12 +16,53 @@ import {
   FileEdit,
   Truck,
   Bell,
+  ShoppingCart,
+  TrendingUp,
+  Users,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { SectionHeader } from "@/shared/components/workspace/section-header";
 import { StatusChip } from "@/shared/components/workspace/status-chip";
 import { cn } from "@/shared/utils/cn";
+
+interface DashboardData {
+  ordersTotal: number;
+  ordersActive: number;
+  ordersCompleted: number;
+  ordersRevenue: number;
+  suppliersTotal: number;
+  suppliersActive: number;
+  suppliersPending: number;
+  inventoryLowStock: number;
+  inventoryOutOfStock: number;
+  inventoryTotalSkus: number;
+  resellersTotal: number;
+  resellersActive: number;
+  resellersPending: number;
+  customerCount: number;
+  productDrafts: number;
+  productCount: number;
+}
+
+const DEFAULT_DASHBOARD: DashboardData = {
+  ordersTotal: 0,
+  ordersActive: 0,
+  ordersCompleted: 0,
+  ordersRevenue: 0,
+  suppliersTotal: 0,
+  suppliersActive: 0,
+  suppliersPending: 0,
+  inventoryLowStock: 0,
+  inventoryOutOfStock: 0,
+  inventoryTotalSkus: 0,
+  resellersTotal: 0,
+  resellersActive: 0,
+  resellersPending: 0,
+  customerCount: 0,
+  productDrafts: 0,
+  productCount: 0,
+};
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -40,47 +81,48 @@ const QUICK_ACTIONS = [
 
 const NEED_ATTENTION = [
   {
-    title: "7 products low on stock",
+    title: "Products low on stock",
     detail: "Below reorder threshold",
     href: "/dashboard/inventory/low-stock",
     tone: "warning" as const,
     icon: AlertTriangle,
+    key: "inventoryLowStock",
   },
   {
-    title: "3 suppliers pending review",
+    title: "Suppliers pending review",
     detail: "Awaiting verification",
     href: "/dashboard/suppliers",
     tone: "info" as const,
     icon: Building2,
+    key: "suppliersPending",
   },
   {
-    title: "12 draft products",
+    title: "Draft products",
     detail: "Ready to publish",
     href: "/dashboard/products",
     tone: "neutral" as const,
     icon: FileEdit,
+    key: "productDrafts",
   },
   {
-    title: "2 price overrides pending",
-    detail: "Reseller custom pricing",
-    href: "/dashboard/pricing",
+    title: "Resellers pending approval",
+    detail: "Awaiting activation",
+    href: "/dashboard/resellers",
     tone: "primary" as const,
-    icon: DollarSign,
+    icon: Store,
+    key: "resellersPending",
   },
 ];
 
-const ACTIVITY = [
-  { text: "iPhone 16 Pro Max pricing updated", time: "12m ago", icon: DollarSign },
-  { text: "Vertex Logistics stock adjusted +40", time: "1h ago", icon: Warehouse },
-  { text: "Nova Retail Hub activated", time: "3h ago", icon: Store },
-  { text: "Galaxy S24 Ultra saved as draft", time: "5h ago", icon: Package },
-  { text: "Supplier Amana Distributors onboarded", time: "Yesterday", icon: Building2 },
+const RECENT_ACTIVITY = [
+  { text: "Platform bootstrap initialized", time: "Just now", icon: CheckCircle2 },
+  { text: "Listening for order & supplier events", time: "Startup", icon: Clock },
 ];
 
-const DRAFTS = [
-  { name: "MacBook Pro 14 M3", sku: "APL-MBP14M3", status: "draft" },
-  { name: "AirPods Pro 2 Bundle", sku: "APL-APP2-BND", status: "draft" },
-  { name: "Galaxy Buds 3 Pro", sku: "SAM-GB3P", status: "pending_review" },
+const SUPPLIER_ALERTS = [
+  { text: "Vertex Logistics online", detail: "Last sync 4 min ago", icon: CheckCircle2, tone: "success" as const },
+  { text: "Amana lead time increased", detail: "Now 5 days · was 3", icon: Truck, tone: "warning" as const },
+  { text: "Standard Trading suspended", detail: "Review compliance docs", icon: AlertTriangle, tone: "danger" as const },
 ];
 
 export default function WorkspaceHomePage(): React.ReactElement {
@@ -89,6 +131,106 @@ export default function WorkspaceHomePage(): React.ReactElement {
     month: "long",
     day: "numeric",
   }).format(new Date());
+
+  const [data, setData] = React.useState<DashboardData>(DEFAULT_DASHBOARD);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function load() {
+      try {
+        const [
+          ordersRes,
+          suppliersRes,
+          invRes,
+          resellersRes,
+          customersRes,
+          productsRes,
+        ] = await Promise.allSettled([
+          import("@/features/order/actions/order-actions").then((m) =>
+            m.listOrdersAction({ page: 1, limit: 1 }),
+          ),
+          import("@/features/supplier/actions/supplier-actions").then((m) =>
+            m.listSuppliersAction({ page: 1, limit: 1 }),
+          ),
+          import("@/features/inventory/actions/inventory-actions").then((m) =>
+            m.getInventoryDashboardAction(),
+          ),
+          import("@/features/reseller/actions/reseller-actions").then((m) =>
+            m.listResellersAction({ page: 1, limit: 1 }),
+          ),
+          import("@/features/customer/actions/customer-actions").then((m) =>
+            m.listCustomersAction(""),
+          ),
+          import("@/features/catalog/actions/product-actions").then((m) =>
+            m.listProductsAction({}, { limit: 1 }),
+          ),
+        ]);
+
+        const d = { ...DEFAULT_DASHBOARD };
+
+        if (ordersRes.status === "fulfilled" && ordersRes.value.success) {
+          const od = ordersRes.value.data as any;
+          d.ordersTotal = od?.totalCount ?? od?.items?.length ?? 0;
+          d.ordersActive = od?.items?.filter((o: any) =>
+            !["completed", "cancelled", "failed", "refunded"].includes(o.status)
+          ).length ?? 0;
+          d.ordersCompleted = od?.items?.filter((o: any) => o.status === "completed").length ?? 0;
+          d.ordersRevenue = od?.items?.reduce((s: number, o: any) =>
+            s + (o.pricing?.grandTotal ?? 0), 0) ?? 0;
+        }
+
+        if (suppliersRes.status === "fulfilled" && suppliersRes.value.success) {
+          const sd = suppliersRes.value.data as any;
+          d.suppliersTotal = sd?.totalCount ?? sd?.items?.length ?? 0;
+          d.suppliersActive = sd?.items?.filter((s: any) => s.status === "active").length ?? 0;
+          d.suppliersPending = sd?.items?.filter((s: any) => s.status === "pending").length ?? 0;
+        }
+
+        if (invRes.status === "fulfilled" && invRes.value.success) {
+          const iv = invRes.value.data as any;
+          d.inventoryTotalSkus = iv?.totalSkus ?? 0;
+          d.inventoryLowStock = iv?.lowStock ?? 0;
+          d.inventoryOutOfStock = iv?.outOfStock ?? 0;
+        }
+
+        if (resellersRes.status === "fulfilled" && resellersRes.value.success) {
+          const rd = resellersRes.value.data as any;
+          d.resellersTotal = rd?.totalCount ?? rd?.items?.length ?? 0;
+          d.resellersActive = rd?.items?.filter((r: any) => r.status === "active").length ?? 0;
+          d.resellersPending = rd?.items?.filter((r: any) => r.status === "pending").length ?? 0;
+        }
+
+        if (customersRes.status === "fulfilled" && customersRes.value.success) {
+          const cd = customersRes.value.data;
+          d.customerCount = Array.isArray(cd) ? cd.length : (cd as any)?.totalCount ?? 0;
+        }
+
+        if (productsRes.status === "fulfilled" && productsRes.value.success) {
+          const pd = productsRes.value.data as any;
+          d.productCount = pd?.totalCount ?? pd?.items?.length ?? 0;
+          d.productDrafts = pd?.items?.filter((p: any) => p.status === "draft").length ?? 0;
+        }
+
+        setData(d);
+      } catch {
+        // Use defaults on error
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  const formatCents = (cents: number): string =>
+    `৳${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
+
+  const attentionItems = NEED_ATTENTION.map((item) => {
+    const count = data[item.key as keyof DashboardData] as number;
+    return {
+      ...item,
+      title: count > 0 ? `${count} ${item.title.toLowerCase()}` : `No ${item.title.toLowerCase()}`,
+    };
+  });
 
   return (
     <div className="space-y-6 animate-[fade-in_0.25s_ease-out]">
@@ -115,7 +257,7 @@ export default function WorkspaceHomePage(): React.ReactElement {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" className="gap-1.5">
-              <Bell className="h-3.5 w-3.5" />4 alerts
+              <Bell className="h-3.5 w-3.5" />{data.inventoryLowStock + data.suppliersPending} alerts
             </Button>
             <Link href="/dashboard/products/new">
               <Button size="sm" className="gap-1.5">
@@ -125,6 +267,82 @@ export default function WorkspaceHomePage(): React.ReactElement {
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardContent className="p-4 space-y-1">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total Orders</p>
+            <div className="flex items-center gap-2">
+              <ShoppingCart className="h-4 w-4 text-primary" />
+              <p className="text-2xl font-semibold tabular-nums">{loading ? "—" : data.ordersTotal}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 space-y-1">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Revenue</p>
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-success" />
+              <p className="text-2xl font-semibold tabular-nums">{loading ? "—" : formatCents(data.ordersRevenue)}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 space-y-1">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active Orders</p>
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-warning" />
+              <p className="text-2xl font-semibold tabular-nums">{loading ? "—" : data.ordersActive}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 space-y-1">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Low Stock</p>
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+              <p className="text-2xl font-semibold tabular-nums">{loading ? "—" : data.inventoryLowStock}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 space-y-1">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Suppliers</p>
+            <div className="flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-info" />
+              <p className="text-2xl font-semibold tabular-nums">{loading ? "—" : data.suppliersActive}/{data.suppliersTotal}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 space-y-1">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Resellers</p>
+            <div className="flex items-center gap-2">
+              <Store className="h-4 w-4 text-primary" />
+              <p className="text-2xl font-semibold tabular-nums">{loading ? "—" : data.resellersActive}/{data.resellersTotal}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 space-y-1">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Products</p>
+            <div className="flex items-center gap-2">
+              <Package className="h-4 w-4 text-success" />
+              <p className="text-2xl font-semibold tabular-nums">{loading ? "—" : data.productCount}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 space-y-1">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Customers</p>
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-warning" />
+              <p className="text-2xl font-semibold tabular-nums">{loading ? "—" : data.customerCount}</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Quick actions */}
@@ -157,7 +375,7 @@ export default function WorkspaceHomePage(): React.ReactElement {
         <section className="lg:col-span-3 space-y-3">
           <SectionHeader title="Need attention" description="Items that need your decision" />
           <div className="grid gap-2.5 sm:grid-cols-2">
-            {NEED_ATTENTION.map((item) => {
+            {attentionItems.map((item) => {
               const Icon = item.icon;
               return (
                 <Link key={item.title} href={item.href}>
@@ -184,30 +402,6 @@ export default function WorkspaceHomePage(): React.ReactElement {
               );
             })}
           </div>
-
-          {/* Draft products */}
-          <Card className="mt-2">
-            <CardHeader className="flex-row items-center justify-between space-y-0 p-4 pb-2">
-              <CardTitle className="text-sm">Draft products</CardTitle>
-              <Link href="/dashboard/products" className="text-xs text-primary hover:underline">
-                View all
-              </Link>
-            </CardHeader>
-            <CardContent className="p-4 pt-2 space-y-2">
-              {DRAFTS.map((d) => (
-                <div
-                  key={d.sku}
-                  className="flex items-center justify-between gap-3 rounded-lg border border-border/80 bg-muted/20 px-3 py-2.5"
-                >
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium truncate">{d.name}</p>
-                    <p className="text-[11px] font-mono text-muted-foreground">{d.sku}</p>
-                  </div>
-                  <StatusChip label={d.status} tone="warning" />
-                </div>
-              ))}
-            </CardContent>
-          </Card>
         </section>
 
         {/* Activity + alerts */}
@@ -217,7 +411,7 @@ export default function WorkspaceHomePage(): React.ReactElement {
             <Card>
               <CardContent className="p-2">
                 <ul className="divide-y divide-border">
-                  {ACTIVITY.map((a) => {
+                  {RECENT_ACTIVITY.map((a) => {
                     const Icon = a.icon;
                     return (
                       <li key={a.text} className="flex gap-3 px-3 py-3">
@@ -243,27 +437,23 @@ export default function WorkspaceHomePage(): React.ReactElement {
             <SectionHeader title="Supplier alerts" />
             <Card>
               <CardContent className="p-4 space-y-3">
-                <div className="flex gap-3">
-                  <CheckCircle2 className="h-4 w-4 text-success shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium">Vertex Logistics online</p>
-                    <p className="text-xs text-muted-foreground">Last sync 4 min ago</p>
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <Truck className="h-4 w-4 text-warning shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium">Amana lead time increased</p>
-                    <p className="text-xs text-muted-foreground">Now 5 days · was 3</p>
-                  </div>
-                </div>
-                <div className="flex gap-3">
-                  <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium">Standard Trading suspended</p>
-                    <p className="text-xs text-muted-foreground">Review compliance docs</p>
-                  </div>
-                </div>
+                {SUPPLIER_ALERTS.map((a) => {
+                  const Icon = a.icon;
+                  return (
+                    <div key={a.text} className="flex gap-3">
+                      <Icon className={cn(
+                        "h-4 w-4 shrink-0 mt-0.5",
+                        a.tone === "success" && "text-success",
+                        a.tone === "warning" && "text-warning",
+                        a.tone === "danger" && "text-destructive",
+                      )} />
+                      <div>
+                        <p className="text-sm font-medium">{a.text}</p>
+                        <p className="text-xs text-muted-foreground">{a.detail}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </CardContent>
             </Card>
           </div>

@@ -19,14 +19,21 @@ import {
   Layers,
   FileText,
   KanbanSquare,
+  Navigation,
+  CreditCard,
+  Receipt,
 } from "lucide-react";
+
+import type { UserRole } from "@/shared/core/types";
 
 export interface NavItem {
   label: string;
   href?: string;
   icon: LucideIcon;
   badge?: string;
-  children?: { label: string; href: string; icon?: LucideIcon }[];
+  permission?: string;
+  anyPermission?: string[];
+  children?: { label: string; href: string; icon?: LucideIcon; permission?: string }[];
 }
 
 export interface NavSection {
@@ -48,17 +55,19 @@ export const WORKSPACE_NAV: NavSection[] = [
       {
         label: "Products",
         icon: Package,
+        anyPermission: ["Product.View", "Product.Create"],
         children: [
-          { label: "All Products", href: "/dashboard/products", icon: Package },
-          { label: "New Product", href: "/dashboard/products/new", icon: FileText },
+          { label: "All Products", href: "/dashboard/products", icon: Package, permission: "Product.View" },
+          { label: "New Product", href: "/dashboard/products/new", icon: FileText, permission: "Product.Create" },
         ],
       },
       {
         label: "Pricing",
         icon: DollarSign,
+        anyPermission: ["Pricing.View", "Pricing.Update"],
         children: [
-          { label: "Price List", href: "/dashboard/pricing", icon: DollarSign },
-          { label: "Bulk Update", href: "/dashboard/pricing/bulk", icon: Layers },
+          { label: "Price List", href: "/dashboard/pricing", icon: DollarSign, permission: "Pricing.View" },
+          { label: "Bulk Update", href: "/dashboard/pricing/bulk", icon: Layers, permission: "Pricing.Update" },
         ],
       },
     ],
@@ -70,17 +79,19 @@ export const WORKSPACE_NAV: NavSection[] = [
       {
         label: "Suppliers",
         icon: Building2,
+        anyPermission: ["Supplier.View", "Supplier.Create"],
         children: [
-          { label: "All Suppliers", href: "/dashboard/suppliers", icon: Building2 },
-          { label: "Onboard", href: "/dashboard/suppliers/new", icon: FileText },
+          { label: "All Suppliers", href: "/dashboard/suppliers", icon: Building2, permission: "Supplier.View" },
+          { label: "Onboard", href: "/dashboard/suppliers/new", icon: FileText, permission: "Supplier.Create" },
         ],
       },
       {
         label: "Resellers",
         icon: Store,
+        anyPermission: ["Reseller.View", "Reseller.Create"],
         children: [
-          { label: "All Resellers", href: "/dashboard/resellers", icon: Store },
-          { label: "Onboard", href: "/dashboard/resellers/new", icon: FileText },
+          { label: "All Resellers", href: "/dashboard/resellers", icon: Store, permission: "Reseller.View" },
+          { label: "Onboard", href: "/dashboard/resellers/new", icon: FileText, permission: "Reseller.Create" },
         ],
       },
     ],
@@ -92,32 +103,39 @@ export const WORKSPACE_NAV: NavSection[] = [
       {
         label: "Inventory",
         icon: Warehouse,
+        anyPermission: ["Inventory.View", "Inventory.Update"],
         children: [
-          { label: "Overview", href: "/dashboard/inventory", icon: Boxes },
-          { label: "Adjust Stock", href: "/dashboard/inventory/adjust", icon: Tags },
-          { label: "Low Stock", href: "/dashboard/inventory/low-stock", icon: AlertTriangle },
-          { label: "History", href: "/dashboard/inventory/history", icon: History },
+          { label: "Overview", href: "/dashboard/inventory", icon: Boxes, permission: "Inventory.View" },
+          { label: "Adjust Stock", href: "/dashboard/inventory/adjust", icon: Tags, permission: "Inventory.Update" },
+          { label: "Low Stock", href: "/dashboard/inventory/low-stock", icon: AlertTriangle, permission: "Inventory.View" },
+          { label: "History", href: "/dashboard/inventory/history", icon: History, permission: "Inventory.View" },
         ],
       },
       {
         label: "Orders",
         icon: ShoppingCart,
+        anyPermission: ["Order.View", "Order.Create"],
         children: [
-          { label: "All Orders", href: "/dashboard/orders", icon: ShoppingCart },
-          { label: "Status Board", href: "/dashboard/orders/board", icon: KanbanSquare },
+          { label: "All Orders", href: "/dashboard/orders", icon: ShoppingCart, permission: "Order.View" },
+          { label: "Status Board", href: "/dashboard/orders/board", icon: KanbanSquare, permission: "Order.View" },
         ],
       },
       {
         label: "Customers",
         icon: Users,
-        badge: "Soon",
-        children: [{ label: "Coming soon", href: "/dashboard", icon: Users }],
+        anyPermission: ["Customer.View"],
+        children: [
+          { label: "My Customers", href: "/dashboard/customers", icon: Users, permission: "Customer.View" },
+        ],
       },
       {
         label: "Courier",
         icon: Truck,
-        badge: "Soon",
-        children: [{ label: "Coming soon", href: "/dashboard", icon: Truck }],
+        anyPermission: ["Order.View"],
+        children: [
+          { label: "Admin Console", href: "/dashboard/courier", icon: Navigation, permission: "Order.Update" },
+          { label: "My Shipments", href: "/dashboard/shipments", icon: Truck, permission: "Order.View" },
+        ],
       },
     ],
   },
@@ -128,16 +146,18 @@ export const WORKSPACE_NAV: NavSection[] = [
       {
         label: "Wallet",
         icon: Wallet,
+        anyPermission: ["Finance.View"],
         children: [
-          { label: "Admin Console", href: "/dashboard/finance", icon: DollarSign },
-          { label: "My Wallet", href: "/dashboard/wallet", icon: Wallet },
+          { label: "Admin Console", href: "/dashboard/finance", icon: DollarSign, permission: "Finance.View" },
+          { label: "My Wallet", href: "/dashboard/wallet", icon: Wallet, permission: "Finance.View" },
         ],
       },
       {
         label: "Reports",
         icon: BarChart3,
         badge: "Soon",
-        children: [{ label: "Coming soon", href: "/dashboard", icon: BarChart3 }],
+        anyPermission: ["Report.View"],
+        children: [{ label: "Coming soon", href: "/dashboard", icon: BarChart3, permission: "Report.View" }],
       },
     ],
   },
@@ -148,7 +168,7 @@ export const WORKSPACE_NAV: NavSection[] = [
       {
         label: "Settings",
         icon: Settings,
-        children: [{ label: "Workspace", href: "/dashboard", icon: Settings }],
+        permission: "Settings.View",
       },
     ],
   },

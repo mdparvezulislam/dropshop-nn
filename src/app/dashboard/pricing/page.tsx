@@ -4,6 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Plus, Layers, DollarSign, Pencil, TrendingUp } from "lucide-react";
+import { toast } from "sonner";
+import { listPricingAction } from "@/features/pricing/actions/pricing-actions";
 import { formatCentsToCurrency } from "@/shared/utils/currency-utils";
 import { ListLayout } from "@/shared/components/workspace/list-layout";
 import { Toolbar } from "@/shared/components/workspace/toolbar";
@@ -12,6 +14,7 @@ import { StatCard } from "@/shared/components/workspace/stat-card";
 import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
 import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
 import { Button } from "@/shared/components/ui/button";
+import { Spinner } from "@/shared/components/ui/spinner";
 
 type Row = {
   id: string;
@@ -27,62 +30,66 @@ type Row = {
   status: string;
 };
 
-const MOCK: Row[] = [
-  {
-    id: "1",
-    productName: "iPhone 16 Pro Max",
-    variantSku: "APL-IPH16PM-256-BLK",
-    baseCostPrice: 89000,
-    sellingPrice: 119900,
-    promotionalPrice: 114900,
-    wholesalePrice: 109900,
-    profitMargin: 25.8,
-    currency: "USD",
-    pricingRule: "fixed",
-    status: "active",
-  },
-  {
-    id: "2",
-    productName: "Galaxy S24 Ultra",
-    variantSku: "SAM-S24U-512-TIT",
-    baseCostPrice: 78000,
-    sellingPrice: 109900,
-    wholesalePrice: 99900,
-    profitMargin: 29.0,
-    currency: "USD",
-    pricingRule: "supplier_based",
-    status: "active",
-  },
-  {
-    id: "3",
-    productName: "MacBook Pro 14 M3",
-    variantSku: "APL-MBP14M3-16-SLV",
-    baseCostPrice: 145000,
-    sellingPrice: 199900,
-    promotionalPrice: 189900,
-    wholesalePrice: 184900,
-    profitMargin: 27.5,
-    currency: "USD",
-    pricingRule: "percentage",
-    status: "inactive",
-  },
-];
-
 export default function PricingPage(): React.ReactElement {
   const router = useRouter();
   const [search, setSearch] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState("all");
   const [page, setPage] = React.useState(1);
+  const [loading, setLoading] = React.useState(true);
+  const [rows, setRows] = React.useState<Row[]>([]);
+  const [totalCount, setTotalCount] = React.useState(0);
+  const pageSize = 10;
 
-  const filtered = MOCK.filter((item) => {
+  const load = React.useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await listPricingAction({
+        page,
+        limit: pageSize,
+        status: statusFilter === "all" ? undefined : statusFilter,
+      });
+      if (res.success && res.data) {
+        const d = res.data as any;
+        const items: Row[] = (d.items ?? []).map((p: any) => ({
+          id: p.id,
+          productName: p.productName ?? p.productId?.title ?? "",
+          variantSku: p.variantSku ?? "",
+          baseCostPrice: p.baseCostPrice ?? 0,
+          sellingPrice: p.sellingPrice ?? 0,
+          promotionalPrice: p.promotionalPrice,
+          wholesalePrice: p.wholesalePrice ?? 0,
+          profitMargin: p.profitMargin ?? 0,
+          currency: p.currency ?? "USD",
+          pricingRule: p.pricingRule ?? "fixed",
+          status: p.status ?? "inactive",
+        }));
+        setRows(items);
+        setTotalCount(d.totalCount ?? items.length);
+      }
+    } catch {
+      toast.error("Failed to load pricing data");
+    } finally {
+      setLoading(false);
+    }
+  }, [page, statusFilter]);
+
+  React.useEffect(() => {
+    load();
+  }, [load]);
+
+  const filtered = React.useMemo(() => {
+    if (!search.trim()) return rows;
     const q = search.toLowerCase();
-    const match =
-      item.productName.toLowerCase().includes(q) || item.variantSku.toLowerCase().includes(q);
-    return match && (statusFilter === "all" || item.status === statusFilter);
-  });
+    return rows.filter(
+      (r) =>
+        r.productName.toLowerCase().includes(q) || r.variantSku.toLowerCase().includes(q),
+    );
+  }, [rows, search]);
 
   const avgMargin =
-    MOCK.length > 0 ? (MOCK.reduce((s, p) => s + p.profitMargin, 0) / MOCK.length).toFixed(1) : "0";
+    rows.length > 0
+      ? (rows.reduce((s, p) => s + p.profitMargin, 0) / rows.length).toFixed(1)
+      : "0";
 
   const columns: DataTableColumn<Row>[] = [
     {
@@ -179,20 +186,26 @@ export default function PricingPage(): React.ReactElement {
         ),
       }}
       stats={
-        <>
-          <StatCard label="Priced SKUs" value={MOCK.length} icon={DollarSign} />
-          <StatCard label="Avg margin" value={`${avgMargin}%`} accent="success" icon={TrendingUp} />
-          <StatCard
-            label="Active promos"
-            value={MOCK.filter((p) => p.promotionalPrice).length}
-            accent="warning"
-          />
-          <StatCard
-            label="Active"
-            value={MOCK.filter((p) => p.status === "active").length}
-            accent="info"
-          />
-        </>
+        loading ? (
+          <div className="col-span-4 flex items-center gap-2 text-sm text-muted-foreground">
+            <Spinner size="sm" /> Loading…
+          </div>
+        ) : (
+          <>
+            <StatCard label="Priced SKUs" value={totalCount} icon={DollarSign} />
+            <StatCard label="Avg margin" value={`${avgMargin}%`} accent="success" icon={TrendingUp} />
+            <StatCard
+              label="Active promos"
+              value={rows.filter((p) => p.promotionalPrice).length}
+              accent="warning"
+            />
+            <StatCard
+              label="Active"
+              value={rows.filter((p) => p.status === "active").length}
+              accent="info"
+            />
+          </>
+        )
       }
       toolbar={
         <Toolbar
@@ -200,13 +213,13 @@ export default function PricingPage(): React.ReactElement {
             <>
               <SearchBox
                 value={search}
-                onChange={setSearch}
+                onChange={(v) => { setSearch(v); setPage(1); }}
                 placeholder="Search product or SKU…"
                 className="w-full sm:w-72"
               />
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
                 className="h-9 rounded-md border border-input bg-card px-3 text-sm"
               >
                 <option value="all">All status</option>
@@ -221,11 +234,14 @@ export default function PricingPage(): React.ReactElement {
       <DataTable
         columns={columns}
         data={filtered}
+        loading={loading}
         page={page}
-        pageSize={10}
-        totalCount={filtered.length}
+        pageSize={pageSize}
+        totalCount={totalCount}
         onPageChange={setPage}
         onRowClick={(r) => router.push(`/dashboard/pricing/${r.id}`)}
+        emptyTitle="No pricing records"
+        emptyDescription="Add pricing to your products to see them here."
       />
     </ListLayout>
   );

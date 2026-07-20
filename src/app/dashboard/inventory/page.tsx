@@ -3,6 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { Plus, Warehouse, AlertTriangle, History, SlidersHorizontal, Package } from "lucide-react";
+import { toast } from "sonner";
+import { listInventoryAction, getInventoryDashboardAction } from "@/features/inventory/actions/inventory-actions";
 import { ListLayout } from "@/shared/components/workspace/list-layout";
 import { Toolbar } from "@/shared/components/workspace/toolbar";
 import { SearchBox } from "@/shared/components/workspace/search-box";
@@ -10,6 +12,7 @@ import { StatCard } from "@/shared/components/workspace/stat-card";
 import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
 import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
 import { Button } from "@/shared/components/ui/button";
+import { Spinner } from "@/shared/components/ui/spinner";
 
 type Row = {
   id: string;
@@ -22,60 +25,74 @@ type Row = {
   availability: string;
 };
 
-const MOCK: Row[] = [
-  {
-    id: "1",
-    productName: "iPhone 16 Pro Max",
-    variantSku: "APL-IPH16PM-256-BLK",
-    availableStock: 42,
-    reservedStock: 8,
-    incomingStock: 20,
-    reorderLevel: 15,
-    availability: "in_stock",
-  },
-  {
-    id: "2",
-    productName: "Galaxy S24 Ultra",
-    variantSku: "SAM-S24U-512-TIT",
-    availableStock: 7,
-    reservedStock: 2,
-    incomingStock: 50,
-    reorderLevel: 12,
-    availability: "low_stock",
-  },
-  {
-    id: "3",
-    productName: "MacBook Pro 14 M3",
-    variantSku: "APL-MBP14M3-16-SLV",
-    availableStock: 0,
-    reservedStock: 0,
-    incomingStock: 12,
-    reorderLevel: 8,
-    availability: "backorder",
-  },
-  {
-    id: "4",
-    productName: "AirPods Pro 2",
-    variantSku: "APL-APP2-USB-C",
-    availableStock: 0,
-    reservedStock: 0,
-    incomingStock: 0,
-    reorderLevel: 25,
-    availability: "out_of_stock",
-  },
-];
-
 export default function InventoryPage(): React.ReactElement {
   const [search, setSearch] = React.useState("");
   const [availability, setAvailability] = React.useState("all");
   const [page, setPage] = React.useState(1);
+  const [loading, setLoading] = React.useState(true);
+  const [allRows, setAllRows] = React.useState<Row[]>([]);
+  const [totalCount, setTotalCount] = React.useState(0);
+  const [dashboard, setDashboard] = React.useState({ totalSkus: 0, inStock: 0, lowStock: 0, outOfStock: 0 });
+  const pageSize = 10;
 
-  const filtered = MOCK.filter((item) => {
+  const load = React.useCallback(async () => {
+    setLoading(true);
+    try {
+      const [listRes, dashRes] = await Promise.allSettled([
+        listInventoryAction({
+          page: 1,
+          limit: 100,
+          availability: availability === "all" ? undefined : availability,
+        }),
+        getInventoryDashboardAction(),
+      ]);
+
+      if (listRes.status === "fulfilled" && listRes.value.success) {
+        const d = listRes.value.data as any;
+        const items: Row[] = (d.items ?? []).map((i: any) => ({
+          id: i.id,
+          productName: i.productName ?? i.productId?.title ?? "",
+          variantSku: i.variantSku ?? "",
+          availableStock: i.availableStock ?? 0,
+          reservedStock: i.reservedStock ?? 0,
+          incomingStock: i.incomingStock ?? 0,
+          reorderLevel: i.reorderLevel ?? 0,
+          availability: i.availability ?? "unknown",
+        }));
+        setAllRows(items);
+        setTotalCount(d.totalCount ?? items.length);
+      }
+
+      if (dashRes.status === "fulfilled" && dashRes.value.success) {
+        const d = dashRes.value.data as any;
+        setDashboard({
+          totalSkus: d?.totalSkus ?? 0,
+          inStock: d?.inStock ?? 0,
+          lowStock: d?.lowStock ?? 0,
+          outOfStock: d?.outOfStock ?? 0,
+        });
+      }
+    } catch {
+      toast.error("Failed to load inventory");
+    } finally {
+      setLoading(false);
+    }
+  }, [availability]);
+
+  React.useEffect(() => {
+    load();
+  }, [load]);
+
+  const filtered = React.useMemo(() => {
+    if (!search.trim()) return allRows;
     const q = search.toLowerCase();
-    const match =
-      item.productName.toLowerCase().includes(q) || item.variantSku.toLowerCase().includes(q);
-    return match && (availability === "all" || item.availability === availability);
-  });
+    return allRows.filter(
+      (r) =>
+        r.productName.toLowerCase().includes(q) || r.variantSku.toLowerCase().includes(q),
+    );
+  }, [allRows, search]);
+
+  const totalFiltered = search.trim() ? filtered.length : totalCount;
 
   const columns: DataTableColumn<Row>[] = [
     {
@@ -163,29 +180,18 @@ export default function InventoryPage(): React.ReactElement {
         ),
       }}
       stats={
-        <>
-          <StatCard label="SKUs" value={MOCK.length} icon={Package} />
-          <StatCard
-            label="In stock"
-            value={MOCK.filter((i) => i.availability === "in_stock").length}
-            accent="success"
-            icon={Warehouse}
-          />
-          <StatCard
-            label="Low stock"
-            value={MOCK.filter((i) => i.availability === "low_stock").length}
-            accent="warning"
-          />
-          <StatCard
-            label="Out of stock"
-            value={
-              MOCK.filter((i) =>
-                ["out_of_stock", "backorder", "pre_order"].includes(i.availability),
-              ).length
-            }
-            accent="danger"
-          />
-        </>
+        loading ? (
+          <div className="col-span-4 flex items-center gap-2 text-sm text-muted-foreground">
+            <Spinner size="sm" /> Loading…
+          </div>
+        ) : (
+          <>
+            <StatCard label="SKUs" value={dashboard.totalSkus} icon={Package} />
+            <StatCard label="In stock" value={dashboard.inStock} accent="success" icon={Warehouse} />
+            <StatCard label="Low stock" value={dashboard.lowStock} accent="warning" />
+            <StatCard label="Out of stock" value={dashboard.outOfStock} accent="danger" />
+          </>
+        )
       }
       toolbar={
         <Toolbar
@@ -193,13 +199,13 @@ export default function InventoryPage(): React.ReactElement {
             <>
               <SearchBox
                 value={search}
-                onChange={setSearch}
+                onChange={(v) => { setSearch(v); setPage(1); }}
                 placeholder="Search product or SKU…"
                 className="w-full sm:w-72"
               />
               <select
                 value={availability}
-                onChange={(e) => setAvailability(e.target.value)}
+                onChange={(e) => { setAvailability(e.target.value); setPage(1); }}
                 className="h-9 rounded-md border border-input bg-card px-3 text-sm"
               >
                 <option value="all">All availability</option>
@@ -216,10 +222,13 @@ export default function InventoryPage(): React.ReactElement {
       <DataTable
         columns={columns}
         data={filtered}
+        loading={loading}
         page={page}
-        pageSize={10}
-        totalCount={filtered.length}
+        pageSize={pageSize}
+        totalCount={totalFiltered}
         onPageChange={setPage}
+        emptyTitle="No inventory records"
+        emptyDescription="Add stock to your products to see them here."
       />
     </ListLayout>
   );

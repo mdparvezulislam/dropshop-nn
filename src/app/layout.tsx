@@ -23,6 +23,13 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  if (typeof window === "undefined") {
+    // Trigger platform bootstrap eagerly on server
+    import("@/shared/platform/bootstrap-server").then(({ ensurePlatformInitialized }) => {
+      ensurePlatformInitialized().catch(() => {});
+    });
+  }
+
   return (
     <html
       lang="en"

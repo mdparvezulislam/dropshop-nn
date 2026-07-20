@@ -5,19 +5,33 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, ChevronsLeft, ChevronsRight, Search, Star, Clock } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
-import { WORKSPACE_NAV, type NavItem } from "./nav-config";
+import { WORKSPACE_NAV, type NavItem, type NavSection } from "./nav-config";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
+import { usePermissions } from "@/shared/hooks/use-permissions";
+import { WorkspaceSwitcher } from "./workspace-switcher";
+import type { WorkspaceDefinition } from "@/shared/platform/platform-types";
+
+const DEFAULT_WORKSPACES: WorkspaceDefinition[] = [
+  { id: "admin", label: "Admin", description: "Full platform control", icon: "admin", roles: ["super_admin", "admin", "manager"], href: "/dashboard" },
+  { id: "reseller", label: "Reseller", description: "Private catalog & orders", icon: "reseller", roles: ["reseller"], href: "/dashboard" },
+  { id: "wholesaler", label: "Wholesaler", description: "Wholesale pricing & MOQ", icon: "wholesaler", roles: ["wholesaler"], href: "/dashboard" },
+  { id: "supplier", label: "Supplier", description: "Product & inventory access", icon: "supplier", roles: ["supplier"], href: "/dashboard" },
+  { id: "customer", label: "Customer", description: "Order & profile access", icon: "customer", roles: ["customer"], href: "/dashboard" },
+];
 
 export interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
   mobileOpen?: boolean;
   onMobileClose?: () => void;
+  nav?: NavSection[];
+  workspaceLabel?: string;
+  workspaceIcon?: React.ReactNode;
 }
 
 function isActivePath(pathname: string, href?: string): boolean {
@@ -36,14 +50,26 @@ export function Sidebar({
   onToggle,
   mobileOpen,
   onMobileClose,
+  nav,
+  workspaceLabel,
+  workspaceIcon,
 }: SidebarProps): React.ReactElement {
   const pathname = usePathname();
+  const { hasPermission, hasAnyRole, userRole } = usePermissions();
   const [query, setQuery] = React.useState("");
   const [openGroups, setOpenGroups] = React.useState<Record<string, boolean>>({});
+  const navConfig = nav ?? WORKSPACE_NAV;
+
+  const accessibleWorkspaces = DEFAULT_WORKSPACES.filter((ws) =>
+    ws.roles.some((r) => hasAnyRole([r]) || userRole === r),
+  );
+  const currentWorkspace = accessibleWorkspaces.find((ws) =>
+    ws.roles.includes(userRole ?? ""),
+  ) ?? accessibleWorkspaces[0];
 
   React.useEffect(() => {
     const next: Record<string, boolean> = {};
-    for (const section of WORKSPACE_NAV) {
+    for (const section of navConfig) {
       for (const item of section.items) {
         if (item.children && itemIsActive(pathname, item)) {
           next[item.label] = true;
@@ -77,14 +103,14 @@ export function Sidebar({
           onClick={onMobileClose}
         >
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm shadow-glow">
-            D
+            {workspaceIcon ?? "D"}
           </div>
           {!collapsed ? (
             <div className="min-w-0">
               <div className="text-sm font-semibold tracking-tight text-white truncate">
-                Dropshop<span className="text-sidebar-accent">NN</span>
+                {workspaceLabel ?? <>Dropshop<span className="text-sidebar-accent">NN</span></>}
               </div>
-              <div className="text-[10px] text-sidebar-foreground/60 truncate">Commerce OS</div>
+              <div className="text-[10px] text-sidebar-foreground/60 truncate">{workspaceLabel ? "Reseller Portal" : "Commerce OS"}</div>
             </div>
           ) : null}
         </Link>
@@ -144,9 +170,20 @@ export function Sidebar({
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto ws-scroll px-2 py-3 space-y-4">
         <TooltipProvider delayDuration={0}>
-          {WORKSPACE_NAV.map((section) => {
+          {navConfig.map((section) => {
+            function itemHasAccess(i: NavItem): boolean {
+              if (i.permission && !hasPermission(i.permission)) return false;
+              if (i.anyPermission && !i.anyPermission.some((p) => hasPermission(p))) return false;
+              if (i.children) {
+                const visibleChildren = i.children.filter(
+                  (c) => !c.permission || hasPermission(c.permission),
+                );
+                if (visibleChildren.length === 0) return false;
+              }
+              return true;
+            }
             const visibleItems = section.items.filter(
-              (item) => filterMatch(item.label) || item.children?.some((c) => filterMatch(c.label)),
+              (item) => itemHasAccess(item) && (filterMatch(item.label) || item.children?.some((c) => filterMatch(c.label))),
             );
             if (visibleItems.length === 0) return null;
 
@@ -251,7 +288,7 @@ export function Sidebar({
                         {!collapsed && open && item.children ? (
                           <ul className="mt-0.5 ml-3 border-l border-sidebar-border pl-2 space-y-0.5">
                             {item.children
-                              .filter((c) => filterMatch(c.label) || filterMatch(item.label))
+                              .filter((c) => (!c.permission || hasPermission(c.permission)) && (filterMatch(c.label) || filterMatch(item.label)))
                               .map((child) => {
                                 const childActive = isActivePath(pathname, child.href);
                                 return (
@@ -291,15 +328,23 @@ export function Sidebar({
         </TooltipProvider>
       </nav>
 
-      {/* Footer */}
+      {/* Footer / Workspace Switcher */}
       <div className="border-t border-sidebar-border p-3 shrink-0">
-        {!collapsed ? (
-          <div className="rounded-lg border border-sidebar-border bg-sidebar-muted/60 px-3 py-2.5">
-            <p className="text-[11px] font-medium text-white">Workspace</p>
-            <p className="text-[10px] text-sidebar-foreground/50 truncate">DropshopNN Production</p>
-          </div>
+        {accessibleWorkspaces.length > 1 ? (
+          <WorkspaceSwitcher
+            workspaces={accessibleWorkspaces}
+            currentWorkspace={currentWorkspace}
+            collapsed={collapsed}
+          />
         ) : (
-          <div className="mx-auto h-2 w-2 rounded-full bg-success" title="Online" />
+          !collapsed ? (
+            <div className="rounded-lg border border-sidebar-border bg-sidebar-muted/60 px-3 py-2.5">
+              <p className="text-[11px] font-medium text-white">{currentWorkspace?.label ?? "Workspace"}</p>
+              <p className="text-[10px] text-sidebar-foreground/50 truncate">{currentWorkspace?.description ?? "DropshopNN"}</p>
+            </div>
+          ) : (
+            <div className="mx-auto h-2 w-2 rounded-full bg-success" title="Online" />
+          )
         )}
       </div>
     </div>

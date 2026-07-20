@@ -107,7 +107,7 @@ export const DEFAULT_FEATURE_FLAGS: FeatureFlagDefinition[] = [
     key: "supplier-portal",
     name: "Supplier Portal",
     description: "Self-service supplier portal",
-    defaultState: "off",
+    defaultState: "on",
   },
 ];
 
