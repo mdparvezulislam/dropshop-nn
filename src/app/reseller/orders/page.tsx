@@ -3,18 +3,15 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, ShoppingCart, Eye, Clock, CheckCircle2, Search } from "lucide-react";
+import { Plus, ShoppingCart, Eye, Clock, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { listOrdersAction } from "@/features/order/actions/order-actions";
 import { getHumanLabel } from "@/features/order/domain/state-machine";
-import { ListLayout } from "@/shared/components/workspace/list-layout";
-import { Toolbar } from "@/shared/components/workspace/toolbar";
-import { SearchBox } from "@/shared/components/workspace/search-box";
+import { ResourceListPage } from "@/shared/components/workspace/resource-list-page";
 import { StatCard } from "@/shared/components/workspace/stat-card";
 import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
 import { Button } from "@/shared/components/ui/button";
-import { Spinner } from "@/shared/components/ui/spinner";
+import type { DataTableColumn } from "@/shared/components/ui/data-table";
 
 type Row = {
   id: string;
@@ -110,14 +107,14 @@ export default function ResellerOrdersPage(): React.ReactElement {
       id: "profit",
       header: "Profit",
       hideOnMobile: true,
-      cell: (r) => (
-        <span className="tabular-nums text-success">{formatCents(r.profitTotal)}</span>
-      ),
+      cell: (r) => <span className="tabular-nums text-success">{formatCents(r.profitTotal)}</span>,
     },
     {
       id: "status",
       header: "Status",
-      cell: (r) => <StatusChip label={getHumanLabel(r.status as any)} tone={statusToneFromValue(r.status)} />,
+      cell: (r) => (
+        <StatusChip label={getHumanLabel(r.status as any)} tone={statusToneFromValue(r.status)} />
+      ),
     },
     {
       id: "actions",
@@ -136,74 +133,82 @@ export default function ResellerOrdersPage(): React.ReactElement {
   ];
 
   return (
-    <ListLayout
-      header={{
-        title: "My Orders",
-        description: "Track your orders, delivery status, and profit",
-        actions: (
-          <Link href="/reseller/orders/create">
-            <Button className="gap-1.5">
-              <Plus className="h-4 w-4" /> New Order
-            </Button>
-          </Link>
-        ),
+    <ResourceListPage
+      title="My Orders"
+      description="Track your orders, delivery status, and profit"
+      actions={
+        <Link href="/reseller/orders/create">
+          <Button className="gap-1.5">
+            <Plus className="h-4 w-4" /> New Order
+          </Button>
+        </Link>
+      }
+      search={{
+        value: search,
+        onChange: (v) => {
+          setSearch(v);
+          setPage(1);
+        },
+        placeholder: "Search order number or phone…",
       }}
+      toolbarLeft={
+        <select
+          value={statusFilter}
+          onChange={(e) => {
+            setStatusFilter(e.target.value);
+            setPage(1);
+          }}
+          className="h-9 rounded-md border border-input bg-card px-3 text-sm"
+        >
+          <option value="all">All status</option>
+          <option value="draft">Draft</option>
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="packed">Packed</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      }
       stats={
-        loading ? (
-          <div className="col-span-4 flex items-center gap-2 text-sm text-muted-foreground">
-            <Spinner size="sm" /> Loading…
-          </div>
-        ) : (
+        loading ? undefined : (
           <>
             <StatCard label="Total" value={totalCount} icon={ShoppingCart} />
-            <StatCard label="Active" value={rows.filter((r) => !["completed", "cancelled", "delivered", "failed"].includes(r.status)).length} icon={Clock} accent="warning" />
-            <StatCard label="Completed" value={rows.filter((r) => r.status === "completed").length} icon={CheckCircle2} accent="success" />
-            <StatCard label="Total Profit" value={formatCents(rows.reduce((s, r) => s + r.profitTotal, 0))} accent="info" />
+            <StatCard
+              label="Active"
+              value={
+                rows.filter(
+                  (r) => !["completed", "cancelled", "delivered", "failed"].includes(r.status),
+                ).length
+              }
+              icon={Clock}
+              accent="warning"
+            />
+            <StatCard
+              label="Completed"
+              value={rows.filter((r) => r.status === "completed").length}
+              icon={CheckCircle2}
+              accent="success"
+            />
+            <StatCard
+              label="Total Profit"
+              value={formatCents(rows.reduce((s, r) => s + r.profitTotal, 0))}
+              accent="info"
+            />
           </>
         )
       }
-      toolbar={
-        <Toolbar
-          left={
-            <>
-              <SearchBox
-                value={search}
-                onChange={(v) => { setSearch(v); setPage(1); }}
-                placeholder="Search order number or phone…"
-                className="w-full sm:w-72"
-              />
-              <select
-                value={statusFilter}
-                onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                className="h-9 rounded-md border border-input bg-card px-3 text-sm"
-              >
-                <option value="all">All status</option>
-                <option value="draft">Draft</option>
-                <option value="pending">Pending</option>
-                <option value="confirmed">Confirmed</option>
-                <option value="packed">Packed</option>
-                <option value="shipped">Shipped</option>
-                <option value="delivered">Delivered</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-            </>
-          }
-        />
-      }
-    >
-      <DataTable
-        columns={columns}
-        data={rows}
-        loading={loading}
-        page={page}
-        pageSize={pageSize}
-        totalCount={totalCount}
-        onPageChange={setPage}
-        onRowClick={(r) => router.push(`/reseller/orders/${r.id}`)}
-        emptyTitle="No orders yet"
-        emptyDescription="Create your first order to get started."
-      />
-    </ListLayout>
+      columns={columns}
+      data={rows}
+      loading={loading}
+      page={page}
+      pageSize={pageSize}
+      totalCount={totalCount}
+      onPageChange={setPage}
+      onRowClick={(r) => router.push(`/reseller/orders/${r.id}`)}
+      emptyTitle="No orders yet"
+      emptyDescription="Create your first order to get started."
+    />
   );
 }

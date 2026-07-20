@@ -5,13 +5,10 @@ import Link from "next/link";
 import { Heart, Download, Package } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/shared/utils/cn";
-import { ListLayout } from "@/shared/components/workspace/list-layout";
-import { Toolbar } from "@/shared/components/workspace/toolbar";
-import { SearchBox } from "@/shared/components/workspace/search-box";
+import { ResourceListPage } from "@/shared/components/workspace/resource-list-page";
 import { StatCard } from "@/shared/components/workspace/stat-card";
 import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
-import { Spinner } from "@/shared/components/ui/spinner";
+import type { DataTableColumn } from "@/shared/components/ui/data-table";
 
 type Row = {
   id: string;
@@ -78,9 +75,7 @@ export default function ResellerProductsPage(): React.ReactElement {
         "@/features/reseller/actions/reseller-actions"
       );
       await favoriteResellerProductAction(id, isFavorite);
-      setRows((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, isFavorite } : r)),
-      );
+      setRows((prev) => prev.map((r) => (r.id === id ? { ...r, isFavorite } : r)));
       toast.success(isFavorite ? "Added to favorites" : "Removed from favorites");
     } catch {
       toast.error("Failed to update favorite");
@@ -162,49 +157,49 @@ export default function ResellerProductsPage(): React.ReactElement {
   ];
 
   return (
-    <ListLayout
-      header={{
-        title: "My Products",
-        description: "Browse your catalog with reseller pricing and stock",
+    <ResourceListPage
+      title="My Products"
+      description="Browse your catalog with reseller pricing and stock"
+      search={{
+        value: search,
+        onChange: (v) => {
+          setSearch(v);
+          setPage(1);
+        },
+        placeholder: "Search products…",
       }}
       stats={
-        loading ? (
-          <div className="col-span-4 flex items-center gap-2 text-sm text-muted-foreground">
-            <Spinner size="sm" /> Loading…
-          </div>
-        ) : (
+        loading ? undefined : (
           <>
             <StatCard label="Total" value={totalCount} icon={Package} />
-            <StatCard label="Active" value={rows.filter((r) => r.status === "active").length} accent="success" />
-            <StatCard label="Favorites" value={rows.filter((r) => r.isFavorite).length} icon={Heart} accent="warning" />
-            <StatCard label="Drafts" value={rows.filter((r) => r.status === "draft").length} accent="info" />
+            <StatCard
+              label="Active"
+              value={rows.filter((r) => r.status === "active").length}
+              accent="success"
+            />
+            <StatCard
+              label="Favorites"
+              value={rows.filter((r) => r.isFavorite).length}
+              icon={Heart}
+              accent="warning"
+            />
+            <StatCard
+              label="Drafts"
+              value={rows.filter((r) => r.status === "draft").length}
+              accent="info"
+            />
           </>
         )
       }
-      toolbar={
-        <Toolbar
-          left={
-            <SearchBox
-              value={search}
-              onChange={(v) => { setSearch(v); setPage(1); }}
-              placeholder="Search products…"
-              className="w-full sm:w-72"
-            />
-          }
-        />
-      }
-    >
-      <DataTable
-        columns={columns}
-        data={rows}
-        loading={loading}
-        page={page}
-        pageSize={pageSize}
-        totalCount={totalCount}
-        onPageChange={setPage}
-        emptyTitle="No products in your catalog"
-        emptyDescription="Contact the admin to assign products to your reseller catalog."
-      />
-    </ListLayout>
+      columns={columns}
+      data={rows}
+      loading={loading}
+      page={page}
+      pageSize={pageSize}
+      totalCount={totalCount}
+      onPageChange={setPage}
+      emptyTitle="No products in your catalog"
+      emptyDescription="Contact the admin to assign products to your reseller catalog."
+    />
   );
 }

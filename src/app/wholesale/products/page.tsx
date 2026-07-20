@@ -2,17 +2,14 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Package, Search, Tag, Layers, Eye } from "lucide-react";
+import { Package, Tag, Layers, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { listProductsAction } from "@/features/catalog/actions/product-actions";
 import { listCategoriesAction } from "@/features/catalog/actions/classification-actions";
-import { ListLayout } from "@/shared/components/workspace/list-layout";
-import { Toolbar } from "@/shared/components/workspace/toolbar";
-import { SearchBox } from "@/shared/components/workspace/search-box";
+import { ResourceListPage } from "@/shared/components/workspace/resource-list-page";
 import { StatCard } from "@/shared/components/workspace/stat-card";
 import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
-import { Spinner } from "@/shared/components/ui/spinner";
+import type { DataTableColumn } from "@/shared/components/ui/data-table";
 import { cn } from "@/shared/utils/cn";
 
 type Row = {
@@ -70,7 +67,9 @@ export default function WholesaleProductsPage(): React.ReactElement {
     }
   }, [search]);
 
-  React.useEffect(() => { load(); }, [load]);
+  React.useEffect(() => {
+    load();
+  }, [load]);
 
   const formatCents = (cents: number): string =>
     `৳${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
@@ -95,7 +94,11 @@ export default function WholesaleProductsPage(): React.ReactElement {
     {
       id: "price",
       header: "Wholesale Price",
-      cell: (r) => <span className="font-semibold tabular-nums text-success">{formatCents(r.wholesalePrice)}</span>,
+      cell: (r) => (
+        <span className="font-semibold tabular-nums text-success">
+          {formatCents(r.wholesalePrice)}
+        </span>
+      ),
     },
     {
       id: "moq",
@@ -107,10 +110,16 @@ export default function WholesaleProductsPage(): React.ReactElement {
       id: "stock",
       header: "Stock",
       cell: (r) => (
-        <span className={cn(
-          "tabular-nums",
-          r.stock <= 0 ? "text-destructive" : r.stock < 10 ? "text-warning" : "text-muted-foreground",
-        )}>
+        <span
+          className={cn(
+            "tabular-nums",
+            r.stock <= 0
+              ? "text-destructive"
+              : r.stock < 10
+                ? "text-warning"
+                : "text-muted-foreground",
+          )}
+        >
           {r.stock}
         </span>
       ),
@@ -137,45 +146,42 @@ export default function WholesaleProductsPage(): React.ReactElement {
   ];
 
   return (
-    <ListLayout
-      header={{
-        title: "Products",
-        description: "Browse wholesale products with tier pricing and MOQ",
+    <ResourceListPage
+      title="Products"
+      description="Browse wholesale products with tier pricing and MOQ"
+      search={{
+        value: search,
+        onChange: setSearch,
+        placeholder: "Search products…",
       }}
       stats={
-        loading ? (
-          <div className="col-span-4 flex items-center gap-2 text-sm text-muted-foreground">
-            <Spinner size="sm" /> Loading…
-          </div>
-        ) : (
+        loading ? undefined : (
           <>
             <StatCard label="Total Products" value={totalCount} icon={Package} />
-            <StatCard label="In Stock" value={rows.filter((r) => r.stock > 0).length} icon={Layers} accent="success" />
-            <StatCard label="Low Stock" value={rows.filter((r) => r.stock > 0 && r.stock < 10).length} icon={Tag} accent="warning" />
+            <StatCard
+              label="In Stock"
+              value={rows.filter((r) => r.stock > 0).length}
+              icon={Layers}
+              accent="success"
+            />
+            <StatCard
+              label="Low Stock"
+              value={rows.filter((r) => r.stock > 0 && r.stock < 10).length}
+              icon={Tag}
+              accent="warning"
+            />
           </>
         )
       }
-      toolbar={
-        <Toolbar
-          left={
-            <SearchBox
-              value={search}
-              onChange={(v) => { setSearch(v); }}
-              placeholder="Search products…"
-              className="w-full sm:w-72"
-            />
-          }
-        />
-      }
-    >
-      <DataTable
-        columns={columns}
-        data={rows}
-        loading={loading}
-        onRowClick={(r) => window.location.href = `/wholesale/products/${r.id}`}
-        emptyTitle="No products available"
-        emptyDescription="Products will appear here when they are published."
-      />
-    </ListLayout>
+      columns={columns}
+      data={rows}
+      loading={loading}
+      totalCount={totalCount}
+      onRowClick={(r) => {
+        window.location.href = `/wholesale/products/${r.id}`;
+      }}
+      emptyTitle="No products available"
+      emptyDescription="Products will appear here when they are published."
+    />
   );
 }

@@ -11,7 +11,10 @@ import {
   Image,
   PlusCircle,
 } from "lucide-react";
-import type { NavSection } from "@/shared/components/workspace/nav-config";
+import {
+  getWorkspaceBreadcrumbs,
+  type NavSection,
+} from "@/shared/components/workspace/nav-config";
 
 export const RESELLER_NAV: NavSection[] = [
   {
@@ -85,35 +88,20 @@ export const RESELLER_NAV: NavSection[] = [
 ];
 
 export function getResellerBreadcrumbs(pathname: string): { label: string; href?: string }[] {
-  const crumbs: { label: string; href?: string }[] = [{ label: "Reseller", href: "/reseller" }];
-  if (pathname === "/reseller") return crumbs;
-
-  const map: Record<string, string> = {
-    products: "Products",
-    "marketing-kit": "Marketing Kit",
-    orders: "Orders",
-    create: "Create Order",
-    customers: "Customers",
-    wallet: "Wallet",
-    withdraw: "Withdraw",
-    reports: "Reports",
-    settings: "Shop Settings",
-  };
-
-  const parts = pathname.replace(/^\//, "").split("/").filter(Boolean);
-  let acc = "";
-  for (const part of parts) {
-    acc += `/${part}`;
-    if (part === "reseller") continue;
-    if (/^[0-9a-fA-F]{24}$/.test(part) || /^\d+$/.test(part)) {
-      crumbs.push({ label: "Details", href: acc });
-      continue;
-    }
-    crumbs.push({ label: map[part] || part.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()), href: acc });
-  }
-  if (crumbs.length > 1) {
-    const last = crumbs[crumbs.length - 1];
-    crumbs[crumbs.length - 1] = { label: last.label };
-  }
-  return crumbs;
+  return getWorkspaceBreadcrumbs(pathname, {
+    rootLabel: "Reseller",
+    rootHref: "/reseller",
+    skipSegment: "reseller",
+    labelMap: {
+      products: "Products",
+      "marketing-kit": "Marketing Kit",
+      orders: "Orders",
+      create: "Create Order",
+      customers: "Customers",
+      wallet: "Wallet",
+      withdraw: "Withdraw",
+      reports: "Reports",
+      settings: "Shop Settings",
+    },
+  });
 }

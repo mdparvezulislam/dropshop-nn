@@ -1,4 +1,4 @@
-import { roundTo } from "@/shared/utils/number-utils";
+import { ProfitCalculationService } from "@/features/pricing/services/profit-calculation-service";
 import { ResellerPricePreview, ResellerProductPricing } from "../domain/reseller-entity";
 
 export interface ResellerPriceInput {
@@ -12,17 +12,22 @@ export interface ResellerPriceInput {
 }
 
 /**
- * Reseller-specific pricing math. Does NOT mutate master Product or ProductPricing.
+ * Reseller-specific pricing math. Delegates base calculations to ProfitCalculationService.
  * All amounts in integer cents.
  */
 export class ResellerPricingService {
+  private readonly profitService: ProfitCalculationService;
+
+  constructor() {
+    this.profitService = new ProfitCalculationService();
+  }
+
   calculateProfitAmount(sellingPrice: number, costBasis: number): number {
-    return sellingPrice - costBasis;
+    return this.profitService.calculateProfitAmount(sellingPrice, costBasis);
   }
 
   calculateProfitMargin(sellingPrice: number, costBasis: number): number {
-    if (sellingPrice <= 0) return 0;
-    return roundTo(((sellingPrice - costBasis) / sellingPrice) * 100, 2);
+    return this.profitService.calculateProfitMargin(sellingPrice, costBasis);
   }
 
   applyDiscount(
@@ -36,10 +41,15 @@ export class ResellerPricingService {
     if (percentage > 0 && !discountAmount) {
       amount = Math.round(sellingPrice * (percentage / 100));
     } else if (amount > 0 && !discountPercentage) {
-      percentage = sellingPrice > 0 ? roundTo((amount / sellingPrice) * 100, 2) : 0;
+      percentage = sellingPrice > 0 ? Math.round((amount / sellingPrice) * 10000) / 100 : 0;
     }
 
-    const effectivePrice = Math.max(0, sellingPrice - amount);
+    const effectivePrice = this.profitService.resolveEffectiveSellingPrice({
+      sellingPrice,
+      costBasis: 0,
+      discountAmount: amount,
+      discountPercentage: percentage,
+    });
     return { effectivePrice, discountAmount: amount, discountPercentage: percentage };
   }
 

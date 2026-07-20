@@ -184,6 +184,16 @@ export class CheckoutService {
           reservationId: result.reserveId,
           message: result.message,
         });
+      } else {
+        // Soft-pass when inventory record is missing (catalog-only products)
+        reservations.push({
+          productId: item.productId,
+          variantSku: item.variantSku,
+          quantity: item.quantity,
+          available: item.quantity,
+          isValid: true,
+          message: "No inventory record — skipped reservation",
+        });
       }
     }
 

@@ -1,4 +1,5 @@
 import { PricingService } from "@/features/pricing/services/pricing-service";
+import { ProfitCalculationService } from "@/features/pricing/services/profit-calculation-service";
 import { logger } from "@/shared/utils/logger";
 import { NotFoundError } from "@/shared/errors/app-error";
 
@@ -29,9 +30,11 @@ export interface ResolvedPrice {
 
 export class PriceResolutionService {
   private readonly pricingService: PricingService;
+  private readonly profitService: ProfitCalculationService;
 
   constructor() {
     this.pricingService = new PricingService();
+    this.profitService = new ProfitCalculationService();
   }
 
   async resolveSingle(request: PriceResolveRequest): Promise<ResolvedPrice> {
@@ -80,8 +83,8 @@ export class PriceResolutionService {
 
     const costBasis = pricing.baseCostPrice || pricing.purchasePrice || pricing.supplierPrice;
     const totalPrice = unitPrice * request.quantity;
-    const profitAmount = (unitPrice - costBasis) * request.quantity;
-    const profitMargin = costBasis > 0 ? ((unitPrice - costBasis) / costBasis) * 100 : 0;
+    const profitAmount = this.profitService.calculateProfitAmount(unitPrice, costBasis) * request.quantity;
+    const profitMargin = this.profitService.calculateProfitMargin(unitPrice, costBasis);
 
     return {
       productId: request.productId,

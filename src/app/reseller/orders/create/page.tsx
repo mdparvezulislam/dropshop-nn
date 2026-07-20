@@ -28,6 +28,7 @@ import { cn } from "@/shared/utils/cn";
 
 interface OrderLineItem {
   id: string;
+  productId: string;
   productName: string;
   variantSku: string;
   quantity: number;
@@ -112,10 +113,19 @@ export default function CreateOrderPage(): React.ReactElement {
 
   const addItem = (product: any) => {
     const pricing = product.pricing ?? {};
+    const productId =
+      typeof product.productId === "string"
+        ? product.productId
+        : (product.productId?.id ?? product.productId?._id ?? product.id ?? product._id);
+    if (!productId) {
+      toast.error("Product identifier missing");
+      return;
+    }
     const newItem: OrderLineItem = {
-      id: product.id + Date.now(),
-      productName: product.customTitle ?? product.productId?.title ?? "Product",
-      variantSku: product.variantSku ?? product.productId?.sku ?? "",
+      id: String(productId) + Date.now(),
+      productId: String(productId),
+      productName: product.customTitle ?? product.productId?.title ?? product.title ?? "Product",
+      variantSku: product.variantSku ?? product.productId?.sku ?? product.sku ?? "",
       quantity: 1,
       unitPrice: pricing.sellingPrice ?? 0,
       totalPrice: pricing.sellingPrice ?? 0,
@@ -172,41 +182,30 @@ export default function CreateOrderPage(): React.ReactElement {
 
     setSubmitting(true);
     try {
-      const { createOrderFromDraftAction } = await import(
-        "@/features/order/actions/order-actions"
+      const { completeRoleCheckoutAction } = await import(
+        "@/features/checkout/actions/checkout-actions"
       );
-      const res = await createOrderFromDraftAction({
+      const res = await completeRoleCheckoutAction({
         type: "reseller",
+        resellerId: "current",
+        paymentMethod,
+        deliveryCharge,
         customer: {
           name: customer.name,
           phone: customer.phone,
-          address: customer.address,
+          address: customer.address || customer.district,
           district: customer.district,
         },
         items: items.map((i) => ({
-          productName: i.productName,
-          variantSku: i.variantSku,
+          productId: i.productId,
+          variantSku: i.variantSku || undefined,
           quantity: i.quantity,
-          unitPrice: i.unitPrice,
-          totalPrice: i.totalPrice,
+          unitPriceOverride: i.unitPrice,
         })),
-        pricing: {
-          subtotal,
-          deliveryCharge,
-          grandTotal,
-          profitPreview: { totalProfit },
-        },
-        paymentMethod,
-        shippingInfo: {
-          address: customer.address,
-          district: customer.district,
-          courierName: "Standard",
-          deliveryCharge,
-        },
       });
 
       if (res.success) {
-        toast.success("Order created successfully");
+        toast.success("Order created via checkout pipeline");
         router.push("/reseller/orders");
       } else {
         toast.error(res.error ?? "Failed to create order");

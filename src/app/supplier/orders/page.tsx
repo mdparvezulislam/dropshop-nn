@@ -2,16 +2,13 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ShoppingCart, Eye, Search } from "lucide-react";
+import { ShoppingCart, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { listOrdersAction } from "@/features/order/actions/order-actions";
-import { ListLayout } from "@/shared/components/workspace/list-layout";
-import { Toolbar } from "@/shared/components/workspace/toolbar";
-import { SearchBox } from "@/shared/components/workspace/search-box";
+import { ResourceListPage } from "@/shared/components/workspace/resource-list-page";
 import { StatCard } from "@/shared/components/workspace/stat-card";
 import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
-import { Spinner } from "@/shared/components/ui/spinner";
+import type { DataTableColumn } from "@/shared/components/ui/data-table";
 
 type Row = {
   id: string;
@@ -35,15 +32,17 @@ export default function SupplierOrdersPage(): React.ReactElement {
       if (res.success && res.data) {
         const raw = res.data as any;
         const items = raw?.items ?? (Array.isArray(raw) ? raw : []);
-        setRows(items.map((o: any) => ({
-          id: o.id ?? o._id,
-          orderNumber: o.orderNumber ?? o._id?.slice(-6) ?? "—",
-          customer: o.customerName ?? o.customer?.name ?? "—",
-          grandTotal: o.grandTotal ?? o.total ?? 0,
-          status: o.status ?? "pending",
-          tracking: o.trackingNumber ?? o.tracking?.number ?? "",
-          createdAt: o.createdAt,
-        })));
+        setRows(
+          items.map((o: any) => ({
+            id: o.id ?? o._id,
+            orderNumber: o.orderNumber ?? o._id?.slice(-6) ?? "—",
+            customer: o.customerName ?? o.customer?.name ?? "—",
+            grandTotal: o.grandTotal ?? o.total ?? 0,
+            status: o.status ?? "pending",
+            tracking: o.trackingNumber ?? o.tracking?.number ?? "",
+            createdAt: o.createdAt,
+          })),
+        );
       }
     } catch {
       toast.error("Failed to load orders");
@@ -52,7 +51,9 @@ export default function SupplierOrdersPage(): React.ReactElement {
     }
   }, [search]);
 
-  React.useEffect(() => { load(); }, [load]);
+  React.useEffect(() => {
+    load();
+  }, [load]);
 
   const formatCents = (cents: number): string =>
     `৳${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
@@ -67,7 +68,11 @@ export default function SupplierOrdersPage(): React.ReactElement {
       id: "date",
       header: "Date",
       hideOnMobile: true,
-      cell: (r) => <span className="text-muted-foreground">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}</span>,
+      cell: (r) => (
+        <span className="text-muted-foreground">
+          {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}
+        </span>
+      ),
     },
     {
       id: "customer",
@@ -78,12 +83,16 @@ export default function SupplierOrdersPage(): React.ReactElement {
       id: "total",
       header: "Total",
       hideOnMobile: true,
-      cell: (r) => <span className="tabular-nums text-muted-foreground">{formatCents(r.grandTotal)}</span>,
+      cell: (r) => (
+        <span className="tabular-nums text-muted-foreground">{formatCents(r.grandTotal)}</span>
+      ),
     },
     {
       id: "tracking",
       header: "Tracking",
-      cell: (r) => <span className="font-mono text-xs text-muted-foreground">{r.tracking || "—"}</span>,
+      cell: (r) => (
+        <span className="font-mono text-xs text-muted-foreground">{r.tracking || "—"}</span>
+      ),
     },
     {
       id: "status",
@@ -95,7 +104,10 @@ export default function SupplierOrdersPage(): React.ReactElement {
       header: "",
       cell: (r) => (
         <div className="flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-          <Link href={`/supplier/orders/${r.id}`} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted">
+          <Link
+            href={`/supplier/orders/${r.id}`}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted"
+          >
             <Eye className="h-4 w-4" />
           </Link>
         </div>
@@ -104,30 +116,40 @@ export default function SupplierOrdersPage(): React.ReactElement {
   ];
 
   return (
-    <ListLayout
-      header={{ title: "Orders", description: "View and fulfill customer orders" }}
+    <ResourceListPage
+      title="Orders"
+      description="View and fulfill customer orders"
+      search={{
+        value: search,
+        onChange: setSearch,
+        placeholder: "Search orders…",
+      }}
       stats={
-        loading ? (
-          <div className="col-span-4 flex items-center gap-2 text-sm text-muted-foreground"><Spinner size="sm" /> Loading…</div>
-        ) : (
+        loading ? undefined : (
           <>
             <StatCard label="Total Orders" value={rows.length} icon={ShoppingCart} />
-            <StatCard label="Pending" value={rows.filter((r) => !["completed", "cancelled", "delivered", "refunded"].includes(r.status)).length} accent="warning" />
-            <StatCard label="Fulfilled" value={rows.filter((r) => ["completed", "delivered"].includes(r.status)).length} accent="success" />
+            <StatCard
+              label="Pending"
+              value={
+                rows.filter(
+                  (r) => !["completed", "cancelled", "delivered", "refunded"].includes(r.status),
+                ).length
+              }
+              accent="warning"
+            />
+            <StatCard
+              label="Fulfilled"
+              value={rows.filter((r) => ["completed", "delivered"].includes(r.status)).length}
+              accent="success"
+            />
           </>
         )
       }
-      toolbar={
-        <Toolbar left={<SearchBox value={search} onChange={(v) => { setSearch(v); }} placeholder="Search orders…" className="w-full sm:w-72" />} />
-      }
-    >
-      <DataTable
-        columns={columns}
-        data={rows}
-        loading={loading}
-        emptyTitle="No orders yet"
-        emptyDescription="Orders from customers will appear here."
-      />
-    </ListLayout>
+      columns={columns}
+      data={rows}
+      loading={loading}
+      emptyTitle="No orders yet"
+      emptyDescription="Orders from customers will appear here."
+    />
   );
 }

@@ -1,35 +1,35 @@
-# ড্রপশপএনএন (DropshopNN)
+# DropshopNN (ড্রপশপএনএন)
 
-> এন্টারপ্রাইজ কমার্স অপারেটিং সিস্টেম — বাংলাদেশের জন্য তৈরি
+> Enterprise Commerce Operating System — বাংলাদেশের জন্য তৈরি
 
 ---
 
 ## ১. প্রজেক্ট পরিচিতি
 
-**ড্রপশপএনএন** একটি পূর্ণাঙ্গ, এন্টারপ্রাইজ-গ্রেড ড্রপশিপিং ম্যানেজমেন্ট ও লজিস্টিকস অর্কেস্ট্রেশন প্ল্যাটফর্ম। এটি একক জায়গা থেকে পণ্য ক্যাটালগ, ইনভেন্টরি, প্রাইসিং, অর্ডার, কুরিয়ার, ফাইন্যান্স এবং পার্টনার ম্যানেজমেন্ট পরিচালনার জন্য তৈরি।
+**DropshopNN** একটি পূর্ণাঙ্গ, enterprise-grade dropshipping management ও logistics orchestration platform। এটি একক জায়গা থেকে product catalog, inventory, pricing, order, courier, finance এবং partner management পরিচালনার জন্য তৈরি।
 
-### কেন ড্রপশপএনএন?
+### কেন DropshopNN?
 
-বাংলাদেশের ই-কমার্স ইকোসিস্টেমে ড্রপশিপিং ও সম্পূর্ণ সাপ্লাই চেইন ম্যানেজমেন্টের জন্য কোনো ওপেন-সোর্স, এন্টারপ্রাইজ-গ্রেড সমাধান নেই। ড্রপশপএনএন সেই শূন্যস্থান পূরণ করে।
+বাংলাদেশের e-commerce ecosystem-এ dropshipping ও সম্পূর্ণ supply chain management-এর জন্য কোনো open-source, enterprise-grade সমাধান নেই। DropshopNN সেই শূন্যস্থান পূরণ করে।
 
 ### সমস্যা যা সমাধান করে
 
-- ম্যানুয়াল অর্ডার প্রসেসিং ও কুরিয়ার ম্যানেজমেন্টের জটিলতা
-- একাধিক সাপ্লায়ার ও রিসেলার পার্টনারশিপ পরিচালনার অদক্ষতা
-- রিয়েল-টাইম ইনভেন্টরি ও প্রাইসিং সিঙ্ক্রোনাইজেশনের অভাব
-- স্কেলেবল কমার্স অবকাঠামোর অনুপস্থিতি
+- Manual order processing ও courier management-এর জটিলতা
+- একাধিক supplier ও reseller partnership পরিচালনার অদক্ষতা
+- Real-time inventory ও pricing synchronization-এর অভাব
+- Scalable commerce infrastructure-এর অনুপস্থিতি
 
 ### লক্ষ্য ব্যবহারকারী
 
-- ড্রপশিপিং ব্যবসায়ী
-- রিসেলার ও হোলসেল ক্রেতা
-- সরবরাহকারী (সাপ্লায়ার)
-- ই-কমার্স এন্টারপ্রাইজ
-- সাপ্লাই চেইন ম্যানেজার
+- Dropshipping ব্যবসায়ী
+- Reseller ও wholesale ক্রেতা
+- Supplier (সরবরাহকারী)
+- E-commerce enterprise
+- Supply chain manager
 
 ### ব্যবসায়িক লক্ষ্য
 
-একটি পূর্ণাঙ্গ কমার্স অপারেটিং সিস্টেম তৈরি করা যা বাংলাদেশের ই-কমার্স ইকোসিস্টেমের প্রতিটি অংশীদারের জন্য প্রযোজ্য — সরবরাহকারী থেকে শুরু করে শেষ গ্রাহক পর্যন্ত।
+একটি পূর্ণাঙ্গ **Commerce Operating System** তৈরি করা যা বাংলাদেশের e-commerce ecosystem-এর প্রতিটি অংশীদারের জন্য প্রযোজ্য — supplier থেকে শুরু করে end customer পর্যন্ত।
 
 ---
 
@@ -37,405 +37,409 @@
 
 | বৈশিষ্ট্য | বর্ণনা |
 |-----------|--------|
-| **ক্যাটালগ** | পণ্য, ভ্যারিয়েন্ট, মিডিয়া, এসইও, ব্র্যান্ড ও ক্যাটাগরি ম্যানেজমেন্ট |
-| **ইনভেন্টরি** | স্টক লেভেল, রিজার্ভেশন, সাপ্লায়ার স্টক ম্যাপ, মুভমেন্ট হিস্ট্রি |
-| **প্রাইসিং** | খরচ/বিক্রয়/হোলসেল/রিসেলার প্রাইস টিয়ার, প্রফিট ক্যালকুলেশন, রুলস ইঞ্জিন |
-| **ড্রপশিপিং** | অটোমেটেড অর্ডার রাউটিং, সাপ্লায়ার ডিসপ্যাচ, কুরিয়ার ইন্টিগ্রেশন |
-| **রিসেলার** | প্রাইভেট ক্যাটালগ, রিসেলার-অনলি প্রাইসিং, কালেকশন, প্রডাক্ট গ্রুপ |
-| **হোলসেল** | বাল্ক অর্ডারিং, টিয়ার প্রাইসিং, এমওকিউ ম্যানেজমেন্ট, কোটেশন ফ্লো |
-| **সাপ্লায়ার** | অনবোর্ডিং, কন্টাক্টস, ডকুমেন্টস, পারফরমেন্স স্কোরিং, প্রডাক্ট ম্যাপিং |
-| **অর্ডার** | ১৬-স্টেট স্টেট মেশিন, টাইমলাইন, কুরিয়ার অ্যাসাইনমেন্ট, প্রফিট প্রিভিউ |
-| **কুরিয়ার** | স্টিডফাস্ট/পাঠাও/রেডএক্স/ইকুরিয়ার/পেপারফ্লাই অ্যাডাপ্টার সহ ট্র্যাকিং |
-| **ফাইন্যান্স** | ওয়ালেট, লেজার, উইথড্রয়াল, ইনভয়েস, প্রফিট রিলিজ জবস |
-| **গ্রাহক** | প্রোফাইল, ঠিকানা, নোট, ট্যাগ, সার্চ, রিলেশনশিপ টাইমলাইন |
-| **অ্যানালিটিক্স** | সেলস রিপোর্ট, টপ প্রডাক্ট, ইনভেন্টরি সামারি, পারফরমেন্স ড্যাশবোর্ড |
-| **অটোমেশন** | বুলকিউজব ভিত্তিক ব্যাকগ্রাউন্ড জব, ক্যাশ ইনভ্যালিডেশন, ইভেন্ট ড্রিভেন |
-| **রিপোর্ট** | বিক্রয় সারাংশ, লাভ বিশ্লেষণ, পণ্য ও অর্ডার রিপোর্ট |
-| **নোটিফিকেশন** | অর্ডার স্টেটাস আপডেট, কোটেশন রেসপন্স, ইনভয়েস রিমাইন্ডার |
-| **মার্কেটপ্লেস রেডি** | মাল্টি-রোল, মাল্টি-টেনেন্ট, রেস্ট এপিআই ও সার্ভার অ্যাকশন সমর্থন |
+| **Catalog** | Product, variant, media, SEO, brand ও category management |
+| **Inventory** | Stock level, reservation, supplier stock map, movement history |
+| **Pricing** | Cost / sell / wholesale / reseller price tier, profit calculation, rules engine |
+| **Dropshipping** | Automated order routing, supplier dispatch, courier integration |
+| **Reseller** | Private catalog, reseller-only pricing, collection, product group |
+| **Wholesale** | Bulk ordering, tier pricing, MOQ management, quotation flow |
+| **Supplier** | Onboarding, contacts, documents, performance scoring, product mapping |
+| **Order** | 16-state state machine, timeline, courier assignment, profit preview |
+| **Courier** | Steadfast / Pathao / RedX / eCourier / Paperfly adapter সহ tracking |
+| **Finance** | Wallet, ledger, withdrawal, invoice, profit release jobs |
+| **Customer** | Profile, address, note, tag, search, relationship timeline |
+| **Analytics** | Sales report, top product, inventory summary, performance dashboard |
+| **Automation** | BullMQ-based background job, cache invalidation, event-driven flow |
+| **Report** | Sales summary, profit analysis, product ও order report |
+| **Notification** | Order status update, quotation response, invoice reminder |
+| **Marketplace Ready** | Multi-role, multi-tenant, REST API ও Server Action সমর্থন |
 
 ---
 
 ## ৩. প্রজেক্ট ভিশন
 
-### কমার্স অপারেটিং সিস্টেম
+### Commerce Operating System
 
-ড্রপশপএনএন শুধু একটি অ্যাপ নয় — এটি একটি **কমার্স ওএস**। এটি সকল ই-কমার্স অপারেশনকে একীভূত প্ল্যাটফর্মে নিয়ে আসে।
+DropshopNN শুধু একটি app নয় — এটি একটি **Commerce OS**। এটি সকল e-commerce operation-কে একীভূত platform-এ নিয়ে আসে।
 
-### বাংলাদেশ ফার্স্ট
+### Bangladesh First
 
-১৮টি ইঞ্জিন ও ৬টি ওয়ার্কস্পেস নিয়ে ড্রপশপএনএন বাংলাদেশের ই-কমার্স ল্যান্ডস্কেপের জন্য তৈরি। কুরিয়ার ইন্টিগ্রেশন থেকে শুরু করে বিকাশ/নগদ পেমেন্ট — সবকিছু বাংলাদেশের প্রেক্ষাপটে।
+Role-driven architecture সহ DropshopNN বাংলাদেশের e-commerce landscape-এর জন্য তৈরি। Courier integration থেকে শুরু করে bKash / Nagad payment — সবকিছু বাংলাদেশের প্রেক্ষাপটে।
 
-### স্কেলেবল
+### Scalable
 
-মাইক্রোসার্ভিস-প্রস্তুত আর্কিটেকচার, ইভেন্ট-ড্রিভেন কমিউনিকেশন ও বুলকিউজব ব্যাকগ্রাউন্ড জব সার্বিক স্কেলেবিলিটি নিশ্চিত করে।
+Microservice-ready architecture, event-driven communication ও BullMQ background job সার্বিক scalability নিশ্চিত করে।
 
-### এন্টারপ্রাইজ রেডি
+### Enterprise Ready
 
-প্রোডাকশন-গ্রেড ফিচার: অডিট লগ, সফট ডিলিট, ট্রানজেকশনাল সেফটি, রোল-ভিত্তিক পারমিশন, ও থ্রটলিং।
+Production-grade feature: audit log, soft delete, transactional safety, role-based permission, এবং throttling।
 
 ### ভবিষ্যৎ সম্প্রসারণ
 
-- মোবাইল অ্যাপ (ফ্লাটার)
-- মাল্টি-ওয়্যারহাউস ম্যানেজমেন্ট (ডব্লিউএমএস)
-- পেমেন্ট গেটওয়ে ইন্টিগ্রেশন (বিকাশ/নগদ/রকেট)
-- সোর্স কোড মার্কেটপ্লেস
-- এআই-চালিত প্রাইসিং অপ্টিমাইজেশন
+- Mobile app (Flutter)
+- Multi-warehouse management (WMS)
+- Payment gateway integration (bKash / Nagad / Rocket)
+- Source code marketplace
+- AI-driven pricing optimization
 
 ---
 
-## ৪. টেকনোলজি স্ট্যাক
+## ৪. Technology Stack
 
-| স্তর | টেকনোলজি |
-|-------|-----------|
-| **ফ্রেমওয়ার্ক** | নেক্সটজেএস ১৬ (অ্যাপ রাউটার) |
-| **ফ্রন্টেন্ড** | রিয়েক্ট ১৯, টাইপস্ক্রিপ্ট |
-| **স্টাইলিং** | টেইলউইন্ড সিএসএস v৪ |
-| **ইউআই কম্পোনেন্ট** | সেরা ইউআই, শ্যাডসিএন/ইউআই |
-| **অ্যানিমেশন** | ফ্রেমার মোশন |
-| **ডাটাবেস** | মঙ্গোডিবি, মঙ্গুজ |
-| **ক্যাশ** | রেডিস (আইওরেডিস) |
-| **ব্যাকগ্রাউন্ড জব** | বুলকিউজব |
-| **অথেনটিকেশন** | নেক্সটঅথ v৫ (জেডব্লিউটি) |
-| **ভ্যালিডেশন** | জেড |
-| **মিডিয়া** | ইমেজকিট সিডিএন |
-| **ফর্ম** | রিয়েক্ট হুক ফর্ম |
-| **প্যাকেজ ম্যানেজার** | পিএনপিএম |
-| **ক্লাউড** | ভার্সেল/ডকার/মঙ্গোডিবি অ্যাটলাস |
-| **সিআই/সিডি** | গিটহাব অ্যাকশনস |
-| **হোস্টিং** | ভার্সেল/কুলিফাই |
+| স্তর | Technology |
+|-------|------------|
+| **Framework** | Next.js 16 (App Router) |
+| **Frontend** | React 19, TypeScript |
+| **Styling** | Tailwind CSS v4 |
+| **UI Component** | Sera UI, shadcn/ui |
+| **Animation** | Framer Motion |
+| **Database** | MongoDB, Mongoose |
+| **Cache** | Redis (ioredis) |
+| **Background Job** | BullMQ |
+| **Authentication** | NextAuth v5 (JWT) |
+| **Validation** | Zod |
+| **Media** | ImageKit CDN |
+| **Form** | React Hook Form |
+| **Package Manager** | pnpm |
+| **Cloud** | Vercel / Docker / MongoDB Atlas |
+| **CI/CD** | GitHub Actions |
+| **Hosting** | Vercel / Coolify |
 
 ---
 
-## ৫. আর্কিটেকচার
+## ৫. Architecture
 
-### ফিচার-ফার্স্ট ডিডিডি (Feature-First Domain-Driven Design)
+### Feature-First DDD (Domain-Driven Design)
 
-প্রজেক্টটি **ডোমেইন-ড্রিভেন ডিজাইন** অনুসরণ করে, যেখানে প্রতিটি ফিচার একটি সম্পূর্ণ স্বতন্ত্র মডিউল।
+প্রজেক্টটি **Domain-Driven Design** অনুসরণ করে, যেখানে প্রতিটি feature একটি সম্পূর্ণ স্বতন্ত্র module।
 
 ```
-ক্লায়েন্ট (নেক্সটজেএস) → সার্ভার অ্যাকশন → সার্ভিস লেয়ার → ডোমেইন → রিপোজিটরি → মঙ্গোডিবি
+Client (Next.js) → Server Action → Service Layer → Domain → Repository → MongoDB
                                                           ↓
-                                                     বুলকিউজব (ব্যাকগ্রাউন্ড)
+                                                     BullMQ (Background)
 ```
 
-### চার স্তরের আর্কিটেকচার
+### চার স্তরের Architecture
 
 | স্তর | অবস্থান | দায়িত্ব |
 |-------|----------|------------|
-| **ডোমেইন** | `domain/` | এন্টিটি, ভ্যালু অবজেক্ট, বিজনেস রুলস |
-| **সার্ভিস** | `services/` | বিজনেস লজিক সমন্বয়, থার্ড-পার্টি কল |
-| **রিপোজিটরি** | `repositories/` | ডাটাবেস অ্যাক্সেস, ডোমেইন এন্টিটি কনভার্শন |
-| **প্রেজেন্টেশন** | `actions/`, `components/` | ইনপুট ভ্যালিডেশন, ইউআই রেন্ডারিং |
+| **Domain** | `domain/` | Entity, value object, business rules |
+| **Service** | `services/` | Business logic coordination, third-party call |
+| **Repository** | `repositories/` | Database access, domain entity conversion |
+| **Presentation** | `actions/`, `components/` | Input validation, UI rendering |
 
-### ইঞ্জিন-ভিত্তিক আর্কিটেকচার
+### Engine-based Architecture
 
-প্রতিটি বিজনেস ডোমেইন একটি **ইঞ্জিন** হিসেবে নিবন্ধিত। ইঞ্জিন রেজিস্ট্রি প্যাটার্ন ব্যবহার করে কোরে সকল ইঞ্জিন নিবন্ধিত, ইনিশিয়ালাইজড ও ভেরিফাইড হয়।
+প্রতিটি business domain একটি **Engine** হিসেবে নিবন্ধিত। Engine Registry pattern ব্যবহার করে core-এ সকল engine register, initialize ও verify হয়।
 
-### সার্ভার অ্যাকশন ফার্স্ট
+### Server Action First
 
-সকল ডাটা মিউটেশন **নেক্সটজেএস সার্ভার অ্যাকশন** এর মাধ্যমে সম্পন্ন হয়। ক্লায়েন্ট কম্পোনেন্ট সরাসরি সার্ভার অ্যাকশন কল করে — কোনো আরএসটি এপিআই লেয়ার নেই।
+সকল data mutation **Next.js Server Action**-এর মাধ্যমে সম্পন্ন হয়। Client component সরাসরি Server Action call করে — কোনো REST API layer নেই।
 
-### শেয়ার্ড ইউআই ও রিইউজেবল কম্পোনেন্ট
+### Shared UI ও Reusable Component
 
-`src/shared/components/ui/` এ বেস ইউআই কম্পোনেন্ট (Button, DataTable, Card, Modal ইত্যাদি) এবং `src/shared/components/workspace/` এ অ্যাপ শেল কম্পোনেন্ট (Sidebar, Topbar, ListLayout) রাখা হয়েছে।
+`src/shared/components/ui/`-এ base UI component (Button, DataTable, Card, Dialog ইত্যাদি) এবং `src/shared/components/workspace/`-এ app shell component (Sidebar, Topbar, WorkspaceLayout, ResourceListPage) রাখা হয়েছে।
+
+### Role-Driven Commerce
+
+একটি platform, একটি catalog, একটি checkout, একটি pricing engine। Behavior শুধু **user role** অনুযায়ী বদলায় — Guest, Customer, Reseller, Wholesale, Supplier, Admin।
 
 ---
 
-## ৬. ফোল্ডার স্ট্রাকচার
+## ৬. Folder Structure
 
 ```
 dropshop-nn/
-├── docs/                          # ডকুমেন্টেশন
-│   └── 00-project.md              # প্রকল্প সারসংক্ষেপ
+├── docs/                          # Documentation
+│   └── 00-project.md              # Project summary
 ├── src/
-│   ├── app/                       # নেক্সটজেএস অ্যাপ রাউটার
-│   │   ├── auth/                  # লগইন, রেজিস্ট্রেশন পৃষ্ঠাসমূহ
-│   │   ├── dashboard/             # অ্যাডমিন ওয়ার্কস্পেস
-│   │   ├── reseller/              # রিসেলার ওয়ার্কস্পেস
-│   │   ├── wholesale/             # হোলসেল ওয়ার্কস্পেস
-│   │   └── supplier/              # সাপ্লায়ার ওয়ার্কস্পেস
-│   ├── features/                  # ফিচার মডিউলসমূহ
-│   │   ├── auth/                  # অথেনটিকেশন ও অথোরাইজেশন
-│   │   ├── catalog/               # প্রোডাক্ট ক্যাটালগ
-│   │   ├── checkout/              # চেকআউট ফ্লো
-│   │   ├── courier/               # কুরিয়ার ইন্টিগ্রেশন
-│   │   ├── customer/              # গ্রাহক ম্যানেজমেন্ট
-│   │   ├── finance/               # ওয়ালেট, লেজার, ইনভয়েস
-│   │   ├── identity/              # ইউজার আইডেনটিটি ও প্রোফাইল
-│   │   ├── inventory/             # ইনভেন্টরি ম্যানেজমেন্ট
-│   │   ├── order/                 # অর্ডার ম্যানেজমেন্ট
-│   │   ├── pricing/               # প্রাইসিং ইঞ্জিন
-│   │   ├── quotation/             # কোটেশন সিস্টেম
-│   │   ├── reseller/              # রিসেলার প্ল্যাটফর্ম
-│   │   ├── reseller-workspace/    # রিসেলার ওয়ার্কস্পেস কনফিগ
-│   │   ├── supplier/              # সাপ্লায়ার প্ল্যাটফর্ম
-│   │   ├── supplier-workspace/    # সাপ্লায়ার ওয়ার্কস্পেস কনফিগ
-│   │   └── wholesale-workspace/   # হোলসেল ওয়ার্কস্পেস কনফিগ
-│   ├── shared/                    # শেয়ার্ড কোড
-│   │   ├── components/            # শেয়ার্ড ইউআই
-│   │   │   ├── ui/                # প্রাইমিটিভ (Button, Card, Table...)
-│   │   │   ├── workspace/         # অ্যাপ শেল (Sidebar, Topbar...)
-│   │   │   └── forms/             # ফর্ম কম্পোনেন্ট
-│   │   ├── config/                # সিস্টেম কনফিগারেশন
-│   │   ├── constants/             # গ্লোবাল কনস্ট্যান্ট
-│   │   ├── core/                  # ফিচার ফ্ল্যাগ, সেটিংস, প্ল্যাটফর্ম
-│   │   ├── errors/                # কাস্টম এরর ক্লাস
-│   │   ├── hooks/                 # ইউটিলিটি হুকস
-│   │   ├── lib/                   # শেয়ার্ড লাইব্রেরি
-│   │   ├── platform/              # প্ল্যাটফর্ম বুটস্ট্র্যাপ
-│   │   ├── types/                 # শেয়ার্ড টাইপ
-│   │   └── utils/                 # হেলপার ফাংশন
-│   └── middleware.ts              # রুট প্রোটেকশন মিডলওয়্যার
-├── AGENTS.md                      # এআই এজেন্ট নির্দেশিকা
-└── README.md                      # এই ফাইল
+│   ├── app/                       # Next.js App Router
+│   │   ├── auth/                  # Login, registration pages
+│   │   ├── dashboard/             # Admin workspace
+│   │   ├── reseller/              # Reseller workspace
+│   │   ├── wholesale/             # Wholesale workspace
+│   │   └── supplier/              # Supplier workspace
+│   ├── features/                  # Feature modules
+│   │   ├── auth/                  # Authentication & authorization
+│   │   ├── catalog/               # Product catalog
+│   │   ├── checkout/              # Checkout flow
+│   │   ├── courier/               # Courier integration
+│   │   ├── customer/              # Customer management
+│   │   ├── finance/               # Wallet, ledger, invoice
+│   │   ├── identity/              # User identity & profile
+│   │   ├── inventory/             # Inventory management
+│   │   ├── order/                 # Order management
+│   │   ├── pricing/               # Pricing engine
+│   │   ├── quotation/             # Quotation system
+│   │   ├── reseller/              # Reseller platform
+│   │   ├── reseller-workspace/    # Reseller workspace config
+│   │   ├── supplier/              # Supplier platform
+│   │   ├── supplier-workspace/    # Supplier workspace config
+│   │   └── wholesale-workspace/   # Wholesale workspace config
+│   ├── shared/                    # Shared code
+│   │   ├── components/            # Shared UI
+│   │   │   ├── ui/                # Primitives (Button, Card, Table...)
+│   │   │   ├── workspace/         # App shell (Sidebar, Topbar...)
+│   │   │   └── forms/             # Form components
+│   │   ├── config/                # System configuration
+│   │   ├── constants/             # Global constants
+│   │   ├── core/                  # Feature flags, settings, platform
+│   │   ├── errors/                # Custom error classes
+│   │   ├── hooks/                 # Utility hooks
+│   │   ├── lib/                   # Shared libraries
+│   │   ├── platform/              # Platform bootstrap
+│   │   ├── types/                 # Shared types
+│   │   └── utils/                 # Helper functions
+│   └── middleware.ts              # Route protection middleware
+├── AGENTS.md                      # AI agent guidelines
+└── README.md                      # This file
 ```
 
-প্রতিটি ফিচার মডিউলের অভ্যন্তরীণ কাঠামো:
+প্রতিটি feature module-এর অভ্যন্তরীণ কাঠামো:
 
 ```
 features/<module-name>/
-├── domain/              # এন্টিটি, টাইপ, ইভেন্ট
-├── repositories/        # ডাটাবেস অ্যাক্সেস (মঙ্গুজ মডেল + রিপোজিটরি)
-├── services/            # বিজনেস লজিক
-├── actions/             # সার্ভার অ্যাকশন
-├── types/               # জেড ভ্যালিডেশন স্কিমা
-├── components/          # ফিচার-নির্দিষ্ট ইউআই
-├── hooks/               # কাস্টম হুকস
-└── init.ts              # ইঞ্জিন ইনিশিয়ালাইজার
+├── domain/              # Entity, type, event
+├── repositories/        # Database access (Mongoose model + repository)
+├── services/            # Business logic
+├── actions/             # Server Actions
+├── types/               # Zod validation schema
+├── components/          # Feature-specific UI
+├── hooks/               # Custom hooks
+└── init.ts              # Engine initializer
 ```
 
 ---
 
-## ৭. বিজনেস ইঞ্জিনসমূহ
+## ৭. Business Engines
 
-### আইডেনটিটি (`identity`)
-ব্যবহারকারী নিবন্ধন, প্রমাণীকরণ, ব্যবসায়িক প্রোফাইল, রোল ও পারমিশন ম্যানেজমেন্ট। সেশন ম্যানেজমেন্ট ও থার্ড-পার্টি অনুমোদন সমর্থন করে।
+### Identity (`identity`)
+User registration, authentication, business profile, role ও permission management। Session management ও third-party authorization সমর্থন করে।
 
-### ক্যাটালগ (`catalog`)
-প্রোডাক্ট ক্রিয়েশন, ভ্যারিয়েন্ট জেনারেশন, মিডিয়া আপলোড, এসইও মেটাডাটা, ব্র্যান্ড ও ক্যাটাগরি ক্লাসিফিকেশন। দাম বা স্টক এখানে রাখা হয় না — শুধু ক্যাটালগ ডাটা।
+### Catalog (`catalog`)
+Product creation, variant generation, media upload, SEO metadata, brand ও category classification। Price বা stock এখানে রাখা হয় না — শুধু catalog data।
 
-### প্রাইসিং (`pricing`)
-সমস্ত আর্থিক তথ্য এখানে রাখা হয়: খরচ, বিক্রয় মূল্য, হোলসেল ও রিসেলার প্রাইস, ডিসকাউন্ট, ট্যাক্স, কমিশন, মার্জিন। রুলস ইঞ্জিন ফিক্সড/পার্সেন্টেজ/সাপ্লায়ার/ক্যাটাগরি ভিত্তিক মূল্য নির্ধারণ সমর্থন করে।
+### Pricing (`pricing`)
+সকল financial data এখানে: cost, selling price, wholesale ও reseller price, discount, tax, commission, margin। Rules engine fixed / percentage / supplier / category-based pricing সমর্থন করে।
 
-### ইনভেন্টরি (`inventory`)
-স্টক ট্র্যাকিং, রিজার্ভেশন, ইনকামিং, ড্যামেজ/রিটার্ন ট্র্যাকিং, সাপ্লায়ার স্টক ম্যাপিং। স্টক অপারেশন অ্যাডজাস্টমেন্ট, স্টক ইন/আউট, ও রিলিজ সমর্থন করে।
+### Inventory (`inventory`)
+Stock tracking, reservation, incoming, damage/return tracking, supplier stock mapping। Stock operation: adjustment, stock in/out, এবং release।
 
-### সাপ্লায়ার (`supplier`)
-অনবোর্ডিং, বিজনেস প্রোফাইল, ব্যাংকিং তথ্য, ডকুমেন্টস (ট্রেড লাইসেন্স, বিন, টিআইএন), পারফরমেন্স স্কোরিং, প্রোডাক্ট ম্যাপিং। সাপ্লায়ার-নির্দিষ্ট প্রাইসিং ও স্টক তথ্য সংযুক্ত।
+### Supplier (`supplier`)
+Onboarding, business profile, banking info, documents (trade license, BIN, TIN), performance scoring, product mapping।
 
-### প্রোডাক্ট স্টুডিও (`product-studio`)
-এন্টারপ্রাইজ প্রোডাক্ট ক্রিয়েশন ইউআই। ক্যাটালগ, প্রাইসিং ও ইনভেন্টরি ইঞ্জিনকে একীভূত ইন্টারফেসে অর্কেস্ট্রেট করে। টিপট্যাপ রিচ টেক্সট এডিটর, ভ্যারিয়েন্ট জেনারেটর, ও প্রফিট প্রিভিউ অন্তর্ভুক্ত।
+### Product Studio (`product-studio`)
+Enterprise product creation UI। Catalog, Pricing ও Inventory engine-কে একীভূত interface-এ orchestrate করে। Tiptap rich text editor, variant generator, এবং profit preview অন্তর্ভুক্ত।
 
-### মিডিয়া (`media`)
-প্রোডাক্ট ইমেজ আপলোড, ফিচার্ড মিডিয়া সেটিং, সিডিএন অপ্টিমাইজেশন (ইমেজকিট)।
+### Checkout (`checkout`)
+Cart management, checkout session, price resolution, inventory validation, order draft। Reseller / wholesale / customer type সমর্থন করে — একই pipeline, role অনুযায়ী behavior।
 
-### চেকআউট (`checkout`)
-কার্ট ম্যানেজমেন্ট, চেকআউট সেশন, প্রাইস রেজোলিউশন, ইনভেন্টরি ভ্যালিডেশন, অর্ডার ড্রাফট। হোলসেল ও রিসেলার টাইপ সমর্থন করে।
+### Order (`order`)
+16-state state machine (`draft` → `pending` → `confirmed` → `packed` → `courier_assigned` → `shipped` → `delivered` → `completed` + return/refund states)। Timeline, courier assignment, profit preview, note support।
 
-### অর্ডার (`order`)
-১৬-স্টেট স্টেট মেশিন (draft → pending → confirmed → packed → courier_assigned → shipped → delivered → completed + রিটার্ন/রিফান্ড স্টেট)। টাইমলাইন, কুরিয়ার অ্যাসাইনমেন্ট, প্রফিট প্রিভিউ, নোট সাপোর্ট।
+### Finance (`finance`)
+Wallet management (balance, pending profit), ledger entry (credit/debit), withdrawal request (bKash / Nagad / Rocket / bank), invoice generation, profit release jobs।
 
-### ফাইন্যান্স (`finance`)
-ওয়ালেট ম্যানেজমেন্ট (ব্যালেন্স, পেন্ডিং প্রফিট), লেজার এন্ট্রি (ক্রেডিট/ডেবিট ট্র্যাকিং), উইথড্রয়াল রিকোয়েস্ট (বিকাশ/নগদ/রকেট/ব্যাংক), ইনভয়েস জেনারেশন, প্রফিট রিলিজ জবস।
+### Customer (`customer`)
+Customer profile, address, note, tag, timeline, search। Reseller workspace tenant isolation সহ।
 
-### গ্রাহক (`customer`)
-গ্রাহক প্রোফাইল, ঠিকানা, নোট, ট্যাগ, টাইমলাইন, সার্চ। রিসেলার ওয়ার্কস্পেস টেন্যান্ট আইসোলেশন সহ।
+### Courier (`courier`)
+Multi-provider support (Steadfast, Pathao, RedX, eCourier, Paperfly)। Tracking, webhook, business rules।
 
-### কুরিয়ার (`courier`)
-মাল্টি-প্রোভাইডার সাপোর্ট (স্টিডফাস্ট, পাঠাও, রেডএক্স, ইকুরিয়ার, পেপারফ্লাই)। ট্র্যাকিং, ওয়েবহুক, বিল্ডিং রুলস।
-
-### কোটেশন (`quotation`)
-হোলসেল ক্রেতাদের জন্য কোটেশন রিকোয়েস্ট, অনুমোদন ও প্রত্যাখ্যান ফ্লো। ইন-মেমরি রিপোজিটরি (মঙ্গোডিবি মডেল যুক্ত করা যাবে)।
+### Quotation (`quotation`)
+Wholesale buyer-দের জন্য quotation request, approval ও rejection flow।
 
 ---
 
-## ৮. ওয়ার্কস্পেস
+## ৮. Workspaces
 
-### অ্যাডমিন ওয়ার্কস্পেস (`/dashboard/`)
-সম্পূর্ণ প্ল্যাটফর্ম নিয়ন্ত্রণের জন্য এন্টারপ্রাইজ ওএস শেল। কোলাপসিবল সাইডবার, স্টিকি টপবার, ব্রেডক্রাম্বস, কমান্ড প্যালেট (`⌘K`) ও ওয়ার্কস্পেস সুইচার। সকল লিস্টিং পৃষ্ঠা শেয়ার্ড ListLayout + DataTable প্যাটার্ন ব্যবহার করে।
+### Admin Workspace (`/dashboard/`)
+সম্পূর্ণ platform নিয়ন্ত্রণের জন্য enterprise OS shell। Collapsible sidebar, sticky topbar, breadcrumbs, command palette (`⌘K`) ও workspace switcher। সকল listing page shared `ListLayout` + `DataTable` / `ResourceListPage` pattern ব্যবহার করে।
 
-### রিসেলার ওয়ার্কস্পেস (`/reseller/`)
-প্রাইভেট ক্যাটালগ ও অর্ডার ম্যানেজমেন্ট। প্রোডাক্ট ব্রাউজিং, মার্কেটিং কিট, অর্ডার ক্রিয়েশন, ও গ্রাহক ম্যানেজমেন্ট।
+### Reseller Workspace (`/reseller/`)
+Private catalog ও order management। Product browsing, marketing kit, order creation (checkout pipeline), এবং customer management।
 
-### হোলসেল ওয়ার্কস্পেস (`/wholesale/`)
-এন্টারপ্রাইজ বাল্ক ক্রয়িং পোর্টাল। হোলসেল প্রাইস ও এমওকিউ সহ প্রোডাক্ট ব্রাউজিং, বাল্ক অর্ডার, কোটেশন রিকোয়েস্ট, ইনভয়েস ভিউ, অর্ডার হিস্ট্রি।
+### Wholesale Workspace (`/wholesale/`)
+Enterprise bulk buying portal। Wholesale price ও MOQ সহ product browsing, bulk order, quotation request, invoice view, order history।
 
-### সাপ্লায়ার ওয়ার্কস্পেস (`/supplier/`)
-সেলফ-সার্ভিস সাপ্লায়ার পোর্টাল। প্রোডাক্ট ম্যানেজমেন্ট, ইনভেন্টরি মনিটরিং, পারচেজ অর্ডারস, ডেলিভারি ট্র্যাকিং, ফাইন্যান্স ও রিপোর্ট।
+### Supplier Workspace (`/supplier/`)
+Self-service supplier portal। Product management, inventory monitoring, purchase orders, delivery tracking, finance ও report।
 
 ---
 
-## ৯. ইউজার রোল
+## ৯. User Roles
 
-| রোল | বিবরণ |
+| Role | বিবরণ |
 |------|------------|
-| **Super Admin** | পূর্ণ প্ল্যাটফর্ম নিয়ন্ত্রণ, সকল ইঞ্জিন ও ওয়ার্কস্পেসে অনুমতি |
-| **Admin** | প্রশাসনিক কার্যক্রম, ইউজার ম্যানেজমেন্ট, অপারেশনাল নিয়ন্ত্রণ |
-| **Manager** | সীমিত প্রশাসনিক অ্যাক্সেস, নির্দিষ্ট ইঞ্জিনে অনুমতি |
-| **Reseller** | নিজস্ব ক্যাটালগ, অর্ডার ও গ্রাহক ম্যানেজমেন্ট |
-| **Wholesaler** | বাল্ক ক্রয়, কোটেশন ও হোলসেল প্রাইসিং |
-| **Supplier** | নিজস্ব প্রোডাক্ট, ইনভেন্টরি ও অর্ডার ম্যানেজমেন্ট |
-| **Customer** | ব্যক্তিগত প্রোফাইল ও অর্ডার হিস্ট্রি |
+| **Super Admin** | পূর্ণ platform নিয়ন্ত্রণ, সকল engine ও workspace-এ permission |
+| **Admin** | Administrative কাজ, user management, operational control |
+| **Manager** | সীমিত admin access, নির্দিষ্ট engine-এ permission |
+| **Reseller** | নিজস্ব catalog, order ও customer management |
+| **Wholesaler** | Bulk purchase, quotation ও wholesale pricing |
+| **Supplier** | নিজস্ব product, inventory ও order management |
+| **Customer** | Personal profile ও order history |
+| **Guest** | Retail browse ও guest checkout (public storefront) |
 
 ---
 
-## ১০. বর্তমান ইমপ্লিমেন্টেশন স্ট্যাটাস
+## ১০. বর্তমান Implementation Status
 
 | পর্যায় | অবস্থা |
 |--------|--------|
-| প্রজেক্ট ফাউন্ডেশন | ✅ সম্পন্ন |
-| কোর ইনফ্রাস্ট্রাকচার | ✅ সম্পন্ন |
-| আইডেনটিটি ও অথেনটিকেশন | ✅ সম্পন্ন |
-| এন্টারপ্রাইজ সাপ্লায়ার ম্যানেজমেন্ট | ✅ সম্পন্ন |
-| প্রোডাক্ট ক্যাটালগ ফাউন্ডেশন | ✅ সম্পন্ন |
-| এন্টারপ্রাইজ প্রাইসিং ও ইনভেন্টরি | ✅ সম্পন্ন |
-| এন্টারপ্রাইজ রিসেলার ম্যানেজমেন্ট | ✅ সম্পন্ন |
-| এন্টারপ্রাইজ ওয়ার্কস্পেস ও ডিজাইন সিস্টেম | ✅ সম্পন্ন |
-| রিসেলার ওয়ার্কস্পেস | ✅ সম্পন্ন |
-| হোলসেল ওয়ার্কস্পেস | ✅ সম্পন্ন |
-| সাপ্লায়ার ওয়ার্কস্পেস | ✅ সম্পন্ন |
-| কুরিয়ার ইন্টিগ্রেশন | 🔄 চলমান |
-| চেকআউট ও অর্ডার | 🔄 চলমান |
-| ফাইন্যান্স ইঞ্জিন | 🔄 চলমান |
+| Project foundation | ✅ সম্পন্ন |
+| Core infrastructure | ✅ সম্পন্ন |
+| Identity & authentication | ✅ সম্পন্ন |
+| Enterprise supplier management | ✅ সম্পন্ন |
+| Product catalog foundation | ✅ সম্পন্ন |
+| Enterprise pricing & inventory | ✅ সম্পন্ন |
+| Enterprise reseller management | ✅ সম্পন্ন |
+| Enterprise workspace & design system | ✅ সম্পন্ন |
+| Reseller workspace | ✅ সম্পন্ন |
+| Wholesale workspace | ✅ সম্পন্ন |
+| Supplier workspace | ✅ সম্পন্ন |
+| Architecture alignment (role-driven) | ✅ সম্পন্ন |
+| Courier integration | 🔄 চলমান |
+| Checkout & order pipeline | 🔄 চলমান |
+| Finance engine | 🔄 চলমান |
+| Public website / Customer workspace | ⏳ পরবর্তী |
 
 ---
 
-## ১১. ভবিষ্যৎ রোডম্যাপ
+## ১১. Future Roadmap
 
 ### পরিকল্পিত কাজসমূহ
 
-- **মোবাইল অ্যাপ** — ফ্লাটার-ভিত্তিক মোবাইল অ্যাপ্লিকেশন
-- **পেমেন্ট গেটওয়ে** — বিকাশ, নগদ ও রকেট ইন্টিগ্রেশন
-- **মাল্টি-ওয়্যারহাউস** — সম্পূর্ণ ডব্লিউএমএস ইমপ্লিমেন্টেশন
-- **পাবলিক ওয়েবসাইট** — গ্রাহক ফেসিং স্টোরফ্রন্ট
-- **এআই প্রাইসিং** — মেশিন লার্নিং-চালিত প্রাইস অপ্টিমাইজেশন
-- **সোর্স কোড মার্কেটপ্লেস** — পাবলিশড থিম ও প্লাগইন ইকোসিস্টেম
-- **অ্যানালিটিক্স ড্যাশবোর্ড** — বিজনেস ইন্টেলিজেন্স রিপোর্টিং
-- **অটোমেশন ইঞ্জিন** — নিয়ম-ভিত্তিক অটোমেশন ওয়ার্কফ্লো
+- **Public Website** — Customer-facing storefront (`/products`, `/checkout`)
+- **Mobile App** — Flutter-based mobile application
+- **Payment Gateway** — bKash, Nagad ও Rocket integration
+- **Multi-warehouse** — সম্পূর্ণ WMS implementation
+- **AI Pricing** — Machine learning-driven price optimization
+- **Source Code Marketplace** — Published theme ও plugin ecosystem
+- **Analytics Dashboard** — Business intelligence reporting
+- **Automation Engine** — Rule-based automation workflow
 
 ---
 
-## ১২. ইনস্টলেশন
+## ১২. Installation
 
-### প্রয়োজনীয়তা
+### Requirements
 
-- Node.js ২০+
-- pnpm ৯+
-- MongoDB ৭+
-- Redis ৭+
+- Node.js 20+
+- pnpm 9+
+- MongoDB 7+
+- Redis 7+
 
-### ধাপসমূহ
+### Steps
 
 ```bash
-# ১. ডিপেন্ডেন্সি ইনস্টল
+# 1. Install dependencies
 pnpm install
 
-# ২. এনভায়রনমেন্ট কনফিগ
+# 2. Environment config
 cp .env.example .env.local
 # .env.local এ মান পূরণ করুন
 
-# ৩. ডেভেলপমেন্ট সার্ভার
+# 3. Development server
 pnpm dev
 
-# ৪. প্রোডাকশন বিল্ড
+# 4. Production build
 pnpm build
 
-# ৫. প্রোডাকশন সার্ভার
+# 5. Production server
 pnpm start
 ```
 
-### গুরুত্বপূর্ণ এনভায়রনমেন্ট ভেরিয়েবল
+### Important Environment Variables
 
 ```
-MONGODB_URI=           # মঙ্গোডিবি কানেকশন স্ট্রিং
-REDIS_URL=             # রেডিস ইউআরএল
-NEXTAUTH_SECRET=       # নেক্সটঅথ সিক্রেট
-NEXTAUTH_URL=          # নেক্সটঅথ ইউআরএল
-IMAGEKIT_PUBLIC_KEY=   # ইমেজকিট পাবলিক কী
-IMAGEKIT_PRIVATE_KEY=  # ইমেজকিট প্রাইভেট কী
-IMAGEKIT_URL_ENDPOINT= # ইমেজকিট ইউআরএল এন্ডপয়েন্ট
+MONGODB_URI=           # MongoDB connection string
+REDIS_URL=             # Redis URL
+NEXTAUTH_SECRET=       # NextAuth secret
+NEXTAUTH_URL=          # NextAuth URL
+IMAGEKIT_PUBLIC_KEY=   # ImageKit public key
+IMAGEKIT_PRIVATE_KEY=  # ImageKit private key
+IMAGEKIT_URL_ENDPOINT= # ImageKit URL endpoint
 ```
 
 ---
 
-## ১৩. ডেভেলপমেন্ট রুলস
+## ১৩. Development Rules
 
-### আর্কিটেকচার রুলস
+### Architecture Rules
 
-- **ফিচার-ফার্স্ট**: প্রতিটি ফিচার একটি স্বতন্ত্র মডিউল
-- **ডোমেইন → সার্ভিস → রিপোজিটরি**: লেয়ার বাউন্ডারি কঠোরভাবে অনুসরণ করতে হবে
-- **কম্পোনেন্টে ডাটাবেস কল নিষিদ্ধ**: সরাসরি মঙ্গোডিবি মডেল ইম্পোর্ট করা যাবে না
+- **Feature-First**: প্রতিটি feature একটি স্বতন্ত্র module
+- **Domain → Service → Repository**: Layer boundary কঠোরভাবে অনুসরণ করতে হবে
+- **Component-এ database call নিষিদ্ধ**: সরাসরি MongoDB model import করা যাবে না
 
-### কোডিং রুলস
+### Coding Rules
 
-- টাইপস্ক্রিপ্ট কঠোরভাবে ব্যবহার করুন, `any` টাইপ এড়িয়ে চলুন
-- প্রতিটি ফাংশনের জন্য এক্সপ্লিসিট রিটার্ন টাইপ
-- এপিআই ক্রেডেনশিয়াল কোরে রাখবেন না — `env.ts` এর মাধ্যমে রুট করতে হবে
+- TypeScript কঠোরভাবে ব্যবহার করুন, `any` type এড়িয়ে চলুন
+- প্রতিটি function-এর জন্য explicit return type
+- API credential source-এ রাখবেন না — `src/shared/config/env.ts`-এর মাধ্যমে route করতে হবে
 
-### ফোল্ডার ও নেমিং রুলস
+### Folder ও Naming Rules
 
-| টাইপ | কনভেনশন | উদাহরণ |
-|------|-----------|---------|
-| ফোল্ডার | kebab-case | `shared-components` |
-| কম্পোনেন্ট | PascalCase | `Button.tsx` |
-| হুক | camelCase + `use` | `useDebounce.ts` |
-| ফাংশন | camelCase | `formatCurrency.ts` |
+| Type | Convention | Example |
+|------|------------|---------|
+| Folder | kebab-case | `shared-components` |
+| Component | PascalCase | `Button.tsx` |
+| Hook | camelCase + `use` | `useDebounce.ts` |
+| Function | camelCase | `formatCurrency.ts` |
 
-### ডকুমেন্টেশন রুলস
+### Documentation Rules
 
 - কেবল `README.md` ও `docs/00-project.md` রক্ষণাবেক্ষণ করুন
-- অতিরিক্ত ডকুমেন্টেশন ফোল্ডার তৈরি করবেন না
-- ডকুমেন্টেশন সংক্ষিপ্ত ও আপডেট রাখুন
+- অতিরিক্ত documentation folder তৈরি করবেন না
+- Documentation সংক্ষিপ্ত ও update রাখুন
 
 ---
 
-## ১৪. কন্ট্রিবিউটিং
+## ১৪. Contributing
 
-### কমিট মেসেজ কনভেনশন
+### Commit Message Convention
 
 `<type>(<scope>): <subject>`
 
-- `feat`: নতুন ফিচার
-- `fix`: বাগ ফিক্স
-- `docs`: ডকুমেন্টেশন
-- `style`: ফরম্যাটিং পরিবর্তন (কোড পরিবর্তন নয়)
-- `refactor`: কোড রিস্ট্রাকচারিং
-- `chore`: বিল্ড টাস্ক বা কনফিগ পরিবর্তন
+- `feat`: নতুন feature
+- `fix`: Bug fix
+- `docs`: Documentation
+- `style`: Formatting change (code logic নয়)
+- `refactor`: Code restructuring
+- `chore`: Build task বা config change
 
-### পুল রিকোয়েস্ট ফ্লো
+### Pull Request Flow
 
-1. ফিচার ব্রাঞ্চ তৈরি করুন (`feature/feature-name`)
-2. কোড টেস্ট করুন ও প্রি-কমিট হুক পাস করুন
-3. `dev` ব্রাঞ্চে পিআর খুলুন
-4. অন্তত একজন রিভিউয়ারের অনুমোদন নিন
+1. Feature branch তৈরি করুন (`feature/feature-name`)
+2. Code test করুন ও pre-commit hook পাস করুন
+3. `dev` branch-এ PR খুলুন
+4. অন্তত একজন reviewer-এর approval নিন
 
-### ব্রাঞ্চিং স্ট্র্যাটেজি
+### Branching Strategy
 
-- `main` — প্রোডাকশন রিলিজ
-- `dev` — ইন্টিগ্রেশন ব্রাঞ্চ
-- `feature/<name>` — নতুন ফিচার
-- `bugfix/<name>` — বাগ ফিক্স
-
----
-
-## ১৫. লাইসেন্স
-
-এমআইটি লাইসেন্সের অধীনে প্রকাশিত। বিস্তারিত জানতে `LICENSE` ফাইল দেখুন।
+- `main` — Production release
+- `dev` — Integration branch
+- `feature/<name>` — নতুন feature
+- `bugfix/<name>` — Bug fix
 
 ---
 
-## ১৬. লেখক
+## ১৫. License
 
-**পারভেজ** — প্রজেক্ট লিড ও আর্কিটেক্ট
+MIT License-এর অধীনে প্রকাশিত। বিস্তারিত জানতে `LICENSE` ফাইল দেখুন।
+
+---
+
+## ১৬. Author
+
+**Parvez** — Project Lead & Architect
 
 ---
 
 <div align="center">
-  <p>বাংলাদেশের জন্য তৈরি, এন্টারপ্রাইজের জন্য প্রস্তুত।</p>
+  <p>বাংলাদেশের জন্য তৈরি, enterprise-এর জন্য প্রস্তুত।</p>
   <p>
-    <a href="https://dropshop.nn">ওয়েবসাইট</a> ·
-    <a href="https://github.com/anomalyco/dropshop-nn">গিটহাব</a> ·
-    <a href="https://github.com/anomalyco/dropshop-nn/issues">ইস্যু রিপোর্ট</a>
+    <a href="https://dropshop.nn">Website</a> ·
+    <a href="https://github.com/anomalyco/dropshop-nn">GitHub</a> ·
+    <a href="https://github.com/anomalyco/dropshop-nn/issues">Issue Report</a>
   </p>
 </div>

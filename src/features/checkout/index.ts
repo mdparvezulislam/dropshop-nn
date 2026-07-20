@@ -47,6 +47,7 @@ export {
   submitCheckoutSchema,
   checkoutListQuerySchema,
   checkoutShippingSchema,
+  completeRoleCheckoutSchema,
 } from "./types/validation";
 
 export type {
@@ -58,6 +59,7 @@ export type {
   SubmitCheckoutInput,
   CheckoutListQuery,
   CheckoutShippingInput,
+  CompleteRoleCheckoutInput,
 } from "./types/validation";
 
 export { registerCheckoutFeatureFlags } from "./init";
@@ -74,4 +76,5 @@ export {
   getCheckoutSessionAction,
   getOrderDraftAction,
   listCheckoutsAction,
+  completeRoleCheckoutAction,
 } from "./actions/checkout-actions";

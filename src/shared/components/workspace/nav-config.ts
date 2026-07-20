@@ -174,40 +174,64 @@ export const WORKSPACE_NAV: NavSection[] = [
   },
 ];
 
-export function getBreadcrumbs(pathname: string): { label: string; href?: string }[] {
-  const crumbs: { label: string; href?: string }[] = [{ label: "Workspace", href: "/dashboard" }];
-  if (pathname === "/dashboard") return crumbs;
+export type Breadcrumb = { label: string; href?: string };
 
-  const map: Record<string, string> = {
-    products: "Products",
-    suppliers: "Suppliers",
-    resellers: "Resellers",
-    pricing: "Pricing",
-    inventory: "Inventory",
-    new: "Create",
-    edit: "Edit",
-    bulk: "Bulk Update",
-    adjust: "Stock Adjustment",
-    history: "History",
-    "low-stock": "Low Stock",
-  };
+export function getWorkspaceBreadcrumbs(
+  pathname: string,
+  options: {
+    rootLabel: string;
+    rootHref: string;
+    skipSegment: string;
+    labelMap?: Record<string, string>;
+  },
+): Breadcrumb[] {
+  const crumbs: Breadcrumb[] = [{ label: options.rootLabel, href: options.rootHref }];
+  if (pathname === options.rootHref) return crumbs;
 
+  const map = options.labelMap ?? {};
   const parts = pathname.replace(/^\//, "").split("/").filter(Boolean);
-  // skip "dashboard"
   let acc = "";
   for (const part of parts) {
     acc += `/${part}`;
-    if (part === "dashboard") continue;
+    if (part === options.skipSegment) continue;
     if (/^[0-9a-fA-F]{24}$/.test(part) || /^\d+$/.test(part) || part.startsWith("rp")) {
       crumbs.push({ label: "Details", href: acc });
       continue;
     }
-    crumbs.push({ label: map[part] || part, href: acc });
+    const fallback = part.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    crumbs.push({ label: map[part] || fallback, href: acc });
   }
-  // last crumb is current page — no link needed optionally
   if (crumbs.length > 1) {
     const last = crumbs[crumbs.length - 1];
     crumbs[crumbs.length - 1] = { label: last.label };
   }
   return crumbs;
+}
+
+export function getBreadcrumbs(pathname: string): Breadcrumb[] {
+  return getWorkspaceBreadcrumbs(pathname, {
+    rootLabel: "Workspace",
+    rootHref: "/dashboard",
+    skipSegment: "dashboard",
+    labelMap: {
+      products: "Products",
+      suppliers: "Suppliers",
+      resellers: "Resellers",
+      pricing: "Pricing",
+      inventory: "Inventory",
+      new: "Create",
+      edit: "Edit",
+      bulk: "Bulk Update",
+      adjust: "Stock Adjustment",
+      history: "History",
+      "low-stock": "Low Stock",
+      orders: "Orders",
+      customers: "Customers",
+      finance: "Finance",
+      wallet: "Wallet",
+      courier: "Courier",
+      shipments: "Shipments",
+      board: "Board",
+    },
+  });
 }

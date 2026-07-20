@@ -79,3 +79,35 @@ export const checkoutListQuerySchema = z.object({
 });
 
 export type CheckoutListQuery = z.infer<typeof checkoutListQuerySchema>;
+
+export const completeRoleCheckoutSchema = z.object({
+  type: cartTypeSchema.default("reseller"),
+  resellerId: z.string().optional(),
+  wholesaleId: z.string().optional(),
+  userId: z.string().optional(),
+  sessionId: z.string().optional(),
+  paymentMethod: z.enum(["cod", "prepaid"]).default("cod"),
+  customer: z.object({
+    name: z.string().min(1).max(200).trim(),
+    phone: phoneSchema,
+    email: emailSchema.optional().or(z.literal("")),
+    address: z.string().min(1).max(500).trim(),
+    district: z.string().min(1).max(100).trim(),
+    division: z.string().max(100).optional(),
+    upazila: z.string().max(100).optional(),
+    area: z.string().max(100).optional(),
+  }),
+  items: z
+    .array(
+      z.object({
+        productId: objectIdSchema,
+        variantSku: z.string().optional(),
+        quantity: z.coerce.number().int().positive(),
+        unitPriceOverride: z.coerce.number().int().nonnegative().optional(),
+      }),
+    )
+    .min(1),
+  deliveryCharge: z.coerce.number().int().nonnegative().default(0),
+});
+
+export type CompleteRoleCheckoutInput = z.infer<typeof completeRoleCheckoutSchema>;

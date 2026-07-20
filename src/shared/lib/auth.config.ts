@@ -11,9 +11,13 @@ export const authConfig = {
       const { pathname } = request.nextUrl;
       const isLoggedIn = !!auth?.user;
       const isAuthRoute = pathname.startsWith("/auth");
-      const isDashboardRoute = pathname.startsWith("/dashboard");
+      const isProtectedWorkspace =
+        pathname.startsWith("/dashboard") ||
+        pathname.startsWith("/reseller") ||
+        pathname.startsWith("/wholesale") ||
+        pathname.startsWith("/supplier");
 
-      if (isDashboardRoute) {
+      if (isProtectedWorkspace) {
         return isLoggedIn;
       }
 

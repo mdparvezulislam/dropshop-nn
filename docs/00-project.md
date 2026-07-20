@@ -2,16 +2,16 @@
 
 ## Current Status
 
-All 11 engines are registered and operational: IDENTITY, CATALOG, PRICING, INVENTORY, SUPPLIER, CHECKOUT, ORDER, CUSTOMER, FINANCE, COURIER. The platform has 4 workspaces (Admin, Reseller, Wholesale, Supplier) plus Auth pages. Build compiles with zero TypeScript errors.
+Role-driven commerce platform with 11 engines (IDENTITY, CATALOG, PRICING, INVENTORY, SUPPLIER, CHECKOUT, ORDER, CUSTOMER, FINANCE, COURIER) and 4 workspaces (Admin, Reseller, Wholesale, Supplier). Single Pricing Engine, single Checkout pipeline, single Order Engine. Shared workspace shell (`WorkspaceLayout` + parameterized `Topbar`), shared list shell (`ResourceListPage`), and role-aware checkout entry (`completeRoleCheckoutAction`). Middleware protects all workspace routes. Production build passes.
 
 ## Latest Completed Phase
 
-**Supplier Workspace** — self-service supplier portal at `/supplier/`. Full sidebar nav (Dashboard, Products, Inventory, Purchase Orders, Deliveries, Orders, Payments, Reports, Profile, Settings). Reuses Catalog, Inventory, Order, and Finance engines. All pages use shared ListLayout + DataTable + StatCard components. Production build verified.
+**ARCHITECTURE-ALIGNMENT-001** — Deduplicated pricing math (ProfitCalculationService is sole source); fixed margin formula bug; consolidated layouts/topbars/breadcrumbs; introduced ResourceListPage + SettingsPageShell; removed empty skeleton engines; aligned reseller order create with checkout pipeline; secured `/reseller`, `/wholesale`, `/supplier` via middleware.
 
 ## Current Phase
 
-Documentation cleanup — consolidated ~200 markdown files into README.md (Bangla) + docs/00-project.md (short summary). Removed all engine-specific, architecture, events, and planning docs.
+Architecture alignment complete. Platform is ready for public storefront work.
 
 ## Next Planned Phase
 
-**Customer Workspace** — public-facing storefront at `/customer/` with browsing, cart, checkout, order tracking, and profile management.
+**PUBLIC-WEBSITE-001 / Customer Workspace** — public storefront at role-aware routes (`/products`, `/product/[slug]`, `/checkout`, `/orders`) with Guest/Customer retail behavior, marketing-kit permission gates, and shared Product Card.

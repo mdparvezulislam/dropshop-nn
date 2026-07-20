@@ -12,7 +12,10 @@ import {
   ClipboardList,
   PlusCircle,
 } from "lucide-react";
-import type { NavSection } from "@/shared/components/workspace/nav-config";
+import {
+  getWorkspaceBreadcrumbs,
+  type NavSection,
+} from "@/shared/components/workspace/nav-config";
 
 export const WHOLESALE_NAV: NavSection[] = [
   {
@@ -63,34 +66,19 @@ export const WHOLESALE_NAV: NavSection[] = [
 ];
 
 export function getWholesaleBreadcrumbs(pathname: string): { label: string; href?: string }[] {
-  const crumbs: { label: string; href?: string }[] = [{ label: "Wholesale", href: "/wholesale" }];
-  if (pathname === "/wholesale") return crumbs;
-
-  const map: Record<string, string> = {
-    products: "Products",
-    "bulk-orders": "Bulk Orders",
-    quotations: "Quotations",
-    orders: "Order History",
-    invoices: "Invoices",
-    customers: "Customers",
-    profile: "Profile",
-    settings: "Settings",
-  };
-
-  const parts = pathname.replace(/^\//, "").split("/").filter(Boolean);
-  let acc = "";
-  for (const part of parts) {
-    acc += `/${part}`;
-    if (part === "wholesale") continue;
-    if (/^[0-9a-fA-F]{24}$/.test(part) || /^\d+$/.test(part)) {
-      crumbs.push({ label: "Details", href: acc });
-      continue;
-    }
-    crumbs.push({ label: map[part] || part.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()), href: acc });
-  }
-  if (crumbs.length > 1) {
-    const last = crumbs[crumbs.length - 1];
-    crumbs[crumbs.length - 1] = { label: last.label };
-  }
-  return crumbs;
+  return getWorkspaceBreadcrumbs(pathname, {
+    rootLabel: "Wholesale",
+    rootHref: "/wholesale",
+    skipSegment: "wholesale",
+    labelMap: {
+      products: "Products",
+      "bulk-orders": "Bulk Orders",
+      quotations: "Quotations",
+      orders: "Order History",
+      invoices: "Invoices",
+      customers: "Customers",
+      profile: "Profile",
+      settings: "Settings",
+    },
+  });
 }

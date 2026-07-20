@@ -2,17 +2,14 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Package, Plus, Eye, Search } from "lucide-react";
+import { Package, Plus, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { listProductsAction } from "@/features/catalog/actions/product-actions";
-import { ListLayout } from "@/shared/components/workspace/list-layout";
-import { Toolbar } from "@/shared/components/workspace/toolbar";
-import { SearchBox } from "@/shared/components/workspace/search-box";
+import { ResourceListPage } from "@/shared/components/workspace/resource-list-page";
 import { StatCard } from "@/shared/components/workspace/stat-card";
 import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
 import { Button } from "@/shared/components/ui/button";
-import { Spinner } from "@/shared/components/ui/spinner";
+import type { DataTableColumn } from "@/shared/components/ui/data-table";
 
 type Row = {
   id: string;
@@ -36,15 +33,17 @@ export default function SupplierProductsPage(): React.ReactElement {
       if (res.success && res.data) {
         const raw = res.data as any;
         const items = raw?.items ?? (Array.isArray(raw) ? raw : []);
-        setRows(items.map((p: any) => ({
-          id: p.id ?? p._id,
-          name: p.title ?? p.name ?? "Unnamed",
-          sku: p.sku ?? "—",
-          status: p.status ?? "draft",
-          stock: p.stock ?? p.inventory?.available ?? 0,
-          price: p.retailPrice ?? p.pricing?.retail ?? 0,
-          createdAt: p.createdAt,
-        })));
+        setRows(
+          items.map((p: any) => ({
+            id: p.id ?? p._id,
+            name: p.title ?? p.name ?? "Unnamed",
+            sku: p.sku ?? "—",
+            status: p.status ?? "draft",
+            stock: p.stock ?? p.inventory?.available ?? 0,
+            price: p.retailPrice ?? p.pricing?.retail ?? 0,
+            createdAt: p.createdAt,
+          })),
+        );
       }
     } catch {
       toast.error("Failed to load products");
@@ -53,7 +52,9 @@ export default function SupplierProductsPage(): React.ReactElement {
     }
   }, [search]);
 
-  React.useEffect(() => { load(); }, [load]);
+  React.useEffect(() => {
+    load();
+  }, [load]);
 
   const formatCents = (cents: number): string =>
     `৳${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
@@ -89,7 +90,9 @@ export default function SupplierProductsPage(): React.ReactElement {
       header: "Created",
       hideOnMobile: true,
       cell: (r) => (
-        <span className="text-muted-foreground">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}</span>
+        <span className="text-muted-foreground">
+          {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}
+        </span>
       ),
     },
     {
@@ -109,45 +112,46 @@ export default function SupplierProductsPage(): React.ReactElement {
   ];
 
   return (
-    <ListLayout
-      header={{
-        title: "Products",
-        description: "Manage your product catalog",
-        actions: (
-          <Link href="/supplier/products/new">
-            <Button className="gap-1.5"><Plus className="h-4 w-4" /> Add Product</Button>
-          </Link>
-        ),
+    <ResourceListPage
+      title="Products"
+      description="Manage your product catalog"
+      actions={
+        <Link href="/supplier/products/new">
+          <Button className="gap-1.5">
+            <Plus className="h-4 w-4" /> Add Product
+          </Button>
+        </Link>
+      }
+      search={{
+        value: search,
+        onChange: setSearch,
+        placeholder: "Search products…",
       }}
       stats={
-        loading ? (
-          <div className="col-span-4 flex items-center gap-2 text-sm text-muted-foreground">
-            <Spinner size="sm" /> Loading…
-          </div>
-        ) : (
+        loading ? undefined : (
           <>
             <StatCard label="Total Products" value={rows.length} icon={Package} />
-            <StatCard label="Active" value={rows.filter((r) => r.status === "active").length} accent="success" />
-            <StatCard label="Drafts" value={rows.filter((r) => r.status === "draft").length} accent="warning" />
+            <StatCard
+              label="Active"
+              value={rows.filter((r) => r.status === "active").length}
+              accent="success"
+            />
+            <StatCard
+              label="Drafts"
+              value={rows.filter((r) => r.status === "draft").length}
+              accent="warning"
+            />
           </>
         )
       }
-      toolbar={
-        <Toolbar
-          left={
-            <SearchBox value={search} onChange={(v) => { setSearch(v); }} placeholder="Search products…" className="w-full sm:w-72" />
-          }
-        />
-      }
-    >
-      <DataTable
-        columns={columns}
-        data={rows}
-        loading={loading}
-        onRowClick={(r) => window.location.href = `/supplier/products/${r.id}`}
-        emptyTitle="No products yet"
-        emptyDescription="Add your first product to get started."
-      />
-    </ListLayout>
+      columns={columns}
+      data={rows}
+      loading={loading}
+      onRowClick={(r) => {
+        window.location.href = `/supplier/products/${r.id}`;
+      }}
+      emptyTitle="No products yet"
+      emptyDescription="Add your first product to get started."
+    />
   );
 }

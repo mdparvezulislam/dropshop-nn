@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Bell,
   ChevronRight,
@@ -17,7 +17,7 @@ import {
   Sun,
 } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
-import { getBreadcrumbs } from "./nav-config";
+import { getBreadcrumbs, type Breadcrumb } from "./nav-config";
 import { Button } from "@/shared/components/ui/button";
 import {
   DropdownMenu,
@@ -29,15 +29,40 @@ import {
 } from "@/shared/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 
+export interface TopbarUserMenuItem {
+  label: string;
+  href?: string;
+  destructive?: boolean;
+}
+
 export interface TopbarProps {
   onMenuClick: () => void;
   onCommandOpen: () => void;
   collapsed: boolean;
+  getBreadcrumbsFn?: (pathname: string) => Breadcrumb[];
+  searchPlaceholder?: string;
+  avatarFallback?: string;
+  userLabel?: string;
+  userEmail?: string;
+  userMenuItems?: TopbarUserMenuItem[];
+  showQuickAction?: boolean;
 }
 
-export function Topbar({ onMenuClick, onCommandOpen, collapsed }: TopbarProps): React.ReactElement {
+export function Topbar({
+  onMenuClick,
+  onCommandOpen,
+  collapsed,
+  getBreadcrumbsFn = getBreadcrumbs,
+  searchPlaceholder = "Search workspace…",
+  avatarFallback = "SA",
+  userLabel = "Super Admin",
+  userEmail = "admin@dropshop.nn",
+  userMenuItems,
+  showQuickAction = true,
+}: TopbarProps): React.ReactElement {
   const pathname = usePathname();
-  const crumbs = getBreadcrumbs(pathname);
+  const router = useRouter();
+  const crumbs = getBreadcrumbsFn(pathname);
   const [dark, setDark] = React.useState(true);
 
   React.useEffect(() => {
@@ -49,6 +74,12 @@ export function Topbar({ onMenuClick, onCommandOpen, collapsed }: TopbarProps): 
     setDark(next);
     document.documentElement.classList.toggle("dark", next);
   };
+
+  const menuItems: TopbarUserMenuItem[] = userMenuItems ?? [
+    { label: "Profile", href: "/dashboard" },
+    { label: "Settings", href: "/dashboard" },
+    { label: "Sign out", destructive: true },
+  ];
 
   return (
     <header
@@ -65,7 +96,6 @@ export function Topbar({ onMenuClick, onCommandOpen, collapsed }: TopbarProps): 
         <Menu className="h-4 w-4" />
       </button>
 
-      {/* Breadcrumb */}
       <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-1 min-w-0 flex-1">
         {crumbs.map((crumb, i) => (
           <React.Fragment key={`${crumb.label}-${i}`}>
@@ -95,7 +125,6 @@ export function Topbar({ onMenuClick, onCommandOpen, collapsed }: TopbarProps): 
 
       <div className="flex-1 sm:hidden" />
 
-      {/* Global search trigger */}
       <button
         type="button"
         onClick={onCommandOpen}
@@ -106,22 +135,24 @@ export function Topbar({ onMenuClick, onCommandOpen, collapsed }: TopbarProps): 
         )}
       >
         <Search className="h-3.5 w-3.5 shrink-0" />
-        <span className="flex-1 text-left text-xs">Search workspace…</span>
+        <span className="flex-1 text-left text-xs">{searchPlaceholder}</span>
         <kbd className="inline-flex items-center gap-0.5 rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px]">
           <Command className="h-2.5 w-2.5" />K
         </kbd>
       </button>
 
       <div className="flex items-center gap-1.5">
-        <Button
-          variant="outline"
-          size="sm"
-          className="hidden sm:inline-flex gap-1.5"
-          onClick={onCommandOpen}
-        >
-          <Plus className="h-3.5 w-3.5" />
-          <span className="hidden lg:inline">Quick action</span>
-        </Button>
+        {showQuickAction ? (
+          <Button
+            variant="outline"
+            size="sm"
+            className="hidden sm:inline-flex gap-1.5"
+            onClick={onCommandOpen}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span className="hidden lg:inline">Quick action</span>
+          </Button>
+        ) : null}
 
         <Button
           variant="ghost"
@@ -161,28 +192,38 @@ export function Topbar({ onMenuClick, onCommandOpen, collapsed }: TopbarProps): 
               aria-label="User menu"
             >
               <Avatar className="h-8 w-8">
-                <AvatarFallback>SA</AvatarFallback>
+                <AvatarFallback>{avatarFallback}</AvatarFallback>
               </Avatar>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col">
-                <span className="text-sm font-medium text-foreground">Super Admin</span>
-                <span className="text-xs font-normal text-muted-foreground">admin@dropshop.nn</span>
+                <span className="text-sm font-medium text-foreground">{userLabel}</span>
+                <span className="text-xs font-normal text-muted-foreground">{userEmail}</span>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <User className="h-4 w-4" /> Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Settings className="h-4 w-4" /> Settings
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem destructive>
-              <LogOut className="h-4 w-4" /> Sign out
-            </DropdownMenuItem>
+            {menuItems.map((item, index) => {
+              const prev = menuItems[index - 1];
+              const showSep = item.destructive && prev && !prev.destructive;
+              return (
+                <React.Fragment key={`${item.label}-${index}`}>
+                  {showSep ? <DropdownMenuSeparator /> : null}
+                  <DropdownMenuItem
+                    destructive={item.destructive}
+                    onClick={() => {
+                      if (item.href) router.push(item.href);
+                    }}
+                  >
+                    {item.label === "Profile" ? <User className="h-4 w-4" /> : null}
+                    {item.label === "Settings" ? <Settings className="h-4 w-4" /> : null}
+                    {item.destructive ? <LogOut className="h-4 w-4" /> : null}
+                    {item.label}
+                  </DropdownMenuItem>
+                </React.Fragment>
+              );
+            })}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
