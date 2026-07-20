@@ -1,6 +1,11 @@
 import { BaseRepository } from "@/shared/lib/database/generic-repository";
-import { SupplierModel, SupplierDocumentType } from "./supplier-model";
-import { Supplier } from "../domain/supplier-entity";
+import {
+  SupplierModel,
+  SupplierDocumentType,
+  SupplierProductMappingModel,
+  SupplierProductMappingDocumentType,
+} from "./supplier-model";
+import { Supplier, SupplierProductMapping } from "../domain/supplier-entity";
 import { DatabaseQueryOptions } from "@/shared/lib/database/types";
 import { logger } from "@/shared/utils/logger";
 import { DatabaseError } from "@/shared/errors/app-error";
@@ -20,10 +25,13 @@ export class SupplierRepository extends BaseRepository<SupplierDocumentType, Sup
       email: doc.email,
       phone: doc.phone,
       alternativePhone: doc.alternativePhone,
+      facebook: doc.facebook,
+      whatsApp: doc.whatsApp,
       website: doc.website,
       logo: doc.logo,
       coverImage: doc.coverImage,
       description: doc.description,
+      supplierCategory: doc.supplierCategory as Supplier["supplierCategory"],
       businessType: doc.businessType,
       tradeLicenseNumber: doc.tradeLicenseNumber,
       binNumber: doc.binNumber,
@@ -84,13 +92,37 @@ export class SupplierRepository extends BaseRepository<SupplierDocumentType, Sup
             shippingTimeDays: doc.settings.shippingTimeDays,
           }
         : undefined,
+      performance: doc.performance
+        ? {
+            completedOrders: doc.performance.completedOrders ?? 0,
+            cancelledOrders: doc.performance.cancelledOrders ?? 0,
+            averageDeliveryDays: doc.performance.averageDeliveryDays ?? 0,
+            returnRate: doc.performance.returnRate ?? 0,
+            responseTimeHours: doc.performance.responseTimeHours ?? 0,
+            performanceScore: doc.performance.performanceScore ?? 0,
+          }
+        : undefined,
+      tags: doc.tags || undefined,
+      notes: doc.notes
+        ? doc.notes.map((item: any) => ({
+            id: item._id?.toString(),
+            content: item.content,
+            createdBy: item.createdBy,
+            createdAt: item.createdAt,
+          }))
+        : undefined,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
       createdBy: doc.createdBy,
       updatedBy: doc.updatedBy,
       deletedAt: doc.deletedAt,
       isDeleted: doc.isDeleted,
-      metadata: doc.metadata ? Object.fromEntries(doc.metadata as any) : undefined,
+      metadata: doc.metadata
+        ? (Object.fromEntries(doc.metadata as unknown as Map<string, unknown>) as Record<
+            string,
+            string | number | boolean | null | undefined
+          >)
+        : undefined,
     };
   }
 
@@ -112,6 +144,41 @@ export class SupplierRepository extends BaseRepository<SupplierDocumentType, Sup
     }
   }
 
+  async findByPhone(phone: string, options?: DatabaseQueryOptions): Promise<Supplier | null> {
+    try {
+      return this.findOne({ phone }, options);
+    } catch (error) {
+      logger.error("SupplierRepository findByPhone failed", error, { phone });
+      throw new DatabaseError("Database search error", error);
+    }
+  }
+
+  async searchSuppliers(
+    query: string,
+    options?: DatabaseQueryOptions,
+  ): Promise<Supplier[]> {
+    try {
+      const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      return this.find(
+        {
+          $or: [
+            { businessName: { $regex: escaped, $options: "i" } },
+            { code: { $regex: escaped, $options: "i" } },
+            { email: { $regex: escaped, $options: "i" } },
+            { phone: { $regex: escaped, $options: "i" } },
+            { ownerName: { $regex: escaped, $options: "i" } },
+            { contactPerson: { $regex: escaped, $options: "i" } },
+            { tags: { $regex: escaped, $options: "i" } },
+          ],
+        },
+        options,
+      );
+    } catch (error) {
+      logger.error("SupplierRepository searchSuppliers failed", error, { query });
+      throw new DatabaseError("Database search error", error);
+    }
+  }
+
   async countAll(filter: object = {}, options?: DatabaseQueryOptions): Promise<number> {
     try {
       return this.count(filter, options);
@@ -121,4 +188,81 @@ export class SupplierRepository extends BaseRepository<SupplierDocumentType, Sup
     }
   }
 }
+
+export class SupplierProductMappingRepository extends BaseRepository<
+  SupplierProductMappingDocumentType,
+  SupplierProductMapping
+> {
+  constructor() {
+    super(SupplierProductMappingModel, SupplierProductMappingRepository.mapToDomain);
+  }
+
+  private static mapToDomain(
+    doc: SupplierProductMappingDocumentType,
+  ): SupplierProductMapping {
+    return {
+      id: doc._id.toString(),
+      supplierId: doc.supplierId.toString(),
+      productId: doc.productId.toString(),
+      variantSku: doc.variantSku,
+      supplierSku: doc.supplierSku,
+      isPrimary: doc.isPrimary,
+      priority: doc.priority,
+      notes: doc.notes,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+      createdBy: doc.createdBy,
+      updatedBy: doc.updatedBy,
+      deletedAt: doc.deletedAt,
+      isDeleted: doc.isDeleted,
+      status: doc.status || "active",
+      metadata: doc.metadata
+        ? (Object.fromEntries(doc.metadata as unknown as Map<string, unknown>) as Record<
+            string,
+            string | number | boolean | null | undefined
+          >)
+        : undefined,
+    };
+  }
+
+  async findBySupplier(
+    supplierId: string,
+    options?: DatabaseQueryOptions,
+  ): Promise<SupplierProductMapping[]> {
+    try {
+      return this.find({ supplierId }, options);
+    } catch (error) {
+      logger.error("SupplierProductMappingRepository findBySupplier failed", error, { supplierId });
+      throw new DatabaseError("Database search error", error);
+    }
+  }
+
+  async findByProduct(
+    productId: string,
+    options?: DatabaseQueryOptions,
+  ): Promise<SupplierProductMapping[]> {
+    try {
+      return this.find({ productId }, options);
+    } catch (error) {
+      logger.error("SupplierProductMappingRepository findByProduct failed", error, { productId });
+      throw new DatabaseError("Database search error", error);
+    }
+  }
+
+  async findPrimaryByProduct(
+    productId: string,
+    options?: DatabaseQueryOptions,
+  ): Promise<SupplierProductMapping | null> {
+    try {
+      return this.findOne({ productId, isPrimary: true }, options);
+    } catch (error) {
+      logger.error("SupplierProductMappingRepository findPrimaryByProduct failed", error, {
+        productId,
+      });
+      throw new DatabaseError("Database search error", error);
+    }
+  }
+}
+
+export { SupplierProductMappingRepository as SupplierMappingRepository };
 export default SupplierRepository;

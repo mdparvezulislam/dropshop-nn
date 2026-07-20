@@ -1,5 +1,13 @@
 import { BaseDBEntity } from "@/shared/lib/database/types";
 
+export type SupplierCategory =
+  | "manufacturer"
+  | "importer"
+  | "wholesaler"
+  | "distributor"
+  | "local_vendor"
+  | "dropshipping_partner";
+
 export interface SupplierContact {
   id?: string;
   name: string;
@@ -50,6 +58,32 @@ export interface SupplierAddress {
   returnAddress: string;
 }
 
+export interface SupplierPerformance {
+  completedOrders: number;
+  cancelledOrders: number;
+  averageDeliveryDays: number;
+  returnRate: number;
+  responseTimeHours: number;
+  performanceScore: number;
+}
+
+export interface SupplierNote {
+  id?: string;
+  content: string;
+  createdBy?: string;
+  createdAt: Date;
+}
+
+export interface SupplierProductMapping extends BaseDBEntity {
+  supplierId: string;
+  productId: string;
+  variantSku?: string;
+  supplierSku: string;
+  isPrimary: boolean;
+  priority: number;
+  notes?: string;
+}
+
 export interface Supplier extends BaseDBEntity {
   code: string;
   businessName: string;
@@ -58,10 +92,13 @@ export interface Supplier extends BaseDBEntity {
   email: string;
   phone: string;
   alternativePhone?: string;
+  facebook?: string;
+  whatsApp?: string;
   website?: string;
   logo?: string;
   coverImage?: string;
   description?: string;
+  supplierCategory: SupplierCategory;
   businessType: string;
   tradeLicenseNumber: string;
   binNumber?: string;
@@ -69,10 +106,14 @@ export interface Supplier extends BaseDBEntity {
   nidVerified: boolean;
   businessVerificationStatus: "unverified" | "pending" | "verified" | "rejected";
   address: SupplierAddress;
-  status: "pending" | "active" | "suspended" | "blocked" | "archived";
+  status: "pending" | "active" | "inactive" | "suspended" | "blocked" | "archived";
   contacts: SupplierContact[];
   banking?: SupplierBankAccount;
   documents: SupplierDocument[];
   settings?: SupplierSettings;
+  performance?: SupplierPerformance;
+  tags?: string[];
+  notes?: SupplierNote[];
 }
+
 export default Supplier;

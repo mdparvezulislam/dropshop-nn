@@ -15,6 +15,8 @@ export const createInventorySchema = z.object({
   incomingStock: stockQuantitySchema.default(0),
   damagedStock: stockQuantitySchema.default(0),
   returnedStock: stockQuantitySchema.default(0),
+  soldStock: stockQuantitySchema.default(0),
+  virtualStock: stockQuantitySchema.default(0),
   safetyStock: stockQuantitySchema.default(0),
   reorderLevel: stockQuantitySchema.default(0),
   lowStockThreshold: stockQuantitySchema.default(5),
@@ -31,7 +33,7 @@ export type UpdateInventoryInput = z.infer<typeof updateInventorySchema>;
 
 export const stockAdjustmentSchema = z.object({
   inventoryId: objectIdSchema,
-  operation: z.enum(["stock_in", "stock_out", "adjustment", "reservation", "release", "transfer"]),
+  operation: z.enum(["stock_in", "stock_out", "adjustment", "reservation", "release", "transfer", "damage", "return", "sold"]),
   quantity: z.coerce.number().int().positive("Quantity must be a positive integer"),
   reason: z.string().trim().optional().or(z.literal("")),
   referenceId: z.string().trim().optional().or(z.literal("")),
@@ -71,6 +73,10 @@ export const bulkStockUpdateItemSchema = z.object({
   availableStock: stockQuantitySchema.optional(),
   reservedStock: stockQuantitySchema.optional(),
   incomingStock: stockQuantitySchema.optional(),
+  damagedStock: stockQuantitySchema.optional(),
+  returnedStock: stockQuantitySchema.optional(),
+  soldStock: stockQuantitySchema.optional(),
+  virtualStock: stockQuantitySchema.optional(),
   safetyStock: stockQuantitySchema.optional(),
   reorderLevel: stockQuantitySchema.optional(),
   lowStockThreshold: stockQuantitySchema.optional(),
@@ -91,7 +97,7 @@ export const inventoryListQuerySchema = z.object({
   productId: objectIdSchema.optional(),
   warehouseId: objectIdSchema.optional(),
   availability: z
-    .enum(["in_stock", "low_stock", "out_of_stock", "pre_order", "backorder", "all"])
+    .enum(["in_stock", "low_stock", "out_of_stock", "pre_order", "backorder", "discontinued", "all"])
     .default("all"),
   status: z.enum(["active", "inactive", "frozen", "all"]).default("all"),
   lowStockOnly: z.coerce.boolean().optional(),
@@ -107,7 +113,7 @@ export const inventoryHistoryQuerySchema = z.object({
   inventoryId: objectIdSchema.optional(),
   productId: objectIdSchema.optional(),
   operation: z
-    .enum(["stock_in", "stock_out", "adjustment", "reservation", "release", "transfer", "all"])
+    .enum(["stock_in", "stock_out", "adjustment", "reservation", "release", "transfer", "damage", "return", "sold", "all"])
     .default("all"),
   sortBy: z.string().optional(),
   sortOrder: z.enum(["asc", "desc"]).default("desc"),

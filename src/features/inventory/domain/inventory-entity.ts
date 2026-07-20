@@ -1,10 +1,11 @@
 import { BaseDBEntity } from "@/shared/lib/database/types";
 
 export type StockAvailability =
-  "in_stock" | "low_stock" | "out_of_stock" | "pre_order" | "backorder";
+  "in_stock" | "low_stock" | "out_of_stock" | "pre_order" | "backorder" | "discontinued";
 
 export type StockOperationType =
-  "stock_in" | "stock_out" | "adjustment" | "reservation" | "release" | "transfer";
+  "stock_in" | "stock_out" | "adjustment" | "reservation" | "release" | "transfer"
+  | "damage" | "return" | "sold";
 
 export type InventoryStatus = "active" | "inactive" | "frozen";
 
@@ -17,6 +18,8 @@ export interface ProductInventory extends BaseDBEntity {
   incomingStock: number;
   damagedStock: number;
   returnedStock: number;
+  soldStock: number;
+  virtualStock: number;
   safetyStock: number;
   reorderLevel: number;
   lowStockThreshold: number;
@@ -64,6 +67,8 @@ export interface StockLevels {
   incoming: number;
   damaged: number;
   returned: number;
+  sold: number;
+  virtual: number;
   sellable: number;
   isLowStock: boolean;
   isOutOfStock: boolean;
@@ -72,7 +77,7 @@ export interface StockLevels {
   availability: StockAvailability;
 }
 
-export interface StockAdjustmentInput {
+export interface StockAdjustmentRequest {
   inventoryId: string;
   operation: StockOperationType;
   quantity: number;
@@ -81,6 +86,7 @@ export interface StockAdjustmentInput {
   notes?: string;
   warehouseId?: string | null;
   targetWarehouseId?: string | null;
+  absoluteAvailable?: number;
 }
 
 export interface BulkStockUpdateItem {
@@ -89,6 +95,10 @@ export interface BulkStockUpdateItem {
   availableStock?: number;
   reservedStock?: number;
   incomingStock?: number;
+  damagedStock?: number;
+  returnedStock?: number;
+  soldStock?: number;
+  virtualStock?: number;
   safetyStock?: number;
   reorderLevel?: number;
   lowStockThreshold?: number;

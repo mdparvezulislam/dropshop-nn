@@ -32,6 +32,8 @@ export class InventoryRepository extends BaseRepository<
       incomingStock: doc.incomingStock,
       damagedStock: doc.damagedStock,
       returnedStock: doc.returnedStock,
+      soldStock: doc.soldStock ?? 0,
+      virtualStock: doc.virtualStock ?? 0,
       safetyStock: doc.safetyStock,
       reorderLevel: doc.reorderLevel,
       lowStockThreshold: doc.lowStockThreshold,

@@ -99,3 +99,85 @@ export const pricingListQuerySchema = z.object({
 });
 
 export type PricingListQuery = z.infer<typeof pricingListQuerySchema>;
+
+// ─── Rule Schemas ───────────────────────────────────────────
+
+const ruleOperatorSchema = z.enum(["eq", "neq", "gt", "gte", "lt", "lte", "in", "between"]);
+
+const ruleConditionSchema = z.object({
+  field: z.string().min(1, "Condition field is required"),
+  operator: ruleOperatorSchema,
+  value: z.unknown(),
+});
+
+const ruleActionSchema = z.object({
+  type: z.enum(["reject", "override", "validate", "transform"]),
+  config: z.record(z.string(), z.unknown()),
+});
+
+export const createRuleSchema = z.object({
+  name: z.string().min(1, "Rule name is required").max(200),
+  description: z.string().max(1000).default(""),
+  ruleType: z.enum(["reseller", "wholesale", "campaign", "protection", "visibility"]),
+  conditions: z.array(ruleConditionSchema).min(1, "At least one condition is required"),
+  actions: z.array(ruleActionSchema).min(1, "At least one action is required"),
+  priority: z.coerce.number().int().min(0).max(1000).default(100),
+  isActive: z.boolean().default(true),
+});
+
+export type CreateRuleInput = z.infer<typeof createRuleSchema>;
+
+export const updateRuleSchema = createRuleSchema.partial();
+
+export type UpdateRuleInput = z.infer<typeof updateRuleSchema>;
+
+// ─── Wholesale Tier Schemas ─────────────────────────────────
+
+export const wholesaleTierSchema = z.object({
+  minQty: z.coerce.number().int().positive("Minimum quantity must be positive"),
+  price: z.coerce.number().int().nonnegative("Price must be a non-negative integer (cents)"),
+  discount: z.coerce.number().min(0).max(100).optional(),
+  description: z.string().max(500).optional(),
+});
+
+export type WholesaleTierInput = z.infer<typeof wholesaleTierSchema>;
+
+export const wholesaleTiersUpdateSchema = z.object({
+  productId: z.string().min(1, "Product ID is required"),
+  variantSku: z.string().trim().optional().or(z.literal("")),
+  tiers: z.array(wholesaleTierSchema).min(1, "At least one tier is required"),
+});
+
+export type WholesaleTiersUpdateInput = z.infer<typeof wholesaleTiersUpdateSchema>;
+
+// ─── Campaign Pricing Schemas ───────────────────────────────
+
+export const campaignTypeSchema = z.enum(["campaign", "flash_sale", "festival"]);
+
+export const createCampaignPricingSchema = z.object({
+  productId: z.string().min(1, "Product ID is required"),
+  variantSku: z.string().trim().optional().or(z.literal("")),
+  campaignType: campaignTypeSchema,
+  campaignPrice: z.coerce.number().int().nonnegative("Campaign price must be non-negative"),
+  effectiveFrom: z.coerce.date(),
+  effectiveTo: z.coerce.date(),
+  description: z.string().max(500).optional(),
+});
+
+export type CreateCampaignPricingInput = z.infer<typeof createCampaignPricingSchema>;
+
+export const updateCampaignPricingSchema = createCampaignPricingSchema.partial().omit({ productId: true });
+
+export type UpdateCampaignPricingInput = z.infer<typeof updateCampaignPricingSchema>;
+
+// ─── Price Resolution ───────────────────────────────────────
+
+export const resolvePriceQuerySchema = z.object({
+  productId: z.string().min(1, "Product ID is required"),
+  variantSku: z.string().trim().optional().or(z.literal("")),
+  role: z.string().optional().default("customer"),
+  quantity: z.coerce.number().int().positive().optional().default(1),
+  campaignCode: z.string().optional(),
+});
+
+export type ResolvePriceQuery = z.infer<typeof resolvePriceQuerySchema>;

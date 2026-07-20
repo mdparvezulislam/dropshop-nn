@@ -259,6 +259,8 @@ export class InventoryService {
           incomingStock: mutation.incomingStock,
           damagedStock: mutation.damagedStock,
           returnedStock: mutation.returnedStock,
+          soldStock: mutation.soldStock,
+          virtualStock: mutation.virtualStock,
           availability: mutation.availability,
           updatedBy: actorId,
         } as Parameters<InventoryRepository["update"]>[1],
@@ -347,6 +349,48 @@ export class InventoryService {
         quantity,
         referenceId,
         reason: "Stock release",
+      },
+      actorId,
+    );
+  }
+
+  async markDamaged(
+    inventoryId: string,
+    quantity: number,
+    reason?: string,
+    actorId?: string,
+  ): Promise<{ inventory: ProductInventory; history: InventoryHistory }> {
+    return this.adjustStock(
+      { inventoryId, operation: "damage", quantity, reason },
+      actorId,
+    );
+  }
+
+  async markReturned(
+    inventoryId: string,
+    quantity: number,
+    reason?: string,
+    actorId?: string,
+  ): Promise<{ inventory: ProductInventory; history: InventoryHistory }> {
+    return this.adjustStock(
+      { inventoryId, operation: "return", quantity, reason },
+      actorId,
+    );
+  }
+
+  async markSold(
+    inventoryId: string,
+    quantity: number,
+    referenceId?: string,
+    actorId?: string,
+  ): Promise<{ inventory: ProductInventory; history: InventoryHistory }> {
+    return this.adjustStock(
+      {
+        inventoryId,
+        operation: "sold",
+        quantity,
+        referenceId,
+        reason: "Order fulfillment",
       },
       actorId,
     );

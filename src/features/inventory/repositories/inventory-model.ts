@@ -15,10 +15,12 @@ export interface ProductInventoryDBFields {
   incomingStock: number;
   damagedStock: number;
   returnedStock: number;
+  soldStock: number;
+  virtualStock: number;
   safetyStock: number;
   reorderLevel: number;
   lowStockThreshold: number;
-  availability: "in_stock" | "low_stock" | "out_of_stock" | "pre_order" | "backorder";
+  availability: "in_stock" | "low_stock" | "out_of_stock" | "pre_order" | "backorder" | "discontinued";
   allowPreOrder: boolean;
   allowBackorder: boolean;
   status: "active" | "inactive" | "frozen";
@@ -31,7 +33,7 @@ export interface InventoryHistoryDBFields {
   productId: mongoose.Types.ObjectId;
   variantSku?: string;
   warehouseId?: mongoose.Types.ObjectId | null;
-  operation: "stock_in" | "stock_out" | "adjustment" | "reservation" | "release" | "transfer";
+  operation: "stock_in" | "stock_out" | "adjustment" | "reservation" | "release" | "transfer" | "damage" | "return" | "sold";
   quantity: number;
   previousAvailable: number;
   newAvailable: number;
@@ -85,12 +87,14 @@ const productInventorySchema = new Schema<ProductInventoryDocumentType>(
     incomingStock: { type: Number, required: true, default: 0, min: 0 },
     damagedStock: { type: Number, required: true, default: 0, min: 0 },
     returnedStock: { type: Number, required: true, default: 0, min: 0 },
+    soldStock: { type: Number, required: true, default: 0, min: 0 },
+    virtualStock: { type: Number, required: true, default: 0, min: 0 },
     safetyStock: { type: Number, required: true, default: 0, min: 0 },
     reorderLevel: { type: Number, required: true, default: 0, min: 0 },
     lowStockThreshold: { type: Number, required: true, default: 5, min: 0 },
     availability: {
       type: String,
-      enum: ["in_stock", "low_stock", "out_of_stock", "pre_order", "backorder"],
+      enum: ["in_stock", "low_stock", "out_of_stock", "pre_order", "backorder", "discontinued"],
       default: "out_of_stock",
       index: true,
     },
@@ -143,7 +147,7 @@ const inventoryHistorySchema = new Schema<InventoryHistoryDocumentType>(
     },
     operation: {
       type: String,
-      enum: ["stock_in", "stock_out", "adjustment", "reservation", "release", "transfer"],
+      enum: ["stock_in", "stock_out", "adjustment", "reservation", "release", "transfer", "damage", "return", "sold"],
       required: true,
       index: true,
     },

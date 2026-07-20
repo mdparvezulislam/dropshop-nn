@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Building2, Eye } from "lucide-react";
+import { Plus, Building2, Eye, Store, Users, Clock, Ban } from "lucide-react";
 import { ListLayout } from "@/shared/components/workspace/list-layout";
 import { Toolbar } from "@/shared/components/workspace/toolbar";
 import { SearchBox } from "@/shared/components/workspace/search-box";
@@ -11,69 +11,66 @@ import { StatCard } from "@/shared/components/workspace/stat-card";
 import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
 import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
 import { Button } from "@/shared/components/ui/button";
+import { Spinner } from "@/shared/components/ui/spinner";
+import { listSuppliersAction } from "@/features/supplier/actions/supplier-actions";
 
 type Row = {
   id: string;
   code: string;
   businessName: string;
-  contactPerson: string;
+  ownerName: string;
   email: string;
   phone: string;
   district: string;
+  category: string;
   status: string;
   performance: number;
 };
-
-const MOCK: Row[] = [
-  {
-    id: "1",
-    code: "SPL-0001",
-    businessName: "Vertex Logistics",
-    contactPerson: "Akram Khan",
-    email: "akram@vertex.com",
-    phone: "+8801711223344",
-    district: "Dhaka",
-    status: "active",
-    performance: 96,
-  },
-  {
-    id: "2",
-    code: "SPL-0002",
-    businessName: "Amana Distributors",
-    contactPerson: "Mominul Haque",
-    email: "mominul@amana.com",
-    phone: "+8801811556677",
-    district: "Chittagong",
-    status: "pending",
-    performance: 88,
-  },
-  {
-    id: "3",
-    code: "SPL-0003",
-    businessName: "Standard Trading",
-    contactPerson: "Zahid Hasan",
-    email: "zahid@standard.com",
-    phone: "+8801911889900",
-    district: "Sylhet",
-    status: "suspended",
-    performance: 75,
-  },
-];
 
 export default function SuppliersPage(): React.ReactElement {
   const router = useRouter();
   const [search, setSearch] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState("all");
   const [page, setPage] = React.useState(1);
+  const [loading, setLoading] = React.useState(true);
+  const [rows, setRows] = React.useState<Row[]>([]);
+  const [totalCount, setTotalCount] = React.useState(0);
 
-  const filtered = MOCK.filter((item) => {
-    const q = search.toLowerCase();
-    const match =
-      item.businessName.toLowerCase().includes(q) ||
-      item.code.toLowerCase().includes(q) ||
-      item.email.toLowerCase().includes(q);
-    return match && (statusFilter === "all" || item.status === statusFilter);
-  });
+  React.useEffect(() => {
+    setLoading(true);
+    listSuppliersAction({ search, status: statusFilter, page, limit: 10 }).then((res) => {
+      if (res.success && res.data) {
+        const mapped: Row[] = res.data.items.map((s: any) => ({
+          id: s.id || s._id,
+          code: s.code,
+          businessName: s.businessName,
+          ownerName: s.ownerName,
+          email: s.email,
+          phone: s.phone,
+          district: s.address?.district ?? "",
+          category: s.supplierCategory ?? "",
+          status: s.status ?? "pending",
+          performance: s.performance?.performanceScore ?? 0,
+        }));
+        setRows(mapped);
+        setTotalCount(res.data.totalCount);
+      } else {
+        setRows([]);
+        setTotalCount(0);
+      }
+      setLoading(false);
+    });
+  }, [search, statusFilter, page]);
+
+  const stats = React.useMemo(() => {
+    const all = rows;
+    return {
+      total: totalCount,
+      active: all.filter((r) => r.status === "active").length,
+      pending: all.filter((r) => r.status === "pending").length,
+      suspended: all.filter((r) => r.status === "suspended").length,
+    };
+  }, [rows, totalCount]);
 
   const columns: DataTableColumn<Row>[] = [
     {
@@ -92,7 +89,7 @@ export default function SuppliersPage(): React.ReactElement {
       hideOnMobile: true,
       cell: (r) => (
         <div>
-          <div className="text-sm">{r.contactPerson}</div>
+          <div className="text-sm">{r.ownerName}</div>
           <div className="text-[11px] text-muted-foreground">{r.email}</div>
         </div>
       ),
@@ -101,14 +98,24 @@ export default function SuppliersPage(): React.ReactElement {
       id: "district",
       header: "District",
       hideOnMobile: true,
-      cell: (r) => <span className="text-muted-foreground">{r.district}</span>,
+      cell: (r) => <span className="text-muted-foreground">{r.district || "—"}</span>,
     },
     {
       id: "perf",
       header: "Score",
       hideOnMobile: true,
       cell: (r) => (
-        <span className="tabular-nums font-medium text-emerald-500">{r.performance}</span>
+        <span
+          className={`tabular-nums font-medium ${
+            r.performance >= 80
+              ? "text-emerald-500"
+              : r.performance >= 40
+                ? "text-amber-500"
+                : "text-red-500"
+          }`}
+        >
+          {r.performance}
+        </span>
       ),
     },
     {
@@ -132,6 +139,8 @@ export default function SuppliersPage(): React.ReactElement {
     },
   ];
 
+  const pageSize = 10;
+
   return (
     <ListLayout
       header={{
@@ -146,24 +155,18 @@ export default function SuppliersPage(): React.ReactElement {
         ),
       }}
       stats={
-        <>
-          <StatCard label="Partners" value={MOCK.length} icon={Building2} />
-          <StatCard
-            label="Active"
-            value={MOCK.filter((s) => s.status === "active").length}
-            accent="success"
-          />
-          <StatCard
-            label="Pending"
-            value={MOCK.filter((s) => s.status === "pending").length}
-            accent="warning"
-          />
-          <StatCard
-            label="Suspended"
-            value={MOCK.filter((s) => s.status === "suspended").length}
-            accent="danger"
-          />
-        </>
+        loading ? (
+          <div className="col-span-4 flex items-center gap-2 text-sm text-muted-foreground">
+            <Spinner size="sm" /> Loading stats…
+          </div>
+        ) : (
+          <>
+            <StatCard label="Partners" value={stats.total} icon={Building2} />
+            <StatCard label="Active" value={stats.active} icon={Users} accent="success" />
+            <StatCard label="Pending" value={stats.pending} icon={Clock} accent="warning" />
+            <StatCard label="Suspended" value={stats.suspended} icon={Ban} accent="danger" />
+          </>
+        )
       }
       toolbar={
         <Toolbar
@@ -177,12 +180,16 @@ export default function SuppliersPage(): React.ReactElement {
               />
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setPage(1);
+                }}
                 className="h-9 rounded-md border border-input bg-card px-3 text-sm"
               >
                 <option value="all">All status</option>
                 <option value="active">Active</option>
                 <option value="pending">Pending</option>
+                <option value="inactive">Inactive</option>
                 <option value="suspended">Suspended</option>
               </select>
             </>
@@ -192,10 +199,11 @@ export default function SuppliersPage(): React.ReactElement {
     >
       <DataTable
         columns={columns}
-        data={filtered}
+        data={rows}
+        loading={loading}
         page={page}
-        pageSize={10}
-        totalCount={filtered.length}
+        pageSize={pageSize}
+        totalCount={totalCount}
         onPageChange={setPage}
         onRowClick={(r) => router.push(`/dashboard/suppliers/${r.id}`)}
       />

@@ -42,6 +42,27 @@ const supplierSettingsSchema = new Schema({
   shippingTimeDays: { type: Number, default: 5 },
 });
 
+const supplierNoteSchema = new Schema(
+  {
+    content: { type: String, required: true },
+    createdBy: { type: String, required: false },
+    createdAt: { type: Date, default: Date.now },
+  },
+  { _id: true },
+);
+
+const supplierPerformanceSchema = new Schema(
+  {
+    completedOrders: { type: Number, default: 0 },
+    cancelledOrders: { type: Number, default: 0 },
+    averageDeliveryDays: { type: Number, default: 0 },
+    returnRate: { type: Number, default: 0 },
+    responseTimeHours: { type: Number, default: 0 },
+    performanceScore: { type: Number, default: 0 },
+  },
+  { _id: false },
+);
+
 export interface SupplierAddress {
   country: string;
   division: string;
@@ -62,10 +83,13 @@ export interface SupplierDBFields {
   email: string;
   phone: string;
   alternativePhone?: string;
+  facebook?: string;
+  whatsApp?: string;
   website?: string;
   logo?: string;
   coverImage?: string;
   description?: string;
+  supplierCategory: string;
   businessType: string;
   tradeLicenseNumber: string;
   binNumber?: string;
@@ -73,14 +97,31 @@ export interface SupplierDBFields {
   nidVerified: boolean;
   businessVerificationStatus: "unverified" | "pending" | "verified" | "rejected";
   address: SupplierAddress;
-  status: "pending" | "active" | "suspended" | "blocked" | "archived";
+  status: "pending" | "active" | "inactive" | "suspended" | "blocked";
   contacts: any[];
   banking?: any;
   documents: any[];
   settings?: any;
+  performance?: any;
+  tags?: string[];
+  notes?: any[];
 }
 
 export type SupplierDocumentType = BaseDocument & SupplierDBFields;
+
+// ─── Supplier Product Mapping ───────────────────────────────
+
+export interface SupplierProductMappingDBFields {
+  supplierId: mongoose.Types.ObjectId;
+  productId: mongoose.Types.ObjectId;
+  variantSku?: string;
+  supplierSku: string;
+  isPrimary: boolean;
+  priority: number;
+  notes?: string;
+}
+
+export type SupplierProductMappingDocumentType = BaseDocument & SupplierProductMappingDBFields;
 
 const { status: _, ...supplierBaseFields } = baseFieldsDefinition;
 
@@ -93,10 +134,18 @@ const supplierSchema = new Schema<SupplierDocumentType>(
     email: { type: String, required: true, unique: true, index: true },
     phone: { type: String, required: true, unique: true, index: true },
     alternativePhone: { type: String, required: false },
+    facebook: { type: String, required: false },
+    whatsApp: { type: String, required: false },
     website: { type: String, required: false },
     logo: { type: String, required: false },
     coverImage: { type: String, required: false },
     description: { type: String, required: false },
+    supplierCategory: {
+      type: String,
+      enum: ["manufacturer", "importer", "wholesaler", "distributor", "local_vendor", "dropshipping_partner"],
+      default: "local_vendor",
+      index: true,
+    },
     businessType: { type: String, required: true },
     tradeLicenseNumber: { type: String, required: true },
     binNumber: { type: String, required: false },
@@ -120,7 +169,7 @@ const supplierSchema = new Schema<SupplierDocumentType>(
     },
     status: {
       type: String,
-      enum: ["pending", "active", "suspended", "blocked", "archived"],
+      enum: ["pending", "active", "inactive", "suspended", "blocked"],
       default: "pending",
       index: true,
     },
@@ -128,6 +177,9 @@ const supplierSchema = new Schema<SupplierDocumentType>(
     banking: { type: supplierBankAccountSchema, required: false },
     documents: [supplierDocumentSchema],
     settings: { type: supplierSettingsSchema, default: () => ({}) },
+    performance: { type: supplierPerformanceSchema, default: () => ({}) },
+    tags: [{ type: String }],
+    notes: [supplierNoteSchema],
     ...supplierBaseFields,
   },
   baseSchemaOptions,
@@ -137,4 +189,45 @@ supplierSchema.plugin(softDeletePlugin);
 
 export const SupplierModel =
   mongoose.models.Supplier || mongoose.model<SupplierDocumentType>("Supplier", supplierSchema);
+
+// ─── Supplier Product Mapping Model ─────────────────────────
+
+const supplierProductMappingSchema = new Schema<SupplierProductMappingDocumentType>(
+  {
+    supplierId: {
+      type: Schema.Types.ObjectId,
+      ref: "Supplier",
+      required: true,
+      index: true,
+    },
+    productId: {
+      type: Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+      index: true,
+    },
+    variantSku: { type: String, required: false, index: true },
+    supplierSku: { type: String, required: true },
+    isPrimary: { type: Boolean, default: false },
+    priority: { type: Number, default: 0 },
+    notes: { type: String, required: false },
+    ...baseFieldsDefinition,
+  },
+  baseSchemaOptions,
+);
+
+supplierProductMappingSchema.index(
+  { supplierId: 1, productId: 1, variantSku: 1 },
+  { unique: true, sparse: true },
+);
+supplierProductMappingSchema.index({ productId: 1, supplierId: 1 });
+supplierProductMappingSchema.plugin(softDeletePlugin);
+
+export const SupplierProductMappingModel =
+  mongoose.models.SupplierProductMapping ||
+  mongoose.model<SupplierProductMappingDocumentType>(
+    "SupplierProductMapping",
+    supplierProductMappingSchema,
+  );
+
 export default SupplierModel;

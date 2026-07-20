@@ -12,6 +12,8 @@ export interface StockMutationResult {
   incomingStock: number;
   damagedStock: number;
   returnedStock: number;
+  soldStock: number;
+  virtualStock: number;
   availability: StockAvailability;
 }
 
@@ -80,6 +82,8 @@ export class StockCalculationService {
       incoming: inventory.incomingStock,
       damaged: inventory.damagedStock,
       returned: inventory.returnedStock,
+      sold: inventory.soldStock ?? 0,
+      virtual: inventory.virtualStock ?? 0,
       sellable: this.calculateSellable(inventory),
       isLowStock: availability === "low_stock",
       isOutOfStock: availability === "out_of_stock",
@@ -104,8 +108,10 @@ export class StockCalculationService {
     let availableStock = inventory.availableStock;
     let reservedStock = inventory.reservedStock;
     let incomingStock = inventory.incomingStock;
-    const damagedStock = inventory.damagedStock;
-    const returnedStock = inventory.returnedStock;
+    let damagedStock = inventory.damagedStock;
+    let returnedStock = inventory.returnedStock;
+    let soldStock = inventory.soldStock ?? 0;
+    const virtualStock = inventory.virtualStock ?? 0;
 
     switch (operation) {
       case "stock_in":
@@ -161,6 +167,35 @@ export class StockCalculationService {
         availableStock -= quantity;
         break;
 
+      case "damage":
+        if (availableStock < quantity) {
+          throw new ValidationError("Insufficient stock to mark damaged", {
+            quantity: [`Only ${availableStock} units available`],
+          });
+        }
+        availableStock -= quantity;
+        damagedStock += quantity;
+        break;
+
+      case "return":
+        availableStock += quantity;
+        returnedStock += quantity;
+        break;
+
+      case "sold":
+        if (reservedStock < quantity) {
+          if (availableStock < quantity) {
+            throw new ValidationError("Insufficient stock to mark sold", {
+              quantity: [`Only ${availableStock} units available`],
+            });
+          }
+          availableStock -= quantity;
+        } else {
+          reservedStock -= quantity;
+        }
+        soldStock += quantity;
+        break;
+
       default:
         throw new ValidationError("Unsupported stock operation", {
           operation: ["Invalid stock operation type"],
@@ -181,6 +216,8 @@ export class StockCalculationService {
       incomingStock,
       damagedStock,
       returnedStock,
+      soldStock,
+      virtualStock,
       availability,
     };
   }

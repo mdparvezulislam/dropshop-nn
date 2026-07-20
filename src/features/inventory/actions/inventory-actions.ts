@@ -172,6 +172,72 @@ export async function getLowStockListAction(): Promise<{
   return { success: true, data: result };
 }
 
+export async function markDamagedAction(formData: unknown): Promise<{
+  success: boolean;
+  data?: Awaited<ReturnType<InventoryService["markDamaged"]>>;
+  error?: string;
+}> {
+  const session = await auth();
+  checkPermission(session, "Inventory.Adjust");
+
+  const validated = stockAdjustmentSchema.parse(formData);
+  const service = new InventoryService();
+  const result = await service.markDamaged(
+    validated.inventoryId,
+    validated.quantity,
+    validated.reason,
+    session?.user?.id,
+  );
+
+  revalidatePath(ROUTES.INVENTORY);
+  revalidatePath(`${ROUTES.INVENTORY}/damaged`);
+  return { success: true, data: result };
+}
+
+export async function markReturnedAction(formData: unknown): Promise<{
+  success: boolean;
+  data?: Awaited<ReturnType<InventoryService["markReturned"]>>;
+  error?: string;
+}> {
+  const session = await auth();
+  checkPermission(session, "Inventory.Adjust");
+
+  const validated = stockAdjustmentSchema.parse(formData);
+  const service = new InventoryService();
+  const result = await service.markReturned(
+    validated.inventoryId,
+    validated.quantity,
+    validated.reason,
+    session?.user?.id,
+  );
+
+  revalidatePath(ROUTES.INVENTORY);
+  revalidatePath(`${ROUTES.INVENTORY}/returns`);
+  return { success: true, data: result };
+}
+
+export async function markSoldAction(formData: unknown): Promise<{
+  success: boolean;
+  data?: Awaited<ReturnType<InventoryService["markSold"]>>;
+  error?: string;
+}> {
+  const session = await auth();
+  checkPermission(session, "Inventory.Adjust");
+
+  const validated = stockAdjustmentSchema.parse(formData);
+  const service = new InventoryService();
+  const result = await service.markSold(
+    validated.inventoryId,
+    validated.quantity,
+    validated.referenceId,
+    session?.user?.id,
+  );
+
+  revalidatePath(ROUTES.INVENTORY);
+  revalidatePath(`${ROUTES.INVENTORY}/history`);
+  return { success: true, data: result };
+}
+
 export async function getInventoryHistoryAction(query: unknown): Promise<{
   success: boolean;
   data?: Awaited<ReturnType<InventoryService["getHistory"]>>;
@@ -265,6 +331,33 @@ export async function updateSupplierInventoryAction(
 
   revalidatePath(ROUTES.INVENTORY);
   return { success: true, data: result };
+}
+
+export async function getSupplierInventoryAction(productId: string): Promise<{
+  success: boolean;
+  data?: Awaited<ReturnType<InventoryService["getSupplierInventoryByProduct"]>>;
+  error?: string;
+}> {
+  const session = await auth();
+  checkPermission(session, "Inventory.View");
+
+  const service = new InventoryService();
+  const result = await service.getSupplierInventoryByProduct(productId);
+  return { success: true, data: result };
+}
+
+export async function getInventoryStockLevelsAction(id: string): Promise<{
+  success: boolean;
+  data?: ReturnType<InventoryService["getStockLevels"]>;
+  error?: string;
+}> {
+  const session = await auth();
+  checkPermission(session, "Inventory.View");
+
+  const service = new InventoryService();
+  const inventory = await service.getInventoryById(id);
+  const levels = service.getStockLevels(inventory);
+  return { success: true, data: levels };
 }
 
 export async function exportInventoryAction(filter: unknown = {}): Promise<{
