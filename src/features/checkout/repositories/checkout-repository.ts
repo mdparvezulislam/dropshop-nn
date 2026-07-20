@@ -86,7 +86,10 @@ function draftToDomain(doc: any): OrderDraft {
   };
 }
 
-export class CheckoutSessionRepository extends BaseRepository<CheckoutSessionDocument, CheckoutSession> {
+export class CheckoutSessionRepository extends BaseRepository<
+  CheckoutSessionDocument,
+  CheckoutSession
+> {
   constructor() {
     super(CheckoutSessionModel as any, sessionToDomain);
   }

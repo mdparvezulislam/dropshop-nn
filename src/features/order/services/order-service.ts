@@ -1,12 +1,29 @@
 import { OrderRepository } from "../repositories/order-repository";
 import { OrderTimelineService } from "./order-timeline-service";
-import { canTransition, isTerminal, isCancellable, requiresInventoryRelease, getHumanLabel, type OrderStatus, ORDER_STATUSES } from "../domain/state-machine";
+import {
+  canTransition,
+  isTerminal,
+  isCancellable,
+  requiresInventoryRelease,
+  getHumanLabel,
+  type OrderStatus,
+  ORDER_STATUSES,
+} from "../domain/state-machine";
 import { EventBus } from "@/shared/lib/event-bus";
 import { ValidationError, NotFoundError, ConflictError } from "@/shared/errors/app-error";
 import { logger } from "@/shared/utils/logger";
 import { runInTransaction } from "@/shared/lib/database/query-builder";
 import { generateUUID } from "@/shared/utils/id-utils";
-import type { Order, CustomerSnapshot, ShippingSnapshot, OrderPricingSnapshot, OrderProfitPreview, OrderShippingInfo, OrderTimelineEntry, SupplierReference } from "../domain/order-entity";
+import type {
+  Order,
+  CustomerSnapshot,
+  ShippingSnapshot,
+  OrderPricingSnapshot,
+  OrderProfitPreview,
+  OrderShippingInfo,
+  OrderTimelineEntry,
+  SupplierReference,
+} from "../domain/order-entity";
 import type { CreateOrderFromDraftInput } from "../types/validation";
 import type { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
 
@@ -43,11 +60,13 @@ export class OrderService {
         eventType: "order.created",
         action: "order.created",
         summary: `Order ${input.orderNumber} created from checkout draft`,
-        actor: input.customer.customerId ? {
-          id: input.customer.customerId,
-          name: input.customer.name,
-          role: "customer",
-        } : undefined,
+        actor: input.customer.customerId
+          ? {
+              id: input.customer.customerId,
+              name: input.customer.name,
+              role: "customer",
+            }
+          : undefined,
         timestamp: new Date(),
       };
 
@@ -89,9 +108,9 @@ export class OrderService {
         wholesaleId: input.wholesaleId,
       };
 
-    if (input.autoConfirmed) {
-      (orderData as Record<string, unknown>).confirmedAt = new Date();
-    }
+      if (input.autoConfirmed) {
+        (orderData as Record<string, unknown>).confirmedAt = new Date();
+      }
 
       const order = await this.orderRepository.create(orderData as any);
 
@@ -101,24 +120,30 @@ export class OrderService {
         eventType: "order.created",
         action: "order.created",
         summary: `Order ${order.orderNumber} created from checkout draft`,
-        actor: input.customer.customerId ? {
-          id: input.customer.customerId,
-          name: input.customer.name,
-          role: "customer",
-        } : undefined,
+        actor: input.customer.customerId
+          ? {
+              id: input.customer.customerId,
+              name: input.customer.name,
+              role: "customer",
+            }
+          : undefined,
       });
 
-      await EventBus.publish("order.created", {
-        orderId: order.id,
-        orderNumber: order.orderNumber,
-        type: order.type,
-        checkoutDraftId: order.checkoutDraftId,
-        checkoutId: order.checkoutId,
-        cartId: order.cartId,
-        grandTotal: order.pricing.grandTotal,
-        itemCount: order.items.length,
-        currency: order.pricing.currency,
-      }, { source: "order" });
+      await EventBus.publish(
+        "order.created",
+        {
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          type: order.type,
+          checkoutDraftId: order.checkoutDraftId,
+          checkoutId: order.checkoutId,
+          cartId: order.cartId,
+          grandTotal: order.pricing.grandTotal,
+          itemCount: order.items.length,
+          currency: order.pricing.currency,
+        },
+        { source: "order" },
+      );
 
       logger.info("OrderService: order created", {
         orderId: order.id,
@@ -166,11 +191,13 @@ export class OrderService {
         action: "order.status_changed",
         summary: `Status changed from ${getHumanLabel(fromStatus)} to ${getHumanLabel(toStatus)}${reason ? `: ${reason}` : ""}`,
         actor: actor,
-        changes: [{
-          field: "status",
-          oldValue: fromStatus,
-          newValue: toStatus,
-        }],
+        changes: [
+          {
+            field: "status",
+            oldValue: fromStatus,
+            newValue: toStatus,
+          },
+        ],
         metadata: reason ? { reason } : undefined,
         timestamp: new Date(),
       };
@@ -195,7 +222,7 @@ export class OrderService {
 
       await this.publishStatusEvent(order, fromStatus, toStatus, actor, reason);
 
-      if (requiresInventoryRelease(fromStatus) && isCancellable(toStatus)) {
+      if (requiresInventoryRelease(fromStatus) && toStatus === "cancelled") {
         await this.requestInventoryRelease(order);
       }
 
@@ -209,34 +236,25 @@ export class OrderService {
     });
   }
 
-  async cancelOrder(
-    orderId: string,
-    reason: string,
-    cancelledBy: string,
-  ): Promise<Order> {
+  async cancelOrder(orderId: string, reason: string, cancelledBy: string): Promise<Order> {
     const order = await this.orderRepository.findById(orderId);
     if (!order) throw new NotFoundError("Order not found");
 
     const currentStatus = order.status as OrderStatus;
     if (!isCancellable(currentStatus)) {
       throw new ValidationError(
-        `Order in ${getHumanLabel(currentStatus)} status cannot be cancelled. Only ${ORDER_STATUSES.filter((s) => isCancellable(s)).map(getHumanLabel).join(", ")} orders can be cancelled.`,
+        `Order in ${getHumanLabel(currentStatus)} status cannot be cancelled. Only ${ORDER_STATUSES.filter(
+          (s) => isCancellable(s),
+        )
+          .map(getHumanLabel)
+          .join(", ")} orders can be cancelled.`,
       );
     }
 
-    return this.transitionStatus(
-      orderId,
-      "cancelled",
-      { id: cancelledBy, role: "admin" },
-      reason,
-    );
+    return this.transitionStatus(orderId, "cancelled", { id: cancelledBy, role: "admin" }, reason);
   }
 
-  async requestReturn(
-    orderId: string,
-    reason: string,
-    requestedBy?: string,
-  ): Promise<Order> {
+  async requestReturn(orderId: string, reason: string, requestedBy?: string): Promise<Order> {
     return this.transitionStatus(
       orderId,
       "return_requested",
@@ -245,32 +263,15 @@ export class OrderService {
     );
   }
 
-  async processReturn(
-    orderId: string,
-    initiatedBy: string,
-  ): Promise<Order> {
-    return this.transitionStatus(
-      orderId,
-      "return_initiated",
-      { id: initiatedBy, role: "admin" },
-    );
+  async processReturn(orderId: string, initiatedBy: string): Promise<Order> {
+    return this.transitionStatus(orderId, "return_initiated", { id: initiatedBy, role: "admin" });
   }
 
-  async confirmReturn(
-    orderId: string,
-  ): Promise<Order> {
-    return this.transitionStatus(
-      orderId,
-      "returned",
-      { id: "system", role: "system" },
-    );
+  async confirmReturn(orderId: string): Promise<Order> {
+    return this.transitionStatus(orderId, "returned", { id: "system", role: "system" });
   }
 
-  async refundOrder(
-    orderId: string,
-    refundAmount: number,
-    refundedBy: string,
-  ): Promise<Order> {
+  async refundOrder(orderId: string, refundAmount: number, refundedBy: string): Promise<Order> {
     const order = await this.orderRepository.findById(orderId);
     if (!order) throw new NotFoundError("Order not found");
 
@@ -333,10 +334,18 @@ export class OrderService {
     if (!order) throw new NotFoundError("Order not found");
 
     const changes: Array<{ field: string; oldValue?: unknown; newValue?: unknown }> = [
-      { field: "trackingNumber", oldValue: order.shippingInfo?.trackingNumber, newValue: trackingNumber },
+      {
+        field: "trackingNumber",
+        oldValue: order.shippingInfo?.trackingNumber,
+        newValue: trackingNumber,
+      },
     ];
     if (trackingUrl) {
-      changes.push({ field: "trackingUrl", oldValue: order.shippingInfo?.trackingUrl, newValue: trackingUrl });
+      changes.push({
+        field: "trackingUrl",
+        oldValue: order.shippingInfo?.trackingUrl,
+        newValue: trackingUrl,
+      });
     }
 
     const timelineEntry: OrderTimelineEntry = {
@@ -520,11 +529,7 @@ export class OrderService {
             item.variantSku,
           );
           if (inventory) {
-            await inventoryService.releaseStock(
-              inventory.id,
-              item.quantity,
-              order.id,
-            );
+            await inventoryService.releaseStock(inventory.id, item.quantity, order.id);
           }
         } catch (err) {
           logger.warn("OrderService: inventory release failed for item", {
@@ -534,11 +539,15 @@ export class OrderService {
         }
       }
 
-      await EventBus.publish("order.inventory_reserved", {
-        orderId: order.id,
-        orderNumber: order.orderNumber,
-        action: "release",
-      }, { source: "order" });
+      await EventBus.publish(
+        "order.inventory_reserved",
+        {
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          action: "release",
+        },
+        { source: "order" },
+      );
     } catch (err) {
       logger.error("OrderService: inventory release service unavailable", err);
     }

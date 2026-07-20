@@ -8,12 +8,12 @@ The logging foundation provides structured logging across the entire platform. T
 
 ## Log Levels
 
-| Level | Priority | Color | Usage |
-|-------|----------|-------|-------|
-| `debug` | 0 | Purple | Development diagnostics |
-| `info` | 1 | Green | Normal operation events |
-| `warn` | 2 | Yellow | Unexpected but handled conditions |
-| `error` | 3 | Red | Failures requiring investigation |
+| Level   | Priority | Color  | Usage                             |
+| ------- | -------- | ------ | --------------------------------- |
+| `debug` | 0        | Purple | Development diagnostics           |
+| `info`  | 1        | Green  | Normal operation events           |
+| `warn`  | 2        | Yellow | Unexpected but handled conditions |
+| `error` | 3        | Red    | Failures requiring investigation  |
 
 ---
 
@@ -39,17 +39,20 @@ logger.error(message, error?, meta?)
 ## Log Categories
 
 ### Application Logs
+
 - Service operations (CRUD, business logic)
 - Repository operations (database queries)
 - Action execution (server action start/completion)
 
 ### Business Logs
+
 - Audit events (entity creation, update, deletion)
 - Status changes
 - Financial transactions
 - Permission changes
 
 ### Error Logs
+
 - Exceptions with stack traces
 - Database errors
 - External API failures
@@ -74,23 +77,27 @@ LOG_LEVEL=error    # Only errors
 
 The health check system in `src/shared/core/health.ts` provides:
 
-| Check | Description |
-|-------|-------------|
+| Check       | Description                 |
+| ----------- | --------------------------- |
 | Application | Server uptime, memory usage |
-| Database | MongoDB connection status |
-| Redis | Redis connectivity (ping) |
-| Queue | BullMQ queue status |
-| Storage | ImageKit/CDN connectivity |
+| Database    | MongoDB connection status   |
+| Redis       | Redis connectivity (ping)   |
+| Queue       | BullMQ queue status         |
+| Storage     | ImageKit/CDN connectivity   |
 
 ### Registering Checks
 
 ```typescript
-import { healthService, createDatabaseHealthChecker, createRedisHealthChecker } from "@/shared/core"
+import {
+  healthService,
+  createDatabaseHealthChecker,
+  createRedisHealthChecker,
+} from "@/shared/core";
 
-healthService.register("database", createDatabaseHealthChecker())
-healthService.register("redis", createRedisHealthChecker())
+healthService.register("database", createDatabaseHealthChecker());
+healthService.register("redis", createRedisHealthChecker());
 
 // Run all checks
-const result = await healthService.checkAll()
+const result = await healthService.checkAll();
 // Returns: { status: "healthy", checks: [...], timestamp: "...", uptime: 3600 }
 ```

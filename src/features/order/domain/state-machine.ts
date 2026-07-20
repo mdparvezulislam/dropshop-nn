@@ -20,14 +20,7 @@ export const ORDER_STATUSES = [
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 export type OrderCategory =
-  | "draft"
-  | "active"
-  | "fulfillment"
-  | "delivery"
-  | "completed"
-  | "cancelled"
-  | "return"
-  | "failed";
+  "draft" | "active" | "fulfillment" | "delivery" | "completed" | "cancelled" | "return" | "failed";
 
 const STATUS_CATEGORY: Record<OrderStatus, OrderCategory> = {
   draft: "draft",
@@ -67,11 +60,7 @@ const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   failed: ["cancelled"],
 };
 
-const TERMINAL_STATUSES: Set<OrderStatus> = new Set([
-  "completed",
-  "cancelled",
-  "refunded",
-]);
+const TERMINAL_STATUSES: Set<OrderStatus> = new Set(["completed", "cancelled", "refunded"]);
 
 const CANCELLABLE_STATUSES: Set<OrderStatus> = new Set([
   "draft",
@@ -81,9 +70,7 @@ const CANCELLABLE_STATUSES: Set<OrderStatus> = new Set([
   "failed",
 ]);
 
-const REFUNDABLE_STATUSES: Set<OrderStatus> = new Set([
-  "returned",
-]);
+const REFUNDABLE_STATUSES: Set<OrderStatus> = new Set(["returned"]);
 
 const REQUIRES_INVENTORY_RELEASE: Set<OrderStatus> = new Set([
   "confirmed",
@@ -107,22 +94,14 @@ export class StateMachineError extends Error {
 
 export class InvalidTransitionError extends StateMachineError {
   constructor(from: OrderStatus, to: OrderStatus) {
-    super(
-      `Invalid transition: ${from} -> ${to}`,
-      from,
-      to,
-    );
+    super(`Invalid transition: ${from} -> ${to}`, from, to);
     this.name = "InvalidTransitionError";
   }
 }
 
 export class TerminalStateError extends StateMachineError {
   constructor(status: OrderStatus) {
-    super(
-      `Cannot transition from terminal state: ${status}`,
-      status,
-      status,
-    );
+    super(`Cannot transition from terminal state: ${status}`, status, status);
     this.name = "TerminalStateError";
   }
 }

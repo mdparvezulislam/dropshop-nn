@@ -10,12 +10,12 @@ Every event subscriber has a configurable retry strategy. The system uses BullMQ
 
 ```typescript
 interface RetryConfig {
-  maxRetries: number
-  initialBackoffMs: number
-  backoffMultiplier: number
-  maxBackoffMs: number
-  retryableErrors: string[]   // Error types that trigger retry
-  deadLetterQueue: string      // Queue for failed jobs
+  maxRetries: number;
+  initialBackoffMs: number;
+  backoffMultiplier: number;
+  maxBackoffMs: number;
+  retryableErrors: string[]; // Error types that trigger retry
+  deadLetterQueue: string; // Queue for failed jobs
 }
 ```
 
@@ -23,21 +23,21 @@ interface RetryConfig {
 
 ## Retry Strategies by Event Type
 
-| Event Type | Max Retries | Backoff | Backoff Multiplier | Max Backoff |
-|-----------|-------------|---------|-------------------|-------------|
-| product.created | 3 | 1000ms | 2x | 30000ms |
-| product.updated | 3 | 1000ms | 2x | 30000ms |
-| product.deleted | 3 | 1000ms | 2x | 30000ms |
-| price.updated | 3 | 1000ms | 2x | 30000ms |
-| order.created | 5 | 1000ms | 2x | 60000ms |
-| order.shipped | 3 | 2000ms | 2x | 30000ms |
-| payment.completed | 3 | 1000ms | 2x | 30000ms |
-| payment.failed | 2 | 1000ms | 2x | 10000ms |
-| inventory.low_stock | 2 | 5000ms | 1x | 30000ms |
-| inventory.out_of_stock | 2 | 5000ms | 1x | 30000ms |
-| supplier.approved | 3 | 1000ms | 2x | 30000ms |
-| customer.registered | 3 | 1000ms | 2x | 30000ms |
-| system.login | 2 | 500ms | 2x | 5000ms |
+| Event Type             | Max Retries | Backoff | Backoff Multiplier | Max Backoff |
+| ---------------------- | ----------- | ------- | ------------------ | ----------- |
+| product.created        | 3           | 1000ms  | 2x                 | 30000ms     |
+| product.updated        | 3           | 1000ms  | 2x                 | 30000ms     |
+| product.deleted        | 3           | 1000ms  | 2x                 | 30000ms     |
+| price.updated          | 3           | 1000ms  | 2x                 | 30000ms     |
+| order.created          | 5           | 1000ms  | 2x                 | 60000ms     |
+| order.shipped          | 3           | 2000ms  | 2x                 | 30000ms     |
+| payment.completed      | 3           | 1000ms  | 2x                 | 30000ms     |
+| payment.failed         | 2           | 1000ms  | 2x                 | 10000ms     |
+| inventory.low_stock    | 2           | 5000ms  | 1x                 | 30000ms     |
+| inventory.out_of_stock | 2           | 5000ms  | 1x                 | 30000ms     |
+| supplier.approved      | 3           | 1000ms  | 2x                 | 30000ms     |
+| customer.registered    | 3           | 1000ms  | 2x                 | 30000ms     |
+| system.login           | 2           | 500ms   | 2x                 | 5000ms      |
 
 ---
 
@@ -51,6 +51,7 @@ Attempt N: min(initialBackoffMs * backoffMultiplier^N, maxBackoffMs)
 ```
 
 Example with 1000ms initial, 2x multiplier, 30000ms max:
+
 ```
 Retry 1: 1000ms  (1s)
 Retry 2: 2000ms  (2s)
@@ -66,26 +67,26 @@ Retry 6: 30000ms (30s, capped)
 
 Only certain errors should trigger a retry:
 
-| Error Type | Retry? | Description |
-|-----------|--------|-------------|
-| NetworkError | ✅ | Downstream service unreachable |
-| TimeoutError | ✅ | External API timeout |
-| DatabaseError | ✅ | Temporary database failure |
-| RateLimitError | ✅ | API rate limit exceeded |
-| ConflictError | ✅ | Optimistic locking conflict |
-| ValidationError | ❌ | Invalid payload — will always fail |
-| NotFoundError | ❌ | Referenced entity missing |
-| ForbiddenError | ❌ | Permission denied |
-| InternalServerError | ⚠️ | Retry once, then DLQ |
+| Error Type          | Retry? | Description                        |
+| ------------------- | ------ | ---------------------------------- |
+| NetworkError        | ✅     | Downstream service unreachable     |
+| TimeoutError        | ✅     | External API timeout               |
+| DatabaseError       | ✅     | Temporary database failure         |
+| RateLimitError      | ✅     | API rate limit exceeded            |
+| ConflictError       | ✅     | Optimistic locking conflict        |
+| ValidationError     | ❌     | Invalid payload — will always fail |
+| NotFoundError       | ❌     | Referenced entity missing          |
+| ForbiddenError      | ❌     | Permission denied                  |
+| InternalServerError | ⚠️     | Retry once, then DLQ               |
 
 ```typescript
 const RETRYABLE_ERRORS = [
-  'NetworkError',
-  'TimeoutError',
-  'DatabaseError',
-  'RateLimitError',
-  'ConflictError',
-]
+  "NetworkError",
+  "TimeoutError",
+  "DatabaseError",
+  "RateLimitError",
+  "ConflictError",
+];
 ```
 
 ---
@@ -128,10 +129,10 @@ function getRetryOptions(config: RetryConfig): { attempts: number; backoff: Back
   return {
     attempts: config.maxRetries + 1, // +1 for initial attempt
     backoff: {
-      type: 'exponential',
+      type: "exponential",
       delay: config.initialBackoffMs,
     },
-  }
+  };
 }
 
 async function enqueueWithRetry(
@@ -143,12 +144,12 @@ async function enqueueWithRetry(
   await queue.add(subscriberName, event, {
     attempts: retryConfig.maxRetries + 1,
     backoff: {
-      type: 'exponential',
+      type: "exponential",
       delay: retryConfig.initialBackoffMs,
     },
     removeOnComplete: true,
     removeOnFail: false, // Keep in DLQ for inspection
-  })
+  });
 }
 ```
 
@@ -160,11 +161,11 @@ For subscribers that repeatedly fail, a circuit breaker prevents wasted retries:
 
 ```typescript
 interface CircuitBreakerState {
-  failureCount: number
-  lastFailureAt: Date | null
-  state: 'closed' | 'open' | 'half_open'
-  threshold: number
-  cooldownMs: number
+  failureCount: number;
+  lastFailureAt: Date | null;
+  state: "closed" | "open" | "half_open";
+  threshold: number;
+  cooldownMs: number;
 }
 ```
 

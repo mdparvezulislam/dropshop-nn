@@ -13,19 +13,21 @@ A product can be supplied by multiple suppliers. The catalog stores only referen
 ```typescript
 interface SupplierReference {
   supplierId: string;
-  supplierSku?: string;     // Supplier's SKU for this product
-  isPrimary: boolean;       // Default supplier
-  sortOrder: number;        // Display/selection order
+  supplierSku?: string; // Supplier's SKU for this product
+  isPrimary: boolean; // Default supplier
+  sortOrder: number; // Display/selection order
 }
 ```
 
 ### What Catalog Stores
+
 - Supplier IDs
 - Supplier's SKU for this product
 - Primary supplier flag
 - Sort order
 
 ### What Catalog Does NOT Store
+
 - Supplier cost/price
 - Supplier stock levels
 - Supplier lead time
@@ -37,6 +39,7 @@ These belong to the Supplier and Inventory engines.
 ## Pricing Relationship
 
 The Catalog stores zero pricing data. The relationship is:
+
 - `product.id` → `PricingEngine.getPricing(productId)`
 - `variant.sku` → `PricingEngine.getVariantPricing(variantSku)`
 
@@ -45,6 +48,7 @@ All price resolution goes through `PricingService.resolveEffectivePrice()`.
 ## Inventory Relationship
 
 The Catalog stores zero inventory data. The relationship is:
+
 - `product.id` → `InventoryService.getAvailability(productId)`
 - `variant.sku` → `InventoryService.getVariantStock(variantSku)`
 

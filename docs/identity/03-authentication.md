@@ -2,12 +2,12 @@
 
 ## Supported Methods
 
-| Method | Status | Description |
-|--------|--------|-------------|
-| Email + Password | ✅ Current | Primary auth method |
-| Phone + Password | ✅ Current | Secondary auth method |
-| OTP Login | ⏳ Future | One-time password via SMS |
-| Social Login | ⏳ Future | Google, Facebook login |
+| Method           | Status     | Description               |
+| ---------------- | ---------- | ------------------------- |
+| Email + Password | ✅ Current | Primary auth method       |
+| Phone + Password | ✅ Current | Secondary auth method     |
+| OTP Login        | ⏳ Future  | One-time password via SMS |
+| Social Login     | ⏳ Future  | Google, Facebook login    |
 
 ## Authentication Flow
 
@@ -26,6 +26,7 @@ Login Request (email/phone + password)
 ## Remember Me
 
 When "Remember Me" is enabled:
+
 - Session TTL extends to 30 days (default: 24 hours)
 - Refresh token is stored
 - User is not prompted for re-auth on browser restart
@@ -77,21 +78,22 @@ Phone Update → Send Verification SMS
 
 ## Auth Endpoints (Future API)
 
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| POST | /api/auth/login | Email/phone + password login |
-| POST | /api/auth/register | Customer self-registration |
-| POST | /api/auth/forgot-password | Request reset link |
-| POST | /api/auth/reset-password | Submit reset token |
-| POST | /api/auth/verify-email | Verify email address |
-| POST | /api/auth/verify-phone | Verify phone number |
-| POST | /api/auth/logout | End session |
-| GET | /api/auth/sessions | List active sessions |
-| DELETE | /api/auth/sessions/:id | Revoke specific session |
+| Method | Endpoint                  | Purpose                      |
+| ------ | ------------------------- | ---------------------------- |
+| POST   | /api/auth/login           | Email/phone + password login |
+| POST   | /api/auth/register        | Customer self-registration   |
+| POST   | /api/auth/forgot-password | Request reset link           |
+| POST   | /api/auth/reset-password  | Submit reset token           |
+| POST   | /api/auth/verify-email    | Verify email address         |
+| POST   | /api/auth/verify-phone    | Verify phone number          |
+| POST   | /api/auth/logout          | End session                  |
+| GET    | /api/auth/sessions        | List active sessions         |
+| DELETE | /api/auth/sessions/:id    | Revoke specific session      |
 
 ## Event Publications
 
 All auth actions publish events:
+
 - `identity.login_success` — on successful login
 - `identity.logout` — on logout
 - `identity.password_changed` — on password change

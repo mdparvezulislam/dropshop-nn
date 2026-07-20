@@ -65,8 +65,16 @@ const ruleSchema = new Schema<RuleDocumentType>(
       required: true,
       index: true,
     },
-    conditions: { type: [ruleConditionSchema], required: true, validate: [(arr: unknown[]) => arr.length > 0, "At least one condition is required"] },
-    actions: { type: [ruleActionSchema], required: true, validate: [(arr: unknown[]) => arr.length > 0, "At least one action is required"] },
+    conditions: {
+      type: [ruleConditionSchema],
+      required: true,
+      validate: [(arr: unknown[]) => arr.length > 0, "At least one condition is required"],
+    },
+    actions: {
+      type: [ruleActionSchema],
+      required: true,
+      validate: [(arr: unknown[]) => arr.length > 0, "At least one action is required"],
+    },
     priority: { type: Number, default: 100, min: 0, max: 1000 },
     isActive: { type: Boolean, default: true, index: true },
     status: { type: String, default: "active", index: true },
@@ -79,7 +87,6 @@ ruleSchema.index({ ruleType: 1, isActive: 1, priority: -1 });
 ruleSchema.plugin(softDeletePlugin);
 
 export const RuleModel =
-  mongoose.models.Rule ||
-  mongoose.model<RuleDocumentType>("Rule", ruleSchema);
+  mongoose.models.Rule || mongoose.model<RuleDocumentType>("Rule", ruleSchema);
 
 export default RuleModel;

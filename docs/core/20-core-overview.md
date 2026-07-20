@@ -99,23 +99,23 @@ healthService.register("my-engine", async () => ({ name: "my-engine", status: "h
 
 ## What Every Engine Inherits
 
-| Capability | Source | How |
-|-----------|--------|-----|
-| Entity base contract | `DomainEntity` | `implements DomainEntity` |
-| Repository CRUD | `BaseRepository` | `extends BaseRepository` |
-| Service lifecycle | `BaseService` | `extends BaseService` |
-| Event publishing | `EventBus.publish()` | `this.publishEvent()` |
-| Audit logging | Logger | `this.logAudit()` |
-| Analytics tracking | Logger | `this.trackAnalytics()` |
-| Notification triggers | Event | `this.triggerNotification()` |
-| Authorization | `AuthorizationService` | `this.checkAuthorization()` |
-| Error handling | `AppError` hierarchy | `throw new NotFoundError()` |
-| Pagination | `BaseRepository.findPaginated()` | Query params |
-| Filtering | `buildMongoFilter()` | Filter rules |
-| Search | `SearchEngineContract` | `implements SearchEngineContract` |
-| Import/Export | `generateCsv()`, `parseCsv()` | Data utilities |
-| Localization | `Localization` | `formatCurrency()`, `formatDate()` |
-| Health checks | `HealthService` | `healthService.register()` |
+| Capability            | Source                           | How                                |
+| --------------------- | -------------------------------- | ---------------------------------- |
+| Entity base contract  | `DomainEntity`                   | `implements DomainEntity`          |
+| Repository CRUD       | `BaseRepository`                 | `extends BaseRepository`           |
+| Service lifecycle     | `BaseService`                    | `extends BaseService`              |
+| Event publishing      | `EventBus.publish()`             | `this.publishEvent()`              |
+| Audit logging         | Logger                           | `this.logAudit()`                  |
+| Analytics tracking    | Logger                           | `this.trackAnalytics()`            |
+| Notification triggers | Event                            | `this.triggerNotification()`       |
+| Authorization         | `AuthorizationService`           | `this.checkAuthorization()`        |
+| Error handling        | `AppError` hierarchy             | `throw new NotFoundError()`        |
+| Pagination            | `BaseRepository.findPaginated()` | Query params                       |
+| Filtering             | `buildMongoFilter()`             | Filter rules                       |
+| Search                | `SearchEngineContract`           | `implements SearchEngineContract`  |
+| Import/Export         | `generateCsv()`, `parseCsv()`    | Data utilities                     |
+| Localization          | `Localization`                   | `formatCurrency()`, `formatDate()` |
+| Health checks         | `HealthService`                  | `healthService.register()`         |
 
 ---
 
@@ -124,6 +124,7 @@ healthService.register("my-engine", async () => ({ name: "my-engine", status: "h
 Based on the core foundation, the next engine implementation phases should be:
 
 ### Phase 1: Foundation (CORE-001 — This Phase)
+
 - ✅ Core types, contracts, base classes
 - ✅ Result pattern
 - ✅ Feature flags + settings
@@ -134,6 +135,7 @@ Based on the core foundation, the next engine implementation phases should be:
 - ✅ Health check infrastructure
 
 ### Phase 2: Identity Engine (AUTH-001)
+
 - Multi-role authentication
 - RBAC enforcement
 - Session management
@@ -141,46 +143,54 @@ Based on the core foundation, the next engine implementation phases should be:
 - Permission seeding
 
 ### Phase 3: Catalog Engine (CAT-001)
+
 - Product CRUD with event publishing
 - Category, brand, tag management
 - Variant management
 - Search indexing
 
 ### Phase 4: Pricing Engine (PRC-002)
+
 - Price calculation engine
 - Wholesale tier management
 - Campaign/flash sale management
 - Pricing rule engine integration
 
 ### Phase 5: Inventory Engine (INV-002)
+
 - Stock management with events
 - Reservation system
 - Low stock detection
 - Warehouse operations
 
 ### Phase 6: Order Engine (ORD-001)
+
 - Order lifecycle management
 - Fulfillment workflows
 - Return/refund processing
 - Courier dispatch integration
 
 ### Phase 7: Finance Engine (FIN-001)
+
 - Payment gateway integration
 - Wallet management
 - Payout processing
 - Invoice generation
 
 ### Phase 8: Automation Engine (AUTO-001)
+
 - Event-driven automation workflows
 - Cross-engine orchestration
 - Scheduled tasks
 
 ### Phase 9: Analytics Engine (ANL-001)
+
 - Dashboard metrics
 - Report generation
 - Event-based data aggregation
 
 ### Phase 10: Notification Engine (NTF-001)
+
 - Multi-channel dispatch
 - Template management
 - User preference management

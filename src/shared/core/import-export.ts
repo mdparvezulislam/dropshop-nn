@@ -7,17 +7,35 @@ export interface ExportEngineContract {
 }
 
 export interface ImportEngineContract {
-  import<T>(file: File | Buffer, format: "csv" | "json", validateRow: (row: Record<string, unknown>, index: number) => string | null): Promise<ImportResult>;
-  importCsv<T>(content: string, validateRow: (row: Record<string, unknown>, index: number) => string | null): Promise<ImportResult>;
-  importJson<T>(content: string, validateRow: (item: Record<string, unknown>, index: number) => string | null): Promise<ImportResult>;
-  validateTemplate(file: File | Buffer, expectedColumns: string[]): Promise<{ valid: boolean; errors: string[] }>;
+  import<T>(
+    file: File | Buffer,
+    format: "csv" | "json",
+    validateRow: (row: Record<string, unknown>, index: number) => string | null,
+  ): Promise<ImportResult>;
+  importCsv<T>(
+    content: string,
+    validateRow: (row: Record<string, unknown>, index: number) => string | null,
+  ): Promise<ImportResult>;
+  importJson<T>(
+    content: string,
+    validateRow: (item: Record<string, unknown>, index: number) => string | null,
+  ): Promise<ImportResult>;
+  validateTemplate(
+    file: File | Buffer,
+    expectedColumns: string[],
+  ): Promise<{ valid: boolean; errors: string[] }>;
 }
 
-export function generateCsv<T extends Record<string, unknown>>(data: T[], columns?: (keyof T)[]): string {
-  const cols = columns ?? (data.length > 0 ? Object.keys(data[0]) : []) as (keyof T)[];
+export function generateCsv<T extends Record<string, unknown>>(
+  data: T[],
+  columns?: (keyof T)[],
+): string {
+  const cols = columns ?? ((data.length > 0 ? Object.keys(data[0]) : []) as (keyof T)[]);
 
   const header = cols.map((col) => escapeCsvField(String(col))).join(",");
-  const rows = data.map((row) => cols.map((col) => escapeCsvField(String(row[col] ?? ""))).join(","));
+  const rows = data.map((row) =>
+    cols.map((col) => escapeCsvField(String(row[col] ?? ""))).join(","),
+  );
 
   return [header, ...rows].join("\n");
 }

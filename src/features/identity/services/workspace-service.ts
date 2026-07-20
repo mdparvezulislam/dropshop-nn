@@ -66,9 +66,7 @@ export class WorkspaceService {
           businessProfileId: profile.id,
           userId: profile.userId,
           storeName: profile.businessName,
-          storeSlug: existingStore
-            ? `${storeSlug}-${Date.now().toString().slice(-4)}`
-            : storeSlug,
+          storeSlug: existingStore ? `${storeSlug}-${Date.now().toString().slice(-4)}` : storeSlug,
           description: profile.description,
           contactPhone: profile.primaryPhone,
           contactEmail: profile.email,
@@ -146,7 +144,10 @@ export class WorkspaceService {
       throw new NotFoundError("Workspace not found");
     }
 
-    const merged: Record<string, boolean> = { ...workspace.notificationPreferences, ...preferences } as Record<string, boolean>;
+    const merged: Record<string, boolean> = {
+      ...workspace.notificationPreferences,
+      ...preferences,
+    } as Record<string, boolean>;
     return this.workspaceRepository.update(workspace.id, {
       notificationPreferences: merged as any,
     });

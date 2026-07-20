@@ -2,7 +2,12 @@ import { generateUUID } from "@/shared/utils/id-utils";
 import { logger } from "@/shared/utils/logger";
 import { TimelineEntryModel } from "../repositories/timeline-model";
 import { EventBus } from "@/shared/lib/event-bus";
-import type { OrderTimeline, TimelineAction, TimelineChange, TimelineActor } from "../domain/order-timeline";
+import type {
+  OrderTimeline,
+  TimelineAction,
+  TimelineChange,
+  TimelineActor,
+} from "../domain/order-timeline";
 
 export interface AddTimelineEntryInput {
   entityType: "order" | "order_item";
@@ -46,12 +51,16 @@ export class OrderTimelineService {
 
     await TimelineEntryModel.create([entry] as any);
 
-    await EventBus.publish("order.timeline_entry_added", {
-      orderId: input.entityId,
-      orderNumber: input.entityId,
-      action: input.action,
-      summary: input.summary,
-    }, { source: "order", correlationId: input.correlationId });
+    await EventBus.publish(
+      "order.timeline_entry_added",
+      {
+        orderId: input.entityId,
+        orderNumber: input.entityId,
+        action: input.action,
+        summary: input.summary,
+      },
+      { source: "order", correlationId: input.correlationId },
+    );
 
     return entry;
   }
@@ -62,8 +71,7 @@ export class OrderTimelineService {
     limit: number = 50,
     offset: number = 0,
   ): Promise<OrderTimeline[]> {
-    const docs = await TimelineEntryModel
-      .find({ entityType, entityId })
+    const docs = await TimelineEntryModel.find({ entityType, entityId })
       .sort({ createdAt: -1 })
       .skip(offset)
       .limit(limit)
@@ -77,8 +85,7 @@ export class OrderTimelineService {
     action: TimelineAction,
     limit: number = 10,
   ): Promise<OrderTimeline[]> {
-    const docs = await TimelineEntryModel
-      .find({ entityId, action })
+    const docs = await TimelineEntryModel.find({ entityId, action })
       .sort({ createdAt: -1 })
       .limit(limit)
       .exec();

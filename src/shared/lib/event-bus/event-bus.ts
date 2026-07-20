@@ -3,12 +3,7 @@ import { generateUUID } from "@/shared/utils/id-utils";
 import { EventRegistry } from "./event-registry";
 import { IdempotencyStore } from "./idempotency";
 import { getQueue } from "@/shared/lib/bullmq";
-import type {
-  BusinessEvent,
-  EventActor,
-  EventRegistryEntry,
-  RetryConfig,
-} from "./types";
+import type { BusinessEvent, EventActor, EventRegistryEntry, RetryConfig } from "./types";
 import { EventPublishError } from "./types";
 
 export class EventBus {
@@ -72,10 +67,7 @@ export class EventBus {
     return event;
   }
 
-  private async dispatch(
-    event: BusinessEvent,
-    entry?: EventRegistryEntry,
-  ): Promise<void> {
+  private async dispatch(event: BusinessEvent, entry?: EventRegistryEntry): Promise<void> {
     const syncHandlers = EventRegistry.getSyncHandlers(event.eventType);
     const asyncHandlers = EventRegistry.getAsyncHandlers(event.eventType);
 
@@ -86,9 +78,7 @@ export class EventBus {
     );
 
     const results = await Promise.allSettled(
-      allSync.map((handler) =>
-        this.executeSyncHandler(handler.eventType, handler, event),
-      ),
+      allSync.map((handler) => this.executeSyncHandler(handler.eventType, handler, event)),
     );
 
     for (const result of results) {

@@ -1,10 +1,5 @@
 import { RuleRepository } from "../repositories/rule-repository";
-import {
-  PricingRule,
-  RuleCondition,
-  RuleContext,
-  RuleResult,
-} from "../domain/rule-entity";
+import { PricingRule, RuleCondition, RuleContext, RuleResult } from "../domain/rule-entity";
 import { logger } from "@/shared/utils/logger";
 import { NotFoundError } from "@/shared/errors/app-error";
 
@@ -126,11 +121,7 @@ export class RuleEngineService {
     return created;
   }
 
-  async updateRule(
-    id: string,
-    data: Partial<PricingRule>,
-    actorId?: string,
-  ): Promise<PricingRule> {
+  async updateRule(id: string, data: Partial<PricingRule>, actorId?: string): Promise<PricingRule> {
     logger.info("RuleEngineService: updating rule", { id });
 
     return this.ruleRepository.update(id, {

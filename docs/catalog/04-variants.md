@@ -8,16 +8,16 @@ The variant engine supports unlimited variant dimensions and combinations. Each 
 
 Products can have any number of variant dimensions:
 
-| Dimension | Example Values | Type |
-|-----------|---------------|------|
-| Color | Red, Blue, Black | String |
-| Size | S, M, L, XL | String |
-| Storage | 64GB, 128GB, 256GB | String |
-| RAM | 8GB, 16GB, 32GB | String |
-| Capacity | 1kg, 5kg, 10kg | String |
-| Material | Cotton, Polyester, Leather | String |
-| Bundle | Console + Controller, Console + 2 Games | String |
-| Custom | Any key-value pair | Custom Attribute |
+| Dimension | Example Values                          | Type             |
+| --------- | --------------------------------------- | ---------------- |
+| Color     | Red, Blue, Black                        | String           |
+| Size      | S, M, L, XL                             | String           |
+| Storage   | 64GB, 128GB, 256GB                      | String           |
+| RAM       | 8GB, 16GB, 32GB                         | String           |
+| Capacity  | 1kg, 5kg, 10kg                          | String           |
+| Material  | Cotton, Polyester, Leather              | String           |
+| Bundle    | Console + Controller, Console + 2 Games | String           |
+| Custom    | Any key-value pair                      | Custom Attribute |
 
 ## Variant Structure
 
@@ -29,21 +29,21 @@ interface ProductVariant {
   ram?: string;
   capacity?: string;
   material?: string;
-  sku: string;              // Unique SKU for this variant
-  barcode?: string;          // Variant-specific barcode
-  price?: number;            // Only for price indication; official pricing in Pricing Engine
-  weight?: number;           // Weight in grams
-  weightUnit?: string;       // g, kg, lb
+  sku: string; // Unique SKU for this variant
+  barcode?: string; // Variant-specific barcode
+  price?: number; // Only for price indication; official pricing in Pricing Engine
+  weight?: number; // Weight in grams
+  weightUnit?: string; // g, kg, lb
   dimensions?: {
     length?: number;
     width?: number;
     height?: number;
-    unit?: string;           // cm, in
+    unit?: string; // cm, in
   };
-  images?: string[];         // Variant-specific images
+  images?: string[]; // Variant-specific images
   status: "active" | "inactive";
   sortOrder?: number;
-  customAttributes?: Record<string, string>;  // Custom variant attributes
+  customAttributes?: Record<string, string>; // Custom variant attributes
 }
 ```
 
@@ -60,22 +60,22 @@ PRO-SKU-001-BLUE-L       (Color: Blue, Size: L)
 
 ## Variant Status
 
-| Status | Description |
-|--------|-------------|
-| `active` | Variant is available and sellable |
+| Status     | Description                        |
+| ---------- | ---------------------------------- |
+| `active`   | Variant is available and sellable  |
 | `inactive` | Variant is temporarily unavailable |
 
 When all variants are inactive, the product status should be set to inactive.
 
 ## Variant Operations
 
-| Operation | Description | Event |
-|-----------|-------------|-------|
-| Add variant | Add new variant to product | VariantCreated |
-| Update variant | Modify variant attributes | VariantUpdated |
-| Remove variant | Soft-remove variant | ProductUpdated |
-| Reorder variants | Change sort order | ProductUpdated |
-| Batch update | Update multiple variants | ProductUpdated |
+| Operation        | Description                | Event          |
+| ---------------- | -------------------------- | -------------- |
+| Add variant      | Add new variant to product | VariantCreated |
+| Update variant   | Modify variant attributes  | VariantUpdated |
+| Remove variant   | Soft-remove variant        | ProductUpdated |
+| Reorder variants | Change sort order          | ProductUpdated |
+| Batch update     | Update multiple variants   | ProductUpdated |
 
 ## Future: Matrix View
 

@@ -88,7 +88,11 @@ export async function cancelOrderAction(formData: unknown): Promise<{
   try {
     const validated = cancelOrderSchema.parse(formData);
     const service = new OrderService();
-    const result = await service.cancelOrder(validated.orderId, validated.reason, validated.cancelledBy);
+    const result = await service.cancelOrder(
+      validated.orderId,
+      validated.reason,
+      validated.cancelledBy,
+    );
     revalidatePath("/dashboard/orders");
     return { success: true, data: result };
   } catch (error: any) {
@@ -135,7 +139,11 @@ export async function updateTrackingAction(formData: unknown): Promise<{
   try {
     const validated = updateTrackingSchema.parse(formData);
     const service = new OrderService();
-    const result = await service.updateTracking(validated.orderId, validated.trackingNumber, validated.trackingUrl);
+    const result = await service.updateTracking(
+      validated.orderId,
+      validated.trackingNumber,
+      validated.trackingUrl,
+    );
     revalidatePath("/dashboard/orders");
     return { success: true, data: result };
   } catch (error: any) {
@@ -198,7 +206,11 @@ export async function refundOrderAction(formData: unknown): Promise<{
   try {
     const validated = refundOrderSchema.parse(formData);
     const service = new OrderService();
-    const result = await service.refundOrder(validated.orderId, validated.refundAmount, validated.refundedBy);
+    const result = await service.refundOrder(
+      validated.orderId,
+      validated.refundAmount,
+      validated.refundedBy,
+    );
     revalidatePath("/dashboard/orders");
     return { success: true, data: result };
   } catch (error: any) {
@@ -218,12 +230,11 @@ export async function addOrderNoteAction(formData: unknown): Promise<{
   try {
     const validated = addOrderNoteSchema.parse(formData);
     const service = new OrderService();
-    const result = await service.addNote(
-      validated.orderId,
-      validated.note,
-      validated.internal,
-      { id: session?.user?.id ?? "system", name: session?.user?.email ?? undefined, role: "admin" },
-    );
+    const result = await service.addNote(validated.orderId, validated.note, validated.internal, {
+      id: session?.user?.id ?? "system",
+      name: session?.user?.email ?? undefined,
+      role: "admin",
+    });
     revalidatePath("/dashboard/orders");
     return { success: true, data: result };
   } catch (error: any) {
@@ -281,10 +292,16 @@ export async function listOrdersAction(query: unknown): Promise<{
     if (validated.type) filter.type = validated.type;
 
     const service = new OrderService();
-    const result = await service.listOrders(filter, {
-      page: validated.page,
-      limit: validated.limit,
-    }, validated.sortBy ? { sortBy: validated.sortBy, sortOrder: validated.sortOrder } : { sortBy: "createdAt", sortOrder: "desc" });
+    const result = await service.listOrders(
+      filter,
+      {
+        page: validated.page,
+        limit: validated.limit,
+      },
+      validated.sortBy
+        ? { sortBy: validated.sortBy, sortOrder: validated.sortOrder }
+        : { sortBy: "createdAt", sortOrder: "desc" },
+    );
     return { success: true, data: result };
   } catch (error: any) {
     logger.error("listOrdersAction failed", error);

@@ -51,11 +51,15 @@ export async function rejectBusinessAction(businessProfileId: string, reason?: s
   logger.info("Identity Action: rejectBusinessAction called", { businessProfileId, reason });
 
   const service = new ApprovalService();
-  const result = await service.reject(businessProfileId, {
-    id: sessionUser.id,
-    name: sessionUser.name,
-    role: sessionUser.role,
-  }, reason);
+  const result = await service.reject(
+    businessProfileId,
+    {
+      id: sessionUser.id,
+      name: sessionUser.name,
+      role: sessionUser.role,
+    },
+    reason,
+  );
 
   revalidatePath("/dashboard/identity/business-profiles");
   revalidatePath(`/dashboard/identity/business-profiles/${businessProfileId}`);
@@ -70,11 +74,15 @@ export async function suspendBusinessAction(businessProfileId: string, reason?: 
   logger.info("Identity Action: suspendBusinessAction called", { businessProfileId, reason });
 
   const service = new ApprovalService();
-  const result = await service.suspend(businessProfileId, {
-    id: sessionUser.id,
-    name: sessionUser.name,
-    role: sessionUser.role,
-  }, reason);
+  const result = await service.suspend(
+    businessProfileId,
+    {
+      id: sessionUser.id,
+      name: sessionUser.name,
+      role: sessionUser.role,
+    },
+    reason,
+  );
 
   revalidatePath(`/dashboard/identity/business-profiles/${businessProfileId}`);
   return { success: true, data: result };

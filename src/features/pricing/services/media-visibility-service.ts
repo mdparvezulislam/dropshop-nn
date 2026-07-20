@@ -1,8 +1,5 @@
 export type MediaCollection =
-  | "public_gallery"
-  | "reseller_marketing_kit"
-  | "wholesale_resources"
-  | "internal_assets";
+  "public_gallery" | "reseller_marketing_kit" | "wholesale_resources" | "internal_assets";
 
 export type MediaType = "image" | "video" | "document" | "zip";
 

@@ -8,12 +8,12 @@ The settings foundation provides a type-safe registry for configuration values t
 
 ## Setting Scope
 
-| Scope | Description | Example |
-|-------|-------------|---------|
-| `global` | Platform-wide setting | Default currency, tax rate |
-| `business` | Per-business setting | Payout threshold, commission |
-| `role` | Per-role setting | Max discount for resellers |
-| `user` | Per-user setting | Notification preferences |
+| Scope      | Description           | Example                      |
+| ---------- | --------------------- | ---------------------------- |
+| `global`   | Platform-wide setting | Default currency, tax rate   |
+| `business` | Per-business setting  | Payout threshold, commission |
+| `role`     | Per-role setting      | Max discount for resellers   |
+| `user`     | Per-user setting      | Notification preferences     |
 
 ---
 
@@ -21,12 +21,12 @@ The settings foundation provides a type-safe registry for configuration values t
 
 ```typescript
 interface SettingDefinition<T = unknown> {
-  key: string
-  name: string
-  description: string
-  scope: SettingScope
-  defaultValue: T
-  options?: T[]    // Allowed values (for validation)
+  key: string;
+  name: string;
+  description: string;
+  scope: SettingScope;
+  defaultValue: T;
+  options?: T[]; // Allowed values (for validation)
 }
 ```
 
@@ -34,31 +34,31 @@ interface SettingDefinition<T = unknown> {
 
 ## Default Registered Settings
 
-| Key | Default | Scope |
-|-----|---------|-------|
-| `pricing.default-currency` | BDT | global |
-| `pricing.default-tax-rate` | 5 | global |
-| `pricing.default-commission-rate` | 10 | global |
-| `inventory.low-stock-threshold` | 10 | global |
-| `inventory.safety-stock` | 5 | global |
-| `reseller.auto-approve` | false | global |
-| `wholesaler.auto-approve` | false | global |
-| `supplier.auto-approve` | false | global |
-| `notifications.email-enabled` | true | global |
-| `notifications.sms-enabled` | false | global |
-| `business.minimum-payout` | 50000 (BDT) | global |
-| `order.cod-enabled` | true | global |
-| `order.auto-cancel-hours` | 24 | global |
+| Key                               | Default     | Scope  |
+| --------------------------------- | ----------- | ------ |
+| `pricing.default-currency`        | BDT         | global |
+| `pricing.default-tax-rate`        | 5           | global |
+| `pricing.default-commission-rate` | 10          | global |
+| `inventory.low-stock-threshold`   | 10          | global |
+| `inventory.safety-stock`          | 5           | global |
+| `reseller.auto-approve`           | false       | global |
+| `wholesaler.auto-approve`         | false       | global |
+| `supplier.auto-approve`           | false       | global |
+| `notifications.email-enabled`     | true        | global |
+| `notifications.sms-enabled`       | false       | global |
+| `business.minimum-payout`         | 50000 (BDT) | global |
+| `order.cod-enabled`               | true        | global |
+| `order.auto-cancel-hours`         | 24          | global |
 
 ---
 
 ## Usage
 
 ```typescript
-import { Settings } from "@/shared/core"
+import { Settings } from "@/shared/core";
 
 // Read setting
-const currency = Settings.get<string>("pricing.default-currency")
+const currency = Settings.get<string>("pricing.default-currency");
 
 // Register new setting (during engine initialization)
 Settings.register({
@@ -67,5 +67,5 @@ Settings.register({
   description: "Controls something in My Engine",
   scope: "global",
   defaultValue: "default-value",
-})
+});
 ```

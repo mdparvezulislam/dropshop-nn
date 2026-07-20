@@ -10,18 +10,18 @@ The health check system provides a centralized way to monitor platform health. I
 
 ```typescript
 interface HealthCheckResult {
-  status: "healthy" | "degraded" | "unhealthy"
-  checks: HealthCheck[]
-  timestamp: string
-  uptime: number  // seconds
+  status: "healthy" | "degraded" | "unhealthy";
+  checks: HealthCheck[];
+  timestamp: string;
+  uptime: number; // seconds
 }
 
 interface HealthCheck {
-  name: string
-  status: "healthy" | "degraded" | "unhealthy"
-  message?: string
-  latencyMs?: number
-  details?: Record<string, unknown>
+  name: string;
+  status: "healthy" | "degraded" | "unhealthy";
+  message?: string;
+  latencyMs?: number;
+  details?: Record<string, unknown>;
 }
 ```
 
@@ -29,30 +29,30 @@ interface HealthCheck {
 
 ## Registered Checks
 
-| Check | Type | Dependencies |
-|-------|------|-------------|
-| Application | Core | None — checks uptime |
-| Database | Infrastructure | MongoDB |
-| Redis | Infrastructure | Redis server |
-| Queue | Infrastructure | BullMQ + Redis |
-| Storage | Infrastructure | ImageKit |
+| Check       | Type           | Dependencies         |
+| ----------- | -------------- | -------------------- |
+| Application | Core           | None — checks uptime |
+| Database    | Infrastructure | MongoDB              |
+| Redis       | Infrastructure | Redis server         |
+| Queue       | Infrastructure | BullMQ + Redis       |
+| Storage     | Infrastructure | ImageKit             |
 
 ---
 
 ## Health Check API
 
 ```typescript
-import { healthService } from "@/shared/core"
+import { healthService } from "@/shared/core";
 
 // Register checks on app startup
-healthService.register("database", createDatabaseHealthChecker())
-healthService.register("redis", createRedisHealthChecker())
+healthService.register("database", createDatabaseHealthChecker());
+healthService.register("redis", createRedisHealthChecker());
 
 // Check all dependencies
-const status = await healthService.checkAll()
+const status = await healthService.checkAll();
 
 // Get uptime only
-const uptime = healthService.getUptime()  // seconds
+const uptime = healthService.getUptime(); // seconds
 ```
 
 ---
@@ -82,8 +82,8 @@ A `/api/health` route returns the aggregated health status. Internal services us
 
 ## Status Interpretation
 
-| Overall Status | Meaning |
-|---------------|---------|
-| `healthy` | All checks pass |
-| `degraded` | Non-critical checks fail (e.g., caching layer) |
-| `unhealthy` | Critical checks fail (e.g., database unreachable) |
+| Overall Status | Meaning                                           |
+| -------------- | ------------------------------------------------- |
+| `healthy`      | All checks pass                                   |
+| `degraded`     | Non-critical checks fail (e.g., caching layer)    |
+| `unhealthy`    | Critical checks fail (e.g., database unreachable) |

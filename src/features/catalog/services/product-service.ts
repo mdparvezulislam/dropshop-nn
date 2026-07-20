@@ -1,4 +1,8 @@
-import { ProductRepository, CursorPaginationParams, PaginatedCatalogResult } from "../repositories/product-repository";
+import {
+  ProductRepository,
+  CursorPaginationParams,
+  PaginatedCatalogResult,
+} from "../repositories/product-repository";
 import { BrandRepository } from "../repositories/classification-repository";
 import { CategoryRepository } from "../repositories/classification-repository";
 import { Product } from "../domain/product-entity";
@@ -57,11 +61,15 @@ export class ProductService {
 
     if (data.brandId) {
       const brand = await this.brandRepository.findById(data.brandId);
-      if (!brand) throw new ValidationError("Brand not found", { brandId: ["Brand does not exist"] });
+      if (!brand)
+        throw new ValidationError("Brand not found", { brandId: ["Brand does not exist"] });
     }
     if (data.categoryId) {
       const category = await this.categoryRepository.findById(data.categoryId);
-      if (!category) throw new ValidationError("Category not found", { categoryId: ["Category does not exist"] });
+      if (!category)
+        throw new ValidationError("Category not found", {
+          categoryId: ["Category does not exist"],
+        });
     }
 
     const product = await this.productRepository.create({
@@ -120,7 +128,10 @@ export class ProductService {
 
     if (data.barcode && data.barcode !== existing.barcode) {
       const dup = await this.productRepository.findOne({ barcode: data.barcode, _id: { $ne: id } });
-      if (dup) throw new ValidationError("Barcode already exists", { barcode: ["Barcode is already in use"] });
+      if (dup)
+        throw new ValidationError("Barcode already exists", {
+          barcode: ["Barcode is already in use"],
+        });
     }
 
     const updated = await this.productRepository.update(id, { ...data, slug });
@@ -203,7 +214,8 @@ export class ProductService {
     if (!existing) throw new NotFoundError("Product not found");
 
     if (existing.status === "active") throw new ValidationError("Product is already published");
-    if (existing.status === "archived") throw new ValidationError("Cannot publish an archived product");
+    if (existing.status === "archived")
+      throw new ValidationError("Cannot publish an archived product");
 
     if (existing.variants.length === 0) {
       throw new ValidationError("Product must have at least one variant before publishing");
@@ -324,9 +336,11 @@ export class ProductService {
         productId,
         variantSku: variant.sku,
         dimensions: Object.fromEntries(
-          Object.entries(variant).filter(([k, v]) =>
-            ["color", "size", "storage", "ram", "capacity", "material", "bundle"].includes(k) && v
-          )
+          Object.entries(variant).filter(
+            ([k, v]) =>
+              ["color", "size", "storage", "ram", "capacity", "material", "bundle"].includes(k) &&
+              v,
+          ),
         ) as Record<string, string>,
       },
       { actor, source: "catalog-service" },
@@ -335,7 +349,12 @@ export class ProductService {
     return updated;
   }
 
-  async updateVariant(productId: string, sku: string, data: any, actor?: ActorInfo): Promise<Product> {
+  async updateVariant(
+    productId: string,
+    sku: string,
+    data: any,
+    actor?: ActorInfo,
+  ): Promise<Product> {
     logger.info("ProductService: updating variant", { productId, sku });
 
     const product = await this.productRepository.findById(productId);
@@ -478,7 +497,11 @@ export class ProductService {
     return updated;
   }
 
-  async changeVisibility(id: string, visibility: Product["visibility"], actor?: ActorInfo): Promise<Product> {
+  async changeVisibility(
+    id: string,
+    visibility: Product["visibility"],
+    actor?: ActorInfo,
+  ): Promise<Product> {
     logger.info("ProductService: changing visibility", { id, visibility, actor: actor?.id });
 
     const existing = await this.productRepository.findById(id);

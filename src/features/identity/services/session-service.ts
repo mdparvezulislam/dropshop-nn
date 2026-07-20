@@ -1,4 +1,7 @@
-import { UserSessionModel, UserSessionDocument } from "@/features/auth/repositories/user-session-model";
+import {
+  UserSessionModel,
+  UserSessionDocument,
+} from "@/features/auth/repositories/user-session-model";
 import { logger } from "@/shared/utils/logger";
 
 export interface ActiveSession {
@@ -32,9 +35,7 @@ export class SessionService {
       expiresAt: doc.expiresAt,
       createdAt: doc.createdAt,
       lastActivity: doc.updatedAt || doc.createdAt,
-      isCurrentSession: currentSessionToken
-        ? doc.token === currentSessionToken
-        : false,
+      isCurrentSession: currentSessionToken ? doc.token === currentSessionToken : false,
     }));
   }
 

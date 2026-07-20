@@ -11,6 +11,7 @@ Refer to `docs/17-inventory-architecture.md` for the existing implementation det
 ## Inventory Buckets
 
 ### 1. Catalog Inventory
+
 The platform's sellable stock. This is what customers see as availability.
 
 ```
@@ -31,6 +32,7 @@ ProductInventory {
 ```
 
 ### 2. Supplier Inventory
+
 Stock owned by suppliers. Used for dropshipping fulfillment.
 
 ```
@@ -48,6 +50,7 @@ SupplierInventory {
 ```
 
 ### 3. Warehouse Inventory
+
 Future multi-warehouse support. Each warehouse has its own stock row.
 
 ```
@@ -63,6 +66,7 @@ WarehouseInventory {
 ```
 
 ### 4. Reserved Inventory
+
 Stock held for active orders, payment processing, or checkout carts.
 
 ```
@@ -77,6 +81,7 @@ ReservedInventory {
 ```
 
 ### 5. Incoming Inventory
+
 Stock expected from suppliers, inbound transfers, or purchase orders.
 
 ```
@@ -96,16 +101,16 @@ IncomingInventory {
 
 ## Stock Operations
 
-| Operation | Bucket Effect | History Entry |
-|-----------|---------------|---------------|
-| `stock_in` | +availableStock | Stock In |
-| `stock_out` | −availableStock | Stock Out |
-| `adjustment` | ±availableStock | Adjustment |
-| `reservation` | −available → +reserved | Reservation |
-| `release` | −reserved → +available | Release |
-| `transfer` | −source available (→ +target available) | Transfer |
-| `damage` | −available → +damaged | Damage |
-| `return` | +available (from returned) | Return |
+| Operation     | Bucket Effect                           | History Entry |
+| ------------- | --------------------------------------- | ------------- |
+| `stock_in`    | +availableStock                         | Stock In      |
+| `stock_out`   | −availableStock                         | Stock Out     |
+| `adjustment`  | ±availableStock                         | Adjustment    |
+| `reservation` | −available → +reserved                  | Reservation   |
+| `release`     | −reserved → +available                  | Release       |
+| `transfer`    | −source available (→ +target available) | Transfer      |
+| `damage`      | −available → +damaged                   | Damage        |
+| `return`      | +available (from returned)              | Return        |
 
 ---
 
@@ -114,11 +119,11 @@ IncomingInventory {
 ```typescript
 function resolveAvailability(inventory: ProductInventory): AvailabilityStatus {
   const sellable = inventory.availableStock - inventory.reservedStock;
-  if (sellable > inventory.lowStockThreshold) return 'in_stock';
-  if (sellable > 0) return 'low_stock';
-  if (inventory.allowPreOrder) return 'pre_order';
-  if (inventory.allowBackorder) return 'backorder';
-  return 'out_of_stock';
+  if (sellable > inventory.lowStockThreshold) return "in_stock";
+  if (sellable > 0) return "low_stock";
+  if (inventory.allowPreOrder) return "pre_order";
+  if (inventory.allowBackorder) return "backorder";
+  return "out_of_stock";
 }
 ```
 
@@ -127,6 +132,7 @@ function resolveAvailability(inventory: ProductInventory): AvailabilityStatus {
 ## Multi-Warehouse Support (Future)
 
 Architecture ready for:
+
 - Multiple warehouses identified by `warehouseId`
 - Per-warehouse stock rows (unique on product+variant+warehouse)
 - Warehouse transfer operations (source → target)

@@ -25,10 +25,10 @@ Reservation Expired? ──Yes──→ Auto-Release
 
 ```typescript
 const { inventory, history } = await inventoryService.reserveStock(
-  inventoryId,   // Inventory record ID
-  quantity,      // Units to reserve
-  "order-123",   // Reference (order/cart ID)
-  "user-456",    // Actor
+  inventoryId, // Inventory record ID
+  quantity, // Units to reserve
+  "order-123", // Reference (order/cart ID)
+  "user-456", // Actor
 );
 ```
 
@@ -56,11 +56,11 @@ const { inventory, history } = await inventoryService.markSold(
 
 ## Validation Rules
 
-| Rule | Enforcement |
-|------|-------------|
-| Cannot reserve more than available | `availableStock >= quantity` |
-| Cannot release more than reserved | `reservedStock >= quantity` |
-| Cannot reserve on frozen inventory | Block with error |
+| Rule                                        | Enforcement                          |
+| ------------------------------------------- | ------------------------------------ |
+| Cannot reserve more than available          | `availableStock >= quantity`         |
+| Cannot release more than reserved           | `reservedStock >= quantity`          |
+| Cannot reserve on frozen inventory          | Block with error                     |
 | Sold converts reserved or reduces available | Reserve first, fallback to available |
 
 ## Reservation Expiry

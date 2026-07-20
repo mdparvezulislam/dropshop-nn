@@ -8,46 +8,49 @@ The Notification Engine is a centralized system that dispatches notifications ac
 
 ## Channel Support
 
-| Channel | Status | Priority |
-|---------|--------|----------|
-| In-App | ✅ Implement | High |
-| Email | ✅ Implement | High |
-| SMS | ⏳ Planned | Medium |
-| WhatsApp | 🔮 Future | Low |
-| Push Notification | 🔮 Future | Low |
+| Channel           | Status       | Priority |
+| ----------------- | ------------ | -------- |
+| In-App            | ✅ Implement | High     |
+| Email             | ✅ Implement | High     |
+| SMS               | ⏳ Planned   | Medium   |
+| WhatsApp          | 🔮 Future    | Low      |
+| Push Notification | 🔮 Future    | Low      |
 
 ---
 
 ## Notification Types
 
 ### Transactional Notifications
-| Type | Channels | Trigger |
-|------|----------|---------|
-| Order Confirmation | In-App, Email, SMS | Order Created |
-| Order Shipped | In-App, Email, SMS | Status → Shipped |
-| Order Delivered | In-App, Email | Status → Delivered |
-| Payment Received | In-App, Email | Payment Completed |
-| Payment Failed | In-App, Email, SMS | Payment Failed |
-| Stock Alert | In-App, Email | Low/Out of Stock |
-| Price Change | In-App, Email | Pricing Updated |
-| Account Verified | In-App, Email | Verification Complete |
+
+| Type               | Channels           | Trigger               |
+| ------------------ | ------------------ | --------------------- |
+| Order Confirmation | In-App, Email, SMS | Order Created         |
+| Order Shipped      | In-App, Email, SMS | Status → Shipped      |
+| Order Delivered    | In-App, Email      | Status → Delivered    |
+| Payment Received   | In-App, Email      | Payment Completed     |
+| Payment Failed     | In-App, Email, SMS | Payment Failed        |
+| Stock Alert        | In-App, Email      | Low/Out of Stock      |
+| Price Change       | In-App, Email      | Pricing Updated       |
+| Account Verified   | In-App, Email      | Verification Complete |
 
 ### Promotional Notifications
-| Type | Channels | Trigger |
-|------|----------|---------|
-| Campaign Launch | In-App, Email, SMS | Campaign Active |
-| Flash Sale | In-App, SMS | Flash Sale Start |
-| Price Drop | In-App, Email | Price Decrease |
-| Back in Stock | In-App, Email | Stock Available |
+
+| Type            | Channels           | Trigger          |
+| --------------- | ------------------ | ---------------- |
+| Campaign Launch | In-App, Email, SMS | Campaign Active  |
+| Flash Sale      | In-App, SMS        | Flash Sale Start |
+| Price Drop      | In-App, Email      | Price Decrease   |
+| Back in Stock   | In-App, Email      | Stock Available  |
 
 ### System Notifications
-| Type | Channels | Recipients |
-|------|----------|------------|
-| Reseller Application | In-App, Email | Admin |
-| Supplier Application | In-App, Email | Admin |
-| Report Ready | In-App, Email | Requestor |
-| Payout Processed | In-App, Email | Supplier/Reseller |
-| Account Warning | In-App, Email | User |
+
+| Type                 | Channels      | Recipients        |
+| -------------------- | ------------- | ----------------- |
+| Reseller Application | In-App, Email | Admin             |
+| Supplier Application | In-App, Email | Admin             |
+| Report Ready         | In-App, Email | Requestor         |
+| Payout Processed     | In-App, Email | Supplier/Reseller |
+| Account Warning      | In-App, Email | User              |
 
 ---
 
@@ -129,12 +132,12 @@ UserNotificationPreferences {
 
 ## Rate Limiting & Batching
 
-| Channel | Rate Limit | Batching |
-|---------|-----------|----------|
-| In-App | Unlimited | No |
-| Email | 100/hour per user | Digest (daily/weekly) |
-| SMS | 5/hour per user | No |
-| Push | 50/hour per user | No |
+| Channel | Rate Limit        | Batching              |
+| ------- | ----------------- | --------------------- |
+| In-App  | Unlimited         | No                    |
+| Email   | 100/hour per user | Digest (daily/weekly) |
+| SMS     | 5/hour per user   | No                    |
+| Push    | 50/hour per user  | No                    |
 
 ---
 
@@ -142,12 +145,12 @@ UserNotificationPreferences {
 
 ```typescript
 class NotificationRepository extends BaseRepository {
-  create(notification: Notification): Promise<Notification>
-  findUnreadByUser(userId: string): Promise<Notification[]>
-  markAsRead(notificationId: string): Promise<void>
-  markAllAsRead(userId: string): Promise<void>
-  getPreferences(userId: string): Promise<UserNotificationPreferences>
-  updatePreferences(userId: string, prefs: UserNotificationPreferences): Promise<void>
+  create(notification: Notification): Promise<Notification>;
+  findUnreadByUser(userId: string): Promise<Notification[]>;
+  markAsRead(notificationId: string): Promise<void>;
+  markAllAsRead(userId: string): Promise<void>;
+  getPreferences(userId: string): Promise<UserNotificationPreferences>;
+  updatePreferences(userId: string, prefs: UserNotificationPreferences): Promise<void>;
 }
 ```
 

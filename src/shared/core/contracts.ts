@@ -37,11 +37,23 @@ export interface ContractService<T extends DomainEntity, TCreate, TUpdate> {
 }
 
 export interface EventPublisherContract {
-  publish(eventType: string, data: Record<string, unknown>, actor?: ActorInfo, correlationId?: string): Promise<BusinessEvent>;
+  publish(
+    eventType: string,
+    data: Record<string, unknown>,
+    actor?: ActorInfo,
+    correlationId?: string,
+  ): Promise<BusinessEvent>;
 }
 
 export interface AuditPublisherContract {
-  record(action: string, entityType: string, entityId: string, actor: ActorInfo, changes?: ChangeRecord[], metadata?: Record<string, unknown>): Promise<void>;
+  record(
+    action: string,
+    entityType: string,
+    entityId: string,
+    actor: ActorInfo,
+    changes?: ChangeRecord[],
+    metadata?: Record<string, unknown>,
+  ): Promise<void>;
 }
 
 export interface AnalyticsPublisherContract {
@@ -49,5 +61,10 @@ export interface AnalyticsPublisherContract {
 }
 
 export interface NotificationPublisherContract {
-  send(type: string, recipients: string[], data: Record<string, unknown>, channels?: string[]): Promise<void>;
+  send(
+    type: string,
+    recipients: string[],
+    data: Record<string, unknown>,
+    channels?: string[],
+  ): Promise<void>;
 }

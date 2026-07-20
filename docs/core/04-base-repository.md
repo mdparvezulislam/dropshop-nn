@@ -19,17 +19,17 @@ abstract class BaseRepository<TDocument, TDomain extends { id: string }>
 
 ## Methods
 
-| Method | Description | Transaction Support |
-|--------|-------------|-------------------|
-| `create(data)` | Create a new record | ✅ session |
-| `findById(id)` | Find by primary key | ✅ session |
-| `findOne(filter)` | Find first matching | ✅ session |
-| `find(filter)` | Find all matching | ✅ session |
-| `findPaginated(filter, pagination, sort)` | Paginated query | ✅ session |
-| `update(id, data)` | Update by primary key | ✅ session |
-| `delete(id)` | Soft delete | ✅ session |
-| `hardDelete(id)` | Permanently remove | ✅ session |
-| `count(filter)` | Count matching | ✅ session |
+| Method                                    | Description           | Transaction Support |
+| ----------------------------------------- | --------------------- | ------------------- |
+| `create(data)`                            | Create a new record   | ✅ session          |
+| `findById(id)`                            | Find by primary key   | ✅ session          |
+| `findOne(filter)`                         | Find first matching   | ✅ session          |
+| `find(filter)`                            | Find all matching     | ✅ session          |
+| `findPaginated(filter, pagination, sort)` | Paginated query       | ✅ session          |
+| `update(id, data)`                        | Update by primary key | ✅ session          |
+| `delete(id)`                              | Soft delete           | ✅ session          |
+| `hardDelete(id)`                          | Permanently remove    | ✅ session          |
+| `count(filter)`                           | Count matching        | ✅ session          |
 
 ---
 
@@ -39,9 +39,9 @@ All methods accept optional `DatabaseQueryOptions` with a `session` property:
 
 ```typescript
 interface DatabaseQueryOptions {
-  session?: ClientSession
-  lean?: boolean
-  showDeleted?: boolean
+  session?: ClientSession;
+  lean?: boolean;
+  showDeleted?: boolean;
 }
 ```
 
@@ -49,9 +49,9 @@ Use `runInTransaction()` from `src/shared/lib/database/query-builder.ts` for mul
 
 ```typescript
 await runInTransaction(async (session) => {
-  const pricing = await pricingRepo.create(data, { session })
-  const inventory = await inventoryRepo.create(data, { session })
-})
+  const pricing = await pricingRepo.create(data, { session });
+  const inventory = await inventoryRepo.create(data, { session });
+});
 ```
 
 ---
@@ -68,7 +68,7 @@ class MyRepository extends BaseRepository<MyDocument, MyEntity> {
       name: doc.name,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
-    }))
+    }));
   }
 }
 ```

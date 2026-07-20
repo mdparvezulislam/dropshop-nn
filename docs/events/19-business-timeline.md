@@ -36,25 +36,25 @@ TimelineEntry {
 
 ```typescript
 interface TimelineEntry {
-  id: string
-  entityType: string
-  entityId: string
-  eventType: string
-  action: string            // Human-readable
-  summary: string           // One-line description
+  id: string;
+  entityType: string;
+  entityId: string;
+  eventType: string;
+  action: string; // Human-readable
+  summary: string; // One-line description
   actor?: {
-    id: string
-    name: string
-    role: string
-  }
+    id: string;
+    name: string;
+    role: string;
+  };
   changes?: {
-    field: string
-    oldValue?: unknown
-    newValue?: unknown
-  }[]
-  metadata?: Record<string, unknown>
-  correlationId?: string
-  timestamp: Date
+    field: string;
+    oldValue?: unknown;
+    newValue?: unknown;
+  }[];
+  metadata?: Record<string, unknown>;
+  correlationId?: string;
+  timestamp: Date;
 }
 ```
 
@@ -62,30 +62,30 @@ interface TimelineEntry {
 
 ## Event to Timeline Mapping
 
-| Event Type | Action Text | Summary Template |
-|-----------|-------------|-----------------|
-| product.created | Created | "Product created in draft status" |
-| product.updated | Updated | "Name, description changed" |
-| product.published | Published | "Product published by {actor.name}" |
-| product.archived | Archived | "Product archived — reason: {reason}" |
-| product.deleted | Deleted | "Product soft-deleted by {actor.name}" |
-| price.created | Pricing Created | "Default pricing initialized" |
-| price.updated | Pricing Updated | "Selling price updated: ৳1,000 → ৳1,200" |
-| price.campaign_started | Campaign Started | "Flash sale started — 20% off" |
-| inventory.adjusted | Stock Adjusted | "Stock adjusted: +50 units" |
-| stock.reserved | Stock Reserved | "Stock reserved for Order #1234" |
-| inventory.low_stock_detected | Low Stock Alert | "Low stock: 5 remaining (threshold: 10)" |
-| order.created | Order Created | "Order placed — ৳3,450" |
-| order.shipped | Order Shipped | "Shipped via SteadFast — TRK123456" |
-| order.delivered | Order Delivered | "Order delivered" |
-| order.cancelled | Order Cancelled | "Cancelled: out of stock" |
-| customer.registered | Customer Registered | "New customer registered" |
-| customer.verified | Email Verified | "Email verified" |
-| reseller.registered | Reseller Registered | "Reseller {businessName} registered" |
-| reseller.approved | Reseller Approved | "Reseller account approved" |
-| supplier.created | Supplier Created | "New supplier: {businessName}" |
-| supplier.approved | Supplier Approved | "Supplier approved" |
-| system.login | Login | "User logged in from {ip}" |
+| Event Type                   | Action Text         | Summary Template                         |
+| ---------------------------- | ------------------- | ---------------------------------------- |
+| product.created              | Created             | "Product created in draft status"        |
+| product.updated              | Updated             | "Name, description changed"              |
+| product.published            | Published           | "Product published by {actor.name}"      |
+| product.archived             | Archived            | "Product archived — reason: {reason}"    |
+| product.deleted              | Deleted             | "Product soft-deleted by {actor.name}"   |
+| price.created                | Pricing Created     | "Default pricing initialized"            |
+| price.updated                | Pricing Updated     | "Selling price updated: ৳1,000 → ৳1,200" |
+| price.campaign_started       | Campaign Started    | "Flash sale started — 20% off"           |
+| inventory.adjusted           | Stock Adjusted      | "Stock adjusted: +50 units"              |
+| stock.reserved               | Stock Reserved      | "Stock reserved for Order #1234"         |
+| inventory.low_stock_detected | Low Stock Alert     | "Low stock: 5 remaining (threshold: 10)" |
+| order.created                | Order Created       | "Order placed — ৳3,450"                  |
+| order.shipped                | Order Shipped       | "Shipped via SteadFast — TRK123456"      |
+| order.delivered              | Order Delivered     | "Order delivered"                        |
+| order.cancelled              | Order Cancelled     | "Cancelled: out of stock"                |
+| customer.registered          | Customer Registered | "New customer registered"                |
+| customer.verified            | Email Verified      | "Email verified"                         |
+| reseller.registered          | Reseller Registered | "Reseller {businessName} registered"     |
+| reseller.approved            | Reseller Approved   | "Reseller account approved"              |
+| supplier.created             | Supplier Created    | "New supplier: {businessName}"           |
+| supplier.approved            | Supplier Approved   | "Supplier approved"                      |
+| system.login                 | Login               | "User logged in from {ip}"               |
 
 ---
 
@@ -118,6 +118,7 @@ BusinessTimelineEntry {
 ```
 
 ### Indexes
+
 ```
 { entityType: 1, entityId: 1, timestamp: -1 }  // Entity timeline queries
 { actor.id: 1, timestamp: -1 }                   // User activity queries
@@ -126,6 +127,7 @@ BusinessTimelineEntry {
 ```
 
 ### Retention
+
 - Active: 90 days in primary collection
 - Archive: Moved to `business_timelines_archive` after 90 days
 - Permanent: Critical events (status changes, payments) never deleted
@@ -136,19 +138,19 @@ BusinessTimelineEntry {
 
 ```typescript
 class BusinessTimelineService {
-  async record(event: BusinessEvent): Promise<void>
+  async record(event: BusinessEvent): Promise<void>;
   async getEntityTimeline(
     entityType: string,
     entityId: string,
     options?: TimelineQueryOptions,
-  ): Promise<TimelineEntry[]>
-  async getUserActivity(userId: string, options?: TimelineQueryOptions): Promise<TimelineEntry[]>
+  ): Promise<TimelineEntry[]>;
+  async getUserActivity(userId: string, options?: TimelineQueryOptions): Promise<TimelineEntry[]>;
   async getEntityTimelineByEventType(
     entityType: string,
     entityId: string,
     eventTypes: string[],
-  ): Promise<TimelineEntry[]>
-  async archiveBefore(date: Date): Promise<number>
+  ): Promise<TimelineEntry[]>;
+  async archiveBefore(date: Date): Promise<number>;
 }
 ```
 
@@ -195,19 +197,19 @@ class BusinessTimelineService {
 
 ```typescript
 class TimelineSubscriber implements SyncEventSubscriber {
-  private readonly timelineService = new BusinessTimelineService()
+  private readonly timelineService = new BusinessTimelineService();
 
   get eventType(): string {
-    return '*'  // Subscribe to all events
+    return "*"; // Subscribe to all events
   }
 
   get priority(): number {
-    return 2  // After audit
+    return 2; // After audit
   }
 
   async handle(event: BusinessEvent): Promise<void> {
-    const entityInfo = this.extractEntityInfo(event)
-    if (!entityInfo) return  // Not a business entity event
+    const entityInfo = this.extractEntityInfo(event);
+    if (!entityInfo) return; // Not a business entity event
 
     await this.timelineService.record({
       entityType: entityInfo.entityType,
@@ -220,32 +222,32 @@ class TimelineSubscriber implements SyncEventSubscriber {
       metadata: event.metadata,
       correlationId: event.correlationId,
       timestamp: new Date(event.timestamp),
-    })
+    });
   }
 
   private extractEntityInfo(event: BusinessEvent): { entityType: string; entityId: string } | null {
-    const data = event.data as Record<string, unknown>
-    const domain = event.eventType.split('.')[0]
+    const data = event.data as Record<string, unknown>;
+    const domain = event.eventType.split(".")[0];
 
     const entityMap: Record<string, string> = {
-      product: 'Product',
-      supplier: 'Supplier',
-      price: 'ProductPricing',
-      inventory: 'ProductInventory',
-      order: 'Order',
-      customer: 'Customer',
-      reseller: 'Reseller',
-      wholesaler: 'Wholesaler',
-      payment: 'Payment',
-    }
+      product: "Product",
+      supplier: "Supplier",
+      price: "ProductPricing",
+      inventory: "ProductInventory",
+      order: "Order",
+      customer: "Customer",
+      reseller: "Reseller",
+      wholesaler: "Wholesaler",
+      payment: "Payment",
+    };
 
-    const entityType = entityMap[domain]
-    if (!entityType) return null
+    const entityType = entityMap[domain];
+    if (!entityType) return null;
 
-    const entityId = data[`${domain}Id`] as string
-    if (!entityId) return null
+    const entityId = data[`${domain}Id`] as string;
+    if (!entityId) return null;
 
-    return { entityType, entityId }
+    return { entityType, entityId };
   }
 }
 ```

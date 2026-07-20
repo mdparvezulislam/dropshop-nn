@@ -9,33 +9,39 @@ Dashboards are the primary interface for every platform role. Every dashboard di
 ## Core Principles
 
 ### 1. Live by Default
+
 All dashboard widgets pull from live data via the Analytics Engine. Cached data is acceptable only when clearly labeled and within a configurable freshness window.
 
 ### 2. Actionable, Not Informational
+
 Every widget should lead to an action. If a metric cannot drive a decision or action, it does not belong on the dashboard.
 
 ### 3. Role-Appropriate
+
 Each role sees a dashboard tailored to their responsibilities:
 
-| Role | Focus |
-|------|-------|
-| Super Admin | System health, growth, revenue, anomalies |
-| Admin | Revenue, orders, operational KPIs |
-| Manager | Team performance, task queues, alerts |
-| Support | Open orders, customer issues, escalation queue |
-| Reseller | Personal sales, profit, product catalog |
-| Wholesaler | Bulk orders, tier pricing, MOQ status |
-| Supplier | Product listings, orders, stock, payouts |
-| Customer | Personal orders, favorites, account |
+| Role        | Focus                                          |
+| ----------- | ---------------------------------------------- |
+| Super Admin | System health, growth, revenue, anomalies      |
+| Admin       | Revenue, orders, operational KPIs              |
+| Manager     | Team performance, task queues, alerts          |
+| Support     | Open orders, customer issues, escalation queue |
+| Reseller    | Personal sales, profit, product catalog        |
+| Wholesaler  | Bulk orders, tier pricing, MOQ status          |
+| Supplier    | Product listings, orders, stock, payouts       |
+| Customer    | Personal orders, favorites, account            |
 
 ### 4. Consistent Layout Language
+
 Every dashboard follows the same visual language:
+
 - **Header**: Role-aware greeting, date, notifications
 - **Stat Bar**: 4-6 key metrics (KPI cards)
 - **Main Area**: Charts, tables, activity feeds
 - **Sidebar (desktop)**: Quick actions, recent activity
 
 ### 5. Progressive Disclosure
+
 - Summary first, details on demand
 - Click-through from any widget to the full data view
 - Tooltips for metric definitions
@@ -46,30 +52,35 @@ Every dashboard follows the same visual language:
 ## Dashboard Widgets
 
 ### KPI Cards
+
 - Large, single-value metrics with trend indicators
 - Value + delta (vs previous period) + sparkline
 - Click navigates to detailed view
 
 ### Charts
-| Chart Type | Use Case |
-|-----------|----------|
-| Line Chart | Trends over time (revenue, orders) |
-| Bar Chart | Comparisons (top products, categories) |
-| Pie/Donut | Distribution (order status, traffic source) |
-| Area Chart | Cumulative metrics (total revenue YTD) |
+
+| Chart Type | Use Case                                    |
+| ---------- | ------------------------------------------- |
+| Line Chart | Trends over time (revenue, orders)          |
+| Bar Chart  | Comparisons (top products, categories)      |
+| Pie/Donut  | Distribution (order status, traffic source) |
+| Area Chart | Cumulative metrics (total revenue YTD)      |
 
 ### Data Tables
+
 - Sortable, filterable, paginated
 - Inline actions (edit, view, delete)
 - Bulk selection for mass operations
 - Export to CSV
 
 ### Activity Feed
+
 - Chronological list of recent actions
 - Actor, action, timestamp, entity link
 - Filterable by type and severity
 
 ### Alert Cards
+
 - High-priority items requiring attention
 - Color-coded by severity (red/yellow/blue)
 - Dismissible with action button
@@ -79,6 +90,7 @@ Every dashboard follows the same visual language:
 ## Specific Dashboards
 
 ### Admin Dashboard
+
 ```
 ┌─────────────────────────────────────────────┐
 │  Revenue (Today) │ Orders │ Users │ Products │
@@ -100,6 +112,7 @@ Every dashboard follows the same visual language:
 ```
 
 ### Reseller Dashboard
+
 ```
 ┌─────────────────────────────────────────────┐
 │  Sales (Month) │ Orders │ Profit │ Products  │
@@ -115,6 +128,7 @@ Every dashboard follows the same visual language:
 ```
 
 ### Supplier Dashboard
+
 ```
 ┌─────────────────────────────────────────────┐
 │  Listed Products │ Orders │ Pending │ Payout │

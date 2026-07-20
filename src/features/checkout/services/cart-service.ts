@@ -64,31 +64,30 @@ export class CartService {
       lastActivityAt: new Date(),
     } as any);
 
-    await EventBus.publish("checkout.cart_created", {
-      cartId: newCart.id,
-      type: newCart.type,
-      sessionId: newCart.sessionId,
-      userId: newCart.userId,
-    }, { source: "checkout-cart" });
+    await EventBus.publish(
+      "checkout.cart_created",
+      {
+        cartId: newCart.id,
+        type: newCart.type,
+        sessionId: newCart.sessionId,
+        userId: newCart.userId,
+      },
+      { source: "checkout-cart" },
+    );
 
     logger.info("CartService: cart created", { cartId: newCart.id, type: newCart.type });
     return newCart;
   }
 
-  async addItem(
-    cartId: string,
-    input: AddItemInput,
-    cartType: CartType,
-  ): Promise<Cart> {
+  async addItem(cartId: string, input: AddItemInput, cartType: CartType): Promise<Cart> {
     logger.info("CartService: adding item", { cartId, productId: input.productId });
 
     const cart = await this.cartRepository.findById(cartId);
     if (!cart) throw new NotFoundError("Cart not found");
     if (cart.status !== "active") throw new ValidationError("Cart is not active");
 
-    const role = cartType === "reseller" ? "reseller"
-      : cartType === "wholesaler" ? "wholesale"
-      : "retail";
+    const role =
+      cartType === "reseller" ? "reseller" : cartType === "wholesaler" ? "wholesale" : "retail";
 
     const resolved = await this.priceResolutionService.resolveSingle({
       productId: input.productId,
@@ -98,7 +97,9 @@ export class CartService {
     });
 
     const existingIndex = cart.items.findIndex(
-      (item) => item.productId === input.productId && item.variantSku === this.normalizeVariantSku(input.variantSku),
+      (item) =>
+        item.productId === input.productId &&
+        item.variantSku === this.normalizeVariantSku(input.variantSku),
     );
 
     let items: CartItem[];
@@ -112,7 +113,7 @@ export class CartService {
         resolvedPrice: resolved.unitPrice,
         profitPreview: {
           costBasis: resolved.profitPreview.costBasis,
-          profitAmount: resolved.profitPreview.profitAmount / input.quantity * newQty,
+          profitAmount: (resolved.profitPreview.profitAmount / input.quantity) * newQty,
           profitMargin: resolved.profitPreview.profitMargin,
         },
       };
@@ -144,22 +145,22 @@ export class CartService {
       lastActivityAt: new Date(),
     } as any);
 
-    await EventBus.publish("checkout.cart_updated", {
-      cartId: updated.id,
-      type: updated.type,
-      itemCount: updated.itemCount,
-      subtotal: updated.subtotal,
-      changes: existingIndex >= 0 ? ["quantity_updated"] : ["item_added"],
-    }, { source: "checkout-cart" });
+    await EventBus.publish(
+      "checkout.cart_updated",
+      {
+        cartId: updated.id,
+        type: updated.type,
+        itemCount: updated.itemCount,
+        subtotal: updated.subtotal,
+        changes: existingIndex >= 0 ? ["quantity_updated"] : ["item_added"],
+      },
+      { source: "checkout-cart" },
+    );
 
     return updated;
   }
 
-  async updateItemQuantity(
-    cartId: string,
-    itemIndex: number,
-    quantity: number,
-  ): Promise<Cart> {
+  async updateItemQuantity(cartId: string, itemIndex: number, quantity: number): Promise<Cart> {
     const cart = await this.cartRepository.findById(cartId);
     if (!cart) throw new NotFoundError("Cart not found");
     if (cart.status !== "active") throw new ValidationError("Cart is not active");

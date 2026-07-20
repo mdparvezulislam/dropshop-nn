@@ -96,9 +96,7 @@ export class BusinessTimelineService {
     };
 
     try {
-      const { default: BaseRepository } = await import(
-        "@/shared/lib/database/generic-repository"
-      );
+      const { default: BaseRepository } = await import("@/shared/lib/database/generic-repository");
       const { model } = await import("mongoose");
 
       const TimelineSchema = new (await import("mongoose")).Schema(
@@ -131,10 +129,7 @@ export class BusinessTimelineService {
         { entityType: 1, entityId: 1, timestamp: -1 },
         { name: "entity_timeline" },
       );
-      TimelineSchema.index(
-        { "actor.id": 1, timestamp: -1 },
-        { name: "actor_timeline" },
-      );
+      TimelineSchema.index({ "actor.id": 1, timestamp: -1 }, { name: "actor_timeline" });
       TimelineSchema.index(
         { createdAt: 1 },
         { expireAfterSeconds: 90 * 24 * 60 * 60, name: "ttl_90d" },
@@ -153,9 +148,7 @@ export class BusinessTimelineService {
     }
   }
 
-  private extractEntityInfo(
-    event: BusinessEvent,
-  ): { entityType: string; entityId: string } | null {
+  private extractEntityInfo(event: BusinessEvent): { entityType: string; entityId: string } | null {
     const data = event.data as Record<string, unknown>;
     const domain = event.eventType.split(".")[0];
 

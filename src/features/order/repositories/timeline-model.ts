@@ -20,11 +20,13 @@ const timelineEntrySchema = new Schema(
       name: { type: String },
       role: { type: String },
     },
-    changes: [{
-      field: { type: String, required: true },
-      oldValue: { type: Schema.Types.Mixed },
-      newValue: { type: Schema.Types.Mixed },
-    }],
+    changes: [
+      {
+        field: { type: String, required: true },
+        oldValue: { type: Schema.Types.Mixed },
+        newValue: { type: Schema.Types.Mixed },
+      },
+    ],
     correlationId: { type: String, default: null },
     ...baseFieldsDefinition,
   },

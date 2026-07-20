@@ -21,17 +21,18 @@ MongoDB (atomic operations)
 
 ## Input Validation
 
-| Field | Rule |
-|-------|------|
-| All stock quantities | Must be non-negative integer |
-| Operation quantity | Must be positive (except adjustment) |
-| Product ID | Must be valid ObjectId |
-| Supplier SKU | Required for supplier mappings |
-| Currency | 3-letter ISO code |
+| Field                | Rule                                 |
+| -------------------- | ------------------------------------ |
+| All stock quantities | Must be non-negative integer         |
+| Operation quantity   | Must be positive (except adjustment) |
+| Product ID           | Must be valid ObjectId               |
+| Supplier SKU         | Required for supplier mappings       |
+| Currency             | 3-letter ISO code                    |
 
 ## Business Rule Validation
 
 ### Rule 1: Available Stock Sufficient
+
 ```
 IF operation in [stock_out, reservation, transfer, damage]
 AND availableStock < quantity
@@ -40,6 +41,7 @@ THEN Error: "Insufficient available stock"
 ```
 
 ### Rule 2: Reserved Stock Sufficient
+
 ```
 IF operation == "release"
 AND reservedStock < quantity
@@ -48,6 +50,7 @@ THEN Error: "Cannot release more than reserved stock"
 ```
 
 ### Rule 3: Frozen Inventory Protection
+
 ```
 IF inventory.status == "frozen"
 AND operation is a mutation
@@ -56,6 +59,7 @@ THEN Error: "Inventory is frozen"
 ```
 
 ### Rule 4: Backorder Allowance
+
 ```
 IF operation == "stock_out"
 AND quantity > availableStock
@@ -65,6 +69,7 @@ THEN Error: "Insufficient available stock"
 ```
 
 ### Rule 5: Positive Quantity
+
 ```
 IF operation != "adjustment"
 AND quantity <= 0

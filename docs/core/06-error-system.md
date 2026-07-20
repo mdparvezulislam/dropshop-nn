@@ -26,16 +26,16 @@ Error
 
 All in `src/shared/errors/app-error.ts`:
 
-| Class | Status Code | When to Use |
-|-------|-------------|-------------|
-| `AppError` | 500 (default) | Base class for all application errors |
-| `ValidationError` | 400 | Invalid input, schema validation failure |
-| `NotFoundError` | 404 | Requested resource does not exist |
-| `UnauthorizedError` | 401 | Authentication required |
-| `ForbiddenError` | 403 | Insufficient permissions |
-| `ConflictError` | 409 | Duplicate, state conflict |
-| `DatabaseError` | 500 | Database operation failure |
-| `InternalServerError` | 500 | Unexpected system error |
+| Class                 | Status Code   | When to Use                              |
+| --------------------- | ------------- | ---------------------------------------- |
+| `AppError`            | 500 (default) | Base class for all application errors    |
+| `ValidationError`     | 400           | Invalid input, schema validation failure |
+| `NotFoundError`       | 404           | Requested resource does not exist        |
+| `UnauthorizedError`   | 401           | Authentication required                  |
+| `ForbiddenError`      | 403           | Insufficient permissions                 |
+| `ConflictError`       | 409           | Duplicate, state conflict                |
+| `DatabaseError`       | 500           | Database operation failure               |
+| `InternalServerError` | 500           | Unexpected system error                  |
 
 ---
 
@@ -43,9 +43,9 @@ All in `src/shared/errors/app-error.ts`:
 
 ```typescript
 class AppError extends Error {
-  statusCode: number     // HTTP status code
-  isOperational: boolean // True = expected error, False = bug
-  details?: unknown      // Additional error context
+  statusCode: number; // HTTP status code
+  isOperational: boolean; // True = expected error, False = bug
+  details?: unknown; // Additional error context
 }
 ```
 
@@ -55,17 +55,17 @@ class AppError extends Error {
 
 ```typescript
 // Throw in service layer
-if (!entity) throw new NotFoundError("Product not found")
+if (!entity) throw new NotFoundError("Product not found");
 
-if (duplicate) throw new ConflictError("SKU already exists", { sku })
+if (duplicate) throw new ConflictError("SKU already exists", { sku });
 
 // Catch in action layer
 try {
-  return await service.create(data)
+  return await service.create(data);
 } catch (error) {
   if (error instanceof AppError) {
-    return { success: false, error: error.message }
+    return { success: false, error: error.message };
   }
-  throw error
+  throw error;
 }
 ```

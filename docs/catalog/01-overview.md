@@ -21,6 +21,7 @@ This engine covers:
 ## Boundaries
 
 ### Catalog Owns
+
 - Product identity and metadata
 - Product content and descriptions
 - Product media and documents
@@ -30,6 +31,7 @@ This engine covers:
 - Supplier references (M:N)
 
 ### Catalog Does NOT Own
+
 - **Pricing**: No cost price, selling price, reseller price, discount, or any monetary value
 - **Inventory**: No stock levels, reservations, warehouse data
 - **Orders**: No order items, fulfillment status
@@ -88,11 +90,11 @@ Catalog Event → Event Bus
 
 ## Dependencies
 
-| Dependency | Purpose |
-|-----------|---------|
-| `@/shared/lib/event-bus` | Event publishing for catalog events |
-| `@/shared/lib/database/generic-repository` | BaseRepository |
-| `@/shared/utils` | Logger, slug, validation utilities |
-| `@/shared/errors` | Error hierarchy |
-| `@/shared/core/permissions` | Permission definitions |
-| `@/features/identity` | Actor tracking for audit |
+| Dependency                                 | Purpose                             |
+| ------------------------------------------ | ----------------------------------- |
+| `@/shared/lib/event-bus`                   | Event publishing for catalog events |
+| `@/shared/lib/database/generic-repository` | BaseRepository                      |
+| `@/shared/utils`                           | Logger, slug, validation utilities  |
+| `@/shared/errors`                          | Error hierarchy                     |
+| `@/shared/core/permissions`                | Permission definitions              |
+| `@/features/identity`                      | Actor tracking for audit            |

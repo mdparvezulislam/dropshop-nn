@@ -45,20 +45,22 @@ All subscribers receive the event
 
 ```typescript
 interface BusinessEvent {
-  id: string              // Unique event ID (UUID)
-  type: string            // Event type (e.g., "product.created")
-  source: string          // Module name (e.g., "product-service")
-  timestamp: Date         // When the event occurred
-  actor?: {               // Who triggered the event
-    id: string
-    role: string
-  }
-  data: Record<string, any>  // Event payload
-  metadata?: {               // Optional context
-    correlationId?: string   // Trace across multiple events
-    causationId?: string     // Parent event ID
-    tenantId?: string
-  }
+  id: string; // Unique event ID (UUID)
+  type: string; // Event type (e.g., "product.created")
+  source: string; // Module name (e.g., "product-service")
+  timestamp: Date; // When the event occurred
+  actor?: {
+    // Who triggered the event
+    id: string;
+    role: string;
+  };
+  data: Record<string, any>; // Event payload
+  metadata?: {
+    // Optional context
+    correlationId?: string; // Trace across multiple events
+    causationId?: string; // Parent event ID
+    tenantId?: string;
+  };
 }
 ```
 
@@ -67,6 +69,7 @@ interface BusinessEvent {
 ## Event Types Catalog
 
 ### Product Events
+
 ```
 product.created
 product.updated
@@ -77,6 +80,7 @@ product.viewed
 ```
 
 ### Pricing Events
+
 ```
 pricing.created
 pricing.updated
@@ -87,6 +91,7 @@ pricing.campaign_ended
 ```
 
 ### Inventory Events
+
 ```
 inventory.created
 inventory.stock_in
@@ -101,6 +106,7 @@ inventory.transferred
 ```
 
 ### Order Events
+
 ```
 order.created
 order.updated
@@ -115,6 +121,7 @@ order.shipment_delivered
 ```
 
 ### User Events
+
 ```
 user.registered
 user.verified
@@ -126,6 +133,7 @@ user.deleted
 ```
 
 ### Reseller Events
+
 ```
 reseller.created
 reseller.updated
@@ -138,6 +146,7 @@ reseller.price_updated
 ```
 
 ### Supplier Events
+
 ```
 supplier.created
 supplier.updated
@@ -149,6 +158,7 @@ supplier.stock_updated
 ```
 
 ### System Events
+
 ```
 system.config_updated
 system.maintenance_mode
@@ -162,26 +172,26 @@ system.backup_completed
 
 ```typescript
 class EventBus {
-  private handlers: Map<string, EventHandler[]>
-  private asyncHandlers: Map<string, string[]>  // event type → BullMQ queue
+  private handlers: Map<string, EventHandler[]>;
+  private asyncHandlers: Map<string, string[]>; // event type → BullMQ queue
 
   publish(event: BusinessEvent): void {
     // 1. Call synchronous handlers
     for (const handler of this.handlers.get(event.type) || []) {
-      handler.handle(event)
+      handler.handle(event);
     }
 
     // 2. Enqueue async handlers
     for (const queueName of this.asyncHandlers.get(event.type) || []) {
-      BullMQQueue.add(queueName, event)
+      BullMQQueue.add(queueName, event);
     }
 
     // 3. Log event
-    AuditLogger.log('event.published', event)
+    AuditLogger.log("event.published", event);
   }
 
-  subscribe(eventType: string, handler: EventHandler): void
-  subscribeAsync(eventType: string, queueName: string): void
+  subscribe(eventType: string, handler: EventHandler): void;
+  subscribeAsync(eventType: string, queueName: string): void;
 }
 ```
 
@@ -189,13 +199,13 @@ class EventBus {
 
 ## Event Handler Types
 
-| Type | Execution | Use Case |
-|------|-----------|----------|
-| Synchronous | In-process, same request | Audit log, activity timeline |
-| Async (BullMQ) | Background job | Automation, analytics, notifications |
-| Delayed | BullMQ with delay | Future automations (e.g., 24h reminder) |
-| Scheduled | BullMQ cron | Daily digests, report generation |
-| External | Webhook | Third-party integrations |
+| Type           | Execution                | Use Case                                |
+| -------------- | ------------------------ | --------------------------------------- |
+| Synchronous    | In-process, same request | Audit log, activity timeline            |
+| Async (BullMQ) | Background job           | Automation, analytics, notifications    |
+| Delayed        | BullMQ with delay        | Future automations (e.g., 24h reminder) |
+| Scheduled      | BullMQ cron              | Daily digests, report generation        |
+| External       | Webhook                  | Third-party integrations                |
 
 ---
 
@@ -211,6 +221,7 @@ class EventBus {
 ## Event Store (Future)
 
 For audit, debugging, and replay:
+
 - All events stored in an `EventStore` collection
 - Supports event sourcing patterns in the future
 - Enables full system state reconstruction

@@ -150,7 +150,10 @@ export async function updateSupplierStatusAction(
   return { success: true, data: result };
 }
 
-export async function updateSupplierSettingsAction(id: string, formData: unknown): Promise<{
+export async function updateSupplierSettingsAction(
+  id: string,
+  formData: unknown,
+): Promise<{
   success: boolean;
   data?: Awaited<ReturnType<SupplierService["updateSettings"]>>;
   error?: string;
@@ -166,7 +169,10 @@ export async function updateSupplierSettingsAction(id: string, formData: unknown
   return { success: true, data: result };
 }
 
-export async function updateSupplierBankingAction(id: string, formData: unknown): Promise<{
+export async function updateSupplierBankingAction(
+  id: string,
+  formData: unknown,
+): Promise<{
   success: boolean;
   data?: Awaited<ReturnType<SupplierService["updateBanking"]>>;
   error?: string;
@@ -182,7 +188,10 @@ export async function updateSupplierBankingAction(id: string, formData: unknown)
   return { success: true, data: result };
 }
 
-export async function addSupplierNoteAction(id: string, formData: unknown): Promise<{
+export async function addSupplierNoteAction(
+  id: string,
+  formData: unknown,
+): Promise<{
   success: boolean;
   data?: Awaited<ReturnType<SupplierService["addNote"]>>;
   error?: string;
@@ -198,7 +207,10 @@ export async function addSupplierNoteAction(id: string, formData: unknown): Prom
   return { success: true, data: result };
 }
 
-export async function addSupplierTagsAction(id: string, tags: string[]): Promise<{
+export async function addSupplierTagsAction(
+  id: string,
+  tags: string[],
+): Promise<{
   success: boolean;
   data?: Awaited<ReturnType<SupplierService["addTags"]>>;
   error?: string;

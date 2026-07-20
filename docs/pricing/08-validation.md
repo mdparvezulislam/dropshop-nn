@@ -21,19 +21,20 @@ MongoDB
 
 ## Input Validation
 
-| Field | Rule |
-|-------|------|
-| All monetary values | Must be integer (cents/paise) |
-| Supplier price | >= 0 |
-| Selling prices | >= minimumSellingPrice |
+| Field                 | Rule                          |
+| --------------------- | ----------------------------- |
+| All monetary values   | Must be integer (cents/paise) |
+| Supplier price        | >= 0                          |
+| Selling prices        | >= minimumSellingPrice        |
 | Wholesale tier prices | > 0, decreasing with quantity |
-| Discount % | 0-100 |
-| Campaign dates | effectiveTo > effectiveFrom |
-| Minimum selling price | >= total cost |
+| Discount %            | 0-100                         |
+| Campaign dates        | effectiveTo > effectiveFrom   |
+| Minimum selling price | >= total cost                 |
 
 ## Business Rule Validation
 
 ### Price Protection
+
 ```
 IF sellingPrice < totalCost
 THEN Warning: "Selling price is below cost"
@@ -41,6 +42,7 @@ THEN Warning: "Selling price is below cost"
 ```
 
 ### Reseller Price
+
 ```
 IF customPrice < minimumSellingPrice
 THEN Error: "Selling price cannot be lower than the minimum allowed price"
@@ -48,6 +50,7 @@ THEN Error: "Selling price cannot be lower than the minimum allowed price"
 ```
 
 ### Wholesale Order
+
 ```
 IF quantity < minimumTier.minQty (MOQ)
 THEN Error: "Minimum order quantity is {MOQ}"
@@ -55,6 +58,7 @@ THEN Error: "Minimum order quantity is {MOQ}"
 ```
 
 ### Campaign Dates
+
 ```
 IF effectiveTo <= effectiveFrom
 THEN Error: "Campaign end date must be after start date"
@@ -80,6 +84,7 @@ THEN Error: "Campaign end date must be after start date"
 ## Validation at Scale
 
 All validations are:
+
 - Centralized in the Rule Engine
 - Reusable across all enforcement points
 - Configurable via admin settings

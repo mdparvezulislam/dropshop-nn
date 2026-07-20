@@ -69,7 +69,11 @@ export class PriceResolutionService {
       pricingSource = "retail";
     }
 
-    if (pricing.promotionalPrice && pricing.promotionalPrice > 0 && pricing.promotionalPrice < unitPrice) {
+    if (
+      pricing.promotionalPrice &&
+      pricing.promotionalPrice > 0 &&
+      pricing.promotionalPrice < unitPrice
+    ) {
       unitPrice = pricing.promotionalPrice;
       pricingSource = pricing.promotionalPrice < pricing.sellingPrice ? "flash_sale" : "campaign";
     }

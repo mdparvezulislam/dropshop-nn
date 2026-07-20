@@ -16,29 +16,30 @@ The Audit System provides an immutable, append-only record of every meaningful b
 
 ```typescript
 interface AuditEntry {
-  id: string
-  action: string              // e.g., "product.created", "pricing.updated"
-  entityType: string           // e.g., "Product", "ProductPricing"
-  entityId: string             // ID of the affected entity
+  id: string;
+  action: string; // e.g., "product.created", "pricing.updated"
+  entityType: string; // e.g., "Product", "ProductPricing"
+  entityId: string; // ID of the affected entity
   actor: {
-    id: string
-    name: string
-    role: string
-  }
-  changes: {                   // What changed (for updates)
-    field: string
-    oldValue: any
-    newValue: any
-  }[]
+    id: string;
+    name: string;
+    role: string;
+  };
+  changes: {
+    // What changed (for updates)
+    field: string;
+    oldValue: any;
+    newValue: any;
+  }[];
   context: {
-    ip?: string
-    userAgent?: string
-    sessionId?: string
-    correlationId?: string     // Links to event that triggered this
-    requestId?: string
-  }
-  timestamp: Date
-  metadata?: Record<string, any>
+    ip?: string;
+    userAgent?: string;
+    sessionId?: string;
+    correlationId?: string; // Links to event that triggered this
+    requestId?: string;
+  };
+  timestamp: Date;
+  metadata?: Record<string, any>;
 }
 ```
 
@@ -47,6 +48,7 @@ interface AuditEntry {
 ## What Gets Audited
 
 ### Always Audited
+
 - All CRUD operations on core entities (Product, Pricing, Inventory, User, Reseller, Supplier, Order)
 - All status changes (active → suspended, pending → verified)
 - All permission changes
@@ -57,6 +59,7 @@ interface AuditEntry {
 - All bulk operations
 
 ### Configurable Audit
+
 - View events (product views, page visits) — controlled by settings
 - Search queries — controlled by settings
 - API calls — controlled by rate
@@ -77,6 +80,7 @@ AuditEntry {
 ```
 
 Storage strategy:
+
 - Active: MongoDB `audit_entries` collection (30-day retention)
 - Archive: MongoDB `audit_entries_archive` or external storage (S3/Azure Blob)
 - Retention: 1 year for regulatory compliance, configurable
@@ -87,12 +91,16 @@ Storage strategy:
 
 ```typescript
 class AuditLogger {
-  static log(action: string, params: AuditParams): Promise<AuditEntry>
-  static findByEntity(entityType: string, entityId: string, options?: QueryOptions): Promise<AuditEntry[]>
-  static findByActor(actorId: string, options?: QueryOptions): Promise<AuditEntry[]>
-  static findByAction(action: string, dateRange?: DateRange): Promise<AuditEntry[]>
-  static exportAuditLog(filters: AuditFilters, format: 'csv' | 'json'): Promise<ExportData>
-  static archiveBefore(date: Date): Promise<number>  // Archive old entries
+  static log(action: string, params: AuditParams): Promise<AuditEntry>;
+  static findByEntity(
+    entityType: string,
+    entityId: string,
+    options?: QueryOptions,
+  ): Promise<AuditEntry[]>;
+  static findByActor(actorId: string, options?: QueryOptions): Promise<AuditEntry[]>;
+  static findByAction(action: string, dateRange?: DateRange): Promise<AuditEntry[]>;
+  static exportAuditLog(filters: AuditFilters, format: "csv" | "json"): Promise<ExportData>;
+  static archiveBefore(date: Date): Promise<number>; // Archive old entries
 }
 ```
 
@@ -128,14 +136,14 @@ AuditLogger Subscriber (Sync Handler)
 
 ## Audit Permissions
 
-| Action | Admin | Manager | Support |
-|--------|:-----:|:-------:|:-------:|
-| View Audit Log | ✓ | ✓ | - |
-| View Entity Timeline | ✓ | ✓ | ✓ |
-| View User Activity | ✓ | ✓ | ✓ |
-| Export Audit Log | ✓ | ✓ | - |
-| Configure Retention | ✓ | - | - |
-| Delete Audit Entry | ✓* | - | - |
+| Action               | Admin | Manager | Support |
+| -------------------- | :---: | :-----: | :-----: |
+| View Audit Log       |   ✓   |    ✓    |    -    |
+| View Entity Timeline |   ✓   |    ✓    |    ✓    |
+| View User Activity   |   ✓   |    ✓    |    ✓    |
+| Export Audit Log     |   ✓   |    ✓    |    -    |
+| Configure Retention  |   ✓   |    -    |    -    |
+| Delete Audit Entry   |  ✓*   |    -    |    -    |
 
 *Soft-delete only; hard delete requires Super Admin.
 
@@ -163,6 +171,7 @@ The same pattern applies to suppliers, orders, resellers, wholesalers, and any b
 ## Regulatory Compliance
 
 The audit system supports:
+
 - **Data retention**: Configurable per entity type
 - **Immutable records**: Append-only; no deletion of critical entries
 - **Tamper evidence**: Hash chain for critical entries (future enhancement)

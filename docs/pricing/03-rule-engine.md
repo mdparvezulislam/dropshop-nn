@@ -6,13 +6,13 @@ The Rule Engine is a centralized, reusable system for evaluating pricing rules. 
 
 ## Rule Types
 
-| Rule Type | Evaluation Time | Description |
-|-----------|----------------|-------------|
-| Reseller Price Rules | On product save, checkout, order create | Validate reseller custom prices |
-| Wholesale Tier Rules | On price resolution | Auto-select matching tier |
-| Campaign Override Rules | On price resolution | Apply active campaign prices |
-| Price Protection Rules | On any price write | Prevent below-minimum prices |
-| Visibility Rules | On media access | Control which media is visible |
+| Rule Type               | Evaluation Time                         | Description                     |
+| ----------------------- | --------------------------------------- | ------------------------------- |
+| Reseller Price Rules    | On product save, checkout, order create | Validate reseller custom prices |
+| Wholesale Tier Rules    | On price resolution                     | Auto-select matching tier       |
+| Campaign Override Rules | On price resolution                     | Apply active campaign prices    |
+| Price Protection Rules  | On any price write                      | Prevent below-minimum prices    |
+| Visibility Rules        | On media access                         | Control which media is visible  |
 
 ## Rule Structure
 
@@ -60,6 +60,7 @@ RuleEngine.evaluate(context: RuleContext)
 ## Business Rules Implemented
 
 ### Rule 1: Reseller Price Floor
+
 ```
 IF user.role == "reseller"
 AND customPrice < minimumSellingPrice
@@ -67,6 +68,7 @@ THEN → Reject with error
 ```
 
 ### Rule 2: Wholesale Tier Selection
+
 ```
 IF user.role == "wholesaler"
 AND quantity >= tier.minQty
@@ -74,6 +76,7 @@ THEN → Apply tier price
 ```
 
 ### Rule 3: Campaign Override
+
 ```
 IF campaign.isActive == true
 AND currentDate between effectiveFrom..effectiveTo
@@ -81,6 +84,7 @@ THEN → Override price with campaignPrice
 ```
 
 ### Rule 4: Reseller Custom Price
+
 ```
 IF user.role == "reseller"
 AND allowCustomPrice == true
@@ -91,6 +95,7 @@ THEN → Accept custom price
 ## Extensibility
 
 New rules can be added without changing core architecture:
+
 1. Define a new rule type
 2. Register conditions and actions
 3. The Rule Engine evaluates it automatically

@@ -13,7 +13,11 @@ export interface ServiceHooks<T extends DomainEntity, TUpdate> {
   authorize?: (action: string, actor?: ActorInfo) => Promise<boolean>;
 }
 
-export abstract class BaseService<T extends DomainEntity, TCreate, TUpdate> implements ContractService<T, TCreate, TUpdate> {
+export abstract class BaseService<
+  T extends DomainEntity,
+  TCreate,
+  TUpdate,
+> implements ContractService<T, TCreate, TUpdate> {
   protected abstract readonly domainName: string;
 
   constructor(protected hooks?: ServiceHooks<T, TUpdate>) {}
@@ -32,7 +36,11 @@ export abstract class BaseService<T extends DomainEntity, TCreate, TUpdate> impl
     }
   }
 
-  protected async publishEvent(eventType: string, data: Record<string, unknown>, actor?: ActorInfo): Promise<void> {
+  protected async publishEvent(
+    eventType: string,
+    data: Record<string, unknown>,
+    actor?: ActorInfo,
+  ): Promise<void> {
     try {
       await EventBus.publish(eventType, data, {
         actor: actor ? { id: actor.id, name: actor.name, role: actor.role } : undefined,
@@ -43,7 +51,13 @@ export abstract class BaseService<T extends DomainEntity, TCreate, TUpdate> impl
     }
   }
 
-  protected async logAudit(action: string, entityType: string, entityId: string, actor?: ActorInfo, changes?: ChangeRecord[]): Promise<void> {
+  protected async logAudit(
+    action: string,
+    entityType: string,
+    entityId: string,
+    actor?: ActorInfo,
+    changes?: ChangeRecord[],
+  ): Promise<void> {
     logger.info("Audit", {
       action,
       entityType,
@@ -54,7 +68,11 @@ export abstract class BaseService<T extends DomainEntity, TCreate, TUpdate> impl
     });
   }
 
-  protected async trackAnalytics(event: string, data: Record<string, unknown>, actor?: ActorInfo): Promise<void> {
+  protected async trackAnalytics(
+    event: string,
+    data: Record<string, unknown>,
+    actor?: ActorInfo,
+  ): Promise<void> {
     logger.info("Analytics", {
       event,
       actorId: actor?.id,
@@ -62,7 +80,11 @@ export abstract class BaseService<T extends DomainEntity, TCreate, TUpdate> impl
     });
   }
 
-  protected async triggerNotification(type: string, recipients: string[], data: Record<string, unknown>): Promise<void> {
+  protected async triggerNotification(
+    type: string,
+    recipients: string[],
+    data: Record<string, unknown>,
+  ): Promise<void> {
     await this.publishEvent("notification.trigger", {
       type,
       recipients,

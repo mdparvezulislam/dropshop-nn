@@ -23,28 +23,30 @@ The platform uses a **compatible versioning** strategy:
 ```
 
 Examples:
+
 - `product.created.v1`
 - `price.updated.v2`
 - `order.shipped.v1`
 
 The `eventVersion` field in the payload contains the full semver:
+
 ```typescript
-eventVersion: 1   // Major version
+eventVersion: 1; // Major version
 ```
 
 ---
 
 ## Version Compatibility Rules
 
-| Change Type | Version Bump | Subscriber Impact |
-|------------|-------------|-------------------|
-| Add optional field | Minor | None — subscribers ignore unknown fields |
-| Add required field | Major | All subscribers must update |
-| Remove field | Major | Subscribers reading removed field will break |
-| Rename field | Major | Subscribers using old name will break |
-| Change field type | Major | Type mismatch errors |
-| Add enum value | Minor | Subscribers should handle unknown values gracefully |
-| Remove enum value | Major | Subscribers using removed value break |
+| Change Type        | Version Bump | Subscriber Impact                                   |
+| ------------------ | ------------ | --------------------------------------------------- |
+| Add optional field | Minor        | None — subscribers ignore unknown fields            |
+| Add required field | Major        | All subscribers must update                         |
+| Remove field       | Major        | Subscribers reading removed field will break        |
+| Rename field       | Major        | Subscribers using old name will break               |
+| Change field type  | Major        | Type mismatch errors                                |
+| Add enum value     | Minor        | Subscribers should handle unknown values gracefully |
+| Remove enum value  | Major        | Subscribers using removed value break               |
 
 ---
 
@@ -53,29 +55,29 @@ eventVersion: 1   // Major version
 ```typescript
 class ProductCreatedSubscriber {
   async handle(event: BusinessEvent): Promise<void> {
-    const version = event.eventVersion
+    const version = event.eventVersion;
 
     if (version === 1) {
-      return this.handleV1(event.data as ProductCreatedV1Payload)
+      return this.handleV1(event.data as ProductCreatedV1Payload);
     }
 
     if (version === 2) {
-      return this.handleV2(event.data as ProductCreatedV2Payload)
+      return this.handleV2(event.data as ProductCreatedV2Payload);
     }
 
-    throw new Error(`Unsupported event version: ${version}`)
+    throw new Error(`Unsupported event version: ${version}`);
   }
 
   private async handleV1(data: ProductCreatedV1Payload): Promise<void> {
     // V1 had: productId, sku, name, categoryId
-    const { productId, sku, name } = data
-    await this.indexProduct({ productId, sku, name })
+    const { productId, sku, name } = data;
+    await this.indexProduct({ productId, sku, name });
   }
 
   private async handleV2(data: ProductCreatedV2Payload): Promise<void> {
     // V2 added: brandId, attributes
-    const { productId, sku, name, brandId, attributes } = data
-    await this.indexProduct({ productId, sku, name, brandId, attributes })
+    const { productId, sku, name, brandId, attributes } = data;
+    await this.indexProduct({ productId, sku, name, brandId, attributes });
   }
 }
 ```
@@ -86,16 +88,16 @@ class ProductCreatedSubscriber {
 
 ```typescript
 interface EventVersionInfo {
-  eventType: string
-  currentVersion: number
+  eventType: string;
+  currentVersion: number;
   versions: {
-    version: number
-    createdAt: string
-    changelog: string
-    schema?: object     // JSON Schema for the payload
-  }[]
-  deprecatedVersions: number[]
-  sunsetDate?: string   // When old versions stop being published
+    version: number;
+    createdAt: string;
+    changelog: string;
+    schema?: object; // JSON Schema for the payload
+  }[];
+  deprecatedVersions: number[];
+  sunsetDate?: string; // When old versions stop being published
 }
 ```
 
@@ -123,15 +125,15 @@ During migration, the publisher may emit multiple versions:
 ```typescript
 class ProductService {
   async update(id: string, data: UpdateInput): Promise<Product> {
-    const product = await this.repository.update(id, data)
+    const product = await this.repository.update(id, data);
 
     // Publish V1 (current subscribers)
-    EventBus.publish('product.updated.v1', this.toV1Payload(product))
+    EventBus.publish("product.updated.v1", this.toV1Payload(product));
 
     // Publish V2 (new subscribers)
-    EventBus.publish('product.updated.v2', this.toV2Payload(product))
+    EventBus.publish("product.updated.v2", this.toV2Payload(product));
 
-    return product
+    return product;
   }
 }
 ```
@@ -173,17 +175,17 @@ For automated validation and code generation, event schemas are documented using
 
 ## Current Event Versions
 
-| Event Type | Current Version | Deprecated Versions | Status |
-|-----------|----------------|-------------------|--------|
-| product.created | 1 | - | Active |
-| product.updated | 1 | - | Active |
-| product.deleted | 1 | - | Active |
-| price.created | 1 | - | Active |
-| price.updated | 1 | - | Active |
-| inventory.created | 1 | - | Active |
-| inventory.adjusted | 1 | - | Active |
-| order.created | 1 | - | Active |
-| customer.registered | 1 | - | Active |
-| reseller.registered | 1 | - | Active |
-| supplier.created | 1 | - | Active |
-| system.login | 1 | - | Active |
+| Event Type          | Current Version | Deprecated Versions | Status |
+| ------------------- | --------------- | ------------------- | ------ |
+| product.created     | 1               | -                   | Active |
+| product.updated     | 1               | -                   | Active |
+| product.deleted     | 1               | -                   | Active |
+| price.created       | 1               | -                   | Active |
+| price.updated       | 1               | -                   | Active |
+| inventory.created   | 1               | -                   | Active |
+| inventory.adjusted  | 1               | -                   | Active |
+| order.created       | 1               | -                   | Active |
+| customer.registered | 1               | -                   | Active |
+| reseller.registered | 1               | -                   | Active |
+| supplier.created    | 1               | -                   | Active |
+| system.login        | 1               | -                   | Active |

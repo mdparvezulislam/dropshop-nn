@@ -23,13 +23,13 @@ abstract class BaseService<T extends DomainEntity, TCreate, TUpdate>
 
 ```typescript
 interface ServiceHooks<T, TUpdate> {
-  beforeUpdate?: (id: string, data: TUpdate, actor?: ActorInfo) => Promise<void>
-  afterUpdate?: (entity: T, actor?: ActorInfo) => Promise<void>
-  beforeDelete?: (id: string, actor?: ActorInfo) => Promise<void>
-  afterDelete?: (id: string, actor?: ActorInfo) => Promise<void>
-  validateCreate?: (data: Record<string, unknown>) => Promise<void>
-  validateUpdate?: (id: string, data: Record<string, unknown>) => Promise<void>
-  authorize?: (action: string, actor?: ActorInfo) => Promise<boolean>
+  beforeUpdate?: (id: string, data: TUpdate, actor?: ActorInfo) => Promise<void>;
+  afterUpdate?: (entity: T, actor?: ActorInfo) => Promise<void>;
+  beforeDelete?: (id: string, actor?: ActorInfo) => Promise<void>;
+  afterDelete?: (id: string, actor?: ActorInfo) => Promise<void>;
+  validateCreate?: (data: Record<string, unknown>) => Promise<void>;
+  validateUpdate?: (id: string, data: Record<string, unknown>) => Promise<void>;
+  authorize?: (action: string, actor?: ActorInfo) => Promise<boolean>;
 }
 ```
 
@@ -41,13 +41,13 @@ Hooks are injected via the constructor and called automatically.
 
 Every `BaseService` has access to:
 
-| Method | Description | Implementation |
-|--------|-------------|---------------|
-| `checkAuthorization(action, actor)` | Authorization guard | Uses `hooks.authorize` |
-| `publishEvent(eventType, data, actor)` | Publish business event | Uses `EventBus.publish` |
-| `logAudit(action, entityType, entityId, actor, changes)` | Record audit | Uses logger |
-| `trackAnalytics(event, data, actor)` | Track analytics | Uses logger |
-| `triggerNotification(type, recipients, data)` | Send notification | Publishes `notification.trigger` event |
+| Method                                                   | Description            | Implementation                         |
+| -------------------------------------------------------- | ---------------------- | -------------------------------------- |
+| `checkAuthorization(action, actor)`                      | Authorization guard    | Uses `hooks.authorize`                 |
+| `publishEvent(eventType, data, actor)`                   | Publish business event | Uses `EventBus.publish`                |
+| `logAudit(action, entityType, entityId, actor, changes)` | Record audit           | Uses logger                            |
+| `trackAnalytics(event, data, actor)`                     | Track analytics        | Uses logger                            |
+| `triggerNotification(type, recipients, data)`            | Send notification      | Publishes `notification.trigger` event |
 
 ---
 
@@ -57,31 +57,31 @@ Every feature service must extend `BaseService` and implement the `ContractServi
 
 ```typescript
 class MyService extends BaseService<MyEntity, CreateInput, UpdateInput> {
-  protected readonly domainName = "my-module"
+  protected readonly domainName = "my-module";
 
   constructor() {
     super({
       authorize: async (action, actor) => {
         // Custom authorization logic
-        return true
+        return true;
       },
       validateCreate: async (data) => {
         // Custom validation
       },
-    })
+    });
   }
 
   async create(data: CreateInput, actor?: ActorInfo): Promise<MyEntity> {
-    await this.checkAuthorization("create", actor)
-    await this.hooks?.validateCreate?.(data as unknown as Record<string, unknown>)
+    await this.checkAuthorization("create", actor);
+    await this.hooks?.validateCreate?.(data as unknown as Record<string, unknown>);
 
-    const entity = await this.repository.create(data, actor)
+    const entity = await this.repository.create(data, actor);
 
-    await this.publishEvent("my-entity.created", { id: entity.id }, actor)
-    await this.logAudit("Created", "MyEntity", entity.id, actor)
-    await this.trackAnalytics("my-entity.created", { id: entity.id }, actor)
+    await this.publishEvent("my-entity.created", { id: entity.id }, actor);
+    await this.logAudit("Created", "MyEntity", entity.id, actor);
+    await this.trackAnalytics("my-entity.created", { id: entity.id }, actor);
 
-    return entity
+    return entity;
   }
 }
 ```

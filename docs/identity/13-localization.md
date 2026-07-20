@@ -8,13 +8,14 @@ The identity engine is localized for Bangladesh from day one.
 
 Bangladeshi phone numbers are validated and stored in standard format:
 
-| Format | Example |
-|--------|---------|
-| Local | 01XXXXXXXXX |
-| International | +8801XXXXXXXXX |
-| Stored | 01XXXXXXXXX (11 digits) |
+| Format        | Example                 |
+| ------------- | ----------------------- |
+| Local         | 01XXXXXXXXX             |
+| International | +8801XXXXXXXXX          |
+| Stored        | 01XXXXXXXXX (11 digits) |
 
 Validation rules:
+
 - Must start with `01`
 - Must be 11 digits total
 - Must be a valid operator prefix (`013`, `014`, `015`, `016`, `017`, `018`, `019`)
@@ -33,15 +34,15 @@ Division (বিভাগ)
 
 ### Divisions
 
-| Division | Capital |
-|----------|---------|
-| Dhaka (ঢাকা) | Dhaka |
+| Division               | Capital    |
+| ---------------------- | ---------- |
+| Dhaka (ঢাকা)           | Dhaka      |
 | Chittagong (চট্টগ্রাম) | Chittagong |
-| Rajshahi (রাজশাহী) | Rajshahi |
-| Khulna (খুলনা) | Khulna |
-| Barisal (বরিশাল) | Barisal |
-| Sylhet (সিলেট) | Sylhet |
-| Rangpur (রংপুর) | Rangpur |
+| Rajshahi (রাজশাহী)     | Rajshahi   |
+| Khulna (খুলনা)         | Khulna     |
+| Barisal (বরিশাল)       | Barisal    |
+| Sylhet (সিলেট)         | Sylhet     |
+| Rangpur (রংপুর)        | Rangpur    |
 | Mymensingh (ময়মনসিংহ) | Mymensingh |
 
 ## Timezone
@@ -60,10 +61,10 @@ Division (বিভাগ)
 
 ## Language Support
 
-| Language | Code | Status |
-|----------|------|--------|
-| English | en | ✅ Default |
-| Bangla | bn | ⏳ Planned |
+| Language | Code | Status     |
+| -------- | ---- | ---------- |
+| English  | en   | ✅ Default |
+| Bangla   | bn   | ⏳ Planned |
 
 Future: Bangla translations for all UI labels, error messages, and notifications.
 

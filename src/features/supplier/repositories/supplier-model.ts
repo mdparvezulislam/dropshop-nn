@@ -142,7 +142,14 @@ const supplierSchema = new Schema<SupplierDocumentType>(
     description: { type: String, required: false },
     supplierCategory: {
       type: String,
-      enum: ["manufacturer", "importer", "wholesaler", "distributor", "local_vendor", "dropshipping_partner"],
+      enum: [
+        "manufacturer",
+        "importer",
+        "wholesaler",
+        "distributor",
+        "local_vendor",
+        "dropshipping_partner",
+      ],
       default: "local_vendor",
       index: true,
     },

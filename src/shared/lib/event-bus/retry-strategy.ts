@@ -142,10 +142,7 @@ export function isRetryableError(error: Error): boolean {
   );
 }
 
-export function calculateBackoff(
-  attempt: number,
-  config: RetryConfig,
-): number {
+export function calculateBackoff(attempt: number, config: RetryConfig): number {
   const backoff = config.initialBackoffMs * Math.pow(config.backoffMultiplier, attempt);
   return Math.min(backoff, config.maxBackoffMs);
 }

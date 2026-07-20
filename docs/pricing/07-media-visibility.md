@@ -6,12 +6,12 @@ Product media has role-based visibility rules. Media is organized into collectio
 
 ## Media Collections
 
-| Collection | Code | Visible To | Media Types |
-|-----------|------|------------|-------------|
-| Public Gallery | `public_gallery` | Guest, Customer, Reseller, Wholesaler, Admin | Images, Videos, Documents |
+| Collection             | Code                     | Visible To                                    | Media Types                                                                                       |
+| ---------------------- | ------------------------ | --------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Public Gallery         | `public_gallery`         | Guest, Customer, Reseller, Wholesaler, Admin  | Images, Videos, Documents                                                                         |
 | Reseller Marketing Kit | `reseller_marketing_kit` | Approved Reseller, Approved Wholesaler, Admin | HD Images, Facebook Posters, Short/Long Videos, Product Descriptions, Marketing Assets, ZIP Files |
-| Wholesale Resources | `wholesale_resources` | Approved Wholesaler, Admin | Bulk Pricing Sheets, Wholesale Catalogs, Logos |
-| Internal Assets | `internal_assets` | Admin, Support Staff | Raw Footage, Design Files, Internal Docs |
+| Wholesale Resources    | `wholesale_resources`    | Approved Wholesaler, Admin                    | Bulk Pricing Sheets, Wholesale Catalogs, Logos                                                    |
+| Internal Assets        | `internal_assets`        | Admin, Support Staff                          | Raw Footage, Design Files, Internal Docs                                                          |
 
 ## Media Item Structure
 
@@ -19,7 +19,8 @@ Product media has role-based visibility rules. Media is organized into collectio
 interface ProductMedia {
   url: string;
   type: "image" | "video" | "document" | "zip";
-  collection: "public_gallery" | "reseller_marketing_kit" | "wholesale_resources" | "internal_assets";
+  collection:
+    "public_gallery" | "reseller_marketing_kit" | "wholesale_resources" | "internal_assets";
   isFeatured: boolean;
   altText?: string;
   sortOrder: number;
@@ -29,6 +30,7 @@ interface ProductMedia {
 ## Access Rules
 
 ### Rule 1: Marketing Kit Access
+
 ```
 IF media.collection == "reseller_marketing_kit"
 AND user.role NOT IN ["reseller", "wholesaler", "admin", "super_admin"]
@@ -39,6 +41,7 @@ THEN → Access Denied
 ```
 
 ### Rule 2: Wholesale Resources Access
+
 ```
 IF media.collection == "wholesale_resources"
 AND user.role NOT IN ["wholesaler", "admin", "super_admin"]
@@ -46,6 +49,7 @@ THEN → Access Denied
 ```
 
 ### Rule 3: Internal Assets Access
+
 ```
 IF media.collection == "internal_assets"
 AND user.role NOT IN ["admin", "super_admin"]
@@ -63,7 +67,7 @@ Media visibility is enforced at two layers:
 
 ```typescript
 function filterMediaByRole(media: ProductMedia[], role: string): ProductMedia[] {
-  return media.filter(item => {
+  return media.filter((item) => {
     switch (item.collection) {
       case "reseller_marketing_kit":
         return ["reseller", "wholesaler", "admin", "super_admin"].includes(role);

@@ -14,20 +14,20 @@ Published when a payment process is started.
 
 ```typescript
 interface PaymentInitiatedPayload {
-  paymentId: string
-  orderId: string
-  amount: number
-  currency: string
-  paymentMethod: 'bkash' | 'nagad' | 'cod' | 'bank_transfer' | 'card'
-  initiatedAt: string
-  initiatedBy: string
+  paymentId: string;
+  orderId: string;
+  amount: number;
+  currency: string;
+  paymentMethod: "bkash" | "nagad" | "cod" | "bank_transfer" | "card";
+  initiatedAt: string;
+  initiatedBy: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber       | Action                   | Queue     |
+| ---------------- | ------------------------ | --------- |
 | AnalyticsHandler | Track payment initiation | analytics |
 
 ### Validation
@@ -49,25 +49,25 @@ Published when a payment is successfully processed.
 
 ```typescript
 interface PaymentCompletedPayload {
-  paymentId: string
-  orderId: string
-  transactionId: string
-  amount: number
-  currency: string
-  paymentMethod: string
-  gatewayResponse: object
-  completedAt: string
+  paymentId: string;
+  orderId: string;
+  transactionId: string;
+  amount: number;
+  currency: string;
+  paymentMethod: string;
+  gatewayResponse: object;
+  completedAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
-| OrderUpdateHandler | Mark order as paid | orders |
+| Subscriber          | Action                    | Queue         |
+| ------------------- | ------------------------- | ------------- |
+| OrderUpdateHandler  | Mark order as paid        | orders        |
 | NotificationHandler | Send payment confirmation | notifications |
-| AnalyticsHandler | Track completed payment | analytics |
-| ReportingHandler | Queue financial report | reporting |
+| AnalyticsHandler    | Track completed payment   | analytics     |
+| ReportingHandler    | Queue financial report    | reporting     |
 
 ---
 
@@ -79,24 +79,24 @@ Published when a payment attempt fails.
 
 ```typescript
 interface PaymentFailedPayload {
-  paymentId: string
-  orderId: string
-  amount: number
-  currency: string
-  paymentMethod: string
-  failureReason: string
-  failureCode?: string
-  failedAt: string
-  retryAttempt: number
+  paymentId: string;
+  orderId: string;
+  amount: number;
+  currency: string;
+  paymentMethod: string;
+  failureReason: string;
+  failureCode?: string;
+  failedAt: string;
+  retryAttempt: number;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber          | Action                            | Queue         |
+| ------------------- | --------------------------------- | ------------- |
 | NotificationHandler | Send payment failure notification | notifications |
-| AnalyticsHandler | Track failed payment | analytics |
+| AnalyticsHandler    | Track failed payment              | analytics     |
 
 ---
 
@@ -108,21 +108,21 @@ Published when a refund is initiated against a completed payment.
 
 ```typescript
 interface RefundCreatedPayload {
-  refundId: string
-  paymentId: string
-  orderId: string
-  amount: number
-  currency: string
-  reason: string
-  initiatedBy: string
-  createdAt: string
+  refundId: string;
+  paymentId: string;
+  orderId: string;
+  amount: number;
+  currency: string;
+  reason: string;
+  initiatedBy: string;
+  createdAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
-| OrderUpdateHandler | Update order refund status | orders |
-| AnalyticsHandler | Track refund | analytics |
-| ReportingHandler | Queue financial report | reporting |
+| Subscriber         | Action                     | Queue     |
+| ------------------ | -------------------------- | --------- |
+| OrderUpdateHandler | Update order refund status | orders    |
+| AnalyticsHandler   | Track refund               | analytics |
+| ReportingHandler   | Queue financial report     | reporting |

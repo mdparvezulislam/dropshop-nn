@@ -59,6 +59,22 @@ export class DatabaseConnectionManager {
 
     try {
       cached.conn = await cached.promise;
+      
+      // Bootstrap feature flags and event subscribers on the server
+      if (typeof window === "undefined") {
+        try {
+          const { registerOrderFeatureFlags } = await import("@/features/order/init");
+          registerOrderFeatureFlags();
+        } catch (err) {
+          logger.warn("DatabaseConnectionManager: failed to bootstrap order feature flags", { error: err });
+        }
+        try {
+          const { registerFinanceFeatureFlags } = await import("@/features/finance/init");
+          registerFinanceFeatureFlags();
+        } catch (err) {
+          logger.warn("DatabaseConnectionManager: failed to bootstrap finance feature flags", { error: err });
+        }
+      }
     } catch (e) {
       cached.promise = null;
       throw e;

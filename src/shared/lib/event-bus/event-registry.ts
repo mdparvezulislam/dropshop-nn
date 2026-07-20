@@ -1,4 +1,10 @@
-import type { EventRegistryEntry, SyncEventSubscriber, AsyncEventSubscriber, SubscriberConfig, RetryConfig } from "./types";
+import type {
+  EventRegistryEntry,
+  SyncEventSubscriber,
+  AsyncEventSubscriber,
+  SubscriberConfig,
+  RetryConfig,
+} from "./types";
 
 export class EventRegistry {
   private static entries = new Map<string, EventRegistryEntry>();
@@ -27,8 +33,10 @@ export class EventRegistry {
     handlers.sort((a, b) => {
       const aEntry = this.entries.get(eventType);
       const bEntry = this.entries.get(eventType);
-      const aPriority = aEntry?.subscribers.find((s) => s.name === subscriber.handlerName)?.priority ?? 5;
-      const bPriority = bEntry?.subscribers.find((s) => s.name === subscriber.handlerName)?.priority ?? 5;
+      const aPriority =
+        aEntry?.subscribers.find((s) => s.name === subscriber.handlerName)?.priority ?? 5;
+      const bPriority =
+        bEntry?.subscribers.find((s) => s.name === subscriber.handlerName)?.priority ?? 5;
       return aPriority - bPriority;
     });
     this.asyncHandlers.set(eventType, handlers);

@@ -5,7 +5,10 @@ import { DatabaseQueryOptions } from "@/shared/lib/database/types";
 import { logger } from "@/shared/utils/logger";
 import { DatabaseError } from "@/shared/errors/app-error";
 
-export class BusinessProfileRepository extends BaseRepository<BusinessProfileDocument, BusinessProfile> {
+export class BusinessProfileRepository extends BaseRepository<
+  BusinessProfileDocument,
+  BusinessProfile
+> {
   constructor() {
     super(BusinessProfileModel, BusinessProfileRepository.mapToDomain);
   }
@@ -72,7 +75,10 @@ export class BusinessProfileRepository extends BaseRepository<BusinessProfileDoc
     };
   }
 
-  async findByUserId(userId: string, options?: DatabaseQueryOptions): Promise<BusinessProfile | null> {
+  async findByUserId(
+    userId: string,
+    options?: DatabaseQueryOptions,
+  ): Promise<BusinessProfile | null> {
     try {
       return this.findOne({ userId }, options);
     } catch (error) {
@@ -97,7 +103,10 @@ export class BusinessProfileRepository extends BaseRepository<BusinessProfileDoc
     }
   }
 
-  async findByEmail(email: string, options?: DatabaseQueryOptions): Promise<BusinessProfile | null> {
+  async findByEmail(
+    email: string,
+    options?: DatabaseQueryOptions,
+  ): Promise<BusinessProfile | null> {
     try {
       return this.findOne({ email: email.toLowerCase().trim() }, options);
     } catch (error) {

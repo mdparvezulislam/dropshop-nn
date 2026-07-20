@@ -1,5 +1,14 @@
 import { BaseRepository } from "@/shared/lib/database/generic-repository";
-import { BrandModel, BrandDocument, CategoryModel, CategoryDocument, CollectionModel, CollectionDocument, ProductTagModel, ProductTagDocument } from "./classification-model";
+import {
+  BrandModel,
+  BrandDocument,
+  CategoryModel,
+  CategoryDocument,
+  CollectionModel,
+  CollectionDocument,
+  ProductTagModel,
+  ProductTagDocument,
+} from "./classification-model";
 import { Brand, Category, Collection, ProductTag } from "../domain/classification-entity";
 import { DatabaseQueryOptions } from "@/shared/lib/database/types";
 import { logger } from "@/shared/utils/logger";
@@ -73,10 +82,7 @@ export class CategoryRepository extends BaseRepository<CategoryDocument, Categor
     }
   }
 
-  async findChildren(
-    parentId: string,
-    options?: DatabaseQueryOptions,
-  ): Promise<Category[]> {
+  async findChildren(parentId: string, options?: DatabaseQueryOptions): Promise<Category[]> {
     try {
       return this.find({ parentCategoryId: parentId }, options);
     } catch (error) {
@@ -87,7 +93,8 @@ export class CategoryRepository extends BaseRepository<CategoryDocument, Categor
 
   async getTree(options?: DatabaseQueryOptions): Promise<Category[]> {
     try {
-      const docs = await this.model.find({ isDeleted: { $ne: true } })
+      const docs = await this.model
+        .find({ isDeleted: { $ne: true } })
         .sort({ sortOrder: 1 })
         .session(options?.session || null)
         .lean()
@@ -137,7 +144,8 @@ export class CollectionRepository extends BaseRepository<CollectionDocument, Col
 
   async findActive(options?: DatabaseQueryOptions): Promise<Collection[]> {
     try {
-      const docs = await this.model.find({ isActive: true, isDeleted: { $ne: true } })
+      const docs = await this.model
+        .find({ isActive: true, isDeleted: { $ne: true } })
         .sort({ sortOrder: 1 })
         .session(options?.session || null)
         .lean()

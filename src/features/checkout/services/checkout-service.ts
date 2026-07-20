@@ -1,12 +1,27 @@
-import { CheckoutSessionRepository, OrderDraftRepository } from "../repositories/checkout-repository";
+import {
+  CheckoutSessionRepository,
+  OrderDraftRepository,
+} from "../repositories/checkout-repository";
 import { CartRepository } from "../repositories/cart-repository";
 import { PriceResolutionService, type PriceResolveRequest } from "./price-resolution-service";
-import { InventoryValidationService, type InventoryCheckRequest } from "./inventory-validation-service";
+import {
+  InventoryValidationService,
+  type InventoryCheckRequest,
+} from "./inventory-validation-service";
 import { EventBus } from "@/shared/lib/event-bus";
 import { ValidationError, NotFoundError } from "@/shared/errors/app-error";
 import { logger } from "@/shared/utils/logger";
 import { runInTransaction } from "@/shared/lib/database/query-builder";
-import type { CheckoutSession, CheckoutShippingInfo, CheckoutPriceItem, CheckoutInventoryItem, CheckoutTotals, CheckoutProfitPreview, OrderDraft, CheckoutStep } from "../domain/checkout-entity";
+import type {
+  CheckoutSession,
+  CheckoutShippingInfo,
+  CheckoutPriceItem,
+  CheckoutInventoryItem,
+  CheckoutTotals,
+  CheckoutProfitPreview,
+  OrderDraft,
+  CheckoutStep,
+} from "../domain/checkout-entity";
 import type { Cart } from "../domain/cart-entity";
 import type { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
 
@@ -53,11 +68,15 @@ export class CheckoutService {
       expiresAt,
     } as any);
 
-    await EventBus.publish("checkout.started", {
-      checkoutId: session.id,
-      cartId,
-      type: cart.type,
-    }, { source: "checkout" });
+    await EventBus.publish(
+      "checkout.started",
+      {
+        checkoutId: session.id,
+        cartId,
+        type: cart.type,
+      },
+      { source: "checkout" },
+    );
 
     return session;
   }
@@ -72,9 +91,8 @@ export class CheckoutService {
     const cart = await this.cartRepository.findById(session.cartId);
     if (!cart) throw new NotFoundError("Cart not found");
 
-    const role = cart.type === "reseller" ? "reseller"
-      : cart.type === "wholesaler" ? "wholesale"
-      : "retail";
+    const role =
+      cart.type === "reseller" ? "reseller" : cart.type === "wholesaler" ? "wholesale" : "retail";
 
     const requests: PriceResolveRequest[] = cart.items.map((item) => ({
       productId: item.productId,
@@ -83,7 +101,8 @@ export class CheckoutService {
       role,
     }));
 
-    const resolvedPrices: CheckoutPriceItem[] = await this.priceResolutionService.resolveBatch(requests);
+    const resolvedPrices: CheckoutPriceItem[] =
+      await this.priceResolutionService.resolveBatch(requests);
 
     const updated = await this.checkoutRepository.update(checkoutId, {
       resolvedPrices,
@@ -114,16 +133,20 @@ export class CheckoutService {
 
     const allValid = validations.every((v) => v.isValid);
 
-    await EventBus.publish("checkout.validated", {
-      checkoutId,
-      cartId: session.cartId,
-      priceValid: true,
-      inventoryValid: allValid,
-    }, { source: "checkout" });
+    await EventBus.publish(
+      "checkout.validated",
+      {
+        checkoutId,
+        cartId: session.cartId,
+        priceValid: true,
+        inventoryValid: allValid,
+      },
+      { source: "checkout" },
+    );
 
     return this.checkoutRepository.update(checkoutId, {
       inventoryValidations: validations,
-      step: allValid ? "inventory_validated" as CheckoutStep : "failed" as CheckoutStep,
+      step: allValid ? ("inventory_validated" as CheckoutStep) : ("failed" as CheckoutStep),
       status: allValid ? "active" : "failed",
     } as any);
   }
@@ -166,15 +189,19 @@ export class CheckoutService {
 
     const allReserved = reservations.every((r) => r.isValid);
 
-    await EventBus.publish("checkout.inventory_reserved", {
-      checkoutId,
-      cartId: session.cartId,
-      reservations: reservations.map((r) => ({ productId: r.productId, quantity: r.quantity })),
-    }, { source: "checkout" });
+    await EventBus.publish(
+      "checkout.inventory_reserved",
+      {
+        checkoutId,
+        cartId: session.cartId,
+        reservations: reservations.map((r) => ({ productId: r.productId, quantity: r.quantity })),
+      },
+      { source: "checkout" },
+    );
 
     return this.checkoutRepository.update(checkoutId, {
       inventoryReservations: reservations,
-      step: allReserved ? "inventory_reserved" as CheckoutStep : "failed" as CheckoutStep,
+      step: allReserved ? ("inventory_reserved" as CheckoutStep) : ("failed" as CheckoutStep),
       status: allReserved ? "active" : "failed",
     } as any);
   }
@@ -228,7 +255,8 @@ export class CheckoutService {
         totalCostBasis,
         totalRevenue: grandTotal,
         totalProfit: grandTotal - totalCostBasis,
-        averageMargin: totalCostBasis > 0 ? ((grandTotal - totalCostBasis) / totalCostBasis) * 100 : 0,
+        averageMargin:
+          totalCostBasis > 0 ? ((grandTotal - totalCostBasis) / totalCostBasis) * 100 : 0,
       };
 
       const draft = await this.orderDraftRepository.create({
@@ -251,14 +279,18 @@ export class CheckoutService {
 
       await this.cartRepository.markConverted(session.cartId);
 
-      await EventBus.publish("checkout.order_draft_created", {
-        draftId: draft.id,
-        checkoutId,
-        cartId: session.cartId,
-        type: session.type,
-        grandTotal,
-        itemCount: cart.items.length,
-      }, { source: "checkout" });
+      await EventBus.publish(
+        "checkout.order_draft_created",
+        {
+          draftId: draft.id,
+          checkoutId,
+          cartId: session.cartId,
+          type: session.type,
+          grandTotal,
+          itemCount: cart.items.length,
+        },
+        { source: "checkout" },
+      );
 
       logger.info("CheckoutService: order draft created", {
         draftId: draft.id,
@@ -318,11 +350,15 @@ export class CheckoutService {
       status: "expired",
     } as any);
 
-    await EventBus.publish("checkout.expired", {
-      checkoutId,
-      cartId: session.cartId,
-      reason: "Session expired",
-    }, { source: "checkout" });
+    await EventBus.publish(
+      "checkout.expired",
+      {
+        checkoutId,
+        cartId: session.cartId,
+        reason: "Session expired",
+      },
+      { source: "checkout" },
+    );
   }
 
   private async getInventoryForProduct(

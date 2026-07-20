@@ -51,18 +51,19 @@ src/features/identity/
 
 ## Dependencies
 
-| File | Imports From |
-|------|-------------|
-| Domain entities | `@/shared/lib/database/types` (BaseDBEntity) |
-| Models | `@/shared/lib/database/base-schema`, mongoose |
-| Repositories | `@/shared/lib/database/generic-repository`, models |
-| Services | Repositories, `@/shared/lib/event-bus`, `@/shared/utils/logger` |
-| Actions | Services, `@/shared/lib/auth`, `@/shared/errors/app-error` |
-| Validation | `@/shared/utils/validation`, zod |
+| File            | Imports From                                                    |
+| --------------- | --------------------------------------------------------------- |
+| Domain entities | `@/shared/lib/database/types` (BaseDBEntity)                    |
+| Models          | `@/shared/lib/database/base-schema`, mongoose                   |
+| Repositories    | `@/shared/lib/database/generic-repository`, models              |
+| Services        | Repositories, `@/shared/lib/event-bus`, `@/shared/utils/logger` |
+| Actions         | Services, `@/shared/lib/auth`, `@/shared/errors/app-error`      |
+| Validation      | `@/shared/utils/validation`, zod                                |
 
 ## Key Patterns
 
 ### Repository Pattern
+
 ```typescript
 class BusinessProfileRepository extends BaseRepository<TDoc, TDomain> {
   constructor() {
@@ -73,6 +74,7 @@ class BusinessProfileRepository extends BaseRepository<TDoc, TDomain> {
 ```
 
 ### Service Orchestration
+
 ```typescript
 class ApprovalService {
   async approve(businessProfileId: string, actor: ActorInfo) {
@@ -86,12 +88,13 @@ class ApprovalService {
 ```
 
 ### Action Guard
+
 ```typescript
-"use server"
+"use server";
 export async function action(formData: any) {
-  const session = await auth()
-  checkPermission(session, "Identity.Approve")
-  const validated = schema.parse(formData)
+  const session = await auth();
+  checkPermission(session, "Identity.Approve");
+  const validated = schema.parse(formData);
   // ... service call
 }
 ```

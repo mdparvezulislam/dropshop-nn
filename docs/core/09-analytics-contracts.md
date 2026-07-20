@@ -10,24 +10,25 @@ Analytics contracts define how every engine publishes analytics events. The Anal
 
 ```typescript
 interface AnalyticsEvent {
-  event: string             // e.g., "product.created", "order.placed"
-  timestamp: Date
+  event: string; // e.g., "product.created", "order.placed"
+  timestamp: Date;
   actor?: {
-    id: string
-    role: string
-  }
-  properties: Record<string, unknown>  // Event-specific data
+    id: string;
+    role: string;
+  };
+  properties: Record<string, unknown>; // Event-specific data
   metrics?: {
-    value?: number          // Numeric value (revenue, count, etc.)
-    currency?: string       // ISO 4217
-    unit?: string           // "count", "cents", "percentage"
-  }
-  dimensions?: {            // For grouping/filtering
-    category?: string
-    brand?: string
-    channel?: string
-    region?: string
-  }
+    value?: number; // Numeric value (revenue, count, etc.)
+    currency?: string; // ISO 4217
+    unit?: string; // "count", "cents", "percentage"
+  };
+  dimensions?: {
+    // For grouping/filtering
+    category?: string;
+    brand?: string;
+    channel?: string;
+    region?: string;
+  };
 }
 ```
 
@@ -37,11 +38,7 @@ interface AnalyticsEvent {
 
 ```typescript
 interface AnalyticsPublisherContract {
-  track(
-    event: string,
-    data: Record<string, unknown>,
-    actor?: ActorInfo,
-  ): Promise<void>
+  track(event: string, data: Record<string, unknown>, actor?: ActorInfo): Promise<void>;
 }
 ```
 
@@ -51,13 +48,13 @@ interface AnalyticsPublisherContract {
 
 Every engine publishes these analytics events automatically:
 
-| Engine | Events |
-|--------|--------|
-| Catalog | `product.created`, `product.updated`, `product.published`, `product.archived` |
-| Pricing | `pricing.created`, `pricing.updated`, `pricing.campaign_started` |
+| Engine    | Events                                                                                     |
+| --------- | ------------------------------------------------------------------------------------------ |
+| Catalog   | `product.created`, `product.updated`, `product.published`, `product.archived`              |
+| Pricing   | `pricing.created`, `pricing.updated`, `pricing.campaign_started`                           |
 | Inventory | `inventory.created`, `inventory.adjusted`, `inventory.low_stock`, `inventory.out_of_stock` |
-| Order | `order.created`, `order.completed`, `order.cancelled`, `order.returned` |
-| Customer | `customer.registered`, `customer.verified` |
-| Reseller | `reseller.registered`, `reseller.approved` |
-| Supplier | `supplier.registered`, `supplier.approved` |
-| Payment | `payment.completed`, `payment.failed`, `payment.refunded` |
+| Order     | `order.created`, `order.completed`, `order.cancelled`, `order.returned`                    |
+| Customer  | `customer.registered`, `customer.verified`                                                 |
+| Reseller  | `reseller.registered`, `reseller.approved`                                                 |
+| Supplier  | `supplier.registered`, `supplier.approved`                                                 |
+| Payment   | `payment.completed`, `payment.failed`, `payment.refunded`                                  |

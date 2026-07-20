@@ -8,11 +8,11 @@ The approval system controls how business profiles transition from pending to ac
 
 Settings in `@/shared/core/feature-flags`:
 
-| Setting Key | Type | Default | Description |
-|------------|------|---------|-------------|
-| `identity.auto-approve-reseller` | boolean | false | Auto-approve reseller registrations |
-| `identity.auto-approve-wholesaler` | boolean | false | Auto-approve wholesaler registrations |
-| `identity.auto-approve-supplier` | boolean | false | Auto-approve supplier registrations |
+| Setting Key                        | Type    | Default | Description                           |
+| ---------------------------------- | ------- | ------- | ------------------------------------- |
+| `identity.auto-approve-reseller`   | boolean | false   | Auto-approve reseller registrations   |
+| `identity.auto-approve-wholesaler` | boolean | false   | Auto-approve wholesaler registrations |
+| `identity.auto-approve-supplier`   | boolean | false   | Auto-approve supplier registrations   |
 
 ## Approval Flows
 
@@ -67,23 +67,23 @@ Before any approval action, the service validates:
 
 ## Rejection Reasons
 
-| Reason | Description |
-|--------|-------------|
-| `incomplete_information` | Missing required fields or documents |
-| `invalid_documents` | Documents failed verification |
-| `business_type_not_supported` | Business type not supported |
-| `duplicate_application` | User already has an active profile |
-| `policy_violation` | Violates platform policies |
-| `other` | Custom reason in verificationNotes |
+| Reason                        | Description                          |
+| ----------------------------- | ------------------------------------ |
+| `incomplete_information`      | Missing required fields or documents |
+| `invalid_documents`           | Documents failed verification        |
+| `business_type_not_supported` | Business type not supported          |
+| `duplicate_application`       | User already has an active profile   |
+| `policy_violation`            | Violates platform policies           |
+| `other`                       | Custom reason in verificationNotes   |
 
 ## Approval Hierarchy
 
-| User Type | Approver Role | Auto-Approvable |
-|-----------|--------------|-----------------|
-| Reseller | Admin, Manager | Yes |
-| Wholesaler | Admin, Manager | Yes |
-| Supplier | Admin | Yes |
-| Staff | Admin, Super Admin | No (always manual) |
+| User Type  | Approver Role      | Auto-Approvable    |
+| ---------- | ------------------ | ------------------ |
+| Reseller   | Admin, Manager     | Yes                |
+| Wholesaler | Admin, Manager     | Yes                |
+| Supplier   | Admin              | Yes                |
+| Staff      | Admin, Super Admin | No (always manual) |
 
 ## Events
 

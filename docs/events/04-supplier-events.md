@@ -14,26 +14,26 @@ Published when a new supplier is registered on the platform.
 
 ```typescript
 interface SupplierCreatedPayload {
-  supplierId: string
-  code: string
-  businessName: string
-  ownerName: string
-  email: string
-  phone: string
-  businessType: string
-  status: string
-  createdBy?: string
-  createdAt: string
+  supplierId: string;
+  code: string;
+  businessName: string;
+  ownerName: string;
+  email: string;
+  phone: string;
+  businessType: string;
+  status: string;
+  createdBy?: string;
+  createdAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber       | Action                      | Queue     |
+| ---------------- | --------------------------- | --------- |
 | AnalyticsHandler | Track supplier registration | analytics |
-| DashboardHandler | Refresh supplier widget | dashboard |
-| AuditHandler | Record audit entry | audit |
+| DashboardHandler | Refresh supplier widget     | dashboard |
+| AuditHandler     | Record audit entry          | audit     |
 
 ### Validation
 
@@ -55,22 +55,22 @@ Published when supplier profile fields are modified.
 
 ```typescript
 interface SupplierUpdatedPayload {
-  supplierId: string
+  supplierId: string;
   changes: {
-    field: string
-    oldValue: unknown
-    newValue: unknown
-  }[]
-  updatedBy: string
-  updatedAt: string
+    field: string;
+    oldValue: unknown;
+    newValue: unknown;
+  }[];
+  updatedBy: string;
+  updatedAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
-| AnalyticsHandler | Track supplier update | analytics |
+| Subscriber       | Action                  | Queue     |
+| ---------------- | ----------------------- | --------- |
+| AnalyticsHandler | Track supplier update   | analytics |
 | DashboardHandler | Refresh supplier widget | dashboard |
 
 ---
@@ -83,22 +83,22 @@ Published when a pending supplier is approved by an admin.
 
 ```typescript
 interface SupplierApprovedPayload {
-  supplierId: string
-  code: string
-  businessName: string
-  approvedBy: string
-  approvedAt: string
-  autoApproved: boolean
+  supplierId: string;
+  code: string;
+  businessName: string;
+  approvedBy: string;
+  approvedAt: string;
+  autoApproved: boolean;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber          | Action                     | Queue         |
+| ------------------- | -------------------------- | ------------- |
 | NotificationHandler | Send approval notification | notifications |
-| AnalyticsHandler | Track supplier approval | analytics |
-| DashboardHandler | Refresh supplier widget | dashboard |
+| AnalyticsHandler    | Track supplier approval    | analytics     |
+| DashboardHandler    | Refresh supplier widget    | dashboard     |
 
 ---
 
@@ -110,21 +110,21 @@ Published when a supplier application is rejected.
 
 ```typescript
 interface SupplierRejectedPayload {
-  supplierId: string
-  code: string
-  businessName: string
-  rejectedBy: string
-  rejectedAt: string
-  reason: string
+  supplierId: string;
+  code: string;
+  businessName: string;
+  rejectedBy: string;
+  rejectedAt: string;
+  reason: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber          | Action                      | Queue         |
+| ------------------- | --------------------------- | ------------- |
 | NotificationHandler | Send rejection notification | notifications |
-| AnalyticsHandler | Track supplier rejection | analytics |
+| AnalyticsHandler    | Track supplier rejection    | analytics     |
 
 ---
 
@@ -136,25 +136,25 @@ Published when a supplier updates their inventory levels or pricing.
 
 ```typescript
 interface SupplierInventoryUpdatedPayload {
-  supplierId: string
-  productId: string
-  variantSku?: string
-  supplierSku: string
-  oldStock?: number
-  newStock?: number
-  oldCost?: number
-  newCost?: number
-  leadTimeDays?: number
-  updatedBy: string
+  supplierId: string;
+  productId: string;
+  variantSku?: string;
+  supplierSku: string;
+  oldStock?: number;
+  newStock?: number;
+  oldCost?: number;
+  newCost?: number;
+  leadTimeDays?: number;
+  updatedBy: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber              | Action                     | Queue     |
+| ----------------------- | -------------------------- | --------- |
 | InventoryRefreshHandler | Refresh platform inventory | inventory |
-| AnalyticsHandler | Track inventory update | analytics |
+| AnalyticsHandler        | Track inventory update     | analytics |
 
 ---
 
@@ -166,20 +166,20 @@ Published when a supplier's operational status changes.
 
 ```typescript
 interface SupplierStatusChangedPayload {
-  supplierId: string
-  code: string
-  businessName: string
-  oldStatus: string
-  newStatus: string
-  changedBy: string
-  reason?: string
-  changedAt: string
+  supplierId: string;
+  code: string;
+  businessName: string;
+  oldStatus: string;
+  newStatus: string;
+  changedBy: string;
+  reason?: string;
+  changedAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
-| AnalyticsHandler | Track status change | analytics |
+| Subscriber       | Action                  | Queue     |
+| ---------------- | ----------------------- | --------- |
+| AnalyticsHandler | Track status change     | analytics |
 | DashboardHandler | Refresh supplier widget | dashboard |

@@ -22,7 +22,9 @@ export class SupplierService {
     this.productMappingRepository = new SupplierProductMappingRepository();
   }
 
-  async createSupplier(data: Partial<Supplier> & { email: string; phone: string; businessName: string }): Promise<Supplier> {
+  async createSupplier(
+    data: Partial<Supplier> & { email: string; phone: string; businessName: string },
+  ): Promise<Supplier> {
     logger.info("SupplierService: onboarding new supplier", { name: data.businessName });
 
     const [existingEmail, existingPhone] = await Promise.all([
@@ -94,17 +96,23 @@ export class SupplierService {
     status: "pending" | "active" | "inactive" | "suspended" | "blocked" | "archived",
   ): Promise<Supplier> {
     logger.info("SupplierService: transitioning status", { id, status });
-    return this.supplierRepository.update(id, { status } as Parameters<SupplierRepository["update"]>[1]);
+    return this.supplierRepository.update(id, { status } as Parameters<
+      SupplierRepository["update"]
+    >[1]);
   }
 
   async updateSettings(id: string, settings: Partial<SupplierSettings>): Promise<Supplier> {
     logger.info("SupplierService: updating settings", { id });
-    return this.supplierRepository.update(id, { settings } as unknown as Parameters<SupplierRepository["update"]>[1]);
+    return this.supplierRepository.update(id, { settings } as unknown as Parameters<
+      SupplierRepository["update"]
+    >[1]);
   }
 
   async updateBanking(id: string, banking: Record<string, unknown>): Promise<Supplier> {
     logger.info("SupplierService: updating banking accounts", { id });
-    return this.supplierRepository.update(id, { banking } as unknown as Parameters<SupplierRepository["update"]>[1]);
+    return this.supplierRepository.update(id, { banking } as unknown as Parameters<
+      SupplierRepository["update"]
+    >[1]);
   }
 
   async addNote(id: string, content: string, actorId?: string): Promise<Supplier> {
@@ -117,7 +125,9 @@ export class SupplierService {
     const supplier = await this.supplierRepository.findById(id);
     if (!supplier) throw new NotFoundError("Supplier not found");
     const notes = [...(supplier.notes || []), note];
-    return this.supplierRepository.update(id, { notes } as unknown as Parameters<SupplierRepository["update"]>[1]);
+    return this.supplierRepository.update(id, { notes } as unknown as Parameters<
+      SupplierRepository["update"]
+    >[1]);
   }
 
   async addTags(id: string, tags: string[]): Promise<Supplier> {
@@ -126,24 +136,29 @@ export class SupplierService {
     if (!supplier) throw new NotFoundError("Supplier not found");
     const existingTags = new Set(supplier.tags || []);
     tags.forEach((t) => existingTags.add(t));
-    return this.supplierRepository.update(
-      id,
-      { tags: Array.from(existingTags) } as unknown as Parameters<SupplierRepository["update"]>[1],
-    );
+    return this.supplierRepository.update(id, {
+      tags: Array.from(existingTags),
+    } as unknown as Parameters<SupplierRepository["update"]>[1]);
   }
 
-  async updatePerformance(id: string, performance: Partial<SupplierPerformance>): Promise<Supplier> {
+  async updatePerformance(
+    id: string,
+    performance: Partial<SupplierPerformance>,
+  ): Promise<Supplier> {
     logger.info("SupplierService: updating performance", { id });
     const supplier = await this.supplierRepository.findById(id);
     if (!supplier) throw new NotFoundError("Supplier not found");
     const current = supplier.performance || {
-      completedOrders: 0, cancelledOrders: 0, averageDeliveryDays: 0,
-      returnRate: 0, responseTimeHours: 0, performanceScore: 0,
+      completedOrders: 0,
+      cancelledOrders: 0,
+      averageDeliveryDays: 0,
+      returnRate: 0,
+      responseTimeHours: 0,
+      performanceScore: 0,
     };
-    return this.supplierRepository.update(
-      id,
-      { performance: { ...current, ...performance } } as unknown as Parameters<SupplierRepository["update"]>[1],
-    );
+    return this.supplierRepository.update(id, {
+      performance: { ...current, ...performance },
+    } as unknown as Parameters<SupplierRepository["update"]>[1]);
   }
 
   async getSupplierStats(id: string): Promise<{ supplier: Supplier; productCount: number }> {

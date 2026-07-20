@@ -62,15 +62,19 @@ export class ProductService {
 ## Event Publishing Pattern
 
 ```typescript
-await EventBus.publish("catalog.product.created", {
-  productId: product.id,
-  name: product.name,
-  sku: product.sku,
-  // ...
-}, {
-  actor: actor ? { id: actor.id, name: actor.name, role: actor.role } : undefined,
-  source: "catalog-service",
-})
+await EventBus.publish(
+  "catalog.product.created",
+  {
+    productId: product.id,
+    name: product.name,
+    sku: product.sku,
+    // ...
+  },
+  {
+    actor: actor ? { id: actor.id, name: actor.name, role: actor.role } : undefined,
+    source: "catalog-service",
+  },
+);
 ```
 
 ## Action Pattern

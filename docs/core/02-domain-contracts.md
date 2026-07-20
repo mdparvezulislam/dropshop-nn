@@ -10,21 +10,21 @@ Domain contracts define the standard interfaces that every engine must implement
 
 ```typescript
 interface DomainEntity {
-  id: string
-  createdAt: Date
-  updatedAt: Date
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 interface SoftDeletableEntity extends DomainEntity {
-  deletedAt?: Date | null
-  isDeleted: boolean
+  deletedAt?: Date | null;
+  isDeleted: boolean;
 }
 
 interface AuditableEntity extends SoftDeletableEntity {
-  createdBy?: string
-  updatedBy?: string
-  version: number
-  status: string
+  createdBy?: string;
+  updatedBy?: string;
+  version: number;
+  status: string;
 }
 ```
 
@@ -36,13 +36,13 @@ Every domain entity must extend `DomainEntity` at minimum. Entities that support
 
 ```typescript
 interface ContractRepository<T extends DomainEntity, TCreate, TUpdate> {
-  create(data: TCreate, actor?: ActorInfo): Promise<T>
-  findById(id: string): Promise<T | null>
-  findAll(filters?: Record<string, unknown>): Promise<T[]>
-  update(id: string, data: TUpdate, actor?: ActorInfo): Promise<T>
-  delete(id: string, actor?: ActorInfo): Promise<boolean>
-  restore(id: string, actor?: ActorInfo): Promise<T>
-  count(filters?: Record<string, unknown>): Promise<number>
+  create(data: TCreate, actor?: ActorInfo): Promise<T>;
+  findById(id: string): Promise<T | null>;
+  findAll(filters?: Record<string, unknown>): Promise<T[]>;
+  update(id: string, data: TUpdate, actor?: ActorInfo): Promise<T>;
+  delete(id: string, actor?: ActorInfo): Promise<boolean>;
+  restore(id: string, actor?: ActorInfo): Promise<T>;
+  count(filters?: Record<string, unknown>): Promise<number>;
 }
 ```
 
@@ -54,10 +54,10 @@ Every engine's repository must implement this contract. The existing `BaseReposi
 
 ```typescript
 interface ContractService<T extends DomainEntity, TCreate, TUpdate> {
-  create(data: TCreate, actor?: ActorInfo): Promise<T>
-  findById(id: string): Promise<T | null>
-  update(id: string, data: TUpdate, actor?: ActorInfo): Promise<T>
-  delete(id: string, actor?: ActorInfo): Promise<boolean>
+  create(data: TCreate, actor?: ActorInfo): Promise<T>;
+  findById(id: string): Promise<T | null>;
+  update(id: string, data: TUpdate, actor?: ActorInfo): Promise<T>;
+  delete(id: string, actor?: ActorInfo): Promise<boolean>;
 }
 ```
 
@@ -68,6 +68,7 @@ Every engine's service must implement this contract. The `BaseService` abstract 
 ## Publisher Contracts
 
 ### Event Publisher
+
 ```typescript
 interface EventPublisherContract {
   publish(
@@ -75,11 +76,12 @@ interface EventPublisherContract {
     data: Record<string, unknown>,
     actor?: ActorInfo,
     correlationId?: string,
-  ): Promise<BusinessEvent>
+  ): Promise<BusinessEvent>;
 }
 ```
 
 ### Audit Publisher
+
 ```typescript
 interface AuditPublisherContract {
   record(
@@ -89,22 +91,20 @@ interface AuditPublisherContract {
     actor: ActorInfo,
     changes?: ChangeRecord[],
     metadata?: Record<string, unknown>,
-  ): Promise<void>
+  ): Promise<void>;
 }
 ```
 
 ### Analytics Publisher
+
 ```typescript
 interface AnalyticsPublisherContract {
-  track(
-    event: string,
-    data: Record<string, unknown>,
-    actor?: ActorInfo,
-  ): Promise<void>
+  track(event: string, data: Record<string, unknown>, actor?: ActorInfo): Promise<void>;
 }
 ```
 
 ### Notification Publisher
+
 ```typescript
 interface NotificationPublisherContract {
   send(
@@ -112,7 +112,7 @@ interface NotificationPublisherContract {
     recipients: string[],
     data: Record<string, unknown>,
     channels?: string[],
-  ): Promise<void>
+  ): Promise<void>;
 }
 ```
 
@@ -122,15 +122,15 @@ interface NotificationPublisherContract {
 
 ```typescript
 interface ActorInfo {
-  id: string
-  name?: string
-  role?: string
+  id: string;
+  name?: string;
+  role?: string;
 }
 
 interface ChangeRecord {
-  field: string
-  oldValue: unknown
-  newValue: unknown
+  field: string;
+  oldValue: unknown;
+  newValue: unknown;
 }
 ```
 

@@ -33,17 +33,17 @@ await inventoryService.updateInventory(id, {
 
 Adjust stock quantities with full audit trail:
 
-| Operation | Effect | Validation |
-|-----------|--------|------------|
-| `stock_in` | +available, -incoming | None |
-| `stock_out` | -available | Cannot exceed available |
-| `adjustment` | ±available (or absolute) | None |
-| `reservation` | -available, +reserved | Cannot exceed available |
-| `release` | -reserved, +available | Cannot exceed reserved |
-| `transfer` | -available | Cannot exceed available |
-| `damage` | -available, +damaged | Cannot exceed available |
-| `return` | +available, +returned | None |
-| `sold` | -reserved (or -available), +sold | Cannot exceed reserved/available |
+| Operation     | Effect                           | Validation                       |
+| ------------- | -------------------------------- | -------------------------------- |
+| `stock_in`    | +available, -incoming            | None                             |
+| `stock_out`   | -available                       | Cannot exceed available          |
+| `adjustment`  | ±available (or absolute)         | None                             |
+| `reservation` | -available, +reserved            | Cannot exceed available          |
+| `release`     | -reserved, +available            | Cannot exceed reserved           |
+| `transfer`    | -available                       | Cannot exceed available          |
+| `damage`      | -available, +damaged             | Cannot exceed available          |
+| `return`      | +available, +returned            | None                             |
+| `sold`        | -reserved (or -available), +sold | Cannot exceed reserved/available |
 
 ## Bulk Updates
 

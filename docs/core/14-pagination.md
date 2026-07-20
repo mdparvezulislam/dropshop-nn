@@ -10,23 +10,23 @@ Pagination follows a standardized pattern across every list query in the platfor
 
 ```typescript
 interface PaginationParams {
-  page?: number    // Default: 1
-  limit?: number   // Default: 10, Max: 100
+  page?: number; // Default: 1
+  limit?: number; // Default: 10, Max: 100
 }
 
 interface SortParams {
-  sortBy: string       // Field name
-  sortOrder: SortOrder // "asc" | "desc"
+  sortBy: string; // Field name
+  sortOrder: SortOrder; // "asc" | "desc"
 }
 
-type SortOrder = "asc" | "desc"
+type SortOrder = "asc" | "desc";
 
 interface PaginatedResult<T> {
-  items: T[]
-  totalCount: number
-  page: number
-  limit: number
-  totalPages: number
+  items: T[];
+  totalCount: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 ```
 
@@ -39,7 +39,7 @@ const DEFAULT_PAGINATION = {
   PAGE: 1,
   LIMIT: 10,
   MAX_LIMIT: 100,
-} as const
+} as const;
 ```
 
 ---
@@ -53,7 +53,7 @@ const result = await repository.findPaginated(
   { status: "active" },
   { page: 1, limit: 20 },
   { sortBy: "createdAt", sortOrder: "desc" },
-)
+);
 // Returns: { items: [...], totalCount: 50, page: 1, limit: 20, totalPages: 3 }
 ```
 
@@ -62,12 +62,12 @@ const result = await repository.findPaginated(
 ## Usage in Server Actions
 
 ```typescript
-"use server"
+"use server";
 
 export async function listProductsAction(params: PaginationParams & SortParams) {
-  const validated = paginationQuerySchema.parse(params)
-  const result = await productService.list(validated)
-  return { success: true, data: result }
+  const validated = paginationQuerySchema.parse(params);
+  const result = await productService.list(validated);
+  return { success: true, data: result };
 }
 ```
 
@@ -81,6 +81,6 @@ The `parsePaginationAndSort()` utility in `src/shared/lib/database/query-builder
 const { skip, limit, sort } = parsePaginationAndSort(
   { page: 1, limit: 10 },
   { sortBy: "name", sortOrder: "asc" },
-)
+);
 // Result: { skip: 0, limit: 10, sort: { name: 1 } }
 ```

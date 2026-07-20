@@ -9,25 +9,27 @@ Subscribers process events published through the Event Bus. This document define
 ## Subscriber Types
 
 ### Synchronous Subscriber
+
 Executes in the same process and request. Use for fast, critical operations.
 
 ```typescript
 class AuditSubscriber implements SyncEventSubscriber {
   get eventType(): string {
-    return '*'
+    return "*";
   }
 
   get priority(): number {
-    return 1
+    return 1;
   }
 
   async handle(event: BusinessEvent): Promise<void> {
-    await AuditLogger.log(event)
+    await AuditLogger.log(event);
   }
 }
 ```
 
 **Rules:**
+
 - Must complete in < 100ms
 - Never throw (catch all errors)
 - No external API calls
@@ -35,27 +37,29 @@ class AuditSubscriber implements SyncEventSubscriber {
 - Used only for: Audit, Timeline, Cache invalidation
 
 ### Asynchronous Subscriber
+
 Executes in a BullMQ worker. Use for all business logic that can be deferred.
 
 ```typescript
 class PricingInitSubscriber implements AsyncEventSubscriber {
   get eventType(): string {
-    return 'product.created'
+    return "product.created";
   }
 
   get queue(): string {
-    return 'pricing'
+    return "pricing";
   }
 
   async handle(event: BusinessEvent): Promise<void> {
-    const { productId } = event.data
-    const pricingService = new PricingService()
-    await pricingService.createDefault({ productId })
+    const { productId } = event.data;
+    const pricingService = new PricingService();
+    await pricingService.createDefault({ productId });
   }
 }
 ```
 
 **Rules:**
+
 - Must be idempotent (can run multiple times safely)
 - Must handle failures gracefully
 - Should log processing time
@@ -72,18 +76,18 @@ All subscribers must be registered in the Event Registry.
 ```typescript
 // src/shared/lib/event-bus/registrations.ts
 
-import { EventRegistry } from './event-registry'
-import { AuditSubscriber } from '@/features/audit/subscribers/audit-subscriber'
-import { PricingInitSubscriber } from '@/features/pricing/subscribers/pricing-init-subscriber'
-import { InventoryInitSubscriber } from '@/features/inventory/subscribers/inventory-init-subscriber'
+import { EventRegistry } from "./event-registry";
+import { AuditSubscriber } from "@/features/audit/subscribers/audit-subscriber";
+import { PricingInitSubscriber } from "@/features/pricing/subscribers/pricing-init-subscriber";
+import { InventoryInitSubscriber } from "@/features/inventory/subscribers/inventory-init-subscriber";
 
 export function registerAllSubscribers(): void {
   // Sync subscribers
-  EventRegistry.registerSubscriber('*', new AuditSubscriber())
+  EventRegistry.registerSubscriber("*", new AuditSubscriber());
 
   // Async subscribers
-  EventRegistry.registerSubscriber('product.created', new PricingInitSubscriber())
-  EventRegistry.registerSubscriber('product.created', new InventoryInitSubscriber())
+  EventRegistry.registerSubscriber("product.created", new PricingInitSubscriber());
+  EventRegistry.registerSubscriber("product.created", new InventoryInitSubscriber());
 }
 ```
 
@@ -91,17 +95,17 @@ export function registerAllSubscribers(): void {
 
 ```typescript
 // Alternatively use config-based registration
-EventRegistry.register('product.created', {
+EventRegistry.register("product.created", {
   subscribers: [
     {
-      name: 'PricingInitHandler',
-      handler: 'pricing-init-handler',
-      queue: 'pricing',
+      name: "PricingInitHandler",
+      handler: "pricing-init-handler",
+      queue: "pricing",
       priority: 1,
       enabled: true,
     },
   ],
-})
+});
 ```
 
 ---
@@ -109,22 +113,24 @@ EventRegistry.register('product.created', {
 ## Subscriber Best Practices
 
 ### 1. Be Idempotent
+
 ```typescript
 class MySubscriber {
   async handle(event: BusinessEvent): Promise<void> {
     // Check if already processed
-    const existing = await this.store.findById(event.data.entityId)
+    const existing = await this.store.findById(event.data.entityId);
     if (existing) {
-      return  // Already processed, skip
+      return; // Already processed, skip
     }
 
     // Process
-    await this.store.create(event.data)
+    await this.store.create(event.data);
   }
 }
 ```
 
 ### 2. Validate Event Version
+
 ```typescript
 async handle(event: BusinessEvent): Promise<void> {
   if (event.eventVersion < 1) {
@@ -140,6 +146,7 @@ async handle(event: BusinessEvent): Promise<void> {
 ```
 
 ### 3. Use Correlation ID for Tracing
+
 ```typescript
 async handle(event: BusinessEvent): Promise<void> {
   const logger = logger.child({ correlationId: event.correlationId })
@@ -153,6 +160,7 @@ async handle(event: BusinessEvent): Promise<void> {
 ```
 
 ### 4. Handle Errors Gracefully
+
 ```typescript
 async handle(event: BusinessEvent): Promise<void> {
   try {
@@ -172,6 +180,7 @@ async handle(event: BusinessEvent): Promise<void> {
 ```
 
 ### 5. Monitor Processing Time
+
 ```typescript
 async handle(event: BusinessEvent): Promise<void> {
   const start = Date.now()
@@ -217,15 +226,15 @@ Every subscriber SHOULD:
 
 ```typescript
 interface SubscriberConfig {
-  name: string
-  description?: string
-  eventType: string
-  handlerType: 'sync' | 'async'
-  queue?: string           // Required for async
-  priority: number         // 1-10 (1 = highest)
-  enabled: boolean
-  maxRetries?: number
-  maxProcessingTime?: number  // ms
-  concurrency?: number        // Async workers per queue
+  name: string;
+  description?: string;
+  eventType: string;
+  handlerType: "sync" | "async";
+  queue?: string; // Required for async
+  priority: number; // 1-10 (1 = highest)
+  enabled: boolean;
+  maxRetries?: number;
+  maxProcessingTime?: number; // ms
+  concurrency?: number; // Async workers per queue
 }
 ```

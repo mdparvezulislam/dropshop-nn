@@ -10,21 +10,21 @@ Event contracts define the standard structure for every business event published
 
 ```typescript
 interface BusinessEvent {
-  eventId: string              // UUID v7 — unique identifier
-  eventType: string            // e.g., "product.created"
-  eventVersion: number         // Payload schema version
-  timestamp: string            // ISO 8601 UTC
-  source: string               // Module name (e.g., "product-service")
-  correlationId: string        // Trace across event chain
-  causationId?: string         // Parent event ID (if triggered by another event)
-  actor?: EventActor           // Who triggered the event
-  data: Record<string, unknown> // Domain payload
+  eventId: string; // UUID v7 — unique identifier
+  eventType: string; // e.g., "product.created"
+  eventVersion: number; // Payload schema version
+  timestamp: string; // ISO 8601 UTC
+  source: string; // Module name (e.g., "product-service")
+  correlationId: string; // Trace across event chain
+  causationId?: string; // Parent event ID (if triggered by another event)
+  actor?: EventActor; // Who triggered the event
+  data: Record<string, unknown>; // Domain payload
 }
 
 interface EventActor {
-  id: string
-  name?: string
-  role?: string
+  id: string;
+  name?: string;
+  role?: string;
 }
 ```
 
@@ -32,16 +32,16 @@ interface EventActor {
 
 ## Metadata Fields
 
-| Field | Required | Purpose |
-|-------|----------|---------|
-| `eventId` | ✅ | Unique idempotency key |
-| `eventType` | ✅ | Routing key for subscribers |
-| `eventVersion` | ✅ | Schema version for payload compatibility |
-| `timestamp` | ✅ | When the event occurred |
-| `source` | ✅ | Which module published it |
-| `correlationId` | ✅ | Links all events in a request chain |
-| `causationId` | ❌ | Links child event to parent |
-| `actor` | ❌ | Identity of the user/actor |
+| Field           | Required | Purpose                                  |
+| --------------- | -------- | ---------------------------------------- |
+| `eventId`       | ✅       | Unique idempotency key                   |
+| `eventType`     | ✅       | Routing key for subscribers              |
+| `eventVersion`  | ✅       | Schema version for payload compatibility |
+| `timestamp`     | ✅       | When the event occurred                  |
+| `source`        | ✅       | Which module published it                |
+| `correlationId` | ✅       | Links all events in a request chain      |
+| `causationId`   | ❌       | Links child event to parent              |
+| `actor`         | ❌       | Identity of the user/actor               |
 
 ---
 
@@ -60,6 +60,7 @@ interface EventActor {
 ## Payload Standards
 
 Every event payload in `data` follows:
+
 - Monetary values: integer cents
 - Timestamps: ISO 8601 UTC
 - Identifiers: MongoDB ObjectId strings
@@ -77,6 +78,6 @@ interface EventPublisherContract {
     data: Record<string, unknown>,
     actor?: ActorInfo,
     correlationId?: string,
-  ): Promise<BusinessEvent>
+  ): Promise<BusinessEvent>;
 }
 ```

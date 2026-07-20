@@ -58,23 +58,23 @@ Business Approved
 
 ## Workspace Entity
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `businessProfileId` | String | Linked business profile |
-| `userId` | String | Owning user |
-| `walletId` | String (nullable) | Future: wallet reference |
-| `settings` | Object | Workspace settings |
-| `notificationPreferences` | Object | Notification channel prefs |
-| `analyticsProfileId` | String (nullable) | Analytics tracking profile |
-| `status` | Enum | active, suspended, archived |
+| Field                     | Type              | Description                 |
+| ------------------------- | ----------------- | --------------------------- |
+| `businessProfileId`       | String            | Linked business profile     |
+| `userId`                  | String            | Owning user                 |
+| `walletId`                | String (nullable) | Future: wallet reference    |
+| `settings`                | Object            | Workspace settings          |
+| `notificationPreferences` | Object            | Notification channel prefs  |
+| `analyticsProfileId`      | String (nullable) | Analytics tracking profile  |
+| `status`                  | Enum              | active, suspended, archived |
 
 ## Workspace Status
 
-| Status | Description |
-|--------|-------------|
-| `active` | Workspace fully operational |
+| Status      | Description                             |
+| ----------- | --------------------------------------- |
+| `active`    | Workspace fully operational             |
 | `suspended` | Workspace disabled (business suspended) |
-| `archived` | Workspace closed (business archived) |
+| `archived`  | Workspace closed (business archived)    |
 
 ## Future Workspace Extensions
 

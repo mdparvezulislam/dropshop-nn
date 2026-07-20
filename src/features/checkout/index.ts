@@ -4,17 +4,15 @@ export { PriceResolutionService } from "./services/price-resolution-service";
 export { InventoryValidationService } from "./services/inventory-validation-service";
 
 export { CartRepository } from "./repositories/cart-repository";
-export { CheckoutSessionRepository, OrderDraftRepository } from "./repositories/checkout-repository";
+export {
+  CheckoutSessionRepository,
+  OrderDraftRepository,
+} from "./repositories/checkout-repository";
 
 export { CartModel } from "./repositories/cart-model";
 export { CheckoutSessionModel, OrderDraftModel } from "./repositories/checkout-model";
 
-export type {
-  Cart,
-  CartItem,
-  CartType,
-  CartStatus,
-} from "./domain/cart-entity";
+export type { Cart, CartItem, CartType, CartStatus } from "./domain/cart-entity";
 
 export type {
   CheckoutSession,

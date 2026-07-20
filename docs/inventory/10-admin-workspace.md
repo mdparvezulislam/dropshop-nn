@@ -7,6 +7,7 @@ The Admin Inventory Workspace provides a comprehensive interface for managing al
 ## Workspace Sections
 
 ### 1. Inventory Dashboard
+
 - Total SKUs count
 - In Stock count
 - Low Stock count
@@ -15,6 +16,7 @@ The Admin Inventory Workspace provides a comprehensive interface for managing al
 - Incoming units total
 
 ### 2. Stock Levels
+
 - Current stock per product/variant
 - Available vs Reserved breakdown
 - Incoming stock tracking
@@ -22,6 +24,7 @@ The Admin Inventory Workspace provides a comprehensive interface for managing al
 - Stock status badges
 
 ### 3. Stock Operations
+
 - Stock In form (quantity, reason)
 - Stock Out form (quantity, reason)
 - Manual Adjustment (absolute or delta)
@@ -29,23 +32,27 @@ The Admin Inventory Workspace provides a comprehensive interface for managing al
 - Return Processing
 
 ### 4. Reservation Management
+
 - Active reservations list
 - Manual release
 - Reservation history
 
 ### 5. Supplier Stock
+
 - Per-product supplier list
 - Supplier cost comparison
 - Preferred supplier toggle
 - Lead time tracking
 
 ### 6. Movement History
+
 - Timeline view of all stock changes
 - Filter by operation type
 - Filter by product
 - Before/after values
 
 ### 7. Low Stock Alerts
+
 - Products below threshold
 - Products at zero
 - Reorder suggestions

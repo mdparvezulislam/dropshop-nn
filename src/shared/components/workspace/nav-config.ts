@@ -1,5 +1,5 @@
-import type { LucideIcon } from "lucide-react";
 import {
+  type LucideIcon,
   LayoutDashboard,
   Package,
   Building2,
@@ -18,6 +18,7 @@ import {
   History,
   Layers,
   FileText,
+  KanbanSquare,
 } from "lucide-react";
 
 export interface NavItem {
@@ -101,8 +102,10 @@ export const WORKSPACE_NAV: NavSection[] = [
       {
         label: "Orders",
         icon: ShoppingCart,
-        badge: "Soon",
-        children: [{ label: "Coming soon", href: "/dashboard", icon: ShoppingCart }],
+        children: [
+          { label: "All Orders", href: "/dashboard/orders", icon: ShoppingCart },
+          { label: "Status Board", href: "/dashboard/orders/board", icon: KanbanSquare },
+        ],
       },
       {
         label: "Customers",
@@ -125,8 +128,10 @@ export const WORKSPACE_NAV: NavSection[] = [
       {
         label: "Wallet",
         icon: Wallet,
-        badge: "Soon",
-        children: [{ label: "Coming soon", href: "/dashboard", icon: Wallet }],
+        children: [
+          { label: "Admin Console", href: "/dashboard/finance", icon: DollarSign },
+          { label: "My Wallet", href: "/dashboard/wallet", icon: Wallet },
+        ],
       },
       {
         label: "Reports",

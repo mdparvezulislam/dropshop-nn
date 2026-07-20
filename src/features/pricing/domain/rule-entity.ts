@@ -1,13 +1,10 @@
 import { BaseDBEntity } from "@/shared/lib/database/types";
 
-export type RuleEngineType =
-  "reseller" | "wholesale" | "campaign" | "protection" | "visibility";
+export type RuleEngineType = "reseller" | "wholesale" | "campaign" | "protection" | "visibility";
 
-export type RuleOperator =
-  "eq" | "neq" | "gt" | "gte" | "lt" | "lte" | "in" | "between";
+export type RuleOperator = "eq" | "neq" | "gt" | "gte" | "lt" | "lte" | "in" | "between";
 
-export type RuleActionType =
-  "reject" | "override" | "validate" | "transform";
+export type RuleActionType = "reject" | "override" | "validate" | "transform";
 
 export interface RuleCondition {
   field: string;

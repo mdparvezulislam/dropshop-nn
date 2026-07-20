@@ -7,6 +7,7 @@ Stock changes trigger automated updates across the platform. Every inventory mut
 ## Automation Flows
 
 ### Stock Updated
+
 ```
 Stock Updated
   │
@@ -19,6 +20,7 @@ Stock Updated
 ```
 
 ### Reservation Created
+
 ```
 Reservation Created
   │
@@ -30,6 +32,7 @@ Reservation Created
 ```
 
 ### Low Stock Detected
+
 ```
 Low Stock Detected
   │
@@ -41,6 +44,7 @@ Low Stock Detected
 ```
 
 ### Out of Stock Detected
+
 ```
 Out of Stock Detected
   │
@@ -61,11 +65,13 @@ The automation flows are managed by `InventoryService` which:
 3. Downstream services subscribe and react
 
 Direct synchronous actions (within same transaction):
+
 - Stock level calculation
 - Availability status recomputation
 - Validation enforcement
 
 Asynchronous actions (via Event Bus):
+
 - Dashboard refresh
 - Report update
 - Analytics tracking

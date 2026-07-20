@@ -166,7 +166,9 @@ export const createCampaignPricingSchema = z.object({
 
 export type CreateCampaignPricingInput = z.infer<typeof createCampaignPricingSchema>;
 
-export const updateCampaignPricingSchema = createCampaignPricingSchema.partial().omit({ productId: true });
+export const updateCampaignPricingSchema = createCampaignPricingSchema
+  .partial()
+  .omit({ productId: true });
 
 export type UpdateCampaignPricingInput = z.infer<typeof updateCampaignPricingSchema>;
 

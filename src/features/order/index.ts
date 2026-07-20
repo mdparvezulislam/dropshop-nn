@@ -4,10 +4,41 @@ export { OrderTimelineService } from "./services/order-timeline-service";
 export { OrderRepository } from "./repositories/order-repository";
 export { OrderModel } from "./repositories/order-model";
 
-export type { Order, OrderType, CustomerSnapshot, ShippingSnapshot, OrderPricingSnapshot, OrderPricingItem, OrderProfitPreview, OrderShippingInfo, OrderItem, OrderTimelineEntry, SupplierReference } from "./domain/order-entity";
+export type {
+  Order,
+  OrderType,
+  CustomerSnapshot,
+  ShippingSnapshot,
+  OrderPricingSnapshot,
+  OrderPricingItem,
+  OrderProfitPreview,
+  OrderShippingInfo,
+  OrderItem,
+  OrderTimelineEntry,
+  SupplierReference,
+} from "./domain/order-entity";
 export type { OrderStatus, OrderCategory } from "./domain/state-machine";
-export { ORDER_STATUSES, canTransition, isValidTransition, isTerminal, isCancellable, isRefundable, requiresInventoryRelease, getCategory, isActive, getAllowedTransitions, getHumanLabel, InvalidTransitionError, TerminalStateError } from "./domain/state-machine";
-export type { OrderTimeline, TimelineAction, TimelineChange, TimelineActor } from "./domain/order-timeline";
+export {
+  ORDER_STATUSES,
+  canTransition,
+  isValidTransition,
+  isTerminal,
+  isCancellable,
+  isRefundable,
+  requiresInventoryRelease,
+  getCategory,
+  isActive,
+  getAllowedTransitions,
+  getHumanLabel,
+  InvalidTransitionError,
+  TerminalStateError,
+} from "./domain/state-machine";
+export type {
+  OrderTimeline,
+  TimelineAction,
+  TimelineChange,
+  TimelineActor,
+} from "./domain/order-timeline";
 
 export type {
   OrderEventType,

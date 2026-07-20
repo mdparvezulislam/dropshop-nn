@@ -10,16 +10,16 @@ Suppliers provide products to the platform. Products belong to the platform cata
 
 ### Core Profile
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `code` | String | Auto-generated SUP-XXXX |
-| `businessName` | String | Registered business name |
-| `ownerName` | String | Legal owner name |
-| `contactPerson` | String | Day-to-day contact |
-| `email` | String | Business email |
-| `phone` | String | Primary phone (BD format) |
-| `logo` | String | Logo URL |
-| `coverImage` | String | Banner URL |
+| Field           | Type   | Description               |
+| --------------- | ------ | ------------------------- |
+| `code`          | String | Auto-generated SUP-XXXX   |
+| `businessName`  | String | Registered business name  |
+| `ownerName`     | String | Legal owner name          |
+| `contactPerson` | String | Day-to-day contact        |
+| `email`         | String | Business email            |
+| `phone`         | String | Primary phone (BD format) |
+| `logo`          | String | Logo URL                  |
+| `coverImage`    | String | Banner URL                |
 
 ### Address (Bangladesh)
 
@@ -27,34 +27,34 @@ Division → District → Upazila → Area → Postal Code → Full Address
 
 ### Business Details
 
-| Field | Description |
-|-------|-------------|
-| `businessType` | Sole proprietorship / Partnership / Limited company |
-| `nidNumber` / `nidVerified` | NID verification |
-| `tradeLicenseNumber` / `tradeLicenseVerified` | Trade license |
-| `tinNumber` | Tax identification |
-| `bankDetails` | Embedded: account name, number, bank, branch, routing |
+| Field                                         | Description                                           |
+| --------------------------------------------- | ----------------------------------------------------- |
+| `businessType`                                | Sole proprietorship / Partnership / Limited company   |
+| `nidNumber` / `nidVerified`                   | NID verification                                      |
+| `tradeLicenseNumber` / `tradeLicenseVerified` | Trade license                                         |
+| `tinNumber`                                   | Tax identification                                    |
+| `bankDetails`                                 | Embedded: account name, number, bank, branch, routing |
 
 ### Payment Settlement
 
-| Field | Description |
-|-------|-------------|
-| `settlementTerms` | Net 7 / Net 15 / Net 30 / Net 60 |
+| Field              | Description                          |
+| ------------------ | ------------------------------------ |
+| `settlementTerms`  | Net 7 / Net 15 / Net 30 / Net 60     |
 | `settlementMethod` | Bank Transfer / bKash / Nagad / Cash |
-| `minimumPayout` | Minimum amount for payout |
-| `commissionRate` | Platform commission % |
-| `commissionType` | percentage / fixed_per_order |
+| `minimumPayout`    | Minimum amount for payout            |
+| `commissionRate`   | Platform commission %                |
+| `commissionType`   | percentage / fixed_per_order         |
 
 ### Supply Configuration
 
-| Field | Description |
-|-------|-------------|
-| `leadTimeDays` | Default lead time |
-| `minimumOrderAmount` | Minimum order value |
-| `shippingCost` | Default shipping cost |
-| `freeShippingAbove` | Free shipping threshold |
-| `returnPolicy` | Return window (days) |
-| `status` | pending / active / suspended / inactive |
+| Field                | Description                             |
+| -------------------- | --------------------------------------- |
+| `leadTimeDays`       | Default lead time                       |
+| `minimumOrderAmount` | Minimum order value                     |
+| `shippingCost`       | Default shipping cost                   |
+| `freeShippingAbove`  | Free shipping threshold                 |
+| `returnPolicy`       | Return window (days)                    |
+| `status`             | pending / active / suspended / inactive |
 
 ---
 
@@ -65,6 +65,7 @@ Supplier (1) ──── (M) SupplierInventory (M) ──── (1) Product
 ```
 
 Each `SupplierInventory` record maps:
+
 - Supplier's SKU → Platform Product
 - Supplier's cost → Platform cost reference
 - Supplier's stock → Platform incoming inventory
@@ -92,6 +93,7 @@ Best Supplier Selection Algorithm
 ## Supplier Portal (Future)
 
 Suppliers will have a dedicated portal to:
+
 - View their product listings
 - Update stock levels
 - Update pricing

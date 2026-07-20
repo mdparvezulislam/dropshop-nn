@@ -14,24 +14,24 @@ Published when inventory tracking is initialized for a product.
 
 ```typescript
 interface InventoryCreatedPayload {
-  inventoryId: string
-  productId: string
-  variantSku?: string
-  availableStock: number
-  reservedStock: number
-  incomingStock: number
-  warehouseId?: string
-  createdBy?: string
-  createdAt: string
+  inventoryId: string;
+  productId: string;
+  variantSku?: string;
+  availableStock: number;
+  reservedStock: number;
+  incomingStock: number;
+  warehouseId?: string;
+  createdBy?: string;
+  createdAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
-| SearchIndexHandler | Update availability status | search |
-| AnalyticsHandler | Track inventory creation | analytics |
+| Subscriber         | Action                     | Queue     |
+| ------------------ | -------------------------- | --------- |
+| SearchIndexHandler | Update availability status | search    |
+| AnalyticsHandler   | Track inventory creation   | analytics |
 
 ### Validation
 
@@ -53,27 +53,27 @@ Published when stock is manually adjusted (added, removed, or set).
 
 ```typescript
 interface InventoryAdjustedPayload {
-  inventoryId: string
-  productId: string
-  variantSku?: string
-  operation: 'stock_in' | 'stock_out' | 'adjustment'
-  quantity: number
-  previousAvailable: number
-  newAvailable: number
-  reason: string
-  referenceId?: string
-  performedBy: string
-  timestamp: string
+  inventoryId: string;
+  productId: string;
+  variantSku?: string;
+  operation: "stock_in" | "stock_out" | "adjustment";
+  quantity: number;
+  previousAvailable: number;
+  newAvailable: number;
+  reason: string;
+  referenceId?: string;
+  performedBy: string;
+  timestamp: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber                | Action                          | Queue     |
+| ------------------------- | ------------------------------- | --------- |
 | AvailabilityRecalcHandler | Recalculate availability status | inventory |
-| SearchIndexHandler | Update availability filter | search |
-| AnalyticsHandler | Track stock adjustment | analytics |
+| SearchIndexHandler        | Update availability filter      | search    |
+| AnalyticsHandler          | Track stock adjustment          | analytics |
 
 ---
 
@@ -85,25 +85,25 @@ Published when stock is added to the available pool.
 
 ```typescript
 interface StockIncreasedPayload {
-  inventoryId: string
-  productId: string
-  variantSku?: string
-  quantity: number
-  previousAvailable: number
-  newAvailable: number
-  source: 'purchase_order' | 'return' | 'transfer' | 'manual'
-  referenceId?: string
-  timestamp: string
+  inventoryId: string;
+  productId: string;
+  variantSku?: string;
+  quantity: number;
+  previousAvailable: number;
+  newAvailable: number;
+  source: "purchase_order" | "return" | "transfer" | "manual";
+  referenceId?: string;
+  timestamp: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
-| AvailabilityRecalcHandler | Recalculate availability | inventory |
-| LowStockClearHandler | Clear low stock alert if resolved | inventory |
-| AnalyticsHandler | Track stock increase | analytics |
+| Subscriber                | Action                            | Queue     |
+| ------------------------- | --------------------------------- | --------- |
+| AvailabilityRecalcHandler | Recalculate availability          | inventory |
+| LowStockClearHandler      | Clear low stock alert if resolved | inventory |
+| AnalyticsHandler          | Track stock increase              | analytics |
 
 ---
 
@@ -115,24 +115,24 @@ Published when stock is removed from the available pool (fulfillment, damage, di
 
 ```typescript
 interface StockDecreasedPayload {
-  inventoryId: string
-  productId: string
-  variantSku?: string
-  quantity: number
-  previousAvailable: number
-  newAvailable: number
-  reason: string
-  orderId?: string
-  timestamp: string
+  inventoryId: string;
+  productId: string;
+  variantSku?: string;
+  quantity: number;
+  previousAvailable: number;
+  newAvailable: number;
+  reason: string;
+  orderId?: string;
+  timestamp: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber                | Action                   | Queue     |
+| ------------------------- | ------------------------ | --------- |
 | AvailabilityRecalcHandler | Recalculate availability | inventory |
-| AnalyticsHandler | Track stock decrease | analytics |
+| AnalyticsHandler          | Track stock decrease     | analytics |
 
 ---
 
@@ -144,23 +144,23 @@ Published when stock is reserved for an order.
 
 ```typescript
 interface StockReservedPayload {
-  inventoryId: string
-  productId: string
-  variantSku?: string
-  quantity: number
-  orderId: string
-  previousReserved: number
-  newReserved: number
-  previousAvailable: number
-  newAvailable: number
-  expiresAt?: string
+  inventoryId: string;
+  productId: string;
+  variantSku?: string;
+  quantity: number;
+  orderId: string;
+  previousReserved: number;
+  newReserved: number;
+  previousAvailable: number;
+  newAvailable: number;
+  expiresAt?: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber       | Action            | Queue     |
+| ---------------- | ----------------- | --------- |
 | AnalyticsHandler | Track reservation | analytics |
 
 ---
@@ -173,25 +173,25 @@ Published when reserved stock is released back to the available pool.
 
 ```typescript
 interface StockReleasedPayload {
-  inventoryId: string
-  productId: string
-  variantSku?: string
-  quantity: number
-  orderId: string
-  reason: 'cancellation' | 'expiry' | 'manual'
-  previousReserved: number
-  newReserved: number
-  previousAvailable: number
-  newAvailable: number
+  inventoryId: string;
+  productId: string;
+  variantSku?: string;
+  quantity: number;
+  orderId: string;
+  reason: "cancellation" | "expiry" | "manual";
+  previousReserved: number;
+  newReserved: number;
+  previousAvailable: number;
+  newAvailable: number;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber                | Action                   | Queue     |
+| ------------------------- | ------------------------ | --------- |
 | AvailabilityRecalcHandler | Recalculate availability | inventory |
-| AnalyticsHandler | Track release | analytics |
+| AnalyticsHandler          | Track release            | analytics |
 
 ---
 
@@ -203,24 +203,24 @@ Published when available stock falls below the low stock threshold.
 
 ```typescript
 interface LowStockDetectedPayload {
-  inventoryId: string
-  productId: string
-  variantSku?: string
-  productName: string
-  currentStock: number
-  threshold: number
-  warehouseId?: string
-  detectedAt: string
+  inventoryId: string;
+  productId: string;
+  variantSku?: string;
+  productName: string;
+  currentStock: number;
+  threshold: number;
+  warehouseId?: string;
+  detectedAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber          | Action                       | Queue         |
+| ------------------- | ---------------------------- | ------------- |
 | NotificationHandler | Send low stock alert (admin) | notifications |
-| AnalyticsHandler | Track low stock event | analytics |
-| DashboardHandler | Update attention widget | dashboard |
+| AnalyticsHandler    | Track low stock event        | analytics     |
+| DashboardHandler    | Update attention widget      | dashboard     |
 
 ---
 
@@ -232,22 +232,22 @@ Published when available stock reaches zero.
 
 ```typescript
 interface OutOfStockPayload {
-  inventoryId: string
-  productId: string
-  variantSku?: string
-  productName: string
-  lastStockTimestamp: string
-  warehouseId?: string
+  inventoryId: string;
+  productId: string;
+  variantSku?: string;
+  productName: string;
+  lastStockTimestamp: string;
+  warehouseId?: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
-| NotificationHandler | Send out-of-stock alert | notifications |
-| AnalyticsHandler | Track out-of-stock event | analytics |
-| DashboardHandler | Update attention widget | dashboard |
+| Subscriber          | Action                   | Queue         |
+| ------------------- | ------------------------ | ------------- |
+| NotificationHandler | Send out-of-stock alert  | notifications |
+| AnalyticsHandler    | Track out-of-stock event | analytics     |
+| DashboardHandler    | Update attention widget  | dashboard     |
 
 ---
 
@@ -259,20 +259,20 @@ Published when inventory is transferred between warehouses.
 
 ```typescript
 interface WarehouseChangedPayload {
-  inventoryId: string
-  productId: string
-  variantSku?: string
-  sourceWarehouseId: string
-  targetWarehouseId: string
-  quantity: number
-  transferredBy: string
-  timestamp: string
+  inventoryId: string;
+  productId: string;
+  variantSku?: string;
+  sourceWarehouseId: string;
+  targetWarehouseId: string;
+  quantity: number;
+  transferredBy: string;
+  timestamp: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber              | Action                      | Queue     |
+| ----------------------- | --------------------------- | --------- |
 | InventoryRefreshHandler | Refresh warehouse inventory | inventory |
-| AnalyticsHandler | Track warehouse transfer | analytics |
+| AnalyticsHandler        | Track warehouse transfer    | analytics |

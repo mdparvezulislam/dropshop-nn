@@ -2,17 +2,23 @@ import mongoose, { Schema } from "mongoose";
 import { baseFieldsDefinition, baseSchemaOptions } from "@/shared/lib/database/base-schema";
 import { ORDER_STATUSES } from "../domain/state-machine";
 
-const timelineChangeSchema = new Schema({
-  field: { type: String, required: true },
-  oldValue: { type: Schema.Types.Mixed },
-  newValue: { type: Schema.Types.Mixed },
-}, { _id: false });
+const timelineChangeSchema = new Schema(
+  {
+    field: { type: String, required: true },
+    oldValue: { type: Schema.Types.Mixed },
+    newValue: { type: Schema.Types.Mixed },
+  },
+  { _id: false },
+);
 
-const timelineActorSchema = new Schema({
-  id: { type: String, required: true },
-  name: { type: String },
-  role: { type: String },
-}, { _id: false });
+const timelineActorSchema = new Schema(
+  {
+    id: { type: String, required: true },
+    name: { type: String },
+    role: { type: String },
+  },
+  { _id: false },
+);
 
 const timelineEntrySchema = new Schema({
   id: { type: String, required: true },
@@ -26,25 +32,31 @@ const timelineEntrySchema = new Schema({
   timestamp: { type: Date, required: true },
 });
 
-const customerSnapshotSchema = new Schema({
-  customerId: { type: String, default: null },
-  name: { type: String, required: true },
-  phone: { type: String, required: true },
-  email: { type: String, default: null },
-  alternativePhone: { type: String, default: null },
-}, { _id: false });
+const customerSnapshotSchema = new Schema(
+  {
+    customerId: { type: String, default: null },
+    name: { type: String, required: true },
+    phone: { type: String, required: true },
+    email: { type: String, default: null },
+    alternativePhone: { type: String, default: null },
+  },
+  { _id: false },
+);
 
-const shippingSnapshotSchema = new Schema({
-  receiverName: { type: String, required: true },
-  phone: { type: String, required: true },
-  alternativePhone: { type: String, default: null },
-  division: { type: String, required: true },
-  district: { type: String, required: true },
-  upazila: { type: String, required: true },
-  area: { type: String, required: true },
-  address: { type: String, required: true },
-  deliveryNote: { type: String, default: null },
-}, { _id: false });
+const shippingSnapshotSchema = new Schema(
+  {
+    receiverName: { type: String, required: true },
+    phone: { type: String, required: true },
+    alternativePhone: { type: String, default: null },
+    division: { type: String, required: true },
+    district: { type: String, required: true },
+    upazila: { type: String, required: true },
+    area: { type: String, required: true },
+    address: { type: String, required: true },
+    deliveryNote: { type: String, default: null },
+  },
+  { _id: false },
+);
 
 const pricingItemSchema = new Schema({
   productId: { type: String, required: true },
@@ -68,43 +80,58 @@ const pricingItemSchema = new Schema({
   appliedRules: [{ type: String }],
 });
 
-const pricingSnapshotSchema = new Schema({
-  items: [pricingItemSchema],
-  subtotal: { type: Number, required: true, min: 0 },
-  discountTotal: { type: Number, required: true, min: 0 },
-  taxTotal: { type: Number, required: true, min: 0 },
-  grandTotal: { type: Number, required: true, min: 0 },
-  currency: { type: String, required: true },
-}, { _id: false });
+const pricingSnapshotSchema = new Schema(
+  {
+    items: [pricingItemSchema],
+    subtotal: { type: Number, required: true, min: 0 },
+    discountTotal: { type: Number, required: true, min: 0 },
+    taxTotal: { type: Number, required: true, min: 0 },
+    grandTotal: { type: Number, required: true, min: 0 },
+    currency: { type: String, required: true },
+  },
+  { _id: false },
+);
 
-const profitPreviewSchema = new Schema({
-  totalCostBasis: { type: Number, required: true, min: 0 },
-  totalRevenue: { type: Number, required: true, min: 0 },
-  totalProfit: { type: Number, required: true },
-  averageMargin: { type: Number, required: true },
-}, { _id: false });
+const profitPreviewSchema = new Schema(
+  {
+    totalCostBasis: { type: Number, required: true, min: 0 },
+    totalRevenue: { type: Number, required: true, min: 0 },
+    totalProfit: { type: Number, required: true },
+    averageMargin: { type: Number, required: true },
+  },
+  { _id: false },
+);
 
-const shippingInfoSchema = new Schema({
-  courierId: { type: String, default: null },
-  courierName: { type: String, default: null },
-  trackingNumber: { type: String, default: null },
-  trackingUrl: { type: String, default: null },
-  estimatedDeliveryDate: { type: Date, default: null },
-  actualDeliveryDate: { type: Date, default: null },
-  shippingCost: { type: Number, default: null, min: 0 },
-}, { _id: false });
+const shippingInfoSchema = new Schema(
+  {
+    courierId: { type: String, default: null },
+    courierName: { type: String, default: null },
+    trackingNumber: { type: String, default: null },
+    trackingUrl: { type: String, default: null },
+    estimatedDeliveryDate: { type: Date, default: null },
+    actualDeliveryDate: { type: Date, default: null },
+    shippingCost: { type: Number, default: null, min: 0 },
+  },
+  { _id: false },
+);
 
-const supplierItemSchema = new Schema({
-  productId: { type: String, required: true },
-  variantSku: { type: String, default: null },
-  quantity: { type: Number, required: true, min: 1 },
-}, { _id: false });
+const supplierItemSchema = new Schema(
+  {
+    productId: { type: String, required: true },
+    variantSku: { type: String, default: null },
+    quantity: { type: Number, required: true, min: 1 },
+  },
+  { _id: false },
+);
 
-const supplierReferenceSchema = new Schema({
-  supplierId: { type: String, required: true },
-  supplierName: { type: String, required: true },
-  items: [supplierItemSchema],
-}, { _id: false });
+const supplierReferenceSchema = new Schema(
+  {
+    supplierId: { type: String, required: true },
+    supplierName: { type: String, required: true },
+    items: [supplierItemSchema],
+  },
+  { _id: false },
+);
 
 const orderItemSchema = new Schema({
   productId: { type: String, required: true },

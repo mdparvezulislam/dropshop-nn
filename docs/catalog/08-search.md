@@ -6,29 +6,30 @@ Products carry search metadata that influences how they appear in search results
 
 ## Search Metadata Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `searchKeywords` | String[] | Additional keywords for search indexing |
-| `searchSynonyms` | String[] | Synonym terms for the product |
-| `searchWeight` | Number | Boost factor (1.0 = normal, 2.0 = double weight) |
-| `popularityScore` | Number | Computed popularity (0-100), updated by Analytics |
-| `searchable` | Boolean | Whether product appears in search (default: true) |
+| Field             | Type     | Description                                       |
+| ----------------- | -------- | ------------------------------------------------- |
+| `searchKeywords`  | String[] | Additional keywords for search indexing           |
+| `searchSynonyms`  | String[] | Synonym terms for the product                     |
+| `searchWeight`    | Number   | Boost factor (1.0 = normal, 2.0 = double weight)  |
+| `popularityScore` | Number   | Computed popularity (0-100), updated by Analytics |
+| `searchable`      | Boolean  | Whether product appears in search (default: true) |
 
 ## Search Weight
 
 Search weight boosts a product's position in search results:
 
-| Weight | Effect | Use Case |
-|--------|--------|----------|
-| 0.5 | Reduced visibility | Low priority products |
-| 1.0 | Normal (default) | Standard products |
-| 1.5 | Boosted | Featured products |
-| 2.0 | Highly boosted | Promotional products |
-| 3.0 | Maximum | Flash sale items |
+| Weight | Effect             | Use Case              |
+| ------ | ------------------ | --------------------- |
+| 0.5    | Reduced visibility | Low priority products |
+| 1.0    | Normal (default)   | Standard products     |
+| 1.5    | Boosted            | Featured products     |
+| 2.0    | Highly boosted     | Promotional products  |
+| 3.0    | Maximum            | Flash sale items      |
 
 ## Popularity Score
 
 Popularity score is computed by the Analytics Engine based on:
+
 - Views (30% weight)
 - Orders (40% weight)
 - Revenue (20% weight)
@@ -55,6 +56,7 @@ Product Created / Updated / Published
 ## Future: AI Search Ready
 
 The search metadata structure supports future AI-powered search:
+
 - Vector embeddings stored alongside metadata
 - Semantic search weights
 - Natural language query processing

@@ -39,13 +39,7 @@ export class IdempotencyStore {
         expiresAt: new Date(Date.now() + ttl * 1000),
       };
 
-      const result = await redis.set(
-        key,
-        JSON.stringify(record),
-        "EX",
-        ttl,
-        "NX",
-      );
+      const result = await redis.set(key, JSON.stringify(record), "EX", ttl, "NX");
 
       return result === "OK";
     } catch (error) {
@@ -57,11 +51,7 @@ export class IdempotencyStore {
     }
   }
 
-  async markCompleted(
-    eventId: string,
-    subscriber: string,
-    ttl?: number,
-  ): Promise<void> {
+  async markCompleted(eventId: string, subscriber: string, ttl?: number): Promise<void> {
     try {
       const key = this.buildKey(eventId, subscriber);
       const redis = getRedisClient();

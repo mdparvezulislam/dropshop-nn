@@ -41,22 +41,22 @@ return runInTransaction(async (session) => {
 
 ## Optimistic Patterns
 
-| Pattern | Use Case |
-|---------|----------|
-| Atomic $inc | Stock reservation, release |
-| findOneAndUpdate with condition | Prevent overselling |
-| Transactions | Multi-document consistency |
-| Lean queries | Read-only operations |
+| Pattern                         | Use Case                   |
+| ------------------------------- | -------------------------- |
+| Atomic $inc                     | Stock reservation, release |
+| findOneAndUpdate with condition | Prevent overselling        |
+| Transactions                    | Multi-document consistency |
+| Lean queries                    | Read-only operations       |
 
 ## Future Caching
 
 When Redis is integrated:
 
-| Cache Key | TTL | Value |
-|-----------|-----|-------|
-| `stock:{productId}` | 60s | Current stock levels |
-| `stock:available:{productId}` | 30s | Sellable count |
-| `stock:low:{warehouseId}` | 300s | Low stock list |
+| Cache Key                     | TTL  | Value                |
+| ----------------------------- | ---- | -------------------- |
+| `stock:{productId}`           | 60s  | Current stock levels |
+| `stock:available:{productId}` | 30s  | Sellable count       |
+| `stock:low:{warehouseId}`     | 300s | Low stock list       |
 
 Cache is invalidated on every stock mutation via the event bus.
 

@@ -122,6 +122,7 @@ BR-SUP-004  Supplier documents (NID, trade license, bank details) are required f
 ## Validation Enforcement
 
 All business rules are enforced at three layers:
+
 1. **Zod Schema** — input validation at the action boundary
 2. **Service Layer** — business logic enforcement
 3. **Repository Layer** — data integrity enforcement (unique constraints, required fields)

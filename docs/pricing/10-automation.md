@@ -7,6 +7,7 @@ Pricing changes trigger automated updates across the platform. Every pricing mut
 ## Automation Flows
 
 ### Pricing Updated
+
 ```
 Pricing Updated
   │
@@ -21,6 +22,7 @@ Pricing Updated
 ```
 
 ### Wholesale Tier Updated
+
 ```
 Wholesale Tier Updated
   │
@@ -33,6 +35,7 @@ Wholesale Tier Updated
 ```
 
 ### Campaign Started
+
 ```
 Campaign Started
   │
@@ -46,6 +49,7 @@ Campaign Started
 ```
 
 ### Campaign Ended
+
 ```
 Campaign Ended
   │
@@ -60,15 +64,18 @@ Campaign Ended
 ## Automation Service
 
 The automation flows are managed by `PricingService` which:
+
 1. Mutates pricing data
 2. Publishes events to Event Bus
 3. Downstream services subscribe and react
 
 Direct synchronous actions (within same transaction):
+
 - Profit recalculation
 - Rule re-evaluation
 
 Asynchronous actions (via Event Bus):
+
 - Dashboard refresh
 - Report update
 - Analytics tracking

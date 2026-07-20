@@ -13,23 +13,23 @@ Every event payload MUST include:
 ```typescript
 interface EventPayload {
   // Always present
-  eventId: string           // UUID v7
-  eventType: string         // e.g., "product.created"
-  eventVersion: number      // Payload schema version (starts at 1)
-  timestamp: string         // ISO 8601 UTC
-  source: string            // Module name
+  eventId: string; // UUID v7
+  eventType: string; // e.g., "product.created"
+  eventVersion: number; // Payload schema version (starts at 1)
+  timestamp: string; // ISO 8601 UTC
+  source: string; // Module name
 
   // Metadata
-  correlationId: string     // Trace across event chain
-  causationId?: string      // Parent event ID (if triggered by another event)
+  correlationId: string; // Trace across event chain
+  causationId?: string; // Parent event ID (if triggered by another event)
   actor?: {
-    id: string
-    name?: string
-    role?: string
-  }
+    id: string;
+    name?: string;
+    role?: string;
+  };
 
   // Domain data
-  data: Record<string, unknown>
+  data: Record<string, unknown>;
 }
 ```
 
@@ -38,15 +38,18 @@ interface EventPayload {
 ## Naming Conventions
 
 ### Event Type
+
 ```
 <domain>.<action>
 ```
+
 - All lowercase
 - Dot-separated
 - Past tense verbs
 - Example: `product.created`, `order.shipped`, `inventory.low_stock_detected`
 
 ### Field Names
+
 - camelCase
 - Single concept per field
 - Avoid abbreviations (use `productId` not `pid`)
@@ -54,6 +57,7 @@ interface EventPayload {
 - Timestamps: field name + `At` suffix (e.g., `createdAt`, `shippedAt`)
 
 ### Enum Values
+
 - snake_case
 - All lowercase
 - Example: `in_stock`, `out_of_stock`, `pending_verification`
@@ -71,14 +75,14 @@ interface EventPayload {
 
 ## Identifier Fields
 
-| Type | Format | Example |
-|------|--------|---------|
-| Entity ID | MongoDB ObjectId string | `"507f1f77bcf86cd799439011"` |
-| SKU | Uppercase alphanumeric | `"PRD-001-BLK"` |
-| Order Number | Prefixed sequential | `"ORD-20260719-1234"` |
-| Reseller Code | RSL-XXXX | `"RSL-0042"` |
-| Supplier Code | SUP-XXXX | `"SUP-0101"` |
-| Event ID | UUID v7 | `"0192ab3c-7d8e-4f01-9012-3456789abcde"` |
+| Type          | Format                  | Example                                  |
+| ------------- | ----------------------- | ---------------------------------------- |
+| Entity ID     | MongoDB ObjectId string | `"507f1f77bcf86cd799439011"`             |
+| SKU           | Uppercase alphanumeric  | `"PRD-001-BLK"`                          |
+| Order Number  | Prefixed sequential     | `"ORD-20260719-1234"`                    |
+| Reseller Code | RSL-XXXX                | `"RSL-0042"`                             |
+| Supplier Code | SUP-XXXX                | `"SUP-0101"`                             |
+| Event ID      | UUID v7                 | `"0192ab3c-7d8e-4f01-9012-3456789abcde"` |
 
 ---
 
@@ -97,31 +101,33 @@ For update events, use the standardized changes array:
 
 ```typescript
 changes: {
-  field: string         // Field name (dot notation for nested)
-  oldValue: unknown     // Previous value (null if new)
-  newValue: unknown     // Current value
-  type: 'scalar' | 'array' | 'object' | 'reference'
-}[]
+  field: string; // Field name (dot notation for nested)
+  oldValue: unknown; // Previous value (null if new)
+  newValue: unknown; // Current value
+  type: "scalar" | "array" | "object" | "reference";
+}
+[];
 ```
 
 Example:
+
 ```typescript
 changes: [
-  { field: 'sellingPrice', oldValue: 10000, newValue: 12000, type: 'scalar' },
-  { field: 'status', oldValue: 'draft', newValue: 'published', type: 'scalar' },
-]
+  { field: "sellingPrice", oldValue: 10000, newValue: 12000, type: "scalar" },
+  { field: "status", oldValue: "draft", newValue: "published", type: "scalar" },
+];
 ```
 
 ---
 
 ## Payload Size Limits
 
-| Constraint | Limit | Enforcement |
-|-----------|-------|-------------|
-| Max payload size | 256 KB | EventBus validation |
-| Max items in array | 1000 | Schema validation |
-| Max string length | 10000 chars | Schema validation |
-| Max nesting depth | 5 levels | Schema validation |
+| Constraint         | Limit       | Enforcement         |
+| ------------------ | ----------- | ------------------- |
+| Max payload size   | 256 KB      | EventBus validation |
+| Max items in array | 1000        | Schema validation   |
+| Max string length  | 10000 chars | Schema validation   |
+| Max nesting depth  | 5 levels    | Schema validation   |
 
 ---
 
@@ -134,11 +140,13 @@ changes: [
 - Event Registry stores the latest version per event type
 
 ### Breaking Changes
+
 - Removing a required field
 - Changing a field type
 - Restructuring nested objects
 
 ### Non-Breaking Changes
+
 - Adding an optional field
 - Adding a new enum value
 - Extending allowed values

@@ -79,12 +79,12 @@ Flow: Admin → Invite Supplier → Email → Form → Approval → Supplier
 
 All approval workflows are configurable in `src/shared/config/app-config.ts`:
 
-| Setting | Options | Default |
-|---------|---------|---------|
-| resellerApproval | auto, manual | manual |
-| wholesalerApproval | auto, manual | manual |
-| supplierApproval | auto, manual | manual |
-| businessVerification | auto, manual | manual |
+| Setting              | Options            | Default  |
+| -------------------- | ------------------ | -------- |
+| resellerApproval     | auto, manual       | manual   |
+| wholesalerApproval   | auto, manual       | manual   |
+| supplierApproval     | auto, manual       | manual   |
+| businessVerification | auto, manual       | manual   |
 | customerVerification | required, optional | required |
 
 ---
@@ -92,23 +92,27 @@ All approval workflows are configurable in `src/shared/config/app-config.ts`:
 ## Shared Registration Patterns
 
 ### Password Requirements
+
 - Minimum 8 characters
 - Must contain uppercase, lowercase, number
 - Hashed with bcryptjs (10 salt rounds)
 
 ### Business Document Requirements
+
 - NID (National ID) — Bangladesh format
 - Trade License (if applicable)
 - TIN/BIN Certificate (if applicable)
 - Bank Account Details (if applicable)
 
 ### Verification Token
+
 - Generated on registration
 - Stored hashed in database
 - 24-hour expiry
 - Single-use
 
 ### Post-Registration Automation
+
 ```
 User Created
 │

@@ -20,7 +20,8 @@ export class RuleRepository extends BaseRepository<RuleDocumentType, PricingRule
       priority: doc.priority,
       isActive: doc.isActive,
       status: doc.status,
-      metadata: doc.metadata as Record<string, string | number | boolean | null | undefined> | undefined,
+      metadata: doc.metadata as
+        Record<string, string | number | boolean | null | undefined> | undefined,
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
       createdBy: doc.createdBy,

@@ -2,10 +2,7 @@
 
 import { auth } from "@/shared/lib/auth";
 import { AuthService } from "@/features/auth/services/auth-service";
-import {
-  profileUpdateSchema,
-  changePasswordSchema,
-} from "../types/validation";
+import { profileUpdateSchema, changePasswordSchema } from "../types/validation";
 import { UnauthorizedError } from "@/shared/errors/app-error";
 import { logger } from "@/shared/utils/logger";
 import { revalidatePath } from "next/cache";
@@ -39,11 +36,7 @@ export async function changePasswordAction(formData: any) {
 
   const validated = changePasswordSchema.parse(formData);
   const service = new AuthService();
-  await service.changePassword(
-    sessionUser.id,
-    validated.currentPassword,
-    validated.newPassword,
-  );
+  await service.changePassword(sessionUser.id, validated.currentPassword, validated.newPassword);
 
   return { success: true, data: null };
 }

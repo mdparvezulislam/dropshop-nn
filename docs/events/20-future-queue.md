@@ -26,28 +26,28 @@ QueueAdapter interface
 
 ```typescript
 interface QueueAdapter {
-  enqueue(queueName: string, event: BusinessEvent, options?: QueueOptions): Promise<void>
-  enqueueBulk(queueName: string, events: BusinessEvent[], options?: QueueOptions): Promise<void>
-  getQueueStatus(queueName: string): Promise<QueueStatus>
-  pause(queueName: string): Promise<void>
-  resume(queueName: string): Promise<void>
+  enqueue(queueName: string, event: BusinessEvent, options?: QueueOptions): Promise<void>;
+  enqueueBulk(queueName: string, events: BusinessEvent[], options?: QueueOptions): Promise<void>;
+  getQueueStatus(queueName: string): Promise<QueueStatus>;
+  pause(queueName: string): Promise<void>;
+  resume(queueName: string): Promise<void>;
 }
 
 interface QueueOptions {
-  delay?: number              // ms
-  priority?: number           // 1-10
-  attempts?: number
-  backoff?: BackoffOptions
-  idempotencyKey?: string
-  deduplicationId?: string    // SQS FIFO dedup
+  delay?: number; // ms
+  priority?: number; // 1-10
+  attempts?: number;
+  backoff?: BackoffOptions;
+  idempotencyKey?: string;
+  deduplicationId?: string; // SQS FIFO dedup
 }
 
 interface QueueStatus {
-  waiting: number
-  active: number
-  delayed: number
-  failed: number
-  completed: number
+  waiting: number;
+  active: number;
+  delayed: number;
+  failed: number;
+  completed: number;
 }
 ```
 
@@ -57,23 +57,25 @@ interface QueueStatus {
 
 ```typescript
 class BullMQAdapter implements QueueAdapter {
-  private queues: Map<string, Queue> = new Map()
+  private queues: Map<string, Queue> = new Map();
 
   async enqueue(queueName: string, event: BusinessEvent, options?: QueueOptions): Promise<void> {
-    const queue = this.getOrCreateQueue(queueName)
+    const queue = this.getOrCreateQueue(queueName);
     await queue.add(event.eventType, event, {
       delay: options?.delay,
       priority: options?.priority,
       attempts: options?.attempts,
       backoff: options?.backoff,
-      deduplication: options?.deduplicationId
-        ? { id: options.deduplicationId }
-        : undefined,
-    })
+      deduplication: options?.deduplicationId ? { id: options.deduplicationId } : undefined,
+    });
   }
 
-  async enqueueBulk(queueName: string, events: BusinessEvent[], options?: QueueOptions): Promise<void> {
-    const queue = this.getOrCreateQueue(queueName)
+  async enqueueBulk(
+    queueName: string,
+    events: BusinessEvent[],
+    options?: QueueOptions,
+  ): Promise<void> {
+    const queue = this.getOrCreateQueue(queueName);
     await queue.addBulk(
       events.map((event) => ({
         name: event.eventType,
@@ -84,36 +86,36 @@ class BullMQAdapter implements QueueAdapter {
           attempts: options?.attempts,
         },
       })),
-    )
+    );
   }
 
   private getOrCreateQueue(name: string): Queue {
     if (!this.queues.has(name)) {
-      this.queues.set(name, new Queue(name, { connection: bullMQConnection }))
+      this.queues.set(name, new Queue(name, { connection: bullMQConnection }));
     }
-    return this.queues.get(name)!
+    return this.queues.get(name)!;
   }
 
   async getQueueStatus(queueName: string): Promise<QueueStatus> {
-    const queue = this.getOrCreateQueue(queueName)
+    const queue = this.getOrCreateQueue(queueName);
     const [waiting, active, delayed, failed, completed] = await Promise.all([
       queue.getWaitingCount(),
       queue.getActiveCount(),
       queue.getDelayedCount(),
       queue.getFailedCount(),
       queue.getCompletedCount(),
-    ])
-    return { waiting, active, delayed, failed, completed }
+    ]);
+    return { waiting, active, delayed, failed, completed };
   }
 
   async pause(queueName: string): Promise<void> {
-    const queue = this.getOrCreateQueue(queueName)
-    await queue.pause()
+    const queue = this.getOrCreateQueue(queueName);
+    await queue.pause();
   }
 
   async resume(queueName: string): Promise<void> {
-    const queue = this.getOrCreateQueue(queueName)
-    await queue.resume()
+    const queue = this.getOrCreateQueue(queueName);
+    await queue.resume();
   }
 }
 ```
@@ -124,32 +126,44 @@ class BullMQAdapter implements QueueAdapter {
 
 ```typescript
 class RedisStreamAdapter implements QueueAdapter {
-  private readonly streamPrefix = 'dropshop:stream:'
+  private readonly streamPrefix = "dropshop:stream:";
 
   async enqueue(queueName: string, event: BusinessEvent, options?: QueueOptions): Promise<void> {
-    const streamKey = `${this.streamPrefix}${queueName}`
+    const streamKey = `${this.streamPrefix}${queueName}`;
     await redis.xadd(
       streamKey,
-      'MAXLEN', '~', '10000',     // Approximate trim
-      '*',
-      'event', JSON.stringify(event),
-      'idempotencyKey', options?.idempotencyKey || event.eventId,
-    )
+      "MAXLEN",
+      "~",
+      "10000", // Approximate trim
+      "*",
+      "event",
+      JSON.stringify(event),
+      "idempotencyKey",
+      options?.idempotencyKey || event.eventId,
+    );
   }
 
-  async enqueueBulk(queueName: string, events: BusinessEvent[], options?: QueueOptions): Promise<void> {
-    const streamKey = `${this.streamPrefix}${queueName}`
-    const pipeline = redis.pipeline()
+  async enqueueBulk(
+    queueName: string,
+    events: BusinessEvent[],
+    options?: QueueOptions,
+  ): Promise<void> {
+    const streamKey = `${this.streamPrefix}${queueName}`;
+    const pipeline = redis.pipeline();
     for (const event of events) {
       pipeline.xadd(
         streamKey,
-        'MAXLEN', '~', '10000',
-        '*',
-        'event', JSON.stringify(event),
-        'idempotencyKey', options?.idempotencyKey || event.eventId,
-      )
+        "MAXLEN",
+        "~",
+        "10000",
+        "*",
+        "event",
+        JSON.stringify(event),
+        "idempotencyKey",
+        options?.idempotencyKey || event.eventId,
+      );
     }
-    await pipeline.exec()
+    await pipeline.exec();
   }
 }
 ```
@@ -160,34 +174,38 @@ class RedisStreamAdapter implements QueueAdapter {
 
 ```typescript
 class SQSAdapter implements QueueAdapter {
-  private readonly queueUrls: Map<string, string> = new Map()
+  private readonly queueUrls: Map<string, string> = new Map();
 
   async enqueue(queueName: string, event: BusinessEvent, options?: QueueOptions): Promise<void> {
-    const queueUrl = await this.getQueueUrl(queueName)
+    const queueUrl = await this.getQueueUrl(queueName);
     await sqs.sendMessage({
       QueueUrl: queueUrl,
       MessageBody: JSON.stringify(event),
       MessageDeduplicationId: options?.deduplicationId || event.eventId,
       MessageGroupId: event.eventType,
       DelaySeconds: options?.delay ? Math.floor(options.delay / 1000) : undefined,
-    })
+    });
   }
 
-  async enqueueBulk(queueName: string, events: BusinessEvent[], options?: QueueOptions): Promise<void> {
-    const queueUrl = await this.getQueueUrl(queueName)
+  async enqueueBulk(
+    queueName: string,
+    events: BusinessEvent[],
+    options?: QueueOptions,
+  ): Promise<void> {
+    const queueUrl = await this.getQueueUrl(queueName);
     const entries = events.map((event, index) => ({
       Id: `msg-${index}`,
       MessageBody: JSON.stringify(event),
       MessageDeduplicationId: options?.deduplicationId || event.eventId,
       MessageGroupId: event.eventType,
-    }))
+    }));
 
     // SQS supports max 10 messages per batch
     for (let i = 0; i < entries.length; i += 10) {
       await sqs.sendMessageBatch({
         QueueUrl: queueUrl,
         Entries: entries.slice(i, i + 10),
-      })
+      });
     }
   }
 }
@@ -200,18 +218,20 @@ class SQSAdapter implements QueueAdapter {
 ```typescript
 // src/shared/config/app-config.ts
 eventBus: {
-  adapter: 'bullmq' | 'redis_streams' | 'sqs' | 'google_pubsub'
+  adapter: "bullmq" | "redis_streams" | "sqs" | "google_pubsub";
   bullmq: {
-    connection: { host, port, password }
-    prefix: 'dropshop:queue:'
+    connection: {
+      (host, port, password);
+    }
+    prefix: "dropshop:queue:";
   }
   redisStreams: {
-    maxLength: 10000
-    consumerGroup: 'dropshop-events'
+    maxLength: 10000;
+    consumerGroup: "dropshop-events";
   }
   sqs: {
-    region: 'ap-southeast-1'
-    queuePrefix: 'dropshop-events-'
+    region: "ap-southeast-1";
+    queuePrefix: "dropshop-events-";
   }
 }
 ```
@@ -251,10 +271,10 @@ No changes to the Event Bus, subscribers, or publishers are required.
 
 Different event categories can use different queue backends:
 
-| Event Category | Recommended Queue | Rationale |
-|---------------|------------------|-----------|
-| order.* | BullMQ | Needs retry, DLQ, delayed jobs |
-| payment.* | BullMQ | Transactional, needs exactly-once |
-| analytics.* | Redis Streams | High throughput, loss-tolerant |
-| notifications.* | SQS | High durability, managed service |
-| reporting.* | SQS/Scheduled | Batch processing, low priority |
+| Event Category  | Recommended Queue | Rationale                         |
+| --------------- | ----------------- | --------------------------------- |
+| order.*         | BullMQ            | Needs retry, DLQ, delayed jobs    |
+| payment.*       | BullMQ            | Transactional, needs exactly-once |
+| analytics.*     | Redis Streams     | High throughput, loss-tolerant    |
+| notifications.* | SQS               | High durability, managed service  |
+| reporting.*     | SQS/Scheduled     | Batch processing, low priority    |

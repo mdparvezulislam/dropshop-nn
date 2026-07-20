@@ -20,7 +20,8 @@ export interface ProductInventoryDBFields {
   safetyStock: number;
   reorderLevel: number;
   lowStockThreshold: number;
-  availability: "in_stock" | "low_stock" | "out_of_stock" | "pre_order" | "backorder" | "discontinued";
+  availability:
+    "in_stock" | "low_stock" | "out_of_stock" | "pre_order" | "backorder" | "discontinued";
   allowPreOrder: boolean;
   allowBackorder: boolean;
   status: "active" | "inactive" | "frozen";
@@ -33,7 +34,16 @@ export interface InventoryHistoryDBFields {
   productId: mongoose.Types.ObjectId;
   variantSku?: string;
   warehouseId?: mongoose.Types.ObjectId | null;
-  operation: "stock_in" | "stock_out" | "adjustment" | "reservation" | "release" | "transfer" | "damage" | "return" | "sold";
+  operation:
+    | "stock_in"
+    | "stock_out"
+    | "adjustment"
+    | "reservation"
+    | "release"
+    | "transfer"
+    | "damage"
+    | "return"
+    | "sold";
   quantity: number;
   previousAvailable: number;
   newAvailable: number;
@@ -147,7 +157,17 @@ const inventoryHistorySchema = new Schema<InventoryHistoryDocumentType>(
     },
     operation: {
       type: String,
-      enum: ["stock_in", "stock_out", "adjustment", "reservation", "release", "transfer", "damage", "return", "sold"],
+      enum: [
+        "stock_in",
+        "stock_out",
+        "adjustment",
+        "reservation",
+        "release",
+        "transfer",
+        "damage",
+        "return",
+        "sold",
+      ],
       required: true,
       index: true,
     },

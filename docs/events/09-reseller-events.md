@@ -14,26 +14,26 @@ Published when a new reseller registers or is onboarded.
 
 ```typescript
 interface ResellerRegisteredPayload {
-  resellerId: string
-  code: string
-  businessName: string
-  ownerName: string
-  email: string
-  phone: string
-  businessType: string
-  registrationMethod: 'self' | 'invitation'
-  status: string
-  registeredAt: string
+  resellerId: string;
+  code: string;
+  businessName: string;
+  ownerName: string;
+  email: string;
+  phone: string;
+  businessType: string;
+  registrationMethod: "self" | "invitation";
+  status: string;
+  registeredAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber       | Action                     | Queue     |
+| ---------------- | -------------------------- | --------- |
 | AnalyticsHandler | Track reseller acquisition | analytics |
-| DashboardHandler | Refresh reseller widget | dashboard |
-| AuditHandler | Record audit entry | audit |
+| DashboardHandler | Refresh reseller widget    | dashboard |
+| AuditHandler     | Record audit entry         | audit     |
 
 ### Validation
 
@@ -54,22 +54,22 @@ Published when a pending reseller is approved by an admin (or auto-approved).
 
 ```typescript
 interface ResellerApprovedPayload {
-  resellerId: string
-  code: string
-  businessName: string
-  approvedBy: string
-  approvedAt: string
-  autoApproved: boolean
+  resellerId: string;
+  code: string;
+  businessName: string;
+  approvedBy: string;
+  approvedAt: string;
+  autoApproved: boolean;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber          | Action                     | Queue         |
+| ------------------- | -------------------------- | ------------- |
 | NotificationHandler | Send approval notification | notifications |
-| AnalyticsHandler | Track reseller approval | analytics |
-| DashboardHandler | Refresh reseller widget | dashboard |
+| AnalyticsHandler    | Track reseller approval    | analytics     |
+| DashboardHandler    | Refresh reseller widget    | dashboard     |
 
 ---
 
@@ -81,20 +81,20 @@ Published when a reseller completes their business profile.
 
 ```typescript
 interface BusinessProfileCompletedPayload {
-  resellerId: string
-  code: string
-  businessName: string
-  completedFields: string[]
-  completedAt: string
+  resellerId: string;
+  code: string;
+  businessName: string;
+  completedFields: string[];
+  completedAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber       | Action                   | Queue     |
+| ---------------- | ------------------------ | --------- |
 | AnalyticsHandler | Track profile completion | analytics |
-| DashboardHandler | Refresh reseller widget | dashboard |
+| DashboardHandler | Refresh reseller widget  | dashboard |
 
 ---
 
@@ -106,21 +106,21 @@ Published when a reseller updates their selling price for a product.
 
 ```typescript
 interface SellingPriceUpdatedPayload {
-  resellerId: string
-  productId: string
-  variantSku?: string
-  oldSellingPrice: number
-  newSellingPrice: number
-  updatedBy: string
-  updatedAt: string
+  resellerId: string;
+  productId: string;
+  variantSku?: string;
+  oldSellingPrice: number;
+  newSellingPrice: number;
+  updatedBy: string;
+  updatedAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
-| AnalyticsHandler | Track pricing change | analytics |
+| Subscriber       | Action                | Queue     |
+| ---------------- | --------------------- | --------- |
+| AnalyticsHandler | Track pricing change  | analytics |
 | ReportingHandler | Queue reseller report | reporting |
 
 ---
@@ -133,17 +133,17 @@ Published when a reseller publishes or updates their store.
 
 ```typescript
 interface StorePublishedPayload {
-  resellerId: string
-  code: string
-  storeUrl?: string
-  publishedProductCount: number
-  publishedAt: string
+  resellerId: string;
+  code: string;
+  storeUrl?: string;
+  publishedProductCount: number;
+  publishedAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
-| SearchIndexHandler | Index reseller store | search |
-| AnalyticsHandler | Track store publication | analytics |
+| Subscriber         | Action                  | Queue     |
+| ------------------ | ----------------------- | --------- |
+| SearchIndexHandler | Index reseller store    | search    |
+| AnalyticsHandler   | Track store publication | analytics |

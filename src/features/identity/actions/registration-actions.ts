@@ -2,10 +2,7 @@
 
 import { auth } from "@/shared/lib/auth";
 import { IdentityService } from "../services/identity-service";
-import {
-  customerRegistrationSchema,
-  businessRegistrationSchema,
-} from "../types/validation";
+import { customerRegistrationSchema, businessRegistrationSchema } from "../types/validation";
 import { UnauthorizedError } from "@/shared/errors/app-error";
 import { logger } from "@/shared/utils/logger";
 import { revalidatePath } from "next/cache";

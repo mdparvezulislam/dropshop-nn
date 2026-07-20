@@ -157,7 +157,10 @@ export async function listProductsAction(
   getSessionUser(session);
 
   const service = new ProductService();
-  const result = await service.list(filter, { cursor: pagination.cursor, limit: pagination.limit || 20 });
+  const result = await service.list(filter, {
+    cursor: pagination.cursor,
+    limit: pagination.limit || 20,
+  });
 
   return { success: true, data: result };
 }

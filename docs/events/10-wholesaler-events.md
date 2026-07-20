@@ -14,26 +14,26 @@ Published when a new wholesaler registers or is onboarded.
 
 ```typescript
 interface WholesalerRegisteredPayload {
-  wholesalerId: string
-  code: string
-  businessName: string
-  ownerName: string
-  email: string
-  phone: string
-  businessType: string
-  registrationMethod: 'self' | 'invitation'
-  status: string
-  registeredAt: string
+  wholesalerId: string;
+  code: string;
+  businessName: string;
+  ownerName: string;
+  email: string;
+  phone: string;
+  businessType: string;
+  registrationMethod: "self" | "invitation";
+  status: string;
+  registeredAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber       | Action                       | Queue     |
+| ---------------- | ---------------------------- | --------- |
 | AnalyticsHandler | Track wholesaler acquisition | analytics |
-| DashboardHandler | Refresh dashboard | dashboard |
-| AuditHandler | Record audit entry | audit |
+| DashboardHandler | Refresh dashboard            | dashboard |
+| AuditHandler     | Record audit entry           | audit     |
 
 ### Validation
 
@@ -54,22 +54,22 @@ Published when a pending wholesaler is approved.
 
 ```typescript
 interface WholesalerApprovedPayload {
-  wholesalerId: string
-  code: string
-  businessName: string
-  approvedBy: string
-  approvedAt: string
-  autoApproved: boolean
-  assignedTier?: string
+  wholesalerId: string;
+  code: string;
+  businessName: string;
+  approvedBy: string;
+  approvedAt: string;
+  autoApproved: boolean;
+  assignedTier?: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber          | Action                     | Queue         |
+| ------------------- | -------------------------- | ------------- |
 | NotificationHandler | Send approval notification | notifications |
-| AnalyticsHandler | Track approval | analytics |
+| AnalyticsHandler    | Track approval             | analytics     |
 
 ---
 
@@ -81,16 +81,16 @@ Published when a wholesaler views wholesale pricing tiers.
 
 ```typescript
 interface WholesalePricingViewedPayload {
-  wholesalerId: string
-  productId: string
-  variantSku?: string
-  viewedTiers: number
-  viewedAt: string
+  wholesalerId: string;
+  productId: string;
+  variantSku?: string;
+  viewedTiers: number;
+  viewedAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber       | Action                 | Queue     |
+| ---------------- | ---------------------- | --------- |
 | AnalyticsHandler | Track pricing interest | analytics |

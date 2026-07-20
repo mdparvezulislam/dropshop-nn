@@ -41,7 +41,11 @@ export const productMediaSchema = z.object({
 
 export const productSEOSchema = z.object({
   metaTitle: z.string().max(70, "Meta title too long (max 70)").optional().or(z.literal("")),
-  metaDescription: z.string().max(160, "Meta description too long (max 160)").optional().or(z.literal("")),
+  metaDescription: z
+    .string()
+    .max(160, "Meta description too long (max 160)")
+    .optional()
+    .or(z.literal("")),
   metaKeywords: z.array(z.string()).optional(),
   canonicalUrl: z.string().url().optional().or(z.literal("")),
   ogTitle: z.string().max(70).optional().or(z.literal("")),

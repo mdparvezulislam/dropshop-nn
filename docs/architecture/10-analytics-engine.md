@@ -15,63 +15,70 @@ The Analytics Engine is a centralized event-driven system that captures every me
 ## Event Types
 
 ### User Events
-| Event | Data |
-|-------|------|
-| `user.registered` | role, date, referral source |
-| `user.logged_in` | role, timestamp |
-| `user.profile_updated` | changed fields |
-| `user.verified` | verification type |
+
+| Event                  | Data                        |
+| ---------------------- | --------------------------- |
+| `user.registered`      | role, date, referral source |
+| `user.logged_in`       | role, timestamp             |
+| `user.profile_updated` | changed fields              |
+| `user.verified`        | verification type           |
 
 ### Product Events
-| Event | Data |
-|-------|------|
-| `product.created` | category, brand, supplier |
-| `product.updated` | changed fields |
-| `product.published` | publisher role |
-| `product.archived` | reason |
-| `product.viewed` | user role, referrer |
+
+| Event               | Data                      |
+| ------------------- | ------------------------- |
+| `product.created`   | category, brand, supplier |
+| `product.updated`   | changed fields            |
+| `product.published` | publisher role            |
+| `product.archived`  | reason                    |
+| `product.viewed`    | user role, referrer       |
 
 ### Order Events
-| Event | Data |
-|-------|------|
-| `order.created` | total, items, channel |
-| `order.fulfilled` | fulfillment time |
-| `order.cancelled` | reason, stage |
-| `order.returned` | items, reason |
-| `order.payment_received` | amount, method |
-| `order.payment_refunded` | amount, reason |
+
+| Event                    | Data                  |
+| ------------------------ | --------------------- |
+| `order.created`          | total, items, channel |
+| `order.fulfilled`        | fulfillment time      |
+| `order.cancelled`        | reason, stage         |
+| `order.returned`         | items, reason         |
+| `order.payment_received` | amount, method        |
+| `order.payment_refunded` | amount, reason        |
 
 ### Inventory Events
-| Event | Data |
-|-------|------|
-| `inventory.stock_in` | quantity, supplier |
-| `inventory.stock_out` | quantity, order ref |
-| `inventory.adjusted` | delta, reason |
-| `inventory.low_stock` | current stock, threshold |
-| `inventory.out_of_stock` | duration |
+
+| Event                    | Data                     |
+| ------------------------ | ------------------------ |
+| `inventory.stock_in`     | quantity, supplier       |
+| `inventory.stock_out`    | quantity, order ref      |
+| `inventory.adjusted`     | delta, reason            |
+| `inventory.low_stock`    | current stock, threshold |
+| `inventory.out_of_stock` | duration                 |
 
 ### Pricing Events
-| Event | Data |
-|-------|------|
-| `pricing.updated` | old price, new price, changer role |
-| `pricing.campaign_started` | campaign type, discount |
-| `pricing.campaign_ended` | campaign type, sales during |
-| `pricing.bulk_updated` | count affected |
+
+| Event                      | Data                               |
+| -------------------------- | ---------------------------------- |
+| `pricing.updated`          | old price, new price, changer role |
+| `pricing.campaign_started` | campaign type, discount            |
+| `pricing.campaign_ended`   | campaign type, sales during        |
+| `pricing.bulk_updated`     | count affected                     |
 
 ### Reseller Events
-| Event | Data |
-|-------|------|
-| `reseller.registered` | business type |
-| `reseller.verified` | verification type |
-| `reseller.product_assigned` | product count |
-| `reseller.product_sold` | product, profit |
+
+| Event                       | Data              |
+| --------------------------- | ----------------- |
+| `reseller.registered`       | business type     |
+| `reseller.verified`         | verification type |
+| `reseller.product_assigned` | product count     |
+| `reseller.product_sold`     | product, profit   |
 
 ### Supplier Events
-| Event | Data |
-|-------|------|
-| `supplier.registered` | business type |
-| `supplier.verified` | verification type |
-| `supplier.stock_updated` | product, quantity |
+
+| Event                    | Data                        |
+| ------------------------ | --------------------------- |
+| `supplier.registered`    | business type               |
+| `supplier.verified`      | verification type           |
+| `supplier.stock_updated` | product, quantity           |
 | `supplier.price_changed` | product, old cost, new cost |
 
 ---
@@ -102,11 +109,13 @@ Dashboard / Report / BI Tool reads aggregated data
 ## Aggregation Engine
 
 ### Real-time Aggregations
+
 - Counters: total users, total orders, total products
 - Sums: revenue, profit, commission
 - Averages: average order value, average fulfillment time
 
 ### Scheduled Aggregations (BullMQ)
+
 - Daily/Weekly/Monthly rollups
 - Trend calculations
 - Comparative analytics (MoM/YoY)
@@ -138,11 +147,11 @@ AnalyticsAggregation {
 
 ```typescript
 class AnalyticsService {
-  track(event: AnalyticsEvent): void
-  getMetric(metric: string, period: DateRange): number
-  getTimeSeries(metric: string, period: DateRange, granularity: string): TimeSeriesData[]
-  getDashboardMetrics(role: string): DashboardMetrics
-  getComparison(metric: string, period1: DateRange, period2: DateRange): ComparisonData
+  track(event: AnalyticsEvent): void;
+  getMetric(metric: string, period: DateRange): number;
+  getTimeSeries(metric: string, period: DateRange, granularity: string): TimeSeriesData[];
+  getDashboardMetrics(role: string): DashboardMetrics;
+  getComparison(metric: string, period1: DateRange, period2: DateRange): ComparisonData;
 }
 ```
 

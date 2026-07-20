@@ -76,9 +76,18 @@ export function registerCheckoutFeatureFlags(): void {
     { eventType: "checkout.cart_created", description: "A new cart was created" },
     { eventType: "checkout.cart_updated", description: "Cart contents were modified" },
     { eventType: "checkout.started", description: "A checkout session was initiated" },
-    { eventType: "checkout.validated", description: "Checkout prices and inventory were validated" },
-    { eventType: "checkout.inventory_reserved", description: "Inventory was reserved for the checkout" },
-    { eventType: "checkout.order_draft_created", description: "An order draft was created from the checkout" },
+    {
+      eventType: "checkout.validated",
+      description: "Checkout prices and inventory were validated",
+    },
+    {
+      eventType: "checkout.inventory_reserved",
+      description: "Inventory was reserved for the checkout",
+    },
+    {
+      eventType: "checkout.order_draft_created",
+      description: "An order draft was created from the checkout",
+    },
     { eventType: "checkout.expired", description: "The checkout session expired" },
   ];
 

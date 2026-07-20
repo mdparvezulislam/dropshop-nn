@@ -6,31 +6,31 @@ The Pricing Engine resolves the correct price for any product given a user role,
 
 ## Cost Foundation
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `supplierPrice` | Number | Price quoted by supplier |
-| `purchasePrice` | Number | Actual purchase cost |
-| `landingCost` | Number | landed cost including duties/freight |
-| `packagingCost` | Number | Packaging cost per unit |
-| `operatingCost` | Number | Operating overhead per unit |
-| `additionalCost` | Number | Any additional cost |
-| `totalCost` | Number | Computed: sum of all costs |
-| `commissionRate` | Number | Platform commission % |
-| `taxRate` | Number | Tax rate % (future) |
+| Field            | Type   | Description                          |
+| ---------------- | ------ | ------------------------------------ |
+| `supplierPrice`  | Number | Price quoted by supplier             |
+| `purchasePrice`  | Number | Actual purchase cost                 |
+| `landingCost`    | Number | landed cost including duties/freight |
+| `packagingCost`  | Number | Packaging cost per unit              |
+| `operatingCost`  | Number | Operating overhead per unit          |
+| `additionalCost` | Number | Any additional cost                  |
+| `totalCost`      | Number | Computed: sum of all costs           |
+| `commissionRate` | Number | Platform commission %                |
+| `taxRate`        | Number | Tax rate % (future)                  |
 
 ## Selling Prices
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `minimumSellingPrice` | Number | Floor price — never sell below this |
-| `recommendedSellingPrice` | Number | Suggested retail price |
-| `retailPrice` | Number | Default retail selling price |
-| `resellerPrice` | Number | Base price for resellers |
-| `wholesaleBasePrice` | Number | Base price for wholesale (before tier) |
-| `vipPrice` | Number | Future: VIP customer price |
-| `campaignPrice` | Number | Active campaign override price |
-| `flashSalePrice` | Number | Flash sale time-limited price |
-| `festivalPrice` | Number | Festival/seasonal price |
+| Field                     | Type   | Description                            |
+| ------------------------- | ------ | -------------------------------------- |
+| `minimumSellingPrice`     | Number | Floor price — never sell below this    |
+| `recommendedSellingPrice` | Number | Suggested retail price                 |
+| `retailPrice`             | Number | Default retail selling price           |
+| `resellerPrice`           | Number | Base price for resellers               |
+| `wholesaleBasePrice`      | Number | Base price for wholesale (before tier) |
+| `vipPrice`                | Number | Future: VIP customer price             |
+| `campaignPrice`           | Number | Active campaign override price         |
+| `flashSalePrice`          | Number | Flash sale time-limited price          |
+| `festivalPrice`           | Number | Festival/seasonal price                |
 
 ## Price Resolution
 
@@ -79,5 +79,6 @@ interface ResolvedPrice {
 ## Event Publication
 
 Every pricing mutation publishes events:
+
 - `pricing.created` — on first pricing record creation
 - `pricing.updated` — on any pricing field change

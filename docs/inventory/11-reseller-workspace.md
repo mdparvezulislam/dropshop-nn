@@ -7,16 +7,19 @@ The Reseller Inventory Workspace shows resellers their available stock informati
 ## Display Sections
 
 ### 1. Available Stock
+
 - Current sellable stock count
 - Stock status badge (In Stock, Low Stock, Out of Stock)
 - Estimated delivery time
 
 ### 2. Stock Status
+
 - Visual indicator: green (in stock), yellow (low stock), red (out of stock)
 - Pre-order / backorder availability notice
 - Expected restock date (if available)
 
 ### 3. Low Stock Warnings
+
 - Warning when stock is running low
 - Suggested order quantity
 - Reorder notification signup
@@ -37,6 +40,7 @@ The following are NEVER exposed to resellers:
 ## Access Control
 
 The Reseller Workspace is only accessible to users with role `reseller`. Unauthorized access attempts:
+
 - Return 403 Forbidden
 - Log security event
 

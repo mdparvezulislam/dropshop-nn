@@ -10,21 +10,21 @@ Different user roles see different product data. Visibility rules are enforced a
 
 ### What Each Role Sees
 
-| Data Field | Guest | Customer | Reseller | Wholesaler | Supplier | Manager | Admin |
-|-----------|-------|----------|----------|------------|----------|---------|-------|
-| Product Name | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Product Description | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Media | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Retail Price | ✓ | ✓ | Limited* | ✓ | ✓ | ✓ | ✓ |
-| Compare Price | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| Reseller Price | - | - | ✓ | - | - | ✓ | ✓ |
-| Wholesale Price | - | - | - | ✓ | ✓ | ✓ | ✓ |
-| Wholesale Tiers | - | - | - | ✓ | - | ✓ | ✓ |
-| Cost Price | - | - | - | - | ✓ | ✓ | ✓ |
-| Supplier Price | - | - | - | - | ✓ | ✓ | ✓ |
-| Profit Margin | - | - | Preview | - | - | ✓ | ✓ |
-| Inventory Level | Partial** | Partial** | - | - | ✓ | ✓ | ✓ |
-| Supplier Info | - | - | - | - | ✓ | ✓ | ✓ |
+| Data Field          | Guest     | Customer  | Reseller | Wholesaler | Supplier | Manager | Admin |
+| ------------------- | --------- | --------- | -------- | ---------- | -------- | ------- | ----- |
+| Product Name        | ✓         | ✓         | ✓        | ✓          | ✓        | ✓       | ✓     |
+| Product Description | ✓         | ✓         | ✓        | ✓          | ✓        | ✓       | ✓     |
+| Media               | ✓         | ✓         | ✓        | ✓          | ✓        | ✓       | ✓     |
+| Retail Price        | ✓         | ✓         | Limited* | ✓          | ✓        | ✓       | ✓     |
+| Compare Price       | ✓         | ✓         | ✓        | ✓          | ✓        | ✓       | ✓     |
+| Reseller Price      | -         | -         | ✓        | -          | -        | ✓       | ✓     |
+| Wholesale Price     | -         | -         | -        | ✓          | ✓        | ✓       | ✓     |
+| Wholesale Tiers     | -         | -         | -        | ✓          | -        | ✓       | ✓     |
+| Cost Price          | -         | -         | -        | -          | ✓        | ✓       | ✓     |
+| Supplier Price      | -         | -         | -        | -          | ✓        | ✓       | ✓     |
+| Profit Margin       | -         | -         | Preview  | -          | -        | ✓       | ✓     |
+| Inventory Level     | Partial** | Partial** | -        | -          | ✓        | ✓       | ✓     |
+| Supplier Info       | -         | -         | -        | -          | ✓        | ✓       | ✓     |
 
 *Resellers see the reseller price (which may differ from retail).
 **Customers see availability status only (in_stock / low_stock / out_of_stock), not raw counts.
@@ -40,11 +40,12 @@ class VisibilityService {
   filterForRole<T extends ProductData>(
     data: T | T[],
     role: UserRole,
-  ): FilteredProductData | FilteredProductData[]
+  ): FilteredProductData | FilteredProductData[];
 }
 ```
 
 The `VisibilityService`:
+
 1. Inspects the requesting user's role
 2. Strips unauthorized fields from product data
 3. Returns a role-appropriate view of the product
@@ -94,13 +95,13 @@ Response to client
 
 ## Implementation Boundaries
 
-| Layer | Responsibility |
-|-------|---------------|
-| **UI** | Renders only data passed by service layer; never re-fetches hidden data |
-| **Service** | Invokes VisibilityService before returning data to actions |
-| **API** | Same as service — visibility enforced before JSON response |
-| **Export** | Visibility rules apply to CSV/PDF exports |
-| **Repository** | No visibility logic; returns complete domain entities |
+| Layer          | Responsibility                                                          |
+| -------------- | ----------------------------------------------------------------------- |
+| **UI**         | Renders only data passed by service layer; never re-fetches hidden data |
+| **Service**    | Invokes VisibilityService before returning data to actions              |
+| **API**        | Same as service — visibility enforced before JSON response              |
+| **Export**     | Visibility rules apply to CSV/PDF exports                               |
+| **Repository** | No visibility logic; returns complete domain entities                   |
 
 ---
 
@@ -108,13 +109,13 @@ Response to client
 
 Products have their own visibility status independent of role visibility:
 
-| Status | Description | Visible To |
-|--------|-------------|------------|
-| `published` | Visible in catalog | All roles |
-| `draft` | Incomplete, not public | Admin, Manager, Creator |
-| `archived` | Removed from active catalog | Admin only |
-| `scheduled` | Scheduled for future publication | Admin, Manager |
-| `hidden` | Exists but not in listings | Anyone with direct link |
+| Status      | Description                      | Visible To              |
+| ----------- | -------------------------------- | ----------------------- |
+| `published` | Visible in catalog               | All roles               |
+| `draft`     | Incomplete, not public           | Admin, Manager, Creator |
+| `archived`  | Removed from active catalog      | Admin only              |
+| `scheduled` | Scheduled for future publication | Admin, Manager          |
+| `hidden`    | Exists but not in listings       | Anyone with direct link |
 
 ---
 

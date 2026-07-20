@@ -1,5 +1,13 @@
-import { ProductRepository, CursorPaginationParams, PaginatedCatalogResult } from "../repositories/product-repository";
-import { CategoryRepository, BrandRepository, CollectionRepository } from "../repositories/classification-repository";
+import {
+  ProductRepository,
+  CursorPaginationParams,
+  PaginatedCatalogResult,
+} from "../repositories/product-repository";
+import {
+  CategoryRepository,
+  BrandRepository,
+  CollectionRepository,
+} from "../repositories/classification-repository";
 import { Product } from "../domain/product-entity";
 import { logger } from "@/shared/utils/logger";
 
@@ -68,10 +76,7 @@ export class CatalogSearchService {
     return this.productRepository.findByCollection(collection.productIds, pagination);
   }
 
-  async autocomplete(
-    query: string,
-    limit: number = 10,
-  ): Promise<AutocompleteResult> {
+  async autocomplete(query: string, limit: number = 10): Promise<AutocompleteResult> {
     logger.info("CatalogSearchService: autocomplete", { query });
 
     const results = await this.productRepository.search(query, { limit }, { status: "active" });

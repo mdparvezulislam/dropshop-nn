@@ -379,27 +379,15 @@ export default function EditSupplierPage(): React.ReactElement {
               <div className="grid gap-4 md:grid-cols-3">
                 <div className="space-y-2">
                   <Label>Division</Label>
-                  <Input
-                    required
-                    value={division}
-                    onChange={(e) => setDivision(e.target.value)}
-                  />
+                  <Input required value={division} onChange={(e) => setDivision(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>District</Label>
-                  <Input
-                    required
-                    value={district}
-                    onChange={(e) => setDistrict(e.target.value)}
-                  />
+                  <Input required value={district} onChange={(e) => setDistrict(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                   <Label>Upazila</Label>
-                  <Input
-                    required
-                    value={upazila}
-                    onChange={(e) => setUpazila(e.target.value)}
-                  />
+                  <Input required value={upazila} onChange={(e) => setUpazila(e.target.value)} />
                 </div>
               </div>
               <div className="space-y-2">

@@ -360,10 +360,7 @@ export class InventoryService {
     reason?: string,
     actorId?: string,
   ): Promise<{ inventory: ProductInventory; history: InventoryHistory }> {
-    return this.adjustStock(
-      { inventoryId, operation: "damage", quantity, reason },
-      actorId,
-    );
+    return this.adjustStock({ inventoryId, operation: "damage", quantity, reason }, actorId);
   }
 
   async markReturned(
@@ -372,10 +369,7 @@ export class InventoryService {
     reason?: string,
     actorId?: string,
   ): Promise<{ inventory: ProductInventory; history: InventoryHistory }> {
-    return this.adjustStock(
-      { inventoryId, operation: "return", quantity, reason },
-      actorId,
-    );
+    return this.adjustStock({ inventoryId, operation: "return", quantity, reason }, actorId);
   }
 
   async markSold(

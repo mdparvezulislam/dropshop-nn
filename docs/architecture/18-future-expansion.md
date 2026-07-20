@@ -9,6 +9,7 @@ This document maps the planned future expansions and the architectural decisions
 ## Expansion Roadmap
 
 ### Phase 8: Customer Module & Checkout
+
 **Priority: High**
 
 - Customer profiles (addresses, preferences, history)
@@ -19,6 +20,7 @@ This document maps the planned future expansions and the architectural decisions
 - Order confirmation and tracking
 
 ### Phase 9: Order Management System
+
 **Priority: High**
 
 - Order lifecycle management
@@ -29,6 +31,7 @@ This document maps the planned future expansions and the architectural decisions
 - Bulk order operations
 
 ### Phase 10: Courier Integration
+
 **Priority: High**
 
 - Multi-courier support (SteadFast, eCourier, Pathao, Sundarban)
@@ -39,6 +42,7 @@ This document maps the planned future expansions and the architectural decisions
 - COD collection management
 
 ### Phase 11: Payment Gateway Integration
+
 **Priority: High**
 
 - bKash Merchant API integration
@@ -49,6 +53,7 @@ This document maps the planned future expansions and the architectural decisions
 - Transaction history
 
 ### Phase 12: Wallet & Payout System
+
 **Priority: Medium**
 
 - Multi-currency digital wallet
@@ -59,6 +64,7 @@ This document maps the planned future expansions and the architectural decisions
 - Transaction ledger with audit
 
 ### Phase 13: Invoice & Billing System
+
 **Priority: Medium**
 
 - Automated invoice generation
@@ -69,6 +75,7 @@ This document maps the planned future expansions and the architectural decisions
 - Legal document storage
 
 ### Phase 14: Multi-Warehouse Management (WMS)
+
 **Priority: Medium**
 
 - Full warehouse entity management
@@ -79,6 +86,7 @@ This document maps the planned future expansions and the architectural decisions
 - Barcode/RFID integration (future)
 
 ### Phase 15: Supplier Comparison Engine
+
 **Priority: Low**
 
 - Multi-supplier cost comparison per product
@@ -88,6 +96,7 @@ This document maps the planned future expansions and the architectural decisions
 - Supplier switching recommendations
 
 ### Phase 16: Advanced Analytics & BI
+
 **Priority: Low**
 
 - Custom report builder
@@ -98,6 +107,7 @@ This document maps the planned future expansions and the architectural decisions
 - ML-based demand forecasting
 
 ### Phase 17: Multi-Tenant & International
+
 **Priority: Low**
 
 - Multi-tenant architecture (regional subdomains)
@@ -112,6 +122,7 @@ This document maps the planned future expansions and the architectural decisions
 ## Architectural Readiness
 
 ### Already Ready (No Changes Needed)
+
 - Feature module isolation (microservice-ready)
 - Event bus architecture (pub/sub decoupling)
 - Product + Pricing + Inventory separation
@@ -121,12 +132,14 @@ This document maps the planned future expansions and the architectural decisions
 - BDT-ready with multi-currency stored per record
 
 ### Minor Changes Needed
+
 - Multi-warehouse `warehouseId` field already present
 - Customer entity stubs in reseller module
 - Multi-supplier per product (SupplierInventory)
 - Campaign/scheduled pricing fields present
 
 ### Significant Changes Needed
+
 - Full OMS (Order Management System) — new feature module
 - Payment gateway integrations (external APIs)
 - Courier API integrations (external APIs)
@@ -139,7 +152,9 @@ This document maps the planned future expansions and the architectural decisions
 ## Expansion Principles
 
 ### 1. No Breaking Changes
+
 New modules must not break existing functionality. Follow the existing patterns:
+
 - New feature module in `src/features/<name>/`
 - Follows same directory structure (`domain/`, `repositories/`, `services/`, `actions/`, `types/`)
 - Extends `BaseRepository`
@@ -147,6 +162,7 @@ New modules must not break existing functionality. Follow the existing patterns:
 - Subscribes to relevant events from other modules
 
 ### 2. Feature Flag Gating
+
 All new features should be gated behind feature flags:
 
 ```typescript
@@ -161,9 +177,11 @@ features: {
 ```
 
 ### 3. Progressive Enhancement
+
 Start with the minimum viable version of each feature and add complexity over time.
 
 ### 4. Backward Compatibility
+
 - Existing API contracts remain unchanged
 - New features add new endpoints, never modify existing response shapes
 - New database fields are optional with sensible defaults
@@ -176,38 +194,38 @@ Start with the minimum viable version of each feature and add complexity over ti
 Phase 8: Customer + Checkout
     depends on → Product, Pricing, Inventory (existing)
     depends on → Auth (existing)
-    
+
 Phase 9: Order Management
     depends on → Customer + Checkout (Phase 8)
     depends on → Product, Pricing, Inventory, Reseller (existing)
-    
+
 Phase 10: Courier Integration
     depends on → Order Management (Phase 9)
-    
+
 Phase 11: Payment Gateway
     depends on → Customer + Checkout (Phase 8)
     depends on → Order Management (Phase 9)
-    
+
 Phase 12: Wallet & Payout
     depends on → Supplier, Reseller (existing)
     depends on → Order Management (Phase 9)
     depends on → Payment Gateway (Phase 11)
-    
+
 Phase 13: Invoice & Billing
     depends on → Order Management (Phase 9)
     depends on → Payment Gateway (Phase 11)
-    
+
 Phase 14: WMS
     depends on → Inventory (existing)
     depends on → Order Management (Phase 9)
-    
+
 Phase 15: Supplier Comparison
     depends on → Supplier (existing)
     depends on → Product, Pricing (existing)
-    
+
 Phase 16: Advanced BI
     depends on → All phases 8-15
-    
+
 Phase 17: Multi-Tenant
     depends on → All phases 8-16
 ```

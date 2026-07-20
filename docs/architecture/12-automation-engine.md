@@ -183,6 +183,7 @@ AutomationRule {
 ## Rollback Strategy
 
 For critical cascades (e.g., order creation), the Automation Engine supports rollback:
+
 - If any required step fails, previously executed steps are reversed
 - Each service must implement `rollback<Action>()` for critical operations
 - Rollback is itself logged as an audit event

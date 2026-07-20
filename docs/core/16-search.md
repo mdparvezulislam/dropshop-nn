@@ -10,11 +10,11 @@ The search contracts define a standardized interface for search operations. Ever
 
 ```typescript
 interface SearchEngineContract {
-  index(entityType: string, entityId: string, data: Record<string, unknown>): Promise<void>
-  update(entityType: string, entityId: string, data: Record<string, unknown>): Promise<void>
-  remove(entityType: string, entityId: string): Promise<void>
-  search<T>(query: SearchQuery): Promise<SearchResult<T>>
-  reindex(entityType: string): Promise<number>
+  index(entityType: string, entityId: string, data: Record<string, unknown>): Promise<void>;
+  update(entityType: string, entityId: string, data: Record<string, unknown>): Promise<void>;
+  remove(entityType: string, entityId: string): Promise<void>;
+  search<T>(query: SearchQuery): Promise<SearchResult<T>>;
+  reindex(entityType: string): Promise<number>;
 }
 ```
 
@@ -24,21 +24,21 @@ interface SearchEngineContract {
 
 ```typescript
 interface SearchDocument {
-  id: string
-  type: string           // Entity type (e.g., "product", "supplier")
-  title: string
-  description?: string
-  tags?: string[]
-  status?: string
-  visibility?: string
-  price?: number
-  categoryId?: string
-  brandId?: string
-  supplierId?: string
-  sku?: string
-  createdAt: string
-  updatedAt: string
-  [key: string]: unknown
+  id: string;
+  type: string; // Entity type (e.g., "product", "supplier")
+  title: string;
+  description?: string;
+  tags?: string[];
+  status?: string;
+  visibility?: string;
+  price?: number;
+  categoryId?: string;
+  brandId?: string;
+  supplierId?: string;
+  sku?: string;
+  createdAt: string;
+  updatedAt: string;
+  [key: string]: unknown;
 }
 ```
 
@@ -48,12 +48,12 @@ interface SearchDocument {
 
 ```typescript
 interface SearchQuery {
-  query: string
-  filters?: Record<string, unknown>
-  page?: number
-  limit?: number
-  sort?: string
-  order?: SortOrder
+  query: string;
+  filters?: Record<string, unknown>;
+  page?: number;
+  limit?: number;
+  sort?: string;
+  order?: SortOrder;
 }
 ```
 
@@ -63,12 +63,12 @@ interface SearchQuery {
 
 ```typescript
 interface SearchResult<T> {
-  items: T[]
-  totalCount: number
-  page: number
-  limit: number
-  totalPages: number
-  suggestions?: string[]
+  items: T[];
+  totalCount: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  suggestions?: string[];
 }
 ```
 
@@ -78,12 +78,12 @@ interface SearchResult<T> {
 
 The contract supports multiple search providers:
 
-| Provider | Status | Use Case |
-|----------|--------|----------|
-| MongoDB Text Index | ✅ Ready | Simple search, small datasets |
-| MongoDB Atlas Search | ⏳ Planned | Full-text, faceted search |
-| Meilisearch | 🔮 Future | High-performance typo-tolerant search |
-| Algolia | 🔮 Future | Managed search-as-a-service |
+| Provider             | Status     | Use Case                              |
+| -------------------- | ---------- | ------------------------------------- |
+| MongoDB Text Index   | ✅ Ready   | Simple search, small datasets         |
+| MongoDB Atlas Search | ⏳ Planned | Full-text, faceted search             |
+| Meilisearch          | 🔮 Future  | High-performance typo-tolerant search |
+| Algolia              | 🔮 Future  | Managed search-as-a-service           |
 
 Switching providers requires implementing `SearchEngineContract` — no changes to services or actions.
 

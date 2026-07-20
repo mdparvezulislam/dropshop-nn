@@ -62,10 +62,10 @@ This engine covers:
 
 ## Dependencies
 
-| Dependency | Purpose |
-|-----------|---------|
-| `@/features/catalog` | Product references |
-| `@/shared/lib/event-bus` | Event publishing |
-| `@/shared/core` | BaseService, permissions, settings |
-| `@/shared/utils` | Logger, validation |
-| `@/shared/errors` | Error hierarchy |
+| Dependency               | Purpose                            |
+| ------------------------ | ---------------------------------- |
+| `@/features/catalog`     | Product references                 |
+| `@/shared/lib/event-bus` | Event publishing                   |
+| `@/shared/core`          | BaseService, permissions, settings |
+| `@/shared/utils`         | Logger, validation                 |
+| `@/shared/errors`        | Error hierarchy                    |

@@ -1,6 +1,7 @@
 # Checkout API Boundaries
 
 ## Module Dependency Map
+
 ```
 Checkout
     │
@@ -21,18 +22,20 @@ Checkout
 ```
 
 ## What Checkout MUST NOT Do
-| Prohibited Action | Reason |
-|---|---|
-| Write to ProductPricing | Pricing Engine ownership |
-| Write to ProductInventory | Inventory Engine ownership |
-| Create final Orders | Order Engine ownership |
-| Process payments | Payment Engine ownership |
-| Access wallet/finance | Wallet/Finance Engine ownership |
-| Compute prices locally | Must route through Pricing Engine |
-| Validate stock locally | Must route through Inventory Engine |
-| Trust frontend price/stock | Security violation |
+
+| Prohibited Action          | Reason                              |
+| -------------------------- | ----------------------------------- |
+| Write to ProductPricing    | Pricing Engine ownership            |
+| Write to ProductInventory  | Inventory Engine ownership          |
+| Create final Orders        | Order Engine ownership              |
+| Process payments           | Payment Engine ownership            |
+| Access wallet/finance      | Wallet/Finance Engine ownership     |
+| Compute prices locally     | Must route through Pricing Engine   |
+| Validate stock locally     | Must route through Inventory Engine |
+| Trust frontend price/stock | Security violation                  |
 
 ## Boundary Verification Checklist
+
 - [ ] No direct import of Pricing Mongoose model
 - [ ] No direct import of Inventory Mongoose model
 - [ ] No direct import of Order Mongoose model

@@ -87,8 +87,14 @@ export function registerOrderFeatureFlags(): void {
     { eventType: "order.returned", description: "Items were returned" },
     { eventType: "order.refunded", description: "Refund was processed" },
     { eventType: "order.failed", description: "Order processing failed at some step" },
-    { eventType: "order.inventory_reserved", description: "Inventory was released or committed for order" },
-    { eventType: "order.timeline_entry_added", description: "A timeline entry was added to an order" },
+    {
+      eventType: "order.inventory_reserved",
+      description: "Inventory was released or committed for order",
+    },
+    {
+      eventType: "order.timeline_entry_added",
+      description: "A timeline entry was added to an order",
+    },
   ];
 
   for (const ev of orderEvents) {
@@ -113,5 +119,110 @@ export function registerOrderFeatureFlags(): void {
     } catch {
       // Already registered
     }
+  }
+
+  try {
+    EventRegistry.registerSyncSubscriber("checkout.order_draft_created", {
+      eventType: "checkout.order_draft_created",
+      priority: 10,
+      handle: async (event) => {
+        const { draftId, checkoutId, cartId, type } = event.data;
+        const { OrderService } = await import("./services/order-service");
+        const { CheckoutSessionRepository, OrderDraftRepository } =
+          await import("@/features/checkout/repositories/checkout-repository");
+
+        const checkoutRepo = new CheckoutSessionRepository();
+        const draftRepo = new OrderDraftRepository();
+
+        const checkout = await checkoutRepo.findById(checkoutId as string);
+        const draft = await draftRepo.findById(draftId as string);
+
+        if (!checkout || !draft) {
+          return;
+        }
+
+        const orderService = new OrderService();
+        const itemsMapped = await Promise.all(
+          draft.resolvedPrices.map(async (priceItem) => {
+            let productName = "Product Item";
+            const unitCostBasis = Math.floor(priceItem.unitPrice * 0.7); // default 70% cost basis
+
+            try {
+              const { ProductRepository } =
+                await import("@/features/product/repositories/product-repository");
+              const productRepo = new ProductRepository();
+              const p = await productRepo.findById(priceItem.productId);
+              if (p) {
+                productName = p.name;
+              }
+            } catch {
+              // fallback
+            }
+
+            const totalSellingPrice = priceItem.totalPrice;
+            const totalCostBasis = unitCostBasis * priceItem.quantity;
+            const totalProfit = totalSellingPrice - totalCostBasis;
+            const marginPercent =
+              totalSellingPrice > 0 ? (totalProfit / totalSellingPrice) * 100 : 0;
+
+            return {
+              productId: priceItem.productId,
+              variantSku: priceItem.variantSku || "SKU-DEFAULT",
+              productName,
+              quantity: priceItem.quantity,
+              unitSellingPrice: priceItem.unitPrice,
+              unitWholesalePrice:
+                priceItem.pricingSource === "wholesale" ? priceItem.unitPrice : undefined,
+              unitCostBasis,
+              totalSellingPrice,
+              totalCostBasis,
+              totalProfit,
+              marginPercent,
+              currency: priceItem.currency,
+              pricingSource: priceItem.pricingSource,
+              campaignId: priceItem.campaignId || undefined,
+              appliedRules: priceItem.appliedRules || [],
+            };
+          }),
+        );
+
+        const subtotal = itemsMapped.reduce((acc, curr) => acc + curr.totalSellingPrice, 0);
+        const totalCostBasis = itemsMapped.reduce((acc, curr) => acc + curr.totalCostBasis, 0);
+        const totalProfit = subtotal - totalCostBasis;
+
+        await orderService.createFromDraft({
+          draftId: draftId as string,
+          checkoutId: checkoutId as string,
+          cartId: cartId as string,
+          orderNumber:
+            "ORD-" + Date.now().toString().slice(-6) + Math.floor(Math.random() * 100).toString(),
+          type: type as any,
+          customer: {
+            customerId: checkout.createdBy || undefined,
+            name: checkout.shipping?.receiverName || "Guest Customer",
+            phone: checkout.shipping?.phone || "+8801700000000",
+            email: undefined,
+          },
+          shipping: checkout.shipping as any,
+          pricing: {
+            items: itemsMapped,
+            subtotal,
+            discountTotal: checkout.totals?.discountTotal ?? 0,
+            taxTotal: checkout.totals?.taxTotal ?? 0,
+            grandTotal: checkout.totals?.grandTotal ?? subtotal,
+            currency: checkout.totals?.currency ?? "BDT",
+          },
+          profitPreview: {
+            totalCostBasis,
+            totalRevenue: subtotal,
+            totalProfit,
+            averageMargin: subtotal > 0 ? (totalProfit / subtotal) * 100 : 0,
+          },
+          autoConfirmed: false,
+        });
+      },
+    });
+  } catch (err) {
+    // Already registered
   }
 }

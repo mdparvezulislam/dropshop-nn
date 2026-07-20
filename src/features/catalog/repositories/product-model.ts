@@ -130,7 +130,12 @@ const productSchema = new Schema<ProductDocument>(
     shortDescription: { type: String, required: false },
     productModel: { type: String, required: false },
     brandId: { type: Schema.Types.ObjectId, ref: "CatalogBrand", required: false, index: true },
-    categoryId: { type: Schema.Types.ObjectId, ref: "CatalogCategory", required: false, index: true },
+    categoryId: {
+      type: Schema.Types.ObjectId,
+      ref: "CatalogCategory",
+      required: false,
+      index: true,
+    },
     supplierId: { type: Schema.Types.ObjectId, ref: "Supplier", required: false, index: true },
     status: {
       type: String,

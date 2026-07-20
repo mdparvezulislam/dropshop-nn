@@ -10,17 +10,17 @@ The base model defines the standard fields and behavior for every MongoDB collec
 
 Every collection automatically includes:
 
-| Field | Type | Required | Default | Description |
-|-------|------|----------|---------|-------------|
-| `id` | String | Auto | - | Virtual field mapped from `_id` |
-| `createdAt` | Date | Auto | - | Set by Mongoose timestamps |
-| `updatedAt` | Date | Auto | - | Set by Mongoose timestamps |
-| `createdBy` | String | No | - | Who created the record |
-| `updatedBy` | String | No | - | Who last updated the record |
-| `deletedAt` | Date | No | null | When soft-deleted |
-| `isDeleted` | Boolean | No | false | Soft delete flag |
-| `status` | String | No | "active" | Record status |
-| `metadata` | Mixed | No | - | Flexible metadata map |
+| Field       | Type    | Required | Default  | Description                     |
+| ----------- | ------- | -------- | -------- | ------------------------------- |
+| `id`        | String  | Auto     | -        | Virtual field mapped from `_id` |
+| `createdAt` | Date    | Auto     | -        | Set by Mongoose timestamps      |
+| `updatedAt` | Date    | Auto     | -        | Set by Mongoose timestamps      |
+| `createdBy` | String  | No       | -        | Who created the record          |
+| `updatedBy` | String  | No       | -        | Who last updated the record     |
+| `deletedAt` | Date    | No       | null     | When soft-deleted               |
+| `isDeleted` | Boolean | No       | false    | Soft delete flag                |
+| `status`    | String  | No       | "active" | Record status                   |
+| `metadata`  | Mixed   | No       | -        | Flexible metadata map           |
 
 ---
 
@@ -49,8 +49,12 @@ Soft-deleted records are automatically excluded from queries via the `softDelete
 Every Mongoose model uses the base schema:
 
 ```typescript
-import { Schema } from "mongoose"
-import { baseFieldsDefinition, baseSchemaOptions, softDeletePlugin } from "@/shared/lib/database/base-schema"
+import { Schema } from "mongoose";
+import {
+  baseFieldsDefinition,
+  baseSchemaOptions,
+  softDeletePlugin,
+} from "@/shared/lib/database/base-schema";
 
 const mySchema = new Schema(
   {
@@ -59,7 +63,7 @@ const mySchema = new Schema(
     ...baseFieldsDefinition,
   },
   baseSchemaOptions,
-)
+);
 
-softDeletePlugin(mySchema)
+softDeletePlugin(mySchema);
 ```

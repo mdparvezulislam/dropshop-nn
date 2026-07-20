@@ -131,7 +131,7 @@ export class ApprovalService {
     profile: BusinessProfile,
     actor: ActorInfo,
   ): Promise<BusinessProfile | null> {
-    const { Settings } = require("@/shared/core/feature-flags");
+    const { Settings } = await import("@/shared/core/feature-flags");
 
     const settingKey = `identity.auto-approve-${profile.role}`;
     const autoApprove = Settings.get(settingKey);

@@ -60,15 +60,15 @@ This engine covers:
 
 ## Dependencies
 
-| Dependency | Purpose |
-|-----------|---------|
-| `auth` feature | User, Role, Permission entities and repositories |
-| `@/shared/lib/event-bus` | Event publishing for identity events |
-| `@/shared/core/base-service` | Service lifecycle hooks |
-| `@/shared/core/permissions` | Permission definitions |
-| `@/shared/core/feature-flags` | Feature flag checks |
-| `@/shared/utils` | Logger, hashing, validation utilities |
-| `@/shared/errors` | Error hierarchy |
+| Dependency                    | Purpose                                          |
+| ----------------------------- | ------------------------------------------------ |
+| `auth` feature                | User, Role, Permission entities and repositories |
+| `@/shared/lib/event-bus`      | Event publishing for identity events             |
+| `@/shared/core/base-service`  | Service lifecycle hooks                          |
+| `@/shared/core/permissions`   | Permission definitions                           |
+| `@/shared/core/feature-flags` | Feature flag checks                              |
+| `@/shared/utils`              | Logger, hashing, validation utilities            |
+| `@/shared/errors`             | Error hierarchy                                  |
 
 ## Automation Triggers
 

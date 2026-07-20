@@ -4,8 +4,15 @@ export type StockAvailability =
   "in_stock" | "low_stock" | "out_of_stock" | "pre_order" | "backorder" | "discontinued";
 
 export type StockOperationType =
-  "stock_in" | "stock_out" | "adjustment" | "reservation" | "release" | "transfer"
-  | "damage" | "return" | "sold";
+  | "stock_in"
+  | "stock_out"
+  | "adjustment"
+  | "reservation"
+  | "release"
+  | "transfer"
+  | "damage"
+  | "return"
+  | "sold";
 
 export type InventoryStatus = "active" | "inactive" | "frozen";
 

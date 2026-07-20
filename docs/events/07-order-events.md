@@ -14,37 +14,37 @@ Published when a new order is placed.
 
 ```typescript
 interface OrderCreatedPayload {
-  orderId: string
-  orderNumber: string
-  customerId: string
-  customerType: 'customer' | 'reseller' | 'wholesaler'
+  orderId: string;
+  orderNumber: string;
+  customerId: string;
+  customerType: "customer" | "reseller" | "wholesaler";
   items: {
-    productId: string
-    variantSku?: string
-    quantity: number
-    unitPrice: number
-    totalPrice: number
-  }[]
-  totalAmount: number
-  currency: string
-  paymentMethod: string
-  shippingAddress: object
-  channel: 'platform' | 'reseller_store' | 'wholesale'
-  createdAt: string
+    productId: string;
+    variantSku?: string;
+    quantity: number;
+    unitPrice: number;
+    totalPrice: number;
+  }[];
+  totalAmount: number;
+  currency: string;
+  paymentMethod: string;
+  shippingAddress: object;
+  channel: "platform" | "reseller_store" | "wholesale";
+  createdAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
-| InventoryReserveHandler | Reserve stock for order | inventory |
-| PricingSnapshotHandler | Record price snapshot | pricing |
-| ProfitCalcHandler | Compute order profit | analytics |
-| AnalyticsHandler | Track order creation | analytics |
-| NotificationHandler | Send confirmation | notifications |
-| ReportingHandler | Queue sales report | reporting |
-| DashboardHandler | Refresh orders widget | dashboard |
+| Subscriber              | Action                  | Queue         |
+| ----------------------- | ----------------------- | ------------- |
+| InventoryReserveHandler | Reserve stock for order | inventory     |
+| PricingSnapshotHandler  | Record price snapshot   | pricing       |
+| ProfitCalcHandler       | Compute order profit    | analytics     |
+| AnalyticsHandler        | Track order creation    | analytics     |
+| NotificationHandler     | Send confirmation       | notifications |
+| ReportingHandler        | Queue sales report      | reporting     |
+| DashboardHandler        | Refresh orders widget   | dashboard     |
 
 ### Validation
 
@@ -66,18 +66,18 @@ Published when payment is confirmed or order is manually confirmed.
 
 ```typescript
 interface OrderConfirmedPayload {
-  orderId: string
-  orderNumber: string
-  confirmedBy: string
-  confirmedAt: string
+  orderId: string;
+  orderNumber: string;
+  confirmedBy: string;
+  confirmedAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
-| AnalyticsHandler | Track confirmation | analytics |
+| Subscriber       | Action                | Queue     |
+| ---------------- | --------------------- | --------- |
+| AnalyticsHandler | Track confirmation    | analytics |
 | DashboardHandler | Refresh orders widget | dashboard |
 
 ---
@@ -90,23 +90,23 @@ Published when payment for the order is completed.
 
 ```typescript
 interface OrderPaidPayload {
-  orderId: string
-  orderNumber: string
-  paymentId: string
-  amount: number
-  currency: string
-  paymentMethod: string
-  paidAt: string
+  orderId: string;
+  orderNumber: string;
+  paymentId: string;
+  amount: number;
+  currency: string;
+  paymentMethod: string;
+  paidAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber              | Action                       | Queue     |
+| ----------------------- | ---------------------------- | --------- |
 | InventoryFulfillHandler | Update stock for fulfillment | inventory |
-| AnalyticsHandler | Track payment | analytics |
-| ReportingHandler | Queue financial report | reporting |
+| AnalyticsHandler        | Track payment                | analytics |
+| ReportingHandler        | Queue financial report       | reporting |
 
 ---
 
@@ -118,19 +118,19 @@ Published when the order items are packed and ready for shipping.
 
 ```typescript
 interface OrderPackedPayload {
-  orderId: string
-  orderNumber: string
-  packedBy: string
-  packedAt: string
-  packageCount: number
+  orderId: string;
+  orderNumber: string;
+  packedBy: string;
+  packedAt: string;
+  packageCount: number;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
-| AnalyticsHandler | Track packing | analytics |
+| Subscriber       | Action                | Queue     |
+| ---------------- | --------------------- | --------- |
+| AnalyticsHandler | Track packing         | analytics |
 | DashboardHandler | Refresh orders widget | dashboard |
 
 ---
@@ -143,23 +143,23 @@ Published when the order is dispatched to the courier.
 
 ```typescript
 interface OrderShippedPayload {
-  orderId: string
-  orderNumber: string
-  courierName: string
-  trackingNumber: string
-  shippedAt: string
-  estimatedDelivery?: string
-  shippedBy: string
+  orderId: string;
+  orderNumber: string;
+  courierName: string;
+  trackingNumber: string;
+  shippedAt: string;
+  estimatedDelivery?: string;
+  shippedBy: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber          | Action                     | Queue         |
+| ------------------- | -------------------------- | ------------- |
 | NotificationHandler | Send shipping notification | notifications |
-| AnalyticsHandler | Track shipment | analytics |
-| DashboardHandler | Refresh orders widget | dashboard |
+| AnalyticsHandler    | Track shipment             | analytics     |
+| DashboardHandler    | Refresh orders widget      | dashboard     |
 
 ---
 
@@ -171,22 +171,22 @@ Published when the order is marked as delivered.
 
 ```typescript
 interface OrderDeliveredPayload {
-  orderId: string
-  orderNumber: string
-  deliveredAt: string
-  confirmedBy: 'customer' | 'system' | 'courier'
-  signature?: string
+  orderId: string;
+  orderNumber: string;
+  deliveredAt: string;
+  confirmedBy: "customer" | "system" | "courier";
+  signature?: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
-| WalletReleaseHandler | Release payment to merchant | wallet |
-| AnalyticsHandler | Track delivery | analytics |
-| ReportingHandler | Queue fulfillment report | reporting |
-| NotificationHandler | Send delivery confirmation | notifications |
+| Subscriber           | Action                      | Queue         |
+| -------------------- | --------------------------- | ------------- |
+| WalletReleaseHandler | Release payment to merchant | wallet        |
+| AnalyticsHandler     | Track delivery              | analytics     |
+| ReportingHandler     | Queue fulfillment report    | reporting     |
+| NotificationHandler  | Send delivery confirmation  | notifications |
 
 ---
 
@@ -198,24 +198,24 @@ Published when an order is returned.
 
 ```typescript
 interface OrderReturnedPayload {
-  orderId: string
-  orderNumber: string
-  items: { productId: string; quantity: number }[]
-  returnReason: string
-  returnType: 'full' | 'partial'
-  refundAmount: number
-  authorizedBy: string
-  returnedAt: string
+  orderId: string;
+  orderNumber: string;
+  items: { productId: string; quantity: number }[];
+  returnReason: string;
+  returnType: "full" | "partial";
+  refundAmount: number;
+  authorizedBy: string;
+  returnedAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber             | Action                          | Queue     |
+| ---------------------- | ------------------------------- | --------- |
 | InventoryReturnHandler | Add returned stock to inventory | inventory |
-| AnalyticsHandler | Track return | analytics |
-| ReportingHandler | Queue returns report | reporting |
+| AnalyticsHandler       | Track return                    | analytics |
+| ReportingHandler       | Queue returns report            | reporting |
 
 ---
 
@@ -227,20 +227,20 @@ Published when an order is cancelled.
 
 ```typescript
 interface OrderCancelledPayload {
-  orderId: string
-  orderNumber: string
-  cancelledBy: string
-  reason: string
-  cancelledAt: string
-  stage: 'pending' | 'confirmed' | 'paid' | 'packed'
-  refundRequired: boolean
+  orderId: string;
+  orderNumber: string;
+  cancelledBy: string;
+  reason: string;
+  cancelledAt: string;
+  stage: "pending" | "confirmed" | "paid" | "packed";
+  refundRequired: boolean;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber              | Action                 | Queue     |
+| ----------------------- | ---------------------- | --------- |
 | InventoryReleaseHandler | Release reserved stock | inventory |
-| AnalyticsHandler | Track cancellation | analytics |
-| ReportingHandler | Queue update | reporting |
+| AnalyticsHandler        | Track cancellation     | analytics |
+| ReportingHandler        | Queue update           | reporting |

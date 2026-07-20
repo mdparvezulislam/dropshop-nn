@@ -1,6 +1,9 @@
 export { SupplierService } from "./services/supplier-service";
 export { StatisticsService } from "./services/statistics-service";
-export { SupplierRepository, SupplierProductMappingRepository } from "./repositories/supplier-repository";
+export {
+  SupplierRepository,
+  SupplierProductMappingRepository,
+} from "./repositories/supplier-repository";
 
 export { SupplierModel, SupplierProductMappingModel } from "./repositories/supplier-model";
 
@@ -41,9 +44,7 @@ export {
   type ProductMappingRemovedPayload,
 } from "./domain/supplier-events";
 
-export {
-  registerSupplierFeatureFlags,
-} from "./init";
+export { registerSupplierFeatureFlags } from "./init";
 
 export {
   createSupplierAction,

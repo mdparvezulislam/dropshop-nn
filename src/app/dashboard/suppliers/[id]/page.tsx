@@ -133,15 +133,15 @@ export default function SupplierDetailsPage(): React.ReactElement {
         </Link>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-3xl font-bold tracking-tight truncate">
-              {supplier.businessName}
-            </h1>
+            <h1 className="text-3xl font-bold tracking-tight truncate">{supplier.businessName}</h1>
             <Badge variant={getStatusVariant(supplier.status)}>{supplier.status}</Badge>
           </div>
           <div className="flex items-center gap-4 mt-1 text-sm text-slate-400 flex-wrap">
             <span>Code: {supplier.code}</span>
             {supplier.supplierCategory && (
-              <span className="capitalize">Category: {supplier.supplierCategory.replace(/_/g, " ")}</span>
+              <span className="capitalize">
+                Category: {supplier.supplierCategory.replace(/_/g, " ")}
+              </span>
             )}
             {supplier.performance?.performanceScore != null && (
               <span className="flex items-center gap-1">
@@ -339,9 +339,7 @@ export default function SupplierDetailsPage(): React.ReactElement {
               <CardContent className="space-y-4">
                 <div>
                   <span className="text-xs text-slate-400">Full Address</span>
-                  <p className="text-sm text-slate-200">
-                    {supplier.address?.fullAddress || "—"}
-                  </p>
+                  <p className="text-sm text-slate-200">{supplier.address?.fullAddress || "—"}</p>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
@@ -459,10 +457,7 @@ export default function SupplierDetailsPage(): React.ReactElement {
             {supplier.contacts && supplier.contacts.length > 0 ? (
               <div className="grid gap-4">
                 {supplier.contacts.map((contact: any, idx: number) => (
-                  <div
-                    key={idx}
-                    className="p-4 border border-slate-800 rounded-lg bg-slate-950/40"
-                  >
+                  <div key={idx} className="p-4 border border-slate-800 rounded-lg bg-slate-950/40">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-semibold text-white">{contact.name}</p>

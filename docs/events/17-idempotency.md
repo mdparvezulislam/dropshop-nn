@@ -12,12 +12,12 @@ Every event has a unique `eventId` (UUID v7). The event ID serves as the idempot
 
 ```typescript
 interface IdempotencyRecord {
-  eventId: string           // The idempotency key
-  subscriberName: string    // Which subscriber processed it
-  processedAt: Date         // When it was first processed
-  status: 'completed' | 'processing' | 'failed'
-  resultHash?: string       // Hash of the result (for verification)
-  expiresAt: Date           // TTL expiration
+  eventId: string; // The idempotency key
+  subscriberName: string; // Which subscriber processed it
+  processedAt: Date; // When it was first processed
+  status: "completed" | "processing" | "failed";
+  resultHash?: string; // Hash of the result (for verification)
+  expiresAt: Date; // TTL expiration
 }
 ```
 
@@ -55,60 +55,66 @@ Event Received by Subscriber
 
 ```typescript
 class IdempotencyStore {
-  private readonly prefix = 'dropshop:idempotency:'
-  private readonly defaultTTL = 60 * 60 * 24  // 24 hours
+  private readonly prefix = "dropshop:idempotency:";
+  private readonly defaultTTL = 60 * 60 * 24; // 24 hours
 
   async isProcessed(eventId: string, subscriber: string): Promise<boolean> {
-    const key = this.buildKey(eventId, subscriber)
-    const record = await redis.get(key)
-    if (!record) return false
+    const key = this.buildKey(eventId, subscriber);
+    const record = await redis.get(key);
+    if (!record) return false;
 
-    const parsed: IdempotencyRecord = JSON.parse(record)
-    return parsed.status === 'completed'
+    const parsed: IdempotencyRecord = JSON.parse(record);
+    return parsed.status === "completed";
   }
 
   async markProcessing(eventId: string, subscriber: string): Promise<boolean> {
-    const key = this.buildKey(eventId, subscriber)
-    const result = await redis.set(key, JSON.stringify({
-      eventId,
-      subscriberName: subscriber,
-      processedAt: new Date(),
-      status: 'processing',
-      expiresAt: new Date(Date.now() + this.defaultTTL * 1000),
-    }), 'NX', 'EX', this.defaultTTL)
+    const key = this.buildKey(eventId, subscriber);
+    const result = await redis.set(
+      key,
+      JSON.stringify({
+        eventId,
+        subscriberName: subscriber,
+        processedAt: new Date(),
+        status: "processing",
+        expiresAt: new Date(Date.now() + this.defaultTTL * 1000),
+      }),
+      "NX",
+      "EX",
+      this.defaultTTL,
+    );
 
-    return result === 'OK'
+    return result === "OK";
   }
 
   async markCompleted(eventId: string, subscriber: string, ttl?: number): Promise<void> {
-    const key = this.buildKey(eventId, subscriber)
+    const key = this.buildKey(eventId, subscriber);
     const record: IdempotencyRecord = {
       eventId,
       subscriberName: subscriber,
       processedAt: new Date(),
-      status: 'completed',
+      status: "completed",
       expiresAt: new Date(Date.now() + (ttl || this.defaultTTL) * 1000),
-    }
-    await redis.setex(key, ttl || this.defaultTTL, JSON.stringify(record))
+    };
+    await redis.setex(key, ttl || this.defaultTTL, JSON.stringify(record));
   }
 
   async markFailed(eventId: string, subscriber: string): Promise<void> {
-    const key = this.buildKey(eventId, subscriber)
-    const existing = await redis.get(key)
+    const key = this.buildKey(eventId, subscriber);
+    const existing = await redis.get(key);
     const record: IdempotencyRecord = existing
-      ? { ...JSON.parse(existing), status: 'failed' }
+      ? { ...JSON.parse(existing), status: "failed" }
       : {
           eventId,
           subscriberName: subscriber,
           processedAt: new Date(),
-          status: 'failed',
+          status: "failed",
           expiresAt: new Date(Date.now() + this.defaultTTL * 1000),
-        }
-    await redis.setex(key, this.defaultTTL, JSON.stringify(record))
+        };
+    await redis.setex(key, this.defaultTTL, JSON.stringify(record));
   }
 
   private buildKey(eventId: string, subscriber: string): string {
-    return `${this.prefix}${eventId}:${subscriber}`
+    return `${this.prefix}${eventId}:${subscriber}`;
   }
 }
 ```
@@ -134,14 +140,14 @@ IdempotencyKey {
 
 The idempotency window defines how long the system remembers processed events.
 
-| Event Type | Idempotency Window | Rationale |
-|-----------|-------------------|-----------|
-| order.created | 7 days | Prevent duplicate orders |
-| payment.completed | 7 days | Prevent double charges |
-| inventory.adjusted | 24 hours | Stock double-count prevention |
-| price.updated | 24 hours | Pricing consistency |
-| notification.sent | 1 hour | Prevent duplicate notifications |
-| analytics.event | 5 minutes | Acceptable dedup window |
+| Event Type         | Idempotency Window | Rationale                       |
+| ------------------ | ------------------ | ------------------------------- |
+| order.created      | 7 days             | Prevent duplicate orders        |
+| payment.completed  | 7 days             | Prevent double charges          |
+| inventory.adjusted | 24 hours           | Stock double-count prevention   |
+| price.updated      | 24 hours           | Pricing consistency             |
+| notification.sent  | 1 hour             | Prevent duplicate notifications |
+| analytics.event    | 5 minutes          | Acceptable dedup window         |
 
 ---
 
@@ -156,6 +162,7 @@ When two workers pick up the same event simultaneously:
 5. Worker B reads 'completed' → skips
 
 If Worker A crashes:
+
 - `markProcessing` set a TTL (e.g., 5 minutes)
 - After TTL expires, key is removed
 - BullMQ retries the job
@@ -167,45 +174,42 @@ If Worker A crashes:
 
 ```typescript
 class IdempotentSubscriber {
-  private readonly idempotencyStore = new IdempotencyStore()
-  private readonly subscriberName: string
+  private readonly idempotencyStore = new IdempotencyStore();
+  private readonly subscriberName: string;
 
   async handle(event: BusinessEvent): Promise<void> {
     // Check idempotency
     if (await this.idempotencyStore.isProcessed(event.eventId, this.subscriberName)) {
-      logger.debug('Skipping already processed event', {
+      logger.debug("Skipping already processed event", {
         eventId: event.eventId,
         subscriber: this.subscriberName,
-      })
-      return
+      });
+      return;
     }
 
     // Mark as processing (atomic)
-    const acquired = await this.idempotencyStore.markProcessing(
-      event.eventId,
-      this.subscriberName,
-    )
+    const acquired = await this.idempotencyStore.markProcessing(event.eventId, this.subscriberName);
     if (!acquired) {
       // Another worker is processing — wait and retry
-      await this.delay(500)
-      return this.handle(event)
+      await this.delay(500);
+      return this.handle(event);
     }
 
     try {
       // Execute business logic
-      await this.processEvent(event)
+      await this.processEvent(event);
 
       // Mark as completed
-      await this.idempotencyStore.markCompleted(event.eventId, this.subscriberName)
+      await this.idempotencyStore.markCompleted(event.eventId, this.subscriberName);
     } catch (error) {
       // Mark as failed (allows retry)
-      await this.idempotencyStore.markFailed(event.eventId, this.subscriberName)
-      throw error
+      await this.idempotencyStore.markFailed(event.eventId, this.subscriberName);
+      throw error;
     }
   }
 
   protected async processEvent(event: BusinessEvent): Promise<void> {
-    throw new Error('Subclasses must implement processEvent')
+    throw new Error("Subclasses must implement processEvent");
   }
 }
 ```

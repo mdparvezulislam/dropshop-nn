@@ -67,27 +67,32 @@ Flow: Super Admin → Invite → Email → Accept → Profile Complete → Activ
 ## Shared Registration Logic
 
 ### Password Rules
+
 - Minimum 8 characters
 - At least 1 uppercase, 1 lowercase, 1 number
 - Hashed with bcrypt (10 salt rounds)
 
 ### Unique Constraints
+
 - Email must be unique across platform
 - Phone must be unique across platform
 - Username must be unique (if applicable)
 
 ### Verification Token
+
 - Generated on registration
 - Stored hashed in database
 - 24-hour expiry
 - Single use
 
 ### Duplicate Detection
+
 All registration flows check for existing email/phone before creating:
+
 ```typescript
 const [existingEmail, existingPhone] = await Promise.all([
   userRepo.findByEmail(email),
   userRepo.findByPhone(phone),
-])
-if (existingEmail || existingPhone) throw ValidationError
+]);
+if (existingEmail || existingPhone) throw ValidationError;
 ```

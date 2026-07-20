@@ -2,10 +2,7 @@
 
 import { auth } from "@/shared/lib/auth";
 import { BusinessProfileService } from "../services/business-profile-service";
-import {
-  createBusinessProfileSchema,
-  updateBusinessProfileSchema,
-} from "../types/validation";
+import { createBusinessProfileSchema, updateBusinessProfileSchema } from "../types/validation";
 import { ForbiddenError, UnauthorizedError } from "@/shared/errors/app-error";
 import { logger } from "@/shared/utils/logger";
 import { revalidatePath } from "next/cache";

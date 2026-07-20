@@ -3,15 +3,18 @@ import type { CurrencyCode } from "./types";
 export type SupportedLocale = "en" | "bn";
 export type SupportedTimezone = "Asia/Dhaka" | "UTC";
 
-const LOCALE_CONFIG: Record<SupportedLocale, {
-  name: string;
-  nativeName: string;
-  dateFormat: string;
-  timeFormat: string;
-  currencyFormat: (amount: number, currency: CurrencyCode) => string;
-  numberFormat: (value: number) => string;
-  dir: "ltr" | "rtl";
-}> = {
+const LOCALE_CONFIG: Record<
+  SupportedLocale,
+  {
+    name: string;
+    nativeName: string;
+    dateFormat: string;
+    timeFormat: string;
+    currencyFormat: (amount: number, currency: CurrencyCode) => string;
+    numberFormat: (value: number) => string;
+    dir: "ltr" | "rtl";
+  }
+> = {
   en: {
     name: "English",
     nativeName: "English",
@@ -58,7 +61,11 @@ function toBanglaNumber(value: number): string {
 }
 
 export class Localization {
-  static formatCurrency(amount: number, currency: CurrencyCode = "BDT", locale: SupportedLocale = "en"): string {
+  static formatCurrency(
+    amount: number,
+    currency: CurrencyCode = "BDT",
+    locale: SupportedLocale = "en",
+  ): string {
     const config = LOCALE_CONFIG[locale] ?? LOCALE_CONFIG.en;
     return config.currencyFormat(amount, currency);
   }
@@ -74,7 +81,20 @@ export class Localization {
 
     const months: Record<SupportedLocale, string[]> = {
       en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-      bn: ["জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন", "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"],
+      bn: [
+        "জানুয়ারি",
+        "ফেব্রুয়ারি",
+        "মার্চ",
+        "এপ্রিল",
+        "মে",
+        "জুন",
+        "জুলাই",
+        "আগস্ট",
+        "সেপ্টেম্বর",
+        "অক্টোবর",
+        "নভেম্বর",
+        "ডিসেম্বর",
+      ],
     };
 
     const month = months[locale][d.getMonth()];
@@ -88,7 +108,11 @@ export class Localization {
     return `${month} ${day}, ${year}`;
   }
 
-  static formatDateTime(date: Date | string, locale: SupportedLocale = "en", timezone?: SupportedTimezone): string {
+  static formatDateTime(
+    date: Date | string,
+    locale: SupportedLocale = "en",
+    timezone?: SupportedTimezone,
+  ): string {
     const d = typeof date === "string" ? new Date(date) : date;
     const dateStr = this.formatDate(d, locale);
     const hours = d.getHours();
@@ -106,7 +130,7 @@ export class Localization {
     return `${dateStr} ${displayHours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")} ${ampm}`;
   }
 
-  static getLocaleConfig(locale: SupportedLocale): typeof LOCALE_CONFIG[SupportedLocale] {
+  static getLocaleConfig(locale: SupportedLocale): (typeof LOCALE_CONFIG)[SupportedLocale] {
     return LOCALE_CONFIG[locale] ?? LOCALE_CONFIG.en;
   }
 
@@ -116,7 +140,14 @@ export class Localization {
 }
 
 export const BD_DIVISIONS = [
-  "Barisal", "Chittagong", "Dhaka", "Khulna", "Mymensingh", "Rajshahi", "Rangpur", "Sylhet",
+  "Barisal",
+  "Chittagong",
+  "Dhaka",
+  "Khulna",
+  "Mymensingh",
+  "Rajshahi",
+  "Rangpur",
+  "Sylhet",
 ] as const;
 
 export const BD_MOBILE_REGEX = /^(\+?880|0)1[3-9]\d{8}$/;

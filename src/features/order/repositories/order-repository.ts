@@ -1,6 +1,16 @@
 import { BaseRepository } from "@/shared/lib/database/generic-repository";
 import { OrderModel } from "./order-model";
-import type { Order, OrderTimelineEntry, OrderItem, CustomerSnapshot, ShippingSnapshot, OrderPricingSnapshot, OrderProfitPreview, OrderShippingInfo, SupplierReference } from "../domain/order-entity";
+import type {
+  Order,
+  OrderTimelineEntry,
+  OrderItem,
+  CustomerSnapshot,
+  ShippingSnapshot,
+  OrderPricingSnapshot,
+  OrderProfitPreview,
+  OrderShippingInfo,
+  SupplierReference,
+} from "../domain/order-entity";
 import type { OrderStatus } from "../domain/state-machine";
 import type { BaseDocument } from "@/shared/lib/database/types";
 import type { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
@@ -143,9 +153,7 @@ export class OrderRepository extends BaseRepository<OrderDocument, Order> {
   }
 
   async countByStatus(): Promise<Record<string, number>> {
-    const pipeline = [
-      { $group: { _id: "$status", count: { $sum: 1 } } },
-    ];
+    const pipeline = [{ $group: { _id: "$status", count: { $sum: 1 } } }];
     const results = await OrderModel.aggregate(pipeline);
     const counts: Record<string, number> = {};
     for (const r of results) {

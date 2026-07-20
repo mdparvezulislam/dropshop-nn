@@ -63,16 +63,16 @@ This is the foundation for the Automation Engine, Analytics Engine, Notification
 
 ## Key Concepts
 
-| Concept | Description |
-|---------|-------------|
-| **Event** | A typed message representing a business occurrence |
-| **Publisher** | The service/action that emits the event |
-| **Subscriber** | A handler that processes the event |
-| **Event Bus** | Central dispatcher routing events to subscribers |
-| **Event Registry** | Maps event types to their subscribers |
-| **Correlation ID** | Traces a request across multiple events |
-| **Causation ID** | Links a child event to its parent event |
-| **Idempotency Key** | Prevents duplicate processing |
+| Concept             | Description                                        |
+| ------------------- | -------------------------------------------------- |
+| **Event**           | A typed message representing a business occurrence |
+| **Publisher**       | The service/action that emits the event            |
+| **Subscriber**      | A handler that processes the event                 |
+| **Event Bus**       | Central dispatcher routing events to subscribers   |
+| **Event Registry**  | Maps event types to their subscribers              |
+| **Correlation ID**  | Traces a request across multiple events            |
+| **Causation ID**    | Links a child event to its parent event            |
+| **Idempotency Key** | Prevents duplicate processing                      |
 
 ---
 
@@ -113,14 +113,14 @@ This is the foundation for the Automation Engine, Analytics Engine, Notification
 
 ## Synchronous vs Asynchronous
 
-| Aspect | Synchronous | Asynchronous |
-|--------|-------------|--------------|
-| Execution | In-process, same request | BullMQ worker |
-| Blocking | Blocks publisher | Non-blocking |
-| Use Case | Audit, Timeline, Cache invalidation | Automation, Analytics, Notifications |
-| Reliability | Fails with publisher | Retry + DLQ |
-| Ordering | Guaranteed in-order | Best-effort order |
-| Performance Impact | Adds latency | Zero latency impact |
+| Aspect             | Synchronous                         | Asynchronous                         |
+| ------------------ | ----------------------------------- | ------------------------------------ |
+| Execution          | In-process, same request            | BullMQ worker                        |
+| Blocking           | Blocks publisher                    | Non-blocking                         |
+| Use Case           | Audit, Timeline, Cache invalidation | Automation, Analytics, Notifications |
+| Reliability        | Fails with publisher                | Retry + DLQ                          |
+| Ordering           | Guaranteed in-order                 | Best-effort order                    |
+| Performance Impact | Adds latency                        | Zero latency impact                  |
 
 ---
 
@@ -135,6 +135,7 @@ This is the foundation for the Automation Engine, Analytics Engine, Notification
 - **Past tense**: Past tense verb
 
 Examples:
+
 - `product.created`
 - `pricing.updated`
 - `inventory.stock_decreased`

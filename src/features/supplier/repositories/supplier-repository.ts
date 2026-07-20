@@ -153,10 +153,7 @@ export class SupplierRepository extends BaseRepository<SupplierDocumentType, Sup
     }
   }
 
-  async searchSuppliers(
-    query: string,
-    options?: DatabaseQueryOptions,
-  ): Promise<Supplier[]> {
+  async searchSuppliers(query: string, options?: DatabaseQueryOptions): Promise<Supplier[]> {
     try {
       const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       return this.find(
@@ -197,9 +194,7 @@ export class SupplierProductMappingRepository extends BaseRepository<
     super(SupplierProductMappingModel, SupplierProductMappingRepository.mapToDomain);
   }
 
-  private static mapToDomain(
-    doc: SupplierProductMappingDocumentType,
-  ): SupplierProductMapping {
+  private static mapToDomain(doc: SupplierProductMappingDocumentType): SupplierProductMapping {
     return {
       id: doc._id.toString(),
       supplierId: doc.supplierId.toString(),

@@ -6,6 +6,7 @@ import { Topbar } from "@/shared/components/workspace/topbar";
 import { CommandPalette } from "@/shared/components/workspace/command-palette";
 import { cn } from "@/shared/utils/cn";
 import { Toaster } from "sonner";
+import { SessionProvider } from "next-auth/react";
 
 export default function DashboardLayout({
   children,
@@ -39,32 +40,34 @@ export default function DashboardLayout({
   }, [collapsed]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground ws-grain">
-      <Sidebar
-        collapsed={collapsed}
-        onToggle={() => setCollapsed((c) => !c)}
-        mobileOpen={mobileOpen}
-        onMobileClose={() => setMobileOpen(false)}
-      />
-      <div
-        className={cn(
-          "flex min-h-screen flex-col transition-[padding] duration-200 ease-out",
-          "lg:pl-[var(--sidebar-current)]",
-        )}
-      >
-        <Topbar
+    <SessionProvider>
+      <div className="min-h-screen bg-background text-foreground ws-grain">
+        <Sidebar
           collapsed={collapsed}
-          onMenuClick={() => setMobileOpen(true)}
-          onCommandOpen={() => setCommandOpen(true)}
+          onToggle={() => setCollapsed((c) => !c)}
+          mobileOpen={mobileOpen}
+          onMobileClose={() => setMobileOpen(false)}
         />
-        <main className="flex-1">
-          <div className="mx-auto w-full max-w-[var(--content-max)] px-4 py-5 sm:px-6 lg:px-8">
-            {children}
-          </div>
-        </main>
+        <div
+          className={cn(
+            "flex min-h-screen flex-col transition-[padding] duration-200 ease-out",
+            "lg:pl-[var(--sidebar-current)]",
+          )}
+        >
+          <Topbar
+            collapsed={collapsed}
+            onMenuClick={() => setMobileOpen(true)}
+            onCommandOpen={() => setCommandOpen(true)}
+          />
+          <main className="flex-1">
+            <div className="mx-auto w-full max-w-[var(--content-max)] px-4 py-5 sm:px-6 lg:px-8">
+              {children}
+            </div>
+          </main>
+        </div>
+        <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
+        <Toaster theme="dark" position="top-right" richColors closeButton />
       </div>
-      <CommandPalette open={commandOpen} onOpenChange={setCommandOpen} />
-      <Toaster theme="dark" position="top-right" richColors closeButton />
-    </div>
+    </SessionProvider>
   );
 }

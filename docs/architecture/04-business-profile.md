@@ -10,67 +10,67 @@ Every reseller, wholesaler, and supplier owns a business profile. The business p
 
 ### Core Fields
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `businessName` | String | Yes | Registered business name |
-| `ownerName` | String | Yes | Legal owner name |
-| `phone` | String | Yes | Primary contact number (BD format) |
-| `email` | String | Yes | Business email address |
-| `logo` | String | No | Business logo URL (ImageKit) |
-| `banner` | String | No | Business banner URL (ImageKit) |
-| `description` | String | No | Business description |
-| `website` | String | No | Business website URL |
-| `businessType` | Enum | Yes | sole_proprietorship / partnership / limited_company / individual |
+| Field          | Type   | Required | Description                                                      |
+| -------------- | ------ | -------- | ---------------------------------------------------------------- |
+| `businessName` | String | Yes      | Registered business name                                         |
+| `ownerName`    | String | Yes      | Legal owner name                                                 |
+| `phone`        | String | Yes      | Primary contact number (BD format)                               |
+| `email`        | String | Yes      | Business email address                                           |
+| `logo`         | String | No       | Business logo URL (ImageKit)                                     |
+| `banner`       | String | No       | Business banner URL (ImageKit)                                   |
+| `description`  | String | No       | Business description                                             |
+| `website`      | String | No       | Business website URL                                             |
+| `businessType` | Enum   | Yes      | sole_proprietorship / partnership / limited_company / individual |
 
 ### Bangladesh Address
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `division` | String | Yes | Division (e.g., Dhaka, Chittagong) |
-| `district` | String | Yes | District |
-| `upazila` | String | Yes | Upazila/Thana |
-| `area` | String | No | Area/Locality |
-| `postalCode` | String | No | Postal code |
-| `fullAddress` | String | Yes | Full street address |
-| `country` | String | Yes | Default: "Bangladesh" |
+| Field         | Type   | Required | Description                        |
+| ------------- | ------ | -------- | ---------------------------------- |
+| `division`    | String | Yes      | Division (e.g., Dhaka, Chittagong) |
+| `district`    | String | Yes      | District                           |
+| `upazila`     | String | Yes      | Upazila/Thana                      |
+| `area`        | String | No       | Area/Locality                      |
+| `postalCode`  | String | No       | Postal code                        |
+| `fullAddress` | String | Yes      | Full street address                |
+| `country`     | String | Yes      | Default: "Bangladesh"              |
 
 ### Social Presence
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `facebook` | String | Facebook page URL |
-| `instagram` | String | Instagram profile URL |
-| `youtube` | String | YouTube channel URL |
-| `whatsapp` | String | WhatsApp business number |
-| `telegram` | String | Telegram username/group |
+| Field       | Type   | Description              |
+| ----------- | ------ | ------------------------ |
+| `facebook`  | String | Facebook page URL        |
+| `instagram` | String | Instagram profile URL    |
+| `youtube`   | String | YouTube channel URL      |
+| `whatsapp`  | String | WhatsApp business number |
+| `telegram`  | String | Telegram username/group  |
 
 ### Business Documents
 
-| Document | Required For | Description |
-|----------|-------------|-------------|
-| `nidNumber` | Reseller, Wholesaler | National ID number |
-| `nidVerified` | - | NID verification status |
-| `tradeLicenseNumber` | Reseller, Wholesaler | Trade license number |
-| `tradeLicenseVerified` | - | License verification status |
-| `tinNumber` | Supplier | TIN/BIN number |
-| `bankAccountName` | Supplier | Bank account holder name |
-| `bankAccountNumber` | Supplier | Bank account number |
-| `bankName` | Supplier | Bank name |
-| `bankBranch` | Supplier | Bank branch |
-| `bkashNumber` | Optional | bKash merchant number |
-| `nagadNumber` | Optional | Nagad merchant number |
+| Document               | Required For         | Description                 |
+| ---------------------- | -------------------- | --------------------------- |
+| `nidNumber`            | Reseller, Wholesaler | National ID number          |
+| `nidVerified`          | -                    | NID verification status     |
+| `tradeLicenseNumber`   | Reseller, Wholesaler | Trade license number        |
+| `tradeLicenseVerified` | -                    | License verification status |
+| `tinNumber`            | Supplier             | TIN/BIN number              |
+| `bankAccountName`      | Supplier             | Bank account holder name    |
+| `bankAccountNumber`    | Supplier             | Bank account number         |
+| `bankName`             | Supplier             | Bank name                   |
+| `bankBranch`           | Supplier             | Bank branch                 |
+| `bkashNumber`          | Optional             | bKash merchant number       |
+| `nagadNumber`          | Optional             | Nagad merchant number       |
 
 ### Verification & Status
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `verificationStatus` | Enum | unverified / pending / verified / rejected |
-| `verificationNotes` | String | Admin notes on verification |
-| `verifiedAt` | Date | When verification completed |
-| `verifiedBy` | ObjectId | Who verified |
-| `status` | Enum | pending / active / suspended / blocked / archived |
-| `statusReason` | String | Reason for current status |
-| `suspendedAt` | Date | When suspended |
+| Field                | Type     | Description                                       |
+| -------------------- | -------- | ------------------------------------------------- |
+| `verificationStatus` | Enum     | unverified / pending / verified / rejected        |
+| `verificationNotes`  | String   | Admin notes on verification                       |
+| `verifiedAt`         | Date     | When verification completed                       |
+| `verifiedBy`         | ObjectId | Who verified                                      |
+| `status`             | Enum     | pending / active / suspended / blocked / archived |
+| `statusReason`       | String   | Reason for current status                         |
+| `suspendedAt`        | Date     | When suspended                                    |
 
 ---
 

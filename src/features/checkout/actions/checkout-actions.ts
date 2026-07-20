@@ -70,12 +70,21 @@ export async function addCartItemAction(formData: unknown): Promise<{
         });
 
     const cartId = cart!.id;
-    const result = await service.addItem(cartId, {
-      productId: validated.productId,
-      variantSku: validated.variantSku,
-      quantity: validated.quantity,
-      role: validated.type === "reseller" ? "reseller" : validated.type === "wholesaler" ? "wholesale" : "retail",
-    }, validated.type as any);
+    const result = await service.addItem(
+      cartId,
+      {
+        productId: validated.productId,
+        variantSku: validated.variantSku,
+        quantity: validated.quantity,
+        role:
+          validated.type === "reseller"
+            ? "reseller"
+            : validated.type === "wholesaler"
+              ? "wholesale"
+              : "retail",
+      },
+      validated.type as any,
+    );
 
     revalidatePath("/dashboard/checkout");
     return { success: true, data: result };
@@ -93,7 +102,11 @@ export async function updateCartItemAction(formData: unknown): Promise<{
   try {
     const validated = updateCartItemSchema.parse(formData);
     const service = new CartService();
-    const result = await service.updateItemQuantity(validated.cartId, validated.itemIndex, validated.quantity);
+    const result = await service.updateItemQuantity(
+      validated.cartId,
+      validated.itemIndex,
+      validated.quantity,
+    );
     revalidatePath("/dashboard/checkout");
     return { success: true, data: result };
   } catch (error: any) {
@@ -241,10 +254,16 @@ export async function listCheckoutsAction(query: unknown): Promise<{
     if (validated.type) filter.type = validated.type;
 
     const service = new CheckoutService();
-    const result = await service.listCheckouts(filter, {
-      page: validated.page,
-      limit: validated.limit,
-    }, validated.sortBy ? { sortBy: validated.sortBy, sortOrder: validated.sortOrder } : { sortBy: "createdAt", sortOrder: "desc" });
+    const result = await service.listCheckouts(
+      filter,
+      {
+        page: validated.page,
+        limit: validated.limit,
+      },
+      validated.sortBy
+        ? { sortBy: validated.sortBy, sortOrder: validated.sortOrder }
+        : { sortBy: "createdAt", sortOrder: "desc" },
+    );
     return { success: true, data: result };
   } catch (error: any) {
     logger.error("listCheckoutsAction failed", error);

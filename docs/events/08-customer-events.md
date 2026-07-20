@@ -14,23 +14,23 @@ Published when a new customer registers on the platform.
 
 ```typescript
 interface CustomerRegisteredPayload {
-  customerId: string
-  email: string
-  name: string
-  phone?: string
-  registrationMethod: 'self' | 'social' | 'admin'
-  referralSource?: string
-  registeredAt: string
+  customerId: string;
+  email: string;
+  name: string;
+  phone?: string;
+  registrationMethod: "self" | "social" | "admin";
+  referralSource?: string;
+  registeredAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber       | Action                     | Queue     |
+| ---------------- | -------------------------- | --------- |
 | AnalyticsHandler | Track customer acquisition | analytics |
-| DashboardHandler | Refresh customer widget | dashboard |
-| AuditHandler | Record audit entry | audit |
+| DashboardHandler | Refresh customer widget    | dashboard |
+| AuditHandler     | Record audit entry         | audit     |
 
 ### Validation
 
@@ -51,19 +51,19 @@ Published when a customer's email or identity is verified.
 
 ```typescript
 interface CustomerVerifiedPayload {
-  customerId: string
-  email: string
-  verificationType: 'email' | 'phone' | 'identity'
-  verifiedAt: string
+  customerId: string;
+  email: string;
+  verificationType: "email" | "phone" | "identity";
+  verifiedAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber          | Action                    | Queue         |
+| ------------------- | ------------------------- | ------------- |
 | NotificationHandler | Send welcome notification | notifications |
-| AnalyticsHandler | Track verification | analytics |
+| AnalyticsHandler    | Track verification        | analytics     |
 
 ---
 
@@ -75,18 +75,18 @@ Published when a customer updates their profile information.
 
 ```typescript
 interface CustomerProfileUpdatedPayload {
-  customerId: string
+  customerId: string;
   changes: {
-    field: string
-    oldValue: unknown
-    newValue: unknown
-  }[]
-  updatedAt: string
+    field: string;
+    oldValue: unknown;
+    newValue: unknown;
+  }[];
+  updatedAt: string;
 }
 ```
 
 ### Subscribers
 
-| Subscriber | Action | Queue |
-|-----------|--------|-------|
+| Subscriber       | Action               | Queue     |
+| ---------------- | -------------------- | --------- |
 | AnalyticsHandler | Track profile update | analytics |
