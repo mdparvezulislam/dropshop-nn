@@ -18,9 +18,9 @@ import type { WorkspaceDefinition } from "@/shared/platform/platform-types";
 
 const DEFAULT_WORKSPACES: WorkspaceDefinition[] = [
   { id: "admin", label: "Admin", description: "Full platform control", icon: "admin", roles: ["super_admin", "admin", "manager"], href: "/dashboard" },
-  { id: "reseller", label: "Reseller", description: "Private catalog & orders", icon: "reseller", roles: ["reseller"], href: "/dashboard" },
-  { id: "wholesaler", label: "Wholesaler", description: "Wholesale pricing & MOQ", icon: "wholesaler", roles: ["wholesaler"], href: "/dashboard" },
-  { id: "supplier", label: "Supplier", description: "Product & inventory access", icon: "supplier", roles: ["supplier"], href: "/dashboard" },
+  { id: "reseller", label: "Reseller", description: "Private catalog & orders", icon: "reseller", roles: ["reseller"], href: "/reseller" },
+  { id: "wholesaler", label: "Wholesaler", description: "Wholesale pricing & MOQ", icon: "wholesaler", roles: ["wholesaler"], href: "/wholesale" },
+  { id: "supplier", label: "Supplier", description: "Product & inventory access", icon: "supplier", roles: ["supplier"], href: "/supplier" },
   { id: "customer", label: "Customer", description: "Order & profile access", icon: "customer", roles: ["customer"], href: "/dashboard" },
 ];
 
@@ -32,11 +32,21 @@ export interface SidebarProps {
   nav?: NavSection[];
   workspaceLabel?: string;
   workspaceIcon?: React.ReactNode;
+  homeHref?: string;
+  subtitle?: string;
 }
 
 function isActivePath(pathname: string, href?: string): boolean {
   if (!href) return false;
-  if (href === "/dashboard") return pathname === "/dashboard";
+  // Exact match for workspace roots
+  if (
+    href === "/dashboard" ||
+    href === "/reseller" ||
+    href === "/wholesale" ||
+    href === "/supplier"
+  ) {
+    return pathname === href;
+  }
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -53,6 +63,8 @@ export function Sidebar({
   nav,
   workspaceLabel,
   workspaceIcon,
+  homeHref = "/dashboard",
+  subtitle,
 }: SidebarProps): React.ReactElement {
   const pathname = usePathname();
   const { hasPermission, hasAnyRole, userRole } = usePermissions();
@@ -61,11 +73,12 @@ export function Sidebar({
   const navConfig = nav ?? WORKSPACE_NAV;
 
   const accessibleWorkspaces = DEFAULT_WORKSPACES.filter((ws) =>
-    ws.roles.some((r) => hasAnyRole([r]) || userRole === r),
+    ws.roles.some((r) => hasAnyRole([r]) || userRole === r || (userRole ?? "").toLowerCase().includes(r)),
   );
-  const currentWorkspace = accessibleWorkspaces.find((ws) =>
-    ws.roles.includes(userRole ?? ""),
-  ) ?? accessibleWorkspaces[0];
+  const currentWorkspace =
+    accessibleWorkspaces.find((ws) => pathname.startsWith(ws.href)) ??
+    accessibleWorkspaces.find((ws) => ws.roles.includes(userRole ?? "")) ??
+    accessibleWorkspaces[0];
 
   React.useEffect(() => {
     const next: Record<string, boolean> = {};
@@ -98,19 +111,25 @@ export function Sidebar({
         )}
       >
         <Link
-          href="/dashboard"
-          className="flex items-center gap-2.5 min-w-0"
+          href={homeHref}
+          className="flex min-w-0 items-center gap-2.5"
           onClick={onMobileClose}
         >
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm shadow-glow">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground shadow-glow">
             {workspaceIcon ?? "D"}
           </div>
           {!collapsed ? (
             <div className="min-w-0">
-              <div className="text-sm font-semibold tracking-tight text-white truncate">
-                {workspaceLabel ?? <>Dropshop<span className="text-sidebar-accent">NN</span></>}
+              <div className="truncate text-sm font-semibold tracking-tight text-white">
+                {workspaceLabel ?? (
+                  <>
+                    Dropshop<span className="text-sidebar-accent">NN</span>
+                  </>
+                )}
               </div>
-              <div className="text-[10px] text-sidebar-foreground/60 truncate">{workspaceLabel ? "Reseller Portal" : "Commerce OS"}</div>
+              <div className="truncate text-[10px] text-sidebar-foreground/60">
+                {subtitle ?? (workspaceLabel ? "Workspace" : "Commerce OS")}
+              </div>
             </div>
           ) : null}
         </Link>

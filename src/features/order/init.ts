@@ -1,6 +1,7 @@
 import { EventRegistry } from "@/shared/lib/event-bus";
 import { FeatureFlags, type FeatureFlagDefinition } from "@/shared/core/feature-flags";
 import { Settings, type SettingDefinition } from "@/shared/core/feature-flags";
+import { DEFAULT_CURRENCY } from "@/shared/constants";
 
 export function registerOrderFeatureFlags(): void {
   const flags: FeatureFlagDefinition[] = [
@@ -210,7 +211,7 @@ export function registerOrderFeatureFlags(): void {
             discountTotal: checkout.totals?.discountTotal ?? 0,
             taxTotal: checkout.totals?.taxTotal ?? 0,
             grandTotal: checkout.totals?.grandTotal ?? subtotal,
-            currency: checkout.totals?.currency ?? "BDT",
+            currency: checkout.totals?.currency ?? DEFAULT_CURRENCY,
           },
           profitPreview: {
             totalCostBasis,

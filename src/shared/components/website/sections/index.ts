@@ -1,0 +1,14 @@
+export { HeroSection } from "./hero-section";
+export { CategoryShowcase } from "./category-showcase";
+export { FeaturedProductsSection } from "./featured-products-section";
+export { TrendingProductsSection } from "./trending-products-section";
+export { NewArrivalsSection } from "./new-arrivals-section";
+export { FlashDealsSection } from "./flash-deals-section";
+export { BrandSlider } from "./brand-slider";
+export { WhyChooseUs } from "./why-choose-us";
+export { HowItWorks } from "./how-it-works";
+export { RoleHighlights } from "./role-highlights";
+export { TestimonialsSection } from "./testimonials-section";
+export { LatestBlogsSection } from "./latest-blogs-section";
+export { NewsletterSection } from "./newsletter-section";
+export { FooterCta } from "./footer-cta";

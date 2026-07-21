@@ -21,7 +21,7 @@ import { Copy, Check, Shield, KeyRound } from "lucide-react";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+  const callbackUrl = searchParams.get("callbackUrl") || "";
   const errorParam = searchParams.get("error");
 
   const [usernameOrEmail, setUsernameOrEmail] = React.useState<string>(DEMO_ADMIN.email);
@@ -66,14 +66,29 @@ function LoginForm() {
         usernameOrEmail,
         password,
         redirect: false,
-        callbackUrl,
       });
 
       if (result?.error) {
         setErrorMsg("Invalid username, email or password.");
         setLoading(false);
       } else {
-        router.push(callbackUrl);
+        // Prefer explicit callback; otherwise middleware/session home by role
+        let target = callbackUrl || "/dashboard";
+        if (!callbackUrl) {
+          try {
+            const { getSession } = await import("next-auth/react");
+            const session = await getSession();
+            const role = (session?.user as { role?: string } | undefined)?.role ?? "";
+            const r = role.toLowerCase();
+            if (r.includes("reseller")) target = "/reseller";
+            else if (r.includes("wholesale") || r === "wholesaler") target = "/wholesale";
+            else if (r.includes("supplier")) target = "/supplier";
+            else target = "/dashboard";
+          } catch {
+            target = "/dashboard";
+          }
+        }
+        router.push(target);
         router.refresh();
       }
     } catch (err: unknown) {

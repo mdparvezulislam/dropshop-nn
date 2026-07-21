@@ -2,16 +2,18 @@
 
 ## Current Status
 
-Role-driven commerce platform with 11 engines (IDENTITY, CATALOG, PRICING, INVENTORY, SUPPLIER, CHECKOUT, ORDER, CUSTOMER, FINANCE, COURIER) and 4 workspaces (Admin, Reseller, Wholesale, Supplier). Single Pricing Engine, single Checkout pipeline, single Order Engine. Shared workspace shell (`WorkspaceLayout` + parameterized `Topbar`), shared list shell (`ResourceListPage`), and role-aware checkout entry (`completeRoleCheckoutAction`). Middleware protects all workspace routes. Production build passes.
+Role-driven commerce OS with 14 engines and **one unified internal workspace shell**. Public site covers homepage through blog. CMS, Analytics, and Notification engines are live. Production build passes.
 
-## Latest Completed Phase
+## Completed
 
-**ARCHITECTURE-ALIGNMENT-001** — Deduplicated pricing math (ProfitCalculationService is sole source); fixed margin formula bug; consolidated layouts/topbars/breadcrumbs; introduced ResourceListPage + SettingsPageShell; removed empty skeleton engines; aligned reseller order create with checkout pipeline; secured `/reseller`, `/wholesale`, `/supplier` via middleware.
+**ENGINES → NOTIFICATION-001** — Identity through Notification, plus public commerce and content surfaces.
 
-## Current Phase
+**WORKSPACE-001** — Single App Shell (`WorkspaceLayout`) for Admin, Reseller, Wholesale, and Supplier. Shared registry (`workspace-registry.ts`) drives nav, breadcrumbs, home path, and command palette. Role layouts are thin adapters (no duplicate shell). Command palette is nav-driven + quick actions (⌘K). Sidebar brand/`homeHref` and path-aware workspace switcher. Middleware enforces role→route access and post-login home by role. Session-aware topbar + sign-out. Reusable `WidgetGrid` / `QuickActionsWidget`. Existing module pages unchanged under `/dashboard`, `/reseller`, `/wholesale`, `/supplier`.
 
-Architecture alignment complete. Platform is ready for public storefront work.
+## Architecture
+
+Feature-first DDD. One shell, role-driven navigation and permissions — never multiple dashboard frameworks. Engines stay the source of truth for domain logic.
 
 ## Next Planned Phase
 
-**PUBLIC-WEBSITE-001 / Customer Workspace** — public storefront at role-aware routes (`/products`, `/product/[slug]`, `/checkout`, `/orders`) with Guest/Customer retail behavior, marketing-kit permission gates, and shared Product Card.
+**ADMIN-WORKSPACE-001** — Deep admin workspace modules, ops tooling, and staff-specific workflows on the unified shell.

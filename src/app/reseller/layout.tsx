@@ -1,9 +1,8 @@
 "use client";
 
-import { WorkspaceLayout } from "@/shared/components/workspace/workspace-layout";
-import { ResellerTopbar } from "@/features/reseller-workspace/reseller-topbar";
-import { RESELLER_NAV } from "@/features/reseller-workspace/nav-config";
 import { Store } from "lucide-react";
+import { WorkspaceLayout } from "@/shared/components/workspace/workspace-layout";
+import { WORKSPACE_SHELLS } from "@/shared/components/workspace/workspace-registry";
 
 export default function ResellerLayout({
   children,
@@ -12,10 +11,14 @@ export default function ResellerLayout({
 }): React.ReactElement {
   return (
     <WorkspaceLayout
-      nav={RESELLER_NAV}
-      workspaceLabel="My Shop"
+      config={WORKSPACE_SHELLS.reseller}
       workspaceIcon={<Store className="h-4 w-4" />}
-      topbar={ResellerTopbar}
+      userMenuItems={[
+        { label: "Account", href: "/account" },
+        { label: "Settings", href: "/reseller/settings" },
+        { label: "Switch workspace", href: "/dashboard" },
+        { label: "Sign out", destructive: true },
+      ]}
     >
       {children}
     </WorkspaceLayout>

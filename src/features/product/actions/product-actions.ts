@@ -3,19 +3,9 @@
 import { auth } from "@/shared/lib/auth";
 import { ProductService } from "../services/product-service";
 import { createProductSchema, updateProductSchema } from "../types/validation";
-import { ForbiddenError, UnauthorizedError } from "@/shared/errors/app-error";
+import { checkPermission } from "@/shared/lib/check-permission";
 import { logger } from "@/shared/utils/logger";
 import { revalidatePath } from "next/cache";
-
-function checkPermission(session: any, permission: string) {
-  if (!session) {
-    throw new UnauthorizedError("Session expired or invalid");
-  }
-  const permissions = session.user?.permissions || [];
-  if (!permissions.includes("*") && !permissions.includes(permission)) {
-    throw new ForbiddenError(`Missing required permission: ${permission}`);
-  }
-}
 
 export async function createProductAction(formData: any) {
   const session = await auth();

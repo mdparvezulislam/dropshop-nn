@@ -1,4 +1,5 @@
 import { BaseDBEntity } from "@/shared/lib/database/types";
+import type { PricingSource, PricingTotals, ProfitSummary } from "@/shared/domain/pricing-types";
 import type { OrderStatus } from "./state-machine";
 
 export type OrderType = "guest" | "customer" | "reseller" | "wholesaler";
@@ -36,26 +37,16 @@ export interface OrderPricingItem {
   totalProfit: number;
   marginPercent: number;
   currency: string;
-  pricingSource: "retail" | "reseller" | "wholesale" | "campaign" | "flash_sale";
+  pricingSource: PricingSource;
   campaignId?: string;
   appliedRules?: string[];
 }
 
-export interface OrderPricingSnapshot {
+export interface OrderPricingSnapshot extends PricingTotals {
   items: OrderPricingItem[];
-  subtotal: number;
-  discountTotal: number;
-  taxTotal: number;
-  grandTotal: number;
-  currency: string;
 }
 
-export interface OrderProfitPreview {
-  totalCostBasis: number;
-  totalRevenue: number;
-  totalProfit: number;
-  averageMargin: number;
-}
+export type OrderProfitPreview = ProfitSummary;
 
 export interface OrderShippingInfo {
   courierId?: string;

@@ -73,11 +73,39 @@ export abstract class BaseService<
     data: Record<string, unknown>,
     actor?: ActorInfo,
   ): Promise<void> {
-    logger.info("Analytics", {
-      event,
-      actorId: actor?.id,
-      ...data,
-    });
+    try {
+      const { AnalyticsPublisher } = await import(
+        "@/features/analytics/services/analytics-publisher"
+      );
+      await new AnalyticsPublisher().track({
+        eventName: event,
+        module: (data.module as any) || "system",
+        source: `${this.domainName}-service`,
+        actorId: actor?.id,
+        actorRole: actor?.role,
+        entityType: data.entityType as string | undefined,
+        entityId: data.entityId as string | undefined,
+        value: typeof data.value === "number" ? data.value : undefined,
+        currency: data.currency as string | undefined,
+        metadata: Object.fromEntries(
+          Object.entries(data).map(([k, v]) => [
+            k,
+            v === null ||
+            v === undefined ||
+            typeof v === "string" ||
+            typeof v === "number" ||
+            typeof v === "boolean"
+              ? v
+              : String(v),
+          ]),
+        ),
+      });
+    } catch (error) {
+      logger.warn(`${this.domainName}Service: analytics track failed`, {
+        event,
+        error,
+      });
+    }
   }
 
   protected async triggerNotification(
@@ -85,10 +113,47 @@ export abstract class BaseService<
     recipients: string[],
     data: Record<string, unknown>,
   ): Promise<void> {
-    await this.publishEvent("notification.trigger", {
-      type,
-      recipients,
-      data,
-    });
+    try {
+      const { NotificationPublisher } = await import(
+        "@/features/notification/services/notification-publisher"
+      );
+      const publisher = new NotificationPublisher();
+      const payload = Object.fromEntries(
+        Object.entries(data).map(([k, v]) => [
+          k,
+          v === null ||
+          typeof v === "string" ||
+          typeof v === "number" ||
+          typeof v === "boolean"
+            ? v
+            : String(v),
+        ]),
+      ) as Record<string, string | number | boolean | null>;
+
+      for (const userId of recipients) {
+        await publisher.notify({
+          userId,
+          type,
+          templateKey: type,
+          variables: payload,
+          data: payload,
+          title: typeof data.title === "string" ? data.title : undefined,
+          body: typeof data.body === "string" ? data.body : undefined,
+          href: typeof data.href === "string" ? data.href : undefined,
+          entityType: typeof data.entityType === "string" ? data.entityType : undefined,
+          entityId: typeof data.entityId === "string" ? data.entityId : undefined,
+        });
+      }
+    } catch (error) {
+      logger.warn(`${this.domainName}Service: notification trigger failed`, {
+        type,
+        error,
+      });
+      await this.publishEvent("notification.trigger", {
+        type,
+        recipients,
+        data,
+      });
+    }
   }
 }

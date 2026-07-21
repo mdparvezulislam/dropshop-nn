@@ -1,4 +1,4 @@
-import { roundTo } from "@/shared/utils/number-utils";
+import { roundTo, resolveCostBasis } from "@/shared/utils/number-utils";
 import { ProfitBreakdown } from "../domain/pricing-entity";
 
 export interface ProfitCalculationInput {
@@ -104,7 +104,7 @@ export class ProfitCalculationService {
     discountAmount: number;
     discountPercentage: number;
   } {
-    const costBasis = params.baseCostPrice || params.purchasePrice || params.supplierPrice || 0;
+    const costBasis = resolveCostBasis(params);
 
     const breakdown = this.calculateBreakdown({
       sellingPrice: params.sellingPrice,

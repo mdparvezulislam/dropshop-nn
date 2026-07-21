@@ -1,5 +1,45 @@
 import type { NextAuthConfig } from "next-auth";
 
+function normalizeRole(role?: string | null): string {
+  return (role ?? "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+}
+
+function homeForRole(role?: string | null): string {
+  const r = normalizeRole(role);
+  if (r.includes("reseller")) return "/reseller";
+  if (r.includes("wholesale") || r === "wholesaler") return "/wholesale";
+  if (r.includes("supplier")) return "/supplier";
+  return "/dashboard";
+}
+
+function canAccessPath(role: string | null | undefined, pathname: string): boolean {
+  const r = normalizeRole(role);
+  if (!r) return false;
+
+  const isStaff =
+    r === "admin" ||
+    r === "super_admin" ||
+    r === "manager" ||
+    r === "support" ||
+    r === "content_manager" ||
+    r.includes("admin");
+
+  if (pathname.startsWith("/dashboard")) {
+    // Staff + allow cross-workspace switch for operators; role portals stay primary for others
+    return isStaff || r === "customer";
+  }
+  if (pathname.startsWith("/reseller")) {
+    return isStaff || r.includes("reseller");
+  }
+  if (pathname.startsWith("/wholesale")) {
+    return isStaff || r.includes("wholesale") || r === "wholesaler";
+  }
+  if (pathname.startsWith("/supplier")) {
+    return isStaff || r.includes("supplier");
+  }
+  return true;
+}
+
 /**
  * Edge-compatible auth config (no Node-only imports: mongoose, bcrypt, etc.).
  * Used by middleware. Full providers live in auth.ts.
@@ -17,12 +57,20 @@ export const authConfig = {
         pathname.startsWith("/wholesale") ||
         pathname.startsWith("/supplier");
 
+      const role = (auth?.user as { role?: string } | undefined)?.role;
+
       if (isProtectedWorkspace) {
-        return isLoggedIn;
+        if (!isLoggedIn) return false;
+        if (!canAccessPath(role, pathname)) {
+          const home = homeForRole(role);
+          return Response.redirect(new URL(home, request.nextUrl));
+        }
+        return true;
       }
 
       if (isAuthRoute && isLoggedIn) {
-        return Response.redirect(new URL("/dashboard", request.nextUrl));
+        const home = homeForRole(role);
+        return Response.redirect(new URL(home, request.nextUrl));
       }
 
       return true;

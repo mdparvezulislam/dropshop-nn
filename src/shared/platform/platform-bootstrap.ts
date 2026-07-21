@@ -15,6 +15,9 @@ const BOOTSTRAP_PHASES: { name: string; order: number; engines: PlatformEngineId
   { name: "customer", order: 8, engines: ["CUSTOMER"] },
   { name: "finance", order: 9, engines: ["FINANCE"] },
   { name: "courier", order: 10, engines: ["COURIER"] },
+  { name: "cms", order: 11, engines: ["CMS"] },
+  { name: "analytics", order: 12, engines: ["ANALYTICS"] },
+  { name: "notification", order: 13, engines: ["NOTIFICATION"] },
 ];
 
 let bootstrapContext: BootstrapContext | null = null;
@@ -102,6 +105,42 @@ export class PlatformBootstrap {
       {
         engine: { id: "COURIER", name: "Courier Engine", description: "Multicourier dispatch, tracking, pickup scheduling", version: "1.0.0", enabled: true },
         lifecycle: { init: async () => { const { registerCourierFeatureFlags } = await import("@/features/courier/init"); registerCourierFeatureFlags(); } },
+      },
+      {
+        engine: { id: "CMS", name: "CMS Engine", description: "Headless content, media library, navigation, SEO", version: "1.0.0", enabled: true },
+        lifecycle: { init: async () => { const { registerCmsModule } = await import("@/features/cms/init"); registerCmsModule(); } },
+      },
+      {
+        engine: {
+          id: "ANALYTICS",
+          name: "Analytics Engine",
+          description: "Event intelligence, metrics layer, and dashboards",
+          version: "1.0.0",
+          enabled: true,
+        },
+        lifecycle: {
+          init: async () => {
+            const { registerAnalyticsModule } = await import("@/features/analytics/init");
+            registerAnalyticsModule();
+          },
+        },
+      },
+      {
+        engine: {
+          id: "NOTIFICATION",
+          name: "Notification Engine",
+          description: "Multi-channel communications, templates, and delivery pipeline",
+          version: "1.0.0",
+          enabled: true,
+        },
+        lifecycle: {
+          init: async () => {
+            const { registerNotificationModule } = await import(
+              "@/features/notification/init"
+            );
+            registerNotificationModule();
+          },
+        },
       },
     ];
 

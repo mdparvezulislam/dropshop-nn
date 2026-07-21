@@ -42,16 +42,16 @@ export const ROUTES = {
 } as const;
 
 export const PERMISSIONS = {
-  MANAGE_USERS: "manage:users",
-  MANAGE_PRODUCTS: "manage:products",
-  MANAGE_ORDERS: "manage:orders",
-  MANAGE_PAYMENTS: "manage:payments",
-  MANAGE_COURIERS: "manage:couriers",
-  MANAGE_INVENTORY: "manage:inventory",
-  MANAGE_PRICING: "manage:pricing",
-  VIEW_WALLET: "view:wallet",
-  MANAGE_WALLET: "manage:wallet",
-  VIEW_INVOICES: "view:invoices",
+  MANAGE_USERS: "User.Manage",
+  MANAGE_PRODUCTS: "Product.Manage",
+  MANAGE_ORDERS: "Order.Manage",
+  MANAGE_PAYMENTS: "Finance.Manage",
+  MANAGE_COURIERS: "Courier.Manage",
+  MANAGE_INVENTORY: "Inventory.Manage",
+  MANAGE_PRICING: "Pricing.Manage",
+  VIEW_WALLET: "Wallet.View",
+  MANAGE_WALLET: "Wallet.Manage",
+  VIEW_INVOICES: "Invoice.View",
   INVENTORY_VIEW: "Inventory.View",
   INVENTORY_UPDATE: "Inventory.Update",
   INVENTORY_ADJUST: "Inventory.Adjust",
@@ -110,6 +110,10 @@ export const RESELLER_STATUS = {
   BLOCKED: "blocked",
   ARCHIVED: "archived",
 } as const;
+
+export const DEFAULT_CURRENCY = "BDT" as const;
+
+export const SUPPORTED_CURRENCIES = ["BDT", "USD"] as const;
 
 export const FILE_LIMITS = {
   MAX_FILE_SIZE: 5 * 1024 * 1024, // 5MB

@@ -3,8 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import {
-  Bell,
   ChevronRight,
   Command,
   Menu,
@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
+import { NotificationBell } from "@/features/notification/components/notification-bell";
 
 export interface TopbarUserMenuItem {
   label: string;
@@ -168,33 +169,16 @@ export function Topbar({
           {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon-sm" aria-label="Notifications" className="relative">
-              <Bell className="h-4 w-4" />
-              <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-primary" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-72">
-            <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <div className="px-2 py-3 text-xs text-muted-foreground">
-              No new notifications. You&apos;re all caught up.
-            </div>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <NotificationBell />
 
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              type="button"
-              className="flex items-center gap-2 rounded-lg p-1 hover:bg-muted transition-colors"
-              aria-label="User menu"
-            >
-              <Avatar className="h-8 w-8">
-                <AvatarFallback>{avatarFallback}</AvatarFallback>
-              </Avatar>
-            </button>
+          <DropdownMenuTrigger
+            className="flex items-center gap-2 rounded-lg p-1 transition-colors hover:bg-muted"
+            aria-label="User menu"
+          >
+            <Avatar className="h-8 w-8">
+              <AvatarFallback>{avatarFallback}</AvatarFallback>
+            </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
@@ -213,10 +197,16 @@ export function Topbar({
                   <DropdownMenuItem
                     destructive={item.destructive}
                     onClick={() => {
+                      if (item.destructive) {
+                        void signOut({ callbackUrl: "/auth/login" });
+                        return;
+                      }
                       if (item.href) router.push(item.href);
                     }}
                   >
-                    {item.label === "Profile" ? <User className="h-4 w-4" /> : null}
+                    {item.label === "Profile" || item.label === "Account" ? (
+                      <User className="h-4 w-4" />
+                    ) : null}
                     {item.label === "Settings" ? <Settings className="h-4 w-4" /> : null}
                     {item.destructive ? <LogOut className="h-4 w-4" /> : null}
                     {item.label}

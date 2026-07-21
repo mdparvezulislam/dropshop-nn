@@ -4,6 +4,7 @@ import { ProfitCalculationService } from "./profit-calculation-service";
 import { ValidationError, NotFoundError } from "@/shared/errors/app-error";
 import { logger } from "@/shared/utils/logger";
 import { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
+import { normalizeVariantSku } from "@/shared/utils/sku-utils";
 import {
   CreatePricingInput,
   UpdatePricingInput,
@@ -18,11 +19,6 @@ export class PricingService {
   constructor() {
     this.pricingRepository = new PricingRepository();
     this.profitCalculationService = new ProfitCalculationService();
-  }
-
-  private normalizeVariantSku(variantSku?: string | null): string | undefined {
-    if (!variantSku || variantSku.trim() === "") return undefined;
-    return variantSku.toUpperCase().trim();
   }
 
   private applyPricingRule(
@@ -131,7 +127,7 @@ export class PricingService {
 
     return {
       ...data,
-      variantSku: this.normalizeVariantSku(
+      variantSku: normalizeVariantSku(
         data.variantSku !== undefined ? data.variantSku : existing?.variantSku,
       ),
       sellingPrice: applied.sellingPrice,
@@ -151,7 +147,7 @@ export class PricingService {
       variantSku: data.variantSku,
     });
 
-    const variantSku = this.normalizeVariantSku(data.variantSku);
+    const variantSku = normalizeVariantSku(data.variantSku);
     const existing = await this.pricingRepository.findByProductAndVariant(
       data.productId,
       variantSku,
@@ -224,7 +220,7 @@ export class PricingService {
   ): Promise<ProductPricing | null> {
     return this.pricingRepository.findByProductAndVariant(
       productId,
-      this.normalizeVariantSku(variantSku),
+      normalizeVariantSku(variantSku),
     );
   }
 
@@ -245,7 +241,7 @@ export class PricingService {
     const results: ProductPricing[] = [];
 
     for (const item of input.items) {
-      const variantSku = this.normalizeVariantSku(item.variantSku);
+      const variantSku = normalizeVariantSku(item.variantSku);
       const existing = await this.pricingRepository.findByProductAndVariant(
         item.productId,
         variantSku,
@@ -287,7 +283,7 @@ export class PricingService {
     const results: ProductPricing[] = [];
 
     for (const item of input.items) {
-      const variantSku = this.normalizeVariantSku(item.variantSku);
+      const variantSku = normalizeVariantSku(item.variantSku);
       const existing = await this.pricingRepository.findByProductAndVariant(
         item.productId,
         variantSku,

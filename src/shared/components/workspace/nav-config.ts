@@ -22,6 +22,13 @@ import {
   Navigation,
   CreditCard,
   Receipt,
+  Newspaper,
+  Image,
+  PanelTop,
+  BookOpen,
+  Megaphone,
+  Bell,
+  ScrollText,
 } from "lucide-react";
 
 import type { UserRole } from "@/shared/core/types";
@@ -153,11 +160,36 @@ export const WORKSPACE_NAV: NavSection[] = [
         ],
       },
       {
-        label: "Reports",
+        label: "Analytics",
         icon: BarChart3,
-        badge: "Soon",
-        anyPermission: ["Report.View"],
-        children: [{ label: "Coming soon", href: "/dashboard", icon: BarChart3, permission: "Report.View" }],
+        anyPermission: ["Analytics.View", "Report.View"],
+        children: [
+          { label: "Overview", href: "/dashboard/analytics", icon: BarChart3, permission: "Analytics.View" },
+          { label: "Sales", href: "/dashboard/analytics/sales", icon: DollarSign, permission: "Analytics.View" },
+          { label: "Orders", href: "/dashboard/analytics/orders", icon: ShoppingCart, permission: "Analytics.View" },
+          { label: "Catalog", href: "/dashboard/analytics/catalog", icon: Package, permission: "Analytics.View" },
+          { label: "Content", href: "/dashboard/analytics/content", icon: Newspaper, permission: "Analytics.View" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "content",
+    label: "Content",
+    items: [
+      {
+        label: "CMS",
+        icon: Newspaper,
+        anyPermission: ["Content.View", "Content.Create"],
+        children: [
+          { label: "Overview", href: "/dashboard/content", icon: LayoutDashboard, permission: "Content.View" },
+          { label: "Pages", href: "/dashboard/content/pages", icon: FileText, permission: "Content.View" },
+          { label: "Blog", href: "/dashboard/content/blog", icon: BookOpen, permission: "Content.View" },
+          { label: "Banners", href: "/dashboard/content/banners", icon: Megaphone, permission: "Content.View" },
+          { label: "Homepage", href: "/dashboard/content/homepage", icon: PanelTop, permission: "Content.View" },
+          { label: "Media", href: "/dashboard/content/media", icon: Image, permission: "Content.View" },
+          { label: "Navigation", href: "/dashboard/content/navigation", icon: Navigation, permission: "Content.View" },
+        ],
       },
     ],
   },
@@ -165,6 +197,31 @@ export const WORKSPACE_NAV: NavSection[] = [
     id: "system",
     label: "System",
     items: [
+      {
+        label: "Notifications",
+        icon: Bell,
+        anyPermission: ["Notification.View", "Notification.Create"],
+        children: [
+          {
+            label: "Overview",
+            href: "/dashboard/notifications",
+            icon: Bell,
+            permission: "Notification.View",
+          },
+          {
+            label: "Templates",
+            href: "/dashboard/notifications/templates",
+            icon: FileText,
+            permission: "Notification.View",
+          },
+          {
+            label: "Delivery Logs",
+            href: "/dashboard/notifications/logs",
+            icon: ScrollText,
+            permission: "Notification.View",
+          },
+        ],
+      },
       {
         label: "Settings",
         icon: Settings,
@@ -232,6 +289,18 @@ export function getBreadcrumbs(pathname: string): Breadcrumb[] {
       courier: "Courier",
       shipments: "Shipments",
       board: "Board",
+      content: "Content",
+      blog: "Blog",
+      pages: "Pages",
+      media: "Media",
+      navigation: "Navigation",
+      homepage: "Homepage",
+      banners: "Banners",
+      analytics: "Analytics",
+      sales: "Sales",
+      notifications: "Notifications",
+      templates: "Templates",
+      logs: "Delivery Logs",
     },
   });
 }

@@ -3,6 +3,7 @@ import { PriceResolutionService } from "./price-resolution-service";
 import { EventBus } from "@/shared/lib/event-bus";
 import { ValidationError, NotFoundError } from "@/shared/errors/app-error";
 import { logger } from "@/shared/utils/logger";
+import { normalizeVariantSku } from "@/shared/utils/sku-utils";
 import type { Cart, CartItem, CartType, CartStatus } from "../domain/cart-entity";
 
 export interface CreateCartInput {
@@ -28,11 +29,6 @@ export class CartService {
   constructor() {
     this.cartRepository = new CartRepository();
     this.priceResolutionService = new PriceResolutionService();
-  }
-
-  private normalizeVariantSku(variantSku?: string | null): string | undefined {
-    if (!variantSku || variantSku.trim() === "") return undefined;
-    return variantSku.toUpperCase().trim();
   }
 
   async getOrCreateCart(input: CreateCartInput): Promise<Cart> {
@@ -91,7 +87,7 @@ export class CartService {
 
     const resolved = await this.priceResolutionService.resolveSingle({
       productId: input.productId,
-      variantSku: this.normalizeVariantSku(input.variantSku),
+      variantSku: normalizeVariantSku(input.variantSku),
       quantity: input.quantity,
       role,
     });
@@ -99,7 +95,7 @@ export class CartService {
     const existingIndex = cart.items.findIndex(
       (item) =>
         item.productId === input.productId &&
-        item.variantSku === this.normalizeVariantSku(input.variantSku),
+        item.variantSku === normalizeVariantSku(input.variantSku),
     );
 
     let items: CartItem[];
@@ -120,7 +116,7 @@ export class CartService {
     } else {
       const newItem: CartItem = {
         productId: input.productId,
-        variantSku: this.normalizeVariantSku(input.variantSku),
+        variantSku: normalizeVariantSku(input.variantSku),
         quantity: input.quantity,
         resolvedPrice: resolved.unitPrice,
         currency: resolved.currency,

@@ -24,6 +24,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui
 import { Button } from "@/shared/components/ui/button";
 import { SectionHeader } from "@/shared/components/workspace/section-header";
 import { StatusChip } from "@/shared/components/workspace/status-chip";
+import { QuickActionsWidget } from "@/shared/components/workspace/widget-grid";
 import { cn } from "@/shared/utils/cn";
 
 interface DashboardData {
@@ -248,11 +249,12 @@ export default function WorkspaceHomePage(): React.ReactElement {
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {dateLabel}
             </p>
-            <h1 className="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
-              {greeting()}, Admin
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+              {greeting()}
             </h1>
-            <p className="mt-1.5 text-sm text-muted-foreground max-w-lg">
-              Your commerce workspace — catalog, partners, inventory, and pricing in one place.
+            <p className="mt-1.5 max-w-lg text-sm text-muted-foreground">
+              Unified workspace — catalog, partners, inventory, orders, CMS, analytics, and
+              notifications. Navigation and actions follow your role.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -345,30 +347,14 @@ export default function WorkspaceHomePage(): React.ReactElement {
         </Card>
       </div>
 
-      {/* Quick actions */}
-      <section>
-        <SectionHeader title="Quick actions" description="Jump into common workflows" />
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
-          {QUICK_ACTIONS.map((action) => {
-            const Icon = action.icon;
-            return (
-              <Link
-                key={action.href + action.label}
-                href={action.href}
-                className={cn(
-                  "group flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-xs",
-                  "hover:border-primary/30 hover:shadow-md transition-all duration-150",
-                )}
-              >
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                  <Icon className="h-4 w-4" />
-                </div>
-                <span className="text-sm font-medium text-foreground">{action.label}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
+      <QuickActionsWidget
+        title="Quick actions"
+        actions={QUICK_ACTIONS.map((a) => ({
+          label: a.label,
+          href: a.href,
+          icon: a.icon,
+        }))}
+      />
 
       <div className="grid gap-5 lg:grid-cols-5">
         {/* Need attention */}

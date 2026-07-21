@@ -15,22 +15,9 @@ import {
   resellerListQuerySchema,
   resellerProductSearchSchema,
 } from "../types/validation";
-import { ForbiddenError, UnauthorizedError } from "@/shared/errors/app-error";
+import { checkPermission } from "@/shared/lib/check-permission";
 import { logger } from "@/shared/utils/logger";
 import { revalidatePath } from "next/cache";
-
-function checkPermission(
-  session: { user?: { permissions?: string[]; email?: string | null; id?: string } } | null,
-  permission: string,
-): void {
-  if (!session) {
-    throw new UnauthorizedError("Session expired or invalid");
-  }
-  const permissions = session.user?.permissions || [];
-  if (!permissions.includes("*") && !permissions.includes(permission)) {
-    throw new ForbiddenError(`Missing required permission: ${permission}`);
-  }
-}
 
 const RESELLERS_PATH = "/dashboard/resellers";
 

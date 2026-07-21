@@ -7,19 +7,12 @@ import type { CreatePricingInput } from "@/features/pricing/types/validation";
 import { InventoryService } from "@/features/inventory/services/inventory-service";
 import type { CreateInventoryInput } from "@/features/inventory/types/validation";
 import { createStudioProductSchema, updateStudioProductSchema } from "../types/validation";
-import { ForbiddenError, UnauthorizedError } from "@/shared/errors/app-error";
+import { checkPermission } from "@/shared/lib/check-permission";
+import { UnauthorizedError } from "@/shared/errors/app-error";
 import { logger } from "@/shared/utils/logger";
 import { revalidatePath } from "next/cache";
 import type { CreateStudioProductInput, UpdateStudioProductInput } from "../types/validation";
 import { EventBus } from "@/shared/lib/event-bus";
-
-function checkPermission(session: any, permission: string): void {
-  if (!session) throw new UnauthorizedError("Session expired or invalid");
-  const permissions = session.user?.permissions || [];
-  if (!permissions.includes("*") && !permissions.includes(permission)) {
-    throw new ForbiddenError(`Missing required permission: ${permission}`);
-  }
-}
 
 function getActor(session: any): { id: string; name?: string; role?: string } {
   if (!session?.user) throw new UnauthorizedError("Session expired or invalid");

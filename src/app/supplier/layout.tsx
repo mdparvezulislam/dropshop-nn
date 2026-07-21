@@ -1,9 +1,8 @@
 "use client";
 
-import { WorkspaceLayout } from "@/shared/components/workspace/workspace-layout";
-import { SupplierTopbar } from "@/features/supplier-workspace/supplier-topbar";
-import { SUPPLIER_NAV } from "@/features/supplier-workspace/nav-config";
 import { Building2 } from "lucide-react";
+import { WorkspaceLayout } from "@/shared/components/workspace/workspace-layout";
+import { WORKSPACE_SHELLS } from "@/shared/components/workspace/workspace-registry";
 
 export default function SupplierLayout({
   children,
@@ -12,10 +11,14 @@ export default function SupplierLayout({
 }): React.ReactElement {
   return (
     <WorkspaceLayout
-      nav={SUPPLIER_NAV}
-      workspaceLabel="Supplier"
+      config={WORKSPACE_SHELLS.supplier}
       workspaceIcon={<Building2 className="h-4 w-4" />}
-      topbar={SupplierTopbar}
+      userMenuItems={[
+        { label: "Account", href: "/account" },
+        { label: "Settings", href: "/supplier/settings" },
+        { label: "Switch workspace", href: "/dashboard" },
+        { label: "Sign out", destructive: true },
+      ]}
     >
       {children}
     </WorkspaceLayout>

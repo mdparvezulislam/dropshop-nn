@@ -1,4 +1,5 @@
 import { env } from "./env";
+import { FILE_LIMITS } from "@/shared/constants";
 
 export interface AppConfig {
   env: "development" | "production" | "test";
@@ -6,10 +7,10 @@ export interface AppConfig {
   appUrl: string;
   logLevel: string;
   upload: {
-    maxFileSize: number; // in bytes
-    maxImageSize: number; // in bytes
-    allowedFileTypes: string[];
-    allowedImageTypes: string[];
+    maxFileSize: number;
+    maxImageSize: number;
+    allowedFileTypes: readonly string[];
+    allowedImageTypes: readonly string[];
   };
   features: {
     enableMockAuth: boolean;
@@ -25,10 +26,10 @@ export const appConfig: AppConfig = {
   appUrl: env.NEXT_PUBLIC_APP_URL,
   logLevel: env.LOG_LEVEL,
   upload: {
-    maxFileSize: 5 * 1024 * 1024, // 5MB
-    maxImageSize: 2 * 1024 * 1024, // 2MB
-    allowedFileTypes: ["application/pdf", "image/jpeg", "image/png", "text/csv"],
-    allowedImageTypes: ["image/jpeg", "image/png", "image/webp"],
+    maxFileSize: FILE_LIMITS.MAX_FILE_SIZE,
+    maxImageSize: FILE_LIMITS.MAX_IMAGE_SIZE,
+    allowedFileTypes: FILE_LIMITS.ALLOWED_FILE_TYPES,
+    allowedImageTypes: FILE_LIMITS.ALLOWED_IMAGE_TYPES,
   },
   features: {
     enableMockAuth: env.NODE_ENV !== "production",

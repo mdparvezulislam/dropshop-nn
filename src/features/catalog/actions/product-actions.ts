@@ -3,17 +3,10 @@
 import { auth } from "@/shared/lib/auth";
 import { ProductService } from "../services/product-service";
 import { createProductSchema, updateProductSchema } from "../types/validation";
-import { ForbiddenError, UnauthorizedError } from "@/shared/errors/app-error";
+import { checkPermission } from "@/shared/lib/check-permission";
+import { UnauthorizedError } from "@/shared/errors/app-error";
 import { logger } from "@/shared/utils/logger";
 import { revalidatePath } from "next/cache";
-
-function checkPermission(session: any, permission: string) {
-  if (!session) throw new UnauthorizedError("Session expired or invalid");
-  const permissions = session.user?.permissions || [];
-  if (!permissions.includes("*") && !permissions.includes(permission)) {
-    throw new ForbiddenError(`Missing required permission: ${permission}`);
-  }
-}
 
 function getSessionUser(session: any): { id: string; name?: string; role?: string } {
   if (!session?.user) throw new UnauthorizedError("Session expired or invalid");

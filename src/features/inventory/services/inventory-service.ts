@@ -9,6 +9,7 @@ import { ValidationError, NotFoundError } from "@/shared/errors/app-error";
 import { logger } from "@/shared/utils/logger";
 import { runInTransaction } from "@/shared/lib/database/query-builder";
 import { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
+import { normalizeVariantSku } from "@/shared/utils/sku-utils";
 import {
   CreateInventoryInput,
   UpdateInventoryInput,
@@ -31,11 +32,6 @@ export class InventoryService {
     this.stockCalculationService = new StockCalculationService();
   }
 
-  private normalizeVariantSku(variantSku?: string | null): string | undefined {
-    if (!variantSku || variantSku.trim() === "") return undefined;
-    return variantSku.toUpperCase().trim();
-  }
-
   private resolveInitialAvailability(data: CreateInventoryInput): ProductInventory["availability"] {
     return this.stockCalculationService.resolveAvailability({
       availableStock: data.availableStock ?? 0,
@@ -52,7 +48,7 @@ export class InventoryService {
       variantSku: data.variantSku,
     });
 
-    const variantSku = this.normalizeVariantSku(data.variantSku);
+    const variantSku = normalizeVariantSku(data.variantSku);
     const warehouseId = data.warehouseId && data.warehouseId !== "" ? data.warehouseId : null;
 
     const existing = await this.inventoryRepository.findByProductAndVariant(
@@ -133,7 +129,7 @@ export class InventoryService {
       ...data,
       variantSku:
         data.variantSku !== undefined
-          ? this.normalizeVariantSku(data.variantSku)
+          ? normalizeVariantSku(data.variantSku)
           : existing.variantSku,
       warehouseId:
         data.warehouseId !== undefined
@@ -168,7 +164,7 @@ export class InventoryService {
   ): Promise<ProductInventory | null> {
     return this.inventoryRepository.findByProductAndVariant(
       productId,
-      this.normalizeVariantSku(variantSku),
+      normalizeVariantSku(variantSku),
       warehouseId,
     );
   }
@@ -414,7 +410,7 @@ export class InventoryService {
     const results: ProductInventory[] = [];
 
     for (const item of input.items) {
-      const variantSku = this.normalizeVariantSku(item.variantSku);
+      const variantSku = normalizeVariantSku(item.variantSku);
       const existing = await this.inventoryRepository.findByProductAndVariant(
         item.productId,
         variantSku,
@@ -475,7 +471,7 @@ export class InventoryService {
       supplierId: data.supplierId,
     });
 
-    const variantSku = this.normalizeVariantSku(data.variantSku);
+    const variantSku = normalizeVariantSku(data.variantSku);
     const existing = await this.supplierInventoryRepository.findByProductAndSupplier(
       data.productId,
       data.supplierId,
@@ -545,7 +541,7 @@ export class InventoryService {
       ...data,
       variantSku:
         data.variantSku !== undefined
-          ? this.normalizeVariantSku(data.variantSku)
+          ? normalizeVariantSku(data.variantSku)
           : existing.variantSku,
       currency: data.currency ? data.currency.toUpperCase() : existing.currency,
       updatedBy: actorId,

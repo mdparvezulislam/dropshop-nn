@@ -8,18 +8,11 @@ import {
   ProductTagRepository,
 } from "../repositories/classification-repository";
 import { brandSchema, categorySchema, collectionSchema, tagSchema } from "../types/validation";
-import { ForbiddenError, UnauthorizedError } from "@/shared/errors/app-error";
+import { checkPermission } from "@/shared/lib/check-permission";
+import { UnauthorizedError } from "@/shared/errors/app-error";
 import { logger } from "@/shared/utils/logger";
 import { revalidatePath } from "next/cache";
 import { generateSlug } from "@/shared/utils/slug-utils";
-
-function checkPermission(session: any, permission: string) {
-  if (!session) throw new UnauthorizedError("Session expired or invalid");
-  const permissions = session.user?.permissions || [];
-  if (!permissions.includes("*") && !permissions.includes(permission)) {
-    throw new ForbiddenError(`Missing required permission: ${permission}`);
-  }
-}
 
 function getSessionUser(session: any): { id: string; name?: string; role?: string } {
   if (!session?.user) throw new UnauthorizedError("Session expired or invalid");

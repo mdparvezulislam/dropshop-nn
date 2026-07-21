@@ -14,3 +14,15 @@ export function calculatePercentage(partial: number, total: number): number {
   if (total === 0) return 0;
   return roundTo((partial / total) * 100, 2);
 }
+
+export function resolveCostBasis(pricing: {
+  baseCostPrice?: number;
+  purchasePrice?: number;
+  supplierPrice?: number;
+}): number {
+  return pricing.baseCostPrice || pricing.purchasePrice || pricing.supplierPrice || 0;
+}
+
+export function formatCents(cents: number): string {
+  return (cents / 100).toFixed(2);
+}

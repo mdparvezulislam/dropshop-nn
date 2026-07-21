@@ -10,7 +10,10 @@ export type PlatformEngineId =
   | "CUSTOMER"
   | "RETURN"
   | "FINANCE"
-  | "COURIER";
+  | "COURIER"
+  | "CMS"
+  | "ANALYTICS"
+  | "NOTIFICATION";
 
 export interface PlatformEngine {
   id: PlatformEngineId;

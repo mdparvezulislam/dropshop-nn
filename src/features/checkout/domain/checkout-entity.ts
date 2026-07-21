@@ -1,4 +1,5 @@
 import { BaseDBEntity } from "@/shared/lib/database/types";
+import type { PricingLineItem, PricingTotals, ProfitSummary } from "@/shared/domain/pricing-types";
 import { CartType } from "./cart-entity";
 
 export type CheckoutStep =
@@ -25,17 +26,7 @@ export interface CheckoutShippingInfo {
   deliveryNote?: string;
 }
 
-export interface CheckoutPriceItem {
-  productId: string;
-  variantSku?: string;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-  currency: string;
-  pricingSource: "retail" | "reseller" | "wholesale" | "campaign" | "flash_sale";
-  campaignId?: string;
-  appliedRules?: string[];
-}
+export type CheckoutPriceItem = PricingLineItem;
 
 export interface CheckoutInventoryItem {
   productId: string;
@@ -47,20 +38,9 @@ export interface CheckoutInventoryItem {
   reservationId?: string;
 }
 
-export interface CheckoutTotals {
-  subtotal: number;
-  discountTotal: number;
-  taxTotal: number;
-  grandTotal: number;
-  currency: string;
-}
+export type CheckoutTotals = PricingTotals;
 
-export interface CheckoutProfitPreview {
-  totalCostBasis: number;
-  totalRevenue: number;
-  totalProfit: number;
-  averageMargin: number;
-}
+export type CheckoutProfitPreview = ProfitSummary;
 
 export interface OrderDraft extends BaseDBEntity {
   checkoutId: string;

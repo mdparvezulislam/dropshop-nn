@@ -1,5 +1,6 @@
 import { PricingService } from "@/features/pricing/services/pricing-service";
 import { ProfitCalculationService } from "@/features/pricing/services/profit-calculation-service";
+import { resolveCostBasis } from "@/shared/utils/number-utils";
 import { logger } from "@/shared/utils/logger";
 import { NotFoundError } from "@/shared/errors/app-error";
 
@@ -81,7 +82,7 @@ export class PriceResolutionService {
       pricingSource = pricing.promotionalPrice < pricing.sellingPrice ? "flash_sale" : "campaign";
     }
 
-    const costBasis = pricing.baseCostPrice || pricing.purchasePrice || pricing.supplierPrice;
+    const costBasis = resolveCostBasis(pricing);
     const totalPrice = unitPrice * request.quantity;
     const profitAmount = this.profitService.calculateProfitAmount(unitPrice, costBasis) * request.quantity;
     const profitMargin = this.profitService.calculateProfitMargin(unitPrice, costBasis);

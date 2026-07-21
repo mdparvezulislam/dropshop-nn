@@ -1,9 +1,8 @@
 "use client";
 
-import { WorkspaceLayout } from "@/shared/components/workspace/workspace-layout";
-import { WholesaleTopbar } from "@/features/wholesale-workspace/wholesale-topbar";
-import { WHOLESALE_NAV } from "@/features/wholesale-workspace/nav-config";
 import { Warehouse } from "lucide-react";
+import { WorkspaceLayout } from "@/shared/components/workspace/workspace-layout";
+import { WORKSPACE_SHELLS } from "@/shared/components/workspace/workspace-registry";
 
 export default function WholesaleLayout({
   children,
@@ -12,10 +11,14 @@ export default function WholesaleLayout({
 }): React.ReactElement {
   return (
     <WorkspaceLayout
-      nav={WHOLESALE_NAV}
-      workspaceLabel="Wholesale"
+      config={WORKSPACE_SHELLS.wholesale}
       workspaceIcon={<Warehouse className="h-4 w-4" />}
-      topbar={WholesaleTopbar}
+      userMenuItems={[
+        { label: "Account", href: "/account" },
+        { label: "Settings", href: "/wholesale/settings" },
+        { label: "Switch workspace", href: "/dashboard" },
+        { label: "Sign out", destructive: true },
+      ]}
     >
       {children}
     </WorkspaceLayout>

@@ -15,6 +15,7 @@ import { ValidationError, NotFoundError } from "@/shared/errors/app-error";
 import { logger } from "@/shared/utils/logger";
 import { generateSlug } from "@/shared/utils/slug-utils";
 import { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
+import { normalizeVariantSku } from "@/shared/utils/sku-utils";
 import {
   AssignProductInput,
   UpdateResellerProductInput,
@@ -40,11 +41,6 @@ export class ProductAssignmentService {
     this.collectionRepository = new ResellerCollectionRepository();
     this.groupRepository = new ResellerProductGroupRepository();
     this.pricingService = new ResellerPricingService();
-  }
-
-  private normalizeVariantSku(variantSku?: string | null): string | undefined {
-    if (!variantSku || variantSku.trim() === "") return undefined;
-    return variantSku.toUpperCase().trim();
   }
 
   /**
@@ -92,7 +88,7 @@ export class ProductAssignmentService {
       });
     }
 
-    const variantSku = this.normalizeVariantSku(data.variantSku);
+    const variantSku = normalizeVariantSku(data.variantSku);
     const existing = await this.resellerProductRepository.findByResellerAndProduct(
       data.resellerId,
       data.productId,
