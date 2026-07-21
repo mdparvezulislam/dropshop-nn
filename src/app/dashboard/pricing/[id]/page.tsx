@@ -10,34 +10,11 @@ import { Badge } from "@/shared/components/ui/badge";
 import {
   updatePricingAction,
   overridePricingAction,
+  getPricingByIdAction,
 } from "@/features/pricing/actions/pricing-actions";
 import { toast } from "sonner";
 import { ArrowLeft, Save, Shield } from "lucide-react";
 import { currencyToCents, formatCentsToCurrency } from "@/shared/utils/currency-utils";
-
-const MOCK = {
-  id: "1",
-  productId: "507f1f77bcf86cd799439011",
-  productName: "iPhone 16 Pro Max",
-  variantSku: "APL-IPH16PM-256-BLK",
-  baseCostPrice: 89000,
-  purchasePrice: 90000,
-  supplierPrice: 92000,
-  sellingPrice: 119900,
-  wholesalePrice: 109900,
-  resellerPrice: 104900,
-  comparePrice: 129900,
-  promotionalPrice: 114900,
-  discountPercentage: 11.5,
-  profitMargin: 25.8,
-  profitAmount: 30900,
-  currency: "USD",
-  taxRate: 5,
-  taxInclusive: false,
-  commissionRate: 2,
-  pricingRule: "fixed" as const,
-  status: "active" as const,
-};
 
 export default function PricingEditorPage() {
   const params = useParams();
@@ -45,24 +22,60 @@ export default function PricingEditorPage() {
   const id = String(params.id);
   const [loading, setLoading] = React.useState(false);
   const [overrideMode, setOverrideMode] = React.useState(false);
+  const [productName, setProductName] = React.useState("Pricing Details");
+  const [variantSku, setVariantSku] = React.useState(id);
 
   const [form, setForm] = React.useState({
-    baseCostPrice: (MOCK.baseCostPrice / 100).toFixed(2),
-    purchasePrice: (MOCK.purchasePrice / 100).toFixed(2),
-    supplierPrice: (MOCK.supplierPrice / 100).toFixed(2),
-    sellingPrice: (MOCK.sellingPrice / 100).toFixed(2),
-    wholesalePrice: (MOCK.wholesalePrice / 100).toFixed(2),
-    resellerPrice: (MOCK.resellerPrice / 100).toFixed(2),
-    comparePrice: (MOCK.comparePrice / 100).toFixed(2),
-    promotionalPrice: MOCK.promotionalPrice ? (MOCK.promotionalPrice / 100).toFixed(2) : "",
-    discountPercentage: String(MOCK.discountPercentage),
-    currency: MOCK.currency,
-    taxRate: String(MOCK.taxRate),
-    taxInclusive: MOCK.taxInclusive,
-    commissionRate: String(MOCK.commissionRate),
-    pricingRule: MOCK.pricingRule,
-    status: MOCK.status,
+    baseCostPrice: "0.00",
+    purchasePrice: "0.00",
+    supplierPrice: "0.00",
+    sellingPrice: "0.00",
+    wholesalePrice: "0.00",
+    resellerPrice: "0.00",
+    comparePrice: "0.00",
+    promotionalPrice: "",
+    discountPercentage: "0",
+    currency: "BDT",
+    taxRate: "0",
+    taxInclusive: false,
+    commissionRate: "0",
+    pricingRule: "fixed" as const,
+    status: "active" as const,
   });
+
+  React.useEffect(() => {
+    async function load() {
+      if (!id) return;
+      try {
+        const res = await getPricingByIdAction(id);
+        if (res.success && res.data) {
+          const item = res.data;
+          setForm({
+            baseCostPrice: (item.baseCostPrice / 100).toFixed(2),
+            purchasePrice: (item.purchasePrice / 100).toFixed(2),
+            supplierPrice: (item.supplierPrice / 100).toFixed(2),
+            sellingPrice: (item.sellingPrice / 100).toFixed(2),
+            wholesalePrice: (item.wholesalePrice / 100).toFixed(2),
+            resellerPrice: (item.resellerPrice / 100).toFixed(2),
+            comparePrice: (item.comparePrice / 100).toFixed(2),
+            promotionalPrice: item.promotionalPrice ? (item.promotionalPrice / 100).toFixed(2) : "",
+            discountPercentage: String(item.discountPercentage ?? 0),
+            currency: item.currency || "BDT",
+            taxRate: String(item.taxRate ?? 0),
+            taxInclusive: item.taxInclusive ?? false,
+            commissionRate: String(item.commissionRate ?? 0),
+            pricingRule: item.pricingRule as any || "fixed",
+            status: item.status as any || "active",
+          });
+          if ((item as any).productName) setProductName((item as any).productName);
+          if ((item as any).variantSku) setVariantSku((item as any).variantSku);
+        }
+      } catch {
+        // use clean default values
+      }
+    }
+    load();
+  }, [id]);
 
   const set = (key: string, value: string | boolean) =>
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -120,10 +133,10 @@ export default function PricingEditorPage() {
           </Link>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{MOCK.productName}</h1>
-              <Badge variant="success">{MOCK.status}</Badge>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{productName}</h1>
+              <Badge variant="success">{form.status}</Badge>
             </div>
-            <p className="text-sm text-slate-400 font-mono">{MOCK.variantSku}</p>
+            <p className="text-sm text-slate-400 font-mono">{variantSku}</p>
           </div>
         </div>
         <button
@@ -140,42 +153,50 @@ export default function PricingEditorPage() {
         </button>
       </div>
 
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <Card className="border-slate-800 bg-slate-900/50">
-          <CardHeader className="p-4 pb-2">
-            <span className="text-xs text-slate-400">Profit Amount</span>
-          </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <div className="text-xl font-bold text-emerald-400">
-              {formatCentsToCurrency(MOCK.profitAmount, MOCK.currency)}
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-slate-800 bg-slate-900/50">
-          <CardHeader className="p-4 pb-2">
-            <span className="text-xs text-slate-400">Profit Margin</span>
-          </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <div className="text-xl font-bold text-indigo-400">{MOCK.profitMargin}%</div>
-          </CardContent>
-        </Card>
-        <Card className="border-slate-800 bg-slate-900/50">
-          <CardHeader className="p-4 pb-2">
-            <span className="text-xs text-slate-400">Rule</span>
-          </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <div className="text-xl font-bold capitalize">{MOCK.pricingRule.replace("_", " ")}</div>
-          </CardContent>
-        </Card>
-        <Card className="border-slate-800 bg-slate-900/50">
-          <CardHeader className="p-4 pb-2">
-            <span className="text-xs text-slate-400">Currency</span>
-          </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <div className="text-xl font-bold">{MOCK.currency}</div>
-          </CardContent>
-        </Card>
-      </div>
+      {(() => {
+        const sellCents = currencyToCents(Number(form.sellingPrice));
+        const costCents = currencyToCents(Number(form.baseCostPrice));
+        const profitCents = Math.max(0, sellCents - costCents);
+        const marginPct = sellCents > 0 ? ((profitCents / sellCents) * 100).toFixed(1) : "0.0";
+        return (
+          <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+            <Card className="border-slate-800 bg-slate-900/50">
+              <CardHeader className="p-4 pb-2">
+                <span className="text-xs text-slate-400">Profit Amount</span>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <div className="text-xl font-bold text-emerald-400">
+                  {formatCentsToCurrency(profitCents, form.currency)}
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border-slate-800 bg-slate-900/50">
+              <CardHeader className="p-4 pb-2">
+                <span className="text-xs text-slate-400">Profit Margin</span>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <div className="text-xl font-bold text-indigo-400">{marginPct}%</div>
+              </CardContent>
+            </Card>
+            <Card className="border-slate-800 bg-slate-900/50">
+              <CardHeader className="p-4 pb-2">
+                <span className="text-xs text-slate-400">Rule</span>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <div className="text-xl font-bold capitalize">{form.pricingRule.replace("_", " ")}</div>
+              </CardContent>
+            </Card>
+            <Card className="border-slate-800 bg-slate-900/50">
+              <CardHeader className="p-4 pb-2">
+                <span className="text-xs text-slate-400">Currency</span>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <div className="text-xl font-bold">{form.currency}</div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      })()}
 
       <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
         <Card className="border-slate-800 bg-slate-900/50">

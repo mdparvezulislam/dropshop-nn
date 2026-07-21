@@ -120,7 +120,8 @@ export const resellerListQuerySchema = z.object({
 export type ResellerListQuery = z.infer<typeof resellerListQuerySchema>;
 
 export const resellerProductSearchSchema = z.object({
-  resellerId: objectIdSchema,
+  /** ObjectId, or "me" / "current" for session-bound reseller portal */
+  resellerId: z.union([objectIdSchema, z.literal("me"), z.literal("current")]),
   page: z.coerce.number().int().positive().default(1),
   limit: z.coerce.number().int().positive().max(100).default(10),
   search: z.string().optional(),

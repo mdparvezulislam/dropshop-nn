@@ -90,7 +90,7 @@ export default function WholesaleBulkOrdersPage(): React.ReactElement {
       cell: (r) => (
         <div className="flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
           <Link
-            href={`/wholesale/orders/${r.id}`}
+            href={`/wholesale/bulk-orders/${r.id}`}
             className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted"
           >
             <Eye className="h-4 w-4" />
@@ -106,7 +106,7 @@ export default function WholesaleBulkOrdersPage(): React.ReactElement {
         title: "Bulk Orders",
         description: "Place and manage bulk product orders",
         actions: (
-          <Link href="/wholesale/orders/create">
+          <Link href="/wholesale/bulk-orders/create">
             <Button className="gap-1.5"><Plus className="h-4 w-4" /> New Bulk Order</Button>
           </Link>
         ),
@@ -129,7 +129,7 @@ export default function WholesaleBulkOrdersPage(): React.ReactElement {
         columns={columns}
         data={rows}
         loading={loading}
-        onRowClick={(r) => window.location.href = `/wholesale/orders/${r.id}`}
+        onRowClick={(r) => window.location.href = `/wholesale/bulk-orders/${r.id}`}
         emptyTitle="No bulk orders yet"
         emptyDescription="Place your first bulk order to get started."
       />

@@ -24,11 +24,10 @@ const envSchema = z.object({
   AUTH_SECRET: z.string().min(8, "AUTH_SECRET must be at least 8 characters"),
   AUTH_URL: z.string().url().optional(),
 
-  /** Dev-only: allow demo Super Admin login without MongoDB. Forced off in production. */
   ENABLE_FAKE_LOGIN: z
     .enum(["true", "false", "1", "0"])
     .optional()
-    .transform((v) => v === undefined || v === "true" || v === "1"),
+    .transform((v) => v === "true" || v === "1"),
 
   IMAGEKIT_PUBLIC_KEY: z.string().min(1, "IMAGEKIT_PUBLIC_KEY is required"),
   IMAGEKIT_PRIVATE_KEY: z.string().min(1, "IMAGEKIT_PRIVATE_KEY is required"),

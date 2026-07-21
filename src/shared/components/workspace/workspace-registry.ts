@@ -14,6 +14,8 @@ import {
   BarChart3,
   Bell,
   Newspaper,
+  Shield,
+  ClipboardCheck,
 } from "lucide-react";
 import type { NavSection } from "./nav-config";
 import { WORKSPACE_NAV, getBreadcrumbs, type Breadcrumb } from "./nav-config";
@@ -118,13 +120,34 @@ const ADMIN_EXTRA: CommandItem[] = [
     icon: Bell,
     group: "Quick actions",
   },
+  {
+    id: "qa-approvals",
+    label: "Review approvals",
+    href: "/dashboard/identity/approvals",
+    icon: ClipboardCheck,
+    group: "Quick actions",
+  },
+  {
+    id: "qa-identity",
+    label: "Identity control",
+    href: "/dashboard/identity",
+    icon: Shield,
+    group: "Quick actions",
+  },
+  {
+    id: "qa-settings",
+    label: "Platform settings",
+    href: "/dashboard/settings",
+    icon: Settings,
+    group: "Quick actions",
+  },
 ];
 
 const RESELLER_EXTRA: CommandItem[] = [
   {
     id: "r-order",
     label: "Create order",
-    href: "/reseller/orders/new",
+    href: "/reseller/orders/create",
     icon: Plus,
     group: "Quick actions",
   },

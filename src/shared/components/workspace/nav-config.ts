@@ -29,6 +29,10 @@ import {
   Megaphone,
   Bell,
   ScrollText,
+  Shield,
+  UserCog,
+  ClipboardCheck,
+  Monitor,
 } from "lucide-react";
 
 import type { UserRole } from "@/shared/core/types";
@@ -198,6 +202,33 @@ export const WORKSPACE_NAV: NavSection[] = [
     label: "System",
     items: [
       {
+        label: "Identity",
+        icon: Shield,
+        anyPermission: ["Identity.View", "User.View"],
+        children: [
+          { label: "Overview", href: "/dashboard/identity", icon: Shield, permission: "Identity.View" },
+          {
+            label: "Approvals",
+            href: "/dashboard/identity/approvals",
+            icon: ClipboardCheck,
+            permission: "Identity.View",
+          },
+          { label: "Users", href: "/dashboard/identity/users", icon: Users, permission: "User.View" },
+          {
+            label: "Roles",
+            href: "/dashboard/identity/roles",
+            icon: UserCog,
+            permission: "Identity.View",
+          },
+          {
+            label: "Sessions",
+            href: "/dashboard/identity/sessions",
+            icon: Monitor,
+            permission: "Identity.Sessions",
+          },
+        ],
+      },
+      {
         label: "Notifications",
         icon: Bell,
         anyPermission: ["Notification.View", "Notification.Create"],
@@ -223,7 +254,14 @@ export const WORKSPACE_NAV: NavSection[] = [
         ],
       },
       {
+        label: "Audit Center",
+        href: "/dashboard/audit",
+        icon: ScrollText,
+        permission: "Identity.View",
+      },
+      {
         label: "Settings",
+        href: "/dashboard/settings",
         icon: Settings,
         permission: "Settings.View",
       },
@@ -301,6 +339,13 @@ export function getBreadcrumbs(pathname: string): Breadcrumb[] {
       notifications: "Notifications",
       templates: "Templates",
       logs: "Delivery Logs",
+      identity: "Identity",
+      approvals: "Approvals",
+      users: "Users",
+      roles: "Roles",
+      sessions: "Sessions",
+      settings: "Settings",
+      audit: "Audit Center",
     },
   });
 }

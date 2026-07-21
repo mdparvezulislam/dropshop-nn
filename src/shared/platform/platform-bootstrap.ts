@@ -1,6 +1,6 @@
 import { EngineRegistry, type EngineLifecycle } from "./engine-registry";
 import type { PlatformEngine, PlatformEngineId, BootstrapContext, EngineStatus } from "./platform-types";
-import { FeatureFlags, Settings } from "@/shared/core/feature-flags";
+import { FeatureFlags, Settings, DEFAULT_FEATURE_FLAGS, DEFAULT_SETTINGS } from "@/shared/core/feature-flags";
 import { logger } from "@/shared/utils/logger";
 
 const BOOTSTRAP_PHASES: { name: string; order: number; engines: PlatformEngineId[] }[] = [
@@ -181,7 +181,6 @@ export class PlatformBootstrap {
   }
 
   private static registerCore(): void {
-    const { DEFAULT_FEATURE_FLAGS, DEFAULT_SETTINGS } = require("@/shared/core/feature-flags");
 
     for (const flag of DEFAULT_FEATURE_FLAGS) {
       try {

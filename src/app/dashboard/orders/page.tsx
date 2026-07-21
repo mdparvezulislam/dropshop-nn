@@ -20,31 +20,6 @@ import { toast } from "sonner";
 import { Search, ShoppingCart, Eye, Ban, CheckCircle, Copy, KanbanSquare } from "lucide-react";
 import { getHumanLabel, type OrderStatus } from "@/features/order/domain/state-machine";
 
-const MOCK_ORDERS = [
-  {
-    id: "60c72b2f9b1d8e2568cf4001",
-    orderNumber: "ORD-928172",
-    type: "reseller",
-    customer: { name: "Afsana Mimi", phone: "+8801700112233" },
-    pricing: { grandTotal: 250000, items: [{ productName: "iPhone 16 Pro Max", quantity: 1 }] },
-    profitPreview: { totalProfit: 45000 },
-    status: "confirmed" as OrderStatus,
-    createdAt: new Date().toISOString(),
-    shippingInfo: { courierName: "Pathao", trackingNumber: "PT-998822" },
-  },
-  {
-    id: "60c72b2f9b1d8e2568cf4002",
-    orderNumber: "ORD-123491",
-    type: "customer",
-    customer: { name: "Kamal Hossain", phone: "+8801999888777" },
-    pricing: { grandTotal: 84000, items: [{ productName: "Mi Band 9 Pro", quantity: 2 }] },
-    profitPreview: { totalProfit: 12000 },
-    status: "pending" as OrderStatus,
-    createdAt: new Date().toISOString(),
-    shippingInfo: null,
-  },
-];
-
 export default function OrdersPage() {
   const { data: session } = useSession() as any;
   const userRole = session?.user?.role || "Admin";
@@ -52,8 +27,8 @@ export default function OrdersPage() {
 
   const [search, setSearch] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState("all");
-  const [orders, setOrders] = React.useState<any[]>(MOCK_ORDERS);
-  const [loading, setLoading] = React.useState(false);
+  const [orders, setOrders] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     async function loadOrders() {
@@ -66,19 +41,19 @@ export default function OrdersPage() {
           search: search || undefined,
         });
         if (res.success && res.data?.items) {
-          // If database returns items, use them, otherwise fallback to mock
-          if (res.data.items.length > 0) {
-            setOrders(res.data.items);
-          }
+          setOrders(res.data.items);
+        } else {
+          setOrders([]);
         }
       } catch (err) {
         console.error("Failed to load orders", err);
+        setOrders([]);
       } finally {
         setLoading(false);
       }
     }
     loadOrders();
-  }, [statusFilter, search]);
+  }, [search, statusFilter]);
 
   const handleCancel = async (id: string) => {
     try {

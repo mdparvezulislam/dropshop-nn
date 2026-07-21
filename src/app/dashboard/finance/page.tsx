@@ -107,12 +107,7 @@ export default function AdminFinancePage() {
     }
   };
 
-  // Mock static wallets data
-  const MOCK_WALLETS = [
-    { id: "w1", workspaceId: "60c72b2f9b1d8e2568cf4001", role: "reseller", balance: 450000 },
-    { id: "w2", workspaceId: "60c72b2f9b1d8e2568cf4002", role: "reseller", balance: 840000 },
-    { id: "w3", workspaceId: "admin-platform", role: "admin", balance: 1450000 },
-  ];
+  const wallets: any[] = [];
 
   return (
     <div className="min-h-screen bg-slate-950 p-4 sm:p-6 text-white space-y-6">
@@ -298,17 +293,25 @@ export default function AdminFinancePage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {MOCK_WALLETS.map((w) => (
-                  <TableRow key={w.id} className="border-slate-800">
-                    <TableCell className="font-mono text-xs text-indigo-400">{w.id}</TableCell>
-                    <TableCell className="font-mono text-xs text-slate-300">{w.workspaceId}</TableCell>
-                    <TableCell className="capitalize text-slate-200">{w.role}</TableCell>
-                    <TableCell className="font-semibold text-white">BDT</TableCell>
-                    <TableCell>
-                      <Badge variant="success">Active</Badge>
+                {wallets.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center text-slate-500 py-8">
+                      No active wallets found
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  wallets.map((w) => (
+                    <TableRow key={w.id} className="border-slate-800">
+                      <TableCell className="font-mono text-xs text-indigo-400">{w.id}</TableCell>
+                      <TableCell className="font-mono text-xs text-slate-300">{w.workspaceId}</TableCell>
+                      <TableCell className="capitalize text-slate-200">{w.role}</TableCell>
+                      <TableCell className="font-semibold text-white">BDT</TableCell>
+                      <TableCell>
+                        <Badge variant="success">Active</Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           )}

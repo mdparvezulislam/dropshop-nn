@@ -122,10 +122,8 @@ function LoginForm() {
               <Badge variant="warning">Full Control</Badge>
             </div>
             <p className="text-xs text-amber-200/70">
-              Pre-filled for testing. Role:{" "}
-              <span className="font-mono text-amber-100">{DEMO_ADMIN.role}</span> (all permissions).
-              Works <span className="text-amber-100 font-medium">without MongoDB</span> while fake
-              login is enabled — remove before production.
+              Initial Super Admin credentials for platform setup. Role:{" "}
+              <span className="font-mono text-amber-100">{DEMO_ADMIN.role}</span>.
             </p>
             <div className="grid gap-2">
               <div className="flex items-center justify-between rounded-md border border-slate-800 bg-slate-950/80 px-3 py-2">

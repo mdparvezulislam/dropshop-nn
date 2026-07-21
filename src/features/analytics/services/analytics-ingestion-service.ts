@@ -86,7 +86,7 @@ export class AnalyticsIngestionService {
       }
     }
 
-    const module = inferModule(input.eventName, input.module);
+    const targetModule = inferModule(input.eventName, input.module);
 
     try {
       await this.facts.create({
@@ -98,7 +98,7 @@ export class AnalyticsIngestionService {
         sessionId: input.sessionId,
         requestId: input.requestId,
         source: input.source ?? "app",
-        module,
+        module: targetModule,
         entityType: input.entityType,
         entityId: input.entityId,
         value: input.value,
@@ -114,7 +114,7 @@ export class AnalyticsIngestionService {
     }
 
     await this.rollUp(input.eventName, timestamp, input.value ?? 0, {
-      module,
+      module: targetModule,
       role: String(input.actorRole ?? "guest"),
     });
 

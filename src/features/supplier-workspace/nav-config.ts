@@ -8,6 +8,7 @@ import {
   ShoppingCart,
   Wallet,
   BarChart3,
+  FileText,
   User,
   Settings,
 } from "lucide-react";
@@ -50,6 +51,13 @@ export const SUPPLIER_NAV: NavSection[] = [
     ],
   },
   {
+    id: "compliance",
+    label: "Compliance",
+    items: [
+      { label: "Documents", href: "/supplier/documents", icon: FileText },
+    ],
+  },
+  {
     id: "account",
     label: "Account",
     items: [
@@ -72,6 +80,7 @@ export function getSupplierBreadcrumbs(pathname: string): { label: string; href?
       orders: "Orders",
       payments: "Payments",
       reports: "Reports",
+      documents: "Documents",
       profile: "Profile",
       settings: "Settings",
     },

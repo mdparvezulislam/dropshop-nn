@@ -76,6 +76,15 @@ export class ResellerRepository extends BaseRepository<ResellerDocumentType, Res
     };
   }
 
+  async findByUserId(userId: string, options?: DatabaseQueryOptions): Promise<Reseller | null> {
+    try {
+      return this.findOne({ userId }, options);
+    } catch (error) {
+      logger.error("ResellerRepository findByUserId failed", error, { userId });
+      throw new DatabaseError("Database search error", error);
+    }
+  }
+
   async findByEmail(email: string, options?: DatabaseQueryOptions): Promise<Reseller | null> {
     try {
       return this.findOne({ email: email.toLowerCase().trim() }, options);

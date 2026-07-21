@@ -20,6 +20,7 @@ export const PERMISSION_DOMAINS = [
   "Notification",
   "Finance",
   "Content",
+  "Identity",
 ] as const;
 
 export type PermissionDomain = (typeof PERMISSION_DOMAINS)[number];
@@ -39,6 +40,8 @@ export const PERMISSION_ACTIONS = [
   "Import",
   "Assign",
   "Transfer",
+  "Sessions",
+  "Manage",
 ] as const;
 
 export type PermissionAction = (typeof PERMISSION_ACTIONS)[number];
@@ -121,6 +124,17 @@ export const SYSTEM_ROLES: RoleDefinition[] = [
       "Content.Delete",
       "Content.Publish",
       "Content.Archive",
+      "Identity.View",
+      "Identity.Create",
+      "Identity.Update",
+      "Identity.Approve",
+      "Identity.Reject",
+      "Identity.Suspend",
+      "Identity.Sessions",
+      "User.Create",
+      "User.View",
+      "User.Update",
+      "User.Delete",
     ],
     isSystem: true,
   },
@@ -151,6 +165,11 @@ export const SYSTEM_ROLES: RoleDefinition[] = [
       "Content.View",
       "Content.Update",
       "Content.Publish",
+      "Identity.View",
+      "Identity.Approve",
+      "Identity.Reject",
+      "User.View",
+      "Settings.View",
     ],
     isSystem: true,
   },
@@ -164,6 +183,12 @@ export const SYSTEM_ROLES: RoleDefinition[] = [
       "Reseller.Update",
       "Order.Create",
       "Order.View",
+      "Order.Cancel",
+      "Customer.View",
+      "Customer.Manage",
+      "Finance.View",
+      "Analytics.View",
+      "Notification.View",
     ],
   },
   {

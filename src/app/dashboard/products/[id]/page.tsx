@@ -2,6 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { Spinner } from "@/shared/components/ui/spinner";
 import {
   Card,
   CardHeader,
@@ -23,42 +25,32 @@ import {
   Award,
 } from "lucide-react";
 
-const MOCK_PRODUCT = {
-  id: "1",
-  name: "iPhone 16 Pro Max",
-  slug: "iphone-16-pro-max",
-  sku: "APL-IPH16PM-256",
-  productModel: "A3296",
-  barcode: "190199123456",
-  gtin: "01901991234568",
-  status: "draft" as const,
-  brand: "Apple",
-  category: "Smartphones",
-  shortDescription: "Sleek titanium smartphone featuring the new A18 Pro CPU chip.",
-  fullDescription:
-    "The Apple iPhone 16 Pro Max features a 6.9-inch OLED display, custom camera control triggers, grade 5 titanium chassis, and next-generation Apple Intelligence support.",
-  variants: [
-    { sku: "APL-IPH16PM-256-BLK", color: "Black Titanium", size: "256GB" },
-    { sku: "APL-IPH16PM-256-WHT", color: "White Titanium", size: "256GB" },
-    { sku: "APL-IPH16PM-256-GLD", color: "Desert Titanium", size: "256GB" },
-  ],
-  attributes: [
-    { key: "Display Size", value: "6.9 inches", group: "specification" },
-    { key: "CPU Chipset", value: "A18 Pro Apple Silicon", group: "technical" },
-    { key: "Chassis Material", value: "Grade 5 Titanium", group: "specification" },
-    { key: "Warranty Period", value: "1 Year Standard", group: "general" },
-  ],
-  seo: {
-    metaTitle: "Buy iPhone 16 Pro Max - Best Price dropship catalogue",
-    metaDescription:
-      "Secure titanium chassis iPhone 16 Pro Max with custom camera triggers and A18 Pro silicon chip.",
-  },
-};
-
 export default function ProductDetailsPage() {
-  const [product, setProduct] = React.useState<any>(MOCK_PRODUCT);
+  const params = useParams();
+  const id = String(params?.id || "");
+  const [product, setProduct] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
   const [activeTab, setActiveTab] = React.useState("info");
   const [updating, setUpdating] = React.useState(false);
+
+  React.useEffect(() => {
+    async function load() {
+      if (!id) return;
+      setLoading(true);
+      try {
+        const { getProductAction } = await import("@/features/catalog/actions/product-actions");
+        const res = await getProductAction(id);
+        if (res.success && res.data) {
+          setProduct(res.data);
+        }
+      } catch {
+        // null handles empty/loading
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [id]);
 
   const handleStatusChange = async (newStatus: "active" | "draft" | "archived") => {
     setUpdating(true);
@@ -89,6 +81,30 @@ export default function ProductDetailsPage() {
         return "default";
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-slate-950 p-6 text-white space-y-6">
+        <div className="flex items-center gap-4">
+          <Link
+            href="/dashboard/products"
+            className="p-2 rounded-full border border-slate-800 bg-slate-900/50 text-slate-400 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Link>
+          <h1 className="text-2xl font-bold">Product Not Found</h1>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-950 p-6 text-white space-y-6">

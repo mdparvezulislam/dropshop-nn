@@ -37,19 +37,25 @@ export default function ResellerProductsPage(): React.ReactElement {
         "@/features/reseller/actions/reseller-actions"
       );
       const res = await searchResellerProductsAction({
-        resellerId: "current",
+        resellerId: "me",
         page,
         limit: pageSize,
         search: search || undefined,
       });
-      if (res.success && res.data) {
+      if (!res.success) {
+        toast.error(res.error ?? "Failed to load products");
+        setRows([]);
+        setTotalCount(0);
+        return;
+      }
+      if (res.data) {
         const d = res.data as any;
         const items: Row[] = (d.items ?? []).map((p: any) => ({
           id: p.id,
-          name: p.customTitle ?? p.productId?.title ?? "",
-          sku: p.variantSku ?? p.productId?.sku ?? "",
+          name: p.customTitle ?? p.product?.name ?? p.productName ?? p.productId ?? "Product",
+          sku: p.variantSku ?? p.product?.sku ?? p.sku ?? "—",
           sellingPrice: p.pricing?.sellingPrice ?? 0,
-          availableStock: p.availableStock ?? 0,
+          availableStock: p.availableStock ?? p.stock ?? 0,
           profitAmount: p.pricing?.profitAmount ?? 0,
           profitMargin: p.pricing?.profitMargin ?? 0,
           status: p.sellingStatus ?? "draft",

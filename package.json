@@ -9,7 +9,17 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "type-check": "tsc --noEmit",
-    "prepare": "husky"
+    "prepare": "husky",
+    "seed": "npx tsx seed/index.ts --all",
+    "seed:all": "npx tsx seed/index.ts --all",
+    "seed:users": "npx tsx seed/index.ts --users",
+    "seed:products": "npx tsx seed/index.ts --products",
+    "seed:orders": "npx tsx seed/index.ts --orders",
+    "seed:blog": "npx tsx seed/index.ts --blog",
+    "seed:cms": "npx tsx seed/index.ts --cms",
+    "seed:finance": "npx tsx seed/index.ts --finance",
+    "seed:reset": "npx tsx seed/index.ts --reset",
+    "seed:fresh": "npx tsx seed/index.ts --fresh"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.2.2",

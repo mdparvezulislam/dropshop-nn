@@ -75,7 +75,7 @@ export const RESELLER_NAV: NavSection[] = [
     id: "insights",
     label: "Insights",
     items: [
-      { label: "Reports", href: "/reseller/reports", icon: BarChart3, badge: "Soon" },
+        { label: "Reports", href: "/reseller/reports", icon: BarChart3 },
     ],
   },
   {

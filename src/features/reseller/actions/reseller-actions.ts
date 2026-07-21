@@ -253,31 +253,167 @@ export async function previewResellerProductPricingAction(
   return { success: true, data: result };
 }
 
+type AuthSession = {
+  user?: { id?: string; email?: string | null; role?: string; name?: string | null };
+} | null;
+
+async function resolvePortalResellerId(
+  session: AuthSession,
+  resellerId?: string,
+): Promise<string> {
+  const user = session?.user;
+  const role = (user?.role ?? "").toLowerCase();
+  const isStaff =
+    role.includes("admin") || role === "manager" || role === "super_admin";
+
+  if (resellerId && resellerId !== "me" && resellerId !== "current") {
+    if (!isStaff && user?.id) {
+      const service = new ResellerService();
+      const own = await service.resolveForUser(user.id, user.email);
+      if (own && own.id !== resellerId) {
+        throw new Error("Forbidden: cannot access another reseller catalog");
+      }
+    }
+    return resellerId;
+  }
+
+  if (!user?.id) throw new Error("Unauthorized");
+  const service = new ResellerService();
+  const reseller = await service.resolveForUser(user.id, user.email);
+  if (!reseller) {
+    throw new Error(
+      "No reseller profile linked to this account. Contact support or complete business onboarding.",
+    );
+  }
+  return reseller.id;
+}
+
+export async function resolveCurrentResellerAction(): Promise<{
+  success: boolean;
+  data?: { id: string; businessName: string; ownerName: string; email: string; status: string; code: string };
+  error?: string;
+}> {
+  try {
+    const session = (await auth()) as AuthSession;
+    if (!session?.user) return { success: false, error: "Unauthorized" };
+    checkPermission(session as never, "Reseller.View");
+    const user = session.user;
+    const service = new ResellerService();
+    const reseller = user?.id
+      ? await service.resolveForUser(user.id, user.email)
+      : null;
+    if (!reseller) {
+      return {
+        success: false,
+        error: "No reseller profile linked to this account",
+      };
+    }
+    return {
+      success: true,
+      data: {
+        id: reseller.id,
+        businessName: reseller.businessName,
+        ownerName: reseller.ownerName,
+        email: reseller.email,
+        status: reseller.status,
+        code: reseller.code,
+      },
+    };
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to resolve reseller",
+    };
+  }
+}
+
 export async function searchResellerProductsAction(query: unknown): Promise<{
   success: boolean;
   data?: Awaited<ReturnType<ProductAssignmentService["searchResellerProducts"]>>;
   error?: string;
 }> {
-  const session = await auth();
-  checkPermission(session, "Reseller.View");
+  try {
+    const session = (await auth()) as AuthSession;
+    checkPermission(session as never, "Reseller.View");
 
-  const validated = resellerProductSearchSchema.parse(query);
-  const service = new ProductAssignmentService();
-  const result = await service.searchResellerProducts(validated);
-  return { success: true, data: result };
+    const validated = resellerProductSearchSchema.parse(query);
+    const resellerId = await resolvePortalResellerId(session, validated.resellerId);
+    const service = new ProductAssignmentService();
+    const result = await service.searchResellerProducts({
+      ...validated,
+      resellerId,
+    });
+    return { success: true, data: result };
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to search products",
+    };
+  }
 }
 
-export async function getResellerDashboardAction(resellerId: string): Promise<{
+export async function getResellerDashboardAction(resellerId?: string): Promise<{
   success: boolean;
-  data?: Awaited<ReturnType<ProductAssignmentService["getDashboardStats"]>>;
+  data?: Awaited<ReturnType<ProductAssignmentService["getDashboardStats"]>> & {
+    resellerId: string;
+  };
   error?: string;
 }> {
-  const session = await auth();
-  checkPermission(session, "Reseller.View");
+  try {
+    const session = (await auth()) as AuthSession;
+    checkPermission(session as never, "Reseller.View");
+    const id = await resolvePortalResellerId(session, resellerId);
+    const service = new ProductAssignmentService();
+    const result = await service.getDashboardStats(id);
+    return { success: true, data: { ...result, resellerId: id } };
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to load dashboard",
+    };
+  }
+}
 
-  const service = new ProductAssignmentService();
-  const result = await service.getDashboardStats(resellerId);
-  return { success: true, data: result };
+export async function getMyResellerProfileAction(): Promise<{
+  success: boolean;
+  data?: Awaited<ReturnType<ResellerService["getResellerById"]>>;
+  error?: string;
+}> {
+  try {
+    const session = (await auth()) as AuthSession;
+    checkPermission(session as never, "Reseller.View");
+    const id = await resolvePortalResellerId(session);
+    const service = new ResellerService();
+    const result = await service.getResellerById(id);
+    return { success: true, data: result };
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to load profile",
+    };
+  }
+}
+
+export async function updateMyResellerProfileAction(formData: unknown): Promise<{
+  success: boolean;
+  data?: Awaited<ReturnType<ResellerService["updateReseller"]>>;
+  error?: string;
+}> {
+  try {
+    const session = (await auth()) as AuthSession;
+    checkPermission(session as never, "Reseller.Update");
+    const id = await resolvePortalResellerId(session);
+    const validated = updateResellerSchema.parse(formData);
+    const service = new ResellerService();
+    const result = await service.updateReseller(id, validated, session?.user?.id);
+    revalidatePath("/reseller/settings");
+    return { success: true, data: result };
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to update profile",
+    };
+  }
 }
 
 export async function createResellerCollectionAction(formData: unknown): Promise<{

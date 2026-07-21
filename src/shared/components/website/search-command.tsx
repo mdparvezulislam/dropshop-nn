@@ -28,9 +28,9 @@ export function SearchCommand({ onClose }: SearchCommandProps) {
       return;
     }
     const timer = setTimeout(() => {
+      const q = query.trim();
       setResults([
-        { label: `${query} - product 1`, href: `/product/demo-1` },
-        { label: `${query} - product 2`, href: `/product/demo-2` },
+        { label: `Search catalog for "${q}"`, href: `/catalog?q=${encodeURIComponent(q)}` },
       ]);
     }, 200);
     return () => clearTimeout(timer);

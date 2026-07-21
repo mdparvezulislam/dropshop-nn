@@ -495,7 +495,7 @@ export async function updateNotificationPreferencesAction(data: unknown): Promis
     const validated = notificationPrefSchema.parse(data);
     const repo = new UserNotificationPreferenceRepository();
 
-    let prefs = await repo.findByUser(sessionUser.id);
+    const prefs = await repo.findByUser(sessionUser.id);
     if (prefs) {
       await repo.update(prefs.id, validated);
     } else {

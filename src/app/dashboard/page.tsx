@@ -44,6 +44,7 @@ interface DashboardData {
   customerCount: number;
   productDrafts: number;
   productCount: number;
+  pendingApprovals: number;
 }
 
 const DEFAULT_DASHBOARD: DashboardData = {
@@ -63,6 +64,7 @@ const DEFAULT_DASHBOARD: DashboardData = {
   customerCount: 0,
   productDrafts: 0,
   productCount: 0,
+  pendingApprovals: 0,
 };
 
 function greeting(): string {
@@ -78,6 +80,9 @@ const QUICK_ACTIONS = [
   { label: "Onboard reseller", href: "/dashboard/resellers/new", icon: Store },
   { label: "Adjust stock", href: "/dashboard/inventory/adjust", icon: Warehouse },
   { label: "Update pricing", href: "/dashboard/pricing/bulk", icon: DollarSign },
+  { label: "Approvals", href: "/dashboard/identity/approvals", icon: Users },
+  { label: "Analytics", href: "/dashboard/analytics", icon: TrendingUp },
+  { label: "CMS", href: "/dashboard/content", icon: FileEdit },
 ];
 
 const NEED_ATTENTION = [
@@ -113,6 +118,14 @@ const NEED_ATTENTION = [
     icon: Store,
     key: "resellersPending",
   },
+  {
+    title: "Business applications pending",
+    detail: "Identity approval queue",
+    href: "/dashboard/identity/approvals",
+    tone: "warning" as const,
+    icon: Users,
+    key: "pendingApprovals",
+  },
 ];
 
 const RECENT_ACTIVITY = [
@@ -146,6 +159,7 @@ export default function WorkspaceHomePage(): React.ReactElement {
           resellersRes,
           customersRes,
           productsRes,
+          identityRes,
         ] = await Promise.allSettled([
           import("@/features/order/actions/order-actions").then((m) =>
             m.listOrdersAction({ page: 1, limit: 1 }),
@@ -164,6 +178,9 @@ export default function WorkspaceHomePage(): React.ReactElement {
           ),
           import("@/features/catalog/actions/product-actions").then((m) =>
             m.listProductsAction({}, { limit: 1 }),
+          ),
+          import("@/features/identity/actions/admin-identity-actions").then((m) =>
+            m.getIdentityOpsOverviewAction(),
           ),
         ]);
 
@@ -210,6 +227,11 @@ export default function WorkspaceHomePage(): React.ReactElement {
           const pd = productsRes.value.data as any;
           d.productCount = pd?.totalCount ?? pd?.items?.length ?? 0;
           d.productDrafts = pd?.items?.filter((p: any) => p.status === "draft").length ?? 0;
+        }
+
+        if (identityRes.status === "fulfilled" && identityRes.value.success) {
+          const id = identityRes.value.data as { pendingApprovals?: number } | undefined;
+          d.pendingApprovals = id?.pendingApprovals ?? 0;
         }
 
         setData(d);

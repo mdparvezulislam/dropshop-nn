@@ -503,3 +503,135 @@ export async function searchAutocompleteAction(query: string): Promise<Autocompl
     return { success: true, data: { products: [], categories: [], brands: [], suggestions: [] } };
   }
 }
+
+export interface PublicProductsCatalogResult {
+  success: boolean;
+  data: {
+    items: ProductCardData[];
+    totalCount: number;
+    cursor: string | null;
+    hasMore: boolean;
+  };
+}
+
+export async function getPublicProductsCatalogAction(
+  params: {
+    cursor?: string;
+    limit?: number;
+    category?: string;
+    brand?: string;
+    search?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    inStock?: boolean;
+    flashSale?: boolean;
+    minRating?: number;
+    sort?: "newest" | "price_asc" | "price_desc" | "rating" | "featured";
+  } = {},
+): Promise<PublicProductsCatalogResult> {
+  try {
+    const productService = new ProductService();
+    const pricingService = new PricingService();
+
+    const dbFilter: Record<string, unknown> = {
+      status: "active",
+      visibility: "public",
+      isDeleted: { $ne: true },
+    };
+
+    if (params.category) dbFilter.categoryId = params.category;
+    if (params.brand) dbFilter.brandId = params.brand;
+    if (params.flashSale) dbFilter.flashSale = true;
+
+    if (params.search?.trim()) {
+      const q = params.search.trim();
+      dbFilter.$or = [
+        { name: { $regex: q, $options: "i" } },
+        { shortDescription: { $regex: q, $options: "i" } },
+        { sku: { $regex: q, $options: "i" } },
+      ];
+    }
+
+    const sortMap: Record<string, { sort: string; order: "asc" | "desc" }> = {
+      newest: { sort: "createdAt", order: "desc" },
+      price_asc: { sort: "createdAt", order: "asc" },
+      price_desc: { sort: "createdAt", order: "desc" },
+      rating: { sort: "ratingAverage", order: "desc" },
+      featured: { sort: "featured", order: "desc" },
+    };
+    const sortParams = sortMap[params.sort ?? "newest"] ?? sortMap.newest;
+
+    const result = await productService.list(dbFilter, {
+      cursor: params.cursor,
+      limit: params.limit || 24,
+      ...sortParams,
+    });
+
+    const items = await Promise.all(
+      result.items.map(async (p) => {
+        const pricing = await pricingService.getPricingByProduct(p.id);
+        const card = mapProductToCard(p, pricing);
+
+        if (params.minPrice !== undefined && card.retailPrice < params.minPrice) return null;
+        if (params.maxPrice !== undefined && card.retailPrice > params.maxPrice) return null;
+        if (params.minRating !== undefined && (card.rating ?? 0) < params.minRating) return null;
+
+        return card;
+      }),
+    );
+
+    const filtered = items.filter((item): item is ProductCardData => item !== null);
+
+    return {
+      success: true,
+      data: {
+        items: filtered,
+        totalCount: result.totalCount,
+        cursor: result.cursor ?? null,
+        hasMore: (result.hasMore ?? false) && filtered.length >= (params.limit || 24),
+      },
+    };
+  } catch {
+    return {
+      success: true,
+      data: { items: [], totalCount: 0, cursor: null, hasMore: false },
+    };
+  }
+}
+
+export async function getPublicBrandProductsAction(
+  slug: string,
+): Promise<{
+  success: boolean;
+  data: { brand: Brand; products: ProductCardData[] } | null;
+}> {
+  try {
+    const brandRepo = new BrandRepository();
+    const brand = await brandRepo.findBySlug(slug);
+    if (!brand) return { success: true, data: null };
+
+    const productService = new ProductService();
+    const pricingService = new PricingService();
+
+    const result = await productService.list({
+      brandId: brand.id,
+      status: "active",
+      visibility: "public",
+      isDeleted: { $ne: true },
+    });
+
+    const products = await Promise.all(
+      result.items.map(async (p) => {
+        const pricing = await pricingService.getPricingByProduct(p.id);
+        return mapProductToCard(p, pricing);
+      }),
+    );
+
+    return {
+      success: true,
+      data: { brand, products },
+    };
+  } catch {
+    return { success: true, data: null };
+  }
+}

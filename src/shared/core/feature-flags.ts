@@ -43,6 +43,18 @@ export class FeatureFlags {
     def.defaultState = state;
   }
 
+  /** Upsert-safe register for bootstrap re-entry */
+  static registerOrUpdate(definition: FeatureFlagDefinition): void {
+    if (FEATURE_FLAGS.has(definition.key)) {
+      const existing = FEATURE_FLAGS.get(definition.key)!;
+      existing.name = definition.name;
+      existing.description = definition.description;
+      if (definition.roles) existing.roles = definition.roles;
+      return;
+    }
+    FEATURE_FLAGS.set(definition.key, definition);
+  }
+
   static clear(): void {
     FEATURE_FLAGS.clear();
   }
@@ -127,9 +139,16 @@ const SETTINGS = new Map<string, SettingDefinition>();
 export class Settings {
   static register<T>(definition: SettingDefinition<T>): void {
     if (SETTINGS.has(definition.key)) {
-      throw new Error(`Setting "${definition.key}" is already registered`);
+      // Idempotent: keep first registration (avoids PRICING double-init crash)
+      return;
     }
     SETTINGS.set(definition.key, definition as SettingDefinition);
+  }
+
+  static setValue<T>(key: string, value: T): void {
+    const def = SETTINGS.get(key) as SettingDefinition<T> | undefined;
+    if (!def) throw new Error(`Setting "${key}" not found`);
+    def.defaultValue = value;
   }
 
   static get<T>(key: string): T | undefined {

@@ -115,6 +115,19 @@ export class ResellerService {
     return reseller;
   }
 
+  async getResellerByUserId(userId: string): Promise<Reseller | null> {
+    return this.resellerRepository.findByUserId(userId);
+  }
+
+  async resolveForUser(userId: string, email?: string | null): Promise<Reseller | null> {
+    const byUser = await this.resellerRepository.findByUserId(userId);
+    if (byUser) return byUser;
+    if (email) {
+      return this.resellerRepository.findByEmail(email);
+    }
+    return null;
+  }
+
   async listResellers(
     filter: object,
     pagination: PaginationParams,

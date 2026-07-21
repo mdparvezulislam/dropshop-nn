@@ -10,7 +10,7 @@ import {
   contentListFilterSchema,
 } from "../types/validation";
 import { revalidatePath } from "next/cache";
-import type { ContentType } from "../domain/content-entity";
+import type { CmsContent, ContentType } from "../domain/content-entity";
 
 function actorFromSession(session: unknown): {
   id: string;
@@ -199,7 +199,7 @@ export async function getCmsOverviewAction(): Promise<{
 export async function getPublicContentBySlugAction(
   type: ContentType,
   slug: string,
-): Promise<{ success: boolean; data?: unknown; error?: string }> {
+): Promise<{ success: boolean; data?: CmsContent | null; error?: string }> {
   try {
     const service = new ContentService();
     const result = await service.getPublishedBySlug(type, slug);
@@ -264,6 +264,7 @@ export async function getPublicBlogPostAction(slug: string): Promise<{
     };
   }
 }
+
 
 export async function getBlogTaxonomyAction(): Promise<{
   success: boolean;

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import {
   Search,
@@ -58,11 +58,12 @@ const COURIER_RATES: Record<string, number> = {
   "Mymensingh": 13000,
 };
 
-export default function CreateOrderPage(): React.ReactElement {
+function CreateOrderPageContent(): React.ReactElement {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [customer, setCustomer] = React.useState<CustomerInfo>({
-    name: "",
-    phone: "",
+    name: searchParams.get("customerName") ?? "",
+    phone: searchParams.get("customerPhone") ?? "",
     address: "",
     district: "Inside Dhaka",
   });
@@ -72,6 +73,23 @@ export default function CreateOrderPage(): React.ReactElement {
   const [searchResults, setSearchResults] = React.useState<any[]>([]);
   const [searching, setSearching] = React.useState(false);
   const [submitting, setSubmitting] = React.useState(false);
+  const [resellerId, setResellerId] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    async function resolveReseller() {
+      try {
+        const { resolveCurrentResellerAction } = await import(
+          "@/features/reseller/actions/reseller-actions"
+        );
+        const res = await resolveCurrentResellerAction();
+        if (res.success && res.data) setResellerId(res.data.id);
+        else toast.error(res.error ?? "Reseller profile not linked");
+      } catch {
+        toast.error("Failed to resolve reseller profile");
+      }
+    }
+    resolveReseller();
+  }, []);
 
   const deliveryCharge = COURIER_RATES[customer.district] ?? 13000;
 
@@ -90,7 +108,7 @@ export default function CreateOrderPage(): React.ReactElement {
         "@/features/reseller/actions/reseller-actions"
       );
       const res = await searchResellerProductsAction({
-        resellerId: "current",
+        resellerId: "me",
         search: q,
         page: 1,
         limit: 10,
@@ -98,6 +116,9 @@ export default function CreateOrderPage(): React.ReactElement {
       if (res.success && res.data) {
         const d = res.data as any;
         setSearchResults(d.items ?? []);
+      } else if (!res.success) {
+        toast.error(res.error ?? "Product search failed");
+        setSearchResults([]);
       }
     } catch {
       setSearchResults([]);
@@ -185,9 +206,15 @@ export default function CreateOrderPage(): React.ReactElement {
       const { completeRoleCheckoutAction } = await import(
         "@/features/checkout/actions/checkout-actions"
       );
+      if (!resellerId) {
+        toast.error("Reseller profile not ready. Refresh and try again.");
+        setSubmitting(false);
+        return;
+      }
+
       const res = await completeRoleCheckoutAction({
         type: "reseller",
-        resellerId: "current",
+        resellerId,
         paymentMethod,
         deliveryCharge,
         customer: {
@@ -206,7 +233,9 @@ export default function CreateOrderPage(): React.ReactElement {
 
       if (res.success) {
         toast.success("Order created via checkout pipeline");
-        router.push("/reseller/orders");
+        const orderId = (res.data as { orderId?: string; id?: string } | undefined)?.orderId
+          ?? (res.data as { id?: string } | undefined)?.id;
+        router.push(orderId ? `/reseller/orders/${orderId}` : "/reseller/orders");
       } else {
         toast.error(res.error ?? "Failed to create order");
       }
@@ -519,7 +548,7 @@ export default function CreateOrderPage(): React.ReactElement {
             <CardHeader className="p-4 pb-2">
               <CardTitle className="text-xs font-medium text-muted-foreground">Tips</CardTitle>
             </CardHeader>
-            <CardContent className="p-4 pt-0 space-y-2 text-xs text-muted-foreground">
+            <CardContent className="space-y-2 p-4 pt-0 text-xs text-muted-foreground">
               <p>• You can set a custom selling price per item</p>
               <p>• Profit is calculated based on your cost basis</p>
               <p>• Delivery charge varies by zone</p>
@@ -529,5 +558,19 @@ export default function CreateOrderPage(): React.ReactElement {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CreateOrderPage(): React.ReactElement {
+  return (
+    <React.Suspense
+      fallback={
+        <div className="flex min-h-[40vh] items-center justify-center text-sm text-muted-foreground">
+          Loading order form…
+        </div>
+      }
+    >
+      <CreateOrderPageContent />
+    </React.Suspense>
   );
 }

@@ -27,15 +27,14 @@ export function TemplatesManager(): React.ReactElement {
     if (res.success && res.data) {
       const list = res.data as NotificationTemplate[];
       setTemplates(list);
-      if (!selected && list[0]) setSelected(list[0]);
+      setSelected((prev) => prev ?? list[0]);
     }
     setLoading(false);
-  }, [selected]);
+  }, []);
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [load]);
 
   const save = async (): Promise<void> => {
     if (!selected) return;
