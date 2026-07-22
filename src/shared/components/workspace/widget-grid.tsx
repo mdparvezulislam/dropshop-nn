@@ -1,8 +1,10 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { cn } from "@/shared/utils/cn";
+import { ArrowUpRight } from "lucide-react";
 
 export interface WidgetGridProps {
   children: React.ReactNode;
@@ -23,7 +25,7 @@ export function WidgetGrid({
   columns = 4,
 }: WidgetGridProps): React.ReactElement {
   return (
-    <div className={cn("grid gap-3", COL_CLASS[columns], className)}>{children}</div>
+    <div className={cn("grid gap-4 sm:gap-5", COL_CLASS[columns], className)}>{children}</div>
   );
 }
 
@@ -53,7 +55,7 @@ export function WorkspaceWidget({
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.25 }}
+      transition={{ delay, duration: 0.2 }}
       className={cn(spanClass, className)}
     >
       {children}
@@ -79,27 +81,39 @@ export function QuickActionsWidget({
 }: QuickActionsWidgetProps): React.ReactElement {
   return (
     <div className="space-y-3">
-      <h2 className="text-sm font-semibold text-foreground">{title}</h2>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+      <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{title}</h2>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {actions.map((action, i) => {
           const Icon = action.icon;
           return (
-            <motion.a
+            <motion.div
               key={action.href}
-              href={action.href}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.05 * i }}
-              className="group flex flex-col gap-2 rounded-xl border border-border/60 bg-card p-3 transition-colors hover:border-primary/30 hover:bg-muted/40"
+              transition={{ delay: 0.04 * i }}
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-                <Icon className="h-4 w-4" />
-              </span>
-              <span className="text-xs font-medium text-foreground">{action.label}</span>
-              {action.description ? (
-                <span className="text-[10px] text-muted-foreground">{action.description}</span>
-              ) : null}
-            </motion.a>
+              <Link
+                href={action.href}
+                className="group relative flex flex-col justify-between h-full rounded-xl border border-border/80 bg-card p-3.5 transition-all duration-200 hover:border-primary/40 hover:bg-card/90 hover:shadow-md hover:-translate-y-0.5 active:translate-y-0"
+              >
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-primary transition-all group-hover:scale-105 group-hover:bg-primary group-hover:text-primary-foreground shadow-2xs">
+                    <Icon className="h-4.5 w-4.5" />
+                  </span>
+                  <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground/40 opacity-0 group-hover:opacity-100 group-hover:text-primary transition-all -translate-x-1 group-hover:translate-x-0" />
+                </div>
+                <div className="min-w-0">
+                  <span className="block text-xs font-bold text-foreground group-hover:text-primary transition-colors truncate">
+                    {action.label}
+                  </span>
+                  {action.description ? (
+                    <span className="block text-[10px] text-muted-foreground/80 truncate mt-0.5">
+                      {action.description}
+                    </span>
+                  ) : null}
+                </div>
+              </Link>
+            </motion.div>
           );
         })}
       </div>

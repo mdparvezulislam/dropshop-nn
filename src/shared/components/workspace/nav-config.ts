@@ -33,9 +33,9 @@ import {
   UserCog,
   ClipboardCheck,
   Monitor,
+  PieChart,
+  Tag,
 } from "lucide-react";
-
-import type { UserRole } from "@/shared/core/types";
 
 export interface NavItem {
   label: string;
@@ -77,51 +77,25 @@ export const WORKSPACE_NAV: NavSection[] = [
         icon: DollarSign,
         anyPermission: ["Pricing.View", "Pricing.Update"],
         children: [
-          { label: "Price List", href: "/dashboard/pricing", icon: DollarSign, permission: "Pricing.View" },
+          { label: "Price Lists", href: "/dashboard/pricing", icon: DollarSign, permission: "Pricing.View" },
           { label: "Bulk Update", href: "/dashboard/pricing/bulk", icon: Layers, permission: "Pricing.Update" },
         ],
       },
-    ],
-  },
-  {
-    id: "partners",
-    label: "Partners",
-    items: [
       {
         label: "Suppliers",
         icon: Building2,
         anyPermission: ["Supplier.View", "Supplier.Create"],
         children: [
           { label: "All Suppliers", href: "/dashboard/suppliers", icon: Building2, permission: "Supplier.View" },
-          { label: "Onboard", href: "/dashboard/suppliers/new", icon: FileText, permission: "Supplier.Create" },
-        ],
-      },
-      {
-        label: "Resellers",
-        icon: Store,
-        anyPermission: ["Reseller.View", "Reseller.Create"],
-        children: [
-          { label: "All Resellers", href: "/dashboard/resellers", icon: Store, permission: "Reseller.View" },
-          { label: "Onboard", href: "/dashboard/resellers/new", icon: FileText, permission: "Reseller.Create" },
+          { label: "Onboard Supplier", href: "/dashboard/suppliers/new", icon: FileText, permission: "Supplier.Create" },
         ],
       },
     ],
   },
   {
-    id: "operations",
-    label: "Operations",
+    id: "sales",
+    label: "Sales",
     items: [
-      {
-        label: "Inventory",
-        icon: Warehouse,
-        anyPermission: ["Inventory.View", "Inventory.Update"],
-        children: [
-          { label: "Overview", href: "/dashboard/inventory", icon: Boxes, permission: "Inventory.View" },
-          { label: "Adjust Stock", href: "/dashboard/inventory/adjust", icon: Tags, permission: "Inventory.Update" },
-          { label: "Low Stock", href: "/dashboard/inventory/low-stock", icon: AlertTriangle, permission: "Inventory.View" },
-          { label: "History", href: "/dashboard/inventory/history", icon: History, permission: "Inventory.View" },
-        ],
-      },
       {
         label: "Orders",
         icon: ShoppingCart,
@@ -132,15 +106,7 @@ export const WORKSPACE_NAV: NavSection[] = [
         ],
       },
       {
-        label: "Customers",
-        icon: Users,
-        anyPermission: ["Customer.View"],
-        children: [
-          { label: "My Customers", href: "/dashboard/customers", icon: Users, permission: "Customer.View" },
-        ],
-      },
-      {
-        label: "Courier",
+        label: "Courier & Shipments",
         icon: Truck,
         anyPermission: ["Order.View"],
         children: [
@@ -151,28 +117,71 @@ export const WORKSPACE_NAV: NavSection[] = [
     ],
   },
   {
+    id: "customers",
+    label: "Customers",
+    items: [
+      {
+        label: "Customers",
+        icon: Users,
+        anyPermission: ["Customer.View"],
+        children: [
+          { label: "Customer List", href: "/dashboard/customers", icon: Users, permission: "Customer.View" },
+        ],
+      },
+      {
+        label: "Reseller Partners",
+        icon: Store,
+        anyPermission: ["Reseller.View", "Reseller.Create"],
+        children: [
+          { label: "All Resellers", href: "/dashboard/resellers", icon: Store, permission: "Reseller.View" },
+          { label: "Onboard Reseller", href: "/dashboard/resellers/new", icon: FileText, permission: "Reseller.Create" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "inventory",
+    label: "Inventory",
+    items: [
+      {
+        label: "Inventory Ops",
+        icon: Warehouse,
+        anyPermission: ["Inventory.View", "Inventory.Update"],
+        children: [
+          { label: "Stock Overview", href: "/dashboard/inventory", icon: Boxes, permission: "Inventory.View" },
+          { label: "Adjust Stock", href: "/dashboard/inventory/adjust", icon: Tags, permission: "Inventory.Update" },
+          { label: "Low Stock Alerts", href: "/dashboard/inventory/low-stock", icon: AlertTriangle, permission: "Inventory.View" },
+          { label: "Audit Trail", href: "/dashboard/inventory/history", icon: History, permission: "Inventory.View" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "marketing",
+    label: "Marketing",
+    items: [
+      {
+        label: "Promotions & Banners",
+        icon: Megaphone,
+        anyPermission: ["Content.View"],
+        children: [
+          { label: "Banners", href: "/dashboard/content/banners", icon: Megaphone, permission: "Content.View" },
+          { label: "Homepage Hero", href: "/dashboard/content/homepage", icon: PanelTop, permission: "Content.View" },
+        ],
+      },
+    ],
+  },
+  {
     id: "finance",
     label: "Finance",
     items: [
       {
-        label: "Wallet",
+        label: "Wallet & Ledger",
         icon: Wallet,
         anyPermission: ["Finance.View"],
         children: [
           { label: "Admin Console", href: "/dashboard/finance", icon: DollarSign, permission: "Finance.View" },
           { label: "My Wallet", href: "/dashboard/wallet", icon: Wallet, permission: "Finance.View" },
-        ],
-      },
-      {
-        label: "Analytics",
-        icon: BarChart3,
-        anyPermission: ["Analytics.View", "Report.View"],
-        children: [
-          { label: "Overview", href: "/dashboard/analytics", icon: BarChart3, permission: "Analytics.View" },
-          { label: "Sales", href: "/dashboard/analytics/sales", icon: DollarSign, permission: "Analytics.View" },
-          { label: "Orders", href: "/dashboard/analytics/orders", icon: ShoppingCart, permission: "Analytics.View" },
-          { label: "Catalog", href: "/dashboard/analytics/catalog", icon: Package, permission: "Analytics.View" },
-          { label: "Content", href: "/dashboard/analytics/content", icon: Newspaper, permission: "Analytics.View" },
         ],
       },
     ],
@@ -182,17 +191,33 @@ export const WORKSPACE_NAV: NavSection[] = [
     label: "Content",
     items: [
       {
-        label: "CMS",
+        label: "CMS Pages & Blog",
         icon: Newspaper,
         anyPermission: ["Content.View", "Content.Create"],
         children: [
           { label: "Overview", href: "/dashboard/content", icon: LayoutDashboard, permission: "Content.View" },
           { label: "Pages", href: "/dashboard/content/pages", icon: FileText, permission: "Content.View" },
           { label: "Blog", href: "/dashboard/content/blog", icon: BookOpen, permission: "Content.View" },
-          { label: "Banners", href: "/dashboard/content/banners", icon: Megaphone, permission: "Content.View" },
-          { label: "Homepage", href: "/dashboard/content/homepage", icon: PanelTop, permission: "Content.View" },
-          { label: "Media", href: "/dashboard/content/media", icon: Image, permission: "Content.View" },
+          { label: "Media Library", href: "/dashboard/content/media", icon: Image, permission: "Content.View" },
           { label: "Navigation", href: "/dashboard/content/navigation", icon: Navigation, permission: "Content.View" },
+        ],
+      },
+    ],
+  },
+  {
+    id: "reports",
+    label: "Reports",
+    items: [
+      {
+        label: "Analytics & Reports",
+        icon: BarChart3,
+        anyPermission: ["Analytics.View", "Report.View"],
+        children: [
+          { label: "Overview", href: "/dashboard/analytics", icon: PieChart, permission: "Analytics.View" },
+          { label: "Sales Report", href: "/dashboard/analytics/sales", icon: DollarSign, permission: "Analytics.View" },
+          { label: "Orders Report", href: "/dashboard/analytics/orders", icon: ShoppingCart, permission: "Analytics.View" },
+          { label: "Catalog Report", href: "/dashboard/analytics/catalog", icon: Package, permission: "Analytics.View" },
+          { label: "Content Performance", href: "/dashboard/analytics/content", icon: Newspaper, permission: "Analytics.View" },
         ],
       },
     ],
@@ -202,69 +227,29 @@ export const WORKSPACE_NAV: NavSection[] = [
     label: "System",
     items: [
       {
-        label: "Identity",
+        label: "Identity & Roles",
         icon: Shield,
         anyPermission: ["Identity.View", "User.View"],
         children: [
           { label: "Overview", href: "/dashboard/identity", icon: Shield, permission: "Identity.View" },
-          {
-            label: "Approvals",
-            href: "/dashboard/identity/approvals",
-            icon: ClipboardCheck,
-            permission: "Identity.View",
-          },
+          { label: "Approvals", href: "/dashboard/identity/approvals", icon: ClipboardCheck, permission: "Identity.View" },
           { label: "Users", href: "/dashboard/identity/users", icon: Users, permission: "User.View" },
-          {
-            label: "Roles",
-            href: "/dashboard/identity/roles",
-            icon: UserCog,
-            permission: "Identity.View",
-          },
-          {
-            label: "Sessions",
-            href: "/dashboard/identity/sessions",
-            icon: Monitor,
-            permission: "Identity.Sessions",
-          },
+          { label: "Roles", href: "/dashboard/identity/roles", icon: UserCog, permission: "Identity.View" },
+          { label: "Sessions", href: "/dashboard/identity/sessions", icon: Monitor, permission: "Identity.Sessions" },
         ],
       },
       {
         label: "Notifications",
         icon: Bell,
-        anyPermission: ["Notification.View", "Notification.Create"],
+        anyPermission: ["Notification.View"],
         children: [
-          {
-            label: "Overview",
-            href: "/dashboard/notifications",
-            icon: Bell,
-            permission: "Notification.View",
-          },
-          {
-            label: "Templates",
-            href: "/dashboard/notifications/templates",
-            icon: FileText,
-            permission: "Notification.View",
-          },
-          {
-            label: "Delivery Logs",
-            href: "/dashboard/notifications/logs",
-            icon: ScrollText,
-            permission: "Notification.View",
-          },
+          { label: "Overview", href: "/dashboard/notifications", icon: Bell, permission: "Notification.View" },
+          { label: "Templates", href: "/dashboard/notifications/templates", icon: FileText, permission: "Notification.View" },
+          { label: "Delivery Logs", href: "/dashboard/notifications/logs", icon: ScrollText, permission: "Notification.View" },
         ],
       },
-      {
-        label: "Audit Center",
-        href: "/dashboard/audit",
-        icon: ScrollText,
-        permission: "Identity.View",
-      },
-      {
-        label: "Settings",
-        href: "/dashboard/settings",
-        icon: Settings,
-        permission: "Settings.View",
-      },
+      { label: "Audit Logs", href: "/dashboard/audit", icon: ScrollText, permission: "Identity.View" },
+      { label: "Settings", href: "/dashboard/settings", icon: Settings, permission: "Settings.View" },
     ],
   },
 ];

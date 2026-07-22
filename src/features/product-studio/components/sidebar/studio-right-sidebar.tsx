@@ -5,9 +5,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui
 import { Button } from "@/shared/components/ui/button";
 import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
 import { Badge } from "@/shared/components/ui/badge";
-import { Separator } from "@/shared/components/ui/separator";
-import { Send, Eye, Clock, History, FileText, RefreshCw } from "lucide-react";
+import {
+  Send,
+  Eye,
+  RefreshCw,
+  Globe,
+  Activity,
+  CheckCircle2,
+  AlertCircle,
+  Copy,
+  Trash2,
+  Share2,
+} from "lucide-react";
 import type { SaveState } from "../../hooks/use-autosave";
+import type { HealthScoreResult } from "../../types/studio-types";
+import { toast } from "sonner";
 
 export interface StudioRightSidebarProps {
   status: string;
@@ -17,10 +29,13 @@ export interface StudioRightSidebarProps {
   onPublish: () => void;
   onSave: () => void;
   onPreview: () => void;
+  onDuplicate?: () => void;
+  onDelete?: () => void;
   saving: boolean;
   saveState: SaveState;
   productName: string;
   productSku: string;
+  healthResult?: HealthScoreResult;
   sections: { id: string; label: string }[];
   activeSection: string;
   onSectionClick: (id: string) => void;
@@ -28,110 +43,151 @@ export interface StudioRightSidebarProps {
 
 export function StudioRightSidebar({
   status, visibility, onVisibilityChange,
-  onPublish, onSave, onPreview,
+  onPublish, onSave, onPreview, onDuplicate, onDelete,
   saving, saveState,
   productName, productSku,
+  healthResult,
   sections, activeSection, onSectionClick,
 }: StudioRightSidebarProps): React.ReactElement {
+  const score = healthResult?.score ?? 0;
+  const scoreColor =
+    score >= 80
+      ? "text-success bg-success/15 border-success/30"
+      : score >= 50
+      ? "text-warning bg-warning/15 border-warning/30"
+      : "text-destructive bg-destructive/15 border-destructive/30";
+
+  const handleCopyUrl = () => {
+    const url = `${window.location.origin}/products/${productSku || "item"}`;
+    navigator.clipboard.writeText(url);
+    toast.success("Product URL copied to clipboard");
+  };
+
   return (
     <>
-      {/* Publishing */}
-      <Card>
+      {/* Product Health Score Gauge */}
+      {healthResult ? (
+        <Card className="border-border bg-card shadow-2xs">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-bold text-foreground flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <Activity className="h-4 w-4 text-primary" /> Product Health
+              </span>
+              <span className={`px-2 py-0.5 rounded-full border font-mono font-extrabold text-xs ${scoreColor}`}>
+                {score}/100
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {/* Progress Bar */}
+            <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+              <div
+                style={{ width: `${score}%` }}
+                className={`h-full transition-all duration-300 ${
+                  score >= 80 ? "bg-success" : score >= 50 ? "bg-warning" : "bg-destructive"
+                }`}
+              />
+            </div>
+
+            <p className="text-[11px] font-medium text-muted-foreground">
+              {healthResult.completedCount} of {healthResult.totalCount} quality checks completed.
+            </p>
+
+            {/* Missing items checklist */}
+            {healthResult.missingItems.length > 0 && (
+              <div className="space-y-1 pt-1">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Required Improvements:
+                </p>
+                <ul className="space-y-1">
+                  {healthResult.missingItems.slice(0, 4).map((item) => (
+                    <li key={item.id}>
+                      <button
+                        type="button"
+                        onClick={() => onSectionClick(item.sectionId)}
+                        className="flex items-center gap-1.5 text-left text-xs font-semibold text-destructive/90 hover:text-destructive hover:underline"
+                      >
+                        <AlertCircle className="h-3 w-3 shrink-0" />
+                        <span className="truncate">{item.label}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {/* Publishing CTA & Status */}
+      <Card className="border-border bg-card shadow-2xs">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Publishing</CardTitle>
+          <CardTitle className="text-sm font-bold text-foreground flex items-center justify-between">
+            <span>Publishing Status</span>
+            <StatusChip label={status} tone={statusToneFromValue(status)} />
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Status</span>
-            <StatusChip label={status} tone={statusToneFromValue(status)} />
-          </div>
           <div>
-            <label className="text-xs text-muted-foreground block mb-1">Visibility</label>
+            <label className="text-xs font-semibold text-muted-foreground block mb-1">
+              Channel Visibility
+            </label>
             <select
               value={visibility}
               onChange={(e) => onVisibilityChange(e.target.value)}
-              className="h-8 w-full rounded-md border border-input bg-card px-2 text-xs"
+              className="h-8.5 w-full rounded-lg border border-border bg-card px-2.5 text-xs font-semibold text-foreground focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
             >
-              <option value="public">Public</option>
-              <option value="private">Private</option>
-              <option value="hidden">Hidden</option>
-              <option value="supplier_only">Supplier only</option>
+              <option value="public">Online Store & App</option>
+              <option value="private">Reseller Private Catalog</option>
+              <option value="supplier_only">Wholesale Bulk Portal</option>
+              <option value="hidden">Hidden / Draft Only</option>
             </select>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Quick actions</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <Button size="sm" className="w-full justify-start" onClick={onSave} disabled={saving}>
-            <RefreshCw className={`h-3.5 w-3.5 ${saving ? "animate-spin" : ""}`} />
-            {saveState === "saving" ? "Saving…" : saveState === "saved" ? "Saved" : "Save changes"}
-          </Button>
-          <Button size="sm" variant="outline" className="w-full justify-start" onClick={onPublish} disabled={saving || status === "active"}>
-            <Send className="h-3.5 w-3.5" />
-            {status === "active" ? "Published" : "Publish"}
-          </Button>
-          <Button size="sm" variant="outline" className="w-full justify-start" onClick={onPreview}>
-            <Eye className="h-3.5 w-3.5" /> Preview
-          </Button>
-        </CardContent>
-      </Card>
-
-      {/* Quick Preview */}
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Preview</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="rounded-xl border border-border bg-muted/30 overflow-hidden">
-            <div className="aspect-[4/3] bg-muted flex items-center justify-center text-muted-foreground text-xs">
-              No image
-            </div>
-            <div className="p-3 space-y-1">
-              <p className="text-sm font-semibold line-clamp-2">{productName || "Product title"}</p>
-              {productSku ? (
-                <p className="text-[11px] font-mono text-muted-foreground">{productSku}</p>
-              ) : null}
-            </div>
+          <div className="space-y-2 pt-1">
+            <Button size="sm" className="w-full justify-center gap-1.5 font-bold shadow-xs" onClick={onSave} disabled={saving}>
+              <RefreshCw className={`h-3.5 w-3.5 ${saving ? "animate-spin" : ""}`} />
+              {saveState === "saving" ? "Saving Changes…" : saveState === "saved" ? "Autosaved" : "Save Draft"}
+            </Button>
+            <Button size="sm" variant="outline" className="w-full justify-center gap-1.5 font-semibold" onClick={onPublish} disabled={saving || status === "active"}>
+              <Send className="h-3.5 w-3.5 text-primary" />
+              {status === "active" ? "Published" : "Publish Product"}
+            </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* History */}
-      <Card>
+      {/* Quick Actions Menu */}
+      <Card className="border-border bg-card shadow-2xs">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm flex items-center gap-2">
-            <History className="h-3.5 w-3.5" /> Activity
+          <CardTitle className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            Quick Actions
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <div className="flex items-start gap-2 text-xs">
-              <Clock className="h-3 w-3 text-muted-foreground mt-0.5 shrink-0" />
-              <div>
-                <p className="text-muted-foreground">Created</p>
-                <p className="text-[10px] text-muted-foreground/60">—</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-2 text-xs">
-              <Clock className="h-3 w-3 text-muted-foreground mt-0.5 shrink-0" />
-              <div>
-                <p className="text-muted-foreground">Last modified</p>
-                <p className="text-[10px] text-muted-foreground/60">Just now</p>
-              </div>
-            </div>
-          </div>
+        <CardContent className="space-y-1">
+          <Button size="sm" variant="ghost" className="w-full justify-start gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground" onClick={onPreview}>
+            <Eye className="h-3.5 w-3.5 text-primary" /> Preview Listing
+          </Button>
+          <Button size="sm" variant="ghost" className="w-full justify-start gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground" onClick={handleCopyUrl}>
+            <Share2 className="h-3.5 w-3.5 text-primary" /> Copy Product Link
+          </Button>
+          {onDuplicate && (
+            <Button size="sm" variant="ghost" className="w-full justify-start gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground" onClick={onDuplicate}>
+              <Copy className="h-3.5 w-3.5 text-primary" /> Duplicate Item
+            </Button>
+          )}
+          {onDelete && (
+            <Button size="sm" variant="ghost" className="w-full justify-start gap-2 text-xs font-semibold text-destructive hover:bg-destructive/10" onClick={onDelete}>
+              <Trash2 className="h-3.5 w-3.5" /> Delete Product
+            </Button>
+          )}
         </CardContent>
       </Card>
 
-      {/* Jump to */}
+      {/* Section Navigation Jump Links */}
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2 px-1">
-          Sections
+        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2 px-1">
+          Editor Jump Links
         </p>
         <div className="space-y-0.5">
           {sections.map((s) => (
@@ -139,10 +195,10 @@ export function StudioRightSidebar({
               key={s.id}
               type="button"
               onClick={() => onSectionClick(s.id)}
-              className={`w-full rounded-md px-2.5 py-1.5 text-left text-xs transition-colors ${
+              className={`w-full rounded-lg px-2.5 py-1.5 text-left text-xs font-semibold transition-all ${
                 activeSection === s.id
-                  ? "bg-primary/10 text-primary font-medium"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "bg-accent text-foreground font-bold border-l-4 border-primary pl-2 shadow-2xs"
+                  : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
               }`}
             >
               {s.label}
@@ -153,3 +209,5 @@ export function StudioRightSidebar({
     </>
   );
 }
+
+export default StudioRightSidebar;

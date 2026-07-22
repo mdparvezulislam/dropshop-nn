@@ -17,7 +17,7 @@ import { currencyToCents, formatCentsToCurrency } from "@/shared/utils/currency-
 
 const MOCK = {
   id: "rp1",
-  title: "iPhone 16 Pro Max — Nova Edition",
+  title: "Smart Watch Ultra 2 — Nova Edition",
   variantSku: "APL-IPH16PM-256-BLK",
   sellingPrice: 124900,
   recommendedPrice: 119900,

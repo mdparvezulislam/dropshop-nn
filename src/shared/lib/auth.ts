@@ -55,11 +55,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const permissions = await authorizationService.getPermissionsForRole(user.role);
 
           return {
-            id: user.id,
-            name: user.fullName,
-            email: user.email,
-            role: user.role,
-            permissions,
+            id: String(user.id),
+            name: String(user.fullName || ""),
+            email: String(user.email || ""),
+            role: String(user.role || ""),
+            permissions: Array.from(permissions || []).map(String),
           };
         } catch (error) {
           logger.error("NextAuth authorize callback failed", error);

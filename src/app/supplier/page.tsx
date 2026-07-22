@@ -16,7 +16,9 @@ import {
   Truck,
   XCircle,
   FileText,
-  ArrowUpRight,
+  ArrowRight,
+  Sparkles,
+  Building2,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
@@ -62,12 +64,12 @@ const DEFAULT: DashboardData = {
 };
 
 const QUICK_ACTIONS = [
-  { label: "Submit Product", href: "/supplier/products/new", icon: Plus },
-  { label: "Manage Inventory", href: "/supplier/inventory", icon: Warehouse },
-  { label: "Purchase Orders", href: "/supplier/purchase-orders", icon: ClipboardList },
-  { label: "Deliveries", href: "/supplier/deliveries", icon: Truck },
-  { label: "Payments", href: "/supplier/payments", icon: DollarSign },
-  { label: "Reports", href: "/supplier/reports", icon: TrendingUp },
+  { label: "Submit Product", href: "/supplier/products/new", icon: Plus, description: "Add product to catalog" },
+  { label: "Manage Inventory", href: "/supplier/inventory", icon: Warehouse, description: "Update stock levels" },
+  { label: "Purchase Orders", href: "/supplier/purchase-orders", icon: ClipboardList, description: "Incoming B2B POs" },
+  { label: "Deliveries", href: "/supplier/deliveries", icon: Truck, description: "Dispatch & courier" },
+  { label: "Payments", href: "/supplier/payments", icon: DollarSign, description: "Earnings & settlements" },
+  { label: "Reports", href: "/supplier/reports", icon: TrendingUp, description: "Supply analytics" },
 ];
 
 function greeting(): string {
@@ -75,6 +77,10 @@ function greeting(): string {
   if (h < 12) return "Good morning";
   if (h < 18) return "Good afternoon";
   return "Good evening";
+}
+
+function formatCents(cents: number): string {
+  return `৳${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 0 })}`;
 }
 
 export default function SupplierDashboardPage(): React.ReactElement {
@@ -148,7 +154,7 @@ export default function SupplierDashboardPage(): React.ReactElement {
 
         setData(d);
       } catch {
-        // Use defaults
+        // Defaults on error
       } finally {
         setLoading(false);
       }
@@ -156,34 +162,34 @@ export default function SupplierDashboardPage(): React.ReactElement {
     load();
   }, []);
 
-  const formatCents = (cents: number): string =>
-    `৳${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
-
   return (
-    <div className="space-y-6 animate-[fade-in_0.25s_ease-out]">
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-xs">
+    <div className="space-y-6 animate-fade-in">
+      {/* Hero Banner */}
+      <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-card p-6 sm:p-8 shadow-xs">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
             background:
-              "radial-gradient(ellipse 80% 60% at 100% 0%, hsl(var(--primary) / 0.18), transparent 55%)",
+              "radial-gradient(ellipse 70% 70% at 100% 0%, hsl(var(--primary) / 0.18), transparent 60%)",
           }}
         />
-        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Supplier Portal
-            </p>
-            <h1 className="mt-1 text-2xl sm:text-3xl font-semibold tracking-tight text-foreground">
-              {greeting()}
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold uppercase tracking-wider border border-primary/20">
+                <Building2 className="h-3 w-3" /> Supplier Portal
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+              {greeting()}, Supplier Partner
             </h1>
-            <p className="mt-1.5 text-sm text-muted-foreground max-w-lg">
-              Manage your products, inventory, orders, and supply operations.
+            <p className="max-w-xl text-xs sm:text-sm text-muted-foreground leading-relaxed">
+              Manage product listings, inventory stock levels, purchase orders, and payout settlements.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             <Link href="/supplier/products/new">
-              <Button size="sm" className="gap-1.5">
+              <Button size="sm" className="gap-1.5 shadow-sm">
                 <Plus className="h-3.5 w-3.5" />
                 Submit Product
               </Button>
@@ -192,57 +198,59 @@ export default function SupplierDashboardPage(): React.ReactElement {
         </div>
       </div>
 
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Products" value={loading ? "—" : data.productsCount} icon={Package} />
-        <StatCard label="Pending Approval" value={loading ? "—" : data.productsPending} icon={Clock} accent="warning" />
-        <StatCard label="Approved" value={loading ? "—" : data.productsApproved} icon={CheckCircle2} accent="success" />
-        <StatCard label="Rejected" value={loading ? "—" : data.productsRejected} icon={XCircle} accent="danger" />
+      {/* KPI Cards */}
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <StatCard label="Products Submitted" value={data.productsCount} icon={Package} accent="primary" loading={loading} />
+        <StatCard label="Pending Approval" value={data.productsPending} icon={Clock} accent="warning" loading={loading} />
+        <StatCard label="Approved Listings" value={data.productsApproved} icon={CheckCircle2} accent="success" loading={loading} />
+        <StatCard label="Rejected Products" value={data.productsRejected} icon={XCircle} accent="danger" loading={loading} />
       </div>
 
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Low Stock" value={loading ? "—" : data.lowStockCount} icon={AlertTriangle} accent={data.lowStockCount > 0 ? "warning" : "success"} />
-        <StatCard label="Pending Orders" value={loading ? "—" : data.pendingOrders} icon={ShoppingCart} accent="warning" />
-        <StatCard label="Completed" value={loading ? "—" : data.completedOrders} icon={CheckCircle2} accent="success" />
-        <StatCard label="Balance" value={loading ? "—" : formatCents(data.totalEarnings)} icon={DollarSign} accent="success" />
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <StatCard label="Low Stock Items" value={data.lowStockCount} icon={AlertTriangle} accent={data.lowStockCount > 0 ? "warning" : "success"} loading={loading} />
+        <StatCard label="Pending Orders" value={data.pendingOrders} icon={ShoppingCart} accent="warning" loading={loading} />
+        <StatCard label="Completed Orders" value={data.completedOrders} icon={CheckCircle2} accent="success" loading={loading} />
+        <StatCard label="Available Earnings" value={formatCents(data.totalEarnings)} icon={DollarSign} accent="success" loading={loading} />
       </div>
 
+      {/* Quick Actions */}
       <QuickActionsWidget title="Quick actions" actions={QUICK_ACTIONS} />
 
+      {/* Recent Orders & Inventory Alerts */}
       <section>
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Card>
-            <CardHeader className="p-4 pb-2">
-              <CardTitle className="text-sm flex items-center justify-between">
-                Recent Orders
-                <Link href="/supplier/orders" className="text-xs text-primary hover:underline font-normal">
-                  View all
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Orders */}
+          <Card className="border-border/80 shadow-xs overflow-hidden">
+            <CardHeader className="p-4 pb-2 border-b border-border/60">
+              <CardTitle className="text-xs font-bold uppercase tracking-wider flex items-center justify-between">
+                <span>Recent Supply Orders</span>
+                <Link href="/supplier/orders" className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1">
+                  View all <ArrowRight className="h-3 w-3" />
                 </Link>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
               {recentOrders.length === 0 ? (
-                <div className="px-6 py-8 text-center text-sm text-muted-foreground">
-                  No recent orders to display.
+                <div className="px-6 py-10 text-center text-sm text-muted-foreground">
+                  No recent supply orders.
                 </div>
               ) : (
-                <div className="divide-y divide-border">
+                <div className="divide-y divide-border/60">
                   {recentOrders.map((o) => (
                     <Link
                       key={o.id}
                       href={`/supplier/orders/${o.id}`}
-                      className={cn(
-                        "flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-muted/40",
-                      )}
+                      className="flex items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-muted/50 group"
                     >
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-medium">{o.orderNumber}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="truncate text-xs sm:text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{o.orderNumber}</p>
+                        <p className="text-[11px] text-muted-foreground mt-0.5">
                           {o.customer} · {o.createdAt ? new Date(o.createdAt).toLocaleDateString() : "—"}
                         </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-3">
-                        <span className="text-sm font-medium tabular-nums">{formatCents(o.total)}</span>
-                        <StatusChip label={o.status} tone={statusToneFromValue(o.status)} />
+                        <span className="text-xs sm:text-sm font-bold text-foreground tabular-nums">{formatCents(o.total)}</span>
+                        <StatusChip label={o.status} tone={statusToneFromValue(o.status)} size="sm" />
                       </div>
                     </Link>
                   ))}
@@ -251,30 +259,38 @@ export default function SupplierDashboardPage(): React.ReactElement {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader className="p-4 pb-2">
-              <CardTitle className="text-sm flex items-center justify-between">
-                Inventory Alerts
-                <Link href="/supplier/inventory" className="text-xs text-primary hover:underline font-normal">
-                  View all
+          {/* Inventory alert card */}
+          <Card className="border-border/80 shadow-xs overflow-hidden">
+            <CardHeader className="p-4 pb-2 border-b border-border/60">
+              <CardTitle className="text-xs font-bold uppercase tracking-wider flex items-center justify-between">
+                <span>Inventory Stock Status</span>
+                <Link href="/supplier/inventory" className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1">
+                  Manage stock <ArrowRight className="h-3 w-3" />
                 </Link>
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-0">
+            <CardContent className="p-6">
               {data.lowStockCount === 0 ? (
-                <div className="px-6 py-8 text-center text-sm text-muted-foreground">
-                  All product stock levels are healthy.
+                <div className="flex flex-col items-center justify-center text-center space-y-2 py-4">
+                  <div className="h-10 w-10 rounded-full bg-success/10 text-success flex items-center justify-center">
+                    <CheckCircle2 className="h-5 w-5" />
+                  </div>
+                  <p className="text-xs sm:text-sm font-semibold text-foreground">Stock levels are healthy</p>
+                  <p className="text-[11px] text-muted-foreground">All items have sufficient inventory on hand.</p>
                 </div>
               ) : (
-                <div className="px-4 py-3">
-                  <div className="flex items-center gap-2 text-sm">
-                    <AlertTriangle className="h-4 w-4 text-warning" />
-                    <span className="text-muted-foreground">
-                      {data.lowStockCount} product{data.lowStockCount !== 1 ? "s" : ""} running low on stock
-                    </span>
+                <div className="flex flex-col items-center justify-center text-center space-y-3 py-4">
+                  <div className="h-10 w-10 rounded-full bg-warning/10 text-warning flex items-center justify-center">
+                    <AlertTriangle className="h-5 w-5" />
                   </div>
-                  <Link href="/supplier/inventory" className="mt-2 inline-flex items-center gap-1 text-xs text-primary hover:underline">
-                    Review inventory <ArrowUpRight className="h-3 w-3" />
+                  <p className="text-xs sm:text-sm font-bold text-foreground">
+                    {data.lowStockCount} item{data.lowStockCount !== 1 ? "s" : ""} low on stock
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">Update inventory quantities to prevent stockouts.</p>
+                  <Link href="/supplier/inventory">
+                    <Button size="sm" variant="outline" className="gap-1.5 text-xs">
+                      Update inventory
+                    </Button>
                   </Link>
                 </div>
               )}

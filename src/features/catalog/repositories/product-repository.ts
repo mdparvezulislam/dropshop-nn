@@ -172,6 +172,7 @@ export class ProductRepository extends BaseRepository<ProductDocument, Product> 
     filter: Record<string, unknown> = {},
   ): Promise<PaginatedCatalogResult<Product>> {
     try {
+      await this.ensureConnected();
       const query: Record<string, unknown> = { ...filter, isDeleted: { $ne: true } };
 
       if (params.cursor) {
@@ -233,6 +234,7 @@ export class ProductRepository extends BaseRepository<ProductDocument, Product> 
     filters: Record<string, unknown> = {},
   ): Promise<PaginatedCatalogResult<Product>> {
     try {
+      await this.ensureConnected();
       const searchFilter: Record<string, unknown> = {
         ...filters,
         $text: { $search: query },

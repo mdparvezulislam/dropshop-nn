@@ -93,6 +93,7 @@ export class CategoryRepository extends BaseRepository<CategoryDocument, Categor
 
   async getTree(options?: DatabaseQueryOptions): Promise<Category[]> {
     try {
+      await this.ensureConnected();
       const docs = await this.model
         .find({ isDeleted: { $ne: true } })
         .sort({ sortOrder: 1 })
@@ -144,6 +145,7 @@ export class CollectionRepository extends BaseRepository<CollectionDocument, Col
 
   async findActive(options?: DatabaseQueryOptions): Promise<Collection[]> {
     try {
+      await this.ensureConnected();
       const docs = await this.model
         .find({ isActive: true, isDeleted: { $ne: true } })
         .sort({ sortOrder: 1 })

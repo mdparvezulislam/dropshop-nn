@@ -9,7 +9,7 @@ const CATEGORIES = [
   {
     name: "Electronics",
     href: "/category/electronics",
-    items: ["Smartphones", "Laptops", "Accessories", "Audio", "Wearables"],
+    items: ["Smart Watches", "Audio & Speakers", "Power Banks", "Accessories", "Rechargeable Devices"],
   },
   {
     name: "Fashion",

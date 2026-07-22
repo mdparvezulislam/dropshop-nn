@@ -53,33 +53,32 @@ export function SiteHeader() {
       <AnnouncementBar />
       <header
         className={cn(
-          "sticky top-0 z-50 w-full transition-all duration-300",
+          "sticky top-0 z-50 w-full transition-all duration-200",
           scrolled
-            ? "bg-background/85 backdrop-blur-xl border-b border-border/50 shadow-xs"
-            : "bg-background/60 backdrop-blur-sm",
+            ? "bg-background/90 backdrop-blur-xl border-b border-border/80 shadow-xs"
+            : "bg-background/70 backdrop-blur-md border-b border-border/40",
         )}
       >
         <div className="mx-auto flex h-16 max-w-(--content-max) items-center gap-4 px-4 sm:px-6 lg:px-8">
           <button
             type="button"
-            className="lg:hidden -ml-2 p-2 text-foreground/70 hover:text-foreground transition-colors"
+            className="lg:hidden -ml-1 p-2 text-foreground/70 hover:text-foreground transition-colors"
             onClick={() => setMobileOpen(true)}
             aria-label="Open menu"
           >
             <Menu className="h-5 w-5" />
           </button>
 
-          <Link href="/" className="flex items-center gap-2 shrink-0">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold">
+          <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-bold text-sm shadow-glow group-hover:scale-105 transition-transform">
               D
             </div>
-            <span className="hidden sm:inline text-lg font-semibold tracking-tight text-foreground">
-              Dropshop
-              <span className="text-primary">NN</span>
+            <span className="hidden sm:inline text-lg font-extrabold tracking-tight text-foreground">
+              Dropshop<span className="text-primary">NN</span>
             </span>
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-1 ml-8" role="navigation" aria-label="Main navigation">
+          <nav className="hidden lg:flex items-center gap-1 ml-6" role="navigation" aria-label="Main navigation">
             {NAV_ITEMS.map((item) => (
               <div
                 key={item.label}
@@ -90,15 +89,15 @@ export function SiteHeader() {
                 <Link
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                    "text-foreground/70 hover:text-foreground hover:bg-muted/60",
+                    "flex items-center gap-1 px-3 py-2 text-xs font-semibold rounded-lg transition-colors",
+                    "text-foreground/80 hover:text-foreground hover:bg-muted/70",
                   )}
                 >
                   {item.label}
                   {item.hasMega && (
                     <ChevronDown className={cn(
-                      "h-3.5 w-3.5 transition-transform duration-200",
-                      activeMega === item.label && "rotate-180",
+                      "h-3.5 w-3.5 text-muted-foreground transition-transform duration-200",
+                      activeMega === item.label && "rotate-180 text-primary",
                     )} />
                   )}
                 </Link>
@@ -109,15 +108,15 @@ export function SiteHeader() {
 
           <div className="flex-1" />
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => setSearchOpen(true)}
-              className="flex items-center gap-2 px-3 py-1.5 text-sm text-foreground/50 bg-muted/40 border border-border/50 rounded-lg hover:bg-muted/60 hover:text-foreground/70 transition-colors w-40 lg:w-56"
+              className="flex items-center gap-2.5 px-3 py-1.5 text-xs text-muted-foreground bg-card/80 border border-border/80 rounded-lg hover:bg-muted/70 hover:border-primary/40 hover:text-foreground transition-all w-36 sm:w-48 lg:w-60 shadow-2xs group"
             >
-              <Search className="h-4 w-4 shrink-0" />
-              <span className="hidden sm:inline">Search products...</span>
-              <span className="hidden lg:inline ml-auto text-[10px] font-medium text-foreground/30 bg-muted/60 px-1.5 py-0.5 rounded border border-border/30">
+              <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60 group-hover:text-primary transition-colors" />
+              <span className="hidden sm:inline truncate">Search products...</span>
+              <span className="hidden lg:inline ml-auto text-[10px] font-mono font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded border border-border/60">
                 ⌘K
               </span>
             </button>
@@ -140,3 +139,5 @@ export function SiteHeader() {
     </>
   );
 }
+
+export default SiteHeader;

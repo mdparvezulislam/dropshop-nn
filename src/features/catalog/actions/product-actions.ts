@@ -173,3 +173,9 @@ export async function changeVisibilityAction(id: string, visibility: string) {
   revalidatePath(`/dashboard/catalog/products/${id}`);
   return { success: true, data: result };
 }
+
+export async function updateProductStatusAction(id: string, status: "active" | "draft" | "archived") {
+  if (status === "active") return publishProductAction(id);
+  if (status === "archived") return archiveProductAction(id);
+  return updateProductAction(id, { status });
+}

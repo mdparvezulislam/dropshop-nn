@@ -13,7 +13,7 @@ import {
 } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
-import { updateProductStatusAction } from "@/features/product/actions/product-actions";
+import { updateProductStatusAction } from "@/features/catalog/actions/product-actions";
 import { toast } from "sonner";
 import {
   Settings as SettingsIcon,

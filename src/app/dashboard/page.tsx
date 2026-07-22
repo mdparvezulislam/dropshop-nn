@@ -19,9 +19,13 @@ import {
   ShoppingCart,
   TrendingUp,
   Users,
+  Sparkles,
+  BarChart3,
+  CheckSquare,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
+import { StatCard } from "@/shared/components/workspace/stat-card";
 import { SectionHeader } from "@/shared/components/workspace/section-header";
 import { StatusChip } from "@/shared/components/workspace/status-chip";
 import { QuickActionsWidget } from "@/shared/components/workspace/widget-grid";
@@ -75,14 +79,11 @@ function greeting(): string {
 }
 
 const QUICK_ACTIONS = [
-  { label: "New product", href: "/dashboard/products/new", icon: Package },
-  { label: "Onboard supplier", href: "/dashboard/suppliers/new", icon: Building2 },
-  { label: "Onboard reseller", href: "/dashboard/resellers/new", icon: Store },
-  { label: "Adjust stock", href: "/dashboard/inventory/adjust", icon: Warehouse },
-  { label: "Update pricing", href: "/dashboard/pricing/bulk", icon: DollarSign },
-  { label: "Approvals", href: "/dashboard/identity/approvals", icon: Users },
-  { label: "Analytics", href: "/dashboard/analytics", icon: TrendingUp },
-  { label: "CMS", href: "/dashboard/content", icon: FileEdit },
+  { label: "New product", href: "/dashboard/products/new", icon: Package, description: "Add item to catalog" },
+  { label: "Onboard supplier", href: "/dashboard/suppliers/new", icon: Building2, description: "Register new supplier" },
+  { label: "Onboard reseller", href: "/dashboard/resellers/new", icon: Store, description: "Activate seller store" },
+  { label: "Adjust stock", href: "/dashboard/inventory/adjust", icon: Warehouse, description: "Inventory adjustments" },
+  { label: "Update pricing", href: "/dashboard/pricing/bulk", icon: DollarSign, description: "Bulk price management" },
 ];
 
 const NEED_ATTENTION = [
@@ -118,25 +119,11 @@ const NEED_ATTENTION = [
     icon: Store,
     key: "resellersPending",
   },
-  {
-    title: "Business applications pending",
-    detail: "Identity approval queue",
-    href: "/dashboard/identity/approvals",
-    tone: "warning" as const,
-    icon: Users,
-    key: "pendingApprovals",
-  },
 ];
 
 const RECENT_ACTIVITY = [
-  { text: "Platform bootstrap initialized", time: "Just now", icon: CheckCircle2 },
-  { text: "Listening for order & supplier events", time: "Startup", icon: Clock },
-];
-
-const SUPPLIER_ALERTS = [
-  { text: "Vertex Logistics online", detail: "Last sync 4 min ago", icon: CheckCircle2, tone: "success" as const },
-  { text: "Amana lead time increased", detail: "Now 5 days · was 3", icon: Truck, tone: "warning" as const },
-  { text: "Standard Trading suspended", detail: "Review compliance docs", icon: AlertTriangle, tone: "danger" as const },
+  { text: "Platform bootstrap initialized cleanly", time: "Just now", icon: CheckCircle2 },
+  { text: "Real-time sync active across all suppliers", time: "Startup", icon: Clock },
 ];
 
 export default function WorkspaceHomePage(): React.ReactElement {
@@ -148,6 +135,7 @@ export default function WorkspaceHomePage(): React.ReactElement {
 
   const [data, setData] = React.useState<DashboardData>(DEFAULT_DASHBOARD);
   const [loading, setLoading] = React.useState(true);
+  const [chartRange, setChartRange] = React.useState<"weekly" | "monthly" | "yearly">("monthly");
 
   React.useEffect(() => {
     async function load() {
@@ -162,22 +150,22 @@ export default function WorkspaceHomePage(): React.ReactElement {
           identityRes,
         ] = await Promise.allSettled([
           import("@/features/order/actions/order-actions").then((m) =>
-            m.listOrdersAction({ page: 1, limit: 1 }),
+            m.listOrdersAction({ page: 1, limit: 10 }),
           ),
           import("@/features/supplier/actions/supplier-actions").then((m) =>
-            m.listSuppliersAction({ page: 1, limit: 1 }),
+            m.listSuppliersAction({ page: 1, limit: 10 }),
           ),
           import("@/features/inventory/actions/inventory-actions").then((m) =>
             m.getInventoryDashboardAction(),
           ),
           import("@/features/reseller/actions/reseller-actions").then((m) =>
-            m.listResellersAction({ page: 1, limit: 1 }),
+            m.listResellersAction({ page: 1, limit: 10 }),
           ),
           import("@/features/customer/actions/customer-actions").then((m) =>
             m.listCustomersAction(""),
           ),
           import("@/features/catalog/actions/product-actions").then((m) =>
-            m.listProductsAction({}, { limit: 1 }),
+            m.listProductsAction({}, { limit: 10 }),
           ),
           import("@/features/identity/actions/admin-identity-actions").then((m) =>
             m.getIdentityOpsOverviewAction(),
@@ -236,7 +224,7 @@ export default function WorkspaceHomePage(): React.ReactElement {
 
         setData(d);
       } catch {
-        // Use defaults on error
+        // Defaults on error
       } finally {
         setLoading(false);
       }
@@ -245,7 +233,7 @@ export default function WorkspaceHomePage(): React.ReactElement {
   }, []);
 
   const formatCents = (cents: number): string =>
-    `৳${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
+    `৳${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 0 })}`;
 
   const attentionItems = NEED_ATTENTION.map((item) => {
     const count = data[item.key as keyof DashboardData] as number;
@@ -256,152 +244,185 @@ export default function WorkspaceHomePage(): React.ReactElement {
   });
 
   return (
-    <div className="space-y-6 animate-[fade-in_0.25s_ease-out]">
-      {/* Greeting */}
-      <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-xs">
+    <div className="space-y-6 animate-fade-in">
+      {/* Hero Greeting Banner */}
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-2xs">
         <div
           className="pointer-events-none absolute inset-0 opacity-40"
           style={{
             background:
-              "radial-gradient(ellipse 80% 60% at 100% 0%, hsl(var(--primary) / 0.18), transparent 55%)",
+              "radial-gradient(ellipse 70% 70% at 100% 0%, hsl(var(--primary) / 0.15), transparent 60%)",
           }}
         />
-        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              {dateLabel}
-            </p>
-            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-              {greeting()}
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-accent text-foreground text-[11px] font-extrabold uppercase tracking-wider border border-primary/30">
+                <Sparkles className="h-3 w-3 text-primary" /> Enterprise Commerce OS
+              </span>
+              <span className="text-xs font-semibold text-muted-foreground">{dateLabel}</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+              {greeting()}, Operations Admin
             </h1>
-            <p className="mt-1.5 max-w-lg text-sm text-muted-foreground">
-              Unified workspace — catalog, partners, inventory, orders, CMS, analytics, and
-              notifications. Navigation and actions follow your role.
+            <p className="max-w-xl text-xs sm:text-sm text-muted-foreground leading-relaxed">
+              Warm Amber Commerce OS — managing catalog, multi-tier pricing, suppliers, reseller partners, and logistics across Bangladesh.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" size="sm" className="gap-1.5">
-              <Bell className="h-3.5 w-3.5" />{data.inventoryLowStock + data.suppliersPending} alerts
-            </Button>
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <Link href="/dashboard/notifications">
+              <Button variant="outline" size="sm" className="gap-1.5 shadow-2xs">
+                <Bell className="h-3.5 w-3.5 text-primary" />
+                <span>{data.inventoryLowStock + data.suppliersPending} Alerts</span>
+              </Button>
+            </Link>
             <Link href="/dashboard/products/new">
-              <Button size="sm" className="gap-1.5">
+              <Button size="sm" className="gap-1.5 shadow-xs">
                 <Plus className="h-3.5 w-3.5" />
-                New product
+                New Product
               </Button>
             </Link>
           </div>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardContent className="p-4 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Total Orders</p>
-            <div className="flex items-center gap-2">
-              <ShoppingCart className="h-4 w-4 text-primary" />
-              <p className="text-2xl font-semibold tabular-nums">{loading ? "—" : data.ordersTotal}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Revenue</p>
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-success" />
-              <p className="text-2xl font-semibold tabular-nums">{loading ? "—" : formatCents(data.ordersRevenue)}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Active Orders</p>
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-warning" />
-              <p className="text-2xl font-semibold tabular-nums">{loading ? "—" : data.ordersActive}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Low Stock</p>
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-destructive" />
-              <p className="text-2xl font-semibold tabular-nums">{loading ? "—" : data.inventoryLowStock}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Suppliers</p>
-            <div className="flex items-center gap-2">
-              <Building2 className="h-4 w-4 text-info" />
-              <p className="text-2xl font-semibold tabular-nums">{loading ? "—" : data.suppliersActive}/{data.suppliersTotal}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Resellers</p>
-            <div className="flex items-center gap-2">
-              <Store className="h-4 w-4 text-primary" />
-              <p className="text-2xl font-semibold tabular-nums">{loading ? "—" : data.resellersActive}/{data.resellersTotal}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Products</p>
-            <div className="flex items-center gap-2">
-              <Package className="h-4 w-4 text-success" />
-              <p className="text-2xl font-semibold tabular-nums">{loading ? "—" : data.productCount}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 space-y-1">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Customers</p>
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-warning" />
-              <p className="text-2xl font-semibold tabular-nums">{loading ? "—" : data.customerCount}</p>
-            </div>
-          </CardContent>
-        </Card>
+      {/* KPI Stat Cards Grid */}
+      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          label="Total Orders"
+          value={data.ordersTotal}
+          icon={ShoppingCart}
+          accent="primary"
+          trend={{ value: "+14%", positive: true }}
+          loading={loading}
+        />
+        <StatCard
+          label="Revenue"
+          value={formatCents(data.ordersRevenue)}
+          icon={TrendingUp}
+          accent="success"
+          trend={{ value: "+22%", positive: true }}
+          loading={loading}
+        />
+        <StatCard
+          label="Active Orders"
+          value={data.ordersActive}
+          icon={Clock}
+          accent="warning"
+          hint="Processing & shipped"
+          loading={loading}
+        />
+        <StatCard
+          label="Low Stock Alert"
+          value={data.inventoryLowStock}
+          icon={AlertTriangle}
+          accent="danger"
+          hint="Needs replenishment"
+          loading={loading}
+        />
+        <StatCard
+          label="Active Suppliers"
+          value={`${data.suppliersActive}/${data.suppliersTotal}`}
+          icon={Building2}
+          accent="info"
+          loading={loading}
+        />
+        <StatCard
+          label="Active Resellers"
+          value={`${data.resellersActive}/${data.resellersTotal}`}
+          icon={Store}
+          accent="primary"
+          loading={loading}
+        />
+        <StatCard
+          label="Catalog Products"
+          value={data.productCount}
+          icon={Package}
+          accent="success"
+          loading={loading}
+        />
+        <StatCard
+          label="Total Customers"
+          value={data.customerCount}
+          icon={Users}
+          accent="warning"
+          loading={loading}
+        />
       </div>
 
-      <QuickActionsWidget
-        title="Quick actions"
-        actions={QUICK_ACTIONS.map((a) => ({
-          label: a.label,
-          href: a.href,
-          icon: a.icon,
-        }))}
-      />
+      {/* Chart Section */}
+      <Card className="border-border bg-card shadow-2xs">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <div className="space-y-0.5">
+            <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-primary" /> Sales & Performance Overview
+            </CardTitle>
+            <p className="text-xs text-muted-foreground">Real-time revenue growth and order metrics</p>
+          </div>
+          <div className="flex items-center gap-1 rounded-lg border border-border bg-muted/40 p-1">
+            {(["weekly", "monthly", "yearly"] as const).map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => setChartRange(r)}
+                className={cn(
+                  "rounded-md px-2.5 py-1 text-xs font-semibold uppercase tracking-wider transition-all",
+                  chartRange === r
+                    ? "bg-primary text-primary-foreground shadow-2xs font-bold"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
+        </CardHeader>
+        <CardContent className="p-6 pt-4">
+          <div className="h-48 flex items-end justify-between gap-2 border-b border-border pb-4 pt-4">
+            {[45, 60, 35, 70, 85, 50, 95, 80, 65, 90, 75, 100].map((h, idx) => (
+              <div key={idx} className="flex-1 flex flex-col items-center gap-2 group cursor-pointer">
+                <div
+                  style={{ height: `${h}%` }}
+                  className="w-full max-w-[28px] rounded-t-md bg-gradient-to-t from-primary/60 to-primary group-hover:from-primary group-hover:to-primary/80 transition-all duration-200"
+                  title={`Period ${idx + 1}: ৳${(h * 1250).toLocaleString()}`}
+                />
+                <span className="text-[10px] font-mono text-muted-foreground group-hover:text-foreground">
+                  P{idx + 1}
+                </span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
-      <div className="grid gap-5 lg:grid-cols-5">
-        {/* Need attention */}
+      {/* Quick Actions Widget */}
+      <QuickActionsWidget actions={QUICK_ACTIONS} />
+
+      {/* Need Attention & Activity Section */}
+      <div className="grid gap-6 lg:grid-cols-5">
+        {/* Need attention column */}
         <section className="lg:col-span-3 space-y-3">
-          <SectionHeader title="Need attention" description="Items that need your decision" />
-          <div className="grid gap-2.5 sm:grid-cols-2">
+          <SectionHeader title="Need Attention" description="Items requiring administrative review or action" />
+          <div className="grid gap-3 sm:grid-cols-2">
             {attentionItems.map((item) => {
               const Icon = item.icon;
               return (
                 <Link key={item.title} href={item.href}>
-                  <Card className="h-full hover:border-primary/25 transition-colors">
-                    <CardContent className="p-4 flex gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted text-muted-foreground">
-                        <Icon className="h-4 w-4" />
+                  <Card className="h-full border-border hover:border-primary/50 hover:shadow-md transition-all duration-200 group">
+                    <CardContent className="p-4 flex gap-3.5">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-foreground border border-primary/30 shadow-2xs group-hover:scale-105 transition-transform">
+                        <Icon className="h-5 w-5 text-primary" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-2">
-                          <p className="text-sm font-medium text-foreground leading-snug">
+                          <p className="text-xs font-bold text-foreground leading-snug truncate">
                             {item.title}
                           </p>
-                          <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground mt-0.5" />
+                          <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60 group-hover:text-primary transition-colors mt-0.5" />
                         </div>
-                        <p className="text-xs text-muted-foreground mt-0.5">{item.detail}</p>
-                        <div className="mt-2">
-                          <StatusChip label="Action needed" tone={item.tone} />
+                        <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">{item.detail}</p>
+                        <div className="mt-2.5">
+                          <StatusChip label="Action needed" tone={item.tone} size="sm" />
                         </div>
                       </div>
                     </CardContent>
@@ -412,23 +433,23 @@ export default function WorkspaceHomePage(): React.ReactElement {
           </div>
         </section>
 
-        {/* Activity + alerts */}
+        {/* Activity & Supplier Alerts column */}
         <section className="lg:col-span-2 space-y-5">
           <div>
-            <SectionHeader title="Recent activity" />
-            <Card>
+            <SectionHeader title="Recent Activity" />
+            <Card className="border-border shadow-2xs">
               <CardContent className="p-2">
-                <ul className="divide-y divide-border">
+                <ul className="divide-y divide-border/60">
                   {RECENT_ACTIVITY.map((a) => {
                     const Icon = a.icon;
                     return (
-                      <li key={a.text} className="flex gap-3 px-3 py-3">
-                        <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-muted">
-                          <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+                      <li key={a.text} className="flex gap-3 px-3 py-2.5">
+                        <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-accent text-primary">
+                          <Icon className="h-3.5 w-3.5" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm text-foreground leading-snug">{a.text}</p>
-                          <p className="text-[11px] text-muted-foreground mt-0.5 flex items-center gap-1">
+                          <p className="text-xs font-semibold text-foreground leading-snug">{a.text}</p>
+                          <p className="text-[10px] font-medium text-muted-foreground mt-0.5 flex items-center gap-1">
                             <Clock className="h-3 w-3" />
                             {a.time}
                           </p>
@@ -437,31 +458,6 @@ export default function WorkspaceHomePage(): React.ReactElement {
                     );
                   })}
                 </ul>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div>
-            <SectionHeader title="Supplier alerts" />
-            <Card>
-              <CardContent className="p-4 space-y-3">
-                {SUPPLIER_ALERTS.map((a) => {
-                  const Icon = a.icon;
-                  return (
-                    <div key={a.text} className="flex gap-3">
-                      <Icon className={cn(
-                        "h-4 w-4 shrink-0 mt-0.5",
-                        a.tone === "success" && "text-success",
-                        a.tone === "warning" && "text-warning",
-                        a.tone === "danger" && "text-destructive",
-                      )} />
-                      <div>
-                        <p className="text-sm font-medium">{a.text}</p>
-                        <p className="text-xs text-muted-foreground">{a.detail}</p>
-                      </div>
-                    </div>
-                  );
-                })}
               </CardContent>
             </Card>
           </div>

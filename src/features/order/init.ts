@@ -150,7 +150,7 @@ export function registerOrderFeatureFlags(): void {
 
             try {
               const { ProductRepository } =
-                await import("@/features/product/repositories/product-repository");
+                await import("@/features/catalog/repositories/product-repository");
               const productRepo = new ProductRepository();
               const p = await productRepo.findById(priceItem.productId);
               if (p) {

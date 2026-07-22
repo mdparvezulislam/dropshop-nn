@@ -8,8 +8,8 @@ import { AuthorizationService } from "@/features/auth/services/authorization-ser
 let seedPromise: Promise<void> | null = null;
 
 /**
- * Ensures Super Admin role + demo admin user exist.
- * Idempotent and safe to call on every login attempt (single-flight).
+ * Ensures default roles + demo super admin exist.
+ * Idempotent and non-destructive for existing user accounts.
  */
 export async function ensureDemoAdminSeeded(): Promise<void> {
   if (!seedPromise) {
@@ -25,22 +25,25 @@ async function runSeed(): Promise<void> {
   const roleRepository = new RoleRepository();
   const userRepository = new UserRepository();
 
-  let superAdminRole = await roleRepository.findByName(DEMO_ADMIN.role);
-  if (!superAdminRole) {
-    superAdminRole = await roleRepository.create({
-      name: DEMO_ADMIN.role,
-      description: "Full system access for development and operations",
-      permissions: ["*"],
-      status: "active",
-    });
-    AuthorizationService.clearCache();
-    logger.info("Demo seed: Super Admin role created", { roleId: superAdminRole.id });
-  } else if (!superAdminRole.permissions.includes("*")) {
-    await roleRepository.update(superAdminRole.id, {
-      permissions: ["*"],
-    });
-    AuthorizationService.clearCache();
-    logger.info("Demo seed: Super Admin role permissions upgraded to *");
+  const defaultRoles = [
+    { name: "Super Admin", permissions: ["*"] },
+    { name: "Admin", permissions: ["Admin.Access"] },
+    { name: "Reseller", permissions: ["Reseller.Access"] },
+    { name: "Wholesale Buyer", permissions: ["Wholesale.Access"] },
+    { name: "Supplier", permissions: ["Supplier.Access"] },
+    { name: "Customer", permissions: ["Customer.Access"] },
+  ];
+
+  for (const r of defaultRoles) {
+    const existingRole = await roleRepository.findByName(r.name);
+    if (!existingRole) {
+      await roleRepository.create({
+        name: r.name,
+        description: `Default system role: ${r.name}`,
+        permissions: r.permissions,
+        status: "active",
+      });
+    }
   }
 
   const existing = await userRepository.findByEmail(DEMO_ADMIN.email);
@@ -50,20 +53,13 @@ async function runSeed(): Promise<void> {
         role: DEMO_ADMIN.role,
         status: "active",
       });
-      logger.info("Demo seed: existing admin upgraded to Super Admin", { userId: existing.id });
+      logger.info("Demo seed: verified Super Admin status", { userId: existing.id });
     }
     return;
   }
 
   const byUsername = await userRepository.findByUsername(DEMO_ADMIN.username);
   if (byUsername) {
-    await userRepository.update(byUsername.id, {
-      email: DEMO_ADMIN.email,
-      role: DEMO_ADMIN.role,
-      status: "active",
-      passwordHash: await hashPassword(DEMO_ADMIN.password),
-    });
-    logger.info("Demo seed: username admin upgraded", { userId: byUsername.id });
     return;
   }
 

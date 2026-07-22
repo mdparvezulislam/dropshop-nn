@@ -27,40 +27,43 @@ const footerLinks = {
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border/60 bg-card/50">
+    <footer className="relative border-t border-border/80 bg-card/60 backdrop-blur-md">
+      {/* Top emerald gradient bar */}
+      <div className="h-0.5 w-full bg-gradient-to-r from-transparent via-primary to-transparent opacity-80" />
+
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
-          <div className="col-span-2 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground text-sm font-bold">
+          <div className="col-span-2 md:col-span-1 space-y-4">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/80 text-primary-foreground font-bold text-sm shadow-glow group-hover:scale-105 transition-transform">
                 D
               </div>
-              <span className="text-lg font-semibold tracking-tight">
+              <span className="text-lg font-extrabold tracking-tight text-foreground">
                 Dropshop<span className="text-primary">NN</span>
               </span>
             </Link>
-            <p className="text-sm text-foreground/50 leading-relaxed mb-4 max-w-xs">
-              Enterprise-grade dropshipping platform serving Bangladesh with premium products, wholesale pricing, and reseller programs.
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-xs">
+              Enterprise-grade dropshipping OS serving Bangladesh with premium products, automated fulfillment, and partner growth tools.
             </p>
-            <div className="space-y-2">
-              <a href="tel:+8801700000000" className="flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground/70 transition-colors">
-                <Phone className="h-3.5 w-3.5" />
+            <div className="space-y-2 pt-1">
+              <a href="tel:+8801700000000" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors">
+                <Phone className="h-3.5 w-3.5 text-primary" />
                 +880 1700-000000
               </a>
-              <a href="mailto:hello@dropshopnn.com" className="flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground/70 transition-colors">
-                <Mail className="h-3.5 w-3.5" />
+              <a href="mailto:hello@dropshopnn.com" className="flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors">
+                <Mail className="h-3.5 w-3.5 text-primary" />
                 hello@dropshopnn.com
               </a>
-              <div className="flex items-start gap-2 text-sm text-foreground/50">
-                <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+              <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0 text-primary" />
                 <span>Dhaka, Bangladesh</span>
               </div>
             </div>
           </div>
 
           {Object.entries(footerLinks).map(([title, links]) => (
-            <div key={title}>
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground/40 mb-3">
+            <div key={title} className="space-y-3">
+              <h3 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/70">
                 {title}
               </h3>
               <ul className="space-y-2">
@@ -68,7 +71,7 @@ export function SiteFooter() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-sm text-foreground/60 hover:text-foreground transition-colors"
+                      className="text-xs sm:text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -79,9 +82,9 @@ export function SiteFooter() {
           ))}
         </div>
 
-        <div className="mt-12 pt-8 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-foreground/40">
-            &copy; {new Date().getFullYear()} DropshopNN. All rights reserved.
+        <div className="mt-12 pt-8 border-t border-border/60 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-muted-foreground/70">
+            &copy; {new Date().getFullYear()} DropshopNN. Enterprise Commerce OS for Bangladesh.
           </p>
           <div className="flex items-center gap-3">
             {[
@@ -93,7 +96,7 @@ export function SiteFooter() {
                 key={social.label}
                 href={social.href}
                 aria-label={social.label}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/40 hover:text-foreground hover:bg-muted/60 transition-colors"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:text-primary hover:bg-muted/80 transition-colors border border-border/40"
               >
                 <social.icon className="h-4 w-4" />
               </a>
@@ -104,3 +107,5 @@ export function SiteFooter() {
     </footer>
   );
 }
+
+export default SiteFooter;

@@ -90,7 +90,7 @@ export default function OrderDetailsPage() {
               {
                 productId: "prod-1",
                 variantSku: "APL-IPH16PM-256",
-                productName: "iPhone 16 Pro Max",
+                productName: "Smart Watch Ultra 2 Amoled",
                 quantity: 1,
                 unitSellingPrice: 250000,
                 totalSellingPrice: 250000,
@@ -130,7 +130,7 @@ export default function OrderDetailsPage() {
             {
               productId: "prod-1",
               variantSku: "APL-IPH16PM-256",
-              productName: "iPhone 16 Pro Max",
+              productName: "Smart Watch Ultra 2 Amoled",
               quantity: 1,
               unitPrice: 250000,
               totalPrice: 250000,

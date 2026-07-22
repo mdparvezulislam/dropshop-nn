@@ -1,180 +1,249 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { Spinner } from "@/shared/components/ui/spinner";
-import { updateProductAction } from "@/features/product/actions/product-actions";
+import { useParams } from "next/navigation";
+import { StudioLayout } from "@/features/product-studio/components/studio-layout";
+import { StudioHeader } from "@/features/product-studio/components/studio-header";
+import { StudioMobileNav } from "@/features/product-studio/components/studio-mobile-nav";
+import { StudioRightSidebar } from "@/features/product-studio/components/sidebar/studio-right-sidebar";
+
+import { useProductStudio } from "@/features/product-studio/hooks/use-product-studio";
+import { GeneralSection } from "@/features/product-studio/components/sections/general-section";
+import { DescriptionSection } from "@/features/product-studio/components/sections/description-section";
+import { CategorySection } from "@/features/product-studio/components/sections/category-section";
+import { BrandSection } from "@/features/product-studio/components/sections/brand-section";
+import { MediaSection } from "@/features/product-studio/components/sections/media-section";
+import { PricingSection } from "@/features/product-studio/components/sections/pricing-section";
+import { InventorySection } from "@/features/product-studio/components/sections/inventory-section";
+import { SEOSection } from "@/features/product-studio/components/sections/seo-section";
+import { getProductAction } from "@/features/catalog/actions/product-actions";
 import { toast } from "sonner";
-import { ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import { Spinner } from "@/shared/components/ui/spinner";
 
-const MOCK_PRODUCT = {
-  id: "1",
-  name: "iPhone 16 Pro Max",
-  sku: "APL-IPH16PM-256",
-  productModel: "A3296",
-  barcode: "190199123456",
-  shortDescription: "Sleek titanium smartphone featuring the new A18 Pro CPU chip.",
-  fullDescription:
-    "The Apple iPhone 16 Pro Max features a 6.9-inch OLED display, custom camera control triggers, grade 5 titanium chassis, and next-generation Apple Intelligence support.",
-  variants: [{ sku: "APL-IPH16PM-256-BLK", color: "Black Titanium", size: "256GB" }],
-  attributes: [{ key: "Display Size", value: "6.9 inches", group: "specification" }],
-};
+export default function EditProductStudioPage(): React.ReactElement {
+  const params = useParams();
+  const id = typeof params?.id === "string" ? params.id : undefined;
 
-export default function EditProductPage() {
-  const router = useRouter();
-  const [loading, setLoading] = React.useState(false);
+  const {
+    form, update, bulkUpdate,
+    handleAutoGenerateSKU, handleApplyAutoPricing,
+    handleSave, handlePublish, handlePreview,
+    saving, saveState, healthResult,
+    activeSection, setActiveSection, scrollToSection,
+    sections,
+  } = useProductStudio(id);
 
-  // Form State
-  const [name, setName] = React.useState(MOCK_PRODUCT.name);
-  const [sku, setSku] = React.useState(MOCK_PRODUCT.sku);
-  const [productModel, setProductModel] = React.useState(MOCK_PRODUCT.productModel);
-  const [barcode, setBarcode] = React.useState(MOCK_PRODUCT.barcode);
-  const [shortDesc, setShortDesc] = React.useState(MOCK_PRODUCT.shortDescription);
-  const [fullDesc, setFullDesc] = React.useState(MOCK_PRODUCT.fullDescription);
+  const [loadingProduct, setLoadingProduct] = React.useState(true);
+  const [currentSectionIndex, setCurrentSectionIndex] = React.useState(0);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const payload = {
-        name,
-        sku,
-        productModel,
-        barcode,
-        shortDescription: shortDesc,
-        fullDescription: fullDesc,
-        supplierId: "60c72b2f9b1d8e2568cf4567",
-        variants: MOCK_PRODUCT.variants,
-        attributes: MOCK_PRODUCT.attributes,
-      };
-
-      const res = await updateProductAction(MOCK_PRODUCT.id, payload);
-      if (res.success) {
-        toast.success("Product updated successfully!");
-        router.push(`/dashboard/products/${MOCK_PRODUCT.id}`);
-      } else {
-        toast.error("Failed to update product.");
+  React.useEffect(() => {
+    async function load() {
+      if (!id) {
+        setLoadingProduct(false);
+        return;
       }
-    } catch (err: any) {
-      toast.error(err.message || "Invalid fields. Please double check inputs.");
-    } finally {
-      setLoading(false);
+      try {
+        const res = await getProductAction(id);
+        if (res.success && res.data) {
+          const p = res.data as any;
+          bulkUpdate({
+            name: p.title ?? p.name ?? "",
+            sku: p.sku ?? "",
+            shortDescription: p.shortDescription ?? "",
+            richDescription: p.richDescription ?? p.description ?? "",
+            productModel: p.productModel ?? "",
+            barcode: p.barcode ?? "",
+            brandId: p.brandId ?? p.brand?.id ?? "",
+            categoryId: p.categoryId ?? p.category?.id ?? "",
+            supplierId: p.supplierId ?? "",
+            status: p.status ?? "draft",
+            visibility: p.visibility ?? "public",
+            costPrice: String(p.costPrice ?? p.pricing?.costPrice ?? 0),
+            sellingPrice: String(p.retailPrice ?? p.price ?? p.pricing?.sellingPrice ?? 0),
+            wholesalePrice: String(p.wholesalePrice ?? p.pricing?.wholesalePrice ?? 0),
+            resellerPrice: String(p.resellerPrice ?? p.pricing?.resellerPrice ?? 0),
+            comparePrice: String(p.comparePrice ?? p.pricing?.comparePrice ?? 0),
+            stock: String(p.stockQuantity ?? p.inventory?.stock ?? 0),
+            lowStockThreshold: String(p.inventory?.lowStockThreshold ?? 5),
+            media: (p.images ?? p.media ?? []).map((img: any, i: number) => ({
+              id: img.id || `m-${i}`,
+              url: typeof img === "string" ? img : img.url,
+              type: "image",
+              isFeatured: i === 0,
+              altText: img.altText || undefined,
+            })),
+            slug: p.slug ?? p.seo?.slug ?? "",
+            metaTitle: p.seo?.metaTitle ?? p.title ?? "",
+            metaDescription: p.seo?.metaDescription ?? p.shortDescription ?? "",
+          });
+        }
+      } catch {
+        toast.error("Failed to load product details");
+      } finally {
+        setLoadingProduct(false);
+      }
+    }
+    load();
+  }, [id, bulkUpdate]);
+
+  if (loadingProduct) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background text-muted-foreground gap-2">
+        <Spinner size="sm" /> Loading Product Studio…
+      </div>
+    );
+  }
+
+  const handlePrevSection = () => {
+    if (currentSectionIndex > 0) {
+      const prevIdx = currentSectionIndex - 1;
+      setCurrentSectionIndex(prevIdx);
+      scrollToSection(sections[prevIdx].id);
     }
   };
 
-  return (
-    <div className="min-h-screen bg-slate-950 p-6 text-white flex justify-center items-center">
-      <div className="w-full max-w-2xl">
-        <Card className="border-slate-800 bg-slate-900/50 backdrop-blur-xl">
-          <CardHeader className="relative border-b border-slate-800 pb-4">
-            <div className="flex items-center gap-3">
-              <Link
-                href={`/dashboard/products/${MOCK_PRODUCT.id}`}
-                className="p-1 rounded-full border border-slate-850 hover:bg-slate-800 transition-colors"
-              >
-                <ArrowLeft className="h-4 w-4 text-slate-400 hover:text-white" />
-              </Link>
-              <div>
-                <CardTitle className="text-xl font-bold">Edit Product specifications</CardTitle>
-                <CardDescription className="text-slate-400">
-                  Modify properties and general catalogs
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-200">Product Name</label>
-                <Input
-                  type="text"
-                  required
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="bg-slate-950 border-slate-800 text-white"
-                />
-              </div>
+  const handleNextSection = () => {
+    if (currentSectionIndex < sections.length - 1) {
+      const nextIdx = currentSectionIndex + 1;
+      setCurrentSectionIndex(nextIdx);
+      scrollToSection(sections[nextIdx].id);
+    }
+  };
 
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-200">Base SKU</label>
-                  <Input
-                    type="text"
-                    required
-                    value={sku}
-                    onChange={(e) => setSku(e.target.value)}
-                    className="bg-slate-950 border-slate-800 text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-200">Model</label>
-                  <Input
-                    type="text"
-                    value={productModel}
-                    onChange={(e) => setProductModel(e.target.value)}
-                    className="bg-slate-950 border-slate-800 text-white"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-200">Barcode</label>
-                  <Input
-                    type="text"
-                    value={barcode}
-                    onChange={(e) => setBarcode(e.target.value)}
-                    className="bg-slate-950 border-slate-800 text-white"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-200">Short Summary</label>
-                <Input
-                  type="text"
-                  value={shortDesc}
-                  onChange={(e) => setShortDesc(e.target.value)}
-                  className="bg-slate-950 border-slate-800 text-white"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-200">Full Description</label>
-                <textarea
-                  rows={4}
-                  value={fullDesc}
-                  onChange={(e) => setFullDesc(e.target.value)}
-                  className="w-full rounded-md border border-slate-800 bg-slate-950 p-3 text-sm text-white outline-none focus:border-indigo-500"
-                />
-              </div>
-
-              <div className="flex gap-4 pt-4 border-t border-slate-800">
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-medium"
-                >
-                  {loading ? <Spinner size="sm" className="mr-2" /> : "Save Changes"}
-                </Button>
-                <Link
-                  href={`/dashboard/products/${MOCK_PRODUCT.id}`}
-                  className="flex h-10 w-32 items-center justify-center rounded-md border border-slate-800 text-sm font-medium text-slate-300 hover:bg-slate-900 transition-colors"
-                >
-                  Cancel
-                </Link>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+  const header = (
+    <StudioHeader
+      productName={form.name}
+      onNameChange={(val) => update("name", val)}
+      status={form.status}
+      saveState={saveState}
+      saving={saving}
+      onSave={handleSave}
+      onPublish={handlePublish}
+      onPreview={handlePreview}
+      isEditing={true}
+    />
   );
+
+  const main = (
+    <>
+      <GeneralSection
+        name={form.name}
+        onNameChange={(v) => update("name", v)}
+        sku={form.sku}
+        onSkuChange={(v) => update("sku", v)}
+        shortDescription={form.shortDescription}
+        onShortDescriptionChange={(v) => update("shortDescription", v)}
+        productModel={form.productModel}
+        onProductModelChange={(v) => update("productModel", v)}
+        barcode={form.barcode}
+        onBarcodeChange={(v) => update("barcode", v)}
+        onAutoGenerateSKU={handleAutoGenerateSKU}
+      />
+
+      <DescriptionSection
+        value={form.richDescription}
+        onChange={(v) => update("richDescription", v)}
+      />
+
+      <CategorySection
+        categoryId={form.categoryId}
+        onCategoryChange={(id) => update("categoryId", id)}
+        tags={form.tags}
+        onTagsChange={(t) => update("tags", t)}
+      />
+
+      <BrandSection
+        brandId={form.brandId}
+        onBrandChange={(id) => update("brandId", id)}
+      />
+
+      <MediaSection
+        items={form.media}
+        onChange={(items) => update("media", items)}
+      />
+
+      <PricingSection
+        costPrice={form.costPrice}
+        onCostPriceChange={(v) => update("costPrice", v)}
+        sellingPrice={form.sellingPrice}
+        onSellingPriceChange={(v) => update("sellingPrice", v)}
+        wholesalePrice={form.wholesalePrice}
+        onWholesalePriceChange={(v) => update("wholesalePrice", v)}
+        resellerPrice={form.resellerPrice}
+        onResellerPriceChange={(v) => update("resellerPrice", v)}
+        comparePrice={form.comparePrice}
+        onComparePriceChange={(v) => update("comparePrice", v)}
+        campaignPrice={form.campaignPrice}
+        onCampaignPriceChange={(v) => update("campaignPrice", v)}
+        onApplyAutoPricing={handleApplyAutoPricing}
+      />
+
+      <InventorySection
+        sku={form.inventorySku || form.sku}
+        onSkuChange={(v) => update("inventorySku", v)}
+        barcode={form.inventoryBarcode || form.barcode}
+        onBarcodeChange={(v) => update("inventoryBarcode", v)}
+        stock={form.stock}
+        onStockChange={(v) => update("stock", v)}
+        lowStockThreshold={form.lowStockThreshold}
+        onLowStockThresholdChange={(v) => update("lowStockThreshold", v)}
+        reservedStock={form.reservedStock}
+        onReservedStockChange={(v) => update("reservedStock", v)}
+        incomingStock={form.incomingStock}
+        onIncomingStockChange={(v) => update("incomingStock", v)}
+        warehouseLocation={form.warehouseLocation}
+        onWarehouseLocationChange={(v) => update("warehouseLocation", v)}
+        weight={form.weight}
+        onWeightChange={(v) => update("weight", v)}
+      />
+
+      <SEOSection
+        metaTitle={form.metaTitle}
+        onMetaTitleChange={(v) => update("metaTitle", v)}
+        metaDescription={form.metaDescription}
+        onMetaDescriptionChange={(v) => update("metaDescription", v)}
+        metaKeywords={form.metaKeywords}
+        onMetaKeywordsChange={(v) => update("metaKeywords", v)}
+        slug={form.slug}
+        onSlugChange={(v) => update("slug", v)}
+        ogImage={form.ogImage}
+        onOgImageChange={(v) => update("ogImage", v)}
+      />
+    </>
+  );
+
+  const sidebar = (
+    <StudioRightSidebar
+      status={form.status}
+      visibility={form.visibility}
+      onVisibilityChange={(v) => update("visibility", v)}
+      onStatusChange={(v) => update("status", v)}
+      onPublish={handlePublish}
+      onSave={handleSave}
+      onPreview={handlePreview}
+      saving={saving}
+      saveState={saveState}
+      productName={form.name}
+      productSku={form.sku}
+      healthResult={healthResult}
+      sections={sections}
+      activeSection={activeSection}
+      onSectionClick={scrollToSection}
+    />
+  );
+
+  const mobileFooter = (
+    <StudioMobileNav
+      currentSectionIndex={currentSectionIndex}
+      totalSections={sections.length}
+      onPrevSection={handlePrevSection}
+      onNextSection={handleNextSection}
+      onSave={handleSave}
+      onPublish={handlePublish}
+      saving={saving}
+      status={form.status}
+    />
+  );
+
+  return <StudioLayout header={header} main={main} sidebar={sidebar} mobileFooter={mobileFooter} />;
 }

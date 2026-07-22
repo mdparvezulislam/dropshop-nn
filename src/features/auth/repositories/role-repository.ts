@@ -15,7 +15,7 @@ export class RoleRepository extends BaseRepository<RoleDocument, Role> {
       id: doc._id.toString(),
       name: doc.name,
       description: doc.description,
-      permissions: doc.permissions || [],
+      permissions: Array.from(doc.permissions || []).map(String),
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
       createdBy: doc.createdBy,

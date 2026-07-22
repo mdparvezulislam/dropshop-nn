@@ -77,10 +77,6 @@ function WorkspaceShellInner({
   }, [config, resolvedNav, resolvedLabel, resolvedHome, resolvedCrumbs, resolvedSearch, resolvedQuick]);
 
   React.useEffect(() => {
-    document.documentElement.classList.add("dark");
-  }, []);
-
-  React.useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
@@ -161,7 +157,7 @@ function WorkspaceShellInner({
           />
         )}
         <main className="flex-1">
-          <div className="mx-auto w-full max-w-[var(--content-max)] px-4 py-5 sm:px-6 lg:px-8">
+          <div className="mx-auto w-full max-w-[var(--content-max)] px-4 py-6 sm:px-6 lg:px-8 space-y-6">
             {children}
           </div>
         </main>
@@ -172,7 +168,7 @@ function WorkspaceShellInner({
         commands={commands}
         placeholder={resolvedSearch}
       />
-      <Toaster theme="dark" position="top-right" richColors closeButton />
+      <Toaster position="top-right" richColors closeButton />
     </div>
   );
 }

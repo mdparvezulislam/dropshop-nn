@@ -47,8 +47,8 @@ const MOCK_PRODUCTS: CatalogItem[] = [
   {
     id: "rp1",
     productId: "p1",
-    title: "iPhone 16 Pro Max",
-    customTitle: "iPhone 16 Pro Max — Nova Edition",
+    title: "Smart Watch Ultra 2 Amoled",
+    customTitle: "Smart Watch Ultra 2 — Nova Edition",
     variantSku: "APL-IPH16PM-256-BLK",
     sellingStatus: "active",
     isFavorite: true,

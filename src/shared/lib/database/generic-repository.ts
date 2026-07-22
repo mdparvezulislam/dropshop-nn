@@ -4,6 +4,7 @@ import { parsePaginationAndSort } from "./query-builder";
 import { DatabaseQueryOptions, BaseDocument } from "./types";
 import { DatabaseError, NotFoundError } from "@/shared/errors/app-error";
 import { logger } from "@/shared/utils/logger";
+import { DatabaseConnectionManager } from "./connection-manager";
 
 export abstract class BaseRepository<
   TDocument extends BaseDocument,
@@ -14,11 +15,16 @@ export abstract class BaseRepository<
     protected readonly toDomainEntity: (doc: TDocument) => TDomain,
   ) {}
 
+  protected async ensureConnected(): Promise<void> {
+    await DatabaseConnectionManager.connect();
+  }
+
   async create(
     data: Partial<Omit<TDomain, "id" | "createdAt" | "updatedAt">>,
     options?: DatabaseQueryOptions,
   ): Promise<TDomain> {
     try {
+      await this.ensureConnected();
       const [doc] = await (this.model.create as any)([data], { session: options?.session });
       if (!doc) {
         throw new DatabaseError("Failed to create database document");
@@ -34,6 +40,7 @@ export abstract class BaseRepository<
 
   async findById(id: string, options?: DatabaseQueryOptions): Promise<TDomain | null> {
     try {
+      await this.ensureConnected();
       const query = this.model.findById(id).session(options?.session || null);
       if (options?.lean) {
         query.lean();
@@ -52,6 +59,7 @@ export abstract class BaseRepository<
 
   async findOne(filter: object, options?: DatabaseQueryOptions): Promise<TDomain | null> {
     try {
+      await this.ensureConnected();
       const query = this.model.findOne(filter).session(options?.session || null);
       if (options?.lean) {
         query.lean();
@@ -70,6 +78,7 @@ export abstract class BaseRepository<
 
   async find(filter: object, options?: DatabaseQueryOptions): Promise<TDomain[]> {
     try {
+      await this.ensureConnected();
       const query = this.model.find(filter).session(options?.session || null);
       if (options?.lean) {
         query.lean();
@@ -93,6 +102,7 @@ export abstract class BaseRepository<
     options?: DatabaseQueryOptions,
   ): Promise<PaginatedResult<TDomain>> {
     try {
+      await this.ensureConnected();
       const { skip, limit, sort: parsedSort } = parsePaginationAndSort(pagination, sort);
 
       const query = this.model.find(filter).session(options?.session || null);
@@ -138,6 +148,7 @@ export abstract class BaseRepository<
     options?: DatabaseQueryOptions,
   ): Promise<TDomain> {
     try {
+      await this.ensureConnected();
       const query = this.model.findByIdAndUpdate(
         id,
         { $set: data as any },
@@ -164,6 +175,7 @@ export abstract class BaseRepository<
 
   async delete(id: string, options?: DatabaseQueryOptions): Promise<boolean> {
     try {
+      await this.ensureConnected();
       const query = this.model.findByIdAndUpdate(
         id,
         {
@@ -185,6 +197,7 @@ export abstract class BaseRepository<
 
   async hardDelete(id: string, options?: DatabaseQueryOptions): Promise<boolean> {
     try {
+      await this.ensureConnected();
       const query = this.model.findByIdAndDelete(id, { session: options?.session });
       if (options?.showDeleted) {
         query.setOptions({ showDeleted: true });
@@ -200,6 +213,7 @@ export abstract class BaseRepository<
 
   async count(filter: object, options?: DatabaseQueryOptions): Promise<number> {
     try {
+      await this.ensureConnected();
       const query = this.model.countDocuments(filter).session(options?.session || null);
       if (options?.showDeleted) {
         query.setOptions({ showDeleted: true });

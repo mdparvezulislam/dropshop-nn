@@ -1,7 +1,9 @@
 import fs from "fs";
 import path from "path";
 
-// Load .env file into process.env if present
+// Load .env file into process.env BEFORE any application imports.
+// Static `import` statements are hoisted in TypeScript/CJS compilation,
+// so SeedRunner must be loaded dynamically after env vars are set.
 const envPath = path.resolve(process.cwd(), ".env");
 if (fs.existsSync(envPath)) {
   const envConfig = fs.readFileSync(envPath, "utf-8");
@@ -18,12 +20,13 @@ if (fs.existsSync(envPath)) {
   }
 }
 
-import { SeedRunner } from "./runner";
-import { SeedLogger } from "./helpers/logger";
-
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const command = args[0] || "--all";
+
+  // Dynamic import so env.ts validation runs AFTER process.env is populated
+  const { SeedRunner } = await import("./runner");
+  const { SeedLogger } = await import("./helpers/logger");
 
   try {
     await SeedRunner.connect();

@@ -43,54 +43,57 @@ export function ProductCard({ product, className }: ProductCardProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.3 }}
-      whileHover={{ y: -4 }}
-      className={cn("group relative rounded-xl border border-border/60 bg-card overflow-hidden transition-shadow hover:shadow-md hover:border-border/80", className)}
+      viewport={{ once: true, margin: "-20px" }}
+      transition={{ duration: 0.2 }}
+      whileHover={{ y: -3 }}
+      className={cn(
+        "group relative rounded-xl border border-border/80 bg-card overflow-hidden transition-all duration-200 hover:shadow-lg hover:border-primary/40 flex flex-col justify-between",
+        className,
+      )}
     >
       <Link href={`/product/${product.slug}`} className="block">
-        <div className="relative aspect-square bg-muted overflow-hidden">
-          <div className="absolute inset-0 flex items-center justify-center text-foreground/20 text-sm">
+        <div className="relative aspect-square bg-muted/40 overflow-hidden">
+          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground/30 text-xs font-semibold uppercase tracking-wider group-hover:scale-105 transition-transform duration-300">
             {product.image || "Product Image"}
           </div>
-          <div className="absolute top-2 left-2 flex flex-col gap-1">
+          <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
             {product.isNew && (
-              <Badge variant="info" className="text-[10px] px-1.5 py-0.5">NEW</Badge>
+              <Badge variant="default" size="xs" className="px-1.5 py-0.5">NEW</Badge>
             )}
             {product.isFlashSale && (
-              <Badge variant="destructive" className="text-[10px] px-1.5 py-0.5 animate-pulse">SALE</Badge>
+              <Badge variant="destructive" size="xs" className="px-1.5 py-0.5 animate-pulse">SALE</Badge>
             )}
             {hasDiscount && discountPercent > 0 && (
-              <Badge variant="destructive" className="text-[10px] px-1.5 py-0.5">
+              <Badge variant="destructive" size="xs" className="px-1.5 py-0.5">
                 -{discountPercent}%
               </Badge>
             )}
           </div>
-          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all duration-200 z-10">
             <button
               type="button"
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-card/90 border border-border/60 text-foreground/60 hover:text-foreground hover:bg-card transition-colors backdrop-blur-sm"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-card/90 border border-border/60 text-muted-foreground hover:text-primary hover:bg-card transition-all shadow-xs backdrop-blur-xs"
               aria-label="Add to wishlist"
             >
               <Heart className="h-3.5 w-3.5" />
             </button>
           </div>
           {product.stockStatus === "out_of_stock" && (
-            <div className="absolute inset-0 bg-background/60 backdrop-blur-[2px] flex items-center justify-center">
-              <span className="text-sm font-medium text-foreground/60">Out of Stock</span>
+            <div className="absolute inset-0 bg-background/70 backdrop-blur-xs flex items-center justify-center z-10">
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-2 py-1 rounded bg-card/90 border border-border/60">Out of Stock</span>
             </div>
           )}
         </div>
 
         <div className="p-3.5 space-y-2">
           {product.brand && (
-            <p className="text-[11px] font-medium uppercase tracking-wider text-foreground/40">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">
               {product.brand}
             </p>
           )}
-          <h3 className="text-sm font-medium text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+          <h3 className="text-xs sm:text-sm font-semibold text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
             {product.name}
           </h3>
 
@@ -103,14 +106,14 @@ export function ProductCard({ product, className }: ProductCardProps) {
                     className={cn(
                       "h-3 w-3",
                       i < Math.round(product.rating!)
-                        ? "text-amber-500 fill-amber-500"
-                        : "text-foreground/20",
+                        ? "text-amber-400 fill-amber-400"
+                        : "text-muted-foreground/20",
                     )}
                   />
                 ))}
               </div>
               {product.reviewCount != null && (
-                <span className="text-[11px] text-foreground/40">({product.reviewCount})</span>
+                <span className="text-[10px] font-medium text-muted-foreground">({product.reviewCount})</span>
               )}
             </div>
           )}
@@ -125,19 +128,19 @@ export function ProductCard({ product, className }: ProductCardProps) {
           />
 
           {product.stockStatus === "low_stock" && (
-            <p className="text-[11px] text-warning font-medium">Only few left</p>
+            <p className="text-[10px] text-warning font-bold uppercase tracking-wider">Only few left in stock</p>
           )}
 
           {userRole === "wholesaler" && product.moq && (
-            <p className="text-[11px] text-foreground/50">MOQ: {product.moq} pcs</p>
+            <p className="text-[10px] text-muted-foreground">MOQ: {product.moq} pcs</p>
           )}
         </div>
       </Link>
 
-      <div className="px-3.5 pb-3.5">
+      <div className="px-3.5 pb-3.5 pt-1">
         <Link
           href={`/product/${product.slug}`}
-          className="flex items-center justify-center gap-2 w-full h-8 rounded-md text-sm font-medium transition-all duration-150 bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98]"
+          className="flex items-center justify-center gap-2 w-full h-8.5 rounded-lg text-xs font-semibold transition-all duration-150 bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 hover:shadow-md active:scale-[0.98]"
         >
           {product.stockStatus === "out_of_stock" ? "Notify Me" : "Add to Cart"}
         </Link>
@@ -145,3 +148,5 @@ export function ProductCard({ product, className }: ProductCardProps) {
     </motion.div>
   );
 }
+
+export default ProductCard;

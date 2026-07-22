@@ -1,97 +1,95 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import { ArrowLeft, Cloud, CloudOff } from "lucide-react";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
-import { useProductStudio } from "@/features/product-studio/hooks/use-product-studio";
 import { StudioLayout } from "@/features/product-studio/components/studio-layout";
+import { StudioHeader } from "@/features/product-studio/components/studio-header";
+import { StudioMobileNav } from "@/features/product-studio/components/studio-mobile-nav";
+import { StudioRightSidebar } from "@/features/product-studio/components/sidebar/studio-right-sidebar";
+import { StudioTemplateSelector } from "@/features/product-studio/components/templates/studio-template-selector";
+
+import { useProductStudio } from "@/features/product-studio/hooks/use-product-studio";
 import { GeneralSection } from "@/features/product-studio/components/sections/general-section";
 import { DescriptionSection } from "@/features/product-studio/components/sections/description-section";
+import { CategorySection } from "@/features/product-studio/components/sections/category-section";
+import { BrandSection } from "@/features/product-studio/components/sections/brand-section";
+import { VariantStudioSection } from "@/features/product-studio/components/sections/variant-studio-section";
+import { SpecificationSection } from "@/features/product-studio/components/sections/specification-section";
+import { MediaSection } from "@/features/product-studio/components/sections/media-section";
 import { PricingSection } from "@/features/product-studio/components/sections/pricing-section";
 import { InventorySection } from "@/features/product-studio/components/sections/inventory-section";
-import { VariantsSection } from "@/features/product-studio/components/sections/variants-section";
-import { MediaSection } from "@/features/product-studio/components/sections/media-section";
-import { SEOSection } from "@/features/product-studio/components/sections/seo-section";
-import { StudioRightSidebar } from "@/features/product-studio/components/sidebar/studio-right-sidebar";
+import { CollectionsChannelsSection } from "@/features/product-studio/components/sections/collections-channels-section";
+import { SEOAdvancedSection } from "@/features/product-studio/components/sections/seo-advanced-section";
+import { MarketingStudioSection } from "@/features/product-studio/components/sections/marketing-studio-section";
+import { RelationshipsSection } from "@/features/product-studio/components/sections/relationships-section";
+import { SupplierStudioSection } from "@/features/product-studio/components/sections/supplier-studio-section";
+import { PublishingStudioSection } from "@/features/product-studio/components/sections/publishing-studio-section";
+import type { ProductTemplate } from "@/features/product-studio/data/product-templates-data";
 
-export default function ProductStudioPage(): React.ReactElement {
+export default function NewProductStudioPage(): React.ReactElement {
   const {
-    form, update,
+    form, update, bulkUpdate,
+    handleAutoGenerateSKU, handleApplyAutoPricing,
     handleSave, handlePublish, handlePreview,
-    saving, saveState,
-    activeSection, scrollToSection,
+    saving, saveState, healthResult,
+    activeSection, setActiveSection, scrollToSection,
     sections,
   } = useProductStudio();
 
-  const saveIcon = saveState === "saving"
-    ? <Cloud className="h-3 w-3 animate-pulse" />
-    : saveState === "saved"
-      ? <Cloud className="h-3 w-3 text-success" />
-      : saveState === "error"
-        ? <CloudOff className="h-3 w-3 text-destructive" />
-        : <Cloud className="h-3 w-3" />;
+  const [currentSectionIndex, setCurrentSectionIndex] = React.useState(0);
 
-  const saveLabel = saveState === "saving" ? "Saving…"
-    : saveState === "saved" ? "Autosave ready"
-    : saveState === "error" ? "Save error"
-    : "Unsaved changes";
+  const handleApplyTemplate = React.useCallback((template: ProductTemplate) => {
+    const costNum = parseFloat(template.costPrice) || 1000;
+    const retail = (costNum * 1.40).toFixed(0);
+    const wholesale = (costNum * 1.30).toFixed(0);
+    const reseller = (costNum * 1.22).toFixed(0);
+    const campaign = (costNum * 1.15).toFixed(0);
+
+    bulkUpdate({
+      name: template.name,
+      shortDescription: template.shortDescription,
+      tags: template.tags,
+      costPrice: template.costPrice,
+      sellingPrice: retail,
+      wholesalePrice: wholesale,
+      resellerPrice: reseller,
+      campaignPrice: campaign,
+      weight: template.weight,
+    });
+  }, [bulkUpdate]);
+
+  const handlePrevSection = () => {
+    if (currentSectionIndex > 0) {
+      const prevIdx = currentSectionIndex - 1;
+      setCurrentSectionIndex(prevIdx);
+      scrollToSection(sections[prevIdx].id);
+    }
+  };
+
+  const handleNextSection = () => {
+    if (currentSectionIndex < sections.length - 1) {
+      const nextIdx = currentSectionIndex + 1;
+      setCurrentSectionIndex(nextIdx);
+      scrollToSection(sections[nextIdx].id);
+    }
+  };
 
   const header = (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between px-5 py-3">
-      <div className="flex items-center gap-3 min-w-0">
-        <Link
-          href="/dashboard/products"
-          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border text-muted-foreground hover:bg-muted hover:text-foreground"
-          aria-label="Back to products"
-        >
-          <ArrowLeft className="h-4 w-4" />
-        </Link>
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <h1 className="text-lg font-semibold tracking-tight truncate">
-              {form.name.trim() || "Untitled product"}
-            </h1>
-            <Badge variant="muted">Studio</Badge>
-          </div>
-          <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-0.5">
-            {saveIcon} {saveLabel}
-          </div>
-        </div>
-      </div>
-      <div className="flex flex-wrap items-center gap-2">
-        <Button variant="outline" size="sm" disabled={saving} onClick={handleSave}>
-          Save
-        </Button>
-        <Button variant="outline" size="sm" disabled onClick={handlePreview}>
-          Preview
-        </Button>
-        <Button size="sm" disabled={saving} onClick={handlePublish}>
-          Publish
-        </Button>
-      </div>
-    </div>
+    <StudioHeader
+      productName={form.name}
+      onNameChange={(val) => update("name", val)}
+      status={form.status}
+      saveState={saveState}
+      saving={saving}
+      onSave={handleSave}
+      onPublish={handlePublish}
+      onPreview={handlePreview}
+      isEditing={false}
+    />
   );
 
   const main = (
     <>
-      <div className="flex gap-1 overflow-x-auto ws-scroll pb-1 lg:hidden">
-        {sections.map((s) => (
-          <button
-            key={s.id}
-            type="button"
-            onClick={() => scrollToSection(s.id)}
-            className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium border transition-colors ${
-              activeSection === s.id
-                ? "border-primary/40 bg-primary/10 text-primary"
-                : "border-border bg-card text-muted-foreground"
-            }`}
-          >
-            {s.label}
-          </button>
-        ))}
-      </div>
+      <StudioTemplateSelector onApplyTemplate={handleApplyTemplate} />
 
       <GeneralSection
         name={form.name}
@@ -104,11 +102,41 @@ export default function ProductStudioPage(): React.ReactElement {
         onProductModelChange={(v) => update("productModel", v)}
         barcode={form.barcode}
         onBarcodeChange={(v) => update("barcode", v)}
+        onAutoGenerateSKU={handleAutoGenerateSKU}
       />
 
       <DescriptionSection
         value={form.richDescription}
         onChange={(v) => update("richDescription", v)}
+      />
+
+      <CategorySection
+        categoryId={form.categoryId}
+        onCategoryChange={(id) => update("categoryId", id)}
+        tags={form.tags}
+        onTagsChange={(t) => update("tags", t)}
+      />
+
+      <BrandSection
+        brandId={form.brandId}
+        onBrandChange={(id) => update("brandId", id)}
+      />
+
+      <VariantStudioSection
+        variants={form.variants as any}
+        onChange={(vars) => update("variants", vars)}
+        baseSku={form.sku}
+        basePrice={parseFloat(form.sellingPrice) || 1200}
+        baseCost={parseFloat(form.costPrice) || 800}
+      />
+
+      <SpecificationSection
+        categoryName={form.categoryId || "Smart Watch"}
+      />
+
+      <MediaSection
+        items={form.media}
+        onChange={(items) => update("media", items)}
       />
 
       <PricingSection
@@ -122,41 +150,63 @@ export default function ProductStudioPage(): React.ReactElement {
         onResellerPriceChange={(v) => update("resellerPrice", v)}
         comparePrice={form.comparePrice}
         onComparePriceChange={(v) => update("comparePrice", v)}
+        campaignPrice={form.campaignPrice}
+        onCampaignPriceChange={(v) => update("campaignPrice", v)}
+        onApplyAutoPricing={handleApplyAutoPricing}
       />
 
       <InventorySection
-        sku={form.inventorySku}
+        sku={form.inventorySku || form.sku}
         onSkuChange={(v) => update("inventorySku", v)}
-        barcode={form.inventoryBarcode}
+        barcode={form.inventoryBarcode || form.barcode}
         onBarcodeChange={(v) => update("inventoryBarcode", v)}
         stock={form.stock}
         onStockChange={(v) => update("stock", v)}
         lowStockThreshold={form.lowStockThreshold}
         onLowStockThresholdChange={(v) => update("lowStockThreshold", v)}
+        reservedStock={form.reservedStock}
+        onReservedStockChange={(v) => update("reservedStock", v)}
+        incomingStock={form.incomingStock}
+        onIncomingStockChange={(v) => update("incomingStock", v)}
+        warehouseLocation={form.warehouseLocation}
+        onWarehouseLocationChange={(v) => update("warehouseLocation", v)}
+        weight={form.weight}
+        onWeightChange={(v) => update("weight", v)}
       />
 
-      <VariantsSection
-        variants={form.variants}
-        onChange={(v) => update("variants", v)}
-        baseSku={form.sku}
+      <CollectionsChannelsSection
+        visibility={form.visibility}
+        onVisibilityChange={(v) => update("visibility", v)}
       />
 
-      <MediaSection
-        items={form.media}
-        onChange={(v) => update("media", v)}
-      />
-
-      <SEOSection
+      <SEOAdvancedSection
+        name={form.name}
+        sku={form.sku}
+        barcode={form.barcode}
         metaTitle={form.metaTitle}
         onMetaTitleChange={(v) => update("metaTitle", v)}
         metaDescription={form.metaDescription}
         onMetaDescriptionChange={(v) => update("metaDescription", v)}
-        metaKeywords={form.metaKeywords}
-        onMetaKeywordsChange={(v) => update("metaKeywords", v)}
         slug={form.slug}
         onSlugChange={(v) => update("slug", v)}
         ogImage={form.ogImage}
         onOgImageChange={(v) => update("ogImage", v)}
+      />
+
+      <MarketingStudioSection
+        productName={form.name}
+        tags={form.tags}
+        onTagsChange={(t) => update("tags", t)}
+      />
+
+      <RelationshipsSection />
+
+      <SupplierStudioSection />
+
+      <PublishingStudioSection
+        status={form.status}
+        onStatusChange={(s) => update("status", s)}
+        healthResult={healthResult}
       />
     </>
   );
@@ -174,11 +224,25 @@ export default function ProductStudioPage(): React.ReactElement {
       saveState={saveState}
       productName={form.name}
       productSku={form.sku}
+      healthResult={healthResult}
       sections={sections}
       activeSection={activeSection}
       onSectionClick={scrollToSection}
     />
   );
 
-  return <StudioLayout header={header} main={main} sidebar={sidebar} />;
+  const mobileFooter = (
+    <StudioMobileNav
+      currentSectionIndex={currentSectionIndex}
+      totalSections={sections.length}
+      onPrevSection={handlePrevSection}
+      onNextSection={handleNextSection}
+      onSave={handleSave}
+      onPublish={handlePublish}
+      saving={saving}
+      status={form.status}
+    />
+  );
+
+  return <StudioLayout header={header} main={main} sidebar={sidebar} mobileFooter={mobileFooter} />;
 }

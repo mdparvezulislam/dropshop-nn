@@ -5,8 +5,10 @@ import { CurrencyInput } from "@/shared/components/forms/currency-input";
 import { FormField } from "@/shared/components/forms/form-field";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import { Separator } from "@/shared/components/ui/separator";
-import { StudioSection } from "../studio-layout";
+import { Button } from "@/shared/components/ui/button";
+import { StudioCollapsibleSection } from "../studio-collapsible-section";
+import { Calculator, AlertTriangle, Wand2, TrendingUp } from "lucide-react";
+import { useSmartPricing } from "../../hooks/use-smart-pricing";
 
 export interface PricingSectionProps {
   costPrice: string;
@@ -19,6 +21,9 @@ export interface PricingSectionProps {
   onResellerPriceChange: (v: string) => void;
   comparePrice: string;
   onComparePriceChange: (v: string) => void;
+  campaignPrice?: string;
+  onCampaignPriceChange?: (v: string) => void;
+  onApplyAutoPricing?: (partial: Record<string, string>) => void;
 }
 
 export function PricingSection({
@@ -27,69 +32,121 @@ export function PricingSection({
   wholesalePrice, onWholesalePriceChange,
   resellerPrice, onResellerPriceChange,
   comparePrice, onComparePriceChange,
+  campaignPrice = "", onCampaignPriceChange,
+  onApplyAutoPricing,
 }: PricingSectionProps): React.ReactElement {
-  const cost = parseFloat(costPrice) || 0;
-  const sell = parseFloat(sellingPrice) || 0;
-  const wholesale = parseFloat(wholesalePrice) || 0;
-  const reseller = parseFloat(resellerPrice) || 0;
-  const compare = parseFloat(comparePrice) || 0;
+  const smartPricing = useSmartPricing({
+    costPrice,
+    sellingPrice,
+    wholesalePrice,
+    resellerPrice,
+    comparePrice,
+    campaignPrice,
+  });
 
-  const profit = sell - cost;
-  const margin = sell > 0 ? (profit / sell) * 100 : 0;
-  const hasDiscount = compare > 0 && sell < compare;
-  const discountPct = compare > 0 ? ((compare - sell) / compare) * 100 : 0;
+  const handleAutoCalculate = () => {
+    if (smartPricing.cost <= 0) return;
+    const generated = smartPricing.calculateAutoPrices(smartPricing.cost);
+    if (onApplyAutoPricing && generated) {
+      onApplyAutoPricing(generated as Record<string, string>);
+    }
+  };
 
   return (
-    <StudioSection id="pricing" title="Pricing" description="Price tiers, profit preview, and rules">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <FormField label="Cost price" hint="What you pay">
-          <CurrencyInput value={costPrice} onChange={onCostPriceChange} currency="$" />
+    <StudioCollapsibleSection
+      id="pricing"
+      title="Pricing & Smart Profit Engine"
+      description="Multi-tier pricing matrix, cost margin tracking, and automated profit rules"
+      defaultExpanded={true}
+      action={
+        smartPricing.cost > 0 && onApplyAutoPricing ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="gap-1.5 text-xs font-semibold"
+            onClick={handleAutoCalculate}
+          >
+            <Wand2 className="h-3.5 w-3.5 text-primary" /> Auto Pricing (+40%/+30%/+22%)
+          </Button>
+        ) : undefined
+      }
+    >
+      {/* Price Validation Warnings Banner */}
+      {smartPricing.warnings.length > 0 && (
+        <div className="space-y-1.5">
+          {smartPricing.warnings.map((warn, i) => (
+            <div key={i} className="flex items-center gap-2 p-3 rounded-xl border border-warning/30 bg-warning/10 text-warning text-xs font-bold shadow-2xs">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              <span>{warn}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <FormField label="Cost Price" required hint="Supplier / manufacturing cost">
+          <CurrencyInput value={costPrice} onChange={onCostPriceChange} currency="৳" />
         </FormField>
-        <FormField label="Compare at" hint="Original / crossed-out price">
-          <CurrencyInput value={comparePrice} onChange={onComparePriceChange} currency="$" />
+        <FormField label="Retail Selling Price" required hint="Customer checkout price">
+          <CurrencyInput value={sellingPrice} onChange={onSellingPriceChange} currency="৳" />
         </FormField>
-        <FormField label="Selling price" required hint="Customer checkout price">
-          <CurrencyInput value={sellingPrice} onChange={onSellingPriceChange} currency="$" />
+        <FormField label="Compare-at Price" hint="Strikethrough list price">
+          <CurrencyInput value={comparePrice} onChange={onComparePriceChange} currency="৳" />
         </FormField>
-        <FormField label="Wholesale price" hint="B2B partner price">
-          <CurrencyInput value={wholesalePrice} onChange={onWholesalePriceChange} currency="$" />
+        <FormField label="Wholesale Price" hint="B2B bulk partner price">
+          <CurrencyInput value={wholesalePrice} onChange={onWholesalePriceChange} currency="৳" />
         </FormField>
-        <FormField label="Reseller price" hint="Reseller catalog price">
-          <CurrencyInput value={resellerPrice} onChange={onResellerPriceChange} currency="$" />
+        <FormField label="Reseller Price" hint="Reseller store cost">
+          <CurrencyInput value={resellerPrice} onChange={onResellerPriceChange} currency="৳" />
+        </FormField>
+        <FormField label="Campaign Special Price" hint="Flash sale promo price">
+          <CurrencyInput value={campaignPrice} onChange={onCampaignPriceChange || (() => {})} currency="৳" />
         </FormField>
       </div>
 
-      {sell > 0 ? (
-        <Card className="bg-muted/30 border-dashed">
-          <CardContent className="p-4 space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Profit</span>
-              <span className={profit >= 0 ? "text-success font-semibold" : "text-destructive font-semibold"}>
-                ${profit.toFixed(2)}
+      {/* Live Profit & Margin Summary Card */}
+      {smartPricing.retail > 0 ? (
+        <Card className="bg-accent/40 border border-primary/30 rounded-xl shadow-2xs">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <Calculator className="h-3.5 w-3.5 text-primary" /> Live Profit & Margin Matrix
               </span>
+              {smartPricing.discountPct > 0 ? (
+                <Badge variant="destructive" size="xs">-{smartPricing.discountPct.toFixed(0)}% Off</Badge>
+              ) : null}
             </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Margin</span>
-              <span className={margin >= 0 ? "text-success font-semibold" : "text-destructive font-semibold"}>
-                {margin.toFixed(1)}%
-              </span>
-            </div>
-            <Separator />
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Wholesale margin</span>
-              <span className={wholesale > 0 ? "text-foreground font-semibold" : "text-muted-foreground"}>
-                {wholesale > 0 ? `${(((sell - wholesale) / sell) * 100).toFixed(1)}%` : "—"}
-              </span>
-            </div>
-            {hasDiscount ? (
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Discount</span>
-                <Badge variant="success">-{discountPct.toFixed(0)}% off</Badge>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+              <div className="p-2.5 rounded-lg border border-border bg-card">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase">Net Profit</p>
+                <p className={`text-base font-extrabold font-mono ${smartPricing.profit >= 0 ? "text-success" : "text-destructive"}`}>
+                  ৳{smartPricing.profit.toFixed(0)}
+                </p>
               </div>
-            ) : null}
+              <div className="p-2.5 rounded-lg border border-border bg-card">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase">Retail Margin</p>
+                <p className={`text-base font-extrabold font-mono ${smartPricing.marginPct >= 0 ? "text-success" : "text-destructive"}`}>
+                  {smartPricing.marginPct.toFixed(1)}%
+                </p>
+              </div>
+              <div className="p-2.5 rounded-lg border border-border bg-card">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase">Reseller Margin</p>
+                <p className="text-base font-extrabold font-mono text-primary">
+                  {smartPricing.reseller > 0 ? `${(((smartPricing.retail - smartPricing.reseller) / smartPricing.retail) * 100).toFixed(1)}%` : "—"}
+                </p>
+              </div>
+              <div className="p-2.5 rounded-lg border border-border bg-card">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase">Wholesale Margin</p>
+                <p className="text-base font-extrabold font-mono text-foreground">
+                  {smartPricing.wholesale > 0 ? `${(((smartPricing.retail - smartPricing.wholesale) / smartPricing.retail) * 100).toFixed(1)}%` : "—"}
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       ) : null}
-    </StudioSection>
+    </StudioCollapsibleSection>
   );
 }

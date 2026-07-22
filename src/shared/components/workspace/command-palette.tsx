@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
-import { Search } from "lucide-react";
+import { Search, CornerDownLeft, ArrowDown, ArrowUp } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
 import { Dialog, DialogContent, DialogTitle } from "@/shared/components/ui/dialog";
 
@@ -26,7 +26,7 @@ export function CommandPalette({
   open,
   onOpenChange,
   commands = [],
-  placeholder = "Type a command or search…",
+  placeholder = "Type a command or search products, orders, settings…",
 }: CommandPaletteProps): React.ReactElement {
   const router = useRouter();
   const [query, setQuery] = React.useState("");
@@ -48,7 +48,7 @@ export function CommandPalette({
     if (open) {
       setQuery("");
       setActive(0);
-      setTimeout(() => inputRef.current?.focus(), 0);
+      setTimeout(() => inputRef.current?.focus(), 10);
     }
   }, [open]);
 
@@ -88,39 +88,45 @@ export function CommandPalette({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="top-[20%] max-w-lg translate-y-0 gap-0 overflow-hidden p-0">
+      <DialogContent className="top-[18%] max-w-xl translate-y-0 gap-0 overflow-hidden p-0 border border-border/80 bg-card/95 backdrop-blur-md shadow-2xl rounded-2xl">
         <DialogTitle className="sr-only">Command palette</DialogTitle>
-        <div className="flex items-center gap-2 border-b border-border px-3">
-          <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+
+        {/* Input Bar */}
+        <div className="flex items-center gap-3 border-b border-border/80 px-4">
+          <Search className="h-4 w-4 shrink-0 text-primary" />
           <input
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKeyDown}
             placeholder={placeholder}
-            className="flex h-12 w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            className="flex h-13 w-full bg-transparent text-sm font-semibold outline-none placeholder:text-muted-foreground/60 text-foreground"
             aria-label="Command search"
           />
-          <kbd className="hidden rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground sm:inline-flex">
+          <kbd className="hidden rounded-md border border-border bg-muted/60 px-2 py-0.5 font-mono text-[10px] text-muted-foreground sm:inline-flex">
             ESC
           </kbd>
         </div>
-        <div className="ws-scroll max-h-80 overflow-y-auto p-2">
+
+        {/* Results List */}
+        <div className="ws-scroll max-h-84 overflow-y-auto p-2">
           {filtered.length === 0 ? (
-            <p className="px-3 py-8 text-center text-sm text-muted-foreground">
-              No matching commands
+            <p className="px-3 py-10 text-center text-xs font-medium text-muted-foreground">
+              No matching commands, products, or pages found.
             </p>
           ) : (
             Array.from(groups.entries()).map(([group, items]) => (
-              <div key={group} className="mb-2">
-                <div className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              <div key={group} className="mb-2 last:mb-0">
+                <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/70">
                   {group}
                 </div>
-                <ul>
+                <ul className="space-y-0.5">
                   {items.map((cmd) => {
                     flatIndex += 1;
                     const idx = flatIndex;
                     const Icon = cmd.icon;
+                    const isSelected = idx === active;
+
                     return (
                       <li key={cmd.id}>
                         <button
@@ -128,15 +134,20 @@ export function CommandPalette({
                           onClick={() => run(cmd.href)}
                           onMouseEnter={() => setActive(idx)}
                           className={cn(
-                            "flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-sm transition-colors",
-                            idx === active
-                              ? "bg-primary/10 text-foreground"
-                              : "text-muted-foreground hover:bg-muted",
+                            "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-semibold transition-all duration-150",
+                            isSelected
+                              ? "bg-primary text-primary-foreground shadow-xs font-bold"
+                              : "text-foreground hover:bg-muted/60",
                           )}
                         >
-                          <Icon className="h-4 w-4 shrink-0" />
-                          <span className="flex-1 text-left">{cmd.label}</span>
-                          <span className="hidden max-w-[140px] truncate text-[10px] text-muted-foreground/70 sm:inline">
+                          <Icon className={cn("h-4 w-4 shrink-0", isSelected ? "text-primary-foreground" : "text-primary")} />
+                          <span className="flex-1 text-left truncate">{cmd.label}</span>
+                          <span
+                            className={cn(
+                              "hidden max-w-[140px] truncate text-[10px] font-mono sm:inline",
+                              isSelected ? "text-primary-foreground/90" : "text-muted-foreground/60",
+                            )}
+                          >
                             {cmd.href}
                           </span>
                         </button>
@@ -148,11 +159,18 @@ export function CommandPalette({
             ))
           )}
         </div>
-        <div className="flex gap-3 border-t border-border px-3 py-2 text-[10px] text-muted-foreground">
-          <span>↑↓ Navigate</span>
-          <span>↵ Open</span>
-          <span>Esc Close</span>
-          <span className="ml-auto">⌘K</span>
+
+        {/* Keyboard Shortcuts Footer */}
+        <div className="flex items-center justify-between border-t border-border/80 bg-muted/30 px-4 py-2 text-[11px] text-muted-foreground">
+          <div className="flex items-center gap-4">
+            <span className="inline-flex items-center gap-1 font-medium">
+              <kbd className="rounded bg-muted border border-border px-1 py-0.5 text-[10px]"><ArrowUp className="h-2.5 w-2.5 inline" /><ArrowDown className="h-2.5 w-2.5 inline" /></kbd> Navigate
+            </span>
+            <span className="inline-flex items-center gap-1 font-medium">
+              <kbd className="rounded bg-muted border border-border px-1 py-0.5 text-[10px]"><CornerDownLeft className="h-2.5 w-2.5 inline" /></kbd> Select
+            </span>
+          </div>
+          <span className="font-mono text-[10px] text-primary font-bold">Raycast Quick Search</span>
         </div>
       </DialogContent>
     </Dialog>

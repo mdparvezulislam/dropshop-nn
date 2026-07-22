@@ -21,7 +21,7 @@ const MOCK_HISTORY = [
   {
     id: "h1",
     inventoryId: "1",
-    productName: "iPhone 16 Pro Max",
+    productName: "Smart Watch Ultra 2 Amoled",
     variantSku: "APL-IPH16PM-256-BLK",
     operation: "stock_in" as const,
     quantity: 20,
@@ -66,7 +66,7 @@ const MOCK_HISTORY = [
   {
     id: "h4",
     inventoryId: "1",
-    productName: "iPhone 16 Pro Max",
+    productName: "Smart Watch Ultra 2 Amoled",
     variantSku: "APL-IPH16PM-256-BLK",
     operation: "adjustment" as const,
     quantity: 2,

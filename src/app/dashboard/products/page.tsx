@@ -1,89 +1,109 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus, Copy, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
 import {
   listProductsAction,
   deleteProductAction,
   duplicateProductAction,
 } from "@/features/catalog/actions/product-actions";
-import { ListLayout } from "@/shared/components/workspace/list-layout";
-import { Toolbar } from "@/shared/components/workspace/toolbar";
-import { SearchBox } from "@/shared/components/workspace/search-box";
-import { StatCard } from "@/shared/components/workspace/stat-card";
-import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
-import { Button } from "@/shared/components/ui/button";
-import { Package, Search } from "lucide-react";
-import { Spinner } from "@/shared/components/ui/spinner";
+import {
+  getCatalogSummaryStatsAction,
+  inlineUpdateProductAction,
+  type CatalogSummaryStats,
+} from "@/features/catalog/actions/product-catalog-actions";
+import { useCatalogWorkspace } from "@/features/catalog/hooks/use-catalog-workspace";
+import { CatalogWorkspaceHeader } from "@/features/catalog/components/catalog-workspace-header";
+import { CatalogSummaryCards } from "@/features/catalog/components/catalog-summary-cards";
+import { CatalogTableView, type ProductCatalogItem } from "@/features/catalog/components/catalog-table-view";
+import { CatalogGridView } from "@/features/catalog/components/catalog-grid-view";
+import { CatalogAnalyticsView } from "@/features/catalog/components/catalog-analytics-view";
+import { CatalogPreviewDrawer } from "@/features/catalog/components/catalog-preview-drawer";
+import { CatalogBulkModal } from "@/features/catalog/components/modals/catalog-bulk-modal";
+import { CatalogImportModal } from "@/features/catalog/components/modals/catalog-import-modal";
+import { CatalogExportModal } from "@/features/catalog/components/modals/catalog-export-modal";
 
-type ProductRow = {
-  id: string;
-  name: string;
-  sku: string;
-  status: string;
-  brand: string;
-  category: string;
-  variantsCount: number;
-  visibility: string;
-};
-
-export default function ProductsPage(): React.ReactElement {
+export default function ProductsMasterWorkspacePage(): React.ReactElement {
   const router = useRouter();
-  const [search, setSearch] = React.useState("");
-  const [statusFilter, setStatusFilter] = React.useState("all");
-  const [rows, setRows] = React.useState<ProductRow[]>([]);
-  const [selected, setSelected] = React.useState<string[]>([]);
-  const [page, setPage] = React.useState(1);
-  const [loading, setLoading] = React.useState(true);
-  const [totalCount, setTotalCount] = React.useState(0);
-  const pageSize = 10;
+  const {
+    activeTab, setActiveTab,
+    viewMode, setViewMode,
+    filters, updateFilter,
+    selectedIds, setSelectedIds, toggleSelect, clearSelection,
+    previewProductId, setPreviewProductId,
+    bulkModalOpen, setBulkModalOpen,
+    importModalOpen, setImportModalOpen,
+    exportModalOpen, setExportModalOpen,
+  } = useCatalogWorkspace();
 
-  const load = React.useCallback(async () => {
+  const [items, setItems] = React.useState<ProductCatalogItem[]>([]);
+  const [stats, setStats] = React.useState<CatalogSummaryStats>({
+    total: 0, active: 0, draft: 0, outOfStock: 0, lowStock: 0, campaign: 0,
+  });
+  const [loading, setLoading] = React.useState(true);
+
+  const loadData = React.useCallback(async () => {
     setLoading(true);
     try {
-      const res = await listProductsAction(
-        {
-          ...(statusFilter !== "all" ? { status: statusFilter } : {}),
-          ...(search ? { search } : {}),
-        },
-        { limit: 50 },
-      );
-      if (res.success && res.data) {
-        const d = res.data as any;
-        const items: ProductRow[] = (d.items ?? []).map((p: any) => ({
+      const [listRes, statsRes] = await Promise.all([
+        listProductsAction(
+          {
+            ...(activeTab === "active" ? { status: "active" } : {}),
+            ...(activeTab === "draft" ? { status: "draft" } : {}),
+            ...(activeTab === "archived" ? { status: "archived" } : {}),
+            ...(filters.search ? { search: filters.search } : {}),
+          },
+          { limit: 100 },
+        ),
+        getCatalogSummaryStatsAction(),
+      ]);
+
+      if (listRes.success && listRes.data) {
+        const d = listRes.data as any;
+        const mapped: ProductCatalogItem[] = (d.items ?? []).map((p: any) => ({
           id: p.id,
-          name: p.title ?? p.name ?? "",
-          sku: p.sku ?? "",
+          name: p.title ?? p.name ?? "Untitled Product",
+          sku: p.sku ?? "SKU-PROD",
+          category: p.category?.name ?? p.category ?? "General",
+          brand: p.brand?.name ?? p.brand ?? "Default Brand",
+          price: p.retailPrice ?? p.price ?? 1200,
+          costPrice: p.costPrice ?? 800,
+          stock: p.stockQuantity ?? p.stock ?? 25,
           status: p.status ?? "draft",
-          brand: p.brand?.name ?? p.brand ?? "",
-          category: p.category?.name ?? p.category ?? "",
-          variantsCount: p.variants?.length ?? 0,
-          visibility: p.visibility ?? "public",
+          image: p.images?.[0]?.url || (typeof p.images?.[0] === "string" ? p.images[0] : "") || p.image || "",
+          updatedAt: p.updatedAt,
         }));
-        setRows(items);
-        setTotalCount(d.totalCount ?? items.length);
+
+        let filtered = mapped;
+        if (activeTab === "low_stock") {
+          filtered = mapped.filter((x) => x.stock > 0 && x.stock <= 10);
+        } else if (activeTab === "out_of_stock") {
+          filtered = mapped.filter((x) => x.stock <= 0);
+        }
+
+        setItems(filtered);
+      }
+
+      if (statsRes.success && statsRes.data) {
+        setStats(statsRes.data);
       }
     } catch {
-      toast.error("Failed to load products");
+      toast.error(" Failed to load product catalog");
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter]);
+  }, [activeTab, filters.search]);
 
   React.useEffect(() => {
-    load();
-  }, [load]);
+    loadData();
+  }, [loadData]);
 
   const handleDelete = async (id: string) => {
     try {
       await deleteProductAction(id);
-      setRows((p) => p.filter((x) => x.id !== id));
-      setTotalCount((c) => c - 1);
-      toast.success("Product deleted");
+      toast.success("পণ্য মুছে ফেলা হয়েছে (Product deleted)");
+      loadData();
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Delete failed");
     }
@@ -92,179 +112,112 @@ export default function ProductsPage(): React.ReactElement {
   const handleDuplicate = async (id: string) => {
     try {
       const res = await duplicateProductAction(id);
-      if (res.success && res.data) {
-        const d = res.data as any;
-        const newRow: ProductRow = {
-          id: d.id,
-          name: d.title ?? d.name ?? "",
-          sku: d.sku ?? "",
-          status: "draft",
-          brand: d.brand?.name ?? "",
-          category: d.category?.name ?? "",
-          variantsCount: d.variants?.length ?? 0,
-          visibility: "public",
-        };
-        setRows((p) => [newRow, ...p]);
-        setTotalCount((c) => c + 1);
-        toast.success("Duplicated as draft");
+      if (res.success) {
+        toast.success("পণ্য কপি করা হয়েছে (Product duplicated)");
+        loadData();
       }
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Duplicate failed");
     }
   };
 
-  const columns: DataTableColumn<ProductRow>[] = [
-    {
-      id: "name",
-      header: "Product",
-      sortable: true,
-      cell: (row) => (
-        <div>
-          <div className="font-medium text-foreground">{row.name}</div>
-          <div className="text-[11px] font-mono text-muted-foreground">{row.sku}</div>
-        </div>
-      ),
-    },
-    {
-      id: "brand",
-      header: "Brand",
-      hideOnMobile: true,
-      cell: (row) => <span className="text-muted-foreground">{row.brand || "—"}</span>,
-    },
-    {
-      id: "category",
-      header: "Category",
-      hideOnMobile: true,
-      cell: (row) => row.category || "—",
-    },
-    {
-      id: "variants",
-      header: "Variants",
-      hideOnMobile: true,
-      cell: (row) => (
-        <span className="tabular-nums text-muted-foreground">{row.variantsCount}</span>
-      ),
-    },
-    {
-      id: "status",
-      header: "Status",
-      cell: (row) => <StatusChip label={row.status} tone={statusToneFromValue(row.status)} />,
-    },
-    {
-      id: "actions",
-      header: "",
-      className: "text-right",
-      cell: (row) => (
-        <div className="flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-          <Link
-            href={`/dashboard/products/${row.id}`}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-          >
-            <Eye className="h-4 w-4" />
-          </Link>
-          <button
-            type="button"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted"
-            onClick={() => handleDuplicate(row.id)}
-            aria-label="Duplicate"
-          >
-            <Copy className="h-4 w-4" />
-          </button>
-          <button
-            type="button"
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-destructive/80 hover:bg-destructive/10"
-            onClick={() => handleDelete(row.id)}
-            aria-label="Delete"
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
-        </div>
-      ),
-    },
-  ];
+  const handleInlineUpdate = async (id: string, field: string, val: any) => {
+    try {
+      const res = await inlineUpdateProductAction(id, field, val);
+      if (res.success) {
+        toast.success("পণ্য তথ্য আপডেট হয়েছে (Product updated)");
+        loadData();
+      }
+    } catch {
+      toast.error("Inline edit failed");
+    }
+  };
 
-  const stats = React.useMemo(() => {
-    const all = rows;
-    return {
-      total: totalCount,
-      active: all.filter((p) => p.status === "active").length,
-      draft: all.filter((p) => p.status === "draft").length,
-      inactive: all.filter((p) => p.status === "inactive").length,
-    };
-  }, [rows, totalCount]);
+  const toggleSelectAll = () => {
+    if (selectedIds.length === items.length) {
+      clearSelection();
+    } else {
+      setSelectedIds(items.map((i) => i.id));
+    }
+  };
 
   return (
-    <ListLayout
-      header={{
-        title: "Products",
-        description: "Master catalog — pricing and stock live in dedicated modules",
-        actions: (
-          <Link href="/dashboard/products/new">
-            <Button className="gap-1.5">
-              <Plus className="h-4 w-4" /> New product
-            </Button>
-          </Link>
-        ),
-      }}
-      stats={
-        loading ? (
-          <div className="col-span-4 flex items-center gap-2 text-sm text-muted-foreground">
-            <Spinner size="sm" /> Loading…
-          </div>
-        ) : (
-          <>
-            <StatCard label="Total" value={stats.total} icon={Package} />
-            <StatCard label="Active" value={stats.active} accent="success" />
-            <StatCard label="Drafts" value={stats.draft} accent="warning" />
-            <StatCard label="Inactive" value={stats.inactive} accent="danger" />
-          </>
-        )
-      }
-      toolbar={
-        <Toolbar
-          left={
-            <>
-              <SearchBox
-                value={search}
-                onChange={(v) => { setSearch(v); setPage(1); }}
-                placeholder="Search name, SKU, brand…"
-                className="w-full sm:w-72"
-              />
-              <select
-                value={statusFilter}
-                onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-                className="h-9 rounded-md border border-input bg-card px-3 text-sm"
-              >
-                <option value="all">All status</option>
-                <option value="active">Active</option>
-                <option value="draft">Draft</option>
-                <option value="inactive">Inactive</option>
-              </select>
-            </>
-          }
-        />
-      }
-    >
-      <DataTable
-        columns={columns}
-        data={rows}
-        loading={loading}
-        selectable
-        selectedIds={selected}
-        onSelectionChange={setSelected}
-        page={page}
-        pageSize={pageSize}
-        totalCount={totalCount}
-        onPageChange={setPage}
-        onRowClick={(row) => router.push(`/dashboard/products/${row.id}`)}
-        emptyTitle="No products"
-        emptyDescription="Create your first catalog product in Product Studio."
-        bulkActions={
-          <Button variant="outline" size="sm" onClick={() => setSelected([])}>
-            Clear
-          </Button>
-        }
+    <div className="space-y-5 p-4 sm:p-6 max-w-[1600px] mx-auto">
+      {/* Workspace Header */}
+      <CatalogWorkspaceHeader
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        search={filters.search}
+        onSearchChange={(v) => updateFilter("search", v)}
+        selectedCount={selectedIds.length}
+        onOpenBulk={() => setBulkModalOpen(true)}
+        onOpenImport={() => setImportModalOpen(true)}
+        onOpenExport={() => setExportModalOpen(true)}
       />
-    </ListLayout>
+
+      {/* KPI Summary Cards Bar */}
+      <CatalogSummaryCards
+        stats={stats}
+        loading={loading}
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+      />
+
+      {/* Main View Mode Content */}
+      {viewMode === "table" || viewMode === "compact" ? (
+        <CatalogTableView
+          items={items}
+          loading={loading}
+          selectedIds={selectedIds}
+          onToggleSelect={toggleSelect}
+          onToggleSelectAll={toggleSelectAll}
+          onPreview={(id) => setPreviewProductId(id)}
+          onInlineUpdate={handleInlineUpdate}
+          onDuplicate={handleDuplicate}
+          onDelete={handleDelete}
+        />
+      ) : viewMode === "grid" ? (
+        <CatalogGridView
+          items={items}
+          loading={loading}
+          onPreview={(id) => setPreviewProductId(id)}
+          onDuplicate={handleDuplicate}
+          onDelete={handleDelete}
+        />
+      ) : (
+        <CatalogAnalyticsView items={items} />
+      )}
+
+      {/* Slide-over Preview Drawer */}
+      <CatalogPreviewDrawer
+        productId={previewProductId}
+        onClose={() => setPreviewProductId(null)}
+      />
+
+      {/* Modals */}
+      <CatalogBulkModal
+        open={bulkModalOpen}
+        onOpenChange={setBulkModalOpen}
+        selectedIds={selectedIds}
+        onComplete={() => {
+          clearSelection();
+          loadData();
+        }}
+      />
+
+      <CatalogImportModal
+        open={importModalOpen}
+        onOpenChange={setImportModalOpen}
+        onComplete={loadData}
+      />
+
+      <CatalogExportModal
+        open={exportModalOpen}
+        onOpenChange={setExportModalOpen}
+        selectedIds={selectedIds}
+      />
+    </div>
   );
 }

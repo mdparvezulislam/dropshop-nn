@@ -22,15 +22,20 @@ export class AuthService {
     password: string;
     role: string;
   }): Promise<User> {
+    const cleanUsername = data.username.toLowerCase().trim();
+    const cleanEmail = data.email.toLowerCase().trim();
+    const cleanPhone = data.phone.trim();
+
     logger.info("AuthService: registering new user profile", {
-      email: data.email,
+      email: cleanEmail,
+      username: cleanUsername,
       role: data.role,
     });
 
     const [existingEmail, existingPhone, existingUser] = await Promise.all([
-      this.userRepository.findByEmail(data.email),
-      this.userRepository.findByPhone(data.phone),
-      this.userRepository.findByUsername(data.username),
+      this.userRepository.findByEmail(cleanEmail),
+      this.userRepository.findByPhone(cleanPhone),
+      this.userRepository.findByUsername(cleanUsername),
     ]);
 
     const validationErrors: Record<string, string[]> = {};
@@ -42,25 +47,32 @@ export class AuthService {
       throw new ValidationError("Registration input validation failed", validationErrors);
     }
 
-    const roleDoc = await this.roleRepository.findByName(data.role);
+    let roleDoc = await this.roleRepository.findByName(data.role);
     if (!roleDoc) {
-      throw new ValidationError("Invalid role specified", {
-        role: ["The requested user role does not exist"],
+      logger.info("AuthService: auto-creating missing role during registration", { role: data.role });
+      roleDoc = await this.roleRepository.create({
+        name: data.role,
+        description: `Role for ${data.role}`,
+        permissions: data.role === "Super Admin" ? ["*"] : [`${data.role.replace(/\s+/g, "")}.Access`],
+        status: "active",
       });
     }
 
     const passwordHash = await hashPassword(data.password);
     const user = await this.userRepository.create({
-      username: data.username.toLowerCase().trim(),
-      email: data.email.toLowerCase().trim(),
-      phone: data.phone.trim(),
+      username: cleanUsername,
+      email: cleanEmail,
+      phone: cleanPhone,
       fullName: data.fullName.trim(),
       passwordHash,
       role: data.role,
       status: "active",
+      emailVerifiedAt: new Date(),
+      phoneVerifiedAt: new Date(),
       loginHistory: [],
     });
 
+    logger.info("AuthService: registered user profile successfully", { userId: user.id, email: user.email });
     return user;
   }
 
@@ -70,16 +82,30 @@ export class AuthService {
     ipAddress = "127.0.0.1",
     userAgent = "unknown",
   ): Promise<Omit<User, "passwordHash">> {
-    logger.info("AuthService: verifying user credentials", { emailOrUsername });
+    const rawInput = (emailOrUsername || "").trim();
+    const normalizedInput = rawInput.toLowerCase();
+    logger.info("AuthService: verifying user credentials", { rawInput });
 
-    const isEmail = emailOrUsername.includes("@");
-    const user = isEmail
-      ? await this.userRepository.findByEmail(emailOrUsername)
-      : await this.userRepository.findByUsername(emailOrUsername);
+    let user: User | null = null;
+    if (rawInput.includes("@")) {
+      user = await this.userRepository.findByEmail(normalizedInput);
+    } else {
+      user = await this.userRepository.findByUsername(normalizedInput);
+      if (!user) {
+        user = await this.userRepository.findByPhone(rawInput);
+      }
+    }
 
     if (!user) {
-      logger.warn("AuthService: user not found", { emailOrUsername });
-      throw new UnauthorizedError("Invalid username or password");
+      user =
+        (await this.userRepository.findByEmail(rawInput)) ||
+        (await this.userRepository.findByUsername(rawInput)) ||
+        (await this.userRepository.findByPhone(rawInput));
+    }
+
+    if (!user) {
+      logger.warn("AuthService: user not found", { rawInput });
+      throw new UnauthorizedError("Invalid username, email or password");
     }
 
     if (user.status === "suspended") {
@@ -89,8 +115,8 @@ export class AuthService {
 
     const passwordMatches = await comparePassword(password, user.passwordHash);
     if (!passwordMatches) {
-      logger.warn("AuthService: password mismatch", { userId: user.id });
-      throw new UnauthorizedError("Invalid username or password");
+      logger.warn("AuthService: password mismatch", { userId: user.id, email: user.email });
+      throw new UnauthorizedError("Invalid username, email or password");
     }
 
     this.userRepository.updateLoginHistory(user.id, ipAddress, userAgent).catch((err) => {

@@ -70,8 +70,8 @@ export function DataTable<T extends { id: string }>({
   totalCount,
   onPageChange,
   bulkActions,
-  emptyTitle = "No results",
-  emptyDescription = "Try adjusting filters or search.",
+  emptyTitle = "No results found",
+  emptyDescription = "Try adjusting your search terms or filters.",
   onRowClick,
   className,
 }: DataTableProps<T>): React.ReactElement {
@@ -110,23 +110,31 @@ export function DataTable<T extends { id: string }>({
 
   return (
     <div
-      className={cn("rounded-xl border border-border bg-card shadow-xs overflow-hidden", className)}
+      className={cn(
+        "rounded-xl border border-border/80 bg-card shadow-xs overflow-hidden transition-all duration-200",
+        className,
+      )}
     >
       {selectable && selectedIds.length > 0 && bulkActions ? (
-        <div className="flex items-center gap-3 border-b border-border bg-accent/40 px-4 py-2.5">
-          <span className="text-xs font-medium text-accent-foreground">
-            {selectedIds.length} selected
-          </span>
+        <div className="flex items-center justify-between border-b border-border/80 bg-primary/5 px-4 py-2.5 backdrop-blur-xs animate-fade-in">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center justify-center rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+              {selectedIds.length}
+            </span>
+            <span className="text-xs font-semibold text-foreground">
+              item{selectedIds.length > 1 ? "s" : ""} selected
+            </span>
+          </div>
           <div className="flex items-center gap-2">{bulkActions}</div>
         </div>
       ) : null}
 
       <div className="overflow-x-auto ws-scroll">
-        <table className="w-full caption-bottom text-sm">
-          <thead className="sticky top-0 z-10 bg-muted/60 backdrop-blur-sm">
-            <tr className="border-b border-border">
+        <table className="w-full caption-bottom text-sm border-collapse">
+          <thead className="sticky top-0 z-10 bg-muted/70 backdrop-blur-md">
+            <tr className="border-b border-border/80">
               {selectable ? (
-                <th className="h-11 w-10 px-3 text-left align-middle">
+                <th className="h-10 w-10 px-3 text-left align-middle">
                   <Checkbox
                     checked={allSelected ? true : someSelected ? "indeterminate" : false}
                     onCheckedChange={toggleAll}
@@ -134,54 +142,60 @@ export function DataTable<T extends { id: string }>({
                   />
                 </th>
               ) : null}
-              {columns.map((col) => (
-                <th
-                  key={col.id}
-                  className={cn(
-                    "h-11 px-3 text-left align-middle text-[11px] font-semibold uppercase tracking-wider text-muted-foreground",
-                    col.hideOnMobile && "hidden md:table-cell",
-                    col.headerClassName,
-                  )}
-                >
-                  {col.sortable && onSortChange ? (
-                    <button
-                      type="button"
-                      onClick={() => handleSort(col.id)}
-                      className="inline-flex items-center gap-1 hover:text-foreground transition-colors"
-                    >
-                      {col.header}
-                      {sortBy === col.id ? (
-                        sortOrder === "asc" ? (
-                          <ArrowUp className="h-3.5 w-3.5" />
+              {columns.map((col) => {
+                const isSorted = sortBy === col.id;
+                return (
+                  <th
+                    key={col.id}
+                    className={cn(
+                      "h-10 px-3 text-left align-middle text-[11px] font-semibold uppercase tracking-wider text-muted-foreground transition-colors select-none",
+                      col.hideOnMobile && "hidden md:table-cell",
+                      col.headerClassName,
+                    )}
+                  >
+                    {col.sortable && onSortChange ? (
+                      <button
+                        type="button"
+                        onClick={() => handleSort(col.id)}
+                        className={cn(
+                          "inline-flex items-center gap-1.5 hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring rounded px-1 -mx-1",
+                          isSorted && "text-primary font-bold",
+                        )}
+                      >
+                        {col.header}
+                        {isSorted ? (
+                          sortOrder === "asc" ? (
+                            <ArrowUp className="h-3.5 w-3.5 text-primary" />
+                          ) : (
+                            <ArrowDown className="h-3.5 w-3.5 text-primary" />
+                          )
                         ) : (
-                          <ArrowDown className="h-3.5 w-3.5" />
-                        )
-                      ) : (
-                        <ArrowUpDown className="h-3.5 w-3.5 opacity-40" />
-                      )}
-                    </button>
-                  ) : (
-                    col.header
-                  )}
-                </th>
-              ))}
+                          <ArrowUpDown className="h-3.5 w-3.5 opacity-40 hover:opacity-100" />
+                        )}
+                      </button>
+                    ) : (
+                      col.header
+                    )}
+                  </th>
+                );
+              })}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-border/50">
             {loading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <tr key={i} className="border-b border-border">
+              Array.from({ length: Math.min(pageSize, 5) }).map((_, i) => (
+                <tr key={i} className="animate-pulse">
                   {selectable ? (
                     <td className="p-3">
-                      <Skeleton className="h-4 w-4" />
+                      <Skeleton className="h-4 w-4 rounded" />
                     </td>
                   ) : null}
                   {columns.map((col) => (
                     <td
                       key={col.id}
-                      className={cn("p-3", col.hideOnMobile && "hidden md:table-cell")}
+                      className={cn("p-3.5", col.hideOnMobile && "hidden md:table-cell")}
                     >
-                      <Skeleton className="h-4 w-full max-w-[12rem]" />
+                      <Skeleton className="h-4 w-3/4 max-w-[12rem] rounded" />
                     </td>
                   ))}
                 </tr>
@@ -192,7 +206,7 @@ export function DataTable<T extends { id: string }>({
                   <EmptyState
                     title={emptyTitle}
                     description={emptyDescription}
-                    className="border-0 rounded-none"
+                    className="border-0 rounded-none bg-transparent"
                   />
                 </td>
               </tr>
@@ -204,9 +218,11 @@ export function DataTable<T extends { id: string }>({
                     key={row.id}
                     onClick={() => onRowClick?.(row)}
                     className={cn(
-                      "border-b border-border last:border-0 transition-colors",
+                      "transition-colors duration-150 group",
                       onRowClick && "cursor-pointer",
-                      selected ? "bg-primary/5" : "hover:bg-muted/40",
+                      selected
+                        ? "bg-primary/8 hover:bg-primary/12"
+                        : "hover:bg-muted/50 focus-within:bg-muted/30",
                     )}
                   >
                     {selectable ? (
@@ -222,7 +238,7 @@ export function DataTable<T extends { id: string }>({
                       <td
                         key={col.id}
                         className={cn(
-                          "p-3 align-middle text-foreground",
+                          "p-3.5 align-middle text-foreground/90 font-normal text-xs sm:text-sm",
                           col.hideOnMobile && "hidden md:table-cell",
                           col.className,
                         )}
@@ -239,24 +255,25 @@ export function DataTable<T extends { id: string }>({
       </div>
 
       {onPageChange ? (
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-t border-border px-4 py-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-t border-border/80 bg-muted/20 px-4 py-3">
           <p className="text-xs text-muted-foreground">
             Showing{" "}
-            <span className="font-medium text-foreground">
+            <span className="font-semibold text-foreground">
               {total === 0 ? 0 : (page - 1) * pageSize + 1}
             </span>
-            –<span className="font-medium text-foreground">{Math.min(page * pageSize, total)}</span>{" "}
-            of <span className="font-medium text-foreground">{total}</span>
+            –<span className="font-semibold text-foreground">{Math.min(page * pageSize, total)}</span>{" "}
+            of <span className="font-semibold text-foreground">{total}</span> items
           </p>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <Button
               variant="outline"
               size="icon-sm"
               disabled={page <= 1}
               onClick={() => onPageChange(1)}
               aria-label="First page"
+              className="h-7 w-7 rounded-md"
             >
-              <ChevronsLeft className="h-4 w-4" />
+              <ChevronsLeft className="h-3.5 w-3.5" />
             </Button>
             <Button
               variant="outline"
@@ -264,10 +281,11 @@ export function DataTable<T extends { id: string }>({
               disabled={page <= 1}
               onClick={() => onPageChange(page - 1)}
               aria-label="Previous page"
+              className="h-7 w-7 rounded-md"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-3.5 w-3.5" />
             </Button>
-            <span className="px-2 text-xs tabular-nums text-muted-foreground">
+            <span className="px-3 py-1 rounded-md bg-card border border-border/70 text-xs font-semibold tabular-nums text-foreground shadow-xs">
               {page} / {totalPages}
             </span>
             <Button
@@ -276,8 +294,9 @@ export function DataTable<T extends { id: string }>({
               disabled={page >= totalPages}
               onClick={() => onPageChange(page + 1)}
               aria-label="Next page"
+              className="h-7 w-7 rounded-md"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3.5 w-3.5" />
             </Button>
             <Button
               variant="outline"
@@ -285,8 +304,9 @@ export function DataTable<T extends { id: string }>({
               disabled={page >= totalPages}
               onClick={() => onPageChange(totalPages)}
               aria-label="Last page"
+              className="h-7 w-7 rounded-md"
             >
-              <ChevronsRight className="h-4 w-4" />
+              <ChevronsRight className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
