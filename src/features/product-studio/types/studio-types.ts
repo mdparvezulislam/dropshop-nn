@@ -6,10 +6,10 @@ export interface PricingSettings {
 }
 
 export const DEFAULT_PRICING_SETTINGS: PricingSettings = {
-  retailMultiplier: 1.40,
-  wholesaleMultiplier: 1.30,
-  resellerMultiplier: 1.22,
-  campaignMultiplier: 1.15,
+  retailMultiplier: 1.30,   // Cost + 30%
+  wholesaleMultiplier: 1.12, // Cost + 12%
+  resellerMultiplier: 1.20,  // Cost + 20%
+  campaignMultiplier: 1.00,  // Manual only
 };
 
 export interface HealthScoreItem {
@@ -66,6 +66,7 @@ export interface ExtendedVariantRow {
   weight?: number;
   status: "active" | "draft" | "disabled";
   visibility: "public" | "private" | "hidden";
+  dynamicAttrs?: Record<string, string>;
 }
 
 export interface VariantMatrixOptions {
@@ -78,6 +79,7 @@ export interface VariantMatrixOptions {
   basePrice: number;
   baseCost: number;
   baseStock: number;
+  dynamicAxes?: { name: string; values: string[] }[];
 }
 
 export interface SpecificationField {
@@ -113,7 +115,7 @@ export interface ProductRelationship {
   targetProductSku: string;
   targetProductPrice: number;
   targetProductImage?: string;
-  type: "related" | "cross_sell" | "upsell" | "accessory" | "replacement";
+  type: "related" | "cross_sell" | "upsell" | "accessory" | "replacement" | "frequently_bought_together";
 }
 
 export interface ScheduledPublishConfig {

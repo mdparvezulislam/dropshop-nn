@@ -4,6 +4,8 @@ export type ProductStatus = "draft" | "pending_review" | "active" | "inactive" |
 
 export type ProductVisibility = "public" | "private" | "hidden" | "supplier_only";
 
+export type ProductType = "simple" | "variant" | "bundle" | "digital" | "service" | "gift_card";
+
 export interface ProductVariant {
   color?: string;
   size?: string;
@@ -94,6 +96,7 @@ export interface Product extends BaseDBEntity {
   sku: string;
   barcode?: string;
   gtin?: string;
+  productType: ProductType;
   shortDescription?: string;
   productModel?: string;
   brandId?: string;

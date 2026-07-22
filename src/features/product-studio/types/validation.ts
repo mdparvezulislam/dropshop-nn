@@ -37,6 +37,7 @@ export const studioPricingSchema = z.object({
   comparePrice: z.number().nonnegative().optional(),
   margin: z.number().optional(),
   profit: z.number().optional(),
+  manualPriceOverrides: z.record(z.string(), z.boolean()).optional(),
 });
 
 export const studioInventorySchema = z.object({
@@ -49,6 +50,8 @@ export const studioInventorySchema = z.object({
 
 export const createStudioProductSchema = z.object({
   name: z.string().min(2, "Product name is required").max(255).trim(),
+  productType: z.enum(["simple", "variant", "bundle", "digital", "service", "gift_card"]).default("simple"),
+  templateId: z.string().optional().or(z.literal("")),
   sku: z.string().min(2, "SKU is required").max(100).trim(),
   shortDescription: z.string().max(500).optional().or(z.literal("")),
   richDescription: z.string().optional(),
@@ -64,7 +67,7 @@ export const createStudioProductSchema = z.object({
   trending: z.boolean().default(false),
   flashSale: z.boolean().default(false),
   newArrival: z.boolean().default(false),
-  variants: z.array(studioVariantRowSchema).min(1, "At least one variant is required"),
+  variants: z.array(studioVariantRowSchema).default([]),
   media: z.array(studioMediaItemSchema).default([]),
   seo: studioSEOSchema.optional(),
   pricing: studioPricingSchema.optional(),

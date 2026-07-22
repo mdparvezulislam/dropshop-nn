@@ -19,6 +19,8 @@ export interface SmartPricingResult {
   compare: number;
   profit: number;
   marginPct: number;
+  markupPct: number;
+  breakEven: number;
   discountPct: number;
   warnings: string[];
   calculateAutoPrices: (cost: number) => Partial<PricingState>;
@@ -37,6 +39,8 @@ export function useSmartPricing(
 
   const profit = retail - cost;
   const marginPct = retail > 0 ? (profit / retail) * 100 : 0;
+  const markupPct = cost > 0 ? (profit / cost) * 100 : 0;
+  const breakEven = cost;
   const discountPct = compare > 0 && compare > retail ? ((compare - retail) / compare) * 100 : 0;
 
   const calculateAutoPrices = React.useCallback(
@@ -78,6 +82,8 @@ export function useSmartPricing(
     compare,
     profit,
     marginPct,
+    markupPct,
+    breakEven,
     discountPct,
     warnings,
     calculateAutoPrices,

@@ -25,7 +25,6 @@ function canAccessPath(role: string | null | undefined, pathname: string): boole
     r.includes("admin");
 
   if (pathname.startsWith("/dashboard")) {
-    // Staff + allow cross-workspace switch for operators; role portals stay primary for others
     return isStaff || r === "customer";
   }
   if (pathname.startsWith("/reseller")) {
@@ -38,6 +37,79 @@ function canAccessPath(role: string | null | undefined, pathname: string): boole
     return isStaff || r.includes("supplier");
   }
   return true;
+}
+
+/**
+ * Route-level permission mapping.
+ * Maps path prefixes to required permissions.
+ * If a path is listed, the user must have at least ONE of the listed permissions.
+ * If not listed, only authentication is required.
+ */
+const ROUTE_PERMISSIONS: Record<string, string[]> = {
+  "/dashboard/products": ["products.product.view", "products.product.create"],
+  "/dashboard/products/new": ["products.product.create"],
+  "/dashboard/pricing": ["pricing.pricing.view"],
+  "/dashboard/costs": ["products.product.view"],
+  "/dashboard/suppliers": ["suppliers.supplier.view", "suppliers.supplier.create"],
+  "/dashboard/orders": ["orders.order.view"],
+  "/dashboard/orders/board": ["orders.order.view"],
+  "/dashboard/courier": ["courier.courier.view", "courier.courier.manage"],
+  "/dashboard/shipments": ["orders.order.view"],
+  "/dashboard/customers": ["customers.customer.view"],
+  "/dashboard/resellers": ["resellers.reseller.view"],
+  "/dashboard/inventory": ["inventory.inventory.view"],
+  "/dashboard/inventory/adjust": ["inventory.inventory.update"],
+  "/dashboard/inventory/low-stock": ["inventory.inventory.view"],
+  "/dashboard/inventory/history": ["inventory.inventory.view"],
+  "/dashboard/content": ["content.content.view"],
+  "/dashboard/content/pages": ["content.content.view"],
+  "/dashboard/content/blog": ["content.content.view"],
+  "/dashboard/content/media": ["content.content.view"],
+  "/dashboard/content/navigation": ["content.content.view"],
+  "/dashboard/content/banners": ["content.content.view"],
+  "/dashboard/content/homepage": ["content.content.view"],
+  "/dashboard/analytics": ["analytics.analytics.view"],
+  "/dashboard/analytics/sales": ["analytics.analytics.view"],
+  "/dashboard/analytics/orders": ["analytics.analytics.view"],
+  "/dashboard/analytics/catalog": ["analytics.analytics.view"],
+  "/dashboard/analytics/content": ["analytics.analytics.view"],
+  "/dashboard/finance": ["finance.finance.view"],
+  "/dashboard/wallet": ["wallet.wallet.view"],
+  "/dashboard/identity": ["identity.identity.view"],
+  "/dashboard/identity/users": ["users.user.view"],
+  "/dashboard/identity/roles": ["identity.identity.view"],
+  "/dashboard/identity/permissions": ["identity.identity.view"],
+  "/dashboard/identity/approvals": ["identity.identity.view"],
+  "/dashboard/identity/sessions": ["identity.identity.sessions"],
+  "/dashboard/identity/authorization": ["identity.identity.view", "identity.identity.manage"],
+  "/dashboard/identity/staff": ["identity.identity.view"],
+  "/dashboard/identity/applications": ["identity.identity.view"],
+  "/dashboard/identity/import": ["users.user.create"],
+  "/dashboard/identity/activity": ["identity.identity.view"],
+  "/dashboard/notifications": ["notifications.notification.view"],
+  "/dashboard/notifications/templates": ["notifications.notification.view"],
+  "/dashboard/notifications/logs": ["notifications.notification.view"],
+  "/dashboard/audit": ["identity.identity.view"],
+  "/dashboard/settings": ["settings.settings.view"],
+};
+
+function getRoutePermissions(pathname: string): string[] | null {
+  const sortedKeys = Object.keys(ROUTE_PERMISSIONS).sort((a, b) => b.length - a.length);
+  for (const prefix of sortedKeys) {
+    if (pathname === prefix || pathname.startsWith(prefix + "/")) {
+      return ROUTE_PERMISSIONS[prefix];
+    }
+  }
+  return null;
+}
+
+function hasRequiredPermission(
+  permissions: string[] | undefined,
+  requiredPermissions: string[],
+): boolean {
+  if (!permissions || permissions.length === 0) return false;
+  if (permissions.includes("*")) return true;
+  return requiredPermissions.some((p) => permissions.includes(p));
 }
 
 /**
@@ -58,13 +130,21 @@ export const authConfig = {
         pathname.startsWith("/supplier");
 
       const role = (auth?.user as { role?: string } | undefined)?.role;
+      const permissions = (auth?.user as { permissions?: string[] } | undefined)?.permissions;
 
       if (isProtectedWorkspace) {
         if (!isLoggedIn) return false;
+
         if (!canAccessPath(role, pathname)) {
           const home = homeForRole(role);
           return Response.redirect(new URL(home, request.nextUrl));
         }
+
+        const requiredPermissions = getRoutePermissions(pathname);
+        if (requiredPermissions && !hasRequiredPermission(permissions, requiredPermissions)) {
+          return Response.redirect(new URL("/auth/unauthorized", request.nextUrl));
+        }
+
         return true;
       }
 

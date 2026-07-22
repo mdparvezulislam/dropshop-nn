@@ -13,16 +13,22 @@ import { CATALOG_EVENTS } from "../domain/catalog-events";
 import { generateSlug } from "@/shared/utils/slug-utils";
 import type { ActorInfo } from "@/shared/core/types";
 import type { CreateProductInput, UpdateProductInput } from "../types/validation";
+import { ProductVersionService } from "./product-version-service";
+import { ProductAuditService } from "./product-audit-service";
 
 export class ProductService {
   private readonly productRepository: ProductRepository;
   private readonly brandRepository: BrandRepository;
   private readonly categoryRepository: CategoryRepository;
+  private readonly versionService: ProductVersionService;
+  private readonly auditService: ProductAuditService;
 
   constructor() {
     this.productRepository = new ProductRepository();
     this.brandRepository = new BrandRepository();
     this.categoryRepository = new CategoryRepository();
+    this.versionService = new ProductVersionService();
+    this.auditService = new ProductAuditService();
   }
 
   private async generateUniqueSlug(name: string): Promise<string> {
@@ -95,6 +101,17 @@ export class ProductService {
     );
 
     logger.info("ProductService: product created", { productId: product.id, sku: product.sku });
+
+    await this.auditService.record({
+      productId: product.id,
+      action: "created",
+      editorId: actor?.id,
+      editorName: actor?.name,
+      changedFields: Object.keys(data),
+      summary: `Product ${product.name} created`,
+    });
+    await this.versionService.createVersion(product.id, Object.keys(data), actor?.id, actor?.name, "Initial version");
+
     return product;
   }
 
@@ -183,6 +200,22 @@ export class ProductService {
       );
     }
 
+    await this.auditService.record({
+      productId: updated.id,
+      action: "updated",
+      editorId: actor?.id,
+      editorName: actor?.name,
+      changedFields,
+      oldValues: Object.fromEntries(
+        changedFields.map((k) => [k, (existing as any)[k]]),
+      ),
+      newValues: Object.fromEntries(
+        changedFields.map((k) => [k, (data as any)[k]]),
+      ),
+      summary: `Product ${updated.name} updated`,
+    });
+    await this.versionService.createVersion(updated.id, changedFields, actor?.id, actor?.name);
+
     return updated;
   }
 
@@ -204,6 +237,15 @@ export class ProductService {
       { actor, source: "catalog-service" },
     );
 
+    await this.auditService.record({
+      productId: id,
+      action: "deleted",
+      editorId: actor?.id,
+      editorName: actor?.name,
+      changedFields: ["status", "isDeleted"],
+      summary: `Product ${existing.name} deleted`,
+    });
+
     return result;
   }
 
@@ -217,8 +259,10 @@ export class ProductService {
     if (existing.status === "archived")
       throw new ValidationError("Cannot publish an archived product");
 
-    if (existing.variants.length === 0) {
-      throw new ValidationError("Product must have at least one variant before publishing");
+    if (existing.productType !== "simple" && existing.productType !== "digital" && existing.productType !== "service" && existing.productType !== "gift_card") {
+      if (existing.variants.length === 0) {
+        throw new ValidationError("Product must have at least one variant before publishing");
+      }
     }
 
     const updated = await this.productRepository.update(id, { status: "active" as const });
@@ -234,6 +278,16 @@ export class ProductService {
       },
       { actor, source: "catalog-service" },
     );
+
+    await this.auditService.record({
+      productId: updated.id,
+      action: "published",
+      editorId: actor?.id,
+      editorName: actor?.name,
+      changedFields: ["status"],
+      summary: `Product ${updated.name} published`,
+    });
+    await this.versionService.createVersion(updated.id, ["status"], actor?.id, actor?.name, "Published");
 
     return updated;
   }
@@ -258,6 +312,16 @@ export class ProductService {
       },
       { actor, source: "catalog-service" },
     );
+
+    await this.auditService.record({
+      productId: updated.id,
+      action: "archived",
+      editorId: actor?.id,
+      editorName: actor?.name,
+      changedFields: ["status"],
+      summary: reason ? `Product ${updated.name} archived: ${reason}` : `Product ${updated.name} archived`,
+    });
+    await this.versionService.createVersion(updated.id, ["status"], actor?.id, actor?.name, reason || "Archived");
 
     return updated;
   }
@@ -315,6 +379,16 @@ export class ProductService {
       { actor, source: "catalog-service" },
     );
 
+    await this.auditService.record({
+      productId: duplicated.id,
+      action: "duplicated",
+      editorId: actor?.id,
+      editorName: actor?.name,
+      changedFields: ["name", "sku", "slug"],
+      summary: `Product duplicated from ${existing.name}`,
+    });
+    await this.versionService.createVersion(duplicated.id, ["name", "sku", "slug"], actor?.id, actor?.name, "Duplicated from original");
+
     return duplicated;
   }
 
@@ -346,6 +420,16 @@ export class ProductService {
       { actor, source: "catalog-service" },
     );
 
+    await this.auditService.record({
+      productId,
+      action: "variant_added",
+      editorId: actor?.id,
+      editorName: actor?.name,
+      changedFields: ["variants"],
+      summary: `Variant ${variant.sku} added`,
+    });
+    await this.versionService.createVersion(productId, ["variants"], actor?.id, actor?.name, `Variant ${variant.sku} added`);
+
     return updated;
   }
 
@@ -376,6 +460,16 @@ export class ProductService {
       { actor, source: "catalog-service" },
     );
 
+    await this.auditService.record({
+      productId,
+      action: "variant_updated",
+      editorId: actor?.id,
+      editorName: actor?.name,
+      changedFields: ["variants"],
+      summary: `Variant ${sku} updated`,
+    });
+    await this.versionService.createVersion(productId, ["variants"], actor?.id, actor?.name, `Variant ${sku} updated`);
+
     return updated;
   }
 
@@ -398,6 +492,16 @@ export class ProductService {
       },
       { actor, source: "catalog-service" },
     );
+
+    await this.auditService.record({
+      productId,
+      action: "variant_removed",
+      editorId: actor?.id,
+      editorName: actor?.name,
+      changedFields: ["variants"],
+      summary: `Variant ${sku} removed`,
+    });
+    await this.versionService.createVersion(productId, ["variants"], actor?.id, actor?.name, `Variant ${sku} removed`);
 
     return updated;
   }
@@ -424,6 +528,16 @@ export class ProductService {
       { actor, source: "catalog-service" },
     );
 
+    await this.auditService.record({
+      productId,
+      action: "media_added",
+      editorId: actor?.id,
+      editorName: actor?.name,
+      changedFields: ["media"],
+      summary: `Media ${media.url} added`,
+    });
+    await this.versionService.createVersion(productId, ["media"], actor?.id, actor?.name, `Media ${media.url} added`);
+
     return updated;
   }
 
@@ -444,6 +558,16 @@ export class ProductService {
       },
       { actor, source: "catalog-service" },
     );
+
+    await this.auditService.record({
+      productId,
+      action: "media_removed",
+      editorId: actor?.id,
+      editorName: actor?.name,
+      changedFields: ["media"],
+      summary: `Media removed`,
+    });
+    await this.versionService.createVersion(productId, ["media"], actor?.id, actor?.name, `Media removed`);
 
     return updated;
   }
@@ -472,6 +596,16 @@ export class ProductService {
       { actor, source: "catalog-service" },
     );
 
+    await this.auditService.record({
+      productId,
+      action: "featured_media_set",
+      editorId: actor?.id,
+      editorName: actor?.name,
+      changedFields: ["media"],
+      summary: `Featured media set to ${mediaUrl}`,
+    });
+    await this.versionService.createVersion(productId, ["media"], actor?.id, actor?.name, `Featured media set`);
+
     return updated;
   }
 
@@ -493,6 +627,17 @@ export class ProductService {
       },
       { actor, source: "catalog-service" },
     );
+
+    const seoChangedFields = Object.keys(seo);
+    await this.auditService.record({
+      productId: id,
+      action: "seo_updated",
+      editorId: actor?.id,
+      editorName: actor?.name,
+      changedFields: seoChangedFields,
+      summary: `SEO updated for product ${updated.name}`,
+    });
+    await this.versionService.createVersion(id, ["seo"], actor?.id, actor?.name, "SEO updated");
 
     return updated;
   }
@@ -519,6 +664,18 @@ export class ProductService {
       },
       { actor, source: "catalog-service" },
     );
+
+    await this.auditService.record({
+      productId: id,
+      action: "visibility_changed",
+      editorId: actor?.id,
+      editorName: actor?.name,
+      changedFields: ["visibility"],
+      oldValues: { visibility: oldVisibility },
+      newValues: { visibility },
+      summary: `Visibility changed from ${oldVisibility} to ${visibility}`,
+    });
+    await this.versionService.createVersion(id, ["visibility"], actor?.id, actor?.name, `Visibility changed to ${visibility}`);
 
     return updated;
   }

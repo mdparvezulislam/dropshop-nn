@@ -24,6 +24,8 @@ export interface PricingSectionProps {
   campaignPrice?: string;
   onCampaignPriceChange?: (v: string) => void;
   onApplyAutoPricing?: (partial: Record<string, string>) => void;
+  showResetButton?: boolean;
+  onResetAutoPricing?: () => void;
 }
 
 export function PricingSection({
@@ -34,6 +36,7 @@ export function PricingSection({
   comparePrice, onComparePriceChange,
   campaignPrice = "", onCampaignPriceChange,
   onApplyAutoPricing,
+  showResetButton = false, onResetAutoPricing,
 }: PricingSectionProps): React.ReactElement {
   const smartPricing = useSmartPricing({
     costPrice,
@@ -60,15 +63,28 @@ export function PricingSection({
       defaultExpanded={true}
       action={
         smartPricing.cost > 0 && onApplyAutoPricing ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="gap-1.5 text-xs font-semibold"
-            onClick={handleAutoCalculate}
-          >
-            <Wand2 className="h-3.5 w-3.5 text-primary" /> Auto Pricing (+40%/+30%/+22%)
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-1.5 text-xs font-semibold"
+              onClick={handleAutoCalculate}
+            >
+              <Wand2 className="h-3.5 w-3.5 text-primary" /> Auto Pricing (+30%/+20%/+12%)
+            </Button>
+            {showResetButton && onResetAutoPricing && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="gap-1.5 text-xs font-semibold text-warning"
+                onClick={onResetAutoPricing}
+              >
+                Reset Auto Pricing
+              </Button>
+            )}
+          </div>
         ) : undefined
       }
     >
@@ -118,7 +134,7 @@ export function PricingSection({
               ) : null}
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-1">
               <div className="p-2.5 rounded-lg border border-border bg-card">
                 <p className="text-[10px] font-bold text-muted-foreground uppercase">Net Profit</p>
                 <p className={`text-base font-extrabold font-mono ${smartPricing.profit >= 0 ? "text-success" : "text-destructive"}`}>
@@ -132,6 +148,12 @@ export function PricingSection({
                 </p>
               </div>
               <div className="p-2.5 rounded-lg border border-border bg-card">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase">Markup %</p>
+                <p className={`text-base font-extrabold font-mono ${smartPricing.markupPct >= 0 ? "text-success" : "text-destructive"}`}>
+                  {smartPricing.markupPct.toFixed(1)}%
+                </p>
+              </div>
+              <div className="p-2.5 rounded-lg border border-border bg-card">
                 <p className="text-[10px] font-bold text-muted-foreground uppercase">Reseller Margin</p>
                 <p className="text-base font-extrabold font-mono text-primary">
                   {smartPricing.reseller > 0 ? `${(((smartPricing.retail - smartPricing.reseller) / smartPricing.retail) * 100).toFixed(1)}%` : "—"}
@@ -141,6 +163,12 @@ export function PricingSection({
                 <p className="text-[10px] font-bold text-muted-foreground uppercase">Wholesale Margin</p>
                 <p className="text-base font-extrabold font-mono text-foreground">
                   {smartPricing.wholesale > 0 ? `${(((smartPricing.retail - smartPricing.wholesale) / smartPricing.retail) * 100).toFixed(1)}%` : "—"}
+                </p>
+              </div>
+              <div className="p-2.5 rounded-lg border border-border bg-card">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase">Break-even Price</p>
+                <p className="text-base font-extrabold font-mono text-foreground">
+                  ৳{smartPricing.breakEven.toFixed(0)}
                 </p>
               </div>
             </div>

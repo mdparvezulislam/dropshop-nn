@@ -6,6 +6,7 @@ import { StudioHeader } from "@/features/product-studio/components/studio-header
 import { StudioMobileNav } from "@/features/product-studio/components/studio-mobile-nav";
 import { StudioRightSidebar } from "@/features/product-studio/components/sidebar/studio-right-sidebar";
 import { StudioTemplateSelector } from "@/features/product-studio/components/templates/studio-template-selector";
+import { autoSuggestFromNameAction } from "@/features/catalog/actions/product-template-actions";
 
 import { useProductStudio } from "@/features/product-studio/hooks/use-product-studio";
 import { GeneralSection } from "@/features/product-studio/components/sections/general-section";
@@ -28,7 +29,7 @@ import type { ProductTemplate } from "@/features/product-studio/data/product-tem
 export default function NewProductStudioPage(): React.ReactElement {
   const {
     form, update, bulkUpdate,
-    handleAutoGenerateSKU, handleApplyAutoPricing,
+    handleAutoGenerateSKU, handleApplyAutoPricing, handleResetAutoPricing,
     handleSave, handlePublish, handlePreview,
     saving, saveState, healthResult,
     activeSection, setActiveSection, scrollToSection,
@@ -153,6 +154,8 @@ export default function NewProductStudioPage(): React.ReactElement {
         campaignPrice={form.campaignPrice}
         onCampaignPriceChange={(v) => update("campaignPrice", v)}
         onApplyAutoPricing={handleApplyAutoPricing}
+        showResetButton={Object.keys(form.manualPriceOverrides ?? {}).length > 0}
+        onResetAutoPricing={handleResetAutoPricing}
       />
 
       <InventorySection
@@ -177,6 +180,8 @@ export default function NewProductStudioPage(): React.ReactElement {
       <CollectionsChannelsSection
         visibility={form.visibility}
         onVisibilityChange={(v) => update("visibility", v)}
+        selectedCollectionIds={form.selectedCollectionIds}
+        onCollectionsChange={(ids) => update("selectedCollectionIds", ids)}
       />
 
       <SEOAdvancedSection
@@ -197,15 +202,41 @@ export default function NewProductStudioPage(): React.ReactElement {
         productName={form.name}
         tags={form.tags}
         onTagsChange={(t) => update("tags", t)}
+        bulletFeatures={form.bulletFeatures}
+        onBulletFeaturesChange={(b) => update("bulletFeatures", b)}
       />
 
-      <RelationshipsSection />
+      <RelationshipsSection
+        relationships={form.relationships}
+        onRelationshipsChange={(rels) => update("relationships", rels)}
+      />
 
-      <SupplierStudioSection />
+      <SupplierStudioSection
+        supplierId={form.supplierId}
+        onSupplierIdChange={(v) => update("supplierId", v)}
+        supplierSku={form.supplierSku}
+        onSupplierSkuChange={(v) => update("supplierSku", v)}
+        supplierCost={form.supplierCost}
+        onSupplierCostChange={(v) => update("supplierCost", v)}
+        leadTimeDays={form.leadTimeDays}
+        onLeadTimeDaysChange={(v) => update("leadTimeDays", v)}
+        purchaseLink={form.purchaseLink}
+        onPurchaseLinkChange={(v) => update("purchaseLink", v)}
+        supplierNotes={form.supplierNotes}
+        onSupplierNotesChange={(v) => update("supplierNotes", v)}
+      />
 
       <PublishingStudioSection
         status={form.status}
         onStatusChange={(s) => update("status", s)}
+        scheduledDate={form.scheduledPublishDate}
+        onScheduledDateChange={(v) => update("scheduledPublishDate", v)}
+        scheduledTime={form.scheduledPublishTime}
+        onScheduledTimeChange={(v) => update("scheduledPublishTime", v)}
+        timezone={form.timezone}
+        onTimezoneChange={(v) => update("timezone", v)}
+        scheduledUnpublishDate={form.scheduledUnpublishDate}
+        onScheduledUnpublishDateChange={(v) => update("scheduledUnpublishDate", v)}
         healthResult={healthResult}
       />
     </>

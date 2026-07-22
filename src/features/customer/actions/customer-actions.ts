@@ -170,6 +170,33 @@ export async function updateTagsAction(formData: unknown): Promise<{
   }
 }
 
+export async function getCustomerAction(customerId: string): Promise<{
+  success: boolean;
+  data?: any;
+  error?: string;
+}> {
+  const session = await auth() as any;
+  checkPermission(session, "Customer.View");
+
+  try {
+    const repo = new CustomerRepository();
+    const customer = await repo.findById(customerId);
+    if (!customer) {
+      return { success: false, error: "Customer not found" };
+    }
+
+    // Force workspace isolation
+    if (session.user.role === "Reseller" && customer.workspaceId !== session.user.id) {
+      return { success: false, error: "Unauthorized" };
+    }
+
+    return { success: true, data: customer };
+  } catch (error: any) {
+    logger.error("getCustomerAction failed", error);
+    return { success: false, error: error.message };
+  }
+}
+
 export async function listCustomersAction(searchQuery?: string): Promise<{
   success: boolean;
   data?: any[];

@@ -6,20 +6,26 @@ import { toast } from "sonner";
 import { saveStudioProductAction, publishStudioProductAction } from "../actions/studio-actions";
 import { useAutosave, type SaveState } from "./use-autosave";
 import { useHealthScore } from "./use-health-score";
+import { useAutoClassification } from "./use-auto-classification";
+import { useAutoGeneration } from "./use-auto-generation";
 import type { HealthScoreResult } from "../types/studio-types";
 import type { VariantRow } from "../components/sections/variants-section";
 import type { MediaItem } from "../components/sections/media-section";
-import { generateSlug } from "@/shared/utils/slug-utils";
+import type { ProductType } from "@/features/catalog/domain/product-entity";
 
 export interface StudioFormState {
   name: string;
+  productType: ProductType;
+  templateId: string;
   sku: string;
   shortDescription: string;
   richDescription: string;
   productModel: string;
   barcode: string;
   brandId: string;
+  brandName: string;
   categoryId: string;
+  categoryName: string;
   supplierId: string;
   tags: string[];
   visibility: string;
@@ -38,6 +44,7 @@ export interface StudioFormState {
   resellerPrice: string;
   comparePrice: string;
   campaignPrice: string;
+  manualPriceOverrides: Record<string, boolean>;
 
   /* Inventory */
   inventorySku: string;
@@ -52,6 +59,19 @@ export interface StudioFormState {
   /* Collections & Media */
   variants: VariantRow[];
   media: MediaItem[];
+  bulletFeatures: string[];
+  selectedCollectionIds: string[];
+  channels: string[];
+  supplierSku: string;
+  supplierCost: string;
+  leadTimeDays: string;
+  purchaseLink: string;
+  supplierNotes: string;
+  relationships: any[];
+  scheduledPublishDate: string;
+  scheduledPublishTime: string;
+  scheduledUnpublishDate: string;
+  timezone: string;
 
   /* SEO */
   metaTitle: string;
@@ -62,17 +82,31 @@ export interface StudioFormState {
 }
 
 const INITIAL_STATE: StudioFormState = {
-  name: "", sku: "", shortDescription: "", richDescription: "",
-  productModel: "", barcode: "", brandId: "", categoryId: "", supplierId: "",
+  name: "", productType: "simple" as ProductType, templateId: "",
+  sku: "", shortDescription: "", richDescription: "",
+  productModel: "", barcode: "", brandId: "", brandName: "", categoryId: "", categoryName: "", supplierId: "",
   tags: [], visibility: "public", status: "draft",
   featured: false, trending: false, flashSale: false, newArrival: true,
   warranty: "", returnPolicy: "",
-  costPrice: "", sellingPrice: "", wholesalePrice: "", resellerPrice: "", comparePrice: "", campaignPrice: "",
+  costPrice: "", sellingPrice: "", wholesalePrice: "", resellerPrice: "", comparePrice: "", campaignPrice: "", manualPriceOverrides: {},
   inventorySku: "", inventoryBarcode: "", stock: "0", reservedStock: "0", incomingStock: "0", lowStockThreshold: "5",
   warehouseLocation: "DHAKA-CENTRAL-WH1", weight: "0.5",
   variants: [{ id: "v1", color: "", size: "", storage: "", ram: "", capacity: "", material: "", sku: "" }],
   media: [],
   metaTitle: "", metaDescription: "", metaKeywords: [], slug: "", ogImage: "",
+  bulletFeatures: [],
+  selectedCollectionIds: [],
+  channels: [],
+  supplierSku: "",
+  supplierCost: "",
+  leadTimeDays: "",
+  purchaseLink: "",
+  supplierNotes: "",
+  relationships: [],
+  scheduledPublishDate: "",
+  scheduledPublishTime: "",
+  scheduledUnpublishDate: "",
+  timezone: "Asia/Dhaka (GMT+6)",
 };
 
 export function useProductStudio(existingId?: string): {
@@ -81,6 +115,7 @@ export function useProductStudio(existingId?: string): {
   bulkUpdate: (partial: Partial<StudioFormState>) => void;
   handleAutoGenerateSKU: () => void;
   handleApplyAutoPricing: (pricing: Partial<StudioFormState>) => void;
+  handleResetAutoPricing: () => void;
   handleSave: () => Promise<void>;
   handlePublish: () => Promise<void>;
   handlePreview: () => void;
@@ -99,6 +134,8 @@ export function useProductStudio(existingId?: string): {
   const productIdRef = React.useRef(existingId);
 
   const healthResult = useHealthScore(form);
+  const { classifyFromName } = useAutoClassification();
+  const { generate: autoGenerate } = useAutoGeneration();
 
   const doSave = React.useCallback(async () => {
     setSaving(true);
@@ -127,21 +164,56 @@ export function useProductStudio(existingId?: string): {
     setForm((prev) => {
       const next = { ...prev, [field]: value };
 
-      // Auto-slug generation on name change if slug is empty or matches previous auto-slug
-      if (field === "name" && typeof value === "string") {
-        const generatedSlug = generateSlug(value);
-        if (!prev.slug || prev.slug === generateSlug(prev.name)) {
-          next.slug = generatedSlug;
+      // Track manual price overrides
+      if (["sellingPrice", "wholesalePrice", "resellerPrice"].includes(field)) {
+        next.manualPriceOverrides = { ...prev.manualPriceOverrides, [field]: true };
+      }
+
+      // Auto-calculate prices when cost changes (unless manually overridden)
+      if (field === "costPrice" && typeof value === "string") {
+        const cost = parseFloat(value) || 0;
+        if (cost > 0) {
+          if (!prev.manualPriceOverrides?.sellingPrice) {
+            next.sellingPrice = (cost * 1.30).toFixed(0);
+          }
+          if (!prev.manualPriceOverrides?.wholesalePrice) {
+            next.wholesalePrice = (cost * 1.12).toFixed(0);
+          }
+          if (!prev.manualPriceOverrides?.resellerPrice) {
+            next.resellerPrice = (cost * 1.20).toFixed(0);
+          }
+        }
+      }
+
+      // Auto-classification + auto-generation on name change
+      if (field === "name" && typeof value === "string" && value.trim().length >= 3) {
+        const classification = classifyFromName(value);
+        const generated = autoGenerate(value, prev.sku);
+
+        if (!prev.slug || prev.slug === autoGenerate(prev.name).slug) {
+          next.slug = generated.slug;
         }
         if (!prev.metaTitle) {
-          next.metaTitle = value;
+          next.metaTitle = generated.metaTitle;
+        }
+        if (!prev.metaDescription) {
+          next.metaDescription = generated.metaDescription;
+        }
+        if (classification.categoryName && !prev.categoryId) {
+          next.categoryName = classification.categoryName;
+        }
+        if (classification.brandName && !prev.brandId) {
+          next.brandName = classification.brandName;
+        }
+        if (classification.suggestedTags.length > 0 && prev.tags.length === 0) {
+          next.tags = classification.suggestedTags;
         }
       }
 
       return next;
     });
     triggerSave();
-  }, [triggerSave]);
+  }, [triggerSave, classifyFromName, autoGenerate]);
 
   const bulkUpdate = React.useCallback((partial: Partial<StudioFormState>) => {
     setForm((prev) => ({ ...prev, ...partial }));
@@ -158,9 +230,20 @@ export function useProductStudio(existingId?: string): {
   }, [form.name, form.inventorySku, update]);
 
   const handleApplyAutoPricing = React.useCallback((pricingPartial: Partial<StudioFormState>) => {
-    bulkUpdate(pricingPartial);
-    toast.success("Applied automated multi-tier pricing rules (+40%/+30%/+22%)");
+    bulkUpdate({ ...pricingPartial, manualPriceOverrides: {} });
+    toast.success("Applied automated multi-tier pricing rules (+30%/+20%/+12%)");
   }, [bulkUpdate]);
+
+  const handleResetAutoPricing = React.useCallback(() => {
+    const cost = parseFloat(form.costPrice) || 0;
+    if (cost <= 0) return;
+    bulkUpdate({
+      sellingPrice: (cost * 1.30).toFixed(0),
+      wholesalePrice: (cost * 1.12).toFixed(0),
+      resellerPrice: (cost * 1.20).toFixed(0),
+      manualPriceOverrides: {},
+    });
+  }, [form.costPrice, bulkUpdate]);
 
   const handleSave = React.useCallback(async () => {
     if (!form.name.trim()) {
@@ -222,7 +305,7 @@ export function useProductStudio(existingId?: string): {
     document.getElementById(`studio-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
-  const sections = [
+  const sections = React.useMemo(() => [
     { id: "general", label: "General" },
     { id: "description", label: "Description" },
     { id: "category", label: "Category" },
@@ -238,11 +321,11 @@ export function useProductStudio(existingId?: string): {
     { id: "relationships", label: "Recommendations" },
     { id: "supplier", label: "Supplier Sourcing" },
     { id: "publishing", label: "Publishing Schedule" },
-  ];
+  ], []);
 
   return {
     form, update, bulkUpdate,
-    handleAutoGenerateSKU, handleApplyAutoPricing,
+    handleAutoGenerateSKU, handleApplyAutoPricing, handleResetAutoPricing,
     handleSave, handlePublish, handlePreview,
     saving, saveState, healthResult,
     activeSection, setActiveSection, scrollToSection,
@@ -253,6 +336,8 @@ export function useProductStudio(existingId?: string): {
 function buildPayload(form: StudioFormState): Record<string, unknown> {
   return {
     name: form.name.trim(),
+    productType: form.productType,
+    templateId: form.templateId || undefined,
     sku: form.sku.trim() || form.inventorySku || `SKU-${Date.now()}`,
     shortDescription: form.shortDescription || undefined,
     richDescription: form.richDescription || undefined,
@@ -301,6 +386,7 @@ function buildPayload(form: StudioFormState): Record<string, unknown> {
       wholesalePrice: parseFloat(form.wholesalePrice) || 0,
       resellerPrice: parseFloat(form.resellerPrice) || 0,
       comparePrice: parseFloat(form.comparePrice) || 0,
+      manualPriceOverrides: form.manualPriceOverrides,
     },
     inventory: {
       sku: form.inventorySku || form.sku || undefined,
@@ -308,5 +394,18 @@ function buildPayload(form: StudioFormState): Record<string, unknown> {
       stock: parseInt(form.stock) || 0,
       lowStockThreshold: parseInt(form.lowStockThreshold) || 5,
     },
+    bulletFeatures: form.bulletFeatures,
+    selectedCollectionIds: form.selectedCollectionIds,
+    channels: form.channels,
+    supplierSku: form.supplierSku || undefined,
+    supplierCost: form.supplierCost || undefined,
+    leadTimeDays: form.leadTimeDays || undefined,
+    purchaseLink: form.purchaseLink || undefined,
+    supplierNotes: form.supplierNotes || undefined,
+    relationships: form.relationships,
+    scheduledPublishDate: form.scheduledPublishDate || undefined,
+    scheduledPublishTime: form.scheduledPublishTime || undefined,
+    scheduledUnpublishDate: form.scheduledUnpublishDate || undefined,
+    timezone: form.timezone || undefined,
   };
 }

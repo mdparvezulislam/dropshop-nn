@@ -6,7 +6,7 @@ import { logger } from "@/shared/utils/logger";
 const BOOTSTRAP_PHASES: { name: string; order: number; engines: PlatformEngineId[] }[] = [
   { name: "core", order: 0, engines: ["CORE"] },
   { name: "identity", order: 1, engines: ["IDENTITY"] },
-  { name: "catalog", order: 2, engines: ["CATALOG"] },
+  { name: "catalog", order: 2, engines: ["CATALOG", "COST"] },
   { name: "pricing", order: 3, engines: ["PRICING"] },
   { name: "inventory", order: 4, engines: ["INVENTORY"] },
   { name: "supplier", order: 5, engines: ["SUPPLIER"] },
@@ -73,6 +73,10 @@ export class PlatformBootstrap {
       {
         engine: { id: "CATALOG", name: "Catalog Engine", description: "Enterprise product catalog with variants, media, SEO", version: "1.0.0", enabled: true },
         lifecycle: { init: async () => { const { registerCatalogModule } = await import("@/features/catalog/init"); registerCatalogModule(); } },
+      },
+      {
+        engine: { id: "COST", name: "Cost Engine", description: "Versioned product cost intelligence & history with landed cost breakdowns", version: "1.0.0", enabled: true },
+        lifecycle: { init: async () => { const { registerCostModule } = await import("@/features/cost/init"); registerCostModule(); } },
       },
       {
         engine: { id: "PRICING", name: "Pricing Engine", description: "Pricing rules, profit calculation, tier pricing", version: "1.0.0", enabled: true },

@@ -96,6 +96,7 @@ export interface ProductDBFields {
   sku: string;
   barcode?: string;
   gtin?: string;
+  productType: string;
   shortDescription?: string;
   productModel?: string;
   brandId?: mongoose.Types.ObjectId;
@@ -127,6 +128,7 @@ const productSchema = new Schema<ProductDocument>(
     sku: { type: String, required: true, unique: true, index: true },
     barcode: { type: String, required: false, sparse: true, unique: true, index: true },
     gtin: { type: String, required: false, sparse: true, unique: true, index: true },
+    productType: { type: String, enum: ["simple", "variant", "bundle", "digital", "service", "gift_card"], default: "simple", index: true },
     shortDescription: { type: String, required: false },
     productModel: { type: String, required: false },
     brandId: { type: Schema.Types.ObjectId, ref: "CatalogBrand", required: false, index: true },

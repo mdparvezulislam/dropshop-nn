@@ -5,7 +5,7 @@ import { StudioCollapsibleSection } from "../studio-collapsible-section";
 import { Input } from "@/shared/components/ui/input";
 import { FormField } from "@/shared/components/forms/form-field";
 import { Badge } from "@/shared/components/ui/badge";
-import { Calendar, Clock, CheckCircle2, AlertTriangle, Send, ShieldCheck } from "lucide-react";
+import { Calendar, Clock, CheckCircle2, AlertTriangle, ShieldCheck } from "lucide-react";
 import type { HealthScoreResult } from "../../types/studio-types";
 
 export interface PublishingStudioSectionProps {
@@ -15,8 +15,32 @@ export interface PublishingStudioSectionProps {
   onScheduledDateChange?: (v: string) => void;
   scheduledTime?: string;
   onScheduledTimeChange?: (v: string) => void;
+  timezone?: string;
+  onTimezoneChange?: (v: string) => void;
+  scheduledUnpublishDate?: string;
+  onScheduledUnpublishDateChange?: (v: string) => void;
   healthResult?: HealthScoreResult;
 }
+
+const COMMON_TIMEZONES = [
+  "Asia/Dhaka (GMT+6)",
+  "Asia/Dhaka",
+  "UTC",
+  "America/New_York",
+  "America/Chicago",
+  "America/Denver",
+  "America/Los_Angeles",
+  "Europe/London",
+  "Europe/Berlin",
+  "Europe/Paris",
+  "Asia/Dubai",
+  "Asia/Kolkata",
+  "Asia/Singapore",
+  "Asia/Tokyo",
+  "Asia/Shanghai",
+  "Australia/Sydney",
+  "Pacific/Auckland",
+];
 
 export function PublishingStudioSection({
   status,
@@ -25,6 +49,10 @@ export function PublishingStudioSection({
   onScheduledDateChange,
   scheduledTime = "00:00",
   onScheduledTimeChange,
+  timezone = "Asia/Dhaka (GMT+6)",
+  onTimezoneChange,
+  scheduledUnpublishDate = "",
+  onScheduledUnpublishDateChange,
   healthResult,
 }: PublishingStudioSectionProps): React.ReactElement {
   const isReadyForPublish = (healthResult?.score ?? 0) >= 50;
@@ -64,11 +92,15 @@ export function PublishingStudioSection({
           </FormField>
 
           <FormField label="Timezone">
-            <input
-              readOnly
-              value="Asia/Dhaka (GMT+6)"
-              className="h-9.5 w-full rounded-lg border border-border bg-muted/40 px-3 text-xs font-mono font-bold text-muted-foreground"
-            />
+            <select
+              value={timezone}
+              onChange={(e) => onTimezoneChange && onTimezoneChange(e.target.value)}
+              className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs font-mono font-bold text-foreground focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+            >
+              {COMMON_TIMEZONES.map((tz) => (
+                <option key={tz} value={tz}>{tz}</option>
+              ))}
+            </select>
           </FormField>
 
           <FormField label="Scheduled Release Date">
@@ -85,6 +117,15 @@ export function PublishingStudioSection({
               type="time"
               value={scheduledTime}
               onChange={(e) => onScheduledTimeChange && onScheduledTimeChange(e.target.value)}
+              className="font-mono text-xs font-bold"
+            />
+          </FormField>
+
+          <FormField label="Scheduled Unpublish Date">
+            <Input
+              type="date"
+              value={scheduledUnpublishDate}
+              onChange={(e) => onScheduledUnpublishDateChange && onScheduledUnpublishDateChange(e.target.value)}
               className="font-mono text-xs font-bold"
             />
           </FormField>

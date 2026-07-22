@@ -2,6 +2,7 @@ export type PlatformEngineId =
   | "CORE"
   | "IDENTITY"
   | "CATALOG"
+  | "COST"
   | "PRICING"
   | "INVENTORY"
   | "SUPPLIER"

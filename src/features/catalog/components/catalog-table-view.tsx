@@ -100,6 +100,7 @@ export function CatalogTableView({
             <th className="p-3">পণ্য বিবরণ (Product Details)</th>
             <th className="p-3">ক্যাটাগরি & ব্র্যান্ড</th>
             <th className="p-3 text-right">খুচরা মূল্য (Retail)</th>
+            <th className="p-3 text-right">খরচ (Cost)</th>
             <th className="p-3 text-center">স্টক (Stock)</th>
             <th className="p-3">স্ট্যাটাস (Status)</th>
             <th className="p-3 text-right">অ্যাকশন</th>
@@ -109,6 +110,7 @@ export function CatalogTableView({
           {items.map((item) => {
             const isSelected = selectedIds.includes(item.id);
             const isEditingPrice = editingCell?.id === item.id && editingCell?.field === "price";
+            const isEditingCost = editingCell?.id === item.id && editingCell?.field === "costPrice";
             const isEditingStock = editingCell?.id === item.id && editingCell?.field === "stock";
 
             return (
@@ -169,6 +171,27 @@ export function CatalogTableView({
                       title="Click to inline edit price"
                     >
                       ৳{item.price.toLocaleString()}
+                    </span>
+                  )}
+                </td>
+                <td className="p-3 text-right" onClick={(e) => e.stopPropagation()}>
+                  {isEditingCost ? (
+                    <Input
+                      type="number"
+                      autoFocus
+                      value={editValue}
+                      onChange={(e) => setEditValue(e.target.value)}
+                      onBlur={() => commitInlineEdit(item.id, "costPrice")}
+                      onKeyDown={(e) => e.key === "Enter" && commitInlineEdit(item.id, "costPrice")}
+                      className="h-7 w-24 text-right font-mono font-bold text-xs"
+                    />
+                  ) : (
+                    <span
+                      onClick={() => startInlineEdit(item.id, "costPrice", item.costPrice ?? 0)}
+                      className="font-mono font-extrabold text-foreground hover:bg-muted/80 px-1.5 py-1 rounded transition-colors"
+                      title="Click to inline edit cost"
+                    >
+                      ৳{(item.costPrice ?? 0).toLocaleString()}
                     </span>
                   )}
                 </td>

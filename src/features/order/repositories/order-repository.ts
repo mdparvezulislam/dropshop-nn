@@ -54,6 +54,7 @@ function toDomain(doc: any): Order {
     type: doc.type,
     status: doc.status ?? "draft",
     previousStatuses: doc.previousStatuses || [],
+    priority: doc.priority ?? "normal",
     checkoutDraftId: doc.checkoutDraftId,
     checkoutId: doc.checkoutId,
     cartId: doc.cartId,

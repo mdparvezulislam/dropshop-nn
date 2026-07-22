@@ -95,6 +95,7 @@ export const createProductSchema = z.object({
   sku: z.string().min(2, "SKU is required").max(100).trim(),
   barcode: z.string().optional().or(z.literal("")),
   gtin: z.string().optional().or(z.literal("")),
+  productType: z.enum(["simple", "variant", "bundle", "digital", "service", "gift_card"]).default("simple"),
   shortDescription: z.string().max(500).optional().or(z.literal("")),
   productModel: z.string().optional().or(z.literal("")),
   brandId: z.string().optional().or(z.literal("")),
@@ -147,3 +148,86 @@ export const collectionSchema = z.object({
 export const tagSchema = z.object({
   name: z.string().min(2, "Tag name is required").max(50).trim(),
 });
+
+export const templateSpecFieldSchema = z.object({
+  key: z.string().min(1).trim(),
+  label: z.string().min(1).trim(),
+  type: z.enum(["text", "number", "boolean", "select", "multiselect", "color"]).default("text"),
+  defaultValue: z.union([z.string(), z.number(), z.boolean(), z.array(z.string())]),
+  options: z.array(z.string()).optional(),
+  required: z.boolean().default(false),
+  group: z.enum(["specification", "technical", "general"]).default("general"),
+});
+
+export const templateAttributeSchema = z.object({
+  key: z.string().min(1).trim(),
+  label: z.string().min(1).trim(),
+  type: z.enum(["text", "select", "color", "size", "number"]).default("text"),
+  options: z.array(z.string()).optional(),
+  required: z.boolean().default(false),
+});
+
+export const templatePricingProfileSchema = z.object({
+  retailMultiplier: z.number().min(1).default(1.40),
+  wholesaleMultiplier: z.number().min(1).default(1.30),
+  resellerMultiplier: z.number().min(1).default(1.22),
+  campaignMultiplier: z.number().min(1).default(1.15),
+  minMarginPercent: z.number().min(0).max(100).default(15),
+});
+
+export const templateShippingProfileSchema = z.object({
+  weight: z.number().nonnegative().default(0.5),
+  weightUnit: z.string().default("kg"),
+  length: z.number().nonnegative().default(0),
+  width: z.number().nonnegative().default(0),
+  height: z.number().nonnegative().default(0),
+  dimensionUnit: z.string().default("cm"),
+  shippingClass: z.string().default("standard"),
+});
+
+export const templateWarrantyProfileSchema = z.object({
+  period: z.string().default("1 Year"),
+  periodDays: z.number().int().nonnegative().default(365),
+  type: z.enum(["manufacturer", "seller", "none"]).default("seller"),
+  description: z.string().default(""),
+});
+
+export const templateSEOProfileSchema = z.object({
+  metaTitleTemplate: z.string().default(""),
+  metaDescriptionTemplate: z.string().default(""),
+  focusKeywordSuggestions: z.array(z.string()).default([]),
+});
+
+export const templateGoogleMerchantSchema = z.object({
+  googleProductCategory: z.string().default(""),
+  ageGroup: z.string().default("adult"),
+  gender: z.string().default("unisex"),
+  condition: z.string().default("new"),
+});
+
+export const createProductTemplateSchema = z.object({
+  name: z.string().min(2, "Template name is required").max(100).trim(),
+  nameBangla: z.string().min(1, "Bangla name is required").max(100).trim(),
+  description: z.string().max(500).optional().or(z.literal("")),
+  iconName: z.string().default("Package"),
+  categoryId: z.string().optional().or(z.literal("")),
+  categoryName: z.string().min(1, "Category name is required").trim(),
+  sortOrder: z.number().int().nonnegative().default(0),
+  specs: z.array(templateSpecFieldSchema).default([]),
+  attributes: z.array(templateAttributeSchema).default([]),
+  suggestedTags: z.array(z.string()).default([]),
+  suggestedCollections: z.array(z.string()).default([]),
+  pricingProfile: templatePricingProfileSchema.default({ retailMultiplier: 1.3, wholesaleMultiplier: 1.12, resellerMultiplier: 1.2, campaignMultiplier: 1.0, minMarginPercent: 10 }),
+  shippingProfile: templateShippingProfileSchema.default({ weight: 0.5, weightUnit: "kg", length: 10, width: 10, height: 5, dimensionUnit: "cm", shippingClass: "standard" }),
+  warrantyProfile: templateWarrantyProfileSchema.default({ period: "1 year", periodDays: 365, type: "manufacturer", description: "" }),
+  returnPolicy: z.string().default(""),
+  packageIncludes: z.array(z.string()).default([]),
+  seoProfile: templateSEOProfileSchema.default({ metaTitleTemplate: "", metaDescriptionTemplate: "", focusKeywordSuggestions: [] }),
+  googleMerchant: templateGoogleMerchantSchema.default({ googleProductCategory: "", ageGroup: "adult", gender: "unisex", condition: "new" }),
+  suggestedBulletFeatures: z.array(z.string()).default([]),
+});
+
+export type CreateProductTemplateInput = z.infer<typeof createProductTemplateSchema>;
+
+export const updateProductTemplateSchema = createProductTemplateSchema.partial();
+export type UpdateProductTemplateInput = z.infer<typeof updateProductTemplateSchema>;

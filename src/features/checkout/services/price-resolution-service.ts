@@ -1,8 +1,5 @@
-import { PricingService } from "@/features/pricing/services/pricing-service";
-import { ProfitCalculationService } from "@/features/pricing/services/profit-calculation-service";
-import { resolveCostBasis } from "@/shared/utils/number-utils";
+import { PricingEngineService } from "@/features/pricing/services/pricing-engine-service";
 import { logger } from "@/shared/utils/logger";
-import { NotFoundError } from "@/shared/errors/app-error";
 
 export interface PriceResolveRequest {
   productId: string;
@@ -10,6 +7,10 @@ export interface PriceResolveRequest {
   quantity: number;
   role: "retail" | "reseller" | "wholesale" | "customer";
   campaignCode?: string;
+  categoryId?: string;
+  brandId?: string;
+  supplierId?: string;
+  profileId?: string;
 }
 
 export interface ResolvedPrice {
@@ -29,78 +30,61 @@ export interface ResolvedPrice {
   };
 }
 
+function mapRole(requestRole: string): "customer" | "reseller" | "wholesaler" | "distributor" {
+  if (requestRole === "reseller") return "reseller";
+  if (requestRole === "wholesale") return "wholesaler";
+  return "customer";
+}
+
+function mapPricingSource(role: string, isCampaign: boolean): ResolvedPrice["pricingSource"] {
+  if (isCampaign) return "campaign";
+  if (role === "reseller") return "reseller";
+  if (role === "wholesale") return "wholesale";
+  return "retail";
+}
+
 export class PriceResolutionService {
-  private readonly pricingService: PricingService;
-  private readonly profitService: ProfitCalculationService;
+  private readonly engine: PricingEngineService;
 
   constructor() {
-    this.pricingService = new PricingService();
-    this.profitService = new ProfitCalculationService();
+    this.engine = new PricingEngineService();
   }
 
   async resolveSingle(request: PriceResolveRequest): Promise<ResolvedPrice> {
-    logger.info("PriceResolutionService: resolving price", {
+    logger.info("PriceResolutionService: resolving price via engine", {
       productId: request.productId,
       role: request.role,
       quantity: request.quantity,
     });
 
-    const pricing = await this.pricingService.getPricingByProduct(
-      request.productId,
-      request.variantSku,
-    );
+    const result = await this.engine.calculatePrice({
+      productId: request.productId,
+      variantSku: request.variantSku,
+      quantity: request.quantity,
+      role: mapRole(request.role),
+      categoryId: request.categoryId,
+      brandId: request.brandId,
+      supplierId: request.supplierId,
+      profileId: request.profileId,
+      campaignCode: request.campaignCode,
+    });
 
-    if (!pricing) {
-      throw new NotFoundError(
-        `Pricing not found for product ${request.productId}${request.variantSku ? ` / ${request.variantSku}` : ""}`,
-      );
-    }
-
-    const currency = pricing.currency;
-
-    let unitPrice: number;
-    let pricingSource: ResolvedPrice["pricingSource"];
-    let campaignId: string | undefined;
-
-    if (request.role === "reseller") {
-      unitPrice = pricing.resellerPrice;
-      pricingSource = "reseller";
-    } else if (request.role === "wholesale") {
-      unitPrice = pricing.wholesalePrice;
-      pricingSource = "wholesale";
-    } else {
-      unitPrice = pricing.sellingPrice;
-      pricingSource = "retail";
-    }
-
-    if (
-      pricing.promotionalPrice &&
-      pricing.promotionalPrice > 0 &&
-      pricing.promotionalPrice < unitPrice
-    ) {
-      unitPrice = pricing.promotionalPrice;
-      pricingSource = pricing.promotionalPrice < pricing.sellingPrice ? "flash_sale" : "campaign";
-    }
-
-    const costBasis = resolveCostBasis(pricing);
-    const totalPrice = unitPrice * request.quantity;
-    const profitAmount = this.profitService.calculateProfitAmount(unitPrice, costBasis) * request.quantity;
-    const profitMargin = this.profitService.calculateProfitMargin(unitPrice, costBasis);
+    const isCampaign = result.source === "campaign";
 
     return {
       productId: request.productId,
       variantSku: request.variantSku,
       quantity: request.quantity,
-      unitPrice,
-      totalPrice,
-      currency,
-      pricingSource,
-      campaignId,
-      appliedRules: pricing.pricingRule !== "fixed" ? [pricing.pricingRule] : undefined,
+      unitPrice: result.unitPrice,
+      totalPrice: result.totalPrice,
+      currency: "BDT",
+      pricingSource: mapPricingSource(request.role, isCampaign),
+      campaignId: result.campaign?.id,
+      appliedRules: result.appliedRules,
       profitPreview: {
-        costBasis,
-        profitAmount: Math.round(profitAmount),
-        profitMargin: Math.round(profitMargin * 100) / 100,
+        costBasis: result.costBasis,
+        profitAmount: result.profitAmount,
+        profitMargin: result.profitMargin,
       },
     };
   }

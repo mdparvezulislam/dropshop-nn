@@ -8,6 +8,7 @@ export interface PermissionGuardProps {
   permission?: string;
   role?: string;
   anyPermission?: string[];
+  allPermissions?: string[];
   anyRole?: string[];
   fallback?: React.ReactNode;
   children: React.ReactNode;
@@ -17,11 +18,12 @@ export function PermissionGuard({
   permission,
   role,
   anyPermission,
+  allPermissions,
   anyRole,
   fallback = null,
   children,
 }: PermissionGuardProps): React.ReactElement | null {
-  const { hasPermission, hasRole, hasAnyRole } = usePermissions();
+  const { hasPermission, hasRole, hasAnyRole, permissions } = usePermissions();
 
   if (permission && !hasPermission(permission)) {
     return <>{fallback}</>;
@@ -32,6 +34,10 @@ export function PermissionGuard({
   }
 
   if (anyPermission && !anyPermission.some((p) => hasPermission(p))) {
+    return <>{fallback}</>;
+  }
+
+  if (allPermissions && !allPermissions.every((p) => hasPermission(p))) {
     return <>{fallback}</>;
   }
 

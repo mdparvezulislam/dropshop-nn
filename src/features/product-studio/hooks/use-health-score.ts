@@ -15,6 +15,11 @@ export function useHealthScore(form: StudioFormState): HealthScoreResult {
     const hasCostPricing = Boolean(parseFloat(form.costPrice) > 0);
     const hasStock = Boolean(parseInt(form.stock) >= 0 && (form.sku || form.inventorySku));
     const hasSEO = Boolean(form.metaTitle || form.slug);
+    const hasWarranty = Boolean(form.warranty && form.warranty.trim().length > 0);
+    const hasWeight = Boolean(parseFloat(form.weight) > 0);
+    const hasKeywords = Boolean(form.metaKeywords && form.metaKeywords.length > 0);
+    const hasSlug = Boolean(form.slug && form.slug.trim().length > 0);
+    const hasBarcode = Boolean(form.barcode || form.inventoryBarcode);
 
     return [
       { id: "name", label: "Product Title (min 3 chars)", weight: 10, completed: hasName, sectionId: "general" },
@@ -27,7 +32,12 @@ export function useHealthScore(form: StudioFormState): HealthScoreResult {
       { id: "sellingPrice", label: "Retail Selling Price Set", weight: 12, completed: hasPricing, sectionId: "pricing" },
       { id: "costPrice", label: "Cost Price Set (Profit Tracking)", weight: 8, completed: hasCostPricing, sectionId: "pricing" },
       { id: "inventory", label: "Stock Quantity & SKU Defined", weight: 10, completed: hasStock, sectionId: "inventory" },
-      { id: "seo", label: "SEO Meta & Slug Set", weight: 10, completed: hasSEO, sectionId: "seo" },
+      { id: "seo", label: "SEO Meta & Slug Set", weight: 5, completed: hasSEO, sectionId: "seo" },
+      { id: "warranty", label: "Warranty Policy Defined", weight: 5, completed: hasWarranty, sectionId: "general" },
+      { id: "weight", label: "Product Weight Set", weight: 3, completed: hasWeight, sectionId: "inventory" },
+      { id: "keywords", label: "SEO Keywords Added", weight: 3, completed: hasKeywords, sectionId: "seo" },
+      { id: "slug", label: "URL Slug Set", weight: 3, completed: hasSlug, sectionId: "seo" },
+      { id: "barcode", label: "Barcode / GTIN Assigned", weight: 3, completed: hasBarcode, sectionId: "inventory" },
     ];
   }, [form]);
 

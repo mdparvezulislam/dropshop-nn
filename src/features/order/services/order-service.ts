@@ -26,12 +26,18 @@ import type {
 } from "../domain/order-entity";
 import type { CreateOrderFromDraftInput } from "../types/validation";
 import type { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
+import type { CreateManualOrderInput } from "../types/validation";
 
 export interface OrderFilter {
   status?: OrderStatus | "all";
   type?: string;
   resellerId?: string;
   search?: string;
+  paymentStatus?: string;
+  courierName?: string;
+  district?: string;
+  dateFilter?: "today" | "yesterday" | "this_week" | "this_month";
+  priority?: string;
 }
 
 export class OrderService {
@@ -412,8 +418,200 @@ export class OrderService {
     if (filter.status && filter.status !== "all") dbFilter.status = filter.status;
     if (filter.type) dbFilter.type = filter.type;
     if (filter.resellerId) dbFilter.resellerId = filter.resellerId;
+    if (filter.paymentStatus) dbFilter["pricing.paymentStatus"] = filter.paymentStatus;
+    if (filter.courierName) dbFilter["shippingInfo.courierName"] = filter.courierName;
+    if (filter.district) dbFilter["shipping.district"] = filter.district;
+    if (filter.priority) dbFilter.priority = filter.priority;
+
+    if (filter.dateFilter) {
+      const now = new Date();
+      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      switch (filter.dateFilter) {
+        case "today":
+          dbFilter.createdAt = { $gte: startOfDay };
+          break;
+        case "yesterday": {
+          const yesterday = new Date(startOfDay.getTime() - 86400000);
+          dbFilter.createdAt = { $gte: yesterday, $lt: startOfDay };
+          break;
+        }
+        case "this_week": {
+          const weekStart = new Date(startOfDay.getTime() - startOfDay.getDay() * 86400000);
+          dbFilter.createdAt = { $gte: weekStart };
+          break;
+        }
+        case "this_month": {
+          const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+          dbFilter.createdAt = { $gte: monthStart };
+          break;
+        }
+      }
+    }
+
+    if (filter.search) {
+      const searchRegex = { $regex: filter.search, $options: "i" };
+      dbFilter.$or = [
+        { orderNumber: searchRegex },
+        { "customer.name": searchRegex },
+        { "customer.phone": searchRegex },
+        { "shippingInfo.trackingNumber": searchRegex },
+      ];
+    }
 
     return this.orderRepository.findPaginated(dbFilter, pagination, sort);
+  }
+
+  async createManualOrder(input: CreateManualOrderInput): Promise<Order> {
+    return runInTransaction(async () => {
+      const subtotal = input.items.reduce((sum, item) => sum + item.unitSellingPrice * item.quantity, 0);
+      const grandTotal = subtotal + input.discountTotal + input.taxTotal + input.shippingCost;
+
+      const pricingItems = input.items.map((item) => {
+        const totalSelling = item.unitSellingPrice * item.quantity;
+        const totalCost = (item.unitCostBasis ?? Math.round(item.unitSellingPrice * 0.7)) * item.quantity;
+        return {
+          productId: item.productId,
+          variantSku: item.variantSku,
+          productName: item.productName,
+          quantity: item.quantity,
+          unitSellingPrice: item.unitSellingPrice,
+          unitCostBasis: item.unitCostBasis ?? Math.round(item.unitSellingPrice * 0.7),
+          totalSellingPrice: totalSelling,
+          totalCostBasis: totalCost,
+          totalProfit: totalSelling - totalCost,
+          marginPercent: totalSelling > 0 ? Math.round(((totalSelling - totalCost) / totalSelling) * 100) : 0,
+          currency: item.currency ?? "BDT",
+          pricingSource: item.pricingSource,
+        };
+      });
+
+      const totalRevenue = pricingItems.reduce((s, i) => s + i.totalSellingPrice, 0);
+      const totalCostBasis = pricingItems.reduce((s, i) => s + i.totalCostBasis, 0);
+
+      const timelineEntry: OrderTimelineEntry = {
+        id: generateUUID(),
+        eventType: "order.created",
+        action: "order.created",
+        summary: `Manual order ${input.orderNumber} created (source: ${input.source})`,
+        timestamp: new Date(),
+      };
+
+      const orderData: Partial<Order> = {
+        orderNumber: input.orderNumber,
+        type: input.type,
+        status: "pending",
+        previousStatuses: [],
+        checkoutDraftId: `manual-${Date.now()}`,
+        checkoutId: `manual-${Date.now()}`,
+        cartId: `manual-${Date.now()}`,
+        customer: input.customer,
+        shipping: input.shipping,
+        pricing: {
+          items: pricingItems as any,
+          subtotal,
+          discountTotal: input.discountTotal,
+          taxTotal: input.taxTotal,
+          grandTotal,
+          currency: "BDT",
+        },
+        profitPreview: {
+          totalCostBasis,
+          totalRevenue,
+          totalProfit: totalRevenue - totalCostBasis,
+          averageMargin: totalRevenue > 0 ? Math.round(((totalRevenue - totalCostBasis) / totalRevenue) * 100) : 0,
+        },
+        timeline: [timelineEntry],
+        source: input.source,
+        note: input.note,
+        items: pricingItems.map((pi, i) => ({
+          id: generateUUID(),
+          productId: pi.productId,
+          variantSku: pi.variantSku,
+          productName: pi.productName,
+          quantity: pricingItems[i]?.quantity ?? pi.quantity,
+          unitPrice: pi.unitSellingPrice,
+          totalPrice: pi.totalSellingPrice,
+          unitCost: pi.unitCostBasis,
+          totalCost: pi.totalCostBasis,
+          unitProfit: pi.totalProfit,
+          totalProfit: pi.totalProfit,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          isDeleted: false,
+          status: "active",
+        })),
+      };
+
+      const order = await this.orderRepository.create(orderData as any);
+
+      await this.timelineService.addEntry({
+        entityType: "order",
+        entityId: order.id,
+        eventType: "order.created",
+        action: "order.created",
+        summary: `Manual order ${order.orderNumber} created (source: ${input.source})`,
+      });
+
+      await EventBus.publish("order.created", {
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        type: order.type,
+        grandTotal: order.pricing.grandTotal,
+        source: input.source,
+      }, { source: "order" });
+
+      return order;
+    });
+  }
+
+  async bulkAction(action: string, orderIds: string[]): Promise<{ success: number; failed: number }> {
+    let success = 0;
+    let failed = 0;
+
+    for (const orderId of orderIds) {
+      try {
+        switch (action) {
+          case "confirm":
+            await this.transitionStatus(orderId, "confirmed", { id: "system", role: "admin" }, "Bulk confirm");
+            break;
+          case "pack":
+            await this.transitionStatus(orderId, "packed", { id: "system", role: "admin" }, "Bulk pack");
+            break;
+          case "cancel":
+            await this.cancelOrder(orderId, "Cancelled via bulk action", "system");
+            break;
+          default:
+            failed++;
+            continue;
+        }
+        success++;
+      } catch {
+        failed++;
+      }
+    }
+
+    return { success, failed };
+  }
+
+  async getDashboardStats(): Promise<Record<string, number>> {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    const [counts, todayOrders, codOrders] = await Promise.all([
+      this.orderRepository.countByStatus(),
+      this.orderRepository.count({ createdAt: { $gte: todayStart } } as any),
+      this.orderRepository.count({ "pricing.grandTotal": { $gt: 0 }, status: { $nin: ["cancelled", "refunded"] } } as any),
+    ]);
+
+    const allStatuses = ["draft", "pending", "confirmed", "packed", "ready_for_dispatch",
+      "courier_assigned", "shipped", "out_for_delivery", "delivered", "completed",
+      "cancelled", "return_requested", "return_initiated", "returned", "refunded", "failed"];
+
+    const result: Record<string, number> = { today: todayOrders, total_cod: codOrders };
+    for (const s of allStatuses) {
+      result[s] = counts[s] ?? 0;
+    }
+    return result;
   }
 
   async getStatusSummary(): Promise<Record<string, number>> {

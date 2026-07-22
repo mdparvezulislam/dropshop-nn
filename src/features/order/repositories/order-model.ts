@@ -157,6 +157,7 @@ const orderSchema = new Schema(
       index: true,
     },
     previousStatuses: [{ type: String }],
+    priority: { type: String, enum: ["low", "normal", "high", "urgent", "vip"], default: "normal", index: true },
     checkoutDraftId: { type: String, required: true, index: true },
     checkoutId: { type: String, required: true, index: true },
     cartId: { type: String, required: true, index: true },

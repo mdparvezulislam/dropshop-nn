@@ -33,6 +33,7 @@ export class ProductRepository extends BaseRepository<ProductDocument, Product> 
       sku: doc.sku,
       barcode: doc.barcode,
       gtin: doc.gtin,
+      productType: (doc.productType as Product["productType"]) ?? "simple",
       shortDescription: doc.shortDescription,
       productModel: doc.productModel,
       brandId: doc.brandId?.toString(),

@@ -101,11 +101,14 @@ export interface SupplierReference {
   }>;
 }
 
+export type OrderPriority = "low" | "normal" | "high" | "urgent" | "vip";
+
 export interface Order extends BaseDBEntity {
   orderNumber: string;
   type: OrderType;
   status: OrderStatus;
   previousStatuses: OrderStatus[];
+  priority: OrderPriority;
   checkoutDraftId: string;
   checkoutId: string;
   cartId: string;

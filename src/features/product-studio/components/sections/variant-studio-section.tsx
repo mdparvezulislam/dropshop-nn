@@ -13,16 +13,63 @@ import {
   LayoutGrid,
   Plus,
   Trash2,
-  Copy,
-  Edit2,
   Image as ImageIcon,
   Check,
+  X,
+  Pencil,
+  ArrowUp,
+  ArrowDown,
+  Lightbulb,
+  ChevronDown,
+  ChevronRight,
 } from "lucide-react";
 import { cn } from "@/shared/utils/cn";
 import type { ExtendedVariantRow, VariantMatrixOptions } from "../../types/studio-types";
 import { useVariantMatrix } from "../../hooks/use-variant-matrix";
 import { VariantBulkEditModal } from "../modals/variant-bulk-edit-modal";
 import { toast } from "sonner";
+
+interface AttributeItem {
+  id: string;
+  name: string;
+  values: string;
+}
+
+const DEFAULT_ATTRIBUTES: AttributeItem[] = [
+  { id: "attr-color", name: "Color", values: "Black, White, Blue, Red" },
+  { id: "attr-model", name: "Model", values: "Standard, Pro, Premium" },
+  { id: "attr-size", name: "Size", values: "S, M, L, XL" },
+  { id: "attr-capacity", name: "Capacity", values: "64GB, 128GB, 256GB" },
+  { id: "attr-material", name: "Material", values: "Aluminum, Plastic, Stainless Steel" },
+  { id: "attr-length", name: "Length", values: "1m, 2m, 3m, 5m" },
+  { id: "attr-voltage", name: "Voltage", values: "5V, 12V, 24V, 220V" },
+  { id: "attr-power", name: "Power", values: "10W, 20W, 30W, 65W, 100W" },
+  { id: "attr-warranty", name: "Warranty", values: "6 Months, 1 Year, 2 Years" },
+];
+
+const AVAILABLE_DEFAULTS = DEFAULT_ATTRIBUTES;
+
+const KNOWN_ATTR_MAP: Record<string, keyof VariantMatrixOptions> = {
+  color: "colors",
+  size: "sizes",
+  storage: "storages",
+  capacity: "storages",
+  ram: "rams",
+  memory: "rams",
+  material: "materials",
+  edition: "storages",
+};
+
+function mapAttributeName(name: string): string {
+  const lower = name.toLowerCase().trim();
+  // Check exact matches first
+  if (lower === "color" || lower === "colour") return "Color";
+  if (lower === "size") return "Size";
+  if (lower === "storage" || lower === "capacity" || lower === "edition") return "StorageCapacity";
+  if (lower === "ram" || lower === "memory") return "RAM";
+  if (lower === "material") return "Material";
+  return name;
+}
 
 export interface VariantStudioSectionProps {
   variants: ExtendedVariantRow[];
@@ -42,15 +89,147 @@ export function VariantStudioSection({
   const [viewMode, setViewMode] = React.useState<"table" | "card">("table");
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [bulkModalOpen, setBulkModalOpen] = React.useState(false);
+  const [quickEntryOpen, setQuickEntryOpen] = React.useState(false);
 
-  // Auto Matrix Generator Inputs (Gadget-focused)
+  // Active Attributes
+  const [activeAttrs, setActiveAttrs] = React.useState<AttributeItem[]>([
+    { id: "attr-init-color", name: "Color", values: "Black, White" },
+  ]);
+  const [editingAttr, setEditingAttr] = React.useState<string | null>(null);
+  const [editAttrName, setEditAttrName] = React.useState("");
+  const [editAttrValues, setEditAttrValues] = React.useState("");
+  const [customAttrName, setCustomAttrName] = React.useState("");
+  const [customAttrValues, setCustomAttrValues] = React.useState("");
+
+  // Quick Entry Inputs (fallback)
   const [colorInput, setColorInput] = React.useState("Black, White");
   const [storageInput, setStorageInput] = React.useState("");
   const [sizeInput, setSizeInput] = React.useState("");
 
   const { generateMatrix } = useVariantMatrix();
 
+  const isAttrActive = React.useCallback((attrName: string): boolean => {
+    return activeAttrs.some((a) => a.name.toLowerCase() === attrName.toLowerCase());
+  }, [activeAttrs]);
+
+  const handleAddDefaultAttr = (attr: AttributeItem) => {
+    if (isAttrActive(attr.name)) {
+      toast.info(`${attr.name} is already in the active list`);
+      return;
+    }
+    const newAttr: AttributeItem = {
+      id: `attr-${Date.now()}`,
+      name: attr.name,
+      values: attr.values,
+    };
+    setActiveAttrs([...activeAttrs, newAttr]);
+    toast.success(`Added ${attr.name} attribute`);
+  };
+
+  const handleRemoveAttr = (id: string) => {
+    setActiveAttrs(activeAttrs.filter((a) => a.id !== id));
+  };
+
+  const handleStartEditAttr = (attr: AttributeItem) => {
+    setEditingAttr(attr.id);
+    setEditAttrName(attr.name);
+    setEditAttrValues(attr.values);
+  };
+
+  const handleSaveEditAttr = () => {
+    if (!editingAttr || !editAttrName.trim()) return;
+    setActiveAttrs(
+      activeAttrs.map((a) =>
+        a.id === editingAttr
+          ? { ...a, name: editAttrName.trim(), values: editAttrValues.trim() }
+          : a,
+      ),
+    );
+    setEditingAttr(null);
+  };
+
+  const handleMoveAttr = (id: string, direction: "up" | "down") => {
+    const idx = activeAttrs.findIndex((a) => a.id === id);
+    if (idx === -1) return;
+    if (direction === "up" && idx === 0) return;
+    if (direction === "down" && idx === activeAttrs.length - 1) return;
+    const updated = [...activeAttrs];
+    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+    [updated[idx], updated[swapIdx]] = [updated[swapIdx], updated[idx]];
+    setActiveAttrs(updated);
+  };
+
+  const handleAddCustomAttr = () => {
+    if (!customAttrName.trim()) return;
+    if (isAttrActive(customAttrName.trim())) {
+      toast.info(`${customAttrName.trim()} is already in the active list`);
+      return;
+    }
+    const newAttr: AttributeItem = {
+      id: `attr-${Date.now()}`,
+      name: customAttrName.trim(),
+      values: customAttrValues.trim() || "Default",
+    };
+    setActiveAttrs([...activeAttrs, newAttr]);
+    setCustomAttrName("");
+    setCustomAttrValues("");
+    toast.success(`Added custom attribute: ${newAttr.name}`);
+  };
+
   const handleGenerateMatrix = () => {
+    const options: VariantMatrixOptions = {
+      colors: [],
+      sizes: [],
+      storages: [],
+      rams: [],
+      materials: [],
+      dynamicAxes: [],
+      baseSku: baseSku || "DS-PROD",
+      basePrice,
+      baseCost,
+      baseStock: 15,
+    };
+
+    for (const attr of activeAttrs) {
+      const values = attr.values.split(",").map((s) => s.trim()).filter(Boolean);
+      if (values.length === 0) continue;
+
+      const lowerName = attr.name.toLowerCase().trim();
+      if (lowerName === "color" || lowerName === "colour") {
+        options.colors = values;
+      } else if (lowerName === "size") {
+        options.sizes = values;
+      } else if (lowerName === "storage" || lowerName === "capacity" || lowerName === "edition") {
+        options.storages = values;
+      } else if (lowerName === "ram" || lowerName === "memory") {
+        options.rams = values;
+      } else if (lowerName === "material") {
+        options.materials = values;
+      } else {
+        options.dynamicAxes?.push({ name: attr.name, values });
+      }
+    }
+
+    const hasAnyAttr =
+      options.colors.length > 0 ||
+      options.sizes.length > 0 ||
+      options.storages.length > 0 ||
+      options.rams.length > 0 ||
+      options.materials.length > 0 ||
+      (options.dynamicAxes && options.dynamicAxes.length > 0);
+
+    if (!hasAnyAttr) {
+      toast.error("Add at least one attribute with values to generate variants");
+      return;
+    }
+
+    const generated = generateMatrix(options);
+    onChange(generated);
+    toast.success(`Generated ${generated.length} variant combinations across ${activeAttrs.length} attributes!`);
+  };
+
+  // Quick Entry fallback
+  const handleQuickEntryGenerate = () => {
     const colors = colorInput.split(",").map((s) => s.trim()).filter(Boolean);
     const storages = storageInput.split(",").map((s) => s.trim()).filter(Boolean);
     const sizes = sizeInput.split(",").map((s) => s.trim()).filter(Boolean);
@@ -131,6 +310,22 @@ export function VariantStudioSection({
     );
   };
 
+  const renderAttributeBadges = (v: ExtendedVariantRow) => {
+    const badges: React.ReactNode[] = [];
+    if (v.color) badges.push(<Badge key="color" variant="outline" size="xs">{v.color}</Badge>);
+    if (v.storage) badges.push(<Badge key="storage" variant="outline" size="xs">{v.storage}</Badge>);
+    if (v.size) badges.push(<Badge key="size" variant="outline" size="xs">{v.size}</Badge>);
+    if (v.ram) badges.push(<Badge key="ram" variant="outline" size="xs">{v.ram}</Badge>);
+    if (v.material) badges.push(<Badge key="material" variant="outline" size="xs">{v.material}</Badge>);
+    if (v.dynamicAttrs) {
+      for (const [key, val] of Object.entries(v.dynamicAttrs)) {
+        if (val) badges.push(<Badge key={key} variant="secondary" size="xs">{key}: {val}</Badge>);
+      }
+    }
+    if (badges.length === 0) badges.push(<span key="empty" className="text-muted-foreground">—</span>);
+    return badges;
+  };
+
   return (
     <>
       <StudioCollapsibleSection
@@ -175,47 +370,219 @@ export function VariantStudioSection({
         }
       >
         <div className="space-y-5">
-          {/* Auto Variant Combination Generator Card */}
-          <div className="p-4 rounded-xl border border-primary/30 bg-accent/30 space-y-3">
+          {/* Default Attribute Suggestions Card */}
+          <div className="p-4 rounded-xl border border-primary/20 bg-accent/30 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-extrabold uppercase tracking-wider text-foreground flex items-center gap-1.5">
-                <Wand2 className="h-3.5 w-3.5 text-primary" /> Auto Variant Combination Generator
+                <Lightbulb className="h-3.5 w-3.5 text-amber-500" /> Default Attribute Suggestions
               </span>
-              <span className="text-[11px] font-medium text-muted-foreground">e.g. 2 Colors x 2 Editions = 4 Gadget Variants</span>
+              <span className="text-[11px] font-medium text-muted-foreground">
+                Click a suggestion to add it to active attributes
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {AVAILABLE_DEFAULTS.map((attr) => {
+                const active = isAttrActive(attr.name);
+                return (
+                  <button
+                    key={attr.id}
+                    type="button"
+                    onClick={() => !active && handleAddDefaultAttr(attr)}
+                    disabled={active}
+                    title={`${attr.name}: ${attr.values}`}
+                    className={cn(
+                      "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all border",
+                      active
+                        ? "border-primary/30 bg-primary/10 text-primary cursor-default"
+                        : "border-border bg-card text-foreground hover:border-primary/40 hover:bg-accent cursor-pointer",
+                    )}
+                  >
+                    {active ? <Check className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
+                    {attr.name}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Active Attributes Manager */}
+          <div className="p-4 rounded-xl border border-border bg-card space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-extrabold uppercase tracking-wider text-foreground flex items-center gap-1.5">
+                <Layers className="h-3.5 w-3.5 text-primary" /> Active Attributes ({activeAttrs.length})
+              </span>
+              <span className="text-xs text-muted-foreground">
+                These attributes are used for variant matrix generation
+              </span>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3">
-              <FormField label="Color Options">
-                <Input
-                  value={colorInput}
-                  onChange={(e) => setColorInput(e.target.value)}
-                  placeholder="Black, White, Blue"
-                  className="font-mono text-xs"
-                />
-              </FormField>
-              <FormField label="Edition / Model Type">
-                <Input
-                  value={storageInput}
-                  onChange={(e) => setStorageInput(e.target.value)}
-                  placeholder="Standard, Pro Edition"
-                  className="font-mono text-xs"
-                />
-              </FormField>
-              <FormField label="Size / Dimension Options">
-                <Input
-                  value={sizeInput}
-                  onChange={(e) => setSizeInput(e.target.value)}
-                  placeholder="Compact, Large"
-                  className="font-mono text-xs"
-                />
-              </FormField>
+            {activeAttrs.length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-4 border border-dashed border-border rounded-lg">
+                No active attributes. Click suggestions above or add custom attributes below.
+              </p>
+            ) : (
+              <div className="space-y-1.5">
+                {activeAttrs.map((attr) => (
+                  <div
+                    key={attr.id}
+                    className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/20"
+                  >
+                    {editingAttr === attr.id ? (
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <Input
+                          value={editAttrName}
+                          onChange={(e) => setEditAttrName(e.target.value)}
+                          className="h-7 w-32 text-xs font-bold"
+                          placeholder="Attribute name"
+                        />
+                        <Input
+                          value={editAttrValues}
+                          onChange={(e) => setEditAttrValues(e.target.value)}
+                          className="h-7 flex-1 text-xs font-mono"
+                          placeholder="Value1, Value2, Value3"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleSaveEditAttr}
+                          className="p-1 text-primary hover:text-primary/80"
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditingAttr(null)}
+                          className="p-1 text-muted-foreground hover:text-foreground"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => handleMoveAttr(attr.id, "up")}
+                          className="p-0.5 text-muted-foreground/50 hover:text-foreground"
+                          title="Move up"
+                        >
+                          <ArrowUp className="h-3 w-3" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleMoveAttr(attr.id, "down")}
+                          className="p-0.5 text-muted-foreground/50 hover:text-foreground"
+                          title="Move down"
+                        >
+                          <ArrowDown className="h-3 w-3" />
+                        </button>
+                        <div className="flex-1 min-w-0">
+                          <span className="text-xs font-bold text-foreground">{attr.name}</span>
+                          <span className="text-[11px] text-muted-foreground ml-2 font-mono">
+                            {attr.values}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleStartEditAttr(attr)}
+                          className="p-1 text-muted-foreground/50 hover:text-muted-foreground"
+                          title="Edit"
+                        >
+                          <Pencil className="h-3 w-3" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveAttr(attr.id)}
+                          className="p-1 text-muted-foreground/50 hover:text-destructive"
+                          title="Remove"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add Custom Attribute */}
+            <div className="flex items-center gap-2 pt-1 border-t border-border/50">
+              <Input
+                value={customAttrName}
+                onChange={(e) => setCustomAttrName(e.target.value)}
+                placeholder="Custom attribute name (e.g. Finish)"
+                className="h-7 w-44 text-xs"
+              />
+              <Input
+                value={customAttrValues}
+                onChange={(e) => setCustomAttrValues(e.target.value)}
+                placeholder="Matte, Glossy, Textured"
+                className="h-7 flex-1 text-xs font-mono"
+              />
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                className="h-7 gap-1 text-xs font-semibold shrink-0"
+                onClick={handleAddCustomAttr}
+              >
+                <Plus className="h-3 w-3" /> Add
+              </Button>
             </div>
 
-            <div className="flex justify-end gap-2 pt-1">
+            {/* Generate Button */}
+            <div className="flex justify-end gap-2 pt-1 border-t border-border/50">
               <Button size="sm" className="gap-1.5 font-bold shadow-xs" onClick={handleGenerateMatrix}>
                 <Wand2 className="h-3.5 w-3.5" /> Generate Combinations Matrix
               </Button>
             </div>
+          </div>
+
+          {/* Quick Entry (collapsible fallback) */}
+          <div className="rounded-xl border border-border overflow-hidden">
+            <button
+              type="button"
+              onClick={() => setQuickEntryOpen(!quickEntryOpen)}
+              className="flex items-center justify-between w-full px-4 py-2.5 bg-muted/20 hover:bg-muted/40 transition-colors"
+            >
+              <span className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                {quickEntryOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                Quick Entry (Legacy 3-field generator)
+              </span>
+            </button>
+            {quickEntryOpen && (
+              <div className="p-4 space-y-3">
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <FormField label="Color Options">
+                    <Input
+                      value={colorInput}
+                      onChange={(e) => setColorInput(e.target.value)}
+                      placeholder="Black, White, Blue"
+                      className="font-mono text-xs"
+                    />
+                  </FormField>
+                  <FormField label="Edition / Model Type">
+                    <Input
+                      value={storageInput}
+                      onChange={(e) => setStorageInput(e.target.value)}
+                      placeholder="Standard, Pro Edition"
+                      className="font-mono text-xs"
+                    />
+                  </FormField>
+                  <FormField label="Size / Dimension Options">
+                    <Input
+                      value={sizeInput}
+                      onChange={(e) => setSizeInput(e.target.value)}
+                      placeholder="Compact, Large"
+                      className="font-mono text-xs"
+                    />
+                  </FormField>
+                </div>
+                <div className="flex justify-end gap-2">
+                  <Button size="sm" variant="outline" className="gap-1.5 text-xs font-semibold" onClick={handleQuickEntryGenerate}>
+                    <Wand2 className="h-3.5 w-3.5" /> Generate from Quick Entry
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Bulk Tools Bar */}
@@ -271,7 +638,7 @@ export function VariantStudioSection({
                   {variants.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="p-6 text-center text-muted-foreground">
-                        No variants generated yet. Use the Auto Generator above or click Add Variant.
+                        No variants generated yet. Use the Attribute Manager above or click Add Variant.
                       </td>
                     </tr>
                   ) : (
@@ -296,10 +663,7 @@ export function VariantStudioSection({
                           </td>
                           <td className="p-3">
                             <div className="flex flex-wrap gap-1">
-                              {v.color ? <Badge variant="outline" size="xs">{v.color}</Badge> : null}
-                              {v.storage ? <Badge variant="outline" size="xs">{v.storage}</Badge> : null}
-                              {v.size ? <Badge variant="outline" size="xs">{v.size}</Badge> : null}
-                              {!v.color && !v.storage && !v.size ? <span className="text-muted-foreground">—</span> : null}
+                              {renderAttributeBadges(v)}
                             </div>
                           </td>
                           <td className="p-3">
@@ -362,9 +726,7 @@ export function VariantStudioSection({
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-1">
-                    {v.color ? <Badge variant="secondary" size="xs">{v.color}</Badge> : null}
-                    {v.storage ? <Badge variant="secondary" size="xs">{v.storage}</Badge> : null}
-                    {v.size ? <Badge variant="secondary" size="xs">{v.size}</Badge> : null}
+                    {renderAttributeBadges(v)}
                   </div>
                   <div className="grid grid-cols-2 gap-2 pt-1">
                     <div>

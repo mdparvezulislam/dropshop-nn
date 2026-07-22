@@ -3,6 +3,7 @@
 import { auth } from "@/shared/lib/auth";
 import { ProductService } from "@/features/catalog/services/product-service";
 import { PricingService } from "@/features/pricing/services/pricing-service";
+import { PricingEngineService } from "@/features/pricing/services/pricing-engine-service";
 import type { CreatePricingInput } from "@/features/pricing/types/validation";
 import { InventoryService } from "@/features/inventory/services/inventory-service";
 import type { CreateInventoryInput } from "@/features/inventory/types/validation";
@@ -55,10 +56,14 @@ export async function saveStudioProductAction(
     try {
       const pricingService = new PricingService();
       const variantSku = (validated.variants?.[0]?.sku || validated.sku || `SKU-${Date.now()}`) as string;
+
+      const costCents = pricingData.costPrice ? Math.round(pricingData.costPrice * 100) : 0;
+      const manualOverrides: Record<string, boolean> = (pricingData as any).manualPriceOverrides ?? {};
+
       const pricingPayload = {
         productId,
         variantSku,
-        baseCostPrice: pricingData.costPrice ? Math.round(pricingData.costPrice * 100) : 0,
+        baseCostPrice: costCents,
         purchasePrice: 0,
         supplierPrice: 0,
         sellingPrice: pricingData.sellingPrice ? Math.round(pricingData.sellingPrice * 100) : 0,
@@ -74,7 +79,27 @@ export async function saveStudioProductAction(
         pricingRule: "fixed" as const,
         status: "active" as const,
       };
+
       await pricingService.createPricing(pricingPayload, actor.id);
+
+      if (costCents > 0) {
+        if (!manualOverrides.sellingPrice) {
+          pricingPayload.sellingPrice = Math.round(costCents * 1.30);
+        }
+        if (!manualOverrides.wholesalePrice) {
+          pricingPayload.wholesalePrice = Math.round(costCents * 1.12);
+        }
+        if (!manualOverrides.resellerPrice) {
+          pricingPayload.resellerPrice = Math.round(costCents * 1.20);
+        }
+        if (!manualOverrides.sellingPrice || !manualOverrides.wholesalePrice || !manualOverrides.resellerPrice) {
+          await pricingService.updatePricing(productId, {
+            sellingPrice: pricingPayload.sellingPrice,
+            wholesalePrice: pricingPayload.wholesalePrice,
+            resellerPrice: pricingPayload.resellerPrice,
+          }, actor.id);
+        }
+      }
     } catch (err) {
       logger.error("StudioAction: pricing creation failed", err);
     }
@@ -230,6 +255,55 @@ export async function getCategoriesAction(): Promise<{
   const repo = new CategoryRepository();
   const categories = await repo.find({});
   return { success: true, data: categories.map((c: any) => ({ id: c.id, name: c.name })) };
+}
+
+export async function autoCalculateStudioPricingAction(input: {
+  costPrice: number;
+  categoryId?: string;
+  brandId?: string;
+  supplierId?: string;
+  profileId?: string;
+}): Promise<{
+  success: boolean;
+  data?: {
+    retailPrice: number;
+    wholesalePrice: number;
+    resellerPrice: number;
+    distributorPrice: number;
+    profit: number;
+    margin: number;
+  };
+  error?: string;
+}> {
+  const session = await auth();
+  getActor(session);
+
+  try {
+    const engine = new PricingEngineService();
+    const result = await engine.simulatePrice({
+      costPrice: Math.round(input.costPrice * 100),
+      quantity: 1,
+      role: "customer",
+      categoryId: input.categoryId,
+      brandId: input.brandId,
+      supplierId: input.supplierId,
+      profileId: input.profileId,
+    });
+    return {
+      success: true,
+      data: {
+        retailPrice: result.retailPrice,
+        wholesalePrice: result.wholesalePrice,
+        resellerPrice: result.resellerPrice,
+        distributorPrice: result.distributorPrice,
+        profit: result.profit,
+        margin: result.margin,
+      },
+    };
+  } catch (err) {
+    logger.error("StudioAction: auto-pricing failed", err);
+    return { success: false, error: "Auto-pricing computation failed" };
+  }
 }
 
 function mapStudioToCatalog(input: CreateStudioProductInput): Record<string, unknown> {
