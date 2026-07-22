@@ -36,6 +36,7 @@ import {
   Monitor,
   PieChart,
   Tag,
+  Zap,
 } from "lucide-react";
 
 export interface NavItem {
@@ -126,6 +127,8 @@ export const WORKSPACE_NAV: NavSection[] = [
         anyPermission: ["Order.View"],
         children: [
           { label: "Admin Console", href: "/dashboard/courier", icon: Navigation, permission: "Order.Update" },
+          { label: "Delivery Automation", href: "/dashboard/courier/automation", icon: Zap, permission: "Order.Update" },
+          { label: "Courier Integration", href: "/dashboard/courier/settings", icon: Settings, permission: "Order.Update" },
           { label: "My Shipments", href: "/dashboard/shipments", icon: Truck, permission: "Order.View" },
         ],
       },
@@ -247,6 +250,8 @@ export const WORKSPACE_NAV: NavSection[] = [
         anyPermission: ["Identity.View", "User.View", "identity.identity.view", "users.user.view"],
         children: [
           { label: "Overview", href: "/dashboard/identity", icon: Shield, permission: "Identity.View" },
+          { label: "Security Center", href: "/dashboard/identity/security", icon: ShieldCheck, permission: "Identity.View" },
+          { label: "Secrets Security", href: "/dashboard/identity/security/secrets", icon: ShieldCheck, permission: "Identity.View" },
           { label: "Authorization", href: "/dashboard/identity/authorization", icon: ShieldCheck, permission: "Identity.View" },
           { label: "Approvals", href: "/dashboard/identity/approvals", icon: ClipboardCheck, permission: "Identity.View" },
           { label: "Users", href: "/dashboard/identity/users", icon: Users, permission: "User.View" },
@@ -343,6 +348,7 @@ export function getBreadcrumbs(pathname: string): Breadcrumb[] {
       templates: "Templates",
       logs: "Delivery Logs",
       identity: "Identity",
+      security: "Security Center",
       approvals: "Approvals",
       users: "Users",
       roles: "Roles",
@@ -352,6 +358,9 @@ export function getBreadcrumbs(pathname: string): Breadcrumb[] {
       staff: "Staff",
       applications: "Applications",
       activity: "Activity Log",
+      devices: "Device Management",
+      "failed-logins": "Failed Logins",
+      "security-events": "Security Events",
       settings: "Settings",
       audit: "Audit Center",
     },

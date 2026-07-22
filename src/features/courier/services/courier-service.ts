@@ -30,7 +30,7 @@ export class CourierService {
   async createShipment(input: CreateShipmentInput, options?: { session?: any }): Promise<Shipment> {
     const execute = async (session: any) => {
       // 1. Verify if shipment already exists for order
-      const existingList = await this.shipmentRepository.findByOrderId(input.orderId, { session });
+      const existingList = await this.shipmentRepository.findByOrderId(input.orderId);
       if (existingList.length > 0) {
         return existingList[0];
       }

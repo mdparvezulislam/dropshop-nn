@@ -23,7 +23,7 @@ import {
   listInvoicesAction,
 } from "@/features/finance/actions/finance-actions";
 import { toast } from "sonner";
-import { DollarSign, Send, ArrowUpRight, ArrowDownLeft, Landmark, Receipt, FileText } from "lucide-react";
+import { DollarSign, Send, ArrowUpRight, Landmark, Receipt } from "lucide-react";
 
 export default function ResellerWalletPage() {
   const { data: session } = useSession() as any;
@@ -46,7 +46,7 @@ export default function ResellerWalletPage() {
 
   // Form states
   const [withdrawAmount, setWithdrawAmount] = React.useState("");
-  const [payoutMethod, setPayoutMethod] = React.useState<"bkash" | "nagad" | "rocket" | "bank">("bkash");
+  const [payoutMethod, setPayoutMethod] = React.useState<"bkash" | "nagad" | "rocket" | "upay" | "bank">("bkash");
   const [accountNumber, setAccountNumber] = React.useState("");
   const [accountName, setAccountName] = React.useState("");
   const [bankName, setBankName] = React.useState("");
@@ -57,7 +57,7 @@ export default function ResellerWalletPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      // 1. Get or Create Reseller Wallet
+      // 1. Get or Create Reseller/User Wallet
       const walletRes = await getOrCreateUserWalletAction();
       if (walletRes.success && walletRes.data) {
         const w = walletRes.data;
@@ -70,15 +70,15 @@ export default function ResellerWalletPage() {
         }
 
         // 3. Fetch Ledger Entries
-        const ledRes = await listLedgerEntriesAction(w.id);
+        const ledRes = await listLedgerEntriesAction({ walletId: w.id });
         if (ledRes.success && ledRes.data) {
-          setLedger(ledRes.data);
+          setLedger(Array.isArray(ledRes.data) ? ledRes.data : ledRes.data.items || []);
         }
 
         // 4. Fetch Withdrawals
         const witRes = await listWithdrawalsAction(w.id);
         if (witRes.success && witRes.data) {
-          setWithdrawals(witRes.data);
+          setWithdrawals(Array.isArray(witRes.data) ? witRes.data : witRes.data.items || []);
         }
       }
 
@@ -187,6 +187,7 @@ export default function ResellerWalletPage() {
             <p className="text-[10px] text-slate-500 mt-1">Available: {formatCurrency(balances.availableBalance)}</p>
           </CardContent>
         </Card>
+
         <Card className="border-slate-800 bg-slate-900/50">
           <CardHeader className="p-4 pb-2">
             <span className="text-xs text-slate-400 flex items-center gap-1">
@@ -197,6 +198,7 @@ export default function ResellerWalletPage() {
             <div className="text-2xl font-bold text-amber-400">{formatCurrency(balances.lockedBalance)}</div>
           </CardContent>
         </Card>
+
         <Card className="border-slate-800 bg-slate-900/50">
           <CardHeader className="p-4 pb-2">
             <span className="text-xs text-slate-400 flex items-center gap-1">
@@ -207,6 +209,7 @@ export default function ResellerWalletPage() {
             <div className="text-2xl font-bold text-indigo-400">{formatCurrency(balances.pendingBalance)}</div>
           </CardContent>
         </Card>
+
         <Card className="border-slate-800 bg-slate-900/50">
           <CardHeader className="p-4 pb-2">
             <span className="text-xs text-slate-400 flex items-center gap-1">
@@ -257,6 +260,7 @@ export default function ResellerWalletPage() {
                   <TableHeader>
                     <TableRow className="border-slate-800 hover:bg-transparent">
                       <TableHead className="text-slate-400">Date</TableHead>
+                      <TableHead className="text-slate-400">Reference</TableHead>
                       <TableHead className="text-slate-400">Entry Type</TableHead>
                       <TableHead className="text-slate-400">Amount</TableHead>
                       <TableHead className="text-slate-400">Status</TableHead>
@@ -266,7 +270,7 @@ export default function ResellerWalletPage() {
                   <TableBody>
                     {ledger.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-6 text-slate-500 text-xs">
+                        <TableCell colSpan={6} className="text-center py-6 text-slate-500 text-xs">
                           No ledger records registered
                         </TableCell>
                       </TableRow>
@@ -274,6 +278,7 @@ export default function ResellerWalletPage() {
                       ledger.map((l) => (
                         <TableRow key={l.id} className="border-slate-800">
                           <TableCell className="text-xs text-slate-400">{new Date(l.createdAt).toLocaleString()}</TableCell>
+                          <TableCell className="font-mono text-xs text-indigo-300">{l.referenceNumber || l.id.slice(-8)}</TableCell>
                           <TableCell className="font-mono text-xs capitalize text-indigo-400">{l.type.replace("_", " ")}</TableCell>
                           <TableCell
                             className={`font-semibold ${l.amount >= 0 ? "text-emerald-400" : "text-rose-400"}`}
@@ -316,7 +321,7 @@ export default function ResellerWalletPage() {
                       withdrawals.map((w) => (
                         <TableRow key={w.id} className="border-slate-800">
                           <TableCell className="text-xs text-slate-400">{new Date(w.createdAt).toLocaleDateString()}</TableCell>
-                          <TableCell className="font-mono text-[10px] text-slate-500">{w.id.slice(-8)}</TableCell>
+                          <TableCell className="font-mono text-xs text-indigo-300">{w.referenceNumber || w.id.slice(-8)}</TableCell>
                           <TableCell className="capitalize text-slate-200">{w.method}</TableCell>
                           <TableCell className="text-xs text-slate-300">
                             {w.payoutDetails?.accountNumber}
@@ -406,6 +411,7 @@ export default function ResellerWalletPage() {
                     <option value="bkash">bKash (Mobile Wallet)</option>
                     <option value="nagad">Nagad (Mobile Wallet)</option>
                     <option value="rocket">Rocket (Mobile Wallet)</option>
+                    <option value="upay">Upay (Mobile Wallet)</option>
                     <option value="bank">Traditional Bank Transfer</option>
                   </select>
                 </div>

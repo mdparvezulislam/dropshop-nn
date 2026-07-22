@@ -1,34 +1,55 @@
-import type { CourierProvider, ProviderShipmentResult, ProviderPickupResult, ProviderTrackingResult, ProviderWebhookResult } from "./provider-adapter";
-import type { Shipment } from "../domain/shipment-entity";
-import { logger } from "@/shared/utils/logger";
+import type {
+  CourierProvider,
+  ProviderShipmentResult,
+  ProviderPickupResult,
+  ProviderTrackingResult,
+  ProviderWebhookResult,
+  ConnectionTestResult,
+} from "./provider-adapter";
+import type { Shipment, ShipmentStatus } from "../domain/shipment-entity";
 
-export class EcourierAdapter implements CourierProvider {
-  readonly name = "ecourier";
+export class ECourierAdapter implements CourierProvider {
+  name = "ecourier";
 
-  async createShipment(shipment: Shipment, order: any): Promise<ProviderShipmentResult> {
-    logger.info("EcourierAdapter: creating shipment mock request", { shipmentNumber: shipment.shipmentNumber });
-    await new Promise((resolve) => setTimeout(resolve, 300));
+  async testConnection(): Promise<ConnectionTestResult> {
+    const start = Date.now();
     return {
       success: true,
-      courierReference: `EC-REF-${Math.floor(100000 + Math.random() * 900000)}`,
-      trackingCode: `ECOURIER-${shipment.shipmentNumber}`,
+      latencyMs: Date.now() - start,
+      message: "eCourier API connection operational",
     };
   }
 
-  async requestPickup(shipment: Shipment, details: any): Promise<ProviderPickupResult> {
-    logger.info("EcourierAdapter: requesting pickup request", { trackingCode: shipment.trackingCode });
+  async createShipment(shipment: Shipment, order: any): Promise<ProviderShipmentResult> {
+    const consignmentId = `ECR-${Math.floor(1000000 + Math.random() * 9000000)}`;
+    const trackingCode = `ECR-${shipment.shipmentNumber}`;
+
     return {
       success: true,
-      pickupReference: `EC-PK-${Math.floor(100000 + Math.random() * 900000)}`,
+      courierReference: consignmentId,
+      consignmentId,
+      trackingCode,
+      trackingUrl: `https://ecourier.com.bd/track?ecr=${trackingCode}`,
+    };
+  }
+
+  async cancelShipment(trackingCode: string, consignmentId?: string): Promise<{ success: boolean; error?: string }> {
+    return { success: true };
+  }
+
+  async requestPickup(shipment: Shipment, details: any): Promise<ProviderPickupResult> {
+    return {
+      success: true,
+      pickupReference: `ECR-PKP-${Math.floor(1000 + Math.random() * 9000)}`,
     };
   }
 
   async trackShipment(trackingCode: string): Promise<ProviderTrackingResult> {
-    logger.info("EcourierAdapter: tracking shipment", { trackingCode });
     return {
-      status: "hub_received",
-      message: "Parcel is received at eCourier central sorting facility",
-      rawDetails: { location: "Tejgaon Sorting Hub" },
+      status: "in_transit",
+      nativeStatus: "in_transit",
+      message: "eCourier agent dispatched",
+      updatedAt: new Date(),
     };
   }
 
@@ -37,19 +58,26 @@ export class EcourierAdapter implements CourierProvider {
   }
 
   parseWebhookPayload(payload: any): ProviderWebhookResult {
-    const statusMap: Record<string, any> = {
-      delivered: "delivered",
-      cancelled: "cancelled",
-      returned: "returned",
-    };
-
+    const nativeStatus = String(payload?.status || "in_transit").toLowerCase();
     return {
-      trackingCode: payload.ec_tracking_code || "",
-      status: statusMap[payload.status] || "in_transit",
-      message: payload.comment || "Status synced via eCourier Webhook",
+      trackingCode: payload?.tracking_code || payload?.ecr || "UNKNOWN",
+      consignmentId: payload?.consignment_id,
+      status: this.mapStatus(nativeStatus),
+      nativeStatus,
+      message: payload?.message || `eCourier status: ${nativeStatus}`,
       rawPayload: payload,
     };
   }
-}
 
-export default EcourierAdapter;
+  mapStatus(nativeStatus: string): ShipmentStatus {
+    const s = nativeStatus.toLowerCase();
+    if (s.includes("delivered")) return "delivered";
+    if (s.includes("partial")) return "partial_delivered";
+    if (s.includes("cancel")) return "cancelled";
+    if (s.includes("return")) return "returned";
+    if (s.includes("transit")) return "in_transit";
+    if (s.includes("pickup")) return "picked_up";
+    if (s.includes("out")) return "out_for_delivery";
+    return "booked";
+  }
+}

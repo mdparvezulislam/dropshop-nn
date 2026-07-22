@@ -23,6 +23,7 @@ const envSchema = z.object({
 
   AUTH_SECRET: z.string().min(8, "AUTH_SECRET must be at least 8 characters"),
   AUTH_URL: z.string().url().optional(),
+  ENCRYPTION_MASTER_KEY: z.string().optional().default("4f8a9b2c7e1d5a6b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b"),
 
   ENABLE_FAKE_LOGIN: z
     .enum(["true", "false", "1", "0"])
@@ -32,6 +33,64 @@ const envSchema = z.object({
   IMAGEKIT_PUBLIC_KEY: z.string().min(1, "IMAGEKIT_PUBLIC_KEY is required"),
   IMAGEKIT_PRIVATE_KEY: z.string().min(1, "IMAGEKIT_PRIVATE_KEY is required"),
   IMAGEKIT_URL_ENDPOINT: z.string().url(),
+
+  // ==========================================================================
+  // Security Configuration
+  // ==========================================================================
+
+  // Account Lockout Settings
+  MAX_LOGIN_ATTEMPTS: z.coerce.number().default(5),
+  LOCKOUT_DURATION_MINUTES: z.coerce.number().default(30),
+
+  // Password Policy Settings
+  PASSWORD_MIN_LENGTH: z.coerce.number().default(8),
+  PASSWORD_REQUIRE_UPPERCASE: z
+    .enum(["true", "false", "1", "0"])
+    .optional()
+    .transform((v) => v === "true" || v === "1")
+    .default(true),
+  PASSWORD_REQUIRE_NUMBER: z
+    .enum(["true", "false", "1", "0"])
+    .optional()
+    .transform((v) => v === "true" || v === "1")
+    .default(true),
+  PASSWORD_REQUIRE_SPECIAL: z
+    .enum(["true", "false", "1", "0"])
+    .optional()
+    .transform((v) => v === "true" || v === "1")
+    .default(true),
+  PASSWORD_EXPIRATION_DAYS: z.coerce.number().optional(),
+
+  // Session Settings
+  SESSION_TIMEOUT_MINUTES: z.coerce.number().default(24 * 60), // 24 hours
+  REMEMBER_ME_SESSION_DAYS: z.coerce.number().default(30),
+  MAX_CONCURRENT_SESSIONS: z.coerce.number().optional(),
+
+  // Device Settings
+  AUTO_TRUST_DEVICES: z
+    .enum(["true", "false", "1", "0"])
+    .optional()
+    .transform((v) => v === "true" || v === "1")
+    .default(false),
+
+  // Rate Limiting
+  RATE_LIMIT_LOGIN_ATTEMPTS: z.coerce.number().default(10),
+  RATE_LIMIT_WINDOW_MINUTES: z.coerce.number().default(5),
+
+  // Retention Settings
+  SECURITY_EVENT_RETENTION_DAYS: z.coerce.number().default(90),
+  FAILED_LOGIN_RETENTION_DAYS: z.coerce.number().default(30),
+
+  // 2FA Settings
+  ENABLE_2FA: z
+    .enum(["true", "false", "1", "0"])
+    .optional()
+    .transform((v) => v === "true" || v === "1")
+    .default(false),
+
+  // Recovery Token Settings
+  RECOVERY_TOKEN_EXPIRATION_HOURS: z.coerce.number().default(24),
+  PASSWORD_RESET_TOKEN_EXPIRATION_HOURS: z.coerce.number().default(1),
 });
 
 const parseEnv = () => {

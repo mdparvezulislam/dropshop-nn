@@ -19,12 +19,22 @@ export interface UserDBFields {
   fullName: string;
   passwordHash: string;
   role: string;
-  status: "active" | "pending" | "suspended";
+  status: "active" | "pending" | "suspended" | "blocked";
   profileImage?: string;
   emailVerifiedAt?: Date | null;
   phoneVerifiedAt?: Date | null;
   lastLoginAt?: Date | null;
   loginHistory: LoginHistoryItem[];
+  // Security fields
+  failedLoginCount: number;
+  lastFailedLoginAt?: Date | null;
+  lastFailedLoginIp?: string;
+  lockedUntil?: Date | null;
+  passwordLastChangedAt?: Date | null;
+  passwordResetToken?: string;
+  passwordResetTokenExpiresAt?: Date | null;
+  mustChangePassword: boolean;
+  trustedDevices: string[]; // Array of device IDs
 }
 
 export type UserDocument = BaseDocument & UserDBFields;
@@ -41,7 +51,7 @@ const userSchema = new Schema<UserDocument>(
     role: { type: String, required: true, index: true },
     status: {
       type: String,
-      enum: ["active", "pending", "suspended"],
+      enum: ["active", "pending", "suspended", "blocked"],
       default: "pending",
       index: true,
     },
@@ -56,6 +66,16 @@ const userSchema = new Schema<UserDocument>(
         loggedAt: { type: Date, default: Date.now, required: true },
       },
     ],
+    // Security fields
+    failedLoginCount: { type: Number, default: 0, min: 0, index: true },
+    lastFailedLoginAt: { type: Date, default: null, required: false },
+    lastFailedLoginIp: { type: String, default: null, required: false },
+    lockedUntil: { type: Date, default: null, required: false, index: true },
+    passwordLastChangedAt: { type: Date, default: null, required: false },
+    passwordResetToken: { type: String, default: null, required: false, index: true },
+    passwordResetTokenExpiresAt: { type: Date, default: null, required: false, index: true },
+    mustChangePassword: { type: Boolean, default: false, required: true, index: true },
+    trustedDevices: [{ type: String, default: [], required: false, index: true }],
     ...userBaseFields,
   },
   baseSchemaOptions,
@@ -63,5 +83,11 @@ const userSchema = new Schema<UserDocument>(
 
 userSchema.plugin(softDeletePlugin);
 
+// Compound indexes for security queries
+userSchema.index({ status: 1, lockedUntil: 1 });
+userSchema.index({ failedLoginCount: 1, lastFailedLoginAt: -1 });
+userSchema.index({ "loginHistory.loggedAt": -1 });
+
 export const UserModel = mongoose.models.User || mongoose.model<UserDocument>("User", userSchema);
+
 export default UserModel;

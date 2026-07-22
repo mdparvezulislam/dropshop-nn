@@ -200,4 +200,6 @@ orderSchema.index({ "customer.phone": 1 });
 orderSchema.index({ "shipping.division": 1, "shipping.district": 1 });
 orderSchema.index({ tags: 1 });
 
-export const OrderModel = mongoose.model("Order", orderSchema);
+export const OrderModel =
+  mongoose.models.Order || mongoose.model("Order", orderSchema);
+export default OrderModel;

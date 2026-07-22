@@ -1,19 +1,9 @@
 import { WalletRepository } from "../repositories/wallet-repository";
 import { LedgerRepository } from "../repositories/ledger-repository";
-import type { Wallet, WorkspaceRole } from "../domain/wallet-entity";
+import type { Wallet, WorkspaceRole, WalletBalances } from "../domain/wallet-entity";
 import { logger } from "@/shared/utils/logger";
 import { EventBus } from "@/shared/lib/event-bus/event-bus";
 import { runInTransaction } from "@/shared/lib/database/query-builder";
-
-export interface WalletBalances {
-  availableBalance: number;
-  pendingBalance: number;
-  lockedBalance: number;
-  withdrawableBalance: number;
-  lifetimeEarnings: number;
-  lifetimeWithdrawals: number;
-  currency: string;
-}
 
 export class WalletService {
   private readonly walletRepository: WalletRepository;
@@ -32,42 +22,55 @@ export class WalletService {
 
     const entries = await this.ledgerRepository.find({ walletId });
 
+    let currentBalance = 0;
     let availableBalance = 0;
     let pendingBalance = 0;
     let lockedBalance = 0;
     let lifetimeEarnings = 0;
     let lifetimeWithdrawals = 0;
+    let lifetimeDeposits = 0;
 
     for (const entry of entries) {
       if (entry.status === "cleared") {
+        currentBalance += entry.amount;
         availableBalance += entry.amount;
       } else if (entry.status === "pending") {
-        pendingBalance += entry.amount;
+        if (entry.amount > 0) {
+          pendingBalance += entry.amount;
+        }
       } else if (entry.status === "locked") {
-        // Locked entries are negative amounts (e.g. pending withdrawals)
+        // Locked debits for pending withdrawals
         lockedBalance += Math.abs(entry.amount);
       }
 
-      if (entry.type === "profit_credit") {
+      if (entry.amount > 0 && ["profit_credit", "credit", "commission", "manual_credit", "bonus"].includes(entry.type)) {
         lifetimeEarnings += entry.amount;
       }
 
-      // If a withdrawal has been cleared/paid, it was logged as withdrawal_paid
-      if (entry.type === "withdrawal_paid") {
+      if (["withdrawal_paid", "withdrawal"].includes(entry.type) || (entry.type === "withdrawal_request" && entry.status === "cleared")) {
         lifetimeWithdrawals += Math.abs(entry.amount);
+      }
+
+      if (["deposit", "manual_credit"].includes(entry.type) && entry.status === "cleared" && entry.amount > 0) {
+        lifetimeDeposits += entry.amount;
       }
     }
 
     const withdrawableBalance = Math.max(0, availableBalance - lockedBalance);
 
     return {
+      walletId: wallet.id,
+      workspaceId: wallet.workspaceId,
+      workspaceRole: wallet.workspaceRole,
+      currentBalance,
       availableBalance,
       pendingBalance,
       lockedBalance,
       withdrawableBalance,
       lifetimeEarnings,
       lifetimeWithdrawals,
-      currency: wallet.currency,
+      lifetimeDeposits,
+      currency: wallet.currency ?? "BDT",
     };
   }
 
@@ -85,12 +88,20 @@ export class WalletService {
         status: "active",
       }, { session });
 
+      const refNum = `REF-LED-INIT-${Math.floor(100000 + Math.random() * 900000)}`;
+
       // Create opening balance ledger entry
       await this.ledgerRepository.create({
+        referenceNumber: refNum,
         walletId: wallet.id,
+        workspaceId,
         amount: 0,
+        currency: "BDT",
         type: "opening_balance",
         status: "cleared",
+        sourceModule: "system",
+        description: `Opening platform business wallet setup for ${role}`,
+        createdBy: "system",
         metadata: { info: "Opening platform business wallet setup" },
       }, { session });
 
@@ -107,6 +118,7 @@ export class WalletService {
       logger.info("WalletService: business wallet instantiated", {
         walletId: wallet.id,
         workspaceId,
+        role,
       });
 
       return wallet;
@@ -116,6 +128,10 @@ export class WalletService {
       return execute(options.session);
     }
     return runInTransaction(execute);
+  }
+
+  async listWallets(): Promise<Wallet[]> {
+    return this.walletRepository.listAllWallets();
   }
 }
 

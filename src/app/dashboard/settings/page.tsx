@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SettingsAdmin } from "@/features/identity/components/settings-admin";
+import { SettingsCenterUI } from "@/features/settings/components/SettingsCenterUI";
 
 export const metadata: Metadata = {
   title: "Settings - DropshopNN",
@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function SettingsPage() {
-  return <SettingsAdmin />;
+  return <SettingsCenterUI />;
 }

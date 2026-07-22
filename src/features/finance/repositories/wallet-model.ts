@@ -8,13 +8,23 @@ const walletSchema = new Schema(
     workspaceId: { type: String, required: true, unique: true, index: true },
     workspaceRole: {
       type: String,
-      enum: ["reseller", "wholesaler", "admin", "supplier"],
+      enum: [
+        "customer",
+        "reseller",
+        "wholesaler",
+        "admin",
+        "supplier",
+        "staff",
+        "platform",
+        "commission",
+      ],
       required: true,
+      index: true,
     },
     currency: { type: String, required: true, default: "BDT" },
     status: {
       type: String,
-      enum: ["active", "suspended"],
+      enum: ["active", "suspended", "frozen"],
       default: "active",
       index: true,
     },
@@ -22,6 +32,8 @@ const walletSchema = new Schema(
   },
   { ...baseSchemaOptions, collection: "wallets" },
 );
+
+walletSchema.index({ workspaceRole: 1, status: 1 });
 
 export const WalletModel = mongoose.models.Wallet || mongoose.model("Wallet", walletSchema);
 export default WalletModel;

@@ -19,7 +19,7 @@ export class UserRepository extends BaseRepository<UserDocument, User> {
       fullName: doc.fullName,
       passwordHash: doc.passwordHash,
       role: doc.role,
-      status: doc.status,
+      status: doc.status as any,
       profileImage: doc.profileImage,
       emailVerifiedAt: doc.emailVerifiedAt,
       phoneVerifiedAt: doc.phoneVerifiedAt,
@@ -37,6 +37,9 @@ export class UserRepository extends BaseRepository<UserDocument, User> {
       updatedBy: doc.updatedBy,
       deletedAt: doc.deletedAt,
       isDeleted: doc.isDeleted,
+      failedLoginCount: doc.failedLoginCount ?? 0,
+      mustChangePassword: doc.mustChangePassword ?? false,
+      trustedDevices: (doc.trustedDevices as any) ?? [],
       metadata: doc.metadata ? Object.fromEntries(doc.metadata as any) : undefined,
     };
   }

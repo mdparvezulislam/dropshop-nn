@@ -8,13 +8,16 @@ export type WithdrawalStatus =
   | "paid"
   | "completed"
   | "rejected"
-  | "cancelled";
+  | "cancelled"
+  | "hold";
 
-export type PayoutMethod = "bkash" | "nagad" | "rocket" | "bank" | "manual";
+export type PayoutMethod = "bkash" | "nagad" | "rocket" | "upay" | "bank" | "binance_pay" | "manual";
 
 export interface Withdrawal extends BaseDBEntity {
+  referenceNumber: string; // e.g. WTH-2026-1001
   walletId: string;
   amount: number; // in integer cents
+  currency: string;
   status: WithdrawalStatus;
   method: PayoutMethod;
   payoutDetails: {
@@ -23,10 +26,12 @@ export interface Withdrawal extends BaseDBEntity {
     bankName?: string;
     branchName?: string;
     routingNumber?: string;
+    notes?: string;
   };
-  referenceNumber?: string; // external txn hash ID
-  fee?: number; // fees in cents
+  transactionId?: string; // external bank / MFS transaction ID
+  fee?: number; // fees in integer cents
   reviewedBy?: string; // actor ID
   reviewedAt?: Date;
   paidAt?: Date;
+  rejectReason?: string;
 }
