@@ -5,9 +5,9 @@ import {
 } from "./analytics-snapshot-model";
 import type { AnalyticsSnapshot } from "../domain/analytics-entity";
 
-function mapSnapshot(doc: AnalyticsSnapshotDocument): AnalyticsSnapshot {
+function mapSnapshot(doc: any): AnalyticsSnapshot {
   return {
-    id: doc._id?.toString?.() ?? doc.id,
+    id: doc._id?.toString?.() ?? doc._id?.toString() ?? "",
     snapshotDate: doc.snapshotDate,
     type: doc.type as "daily" | "monthly" | "yearly",
     data: doc.data ?? {},

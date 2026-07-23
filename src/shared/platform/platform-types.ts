@@ -14,7 +14,8 @@ export type PlatformEngineId =
   | "COURIER"
   | "CMS"
   | "ANALYTICS"
-  | "NOTIFICATION";
+  | "NOTIFICATION"
+  | "AUTOMATION";
 
 export interface PlatformEngine {
   id: PlatformEngineId;

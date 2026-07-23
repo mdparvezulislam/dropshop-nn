@@ -144,6 +144,61 @@ export class EventFactRepository extends BaseRepository<EventFactMongoDocument, 
     return rows.map((r: any) => ({ date: r._id as string, value: r.value as number }));
   }
 
+  async getSeriesByTimeUnit(
+    from: Date,
+    to: Date,
+    format: string,
+    eventNames?: string[],
+  ): Promise<{ _id: string; value: number }[]> {
+    const match: Record<string, unknown> = {
+      timestamp: { $gte: from, $lte: to },
+      isDeleted: { $ne: true },
+    };
+    if (eventNames && eventNames.length > 0) {
+      match.eventName = { $in: eventNames };
+    }
+    return EventFactModel.aggregate([
+      { $match: match },
+      {
+        $group: {
+          _id: { $dateToString: { format, date: "$timestamp" } },
+          value: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+  }
+
+  async distinctActors(from: Date, to: Date, role?: string): Promise<number> {
+    const filter: Record<string, unknown> = {
+      timestamp: { $gte: from, $lte: to },
+      actorId: { $exists: true, $nin: [null, ""] },
+      isDeleted: { $ne: true },
+    };
+    if (role) filter.actorRole = role;
+    const actors = await EventFactModel.distinct("actorId", filter);
+    return actors.length;
+  }
+
+  async getDistinctActorsWithCount(
+    from: Date,
+    to: Date,
+    role?: string,
+  ): Promise<{ actorId: string; count: number }[]> {
+    const match: Record<string, unknown> = {
+      timestamp: { $gte: from, $lte: to },
+      actorId: { $exists: true, $nin: [null, ""] },
+      isDeleted: { $ne: true },
+    };
+    if (role) match.actorRole = role;
+    const rows = await EventFactModel.aggregate([
+      { $match: match },
+      { $group: { _id: "$actorId", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+    ]);
+    return rows.map((r: any) => ({ actorId: String(r._id), count: r.count }));
+  }
+
   async listRecent(limit = 50): Promise<AnalyticsEventFact[]> {
     const docs = await EventFactModel.find({ isDeleted: { $ne: true } })
       .sort({ timestamp: -1 })

@@ -5,15 +5,15 @@ import {
 } from "./analytics-report-model";
 import type { AnalyticsReport, AnalyticsReportChart, ReportFrequency } from "../domain/analytics-entity";
 
-function mapReport(doc: AnalyticsReportDocument): AnalyticsReport {
+function mapReport(doc: any): AnalyticsReport {
   return {
-    id: doc._id?.toString?.() ?? doc.id,
+    id: doc._id?.toString?.() ?? doc._id?.toString() ?? "",
     title: doc.title,
     description: doc.description,
     type: doc.type as ReportFrequency,
     filters: (doc.filters ?? {}) as any,
     data: doc.data ?? {},
-    metrics: (doc.metrics ?? []).map((m) => ({
+    metrics: (doc.metrics ?? []).map((m: any) => ({
       key: m.key,
       label: m.label,
       value: m.value,
@@ -22,7 +22,7 @@ function mapReport(doc: AnalyticsReportDocument): AnalyticsReport {
       format: m.format as "number" | "currency" | "percent" | undefined,
       currency: m.currency,
     })),
-    charts: (doc.charts ?? []).map((c) => ({
+    charts: (doc.charts ?? []).map((c: any) => ({
       id: c.id,
       title: c.title,
       type: c.type as "area" | "bar" | "line" | "pie" | "heatmap",

@@ -37,6 +37,9 @@ import {
   PieChart,
   Tag,
   Zap,
+  Activity,
+  GitBranch,
+  Timer,
 } from "lucide-react";
 
 export interface NavItem {
@@ -231,11 +234,22 @@ export const WORKSPACE_NAV: NavSection[] = [
         icon: BarChart3,
         anyPermission: ["Analytics.View", "Report.View"],
         children: [
+          { label: "Executive Dashboard", href: "/dashboard/analytics/executive", icon: LayoutDashboard, permission: "Analytics.View" },
           { label: "Overview", href: "/dashboard/analytics", icon: PieChart, permission: "Analytics.View" },
+          { label: "Live Dashboard", href: "/dashboard/analytics/live", icon: Activity, permission: "Analytics.View" },
+          { label: "Order Analytics", href: "/dashboard/analytics/orders", icon: ShoppingCart, permission: "Analytics.View" },
+          { label: "Product Analytics", href: "/dashboard/analytics/products", icon: Package, permission: "Analytics.View" },
+          { label: "Customer Analytics", href: "/dashboard/analytics/customers", icon: Users, permission: "Analytics.View" },
+          { label: "Reseller Analytics", href: "/dashboard/analytics/resellers", icon: Store, permission: "Analytics.View" },
+          { label: "Wholesale Analytics", href: "/dashboard/analytics/wholesale", icon: Building2, permission: "Analytics.View" },
+          { label: "Finance Analytics", href: "/dashboard/analytics/finance", icon: DollarSign, permission: "Analytics.View" },
+          { label: "Logistics Analytics", href: "/dashboard/analytics/logistics", icon: Truck, permission: "Analytics.View" },
+          { label: "Inventory Analytics", href: "/dashboard/analytics/inventory", icon: Boxes, permission: "Analytics.View" },
+          { label: "Payment Analytics", href: "/dashboard/analytics/payments", icon: CreditCard, permission: "Analytics.View" },
           { label: "Sales Report", href: "/dashboard/analytics/sales", icon: DollarSign, permission: "Analytics.View" },
-          { label: "Orders Report", href: "/dashboard/analytics/orders", icon: ShoppingCart, permission: "Analytics.View" },
           { label: "Catalog Report", href: "/dashboard/analytics/catalog", icon: Package, permission: "Analytics.View" },
           { label: "Content Performance", href: "/dashboard/analytics/content", icon: Newspaper, permission: "Analytics.View" },
+          { label: "Report Center", href: "/dashboard/analytics/reports", icon: FileText, permission: "Report.View" },
         ],
       },
     ],
@@ -244,6 +258,17 @@ export const WORKSPACE_NAV: NavSection[] = [
     id: "system",
     label: "System",
     items: [
+      {
+        label: "Automation Center",
+        icon: Zap,
+        anyPermission: ["Admin"],
+        children: [
+          { label: "Dashboard", href: "/dashboard/automation", icon: LayoutDashboard, permission: "Admin" },
+          { label: "Workflows", href: "/dashboard/automation/workflows", icon: GitBranch, permission: "Admin" },
+          { label: "Executions", href: "/dashboard/automation/executions", icon: History, permission: "Admin" },
+          { label: "Schedules", href: "/dashboard/automation/schedules", icon: Timer, permission: "Admin" },
+        ],
+      },
       {
         label: "Identity & Roles",
         icon: Shield,
@@ -363,6 +388,16 @@ export function getBreadcrumbs(pathname: string): Breadcrumb[] {
       "security-events": "Security Events",
       settings: "Settings",
       audit: "Audit Center",
+      executive: "Executive Dashboard",
+      wholesale: "Wholesale Analytics",
+      logistics: "Logistics Analytics",
+      payments: "Payment Analytics",
+      live: "Live Dashboard",
+      reports: "Report Center",
+      automation: "Automation",
+      workflows: "Workflows",
+      executions: "Execution History",
+      schedules: "Schedules",
     },
   });
 }
