@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
+import { auth } from "@/lib/auth";
 import {
   BrandRepository,
   CategoryRepository,
@@ -8,11 +8,11 @@ import {
   ProductTagRepository,
 } from "../repositories/classification-repository";
 import { brandSchema, categorySchema, collectionSchema, tagSchema } from "../types/validation";
-import { checkPermission } from "@/shared/lib/check-permission";
-import { UnauthorizedError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
+import { checkPermission } from "@/lib/check-permission";
+import { UnauthorizedError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
-import { generateSlug } from "@/shared/utils/slug-utils";
+import { generateSlug } from "@/lib/utils/slug-utils";
 
 function getSessionUser(session: any): { id: string; name?: string; role?: string } {
   if (!session?.user) throw new UnauthorizedError("Session expired or invalid");

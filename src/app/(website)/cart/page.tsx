@@ -3,11 +3,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { Trash2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { usePermissions } from "@/shared/hooks/use-permissions";
-import { CartItemRow } from "@/shared/components/website/cart-item-row";
-import { CartSummary } from "@/shared/components/website/cart-summary";
-import { EmptyCart } from "@/shared/components/website/empty-cart";
-import type { CartItemData } from "@/shared/components/website/cart-item-row";
+import { usePermissions } from "@/hooks/use-permissions";
+import { CartItemRow } from "@/components/website/cart-item-row";
+import { CartSummary } from "@/components/website/cart-summary";
+import { EmptyCart } from "@/components/website/empty-cart";
+import type { CartItemData } from "@/components/website/cart-item-row";
 
 function generateSessionId(): string {
   if (typeof window === "undefined") return "";

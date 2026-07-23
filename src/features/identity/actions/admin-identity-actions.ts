@@ -1,15 +1,15 @@
 "use server";
 
 import { z } from "zod";
-import { auth } from "@/shared/lib/auth";
-import { checkPermission } from "@/shared/lib/check-permission";
+import { auth } from "@/lib/auth";
+import { checkPermission } from "@/lib/check-permission";
 import { UserRepository } from "@/features/auth/repositories/user-repository";
 import { RoleRepository } from "@/features/auth/repositories/role-repository";
 import { BusinessProfileService } from "../services/business-profile-service";
 import { SessionService } from "../services/session-service";
-import { SYSTEM_ROLES } from "@/shared/core/permissions";
-import { FeatureFlags, Settings } from "@/shared/core/feature-flags";
-import { AuditLogger } from "@/shared/lib/audit-logger";
+import { SYSTEM_ROLES } from "@/lib/core/permissions";
+import { FeatureFlags, Settings } from "@/lib/core/feature-flags";
+import { AuditLogger } from "@/lib/audit-logger";
 import { revalidatePath } from "next/cache";
 import type { User } from "@/features/auth/domain/user-entity";
 

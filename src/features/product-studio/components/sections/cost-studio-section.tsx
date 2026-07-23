@@ -4,11 +4,11 @@ import * as React from "react";
 import Link from "next/link";
 import { DollarSign, TrendingUp, Package, Building2, ExternalLink, RefreshCw, ChevronRight } from "lucide-react";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { Spinner } from "@/shared/components/ui/spinner";
-import { formatCentsToCurrency } from "@/shared/utils/currency-utils";
-import { cn } from "@/shared/utils/cn";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
+import { formatCentsToCurrency } from "@/lib/utils/currency-utils";
+import { cn } from "@/lib/utils/cn";
 
 interface CostData {
   costPrice: number;

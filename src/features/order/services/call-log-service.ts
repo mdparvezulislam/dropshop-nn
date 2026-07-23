@@ -3,8 +3,8 @@ import { ComplaintModel } from "../repositories/complaint-model";
 import { OrderRepository } from "../repositories/order-repository";
 import { OrderTimelineService } from "./order-timeline-service";
 import type { CallLogEntry } from "../domain/call-log-entity";
-import { NotFoundError } from "@/shared/errors/app-error";
-import { runInTransaction } from "@/shared/lib/database/query-builder";
+import { NotFoundError } from "@/lib/errors/app-error";
+import { runInTransaction } from "@/lib/database/query-builder";
 import type { z } from "zod";
 import type { createCallLogSchema } from "../types/validation";
 

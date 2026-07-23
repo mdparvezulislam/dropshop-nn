@@ -8,11 +8,11 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-} from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { Spinner } from "@/shared/components/ui/spinner";
-import { emailSchema } from "@/shared/utils/validation";
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
+import { emailSchema } from "@/lib/utils/validation";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = React.useState("");

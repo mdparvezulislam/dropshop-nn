@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { WebhookService } from "@/features/courier/services/webhook-service";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 
 export async function POST(
   req: NextRequest,

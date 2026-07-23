@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { auth } from "@/shared/lib/auth";
+import { auth } from "@/lib/auth";
 import { getRoleApplicationStatusAction } from "@/features/identity/actions/account-actions";
 import { RolePageContent } from "./role-content";
 

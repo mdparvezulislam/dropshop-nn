@@ -4,13 +4,13 @@ import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowLeft, Package, Truck, Clock, MapPin, CreditCard } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { Separator } from "@/shared/components/ui/separator";
-import { PageHeader } from "@/shared/components/workspace/page-header";
-import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
-import { Spinner } from "@/shared/components/ui/spinner";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { PageHeader } from "@/components/workspace/page-header";
+import { StatusChip, statusToneFromValue } from "@/components/workspace/status-chip";
+import { Spinner } from "@/components/ui/spinner";
 import { getHumanLabel, getAllowedTransitions } from "@/features/order/domain/state-machine";
 
 export default function ResellerOrderDetailPage(): React.ReactElement {

@@ -9,9 +9,9 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-} from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { getOrderAction, updateOrderStatusAction } from "@/features/order/actions/order-actions";
 import { toast } from "sonner";
 import { ArrowLeft, AlertTriangle } from "lucide-react";

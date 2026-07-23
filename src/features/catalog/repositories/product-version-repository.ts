@@ -1,8 +1,8 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { ProductVersionModel, ProductVersionDocument } from "./product-version-model";
 import { ProductVersion } from "../domain/product-version-entity";
-import { logger } from "@/shared/utils/logger";
-import { DatabaseError } from "@/shared/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { DatabaseError } from "@/lib/errors/app-error";
 
 export class ProductVersionRepository extends BaseRepository<ProductVersionDocument, ProductVersion> {
   constructor() {

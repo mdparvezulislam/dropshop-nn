@@ -5,10 +5,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Heart, Trash2, ShoppingCart, Loader2 } from "lucide-react";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { PriceDisplay } from "@/shared/components/website/price-display";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { PriceDisplay } from "@/components/website/price-display";
 import { removeWishlistItemAction } from "@/features/identity/actions/account-actions";
 
 interface WishlistItem {

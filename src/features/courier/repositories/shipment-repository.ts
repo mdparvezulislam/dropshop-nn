@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { ShipmentModel } from "./shipment-model";
 import type { Shipment, ShipmentStatus } from "../domain/shipment-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 interface ShipmentDocument extends BaseDocument {
   shipmentNumber: string;

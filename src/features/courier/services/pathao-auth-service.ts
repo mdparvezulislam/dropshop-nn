@@ -1,6 +1,6 @@
 import { CourierConfigRepository } from "../repositories/courier-config-repository";
 import { CourierApiLogRepository } from "../repositories/courier-api-log-repository";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 
 export interface PathaoTokenResponse {
   access_token: string;

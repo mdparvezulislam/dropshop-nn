@@ -1,4 +1,4 @@
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 import { AnalyticsReportRepository } from "../repositories/analytics-report-repository";
 import { AnalyticsCacheService } from "./analytics-cache-service";
 import { EventFactRepository } from "../repositories/event-fact-repository";
@@ -7,7 +7,7 @@ import {
   type AnalyticsReport, type AnalyticsReportChart, type ReportFrequency,
   type AnalyticsFilter, type MetricCardData, type TimeSeriesPoint, ANALYTICS_EVENT_NAMES,
 } from "../domain/analytics-entity";
-import { EventBus } from "@/shared/lib/event-bus";
+import { EventBus } from "@/lib/event-bus";
 import { ANALYTICS_DOMAIN_EVENTS } from "../domain/analytics-events";
 
 export class ReportService {

@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { PickupAddressModel } from "./pickup-address-model";
 import type { PickupAddress } from "../domain/pickup-address-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 interface PickupAddressDocument extends BaseDocument {
   name: string;

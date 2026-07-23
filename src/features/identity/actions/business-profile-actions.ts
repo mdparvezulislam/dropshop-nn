@@ -1,11 +1,11 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
+import { auth } from "@/lib/auth";
 import { BusinessProfileService } from "../services/business-profile-service";
 import { createBusinessProfileSchema, updateBusinessProfileSchema } from "../types/validation";
-import { checkPermission } from "@/shared/lib/check-permission";
-import { UnauthorizedError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
+import { checkPermission } from "@/lib/check-permission";
+import { UnauthorizedError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 
 function getSessionUser(session: any): { id: string; name?: string; role?: string } {

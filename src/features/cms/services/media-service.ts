@@ -1,10 +1,10 @@
 import { MediaAssetRepository, type MediaFilter } from "../repositories/media-repository";
 import type { MediaAsset } from "../domain/media-entity";
 import type { CreateMediaInput } from "../types/validation";
-import { getImageKitClient } from "@/shared/lib/imagekit";
-import { NotFoundError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import type { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
+import { getImageKitClient } from "@/lib/imagekit";
+import { NotFoundError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import type { PaginationParams, SortParams, PaginatedResult } from "@/types";
 
 export class MediaService {
   private readonly repo = new MediaAssetRepository();

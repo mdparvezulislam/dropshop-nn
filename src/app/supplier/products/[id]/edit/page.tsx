@@ -4,12 +4,12 @@ import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Save, Send } from "lucide-react";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { Textarea } from "@/shared/components/ui/textarea";
-import { Spinner } from "@/shared/components/ui/spinner";
-import { PageHeader } from "@/shared/components/workspace/page-header";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Spinner } from "@/components/ui/spinner";
+import { PageHeader } from "@/components/workspace/page-header";
 
 interface VariantRow {
   id: string;

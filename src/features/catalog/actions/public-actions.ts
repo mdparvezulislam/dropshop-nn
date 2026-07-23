@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
+import { auth } from "@/lib/auth";
 import { ProductService } from "../services/product-service";
 import { BrandRepository, CategoryRepository } from "../repositories/classification-repository";
 import { PricingService } from "@/features/pricing/services/pricing-service";
@@ -8,7 +8,7 @@ import { PricingEngineService } from "@/features/pricing/services/pricing-engine
 import type { Product } from "../domain/product-entity";
 import type { Brand, Category } from "../domain/classification-entity";
 import type { ProductPricing } from "@/features/pricing/domain/pricing-entity";
-import type { ProductCardData } from "@/shared/components/website/product-card";
+import type { ProductCardData } from "@/components/website/product-card";
 
 interface PublicProductsResult {
   success: boolean;

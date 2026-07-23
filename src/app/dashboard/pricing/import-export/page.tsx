@@ -3,10 +3,10 @@
 import * as React from "react";
 import { FileText, Download, Upload } from "lucide-react";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { SectionHeader } from "@/shared/components/workspace/section-header";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { SectionHeader } from "@/components/workspace/section-header";
 
 export default function ImportExportPage(): React.ReactElement {
   return (

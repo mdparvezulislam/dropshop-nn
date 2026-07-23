@@ -1,5 +1,5 @@
-import { DatabaseConnectionManager } from "@/shared/lib/database/connection-manager";
-import { env } from "@/shared/config/env";
+import { DatabaseConnectionManager } from "@/lib/database/connection-manager";
+import { env } from "@/config/env";
 import { SeedLogger } from "./helpers/logger";
 import { seedUsers } from "./factories/user-factory";
 import { seedBrands } from "./factories/brand-factory";

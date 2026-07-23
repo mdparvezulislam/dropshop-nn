@@ -4,11 +4,11 @@ import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Package, Truck, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Spinner } from "@/shared/components/ui/spinner";
-import { PageHeader } from "@/shared/components/workspace/page-header";
-import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { PageHeader } from "@/components/workspace/page-header";
+import { StatusChip, statusToneFromValue } from "@/components/workspace/status-chip";
 
 export default function SupplierPODetailPage(): React.ReactElement {
   const params = useParams();

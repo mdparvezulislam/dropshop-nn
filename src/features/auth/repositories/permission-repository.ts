@@ -1,9 +1,9 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { PermissionModel, PermissionDocument } from "./permission-model";
 import { Permission } from "../domain/permission-entity";
-import { DatabaseQueryOptions } from "@/shared/lib/database/types";
-import { logger } from "@/shared/utils/logger";
-import { DatabaseError } from "@/shared/errors/app-error";
+import { DatabaseQueryOptions } from "@/lib/database/types";
+import { logger } from "@/lib/utils/logger";
+import { DatabaseError } from "@/lib/errors/app-error";
 
 export class PermissionRepository extends BaseRepository<PermissionDocument, Permission> {
   constructor() {

@@ -3,9 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { updateResellerStatusAction } from "@/features/reseller/actions/reseller-actions";
 import { toast } from "sonner";
 import {

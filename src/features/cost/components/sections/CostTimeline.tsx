@@ -2,10 +2,10 @@
 
 import * as React from "react";
 import { Clock, ArrowUp, ArrowDown, Building2, User, CheckCircle, XCircle } from "lucide-react";
-import { formatCentsToCurrency } from "@/shared/utils/currency-utils";
-import { formatRelativeTime } from "@/shared/utils/date-utils";
-import { Badge } from "@/shared/components/ui/badge";
-import { cn } from "@/shared/utils/cn";
+import { formatCentsToCurrency } from "@/lib/utils/currency-utils";
+import { formatRelativeTime } from "@/lib/utils/date-utils";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils/cn";
 
 export interface TimelineEntry {
   id: string;

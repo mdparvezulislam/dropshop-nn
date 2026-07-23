@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { PlatformSecretModel, SecretAuditLogModel, SecretFailedAccessLogModel } from "./secret-model";
 import type { PlatformSecret, SecretAuditLog, SecretFailedAccessLog, SecretProvider, SecretType } from "../domain/secret-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 interface PlatformSecretDocument extends BaseDocument {
   provider: any;

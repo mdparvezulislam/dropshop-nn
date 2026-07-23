@@ -1,10 +1,10 @@
 import { ContentRepository, type ContentFilter } from "../repositories/content-repository";
 import type { CmsContent, ContentStatus, ContentType } from "../domain/content-entity";
 import type { CreateContentInput, UpdateContentInput } from "../types/validation";
-import { generateSlug } from "@/shared/utils/slug-utils";
-import { ValidationError, NotFoundError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import type { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
+import { generateSlug } from "@/lib/utils/slug-utils";
+import { ValidationError, NotFoundError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import type { PaginationParams, SortParams, PaginatedResult } from "@/types";
 import { randomUUID } from "crypto";
 
 export class ContentService {

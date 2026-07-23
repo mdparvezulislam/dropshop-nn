@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Sparkles, Wand2, BatteryCharging, Volume2, Headphones, Wifi, Fan, Check } from "lucide-react";
 import { PRODUCT_TEMPLATES, type ProductTemplate } from "../../data/product-templates-data";
 import { toast } from "sonner";
-import { cn } from "@/shared/utils/cn";
+import { cn } from "@/lib/utils/cn";
 
 export interface StudioTemplateSelectorProps {
   onApplyTemplate: (template: ProductTemplate) => void;

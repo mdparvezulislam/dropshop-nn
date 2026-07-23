@@ -6,12 +6,12 @@ import {
 import { BrandRepository } from "../repositories/classification-repository";
 import { CategoryRepository } from "../repositories/classification-repository";
 import { Product } from "../domain/product-entity";
-import { ValidationError, NotFoundError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import { EventBus } from "@/shared/lib/event-bus";
+import { ValidationError, NotFoundError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { EventBus } from "@/lib/event-bus";
 import { CATALOG_EVENTS } from "../domain/catalog-events";
-import { generateSlug } from "@/shared/utils/slug-utils";
-import type { ActorInfo } from "@/shared/core/types";
+import { generateSlug } from "@/lib/utils/slug-utils";
+import type { ActorInfo } from "@/lib/core/types";
 import type { CreateProductInput, UpdateProductInput } from "../types/validation";
 import { ProductVersionService } from "./product-version-service";
 import { ProductAuditService } from "./product-audit-service";

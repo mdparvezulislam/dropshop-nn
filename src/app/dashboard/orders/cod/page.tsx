@@ -2,10 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { listCodAction, reconcileCodAction, settleCodAction, getCodStatsAction } from "@/features/order/actions/cod-actions";
 import { toast } from "sonner";
 import { ArrowLeft, RefreshCw, Search, DollarSign, AlertTriangle, CheckCircle, Clock } from "lucide-react";

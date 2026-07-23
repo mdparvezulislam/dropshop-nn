@@ -1,7 +1,7 @@
 import { CourierConfigRepository } from "../repositories/courier-config-repository";
 import { CourierApiLogRepository } from "../repositories/courier-api-log-repository";
 import type { CourierConfig, SteadfastCredentials, PathaoCredentials, AutoBookingRules } from "../domain/courier-config-entity";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 
 export const DEFAULT_STEADFAST_STATUS_MAPPING: Record<string, string> = {
   pending: "pending_booking",

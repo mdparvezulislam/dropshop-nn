@@ -1,4 +1,4 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import type { ExecutionLog } from "../domain/automation-entity";
 import { ExecutionLogModel, type ExecutionLogDocument } from "./execution-log-model";
 

@@ -16,13 +16,13 @@ import {
   Store,
   Sparkles,
 } from "lucide-react";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { SectionHeader } from "@/shared/components/workspace/section-header";
-import { StatCard } from "@/shared/components/workspace/stat-card";
-import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
-import { QuickActionsWidget } from "@/shared/components/workspace/widget-grid";
-import { cn } from "@/shared/utils/cn";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { SectionHeader } from "@/components/workspace/section-header";
+import { StatCard } from "@/components/workspace/stat-card";
+import { StatusChip, statusToneFromValue } from "@/components/workspace/status-chip";
+import { QuickActionsWidget } from "@/components/workspace/widget-grid";
+import { cn } from "@/lib/utils/cn";
 
 interface DashboardData {
   ordersToday: number;

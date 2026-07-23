@@ -3,9 +3,9 @@ import { LedgerRepository } from "../repositories/ledger-repository";
 import { FinanceAuditRepository } from "../repositories/finance-audit-repository";
 import { WalletService } from "./wallet-service";
 import type { LedgerEntry } from "../domain/ledger-entity";
-import { logger } from "@/shared/utils/logger";
-import { EventBus } from "@/shared/lib/event-bus/event-bus";
-import { runInTransaction } from "@/shared/lib/database/query-builder";
+import { logger } from "@/lib/utils/logger";
+import { EventBus } from "@/lib/event-bus/event-bus";
+import { runInTransaction } from "@/lib/database/query-builder";
 
 export interface CommissionCalculationParams {
   walletId: string;

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requirePermission, requireAnyPermission } from "@/shared/lib/action-guard";
+import { requirePermission, requireAnyPermission } from "@/lib/action-guard";
 import { SecurityDashboardService } from "@/features/auth/services/security-dashboard-service";
 import { LockoutService } from "@/features/auth/services/lockout-service";
 import { SecurityEventService } from "@/features/auth/services/security-event-service";

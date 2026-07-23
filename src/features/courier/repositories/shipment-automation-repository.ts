@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { ShipmentAutomationModel } from "./shipment-automation-model";
 import type { ShipmentAutomationState, AutomationDashboardMetrics } from "../domain/delivery-automation-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 interface ShipmentAutomationDocument extends BaseDocument {
   shipmentId: string;

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Package, Layers, Boxes, FileText, Briefcase, Gift, Check } from "lucide-react";
-import { cn } from "@/shared/utils/cn";
+import { cn } from "@/lib/utils/cn";
 import type { ProductType } from "@/features/catalog/domain/product-entity";
 
 export interface ProductTypeOption {

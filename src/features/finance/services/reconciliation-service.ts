@@ -9,9 +9,9 @@ import type {
   SettlementVerificationResult,
   ReconciliationLog,
 } from "../domain/reconciliation-entity";
-import { logger } from "@/shared/utils/logger";
-import { EventBus } from "@/shared/lib/event-bus/event-bus";
-import { runInTransaction } from "@/shared/lib/database/query-builder";
+import { logger } from "@/lib/utils/logger";
+import { EventBus } from "@/lib/event-bus/event-bus";
+import { runInTransaction } from "@/lib/database/query-builder";
 
 export class ReconciliationService {
   private readonly walletRepository: WalletRepository;

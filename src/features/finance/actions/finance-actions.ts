@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
+import { auth } from "@/lib/auth";
 import { WalletService } from "../services/wallet-service";
 import { WithdrawalService } from "../services/withdrawal-service";
 import { DepositService } from "../services/deposit-service";
@@ -24,8 +24,8 @@ import {
   ledgerFilterSchema,
   auditLogFilterSchema,
 } from "../types/validation";
-import { checkPermission } from "@/shared/lib/check-permission";
-import { logger } from "@/shared/utils/logger";
+import { checkPermission } from "@/lib/check-permission";
+import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 
 export async function getFinanceDashboardSummaryAction(): Promise<{

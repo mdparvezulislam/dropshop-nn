@@ -1,4 +1,4 @@
-import type { BaseDBEntity } from "@/shared/lib/database/types";
+import type { BaseDBEntity } from "@/lib/database/types";
 
 export interface UserNotificationPreference extends BaseDBEntity {
   userId: string;

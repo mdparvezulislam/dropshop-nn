@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
-import { baseFieldsDefinition, baseSchemaOptions, softDeletePlugin } from "@/shared/lib/database/base-schema";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import { baseFieldsDefinition, baseSchemaOptions, softDeletePlugin } from "@/lib/database/base-schema";
+import type { BaseDocument } from "@/lib/database/types";
 import type { UserDBAddressFields } from "../domain/user-address-entity";
 
 export type UserAddressDocument = BaseDocument & UserDBAddressFields;

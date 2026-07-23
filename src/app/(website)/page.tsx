@@ -8,25 +8,25 @@ import {
 } from "@/features/catalog/actions/public-actions";
 import { listPublicBlogAction } from "@/features/cms/actions/content-actions";
 import type { CmsContent } from "@/features/cms/domain/content-entity";
-import type { PaginatedResult } from "@/shared/types";
+import type { PaginatedResult } from "@/types";
 
-import { HeroSection } from "@/shared/components/website/sections/hero-section";
-import { CategoryShowcase } from "@/shared/components/website/sections/category-showcase";
-import { FeaturedProductsSection } from "@/shared/components/website/sections/featured-products-section";
-import { TrendingProductsSection } from "@/shared/components/website/sections/trending-products-section";
-import { NewArrivalsSection } from "@/shared/components/website/sections/new-arrivals-section";
-import { FlashDealsSection } from "@/shared/components/website/sections/flash-deals-section";
-import { BrandSlider } from "@/shared/components/website/sections/brand-slider";
-import { WhyChooseUs } from "@/shared/components/website/sections/why-choose-us";
-import { HowItWorks } from "@/shared/components/website/sections/how-it-works";
-import { RoleHighlights } from "@/shared/components/website/sections/role-highlights";
-import { TestimonialsSection } from "@/shared/components/website/sections/testimonials-section";
+import { HeroSection } from "@/components/website/sections/hero-section";
+import { CategoryShowcase } from "@/components/website/sections/category-showcase";
+import { FeaturedProductsSection } from "@/components/website/sections/featured-products-section";
+import { TrendingProductsSection } from "@/components/website/sections/trending-products-section";
+import { NewArrivalsSection } from "@/components/website/sections/new-arrivals-section";
+import { FlashDealsSection } from "@/components/website/sections/flash-deals-section";
+import { BrandSlider } from "@/components/website/sections/brand-slider";
+import { WhyChooseUs } from "@/components/website/sections/why-choose-us";
+import { HowItWorks } from "@/components/website/sections/how-it-works";
+import { RoleHighlights } from "@/components/website/sections/role-highlights";
+import { TestimonialsSection } from "@/components/website/sections/testimonials-section";
 import {
   LatestBlogsSection,
   mapCmsPostToBlogCard,
-} from "@/shared/components/website/sections/latest-blogs-section";
-import { NewsletterSection } from "@/shared/components/website/sections/newsletter-section";
-import { FooterCta } from "@/shared/components/website/sections/footer-cta";
+} from "@/components/website/sections/latest-blogs-section";
+import { NewsletterSection } from "@/components/website/sections/newsletter-section";
+import { FooterCta } from "@/components/website/sections/footer-cta";
 
 export const dynamic = "force-dynamic";
 

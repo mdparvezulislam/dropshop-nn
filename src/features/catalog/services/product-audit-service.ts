@@ -1,5 +1,5 @@
 import { ProductAuditRepository } from "../repositories/product-audit-repository";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 
 export interface AuditInput {
   productId: string;

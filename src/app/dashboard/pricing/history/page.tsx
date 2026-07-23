@@ -4,11 +4,11 @@ import * as React from "react";
 import { History, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { getAllPriceHistoryAction } from "@/features/pricing/actions/pricing-engine-actions";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
-import { SectionHeader } from "@/shared/components/workspace/section-header";
-import { formatCentsToCurrency } from "@/shared/utils/currency-utils";
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { SectionHeader } from "@/components/workspace/section-header";
+import { formatCentsToCurrency } from "@/lib/utils/currency-utils";
 
 type Entry = { id: string; productId: string; variantSku?: string; field: string; oldValue: number; newValue: number; changedByName?: string; reason?: string; source: string; createdAt: string; };
 

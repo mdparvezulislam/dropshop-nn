@@ -2,9 +2,9 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { exportUsersCsvAction, importUsersCsvAction } from "@/features/identity/actions/identity-center-actions";
 import { toast } from "sonner";
 import { ArrowLeft, Download, Upload, FileText, AlertTriangle, CheckCircle, XCircle } from "lucide-react";

@@ -1,4 +1,4 @@
-import { BaseDBEntity } from "@/shared/lib/database/types";
+import { BaseDBEntity } from "@/lib/database/types";
 
 export type RiskLevel = "low" | "medium" | "high" | "critical";
 export type RiskCategory =

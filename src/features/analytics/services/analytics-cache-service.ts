@@ -1,5 +1,5 @@
-import { logger } from "@/shared/utils/logger";
-import { env } from "@/shared/config/env";
+import { logger } from "@/lib/utils/logger";
+import { env } from "@/config/env";
 
 const CACHE_TTL = {
   EXECUTIVE: 300,

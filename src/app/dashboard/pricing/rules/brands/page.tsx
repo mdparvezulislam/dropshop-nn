@@ -4,13 +4,13 @@ import * as React from "react";
 import { ShoppingBag, Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { listBrandOverridesAction, createBrandOverrideAction, updateBrandOverrideAction, deleteBrandOverrideAction } from "@/features/pricing/actions/pricing-engine-actions";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/shared/components/ui/dialog";
-import { Input } from "@/shared/components/ui/input";
-import { FormField } from "@/shared/components/forms/form-field";
-import { SectionHeader } from "@/shared/components/workspace/section-header";
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { FormField } from "@/components/forms/form-field";
+import { SectionHeader } from "@/components/workspace/section-header";
 
 type Override = { id: string; brandId: string; brandName: string; channel: string; markupType: string; markupValue: number; minProfitPercent?: number; maxDiscountPercent?: number; isActive: boolean; };
 

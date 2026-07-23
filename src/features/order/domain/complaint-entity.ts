@@ -1,4 +1,4 @@
-import { BaseDBEntity } from "@/shared/lib/database/types";
+import { BaseDBEntity } from "@/lib/database/types";
 
 export const COMPLAINT_TYPES = [
   "wrong_product", "damaged_product", "missing_item",

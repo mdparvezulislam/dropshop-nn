@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
+import { auth } from "@/lib/auth";
 import { CartService } from "../services/cart-service";
 import { CheckoutService } from "../services/checkout-service";
 import {
@@ -14,9 +14,9 @@ import {
   checkoutShippingSchema,
   completeRoleCheckoutSchema,
 } from "../types/validation";
-import { checkPermission } from "@/shared/lib/check-permission";
-import { DEFAULT_CURRENCY } from "@/shared/constants";
-import { logger } from "@/shared/utils/logger";
+import { checkPermission } from "@/lib/check-permission";
+import { DEFAULT_CURRENCY } from "@/constants";
+import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 
 export async function getOrCreateCartAction(formData: unknown): Promise<{

@@ -1,5 +1,5 @@
-import type { BaseDBEntity } from "@/shared/lib/database/types";
-import type { NotificationChannel, NotificationPriority } from "@/shared/core/types";
+import type { BaseDBEntity } from "@/lib/database/types";
+import type { NotificationChannel, NotificationPriority } from "@/lib/core/types";
 
 export type NotificationCategory =
   | "commerce"

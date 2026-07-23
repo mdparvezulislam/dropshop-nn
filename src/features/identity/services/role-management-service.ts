@@ -5,16 +5,16 @@ import {
   getAllPermissions,
   getModules,
   getPermissionGroups,
-} from "@/shared/core/permission-registry";
-import { SYSTEM_ROLES, type RoleDefinition } from "@/shared/core/permissions";
-import { AuditLogger } from "@/shared/lib/audit-logger";
-import { logger } from "@/shared/utils/logger";
+} from "@/lib/core/permission-registry";
+import { SYSTEM_ROLES, type RoleDefinition } from "@/lib/core/permissions";
+import { AuditLogger } from "@/lib/audit-logger";
+import { logger } from "@/lib/utils/logger";
 import {
   ValidationError,
   NotFoundError,
   ConflictError,
   ForbiddenError,
-} from "@/shared/errors/app-error";
+} from "@/lib/errors/app-error";
 import type { Role } from "@/features/auth/domain/role-entity";
 
 export class RoleManagementService {

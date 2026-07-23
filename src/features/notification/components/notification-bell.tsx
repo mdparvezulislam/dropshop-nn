@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Bell } from "lucide-react";
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,14 +11,14 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import {
   getNotificationInboxAction,
   markNotificationReadAction,
   markAllNotificationsReadAction,
 } from "../actions/notification-actions";
 import type { NotificationMessage } from "../domain/notification-entity";
-import { cn } from "@/shared/utils/cn";
+import { cn } from "@/lib/utils/cn";
 
 function timeAgo(date: Date | string): string {
   const d = new Date(date).getTime();

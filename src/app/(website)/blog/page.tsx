@@ -5,8 +5,8 @@ import {
   listPublicBlogAction,
 } from "@/features/cms/actions/content-actions";
 import type { CmsContent } from "@/features/cms/domain/content-entity";
-import { BlogListing } from "@/shared/components/website/blog/blog-listing";
-import type { PaginatedResult } from "@/shared/types";
+import { BlogListing } from "@/components/website/blog/blog-listing";
+import type { PaginatedResult } from "@/types";
 
 export const dynamic = "force-dynamic";
 

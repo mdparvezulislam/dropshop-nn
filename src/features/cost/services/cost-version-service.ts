@@ -1,9 +1,9 @@
 import { CostVersionRepository } from "../repositories/cost-version-repository";
 import { CostVersion, CostChangeReason } from "../domain/cost-version-entity";
 import type { CreateCostVersionInput } from "../types/validation";
-import { ValidationError, NotFoundError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import { EventBus } from "@/shared/lib/event-bus";
+import { ValidationError, NotFoundError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { EventBus } from "@/lib/event-bus";
 
 export interface LandedCostBreakdown {
   costPrice: number;

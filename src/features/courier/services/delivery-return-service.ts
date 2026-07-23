@@ -3,7 +3,7 @@ import { DeliveryReturnRepository } from "../repositories/delivery-return-reposi
 import { LogisticsAuditRepository } from "../repositories/logistics-audit-repository";
 import type { DeliveryReturn, RTSRecord, ReturnReason, ReturnStatus, RTSStatus } from "../domain/delivery-return-entity";
 import type { Shipment } from "../domain/shipment-entity";
-import { EventBus } from "@/shared/lib/event-bus/event-bus";
+import { EventBus } from "@/lib/event-bus/event-bus";
 
 export class DeliveryReturnService {
   private readonly shipmentRepository: ShipmentRepository;

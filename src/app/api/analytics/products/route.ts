@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/shared/lib/auth";
-import { checkPermission } from "@/shared/lib/check-permission";
+import { auth } from "@/lib/auth";
+import { checkPermission } from "@/lib/check-permission";
 import { ProductAnalyticsService } from "@/features/analytics/services/product-analytics-service";
 
 export async function GET(req: NextRequest): Promise<NextResponse> {

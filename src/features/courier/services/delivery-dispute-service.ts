@@ -1,7 +1,7 @@
 import { ShipmentRepository } from "../repositories/shipment-repository";
 import { DeliveryDisputeRepository } from "../repositories/delivery-dispute-repository";
 import type { DeliveryDispute, DisputeType, DisputeStatus, LogisticsEscalation, EscalationLevel } from "../domain/delivery-dispute-entity";
-import { EventBus } from "@/shared/lib/event-bus/event-bus";
+import { EventBus } from "@/lib/event-bus/event-bus";
 
 export class DeliveryDisputeService {
   private readonly shipmentRepository: ShipmentRepository;

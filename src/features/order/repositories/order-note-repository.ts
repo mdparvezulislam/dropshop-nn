@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { OrderNoteModel } from "./order-note-model";
 import type { OrderNote, NoteType } from "../domain/note-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 export interface OrderNoteDocument extends BaseDocument {
   orderId: string;

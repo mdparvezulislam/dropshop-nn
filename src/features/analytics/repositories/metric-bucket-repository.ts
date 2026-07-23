@@ -1,4 +1,4 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { MetricBucketModel, type MetricBucketMongoDocument } from "./metric-bucket-model";
 import type { MetricBucket, MetricGranularity } from "../domain/analytics-entity";
 

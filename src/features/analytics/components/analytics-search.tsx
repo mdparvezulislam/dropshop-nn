@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Loader2, FileText, BarChart3 } from "lucide-react";
-import { cn } from "@/shared/utils/cn";
+import { cn } from "@/lib/utils/cn";
 import { searchAnalyticsAction } from "../actions/analytics-actions";
-import type { SearchResultItem } from "@/shared/platform/platform-types";
+import type { SearchResultItem } from "@/lib/platform/platform-types";
 
 export function AnalyticsSearch(): React.ReactElement {
   const router = useRouter();

@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { FinanceAuditLogModel } from "./finance-audit-model";
 import type { FinanceAuditLog, FinanceAuditAction } from "../domain/finance-audit-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 interface FinanceAuditLogDocument extends BaseDocument {
   referenceNumber?: string;

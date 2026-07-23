@@ -1,5 +1,5 @@
-import { FeatureFlags, type FeatureFlagDefinition } from "@/shared/core/feature-flags";
-import { Settings, type SettingDefinition } from "@/shared/core/feature-flags";
+import { FeatureFlags, type FeatureFlagDefinition } from "@/lib/core/feature-flags";
+import { Settings, type SettingDefinition } from "@/lib/core/feature-flags";
 
 export function registerSupplierFeatureFlags(): void {
   const flags: FeatureFlagDefinition[] = [

@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
+import { auth } from "@/lib/auth";
 import { LogisticsService } from "../services/logistics-service";
 import { TrackingService } from "../services/tracking-service";
 import { CourierConfigService } from "../services/courier-config-service";
@@ -21,8 +21,8 @@ import {
   syncTrackingSchema,
   retryLogisticsTaskSchema,
 } from "../types/validation";
-import { checkPermission } from "@/shared/lib/check-permission";
-import { logger } from "@/shared/utils/logger";
+import { checkPermission } from "@/lib/check-permission";
+import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 
 export async function createShipmentAction(formData: unknown): Promise<{

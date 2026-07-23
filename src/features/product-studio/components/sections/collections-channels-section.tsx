@@ -3,10 +3,10 @@
 import * as React from "react";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
 import { listCollectionsAction } from "@/features/catalog/actions/classification-actions";
-import { Badge } from "@/shared/components/ui/badge";
-import { FormField } from "@/shared/components/forms/form-field";
+import { Badge } from "@/components/ui/badge";
+import { FormField } from "@/components/forms/form-field";
 import { Search, Layers, Globe, Shield, Pin, Check, Store } from "lucide-react";
-import { cn } from "@/shared/utils/cn";
+import { cn } from "@/lib/utils/cn";
 
 export interface CollectionsChannelsSectionProps {
   selectedCollectionIds?: string[];

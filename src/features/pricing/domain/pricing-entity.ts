@@ -1,4 +1,4 @@
-import { BaseDBEntity } from "@/shared/lib/database/types";
+import { BaseDBEntity } from "@/lib/database/types";
 
 export type PricingRuleType =
   "fixed" | "percentage" | "supplier_based" | "category_based" | "brand_based" | "dynamic";

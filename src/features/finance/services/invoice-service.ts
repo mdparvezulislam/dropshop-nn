@@ -1,9 +1,9 @@
 import { InvoiceRepository } from "../repositories/invoice-repository";
 import type { Invoice } from "../domain/invoice-entity";
 import type { Order } from "@/features/order/domain/order-entity";
-import { logger } from "@/shared/utils/logger";
-import { EventBus } from "@/shared/lib/event-bus/event-bus";
-import { runInTransaction } from "@/shared/lib/database/query-builder";
+import { logger } from "@/lib/utils/logger";
+import { EventBus } from "@/lib/event-bus/event-bus";
+import { runInTransaction } from "@/lib/database/query-builder";
 
 export class InvoiceService {
   private readonly invoiceRepository: InvoiceRepository;

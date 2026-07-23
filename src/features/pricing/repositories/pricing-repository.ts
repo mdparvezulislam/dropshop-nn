@@ -1,10 +1,10 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { ProductPricingModel, ProductPricingDocumentType } from "./pricing-model";
 import { ProductPricing } from "../domain/pricing-entity";
-import { DatabaseQueryOptions } from "@/shared/lib/database/types";
-import { logger } from "@/shared/utils/logger";
-import { DatabaseError } from "@/shared/errors/app-error";
-import { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
+import { DatabaseQueryOptions } from "@/lib/database/types";
+import { logger } from "@/lib/utils/logger";
+import { DatabaseError } from "@/lib/errors/app-error";
+import { PaginationParams, SortParams, PaginatedResult } from "@/types";
 
 export class PricingRepository extends BaseRepository<ProductPricingDocumentType, ProductPricing> {
   constructor() {

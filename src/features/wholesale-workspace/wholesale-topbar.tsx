@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Topbar } from "@/shared/components/workspace/topbar";
+import { Topbar } from "@/components/workspace/topbar";
 import { getWholesaleBreadcrumbs } from "./nav-config";
 
 export interface WholesaleTopbarProps {

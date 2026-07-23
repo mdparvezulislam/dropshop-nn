@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { CallLogModel } from "./call-log-model";
 import type { CallLogEntry } from "../domain/call-log-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 export interface CallLogDocument extends BaseDocument {
   orderId: string;

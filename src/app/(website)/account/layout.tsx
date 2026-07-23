@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { AccountSidebar } from "@/shared/components/account/account-sidebar";
-import { AccountMobileNav } from "@/shared/components/account/account-mobile-nav";
-import { cn } from "@/shared/utils/cn";
+import { AccountSidebar } from "@/components/account/account-sidebar";
+import { AccountMobileNav } from "@/components/account/account-mobile-nav";
+import { cn } from "@/lib/utils/cn";
 import { Loader2 } from "lucide-react";
 
 export default function AccountLayout({ children }: { children: React.ReactNode }) {

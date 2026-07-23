@@ -4,7 +4,7 @@ import {
   getPublicCategoryBySlugAction,
   getPublicCategoryProductsAction,
 } from "@/features/catalog/actions/public-actions";
-import { ProductListingContent } from "@/shared/components/website/product-listing-content";
+import { ProductListingContent } from "@/components/website/product-listing-content";
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;

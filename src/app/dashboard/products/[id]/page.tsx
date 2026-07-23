@@ -3,16 +3,16 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Spinner } from "@/shared/components/ui/spinner";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardDescription,
   CardContent,
-} from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { updateProductStatusAction } from "@/features/catalog/actions/product-actions";
 import { toast } from "sonner";
 import {

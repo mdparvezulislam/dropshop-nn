@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { emailSchema, phoneSchema } from "@/shared/utils/validation";
+import { emailSchema, phoneSchema } from "@/lib/utils/validation";
 
 export const businessAddressSchema = z.object({
   division: z.string().min(2, "Division is required").trim(),

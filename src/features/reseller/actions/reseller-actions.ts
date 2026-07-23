@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
+import { auth } from "@/lib/auth";
 import { ResellerService } from "../services/reseller-service";
 import { ProductAssignmentService } from "../services/product-assignment-service";
 import {
@@ -15,8 +15,8 @@ import {
   resellerListQuerySchema,
   resellerProductSearchSchema,
 } from "../types/validation";
-import { checkPermission } from "@/shared/lib/check-permission";
-import { logger } from "@/shared/utils/logger";
+import { checkPermission } from "@/lib/check-permission";
+import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 
 const RESELLERS_PATH = "/dashboard/resellers";

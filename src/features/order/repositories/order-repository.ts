@@ -1,4 +1,4 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { OrderModel } from "./order-model";
 import type {
   Order,
@@ -12,8 +12,8 @@ import type {
   SupplierReference,
 } from "../domain/order-entity";
 import type { OrderStatus } from "../domain/state-machine";
-import type { BaseDocument } from "@/shared/lib/database/types";
-import type { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
+import type { BaseDocument } from "@/lib/database/types";
+import type { PaginationParams, SortParams, PaginatedResult } from "@/types";
 
 export interface OrderDocument extends BaseDocument {
   orderNumber: string;

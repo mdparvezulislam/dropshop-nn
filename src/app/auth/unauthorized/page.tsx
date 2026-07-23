@@ -7,7 +7,7 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-} from "@/shared/components/ui/card";
+} from "@/components/ui/card";
 import { ShieldAlert } from "lucide-react";
 
 export default function UnauthorizedPage() {

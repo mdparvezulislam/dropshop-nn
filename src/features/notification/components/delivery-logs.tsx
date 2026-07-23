@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Loader2, RefreshCw, RotateCcw } from "lucide-react";
-import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   getDeliveryLogsAction,
   retryNotificationDeliveryAction,

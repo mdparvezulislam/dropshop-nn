@@ -4,8 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Loader2, RefreshCw, ShieldOff } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent } from "@/shared/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { listAllActiveSessionsAdminAction } from "../actions/admin-identity-actions";
 import { forceLogoutUserAction } from "../actions/session-actions";
 

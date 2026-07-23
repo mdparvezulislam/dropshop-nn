@@ -1,4 +1,4 @@
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 import { EventFactRepository } from "../repositories/event-fact-repository";
 import { resolveDateRange, type DateRange } from "./analytics-query-service";
 import { ANALYTICS_EVENT_NAMES, type ExecutiveDashboardData, type MetricCardData, type TimeSeriesPoint } from "../domain/analytics-entity";

@@ -3,10 +3,10 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
-import { Input } from "@/shared/components/ui/input";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   updatePricingAction,
   overridePricingAction,
@@ -14,7 +14,7 @@ import {
 } from "@/features/pricing/actions/pricing-actions";
 import { toast } from "sonner";
 import { ArrowLeft, Save, Shield } from "lucide-react";
-import { currencyToCents, formatCentsToCurrency } from "@/shared/utils/currency-utils";
+import { currencyToCents, formatCentsToCurrency } from "@/lib/utils/currency-utils";
 
 export default function PricingEditorPage() {
   const params = useParams();

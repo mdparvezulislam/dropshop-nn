@@ -2,7 +2,7 @@ import { CourierConfigRepository } from "../repositories/courier-config-reposito
 import { CourierProviderRegistry } from "../adapters/provider-registry";
 import type { CourierConfig } from "../domain/courier-config-entity";
 import type { ConnectionTestResult } from "../adapters/provider-adapter";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 
 export class CourierConfigService {
   private readonly configRepository: CourierConfigRepository;

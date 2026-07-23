@@ -1,9 +1,9 @@
 import { CartRepository } from "../repositories/cart-repository";
 import { PriceResolutionService } from "./price-resolution-service";
-import { EventBus } from "@/shared/lib/event-bus";
-import { ValidationError, NotFoundError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import { normalizeVariantSku } from "@/shared/utils/sku-utils";
+import { EventBus } from "@/lib/event-bus";
+import { ValidationError, NotFoundError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { normalizeVariantSku } from "@/lib/utils/sku-utils";
 import type { Cart, CartItem, CartType, CartStatus } from "../domain/cart-entity";
 
 export interface CreateCartInput {

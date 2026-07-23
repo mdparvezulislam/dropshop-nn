@@ -1,8 +1,8 @@
 import { NavigationRepository } from "../repositories/navigation-repository";
 import type { NavigationLocation, NavigationMenu } from "../domain/navigation-entity";
 import type { UpsertNavigationInput } from "../types/validation";
-import { NotFoundError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
+import { NotFoundError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
 
 export class NavigationService {
   private readonly repo = new NavigationRepository();

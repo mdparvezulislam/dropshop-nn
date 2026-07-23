@@ -4,14 +4,14 @@ import * as React from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { User, Bell, Save, Store } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Switch } from "@/shared/components/ui/switch";
-import { PageHeader } from "@/shared/components/workspace/page-header";
-import { Spinner } from "@/shared/components/ui/spinner";
-import { Badge } from "@/shared/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { PageHeader } from "@/components/workspace/page-header";
+import { Spinner } from "@/components/ui/spinner";
+import { Badge } from "@/components/ui/badge";
 
 export default function ResellerSettingsPage(): React.ReactElement {
   const [saving, setSaving] = React.useState(false);

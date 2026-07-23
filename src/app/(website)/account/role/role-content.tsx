@@ -3,17 +3,17 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { UserCog, BadgeCheck, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { Separator } from "@/shared/components/ui/separator";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/shared/components/ui/dialog";
+} from "@/components/ui/dialog";
 import { submitRoleApplicationAction } from "@/features/identity/actions/account-actions";
 
 interface Application {

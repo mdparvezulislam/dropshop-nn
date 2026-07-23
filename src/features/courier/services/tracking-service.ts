@@ -3,8 +3,8 @@ import { LogisticsAuditRepository } from "../repositories/logistics-audit-reposi
 import { WebhookEventRepository } from "../repositories/webhook-event-repository";
 import { CourierProviderRegistry } from "../adapters/provider-registry";
 import type { Shipment, ShipmentStatus } from "../domain/shipment-entity";
-import { logger } from "@/shared/utils/logger";
-import { EventBus } from "@/shared/lib/event-bus/event-bus";
+import { logger } from "@/lib/utils/logger";
+import { EventBus } from "@/lib/event-bus/event-bus";
 
 export class TrackingService {
   private readonly shipmentRepository: ShipmentRepository;

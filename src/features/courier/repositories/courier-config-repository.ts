@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { CourierConfigModel } from "./courier-config-model";
 import type { CourierConfig, CourierProviderName } from "../domain/courier-config-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 interface CourierConfigDocument extends BaseDocument {
   provider: string;

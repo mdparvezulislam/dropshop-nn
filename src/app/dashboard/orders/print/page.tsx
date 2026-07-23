@@ -1,15 +1,16 @@
 "use client";
 
 import * as React from "react";
+import { Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { getOrderAction } from "@/features/order/actions/order-actions";
 import { toast } from "sonner";
 import { ArrowLeft, Printer, Download, FileText, Package, Truck } from "lucide-react";
 
-export default function PrintCenterPage(): React.ReactElement {
+function PrintCenterContent(): React.ReactElement {
   const searchParams = useSearchParams();
   const router = useRouter();
   const orderId = searchParams.get("orderId");
@@ -148,5 +149,13 @@ export default function PrintCenterPage(): React.ReactElement {
         </div>
       )}
     </div>
+  );
+}
+
+export default function PrintCenterPage(): React.ReactElement {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background p-4 sm:p-6 flex items-center justify-center"><p className="text-muted-foreground">Loading...</p></div>}>
+      <PrintCenterContent />
+    </Suspense>
   );
 }

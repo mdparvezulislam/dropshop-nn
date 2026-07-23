@@ -2,10 +2,10 @@ import { UserRepository } from "../repositories/user-repository";
 import { FailedLoginRepository } from "../repositories/failed-login-repository";
 import { AccountLockoutRepository } from "../repositories/account-lockout-repository";
 import { SecurityEventRepository } from "../repositories/security-event-repository";
-import { env } from "@/shared/config/env";
-import { AuditLogger } from "@/shared/lib/audit-logger";
-import { logger } from "@/shared/utils/logger";
-import { ForbiddenError, ValidationError } from "@/shared/errors/app-error";
+import { env } from "@/config/env";
+import { AuditLogger } from "@/lib/audit-logger";
+import { logger } from "@/lib/utils/logger";
+import { ForbiddenError, ValidationError } from "@/lib/errors/app-error";
 import type { User } from "../domain/user-entity";
 
 export class LockoutService {

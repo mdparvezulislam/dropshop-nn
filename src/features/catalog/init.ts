@@ -1,4 +1,4 @@
-import { FeatureFlags, Settings } from "@/shared/core/feature-flags";
+import { FeatureFlags, Settings } from "@/lib/core/feature-flags";
 
 export function registerCatalogModule(): void {
   FeatureFlags.register({

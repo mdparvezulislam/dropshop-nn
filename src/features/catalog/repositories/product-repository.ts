@@ -1,9 +1,9 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { ProductModel, ProductDocument } from "./product-model";
 import { Product } from "../domain/product-entity";
-import { DatabaseQueryOptions } from "@/shared/lib/database/types";
-import { logger } from "@/shared/utils/logger";
-import { DatabaseError } from "@/shared/errors/app-error";
+import { DatabaseQueryOptions } from "@/lib/database/types";
+import { logger } from "@/lib/utils/logger";
+import { DatabaseError } from "@/lib/errors/app-error";
 
 export interface CursorPaginationParams {
   cursor?: string;

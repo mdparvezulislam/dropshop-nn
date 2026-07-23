@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { ActivityLogModel } from "./activity-log-model";
 import type { ActivityLogEntry } from "../domain/activity-log-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 export interface ActivityLogDocument extends BaseDocument {
   entityType: string;

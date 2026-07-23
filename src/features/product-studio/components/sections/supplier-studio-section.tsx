@@ -2,11 +2,11 @@
 
 import * as React from "react";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
-import { Input } from "@/shared/components/ui/input";
-import { FormField } from "@/shared/components/forms/form-field";
-import { Textarea } from "@/shared/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { FormField } from "@/components/forms/form-field";
+import { Textarea } from "@/components/ui/textarea";
 import { Building2, ExternalLink, Clock, DollarSign } from "lucide-react";
-import { CurrencyInput } from "@/shared/components/forms/currency-input";
+import { CurrencyInput } from "@/components/forms/currency-input";
 
 export interface SupplierStudioSectionProps {
   supplierId?: string;

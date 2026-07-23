@@ -2,8 +2,8 @@
 
 import { motion } from "framer-motion";
 import { TrendingDown, TrendingUp } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { cn } from "@/shared/utils/cn";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils/cn";
 
 interface AutomationMetricProps {
   label: string;

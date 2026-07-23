@@ -1,8 +1,8 @@
 import { SecretRepository } from "../repositories/secret-repository";
 import { EncryptionService } from "./encryption-service";
 import type { PlatformSecret, SecretProvider, SecretType } from "../domain/secret-entity";
-import { logger } from "@/shared/utils/logger";
-import { EventBus } from "@/shared/lib/event-bus/event-bus";
+import { logger } from "@/lib/utils/logger";
+import { EventBus } from "@/lib/event-bus/event-bus";
 
 export class SecretService {
   private readonly repository: SecretRepository;

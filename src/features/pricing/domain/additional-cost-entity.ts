@@ -1,4 +1,4 @@
-import { BaseDBEntity } from "@/shared/lib/database/types";
+import { BaseDBEntity } from "@/lib/database/types";
 
 export type CostType = "import" | "shipping" | "packaging" | "handling" | "vat" | "tax" | "customs" | "other";
 

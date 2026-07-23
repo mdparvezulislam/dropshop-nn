@@ -7,11 +7,11 @@ import {
   DollarSign, TrendingUp, Package, History, ExternalLink,
   RefreshCw, Building2, Hash, Calendar,
 } from "lucide-react";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { formatCentsToCurrency } from "@/shared/utils/currency-utils";
-import { cn } from "@/shared/utils/cn";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { formatCentsToCurrency } from "@/lib/utils/currency-utils";
+import { cn } from "@/lib/utils/cn";
 
 export interface CostPanelProduct {
   productId: string;

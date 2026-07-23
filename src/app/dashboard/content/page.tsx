@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ContentService } from "@/features/cms/services/content-service";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { FileText, Image, BookOpen, Megaphone, PanelTop, Navigation } from "lucide-react";
 
 export const metadata: Metadata = {

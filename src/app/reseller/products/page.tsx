@@ -4,11 +4,11 @@ import * as React from "react";
 import Link from "next/link";
 import { Heart, Download, Package } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/shared/utils/cn";
-import { ResourceListPage } from "@/shared/components/workspace/resource-list-page";
-import { StatCard } from "@/shared/components/workspace/stat-card";
-import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
-import type { DataTableColumn } from "@/shared/components/ui/data-table";
+import { cn } from "@/lib/utils/cn";
+import { ResourceListPage } from "@/components/workspace/resource-list-page";
+import { StatCard } from "@/components/workspace/stat-card";
+import { StatusChip, statusToneFromValue } from "@/components/workspace/status-chip";
+import type { DataTableColumn } from "@/components/ui/data-table";
 
 type Row = {
   id: string;

@@ -1,4 +1,4 @@
-import { BaseDBEntity } from "@/shared/lib/database/types";
+import { BaseDBEntity } from "@/lib/database/types";
 
 export type StaffRole = "picker" | "packer" | "courier_manager" | "customer_support" | "manager";
 

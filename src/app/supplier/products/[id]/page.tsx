@@ -5,12 +5,12 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowLeft, Package, DollarSign, Boxes, Tag, Edit3 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { PageHeader } from "@/shared/components/workspace/page-header";
-import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
-import { Spinner } from "@/shared/components/ui/spinner";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/workspace/page-header";
+import { StatusChip, statusToneFromValue } from "@/components/workspace/status-chip";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function SupplierProductDetailPage(): React.ReactElement {
   const params = useParams();

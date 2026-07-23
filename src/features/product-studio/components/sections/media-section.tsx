@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { Input } from "@/shared/components/ui/input";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
 import { ImagePlus, X, Star, Maximize2, ArrowLeft, ArrowRight, UploadCloud, Clipboard, Sparkles } from "lucide-react";
-import { cn } from "@/shared/utils/cn";
+import { cn } from "@/lib/utils/cn";
 import { useImageKitUpload } from "../../hooks/use-imagekit-upload";
 import { ImageZoomModal } from "../modals/image-zoom-modal";
 import { toast } from "sonner";

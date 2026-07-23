@@ -23,13 +23,13 @@ import {
   BarChart3,
   CheckSquare,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { StatCard } from "@/shared/components/workspace/stat-card";
-import { SectionHeader } from "@/shared/components/workspace/section-header";
-import { StatusChip } from "@/shared/components/workspace/status-chip";
-import { QuickActionsWidget } from "@/shared/components/workspace/widget-grid";
-import { cn } from "@/shared/utils/cn";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { StatCard } from "@/components/workspace/stat-card";
+import { SectionHeader } from "@/components/workspace/section-header";
+import { StatusChip } from "@/components/workspace/status-chip";
+import { QuickActionsWidget } from "@/components/workspace/widget-grid";
+import { cn } from "@/lib/utils/cn";
 
 interface DashboardData {
   ordersTotal: number;

@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Card, CardHeader, CardContent } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableHeader,
@@ -11,8 +11,8 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/shared/components/ui/table";
-import { EmptyState } from "@/shared/components/ui/empty-state";
+} from "@/components/ui/table";
+import { EmptyState } from "@/components/ui/empty-state";
 import { AlertTriangle, ArrowLeft } from "lucide-react";
 
 const MOCK_LOW_STOCK = [

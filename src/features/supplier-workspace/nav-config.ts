@@ -15,7 +15,7 @@ import {
 import {
   getWorkspaceBreadcrumbs,
   type NavSection,
-} from "@/shared/components/workspace/nav-config";
+} from "@/components/workspace/nav-config";
 
 export const SUPPLIER_NAV: NavSection[] = [
   {

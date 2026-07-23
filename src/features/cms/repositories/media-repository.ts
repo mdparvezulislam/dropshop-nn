@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { MediaAssetModel, type MediaMongoDocument } from "./media-model";
 import type { MediaAsset, MediaType } from "../domain/media-entity";
-import type { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
+import type { PaginationParams, SortParams, PaginatedResult } from "@/types";
 
 function toDomain(doc: any): MediaAsset {
   return {

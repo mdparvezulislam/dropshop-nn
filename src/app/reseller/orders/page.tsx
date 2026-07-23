@@ -7,11 +7,11 @@ import { Plus, ShoppingCart, Eye, Clock, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { listOrdersAction } from "@/features/order/actions/order-actions";
 import { getHumanLabel } from "@/features/order/domain/state-machine";
-import { ResourceListPage } from "@/shared/components/workspace/resource-list-page";
-import { StatCard } from "@/shared/components/workspace/stat-card";
-import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
-import { Button } from "@/shared/components/ui/button";
-import type { DataTableColumn } from "@/shared/components/ui/data-table";
+import { ResourceListPage } from "@/components/workspace/resource-list-page";
+import { StatCard } from "@/components/workspace/stat-card";
+import { StatusChip, statusToneFromValue } from "@/components/workspace/status-chip";
+import { Button } from "@/components/ui/button";
+import type { DataTableColumn } from "@/components/ui/data-table";
 
 type Row = {
   id: string;

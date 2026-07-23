@@ -1,4 +1,4 @@
-import { BaseDBEntity } from "@/shared/lib/database/types";
+import { BaseDBEntity } from "@/lib/database/types";
 
 export const COD_SETTLEMENT_STATUSES = ["pending", "partial", "settled", "disputed"] as const;
 export type CodSettlementStatus = (typeof COD_SETTLEMENT_STATUSES)[number];

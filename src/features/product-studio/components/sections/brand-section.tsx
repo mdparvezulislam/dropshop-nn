@@ -3,9 +3,9 @@
 import * as React from "react";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
 import { listBrandsAction } from "@/features/catalog/actions/classification-actions";
-import { Badge } from "@/shared/components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import { Search, Building2, Check } from "lucide-react";
-import { cn } from "@/shared/utils/cn";
+import { cn } from "@/lib/utils/cn";
 
 export interface BrandSectionProps {
   brandId: string;

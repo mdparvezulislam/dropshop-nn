@@ -1,14 +1,14 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
-import { checkPermission } from "@/shared/lib/check-permission";
+import { auth } from "@/lib/auth";
+import { checkPermission } from "@/lib/check-permission";
 import { DeliveryAutomationService } from "../services/delivery-automation-service";
 import { TrackingService } from "../services/tracking-service";
 import {
   triggerManualAutomationSyncSchema,
   restartAutomationSchema,
 } from "../types/validation";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 
 export async function getAutomationDashboardAction(): Promise<{

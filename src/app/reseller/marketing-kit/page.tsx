@@ -5,11 +5,11 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Download, Image, FileText, Video, Package, ExternalLink, Copy } from "lucide-react";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { PageHeader } from "@/shared/components/workspace/page-header";
-import { Badge } from "@/shared/components/ui/badge";
-import { Spinner } from "@/shared/components/ui/spinner";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/workspace/page-header";
+import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
 
 interface KitAsset {
   id: string;

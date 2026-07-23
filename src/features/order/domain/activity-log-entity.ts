@@ -1,4 +1,4 @@
-import { BaseDBEntity } from "@/shared/lib/database/types";
+import { BaseDBEntity } from "@/lib/database/types";
 
 export interface ActivityLogEntry extends BaseDBEntity {
   entityType: "order" | "return" | "warranty" | "exchange" | "invoice";

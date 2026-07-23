@@ -1,14 +1,14 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
-import { checkPermission } from "@/shared/lib/check-permission";
+import { auth } from "@/lib/auth";
+import { checkPermission } from "@/lib/check-permission";
 import { ExchangeService } from "../services/exchange-service";
 import {
   createExchangeSchema,
   updateExchangeStatusSchema,
 } from "../types/validation";
 import { revalidatePath } from "next/cache";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 
 export async function createExchangeAction(formData: unknown): Promise<{
   success: boolean;

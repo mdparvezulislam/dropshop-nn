@@ -1,7 +1,7 @@
 import type { NotifyInput, NotificationMessage } from "../domain/notification-entity";
 import { NotificationService } from "./notification-service";
-import type { BusinessEvent } from "@/shared/lib/event-bus/types";
-import { logger } from "@/shared/utils/logger";
+import type { BusinessEvent } from "@/lib/event-bus/types";
+import { logger } from "@/lib/utils/logger";
 
 /**
  * Single public entry point for all platform notifications.

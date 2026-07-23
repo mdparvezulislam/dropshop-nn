@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { FormField } from "@/shared/components/forms/form-field";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { FormField } from "@/components/forms/form-field";
 import { Filter, RotateCcw } from "lucide-react";
 import type { CatalogFilterState } from "../hooks/use-catalog-workspace";
 

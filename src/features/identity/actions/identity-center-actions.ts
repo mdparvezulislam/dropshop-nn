@@ -1,10 +1,10 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
-import { checkPermission } from "@/shared/lib/check-permission";
+import { auth } from "@/lib/auth";
+import { checkPermission } from "@/lib/check-permission";
 import { UserRepository } from "@/features/auth/repositories/user-repository";
 import { RoleRepository } from "@/features/auth/repositories/role-repository";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 

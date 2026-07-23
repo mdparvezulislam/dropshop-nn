@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { WithdrawalModel } from "./withdrawal-model";
 import type { Withdrawal, WithdrawalStatus, PayoutMethod } from "../domain/withdrawal-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 interface WithdrawalDocument extends BaseDocument {
   referenceNumber: string;

@@ -5,11 +5,11 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import { ArrowLeft, Phone, Mail, MapPin, FileText, Plus, ShoppingCart } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { PageHeader } from "@/shared/components/workspace/page-header";
-import { Spinner } from "@/shared/components/ui/spinner";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { PageHeader } from "@/components/workspace/page-header";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function ResellerCustomerDetailPage(): React.ReactElement {
   const params = useParams();

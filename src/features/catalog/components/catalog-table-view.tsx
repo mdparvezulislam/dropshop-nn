@@ -2,10 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Badge } from "@/shared/components/ui/badge";
-import { Input } from "@/shared/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Package, FileEdit, Copy, Trash2, Eye, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
-import { cn } from "@/shared/utils/cn";
+import { cn } from "@/lib/utils/cn";
 
 export interface ProductCatalogItem {
   id: string;

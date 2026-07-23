@@ -10,10 +10,10 @@ import { NotificationTemplateRepository } from "../repositories/template-reposit
 import { PreferenceResolver } from "./preference-resolver";
 import { renderNotificationContent } from "./template-renderer";
 import { NotificationDispatcher } from "./notification-dispatcher";
-import { EventBus } from "@/shared/lib/event-bus";
+import { EventBus } from "@/lib/event-bus";
 import { NOTIFICATION_EVENTS } from "../domain/notification-events";
-import { logger } from "@/shared/utils/logger";
-import { NotFoundError, ValidationError } from "@/shared/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { NotFoundError, ValidationError } from "@/lib/errors/app-error";
 import type { NotificationChannelType } from "../domain/notification-entity";
 
 function inferCategory(type: string, explicit?: NotificationCategory): NotificationCategory {

@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { LogisticsAuditModel } from "./logistics-audit-model";
 import type { LogisticsAuditLog } from "../domain/logistics-audit-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 interface LogisticsAuditDocument extends BaseDocument {
   referenceNumber: string;

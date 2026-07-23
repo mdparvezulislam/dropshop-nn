@@ -1,4 +1,4 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { NotificationModel, type NotificationMongoDocument } from "./notification-model";
 import type { DeliveryAttempt, NotificationMessage } from "../domain/notification-entity";
 

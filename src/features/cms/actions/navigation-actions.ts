@@ -1,7 +1,7 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
-import { checkPermission } from "@/shared/lib/check-permission";
+import { auth } from "@/lib/auth";
+import { checkPermission } from "@/lib/check-permission";
 import { NavigationService } from "../services/navigation-service";
 import { upsertNavigationSchema } from "../types/validation";
 import { revalidatePath } from "next/cache";

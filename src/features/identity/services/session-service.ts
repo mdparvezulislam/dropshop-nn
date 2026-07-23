@@ -2,7 +2,7 @@ import {
   UserSessionModel,
   UserSessionDocument,
 } from "@/features/auth/repositories/user-session-model";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 
 export interface ActiveSession {
   id: string;

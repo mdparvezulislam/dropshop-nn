@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { FinancialReportModel } from "./financial-report-model";
 import type { FinancialReport, ReportType } from "../domain/financial-report-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 interface FinancialReportDocument extends BaseDocument {
   referenceNumber: string;

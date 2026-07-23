@@ -1,12 +1,12 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
-import { checkPermission } from "@/shared/lib/check-permission";
-import { logger } from "@/shared/utils/logger";
+import { auth } from "@/lib/auth";
+import { checkPermission } from "@/lib/check-permission";
+import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 import { CostVersionService } from "../services/cost-version-service";
 import { createCostVersionSchema, costListQuerySchema, costSearchQuerySchema, costCompareQuerySchema } from "../types/validation";
-import { NotFoundError } from "@/shared/errors/app-error";
+import { NotFoundError } from "@/lib/errors/app-error";
 
 const service = new CostVersionService();
 

@@ -1,4 +1,4 @@
-import { BaseDBEntity } from "@/shared/lib/database/types";
+import { BaseDBEntity } from "@/lib/database/types";
 
 export interface PickupAddress extends BaseDBEntity {
   name: string; // e.g. "Main Dhaka Warehouse"

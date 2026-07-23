@@ -1,9 +1,9 @@
 import { ProductTemplateRepository } from "../repositories/product-template-repository";
 import { ProductTemplate } from "../domain/product-template-entity";
-import { ValidationError, NotFoundError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import { generateSlug } from "@/shared/utils/slug-utils";
-import type { ActorInfo } from "@/shared/core/types";
+import { ValidationError, NotFoundError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { generateSlug } from "@/lib/utils/slug-utils";
+import type { ActorInfo } from "@/lib/core/types";
 
 export interface CreateTemplateInput {
   name: string;

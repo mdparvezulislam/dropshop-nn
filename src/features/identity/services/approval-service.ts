@@ -4,12 +4,12 @@ import {
   BusinessVerificationStatus,
   BusinessStatus,
 } from "../domain/business-profile-entity";
-import { NotFoundError, ValidationError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import { EventBus } from "@/shared/lib/event-bus";
+import { NotFoundError, ValidationError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { EventBus } from "@/lib/event-bus";
 import { IDENTITY_EVENTS } from "../domain/identity-events";
 import { WorkspaceService } from "./workspace-service";
-import type { ActorInfo } from "@/shared/core/types";
+import type { ActorInfo } from "@/lib/core/types";
 
 export class ApprovalService {
   private readonly repository: BusinessProfileRepository;
@@ -131,7 +131,7 @@ export class ApprovalService {
     profile: BusinessProfile,
     actor: ActorInfo,
   ): Promise<BusinessProfile | null> {
-    const { Settings } = await import("@/shared/core/feature-flags");
+    const { Settings } = await import("@/lib/core/feature-flags");
 
     const settingKey = `identity.auto-approve-${profile.role}`;
     const autoApprove = Settings.get(settingKey);

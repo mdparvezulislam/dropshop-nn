@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { WalletModel } from "./wallet-model";
 import type { Wallet, WorkspaceRole, WalletStatus } from "../domain/wallet-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 interface WalletDocument extends BaseDocument {
   workspaceId: string;

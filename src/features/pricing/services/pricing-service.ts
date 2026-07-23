@@ -1,10 +1,10 @@
 import { PricingRepository } from "../repositories/pricing-repository";
 import { ProductPricing, PricingRuleType } from "../domain/pricing-entity";
 import { ProfitCalculationService } from "./profit-calculation-service";
-import { ValidationError, NotFoundError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
-import { normalizeVariantSku } from "@/shared/utils/sku-utils";
+import { ValidationError, NotFoundError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { PaginationParams, SortParams, PaginatedResult } from "@/types";
+import { normalizeVariantSku } from "@/lib/utils/sku-utils";
 import {
   CreatePricingInput,
   UpdatePricingInput,

@@ -2,11 +2,11 @@
 
 import * as React from "react";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
-import { Input } from "@/shared/components/ui/input";
-import { Textarea } from "@/shared/components/ui/textarea";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { FormField } from "@/shared/components/forms/form-field";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { FormField } from "@/components/forms/form-field";
 import { Megaphone, Sparkles, Plus, Trash2, Tag, Search, Bot } from "lucide-react";
 import { useSearchOptimization } from "../../hooks/use-search-optimization";
 import { toast } from "sonner";

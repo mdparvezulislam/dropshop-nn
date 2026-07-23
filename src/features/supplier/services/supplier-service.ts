@@ -9,9 +9,9 @@ import {
   SupplierPerformance,
   SupplierSettings,
 } from "../domain/supplier-entity";
-import { ValidationError, NotFoundError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
+import { ValidationError, NotFoundError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { PaginationParams, SortParams, PaginatedResult } from "@/types";
 
 export class SupplierService {
   private readonly supplierRepository: SupplierRepository;

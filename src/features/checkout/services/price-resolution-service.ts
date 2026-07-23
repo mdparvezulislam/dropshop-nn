@@ -1,5 +1,5 @@
 import { PricingEngineService } from "@/features/pricing/services/pricing-engine-service";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 
 export interface PriceResolveRequest {
   productId: string;

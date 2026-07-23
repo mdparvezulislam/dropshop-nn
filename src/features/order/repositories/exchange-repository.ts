@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { ExchangeModel } from "./exchange-model";
 import type { ExchangeEntity, ExchangeStatus } from "../domain/exchange-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 export interface ExchangeDocument extends BaseDocument {
   exchangeNumber: string;

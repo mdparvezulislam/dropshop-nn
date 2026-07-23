@@ -3,13 +3,13 @@
 import * as React from "react";
 import { toast } from "sonner";
 import { FileText, Plus, Eye, CheckCircle2, XCircle, Clock } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { ListLayout } from "@/shared/components/workspace/list-layout";
-import { StatCard } from "@/shared/components/workspace/stat-card";
-import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
-import { Spinner } from "@/shared/components/ui/spinner";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ListLayout } from "@/components/workspace/list-layout";
+import { StatCard } from "@/components/workspace/stat-card";
+import { StatusChip, statusToneFromValue } from "@/components/workspace/status-chip";
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
+import { Spinner } from "@/components/ui/spinner";
 import { RequestQuoteForm } from "./request-quote-form";
 
 type Row = {

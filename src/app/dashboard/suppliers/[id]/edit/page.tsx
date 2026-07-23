@@ -8,13 +8,13 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-} from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Textarea } from "@/shared/components/ui/textarea";
-import { Spinner } from "@/shared/components/ui/spinner";
-import { Separator } from "@/shared/components/ui/separator";
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Spinner } from "@/components/ui/spinner";
+import { Separator } from "@/components/ui/separator";
 import {
   getSupplierByIdAction,
   updateSupplierAction,

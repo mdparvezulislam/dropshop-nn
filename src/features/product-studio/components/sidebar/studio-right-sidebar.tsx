@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
-import { Badge } from "@/shared/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { StatusChip, statusToneFromValue } from "@/components/workspace/status-chip";
+import { Badge } from "@/components/ui/badge";
 import {
   Send,
   Eye,

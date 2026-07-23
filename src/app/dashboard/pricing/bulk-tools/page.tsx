@@ -4,12 +4,12 @@ import * as React from "react";
 import { Layers, ArrowUp, ArrowDown, DollarSign, Target, Percent, Users, ShoppingBag, Building2, Tags } from "lucide-react";
 import { toast } from "sonner";
 import { bulkPricingOperationAction, listAllPricingForSearchAction } from "@/features/pricing/actions/pricing-engine-actions";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { FormField } from "@/shared/components/forms/form-field";
-import { Badge } from "@/shared/components/ui/badge";
-import { SectionHeader } from "@/shared/components/workspace/section-header";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { FormField } from "@/components/forms/form-field";
+import { Badge } from "@/components/ui/badge";
+import { SectionHeader } from "@/components/workspace/section-header";
 
 const operations = [
   { type: "increase_percent" as const, label: "Increase by %", icon: ArrowUp, color: "text-success" },

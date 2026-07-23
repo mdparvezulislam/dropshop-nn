@@ -6,9 +6,9 @@ import type {
   NotificationMessage,
 } from "../domain/notification-entity";
 import { NotificationRepository } from "../repositories/notification-repository";
-import { logger } from "@/shared/utils/logger";
-import { FeatureFlags } from "@/shared/core/feature-flags";
-import { getQueue } from "@/shared/lib/bullmq";
+import { logger } from "@/lib/utils/logger";
+import { FeatureFlags } from "@/lib/core/feature-flags";
+import { getQueue } from "@/lib/bullmq";
 
 export interface ChannelDeliveryResult {
   channel: NotificationChannelType;

@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
-import { Button } from "@/shared/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Download, FileSpreadsheet, CheckCircle2 } from "lucide-react";
 import { exportProductsAction } from "../../actions/product-catalog-actions";
 import { toast } from "sonner";

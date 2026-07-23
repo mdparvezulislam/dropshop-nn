@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { CourierApiLogModel } from "./courier-api-log-model";
 import type { CourierApiLog } from "../domain/courier-api-log-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 interface CourierApiLogDocument extends BaseDocument {
   provider: string;

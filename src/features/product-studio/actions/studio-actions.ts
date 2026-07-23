@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
+import { auth } from "@/lib/auth";
 import { ProductService } from "@/features/catalog/services/product-service";
 import { PricingService } from "@/features/pricing/services/pricing-service";
 import { PricingEngineService } from "@/features/pricing/services/pricing-engine-service";
@@ -8,12 +8,12 @@ import type { CreatePricingInput } from "@/features/pricing/types/validation";
 import { InventoryService } from "@/features/inventory/services/inventory-service";
 import type { CreateInventoryInput } from "@/features/inventory/types/validation";
 import { createStudioProductSchema, updateStudioProductSchema } from "../types/validation";
-import { checkPermission } from "@/shared/lib/check-permission";
-import { UnauthorizedError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
+import { checkPermission } from "@/lib/check-permission";
+import { UnauthorizedError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 import type { CreateStudioProductInput, UpdateStudioProductInput } from "../types/validation";
-import { EventBus } from "@/shared/lib/event-bus";
+import { EventBus } from "@/lib/event-bus";
 
 function getActor(session: any): { id: string; name?: string; role?: string } {
   if (!session?.user) throw new UnauthorizedError("Session expired or invalid");

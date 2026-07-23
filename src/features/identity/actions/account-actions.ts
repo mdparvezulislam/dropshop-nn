@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { auth } from "@/shared/lib/auth";
+import { auth } from "@/lib/auth";
 import { AuthService } from "@/features/auth/services/auth-service";
 import { UserRepository } from "@/features/auth/repositories/user-repository";
 import { UserAddressRepository } from "../repositories/user-address-repository";
@@ -11,9 +11,9 @@ import { OrderService } from "@/features/order/services/order-service";
 import { ProductService } from "@/features/catalog/services/product-service";
 import { PricingService } from "@/features/pricing/services/pricing-service";
 import { BusinessProfileService } from "../services/business-profile-service";
-import type { SessionUser } from "@/shared/lib/check-permission";
-import type { SortParams } from "@/shared/types";
-import { UnauthorizedError } from "@/shared/errors/app-error";
+import type { SessionUser } from "@/lib/check-permission";
+import type { SortParams } from "@/types";
+import { UnauthorizedError } from "@/lib/errors/app-error";
 import { revalidatePath } from "next/cache";
 
 function getSessionUser(session: unknown): { id: string; name?: string; email?: string; role?: string } {

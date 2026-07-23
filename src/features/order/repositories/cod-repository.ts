@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { CodReconciliationModel } from "./cod-model";
 import type { CodReconciliation, CodSettlementStatus } from "../domain/cod-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 export interface CodReconciliationDocument extends BaseDocument {
   orderId: string;

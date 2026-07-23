@@ -5,11 +5,11 @@ import {
 } from "../repositories/inventory-repository";
 import { ProductInventory, InventoryHistory, SupplierInventory } from "../domain/inventory-entity";
 import { StockCalculationService } from "./stock-calculation-service";
-import { ValidationError, NotFoundError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import { runInTransaction } from "@/shared/lib/database/query-builder";
-import { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
-import { normalizeVariantSku } from "@/shared/utils/sku-utils";
+import { ValidationError, NotFoundError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { runInTransaction } from "@/lib/database/query-builder";
+import { PaginationParams, SortParams, PaginatedResult } from "@/types";
+import { normalizeVariantSku } from "@/lib/utils/sku-utils";
 import {
   CreateInventoryInput,
   UpdateInventoryInput,

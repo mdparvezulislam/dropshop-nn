@@ -5,11 +5,11 @@ import Link from "next/link";
 import { Package, Plus, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { listProductsAction } from "@/features/catalog/actions/product-actions";
-import { ResourceListPage } from "@/shared/components/workspace/resource-list-page";
-import { StatCard } from "@/shared/components/workspace/stat-card";
-import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
-import { Button } from "@/shared/components/ui/button";
-import type { DataTableColumn } from "@/shared/components/ui/data-table";
+import { ResourceListPage } from "@/components/workspace/resource-list-page";
+import { StatCard } from "@/components/workspace/stat-card";
+import { StatusChip, statusToneFromValue } from "@/components/workspace/status-chip";
+import { Button } from "@/components/ui/button";
+import type { DataTableColumn } from "@/components/ui/data-table";
 
 type Row = {
   id: string;

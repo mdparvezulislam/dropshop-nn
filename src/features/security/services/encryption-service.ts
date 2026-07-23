@@ -1,6 +1,6 @@
 import crypto from "crypto";
-import { env } from "@/shared/config/env";
-import { logger } from "@/shared/utils/logger";
+import { env } from "@/config/env";
+import { logger } from "@/lib/utils/logger";
 import type { EncryptedPayload } from "../domain/secret-entity";
 
 const ALGORITHM = "aes-256-gcm";

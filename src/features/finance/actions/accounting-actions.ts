@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
+import { auth } from "@/lib/auth";
 import { ReconciliationService } from "../services/reconciliation-service";
 import { FinancialClosingService } from "../services/financial-closing-service";
 import { AccountingReportService } from "../services/accounting-report-service";
@@ -14,8 +14,8 @@ import {
   monthlyClosingSchema,
   retryTransactionSchema,
 } from "../types/validation";
-import { checkPermission } from "@/shared/lib/check-permission";
-import { logger } from "@/shared/utils/logger";
+import { checkPermission } from "@/lib/check-permission";
+import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 
 export async function runReconciliationAction(): Promise<{

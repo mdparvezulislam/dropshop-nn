@@ -3,9 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Activity, AlertCircle, CheckCircle2, Clock, Loader2, Play, RefreshCw, XCircle } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { AutomationMetricCard } from "./automation-metric-card";
 import type { AutomationDashboardData } from "../domain/automation-entity";
 import { getAutomationDashboardAction } from "../actions/automation-actions";

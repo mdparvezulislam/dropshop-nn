@@ -4,9 +4,9 @@ import { DepositRepository } from "../repositories/deposit-repository";
 import { FinanceAuditRepository } from "../repositories/finance-audit-repository";
 import { WalletService } from "./wallet-service";
 import type { Deposit, DepositStatus, DepositMethod } from "../domain/deposit-entity";
-import { logger } from "@/shared/utils/logger";
-import { EventBus } from "@/shared/lib/event-bus/event-bus";
-import { runInTransaction } from "@/shared/lib/database/query-builder";
+import { logger } from "@/lib/utils/logger";
+import { EventBus } from "@/lib/event-bus/event-bus";
+import { runInTransaction } from "@/lib/database/query-builder";
 
 export class DepositService {
   private readonly walletRepository: WalletRepository;

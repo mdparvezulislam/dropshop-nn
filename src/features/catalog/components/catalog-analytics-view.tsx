@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, DollarSign, Warehouse, BarChart2, ShieldCheck, AlertTriangle } from "lucide-react";
 import type { ProductCatalogItem } from "./catalog-table-view";
 

@@ -4,11 +4,11 @@ import * as React from "react";
 import { toast } from "sonner";
 import { ClipboardList, CheckCircle2, Clock, XCircle, Eye } from "lucide-react";
 import Link from "next/link";
-import { ListLayout } from "@/shared/components/workspace/list-layout";
-import { StatCard } from "@/shared/components/workspace/stat-card";
-import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
-import { Spinner } from "@/shared/components/ui/spinner";
+import { ListLayout } from "@/components/workspace/list-layout";
+import { StatCard } from "@/components/workspace/stat-card";
+import { StatusChip, statusToneFromValue } from "@/components/workspace/status-chip";
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
+import { Spinner } from "@/components/ui/spinner";
 
 type Row = {
   id: string;

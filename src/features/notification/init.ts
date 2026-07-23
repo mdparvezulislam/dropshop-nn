@@ -1,6 +1,6 @@
-import { FeatureFlags, Settings } from "@/shared/core/feature-flags";
-import { EventRegistry } from "@/shared/lib/event-bus/event-registry";
-import { logger } from "@/shared/utils/logger";
+import { FeatureFlags, Settings } from "@/lib/core/feature-flags";
+import { EventRegistry } from "@/lib/event-bus/event-registry";
+import { logger } from "@/lib/utils/logger";
 import { NOTIFICATION_SOURCE_EVENTS } from "./domain/notification-events";
 
 let registered = false;

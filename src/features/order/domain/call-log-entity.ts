@@ -1,4 +1,4 @@
-import { BaseDBEntity } from "@/shared/lib/database/types";
+import { BaseDBEntity } from "@/lib/database/types";
 
 export const CALL_OUTCOMES = [
   "reached", "not_reached", "busy", "switched_off",

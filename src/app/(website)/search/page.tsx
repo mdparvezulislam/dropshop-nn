@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { searchProductsAction } from "@/features/catalog/actions/public-actions";
-import { SearchResultsContent } from "@/shared/components/website/search-results-content";
+import { SearchResultsContent } from "@/components/website/search-results-content";
 
 interface SearchPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Download, Loader2, RefreshCw } from "lucide-react";
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { MetricCard } from "./metric-card";
 import { AnalyticsChart } from "./analytics-chart";
 import { RankedTable } from "./ranked-table";

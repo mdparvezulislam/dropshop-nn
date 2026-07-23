@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { FormField } from "@/shared/components/forms/form-field";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { FormField } from "@/components/forms/form-field";
 import { Layers, DollarSign, Warehouse, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import type { ExtendedVariantRow } from "../../types/studio-types";

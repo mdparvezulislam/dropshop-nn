@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requirePermission } from "@/shared/lib/action-guard";
+import { requirePermission } from "@/lib/action-guard";
 import { RoleManagementService } from "../services/role-management-service";
 import { AuthorizationService } from "@/features/auth/services/authorization-service";
 import {
@@ -13,7 +13,7 @@ import {
   resetRoleSchema,
   permissionMatrixSchema,
 } from "../types/authorization-validation";
-import { getAllPermissions, getModules, getPermissionGroups } from "@/shared/core/permission-registry";
+import { getAllPermissions, getModules, getPermissionGroups } from "@/lib/core/permission-registry";
 
 const service = new RoleManagementService();
 

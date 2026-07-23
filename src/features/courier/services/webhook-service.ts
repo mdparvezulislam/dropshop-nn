@@ -1,7 +1,7 @@
 import { ShipmentRepository } from "../repositories/shipment-repository";
 import { CourierService } from "./courier-service";
 import { CourierProviderRegistry } from "../adapters/provider-registry";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 
 export class WebhookService {
   private readonly shipmentRepository: ShipmentRepository;

@@ -1,7 +1,7 @@
-import { EventRegistry } from "@/shared/lib/event-bus";
-import { FeatureFlags, type FeatureFlagDefinition } from "@/shared/core/feature-flags";
-import { Settings, type SettingDefinition } from "@/shared/core/feature-flags";
-import { DEFAULT_CURRENCY } from "@/shared/constants";
+import { EventRegistry } from "@/lib/event-bus";
+import { FeatureFlags, type FeatureFlagDefinition } from "@/lib/core/feature-flags";
+import { Settings, type SettingDefinition } from "@/lib/core/feature-flags";
+import { DEFAULT_CURRENCY } from "@/constants";
 
 export function registerOrderFeatureFlags(): void {
   const flags: FeatureFlagDefinition[] = [

@@ -5,11 +5,11 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Loader2, Save, Send, Archive } from "lucide-react";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Separator } from "@/shared/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import {
   createContentAction,
   updateContentAction,
@@ -17,11 +17,11 @@ import {
   archiveContentAction,
 } from "../actions/content-actions";
 import type { CmsContent, ContentType } from "../domain/content-entity";
-import { generateSlug } from "@/shared/utils/slug-utils";
+import { generateSlug } from "@/lib/utils/slug-utils";
 
 const RichTextEditor = dynamic(
   () =>
-    import("@/shared/components/editor/rich-text-editor").then((m) => ({
+    import("@/components/editor/rich-text-editor").then((m) => ({
       default: m.RichTextEditor,
     })),
   {

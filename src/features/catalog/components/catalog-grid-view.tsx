@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Package, FileEdit, Copy, Trash2, Eye, CheckCircle2 } from "lucide-react";
 import type { ProductCatalogItem } from "./catalog-table-view";
 

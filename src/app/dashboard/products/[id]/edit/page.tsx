@@ -27,7 +27,7 @@ import { InventorySection } from "@/features/product-studio/components/sections/
 import { SEOSection } from "@/features/product-studio/components/sections/seo-section";
 import { getProductAction } from "@/features/catalog/actions/product-actions";
 import { toast } from "sonner";
-import { Spinner } from "@/shared/components/ui/spinner";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function EditProductStudioPage(): React.ReactElement {
   const params = useParams();

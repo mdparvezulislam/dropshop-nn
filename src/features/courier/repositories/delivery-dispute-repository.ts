@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { DeliveryDisputeModel, LogisticsEscalationModel } from "./delivery-dispute-model";
 import type { DeliveryDispute, LogisticsEscalation } from "../domain/delivery-dispute-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 interface DeliveryDisputeDocument extends BaseDocument {
   disputeNumber: string;

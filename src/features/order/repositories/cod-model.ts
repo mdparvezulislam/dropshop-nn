@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { baseFieldsDefinition, baseSchemaOptions } from "@/shared/lib/database/base-schema";
+import { baseFieldsDefinition, baseSchemaOptions } from "@/lib/database/base-schema";
 import { COD_SETTLEMENT_STATUSES } from "../domain/cod-entity";
 
 const codReconciliationSchema = new Schema(

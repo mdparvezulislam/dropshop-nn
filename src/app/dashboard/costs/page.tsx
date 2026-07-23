@@ -20,15 +20,15 @@ import CostPanel, { type CostPanelProduct } from "@/features/cost/components/sec
 import CostTimeline, { type TimelineEntry } from "@/features/cost/components/sections/CostTimeline";
 import CostCompare, { type CompareVersion } from "@/features/cost/components/sections/CostCompare";
 import CostQuickUpdate from "@/features/cost/components/sections/CostQuickUpdate";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { Input } from "@/shared/components/ui/input";
-import { Button } from "@/shared/components/ui/button";
-import { StatCard } from "@/shared/components/workspace/stat-card";
-import { Spinner } from "@/shared/components/ui/spinner";
-import { Badge } from "@/shared/components/ui/badge";
-import { SectionHeader } from "@/shared/components/workspace/section-header";
-import { formatCentsToCurrency } from "@/shared/utils/currency-utils";
-import { cn } from "@/shared/utils/cn";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { StatCard } from "@/components/workspace/stat-card";
+import { Spinner } from "@/components/ui/spinner";
+import { Badge } from "@/components/ui/badge";
+import { SectionHeader } from "@/components/workspace/section-header";
+import { formatCentsToCurrency } from "@/lib/utils/currency-utils";
+import { cn } from "@/lib/utils/cn";
 
 export default function CostIntelligenceCenter(): React.ReactElement {
   const searchParams = useSearchParams();

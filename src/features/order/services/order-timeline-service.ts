@@ -1,7 +1,7 @@
-import { generateUUID } from "@/shared/utils/id-utils";
-import { logger } from "@/shared/utils/logger";
+import { generateUUID } from "@/lib/utils/id-utils";
+import { logger } from "@/lib/utils/logger";
 import { TimelineEntryModel } from "../repositories/timeline-model";
-import { EventBus } from "@/shared/lib/event-bus";
+import { EventBus } from "@/lib/event-bus";
 import type {
   OrderTimeline,
   TimelineAction,

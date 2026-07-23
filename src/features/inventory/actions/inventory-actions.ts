@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
+import { auth } from "@/lib/auth";
 import { InventoryService } from "../services/inventory-service";
 import {
   createInventorySchema,
@@ -12,10 +12,10 @@ import {
   inventoryListQuerySchema,
   inventoryHistoryQuerySchema,
 } from "../types/validation";
-import { checkPermission } from "@/shared/lib/check-permission";
-import { logger } from "@/shared/utils/logger";
+import { checkPermission } from "@/lib/check-permission";
+import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
-import { ROUTES } from "@/shared/constants";
+import { ROUTES } from "@/constants";
 
 export async function createInventoryAction(formData: unknown): Promise<{
   success: boolean;

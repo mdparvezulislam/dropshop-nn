@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { DeliveryReturnModel, RTSRecordModel } from "./delivery-return-model";
 import type { DeliveryReturn, RTSRecord } from "../domain/delivery-return-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 interface DeliveryReturnDocument extends BaseDocument {
   returnNumber: string;

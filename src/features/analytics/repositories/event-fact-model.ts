@@ -3,8 +3,8 @@ import {
   baseFieldsDefinition,
   baseSchemaOptions,
   softDeletePlugin,
-} from "@/shared/lib/database/base-schema";
-import type { BaseDocument } from "@/shared/lib/database/types";
+} from "@/lib/database/base-schema";
+import type { BaseDocument } from "@/lib/database/types";
 
 const { status: _, metadata: __, ...baseFields } = baseFieldsDefinition;
 

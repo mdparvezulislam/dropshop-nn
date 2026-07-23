@@ -1,12 +1,12 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import {
   CampaignPricingModel, CampaignPricingDocument,
   ScheduledPricingModel, ScheduledPricingDocument,
 } from "./campaign-model";
 import { CampaignPricing } from "../domain/campaign-entity";
 import { ScheduledPricing } from "../domain/campaign-entity";
-import { logger } from "@/shared/utils/logger";
-import { DatabaseError } from "@/shared/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { DatabaseError } from "@/lib/errors/app-error";
 
 export class CampaignPricingRepository extends BaseRepository<CampaignPricingDocument, CampaignPricing> {
   constructor() {

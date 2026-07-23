@@ -2,9 +2,9 @@
 
 import * as React from "react";
 import { useSession } from "next-auth/react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
-import { Input } from "@/shared/components/ui/input";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableHeader,
@@ -12,8 +12,8 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/shared/components/ui/table";
-import { Button } from "@/shared/components/ui/button";
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import {
   getOrCreateUserWalletAction,
   getWalletBalanceAction,

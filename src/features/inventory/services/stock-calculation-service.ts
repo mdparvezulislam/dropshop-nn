@@ -4,7 +4,7 @@ import {
   StockLevels,
   StockOperationType,
 } from "../domain/inventory-entity";
-import { ValidationError } from "@/shared/errors/app-error";
+import { ValidationError } from "@/lib/errors/app-error";
 
 export interface StockMutationResult {
   availableStock: number;

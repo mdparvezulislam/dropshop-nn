@@ -1,5 +1,5 @@
 import { AdditionalCostRepository } from "../repositories/additional-cost-repository";
-import { resolveCostBasis } from "@/shared/utils/number-utils";
+import { resolveCostBasis } from "@/lib/utils/number-utils";
 
 export class AdditionalCostService {
   private readonly repo: AdditionalCostRepository;

@@ -2,9 +2,9 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { listReturnsAction, updateReturnStatusAction } from "@/features/order/actions/return-actions";
 import { getReturnHumanLabel, type ReturnStatus } from "@/features/order/domain/return-entity";
 import { toast } from "sonner";

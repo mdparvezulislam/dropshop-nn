@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Download, Loader2, RefreshCw } from "lucide-react";
-import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   getExecutiveDashboardAction,
   exportAnalyticsAction,
@@ -13,7 +13,7 @@ import { MetricCard } from "./metric-card";
 import { AnalyticsChart } from "./analytics-chart";
 import { TimeRangeFilter, type AnalyticsPreset } from "./time-range-filter";
 import type { ExecutiveDashboardData } from "../domain/analytics-entity";
-import { formatCurrency } from "@/shared/utils/currency-utils";
+import { formatCurrency } from "@/lib/utils/currency-utils";
 
 export function ExecutiveDashboard(): React.ReactElement {
   const [preset, setPreset] = useState<AnalyticsPreset>("30d");

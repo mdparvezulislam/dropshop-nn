@@ -1,7 +1,7 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
-import { checkPermission } from "@/shared/lib/check-permission";
+import { auth } from "@/lib/auth";
+import { checkPermission } from "@/lib/check-permission";
 import { CodService } from "../services/cod-service";
 import {
   createCodReconciliationSchema,
@@ -9,7 +9,7 @@ import {
   settleCodSchema,
 } from "../types/validation";
 import { revalidatePath } from "next/cache";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 
 export async function createCodReconciliationAction(formData: unknown): Promise<{
   success: boolean;

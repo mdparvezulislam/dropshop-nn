@@ -17,16 +17,16 @@ import {
   listCampaignsAction,
 } from "@/features/pricing/actions/pricing-engine-actions";
 import ProductPricingPanel, { type ProductPricingData } from "@/features/pricing/components/sections/ProductPricingPanel";
-import { formatCentsToCurrency } from "@/shared/utils/currency-utils";
-import { SectionHeader } from "@/shared/components/workspace/section-header";
-import { StatCard } from "@/shared/components/workspace/stat-card";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { Spinner } from "@/shared/components/ui/spinner";
-import { Input } from "@/shared/components/ui/input";
-import { cn } from "@/shared/utils/cn";
+import { formatCentsToCurrency } from "@/lib/utils/currency-utils";
+import { SectionHeader } from "@/components/workspace/section-header";
+import { StatCard } from "@/components/workspace/stat-card";
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Spinner } from "@/components/ui/spinner";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils/cn";
 
 type Row = {
   id: string; productName: string; variantSku: string;

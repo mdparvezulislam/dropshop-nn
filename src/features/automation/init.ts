@@ -1,8 +1,8 @@
-import { FeatureFlags, Settings } from "@/shared/core/feature-flags";
-import { EventRegistry } from "@/shared/lib/event-bus/event-registry";
-import type { BusinessEvent } from "@/shared/lib/event-bus/types";
-import { BackgroundJobs } from "@/shared/platform/jobs";
-import { logger } from "@/shared/utils/logger";
+import { FeatureFlags, Settings } from "@/lib/core/feature-flags";
+import { EventRegistry } from "@/lib/event-bus/event-registry";
+import type { BusinessEvent } from "@/lib/event-bus/types";
+import { BackgroundJobs } from "@/lib/platform/jobs";
+import { logger } from "@/lib/utils/logger";
 import { AUTOMATION_SOURCE_EVENTS } from "./domain/automation-entity";
 import { initializeTaskLibrary } from "./services/task-library";
 

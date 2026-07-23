@@ -8,10 +8,10 @@ import {
 } from "../repositories/task-repository";
 import { OrderRepository } from "../repositories/order-repository";
 import { OrderTimelineService } from "./order-timeline-service";
-import { NotFoundError, ValidationError } from "@/shared/errors/app-error";
-import { runInTransaction } from "@/shared/lib/database/query-builder";
-import { generateUUID } from "@/shared/utils/id-utils";
-import type { PaginatedResult } from "@/shared/types";
+import { NotFoundError, ValidationError } from "@/lib/errors/app-error";
+import { runInTransaction } from "@/lib/database/query-builder";
+import { generateUUID } from "@/lib/utils/id-utils";
+import type { PaginatedResult } from "@/types";
 import type { z } from "zod";
 import type {
   createTaskSchema,

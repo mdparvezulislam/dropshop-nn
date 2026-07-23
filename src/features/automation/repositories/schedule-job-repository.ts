@@ -1,4 +1,4 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import type { ScheduledJob } from "../domain/automation-entity";
 import { ScheduleJobModel, type ScheduleJobDocument } from "./schedule-job-model";
 

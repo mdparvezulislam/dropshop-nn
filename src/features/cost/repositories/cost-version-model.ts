@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
-import { baseFieldsDefinition, baseSchemaOptions, softDeletePlugin } from "@/shared/lib/database/base-schema";
-import { BaseDocument } from "@/shared/lib/database/types";
+import { baseFieldsDefinition, baseSchemaOptions, softDeletePlugin } from "@/lib/database/base-schema";
+import { BaseDocument } from "@/lib/database/types";
 
 export interface CostSupplierInfoDB {
   supplierId?: string;

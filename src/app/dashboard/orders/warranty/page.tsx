@@ -2,9 +2,9 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { listWarrantiesAction, updateWarrantyStatusAction } from "@/features/order/actions/warranty-actions";
 import { getWarrantyHumanLabel, type WarrantyStatus } from "@/features/order/domain/warranty-entity";
 import { toast } from "sonner";

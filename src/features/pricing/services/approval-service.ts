@@ -1,8 +1,8 @@
 import { PriceApprovalRepository, PriceHistoryRepository } from "../repositories/approval-repository";
 import { PriceApproval, PriceChange } from "../domain/price-approval-entity";
 import { PriceHistoryEntry } from "../domain/price-history-entity";
-import { NotFoundError, ValidationError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
+import { NotFoundError, ValidationError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
 
 export class PriceApprovalService {
   private readonly approvalRepo = new PriceApprovalRepository();

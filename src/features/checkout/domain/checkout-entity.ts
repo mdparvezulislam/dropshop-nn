@@ -1,5 +1,5 @@
-import { BaseDBEntity } from "@/shared/lib/database/types";
-import type { PricingLineItem, PricingTotals, ProfitSummary } from "@/shared/domain/pricing-types";
+import { BaseDBEntity } from "@/lib/database/types";
+import type { PricingLineItem, PricingTotals, ProfitSummary } from "@/lib/domain/pricing-types";
 import { CartType } from "./cart-entity";
 
 export type CheckoutStep =

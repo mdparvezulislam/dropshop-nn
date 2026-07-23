@@ -1,6 +1,6 @@
-import { FeatureFlags } from "@/shared/core/feature-flags";
-import { EventRegistry } from "@/shared/lib/event-bus/event-registry";
-import { logger } from "@/shared/utils/logger";
+import { FeatureFlags } from "@/lib/core/feature-flags";
+import { EventRegistry } from "@/lib/event-bus/event-registry";
+import { logger } from "@/lib/utils/logger";
 
 let registered = false;
 

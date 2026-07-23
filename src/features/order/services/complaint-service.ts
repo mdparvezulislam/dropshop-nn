@@ -3,11 +3,11 @@ import { ComplaintModel } from "../repositories/complaint-model";
 import { OrderRepository } from "../repositories/order-repository";
 import { OrderTimelineService } from "./order-timeline-service";
 import { COMPLAINT_VALID_TRANSITIONS, type CustomerComplaint } from "../domain/complaint-entity";
-import { EventBus } from "@/shared/lib/event-bus";
-import { NotFoundError, ValidationError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import { runInTransaction } from "@/shared/lib/database/query-builder";
-import { generateUUID } from "@/shared/utils/id-utils";
+import { EventBus } from "@/lib/event-bus";
+import { NotFoundError, ValidationError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { runInTransaction } from "@/lib/database/query-builder";
+import { generateUUID } from "@/lib/utils/id-utils";
 import type { z } from "zod";
 import type {
   createComplaintSchema,

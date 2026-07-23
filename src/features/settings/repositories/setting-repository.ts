@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { PlatformSettingModel, FeatureFlagModel, SettingAuditLogModel } from "./setting-model";
 import type { SettingEntry, FeatureFlagEntry, SettingAuditLog, SettingCategory } from "../domain/setting-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 interface PlatformSettingDocument extends BaseDocument {
   category: any;

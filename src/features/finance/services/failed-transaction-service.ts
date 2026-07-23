@@ -4,8 +4,8 @@ import { LedgerRepository } from "../repositories/ledger-repository";
 import { FinanceService } from "./finance-service";
 import { WithdrawalService } from "./withdrawal-service";
 import { DepositService } from "./deposit-service";
-import { logger } from "@/shared/utils/logger";
-import { EventBus } from "@/shared/lib/event-bus/event-bus";
+import { logger } from "@/lib/utils/logger";
+import { EventBus } from "@/lib/event-bus/event-bus";
 
 export interface FailedTransactionItem {
   id: string;

@@ -4,9 +4,9 @@ import { WithdrawalRepository } from "../repositories/withdrawal-repository";
 import { FinanceAuditRepository } from "../repositories/finance-audit-repository";
 import { WalletService } from "./wallet-service";
 import type { Withdrawal, WithdrawalStatus, PayoutMethod } from "../domain/withdrawal-entity";
-import { logger } from "@/shared/utils/logger";
-import { EventBus } from "@/shared/lib/event-bus/event-bus";
-import { runInTransaction } from "@/shared/lib/database/query-builder";
+import { logger } from "@/lib/utils/logger";
+import { EventBus } from "@/lib/event-bus/event-bus";
+import { runInTransaction } from "@/lib/database/query-builder";
 
 export class WithdrawalService {
   private readonly walletRepository: WalletRepository;

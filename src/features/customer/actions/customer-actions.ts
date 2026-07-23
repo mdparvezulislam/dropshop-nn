@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
+import { auth } from "@/lib/auth";
 import { CustomerService } from "../services/customer-service";
 import { CustomerRepository } from "../repositories/customer-repository";
 import {
@@ -10,8 +10,8 @@ import {
   addNoteSchema,
   updateTagsSchema,
 } from "../types/validation";
-import { checkPermission } from "@/shared/lib/check-permission";
-import { logger } from "@/shared/utils/logger";
+import { checkPermission } from "@/lib/check-permission";
+import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 
 export async function createCustomerAction(formData: unknown): Promise<{

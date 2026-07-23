@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { InvoiceModel } from "./invoice-model";
 import type { Invoice, InvoiceItem } from "../domain/invoice-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 interface InvoiceDocument extends BaseDocument {
   invoiceNumber: string;

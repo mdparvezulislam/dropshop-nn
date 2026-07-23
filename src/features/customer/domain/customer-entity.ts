@@ -1,4 +1,4 @@
-import { BaseDBEntity } from "@/shared/lib/database/types";
+import { BaseDBEntity } from "@/lib/database/types";
 
 export type AddressType = "home" | "office" | "warehouse" | "custom" | "store";
 export type CustomerStatus = "active" | "inactive" | "blacklisted";

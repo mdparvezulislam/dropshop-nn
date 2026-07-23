@@ -1,7 +1,7 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
-import { checkPermission } from "@/shared/lib/check-permission";
+import { auth } from "@/lib/auth";
+import { checkPermission } from "@/lib/check-permission";
 import { DeliveryOpsService } from "../services/delivery-ops-service";
 import { DeliveryReturnService } from "../services/delivery-return-service";
 import { DeliveryDisputeService } from "../services/delivery-dispute-service";
@@ -22,7 +22,7 @@ import {
   createDeliveryZoneSchema,
   createCostRuleSchema,
 } from "../types/validation";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 
 export async function recordDeliveryAttemptAction(formData: unknown): Promise<{

@@ -1,7 +1,7 @@
 import { PricingService } from "./pricing-service";
 import { PricingProfileService } from "./profile-service";
 import { PricingEngineService } from "./pricing-engine-service";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 
 export interface BulkOperation {
   type: "increase_percent" | "decrease_percent" | "fixed_amount" | "round_price" | "assign_profile";

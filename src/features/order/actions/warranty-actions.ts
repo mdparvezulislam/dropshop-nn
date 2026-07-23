@@ -1,14 +1,14 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
-import { checkPermission } from "@/shared/lib/check-permission";
+import { auth } from "@/lib/auth";
+import { checkPermission } from "@/lib/check-permission";
 import { WarrantyService } from "../services/warranty-service";
 import {
   createWarrantySchema,
   updateWarrantyStatusSchema,
 } from "../types/validation";
 import { revalidatePath } from "next/cache";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 
 export async function createWarrantyAction(formData: unknown): Promise<{
   success: boolean;

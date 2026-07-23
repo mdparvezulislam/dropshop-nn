@@ -8,10 +8,10 @@ import {
   InventoryValidationService,
   type InventoryCheckRequest,
 } from "./inventory-validation-service";
-import { EventBus } from "@/shared/lib/event-bus";
-import { ValidationError, NotFoundError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import { runInTransaction } from "@/shared/lib/database/query-builder";
+import { EventBus } from "@/lib/event-bus";
+import { ValidationError, NotFoundError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { runInTransaction } from "@/lib/database/query-builder";
 import type {
   CheckoutSession,
   CheckoutShippingInfo,
@@ -23,7 +23,7 @@ import type {
   CheckoutStep,
 } from "../domain/checkout-entity";
 import type { Cart } from "../domain/cart-entity";
-import type { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
+import type { PaginationParams, SortParams, PaginatedResult } from "@/types";
 
 export class CheckoutService {
   private readonly checkoutRepository: CheckoutSessionRepository;

@@ -1,11 +1,11 @@
 import { TrustedDeviceRepository } from "../repositories/trusted-device-repository";
 import { UserRepository } from "../repositories/user-repository";
 import { SecurityEventService } from "./security-event-service";
-import { AuditLogger } from "@/shared/lib/audit-logger";
-import { logger } from "@/shared/utils/logger";
+import { AuditLogger } from "@/lib/audit-logger";
+import { logger } from "@/lib/utils/logger";
 import { createHash } from "crypto";
-import { env } from "@/shared/config/env";
-import { NotFoundError, ValidationError } from "@/shared/errors/app-error";
+import { env } from "@/config/env";
+import { NotFoundError, ValidationError } from "@/lib/errors/app-error";
 import type { TrustedDevice, DeviceInfo } from "../domain/security-types";
 
 export class DeviceService {

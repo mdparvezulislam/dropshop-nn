@@ -1,7 +1,7 @@
 import { CampaignPricingRepository, ScheduledPricingRepository } from "../repositories/campaign-repository";
 import { CampaignPricing, ScheduledPricing } from "../domain/campaign-entity";
-import { NotFoundError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
+import { NotFoundError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
 
 export class CampaignPricingService {
   private readonly campaignRepo = new CampaignPricingRepository();

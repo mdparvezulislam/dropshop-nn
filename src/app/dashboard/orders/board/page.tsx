@@ -3,9 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { updateOrderStatusAction, listOrdersAction } from "@/features/order/actions/order-actions";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, ShoppingCart, RefreshCw } from "lucide-react";

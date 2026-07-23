@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { emailSchema, phoneSchema } from "@/shared/utils/validation";
+import { emailSchema, phoneSchema } from "@/lib/utils/validation";
 
 export const loginSchema = z.object({
   usernameOrEmail: z.string().min(3, "Username or email is required").trim(),

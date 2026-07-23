@@ -2,9 +2,9 @@ import { RiskRepository, type RiskFlagEntity } from "../repositories/risk-reposi
 import { RiskModel } from "../repositories/risk-model";
 import { OrderRepository } from "../repositories/order-repository";
 import { OrderTimelineService } from "./order-timeline-service";
-import { EventBus } from "@/shared/lib/event-bus";
-import { NotFoundError, ValidationError } from "@/shared/errors/app-error";
-import { runInTransaction } from "@/shared/lib/database/query-builder";
+import { EventBus } from "@/lib/event-bus";
+import { NotFoundError, ValidationError } from "@/lib/errors/app-error";
+import { runInTransaction } from "@/lib/database/query-builder";
 import type { z } from "zod";
 import type {
   createRiskFlagSchema,

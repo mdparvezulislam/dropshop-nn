@@ -1,7 +1,7 @@
-import { AuthProvider } from "@/shared/components/auth-provider";
-import { SiteHeader } from "@/shared/components/website/site-header";
-import { SiteFooter } from "@/shared/components/website/site-footer";
-import { CookieBanner } from "@/shared/components/website/cookie-banner";
+import { AuthProvider } from "@/components/auth-provider";
+import { SiteHeader } from "@/components/website/site-header";
+import { SiteFooter } from "@/components/website/site-footer";
+import { CookieBanner } from "@/components/website/cookie-banner";
 
 export default function WebsiteLayout({
   children,

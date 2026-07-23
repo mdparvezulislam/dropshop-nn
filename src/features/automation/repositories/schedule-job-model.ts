@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
-import { baseFieldsDefinition, baseSchemaOptions } from "@/shared/lib/database/base-schema";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import { baseFieldsDefinition, baseSchemaOptions } from "@/lib/database/base-schema";
+import type { BaseDocument } from "@/lib/database/types";
 
 export interface ScheduleJobDocument extends BaseDocument {
   workflowId: string;

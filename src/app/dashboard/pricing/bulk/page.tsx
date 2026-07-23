@@ -3,16 +3,16 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
-import { Input } from "@/shared/components/ui/input";
-import { Button } from "@/shared/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   bulkUpdatePricesAction,
   bulkUpdateSupplierPricesAction,
 } from "@/features/pricing/actions/pricing-actions";
 import { toast } from "sonner";
 import { ArrowLeft, Layers, Plus, Trash2 } from "lucide-react";
-import { currencyToCents } from "@/shared/utils/currency-utils";
+import { currencyToCents } from "@/lib/utils/currency-utils";
 
 type BulkRow = {
   productId: string;

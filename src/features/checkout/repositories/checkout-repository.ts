@@ -1,4 +1,4 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { CheckoutSessionModel, OrderDraftModel } from "./checkout-model";
 import type {
   CheckoutSession,
@@ -10,7 +10,7 @@ import type {
   CheckoutStep,
   OrderDraft,
 } from "../domain/checkout-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 interface CheckoutSessionDocument extends BaseDocument {
   cartId: string;

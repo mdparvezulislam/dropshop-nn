@@ -1,13 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { Input } from "@/shared/components/ui/input";
-import { NumberInput } from "@/shared/components/forms/number-input";
-import { FormField } from "@/shared/components/forms/form-field";
-import { Badge } from "@/shared/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { NumberInput } from "@/components/forms/number-input";
+import { FormField } from "@/components/forms/form-field";
+import { Badge } from "@/components/ui/badge";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
 import { Warehouse, Boxes, AlertTriangle, CheckCircle2, XCircle, Clock } from "lucide-react";
-import { Card, CardContent } from "@/shared/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 export interface InventorySectionProps {
   sku: string;

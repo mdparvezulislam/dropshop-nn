@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPublicBrandProductsAction } from "@/features/catalog/actions/public-actions";
-import { ProductCard } from "@/shared/components/website/product-card";
+import { ProductCard } from "@/components/website/product-card";
 import { ShieldCheck, ArrowLeft, Award, CheckCircle2 } from "lucide-react";
 
 export const dynamic = "force-dynamic";

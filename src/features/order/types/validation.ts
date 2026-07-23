@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { objectIdSchema, phoneSchema, emailSchema } from "@/shared/utils/validation";
+import { objectIdSchema, phoneSchema, emailSchema } from "@/lib/utils/validation";
 import { ORDER_STATUSES } from "../domain/state-machine";
 import { RETURN_STATUSES } from "../domain/return-entity";
 import { WARRANTY_STATUSES } from "../domain/warranty-entity";

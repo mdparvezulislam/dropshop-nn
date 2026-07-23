@@ -1,4 +1,4 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import type { WorkflowExecution } from "../domain/automation-entity";
 import { WorkflowExecutionModel, type WorkflowExecutionDocument } from "./workflow-execution-model";
 

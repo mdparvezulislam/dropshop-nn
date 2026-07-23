@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { Input } from "@/shared/components/ui/input";
-import { Textarea } from "@/shared/components/ui/textarea";
-import { FormField } from "@/shared/components/forms/form-field";
-import { Button } from "@/shared/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { FormField } from "@/components/forms/form-field";
+import { Button } from "@/components/ui/button";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
 import { QrCode, Wand2, RefreshCw } from "lucide-react";
 import { QRCodeModal } from "../modals/qr-code-modal";

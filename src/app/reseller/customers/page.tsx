@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation";
 import { Plus, Users, Phone, Eye, Mail } from "lucide-react";
 import { toast } from "sonner";
 import { listCustomersAction } from "@/features/customer/actions/customer-actions";
-import { ListLayout } from "@/shared/components/workspace/list-layout";
-import { Toolbar } from "@/shared/components/workspace/toolbar";
-import { SearchBox } from "@/shared/components/workspace/search-box";
-import { StatCard } from "@/shared/components/workspace/stat-card";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
-import { Button } from "@/shared/components/ui/button";
-import { Spinner } from "@/shared/components/ui/spinner";
+import { ListLayout } from "@/components/workspace/list-layout";
+import { Toolbar } from "@/components/workspace/toolbar";
+import { SearchBox } from "@/components/workspace/search-box";
+import { StatCard } from "@/components/workspace/stat-card";
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 type Row = {
   id: string;

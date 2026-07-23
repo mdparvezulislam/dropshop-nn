@@ -1,8 +1,8 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
-import { checkPermission } from "@/shared/lib/check-permission";
-import { logger } from "@/shared/utils/logger";
+import { auth } from "@/lib/auth";
+import { checkPermission } from "@/lib/check-permission";
+import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 import { ProductTemplateService } from "@/features/catalog/services/product-template-service";
 import { createProductTemplateSchema, updateProductTemplateSchema } from "@/features/catalog/types/validation";

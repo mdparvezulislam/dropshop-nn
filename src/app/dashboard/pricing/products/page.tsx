@@ -4,13 +4,13 @@ import * as React from "react";
 import { Package, Search, Lock, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { listAllPricingForSearchAction } from "@/features/pricing/actions/pricing-engine-actions";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
-import { Badge } from "@/shared/components/ui/badge";
-import { Input } from "@/shared/components/ui/input";
-import { Button } from "@/shared/components/ui/button";
-import { SectionHeader } from "@/shared/components/workspace/section-header";
-import { SearchBox } from "@/shared/components/workspace/search-box";
-import { formatCentsToCurrency } from "@/shared/utils/currency-utils";
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { SectionHeader } from "@/components/workspace/section-header";
+import { SearchBox } from "@/components/workspace/search-box";
+import { formatCentsToCurrency } from "@/lib/utils/currency-utils";
 
 type Item = { id: string; productId: string; variantSku?: string; baseCostPrice: number; sellingPrice: number; wholesalePrice: number; resellerPrice: number; currency: string; pricingRule: string; status: string; hasManualOverride: boolean; };
 

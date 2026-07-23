@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { isValidPermission } from "@/shared/core/permission-registry";
+import { isValidPermission } from "@/lib/core/permission-registry";
 
 const permissionString = z.string().min(1, "Permission cannot be empty").refine(
   (val: string) => isValidPermission(val),

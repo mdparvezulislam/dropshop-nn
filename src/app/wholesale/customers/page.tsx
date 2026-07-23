@@ -4,12 +4,12 @@ import * as React from "react";
 import { toast } from "sonner";
 import { Users, Phone, Mail, MapPin } from "lucide-react";
 import { listCustomersAction } from "@/features/customer/actions/customer-actions";
-import { ListLayout } from "@/shared/components/workspace/list-layout";
-import { SearchBox } from "@/shared/components/workspace/search-box";
-import { Toolbar } from "@/shared/components/workspace/toolbar";
-import { StatCard } from "@/shared/components/workspace/stat-card";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
-import { Spinner } from "@/shared/components/ui/spinner";
+import { ListLayout } from "@/components/workspace/list-layout";
+import { SearchBox } from "@/components/workspace/search-box";
+import { Toolbar } from "@/components/workspace/toolbar";
+import { StatCard } from "@/components/workspace/stat-card";
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
+import { Spinner } from "@/components/ui/spinner";
 
 type Row = {
   id: string;

@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useDebounce } from "@/shared/hooks/use-debounce";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export type SaveState = "idle" | "saving" | "saved" | "error" | "unsaved";
 

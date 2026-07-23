@@ -3,10 +3,10 @@ import { LedgerRepository } from "../repositories/ledger-repository";
 import { FinanceAuditRepository } from "../repositories/finance-audit-repository";
 import { WalletService } from "./wallet-service";
 import type { Order } from "@/features/order/domain/order-entity";
-import { Settings } from "@/shared/core/feature-flags";
-import { logger } from "@/shared/utils/logger";
-import { EventBus } from "@/shared/lib/event-bus/event-bus";
-import { runInTransaction } from "@/shared/lib/database/query-builder";
+import { Settings } from "@/lib/core/feature-flags";
+import { logger } from "@/lib/utils/logger";
+import { EventBus } from "@/lib/event-bus/event-bus";
+import { runInTransaction } from "@/lib/database/query-builder";
 
 export class FinanceService {
   private readonly walletRepository: WalletRepository;

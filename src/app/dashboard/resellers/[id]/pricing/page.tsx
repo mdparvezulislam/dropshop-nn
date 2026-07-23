@@ -3,9 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
-import { Input } from "@/shared/components/ui/input";
-import { Button } from "@/shared/components/ui/button";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   updateResellerProductPricingAction,
   resetResellerProductPriceAction,
@@ -13,7 +13,7 @@ import {
 } from "@/features/reseller/actions/reseller-actions";
 import { toast } from "sonner";
 import { ArrowLeft, RotateCcw, Save, TrendingUp } from "lucide-react";
-import { currencyToCents, formatCentsToCurrency } from "@/shared/utils/currency-utils";
+import { currencyToCents, formatCentsToCurrency } from "@/lib/utils/currency-utils";
 
 const MOCK = {
   id: "rp1",

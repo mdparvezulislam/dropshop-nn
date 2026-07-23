@@ -3,13 +3,13 @@
 import * as React from "react";
 import { DollarSign, Plus, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { FormField } from "@/shared/components/forms/form-field";
-import { Badge } from "@/shared/components/ui/badge";
-import { formatCentsToCurrency } from "@/shared/utils/currency-utils";
-import { cn } from "@/shared/utils/cn";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { FormField } from "@/components/forms/form-field";
+import { Badge } from "@/components/ui/badge";
+import { formatCentsToCurrency } from "@/lib/utils/currency-utils";
+import { cn } from "@/lib/utils/cn";
 
 const REASONS = [
   { value: "supplier_price_increased", label: "Supplier Price Increased" },

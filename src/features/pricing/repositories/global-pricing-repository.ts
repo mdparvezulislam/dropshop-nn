@@ -1,4 +1,4 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import {
   GlobalPricingRuleModel, GlobalPricingRuleDocument,
   CategoryPricingOverrideModel, CategoryPricingOverrideDocument,
@@ -9,8 +9,8 @@ import {
   GlobalPricingRule, CategoryPricingOverride,
   BrandPricingOverride, SupplierPricingRule, RoundPriceTo,
 } from "../domain/global-pricing-entity";
-import { logger } from "@/shared/utils/logger";
-import { DatabaseError } from "@/shared/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { DatabaseError } from "@/lib/errors/app-error";
 
 export class GlobalPricingRuleRepository extends BaseRepository<GlobalPricingRuleDocument, GlobalPricingRule> {
   constructor() {

@@ -1,9 +1,9 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { UserModel, UserDocument } from "./user-model";
 import { User } from "../domain/user-entity";
-import { DatabaseQueryOptions } from "@/shared/lib/database/types";
-import { logger } from "@/shared/utils/logger";
-import { DatabaseError } from "@/shared/errors/app-error";
+import { DatabaseQueryOptions } from "@/lib/database/types";
+import { logger } from "@/lib/utils/logger";
+import { DatabaseError } from "@/lib/errors/app-error";
 
 export class UserRepository extends BaseRepository<UserDocument, User> {
   constructor() {

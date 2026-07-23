@@ -2,12 +2,12 @@
 
 import * as React from "react";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
-import { Input } from "@/shared/components/ui/input";
-import { Textarea } from "@/shared/components/ui/textarea";
-import { FormField } from "@/shared/components/forms/form-field";
-import { Button } from "@/shared/components/ui/button";
-import { Card } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { FormField } from "@/components/forms/form-field";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Search, Globe, ShoppingBag, Share2, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
 import { useGoogleMerchant } from "../../hooks/use-google-merchant";
 import { GoogleMerchantModal } from "../modals/google-merchant-modal";

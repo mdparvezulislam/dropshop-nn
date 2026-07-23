@@ -1,5 +1,5 @@
-import { BaseDBEntity } from "@/shared/lib/database/types";
-import type { PricingSource, PricingTotals, ProfitSummary } from "@/shared/domain/pricing-types";
+import { BaseDBEntity } from "@/lib/database/types";
+import type { PricingSource, PricingTotals, ProfitSummary } from "@/lib/domain/pricing-types";
 import type { OrderStatus } from "./state-machine";
 
 export type OrderType = "guest" | "customer" | "reseller" | "wholesaler";

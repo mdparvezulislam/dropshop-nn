@@ -1,5 +1,5 @@
 import NextAuth from "next-auth";
-import { authConfig } from "@/shared/lib/auth.config";
+import { authConfig } from "@/lib/auth.config";
 
 /**
  * Edge-compatible auth middleware.

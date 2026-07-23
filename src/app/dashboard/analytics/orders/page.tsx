@@ -9,7 +9,7 @@ import {
   TimeRangeFilter,
   type AnalyticsPreset,
 } from "@/features/analytics/components/time-range-filter";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function OrdersAnalyticsPage() {
   const [preset, setPreset] = useState<AnalyticsPreset>("30d");

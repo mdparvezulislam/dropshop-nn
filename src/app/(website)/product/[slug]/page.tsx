@@ -1,14 +1,14 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getPublicProductBySlugAction } from "@/features/catalog/actions/public-actions";
-import { ProductGallery } from "@/shared/components/website/product-gallery";
-import { ProductPagePanel } from "@/shared/components/website/product-page-panel";
-import { ProductDescription } from "@/shared/components/website/product-description";
-import { ProductSpecifications } from "@/shared/components/website/product-specifications";
-import { ReviewsSection } from "@/shared/components/website/reviews-section";
-import { RelatedProducts } from "@/shared/components/website/related-products";
-import { StickyPurchaseBar } from "@/shared/components/website/sticky-purchase-bar";
-import { MarketingKit } from "@/shared/components/website/marketing-kit";
+import { ProductGallery } from "@/components/website/product-gallery";
+import { ProductPagePanel } from "@/components/website/product-page-panel";
+import { ProductDescription } from "@/components/website/product-description";
+import { ProductSpecifications } from "@/components/website/product-specifications";
+import { ReviewsSection } from "@/components/website/reviews-section";
+import { RelatedProducts } from "@/components/website/related-products";
+import { StickyPurchaseBar } from "@/components/website/sticky-purchase-bar";
+import { MarketingKit } from "@/components/website/marketing-kit";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;

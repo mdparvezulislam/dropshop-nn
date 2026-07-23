@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { MetricCard } from "@/features/analytics/components/metric-card";
 import { AnalyticsChart } from "@/features/analytics/components/analytics-chart";
 import { getReportAction } from "@/features/analytics/actions/analytics-actions";

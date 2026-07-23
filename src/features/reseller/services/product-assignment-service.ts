@@ -11,11 +11,11 @@ import {
   ResellerDashboardStats,
 } from "../domain/reseller-entity";
 import { ResellerPricingService } from "./reseller-pricing-service";
-import { ValidationError, NotFoundError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import { generateSlug } from "@/shared/utils/slug-utils";
-import { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
-import { normalizeVariantSku } from "@/shared/utils/sku-utils";
+import { ValidationError, NotFoundError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { generateSlug } from "@/lib/utils/slug-utils";
+import { PaginationParams, SortParams, PaginatedResult } from "@/types";
+import { normalizeVariantSku } from "@/lib/utils/sku-utils";
 import {
   AssignProductInput,
   UpdateResellerProductInput,

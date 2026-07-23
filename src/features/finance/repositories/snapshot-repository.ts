@@ -1,8 +1,8 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { DailySnapshotModel } from "./daily-snapshot-model";
 import { MonthlySnapshotModel } from "./monthly-snapshot-model";
 import type { DailySnapshot, MonthlySnapshot } from "../domain/closing-snapshot-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 function mapDailyToDomain(doc: any): DailySnapshot {
   return {

@@ -1,6 +1,6 @@
 import { startCheckoutAction, getCheckoutSessionAction } from "@/features/checkout/actions/checkout-actions";
 import { redirect } from "next/navigation";
-import { CheckoutPageContent } from "@/shared/components/website/checkout-page-content";
+import { CheckoutPageContent } from "@/components/website/checkout-page-content";
 import { CartService } from "@/features/checkout/services/cart-service";
 
 interface CheckoutPageProps {

@@ -2,7 +2,7 @@ import { ShipmentRepository } from "../repositories/shipment-repository";
 import { WebhookEventRepository } from "../repositories/webhook-event-repository";
 import { LogisticsService } from "./logistics-service";
 import { TrackingService } from "./tracking-service";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 
 export interface RetryQueueItem {
   id: string;

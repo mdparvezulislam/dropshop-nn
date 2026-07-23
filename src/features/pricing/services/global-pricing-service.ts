@@ -1,7 +1,7 @@
 import { GlobalPricingRuleRepository, CategoryPricingOverrideRepository, BrandPricingOverrideRepository, SupplierPricingRuleRepository } from "../repositories/global-pricing-repository";
 import { GlobalPricingRule, CategoryPricingOverride, BrandPricingOverride, SupplierPricingRule, MarkupType } from "../domain/global-pricing-entity";
-import { NotFoundError, ValidationError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
+import { NotFoundError, ValidationError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
 
 export class GlobalPricingService {
   private readonly globalRepo = new GlobalPricingRuleRepository();

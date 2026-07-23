@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { CustomerModel } from "./customer-model";
 import type { Customer } from "../domain/customer-entity";
-import type { DatabaseQueryOptions } from "@/shared/lib/database/types";
+import type { DatabaseQueryOptions } from "@/lib/database/types";
 
 export class CustomerRepository extends BaseRepository<any, Customer> {
   constructor() {

@@ -1,17 +1,17 @@
 import { RoleRepository } from "../repositories/role-repository";
 import { UserRepository } from "../repositories/user-repository";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 import {
   validatePermissions,
   isValidPermission,
   getAllPermissions,
-} from "@/shared/core/permission-registry";
-import { SYSTEM_ROLES } from "@/shared/core/permissions";
-import { AuditLogger } from "@/shared/lib/audit-logger";
+} from "@/lib/core/permission-registry";
+import { SYSTEM_ROLES } from "@/lib/core/permissions";
+import { AuditLogger } from "@/lib/audit-logger";
 import {
   ValidationError,
   ForbiddenError,
-} from "@/shared/errors/app-error";
+} from "@/lib/errors/app-error";
 
 const DEFAULT_ROLE_PERMISSIONS: Record<string, string[]> = {};
 for (const role of SYSTEM_ROLES) {

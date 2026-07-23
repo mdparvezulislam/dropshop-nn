@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { ReconciliationLogModel } from "./reconciliation-model";
 import type { ReconciliationLog, ReconciliationStatus } from "../domain/reconciliation-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 interface ReconciliationLogDocument extends BaseDocument {
   referenceNumber: string;

@@ -1,7 +1,7 @@
 import { SecurityEventRepository } from "../repositories/security-event-repository";
 import { UserRepository } from "../repositories/user-repository";
-import { logger } from "@/shared/utils/logger";
-import { env } from "@/shared/config/env";
+import { logger } from "@/lib/utils/logger";
+import { env } from "@/config/env";
 import type {
   SecurityEvent,
   SecurityEventSeverity,

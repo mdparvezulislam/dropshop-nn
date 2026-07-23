@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { StudioSection } from "../studio-layout";
 
 const RichTextEditor = dynamic(
-  () => import("@/shared/components/editor/rich-text-editor").then((m) => ({ default: m.RichTextEditor })),
+  () => import("@/components/editor/rich-text-editor").then((m) => ({ default: m.RichTextEditor })),
   { ssr: false },
 );
 

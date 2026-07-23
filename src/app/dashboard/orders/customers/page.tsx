@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { getFollowUpStatsAction } from "@/features/order/actions/follow-up-actions";
 import { getCallLogStatsAction } from "@/features/order/actions/call-log-actions";
 import { getComplaintStatsAction } from "@/features/order/actions/complaint-actions";

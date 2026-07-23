@@ -2,10 +2,10 @@
 
 import * as React from "react";
 import { ArrowUp, ArrowDown, Minus } from "lucide-react";
-import { formatCentsToCurrency } from "@/shared/utils/currency-utils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
-import { cn } from "@/shared/utils/cn";
+import { formatCentsToCurrency } from "@/lib/utils/currency-utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils/cn";
 
 export interface CompareVersion {
   id: string;

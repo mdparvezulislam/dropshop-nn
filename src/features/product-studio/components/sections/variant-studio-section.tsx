@@ -2,10 +2,10 @@
 
 import * as React from "react";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
-import { Input } from "@/shared/components/ui/input";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { FormField } from "@/shared/components/forms/form-field";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { FormField } from "@/components/forms/form-field";
 import {
   Layers,
   Wand2,
@@ -23,7 +23,7 @@ import {
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
-import { cn } from "@/shared/utils/cn";
+import { cn } from "@/lib/utils/cn";
 import type { ExtendedVariantRow, VariantMatrixOptions } from "../../types/studio-types";
 import { useVariantMatrix } from "../../hooks/use-variant-matrix";
 import { VariantBulkEditModal } from "../modals/variant-bulk-edit-modal";

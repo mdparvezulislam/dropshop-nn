@@ -1,11 +1,11 @@
 "use server";
 
 import { z } from "zod";
-import { auth } from "@/shared/lib/auth";
+import { auth } from "@/lib/auth";
 import { ProductService } from "../services/product-service";
 import { PricingService } from "@/features/pricing/services/pricing-service";
-import { checkPermission } from "@/shared/lib/check-permission";
-import { logger } from "@/shared/utils/logger";
+import { checkPermission } from "@/lib/check-permission";
+import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 import { ProductModel } from "../repositories/product-model";
 

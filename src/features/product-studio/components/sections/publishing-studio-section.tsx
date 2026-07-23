@@ -2,9 +2,9 @@
 
 import * as React from "react";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
-import { Input } from "@/shared/components/ui/input";
-import { FormField } from "@/shared/components/forms/form-field";
-import { Badge } from "@/shared/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { FormField } from "@/components/forms/form-field";
+import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, CheckCircle2, AlertTriangle, ShieldCheck } from "lucide-react";
 import type { HealthScoreResult } from "../../types/studio-types";
 

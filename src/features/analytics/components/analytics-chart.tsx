@@ -5,7 +5,7 @@ import {
   Pie, PieChart, Cell,
   ResponsiveContainer, Tooltip, XAxis, YAxis, Legend,
 } from "recharts";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { TimeSeriesPoint, ChartType } from "../domain/analytics-entity";
 
 const CHART_COLORS = [

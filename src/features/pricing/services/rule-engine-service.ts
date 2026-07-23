@@ -1,7 +1,7 @@
 import { RuleRepository } from "../repositories/rule-repository";
 import { PricingRule, RuleCondition, RuleContext, RuleResult } from "../domain/rule-entity";
-import { logger } from "@/shared/utils/logger";
-import { NotFoundError } from "@/shared/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { NotFoundError } from "@/lib/errors/app-error";
 
 export class RuleEngineService {
   private readonly ruleRepository: RuleRepository;

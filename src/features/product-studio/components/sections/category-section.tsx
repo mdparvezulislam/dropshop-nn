@@ -3,10 +3,10 @@
 import * as React from "react";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
 import { listCategoriesAction } from "@/features/catalog/actions/classification-actions";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Search, FolderTree, Star, Clock, Sparkles } from "lucide-react";
-import { cn } from "@/shared/utils/cn";
+import { cn } from "@/lib/utils/cn";
 
 export interface CategorySectionProps {
   categoryId: string;

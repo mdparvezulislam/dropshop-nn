@@ -13,8 +13,8 @@ import { PricingProfile } from "../domain/pricing-profile-entity";
 import { MoqTier, MoqTierEntry } from "../domain/moq-entity";
 import { CampaignPricing, ScheduledPricing } from "../domain/campaign-entity";
 import { ProductPricing } from "../domain/pricing-entity";
-import { logger } from "@/shared/utils/logger";
-import { resolveCostBasis } from "@/shared/utils/number-utils";
+import { logger } from "@/lib/utils/logger";
+import { resolveCostBasis } from "@/lib/utils/number-utils";
 
 export interface PriceRequest {
   productId: string;

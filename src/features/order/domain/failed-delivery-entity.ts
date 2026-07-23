@@ -1,4 +1,4 @@
-import { BaseDBEntity } from "@/shared/lib/database/types";
+import { BaseDBEntity } from "@/lib/database/types";
 
 export const FAILED_DELIVERY_REASONS = [
   "customer_not_home", "wrong_address", "wrong_phone",

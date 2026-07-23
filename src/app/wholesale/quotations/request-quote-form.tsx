@@ -3,14 +3,14 @@
 import * as React from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Plus, Trash2, Send } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Textarea } from "@/shared/components/ui/textarea";
-import { Separator } from "@/shared/components/ui/separator";
-import { PageHeader } from "@/shared/components/workspace/page-header";
-import { Spinner } from "@/shared/components/ui/spinner";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
+import { PageHeader } from "@/components/workspace/page-header";
+import { Spinner } from "@/components/ui/spinner";
 
 interface QuoteItem {
   productId: string;

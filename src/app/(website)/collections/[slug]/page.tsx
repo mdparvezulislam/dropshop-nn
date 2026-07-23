@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getPublicFeaturedProductsAction, getPublicTrendingProductsAction, getPublicFlashDealsAction } from "@/features/catalog/actions/public-actions";
-import { ProductCard } from "@/shared/components/website/product-card";
+import { ProductCard } from "@/components/website/product-card";
 import { ArrowLeft, Sparkles } from "lucide-react";
 
 export const dynamic = "force-dynamic";

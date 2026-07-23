@@ -9,11 +9,11 @@ import {
   type OrderStatus,
   ORDER_STATUSES,
 } from "../domain/state-machine";
-import { EventBus } from "@/shared/lib/event-bus";
-import { ValidationError, NotFoundError, ConflictError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import { runInTransaction } from "@/shared/lib/database/query-builder";
-import { generateUUID } from "@/shared/utils/id-utils";
+import { EventBus } from "@/lib/event-bus";
+import { ValidationError, NotFoundError, ConflictError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { runInTransaction } from "@/lib/database/query-builder";
+import { generateUUID } from "@/lib/utils/id-utils";
 import type {
   Order,
   CustomerSnapshot,
@@ -25,7 +25,7 @@ import type {
   SupplierReference,
 } from "../domain/order-entity";
 import type { CreateOrderFromDraftInput } from "../types/validation";
-import type { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
+import type { PaginationParams, SortParams, PaginatedResult } from "@/types";
 import type { CreateManualOrderInput } from "../types/validation";
 
 export interface OrderFilter {

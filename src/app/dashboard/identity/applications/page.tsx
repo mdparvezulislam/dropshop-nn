@@ -2,9 +2,9 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { getIdentityOpsOverviewAction } from "@/features/identity/actions/admin-identity-actions";
 import { toast } from "sonner";
 import { ArrowLeft, RefreshCw, Building2, CheckCircle, XCircle, Clock, Users } from "lucide-react";

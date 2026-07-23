@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { emailSchema, phoneSchema, objectIdSchema } from "@/shared/utils/validation";
+import { emailSchema, phoneSchema, objectIdSchema } from "@/lib/utils/validation";
 
 const moneySchema = z.coerce
   .number()

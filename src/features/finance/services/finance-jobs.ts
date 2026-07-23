@@ -2,9 +2,9 @@ import { LedgerRepository } from "../repositories/ledger-repository";
 import { WithdrawalRepository } from "../repositories/withdrawal-repository";
 import { WalletRepository } from "../repositories/wallet-repository";
 import { WalletService } from "./wallet-service";
-import { logger } from "@/shared/utils/logger";
-import { Settings } from "@/shared/core/feature-flags";
-import { runInTransaction } from "@/shared/lib/database/query-builder";
+import { logger } from "@/lib/utils/logger";
+import { Settings } from "@/lib/core/feature-flags";
+import { runInTransaction } from "@/lib/database/query-builder";
 
 export class FinanceJobs {
   private readonly ledgerRepository: LedgerRepository;

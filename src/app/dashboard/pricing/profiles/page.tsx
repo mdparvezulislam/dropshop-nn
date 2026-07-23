@@ -4,14 +4,14 @@ import * as React from "react";
 import { Layers, Plus, Pencil, Trash2, Star } from "lucide-react";
 import { toast } from "sonner";
 import { listPricingProfilesAction, createPricingProfileAction, updatePricingProfileAction, deletePricingProfileAction } from "@/features/pricing/actions/pricing-engine-actions";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/shared/components/ui/dialog";
-import { Input } from "@/shared/components/ui/input";
-import { FormField } from "@/shared/components/forms/form-field";
-import { SectionHeader } from "@/shared/components/workspace/section-header";
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { FormField } from "@/components/forms/form-field";
+import { SectionHeader } from "@/components/workspace/section-header";
 
 type Profile = { id: string; name: string; slug: string; description?: string; markupRules: Array<{channel:string;markupType:string;markupValue:number}>; minMarginPercent: number; roundPriceTo?: number; isDefault: boolean; isActive: boolean; };
 

@@ -25,7 +25,7 @@ export default function RootLayout({
 }>) {
   if (typeof window === "undefined") {
     // Trigger platform bootstrap eagerly on server
-    import("@/shared/platform/bootstrap-server").then(({ ensurePlatformInitialized }) => {
+    import("@/lib/platform/bootstrap-server").then(({ ensurePlatformInitialized }) => {
       ensurePlatformInitialized().catch(() => {});
     });
   }

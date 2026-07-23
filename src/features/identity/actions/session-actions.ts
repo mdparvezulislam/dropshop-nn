@@ -1,10 +1,10 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
+import { auth } from "@/lib/auth";
 import { SessionService } from "../services/session-service";
-import { checkPermission } from "@/shared/lib/check-permission";
-import { UnauthorizedError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
+import { checkPermission } from "@/lib/check-permission";
+import { UnauthorizedError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
 
 function getSessionUser(session: any): { id: string; name?: string; role?: string } {
   if (!session?.user) {

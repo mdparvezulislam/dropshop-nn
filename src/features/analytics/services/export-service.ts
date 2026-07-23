@@ -2,7 +2,7 @@ import { EventFactRepository } from "../repositories/event-fact-repository";
 import { AnalyticsReportRepository } from "../repositories/analytics-report-repository";
 import { resolveDateRange, type DateRange } from "./analytics-query-service";
 import type { AnalyticsFilter, ExportFormat } from "../domain/analytics-entity";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 
 interface ExportResult {
   content: string;

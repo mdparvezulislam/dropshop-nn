@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import type { SystemHealthStatus } from "../domain/setting-entity";
-import { DatabaseConnectionManager } from "@/shared/lib/database/connection-manager";
+import { DatabaseConnectionManager } from "@/lib/database/connection-manager";
 
 export class SystemHealthService {
   async getHealthStatus(): Promise<SystemHealthStatus> {

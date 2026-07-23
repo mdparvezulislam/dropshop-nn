@@ -8,12 +8,12 @@ import {
   History, ExternalLink, Copy, RotateCcw, Package,
 } from "lucide-react";
 import { toast } from "sonner";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
-import { formatCentsToCurrency } from "@/shared/utils/currency-utils";
-import { cn } from "@/shared/utils/cn";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { StatusChip, statusToneFromValue } from "@/components/workspace/status-chip";
+import { formatCentsToCurrency } from "@/lib/utils/currency-utils";
+import { cn } from "@/lib/utils/cn";
 
 export interface ProductPricingData {
   id: string; productId: string; name: string; sku: string; barcode?: string;

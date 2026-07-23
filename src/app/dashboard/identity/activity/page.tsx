@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { getAdminAuditFeedAction } from "@/features/identity/actions/admin-identity-actions";
 import { toast } from "sonner";
 import { ArrowLeft, RefreshCw, Activity, AlertTriangle, Clock } from "lucide-react";

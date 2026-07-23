@@ -1,12 +1,12 @@
 import { RecoveryTokenRepository } from "../repositories/recovery-token-repository";
 import { UserRepository } from "../repositories/user-repository";
 import { SecurityEventService } from "./security-event-service";
-import { AuditLogger } from "@/shared/lib/audit-logger";
-import { logger } from "@/shared/utils/logger";
-import { env } from "@/shared/config/env";
-import { hashPassword } from "@/shared/utils/hash";
+import { AuditLogger } from "@/lib/audit-logger";
+import { logger } from "@/lib/utils/logger";
+import { env } from "@/config/env";
+import { hashPassword } from "@/lib/utils/hash";
 import { createHash, randomBytes } from "crypto";
-import { NotFoundError, ValidationError, ConflictError } from "@/shared/errors/app-error";
+import { NotFoundError, ValidationError, ConflictError } from "@/lib/errors/app-error";
 import type { RecoveryToken, PasswordResetRequest } from "../domain/security-types";
 
 export class PasswordResetService {
@@ -215,7 +215,7 @@ export class PasswordResetService {
       throw new NotFoundError("User not found");
     }
 
-    const { comparePassword } = await import("@/shared/utils/hash");
+    const { comparePassword } = await import("@/lib/utils/hash");
     const currentMatches = await comparePassword(currentPassword, user.passwordHash);
     if (!currentMatches) {
       throw new ValidationError("Current password is incorrect");

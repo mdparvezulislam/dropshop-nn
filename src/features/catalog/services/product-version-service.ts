@@ -1,6 +1,6 @@
 import { ProductVersionRepository } from "../repositories/product-version-repository";
 import { ProductRepository } from "../repositories/product-repository";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 
 export class ProductVersionService {
   private readonly versionRepository: ProductVersionRepository;

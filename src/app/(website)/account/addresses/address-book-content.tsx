@@ -9,17 +9,17 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
-} from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { Separator } from "@/shared/components/ui/separator";
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-} from "@/shared/components/ui/dialog";
+} from "@/components/ui/dialog";
 import {
   addAddressAction,
   updateAddressAction,

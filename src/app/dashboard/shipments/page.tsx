@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import { useSession } from "next-auth/react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableHeader,
@@ -11,8 +11,8 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/shared/components/ui/table";
-import { Button } from "@/shared/components/ui/button";
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import { listShipmentsAction } from "@/features/courier/actions/courier-actions";
 import { toast } from "sonner";
 import { Truck, MapPin, CheckCircle2, ClipboardList, Shield, RefreshCw } from "lucide-react";

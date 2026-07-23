@@ -5,13 +5,13 @@ import Link from "next/link";
 import { ClipboardList, Plus, Eye, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { listOrdersAction } from "@/features/order/actions/order-actions";
-import { ListLayout } from "@/shared/components/workspace/list-layout";
-import { Toolbar } from "@/shared/components/workspace/toolbar";
-import { StatCard } from "@/shared/components/workspace/stat-card";
-import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
-import { Button } from "@/shared/components/ui/button";
-import { Spinner } from "@/shared/components/ui/spinner";
+import { ListLayout } from "@/components/workspace/list-layout";
+import { Toolbar } from "@/components/workspace/toolbar";
+import { StatCard } from "@/components/workspace/stat-card";
+import { StatusChip, statusToneFromValue } from "@/components/workspace/status-chip";
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
+import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 
 type Row = {
   id: string;

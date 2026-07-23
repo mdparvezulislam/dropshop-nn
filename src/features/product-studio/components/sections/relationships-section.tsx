@@ -2,9 +2,9 @@
 
 import * as React from "react";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Link2, Plus, Trash2, Wand2, Search, X } from "lucide-react";
 import type { ProductRelationship } from "../../types/studio-types";
 import { useProductRelationships } from "../../hooks/use-product-relationships";

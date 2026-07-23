@@ -1,8 +1,8 @@
 import { BusinessProfileRepository } from "../repositories/business-profile-repository";
 import { BusinessProfile } from "../domain/business-profile-entity";
-import { ValidationError, NotFoundError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import { EventBus } from "@/shared/lib/event-bus";
+import { ValidationError, NotFoundError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { EventBus } from "@/lib/event-bus";
 import { IDENTITY_EVENTS } from "../domain/identity-events";
 import type { CreateBusinessProfileInput, UpdateBusinessProfileInput } from "../types/validation";
 

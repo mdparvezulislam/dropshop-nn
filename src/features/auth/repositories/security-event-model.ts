@@ -3,8 +3,8 @@ import {
   baseFieldsDefinition,
   baseSchemaOptions,
   softDeletePlugin,
-} from "@/shared/lib/database/base-schema";
-import { BaseDocument } from "@/shared/lib/database/types";
+} from "@/lib/database/base-schema";
+import { BaseDocument } from "@/lib/database/types";
 import type { SecurityEvent } from "../domain/security-types";
 
 export interface SecurityEventDBFields {

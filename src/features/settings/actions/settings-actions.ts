@@ -1,7 +1,7 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
-import { checkPermission } from "@/shared/lib/check-permission";
+import { auth } from "@/lib/auth";
+import { checkPermission } from "@/lib/check-permission";
 import { SettingsService } from "../services/settings-service";
 import { FeatureFlagService } from "../services/feature-flag-service";
 import { SystemHealthService } from "../services/system-health-service";
@@ -14,7 +14,7 @@ import {
   updateMaintenanceSchema,
   importSettingsSchema,
 } from "../types/validation";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 
 export async function getAllSettingsAction(): Promise<{

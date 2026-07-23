@@ -1,8 +1,8 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { AdditionalCostModel, AdditionalCostDocument } from "./additional-cost-model";
 import { AdditionalCost } from "../domain/additional-cost-entity";
-import { logger } from "@/shared/utils/logger";
-import { DatabaseError } from "@/shared/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { DatabaseError } from "@/lib/errors/app-error";
 
 export class AdditionalCostRepository extends BaseRepository<AdditionalCostDocument, AdditionalCost> {
   constructor() {

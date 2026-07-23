@@ -3,13 +3,13 @@
 import * as React from "react";
 import { toast } from "sonner";
 import { Wallet, DollarSign, Clock, CheckCircle2, ArrowUpRight } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { StatCard } from "@/shared/components/workspace/stat-card";
-import { StatusChip, statusToneFromValue } from "@/shared/components/workspace/status-chip";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
-import { PageHeader } from "@/shared/components/workspace/page-header";
-import { Spinner } from "@/shared/components/ui/spinner";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { StatCard } from "@/components/workspace/stat-card";
+import { StatusChip, statusToneFromValue } from "@/components/workspace/status-chip";
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
+import { PageHeader } from "@/components/workspace/page-header";
+import { Spinner } from "@/components/ui/spinner";
 
 type PaymentRow = {
   id: string;

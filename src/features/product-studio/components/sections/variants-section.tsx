@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { Input } from "@/shared/components/ui/input";
-import { Button } from "@/shared/components/ui/button";
-import { FormField } from "@/shared/components/forms/form-field";
-import { Badge } from "@/shared/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/forms/form-field";
+import { Badge } from "@/components/ui/badge";
 import { StudioSection } from "../studio-layout";
 import { Plus, Trash2, Dice5 } from "lucide-react";
 

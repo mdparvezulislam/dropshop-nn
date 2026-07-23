@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { FailedDeliveryModel } from "./failed-delivery-model";
 import type { FailedDelivery } from "../domain/failed-delivery-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 export interface FailedDeliveryDocument extends BaseDocument {
   orderId: string;

@@ -1,6 +1,6 @@
 import { UserRepository } from "@/features/auth/repositories/user-repository";
 import { RoleRepository } from "@/features/auth/repositories/role-repository";
-import { hashPassword } from "@/shared/utils/hash";
+import { hashPassword } from "@/lib/utils/hash";
 import { SYSTEM_ROLES, DEFAULT_PASSWORD_PLAIN, DEFAULT_AVATARS } from "../constants";
 import { generateBDPhone, getRandomElement } from "../helpers/random";
 import { SeedLogger } from "../helpers/logger";

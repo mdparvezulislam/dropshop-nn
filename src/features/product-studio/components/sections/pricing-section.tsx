@@ -1,11 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { CurrencyInput } from "@/shared/components/forms/currency-input";
-import { FormField } from "@/shared/components/forms/form-field";
-import { Badge } from "@/shared/components/ui/badge";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
+import { CurrencyInput } from "@/components/forms/currency-input";
+import { FormField } from "@/components/forms/form-field";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
 import { Calculator, AlertTriangle, Wand2, TrendingUp } from "lucide-react";
 import { useSmartPricing } from "../../hooks/use-smart-pricing";

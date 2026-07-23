@@ -1,4 +1,4 @@
-import { BaseDBEntity } from "@/shared/lib/database/types";
+import { BaseDBEntity } from "@/lib/database/types";
 
 export const FOLLOW_UP_TYPES = [
   "call", "message", "delivery_reminder", "payment_reminder",

@@ -1,4 +1,4 @@
-import { BaseDBEntity } from "@/shared/lib/database/types";
+import { BaseDBEntity } from "@/lib/database/types";
 import type { ShipmentStatus } from "./shipment-entity";
 
 export interface LogisticsAuditLog extends BaseDBEntity {

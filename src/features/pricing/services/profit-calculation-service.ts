@@ -1,4 +1,4 @@
-import { roundTo, resolveCostBasis } from "@/shared/utils/number-utils";
+import { roundTo, resolveCostBasis } from "@/lib/utils/number-utils";
 import { ProfitBreakdown } from "../domain/pricing-entity";
 
 export interface ProfitCalculationInput {

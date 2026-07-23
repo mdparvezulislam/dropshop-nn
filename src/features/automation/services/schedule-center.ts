@@ -1,7 +1,7 @@
 import { scheduleJobRepository } from "../repositories/schedule-job-repository";
 import { workflowEngine } from "./workflow-engine";
 import { AUTOMATION_DOMAIN_EVENTS } from "../domain/automation-events";
-import { EventBus } from "@/shared/lib/event-bus";
+import { EventBus } from "@/lib/event-bus";
 import type { ScheduledJob } from "../domain/automation-entity";
 
 export class ScheduleCenter {

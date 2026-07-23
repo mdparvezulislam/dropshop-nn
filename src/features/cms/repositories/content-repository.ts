@@ -1,4 +1,4 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { ContentModel, type ContentMongoDocument } from "./content-model";
 import type {
   CmsContent,
@@ -8,7 +8,7 @@ import type {
   ContentStatus,
   ContentType,
 } from "../domain/content-entity";
-import type { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
+import type { PaginationParams, SortParams, PaginatedResult } from "@/types";
 
 function mapBlock(b: any): ContentBlock {
   return {

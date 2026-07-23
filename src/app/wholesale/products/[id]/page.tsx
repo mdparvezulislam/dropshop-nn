@@ -14,12 +14,12 @@ import {
   ShoppingCart,
   FileText,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { PageHeader } from "@/shared/components/workspace/page-header";
-import { Spinner } from "@/shared/components/ui/spinner";
-import { cn } from "@/shared/utils/cn";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/workspace/page-header";
+import { Spinner } from "@/components/ui/spinner";
+import { cn } from "@/lib/utils/cn";
 
 export default function WholesaleProductDetailPage(): React.ReactElement {
   const params = useParams();

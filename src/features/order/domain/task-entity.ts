@@ -1,4 +1,4 @@
-import { BaseDBEntity } from "@/shared/lib/database/types";
+import { BaseDBEntity } from "@/lib/database/types";
 
 export type TaskStatus = "open" | "in_progress" | "completed" | "cancelled";
 export type TaskPriority = "low" | "normal" | "high" | "urgent";

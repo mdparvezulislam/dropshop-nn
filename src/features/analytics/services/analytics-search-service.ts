@@ -1,4 +1,4 @@
-import type { SearchResultItem } from "@/shared/platform/platform-types";
+import type { SearchResultItem } from "@/lib/platform/platform-types";
 import { AnalyticsReportRepository } from "../repositories/analytics-report-repository";
 import { AnalyticsSnapshotRepository } from "../repositories/analytics-snapshot-repository";
 import { AnalyticsCacheService } from "./analytics-cache-service";

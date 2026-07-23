@@ -4,15 +4,15 @@ import * as React from "react";
 import { Percent, Plus, Trash2, Zap } from "lucide-react";
 import { toast } from "sonner";
 import { listCampaignsAction, createCampaignAction, deleteCampaignAction } from "@/features/pricing/actions/pricing-engine-actions";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/shared/components/ui/dialog";
-import { Input } from "@/shared/components/ui/input";
-import { FormField } from "@/shared/components/forms/form-field";
-import { SectionHeader } from "@/shared/components/workspace/section-header";
-import { formatCentsToCurrency } from "@/shared/utils/currency-utils";
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { FormField } from "@/components/forms/form-field";
+import { SectionHeader } from "@/components/workspace/section-header";
+import { formatCentsToCurrency } from "@/lib/utils/currency-utils";
 
 type Campaign = { id: string; name: string; campaignType: string; productId: string; campaignPrice: number; effectiveFrom: string; effectiveTo: string; isActive: boolean; autoRestore: boolean; };
 

@@ -2,11 +2,11 @@ import { ReturnRepository } from "../repositories/return-repository";
 import { OrderRepository } from "../repositories/order-repository";
 import { OrderTimelineService } from "./order-timeline-service";
 import { canTransitionReturn, getReturnHumanLabel, RETURN_TERMINAL_STATUSES, type ReturnStatus, type ReturnEntity } from "../domain/return-entity";
-import { EventBus } from "@/shared/lib/event-bus";
-import { NotFoundError, ValidationError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import { runInTransaction } from "@/shared/lib/database/query-builder";
-import { generateUUID } from "@/shared/utils/id-utils";
+import { EventBus } from "@/lib/event-bus";
+import { NotFoundError, ValidationError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { runInTransaction } from "@/lib/database/query-builder";
+import { generateUUID } from "@/lib/utils/id-utils";
 import type { CreateReturnInput, UpdateReturnStatusInput } from "../types/validation";
 
 export class ReturnService {

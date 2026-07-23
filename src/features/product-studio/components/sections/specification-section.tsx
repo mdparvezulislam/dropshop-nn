@@ -2,10 +2,10 @@
 
 import * as React from "react";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
-import { Input } from "@/shared/components/ui/input";
-import { Button } from "@/shared/components/ui/button";
-import { FormField } from "@/shared/components/forms/form-field";
-import { Badge } from "@/shared/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/forms/form-field";
+import { Badge } from "@/components/ui/badge";
 import {
   SlidersHorizontal, Plus, Trash2, Check, Sparkles,
   ChevronDown, ChevronRight, Pencil, ArrowUp, ArrowDown,

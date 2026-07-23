@@ -4,9 +4,9 @@ import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Loader2, RefreshCw, Shield } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { listRolesAdminAction } from "../actions/admin-identity-actions";
 
 interface RoleView {

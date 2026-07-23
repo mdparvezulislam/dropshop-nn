@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { Package, CheckCircle2, FileEdit, XCircle, AlertTriangle, Flame } from "lucide-react";
-import { StatCard } from "@/shared/components/workspace/stat-card";
+import { StatCard } from "@/components/workspace/stat-card";
 import type { CatalogSummaryStats } from "../actions/product-catalog-actions";
 
 export interface CatalogSummaryCardsProps {

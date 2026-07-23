@@ -4,7 +4,7 @@ import {
   getPublicCategoriesAction,
   getPublicBrandsAction,
 } from "@/features/catalog/actions/public-actions";
-import { ProductCard } from "@/shared/components/website/product-card";
+import { ProductCard } from "@/components/website/product-card";
 import { SlidersHorizontal, Grid, List, Search, ArrowRight, ShieldCheck, Truck } from "lucide-react";
 
 export const dynamic = "force-dynamic";

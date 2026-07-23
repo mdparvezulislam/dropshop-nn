@@ -1,4 +1,4 @@
-import { BaseDBEntity } from "@/shared/lib/database/types";
+import { BaseDBEntity } from "@/lib/database/types";
 
 export type CampaignType = "campaign" | "flash_sale" | "festival" | "seasonal" | "clearance";
 

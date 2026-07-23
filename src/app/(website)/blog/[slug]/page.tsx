@@ -6,7 +6,7 @@ import {
   buildArticleJsonLd,
   buildBreadcrumbJsonLd,
 } from "@/features/cms/utils/blog-utils";
-import { BlogArticle } from "@/shared/components/website/blog/blog-article";
+import { BlogArticle } from "@/components/website/blog/blog-article";
 
 export const dynamic = "force-dynamic";
 

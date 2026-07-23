@@ -1,10 +1,10 @@
 import { ResellerRepository } from "../repositories/reseller-repository";
 import { Reseller, ResellerStatus } from "../domain/reseller-entity";
-import { ValidationError, NotFoundError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import { PaginationParams, SortParams, PaginatedResult } from "@/shared/types";
+import { ValidationError, NotFoundError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { PaginationParams, SortParams, PaginatedResult } from "@/types";
 import { CreateResellerInput, UpdateResellerInput } from "../types/validation";
-import { buildSearchQuery } from "@/shared/lib/database/query-builder";
+import { buildSearchQuery } from "@/lib/database/query-builder";
 
 export class ResellerService {
   private readonly resellerRepository: ResellerRepository;

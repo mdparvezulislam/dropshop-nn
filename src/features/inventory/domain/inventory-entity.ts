@@ -1,4 +1,4 @@
-import { BaseDBEntity } from "@/shared/lib/database/types";
+import { BaseDBEntity } from "@/lib/database/types";
 
 export type StockAvailability =
   "in_stock" | "low_stock" | "out_of_stock" | "pre_order" | "backorder" | "discontinued";

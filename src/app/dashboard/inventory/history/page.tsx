@@ -2,9 +2,9 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Card, CardContent } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
-import { Input } from "@/shared/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableHeader,
@@ -12,8 +12,8 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/shared/components/ui/table";
-import { EmptyState } from "@/shared/components/ui/empty-state";
+} from "@/components/ui/table";
+import { EmptyState } from "@/components/ui/empty-state";
 import { ArrowLeft, History, Search } from "lucide-react";
 import { format } from "date-fns";
 

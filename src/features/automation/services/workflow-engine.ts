@@ -17,7 +17,7 @@ import type {
   WorkflowVersion,
 } from "../domain/automation-entity";
 import { AUTOMATION_DOMAIN_EVENTS } from "../domain/automation-events";
-import { EventBus } from "@/shared/lib/event-bus";
+import { EventBus } from "@/lib/event-bus";
 import type { CreateWorkflowInput, UpdateWorkflowInput } from "../types/validation";
 
 export class WorkflowEngine {

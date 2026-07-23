@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Plus,
   Search,
@@ -16,7 +16,7 @@ import {
   ListFilter,
   Sparkles,
 } from "lucide-react";
-import { cn } from "@/shared/utils/cn";
+import { cn } from "@/lib/utils/cn";
 import type { CatalogTabId, CatalogViewMode } from "../hooks/use-catalog-workspace";
 
 export interface CatalogWorkspaceHeaderProps {

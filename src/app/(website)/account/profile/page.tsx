@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { auth } from "@/shared/lib/auth";
+import { auth } from "@/lib/auth";
 import { UserRepository } from "@/features/auth/repositories/user-repository";
 import { UserAddressRepository } from "@/features/identity/repositories/user-address-repository";
 import { ProfilePageContent } from "./profile-content";

@@ -1,4 +1,4 @@
-import type { BaseDBEntity } from "@/shared/lib/database/types";
+import type { BaseDBEntity } from "@/lib/database/types";
 
 export type NavigationLocation = "header" | "footer" | "sidebar" | "mega_menu";
 

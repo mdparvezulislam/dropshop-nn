@@ -2,9 +2,9 @@
 
 import { registrationSchema, type RegistrationInput } from "../types/validation";
 import { AuthService } from "../services/auth-service";
-import { DatabaseConnectionManager } from "@/shared/lib/database/connection-manager";
-import { logger } from "@/shared/utils/logger";
-import { AppError, ValidationError } from "@/shared/errors/app-error";
+import { DatabaseConnectionManager } from "@/lib/database/connection-manager";
+import { logger } from "@/lib/utils/logger";
+import { AppError, ValidationError } from "@/lib/errors/app-error";
 
 export async function registerUserAction(input: RegistrationInput) {
   try {

@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import { baseFieldsDefinition, baseSchemaOptions } from "@/shared/lib/database/base-schema";
+import { baseFieldsDefinition, baseSchemaOptions } from "@/lib/database/base-schema";
 
 const activityLogSchema = new Schema(
   {

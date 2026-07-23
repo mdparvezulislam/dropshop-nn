@@ -1,8 +1,8 @@
 import crypto from "crypto";
 import { UserRepository } from "@/features/auth/repositories/user-repository";
-import { ValidationError, NotFoundError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import { EventBus } from "@/shared/lib/event-bus";
+import { ValidationError, NotFoundError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { EventBus } from "@/lib/event-bus";
 import { IDENTITY_EVENTS } from "../domain/identity-events";
 
 export class VerificationService {

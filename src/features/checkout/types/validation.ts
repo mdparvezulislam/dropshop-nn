@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { objectIdSchema, phoneSchema, emailSchema } from "@/shared/utils/validation";
+import { objectIdSchema, phoneSchema, emailSchema } from "@/lib/utils/validation";
 
 const cartTypeSchema = z.enum(["guest", "customer", "reseller", "wholesaler"]);
 

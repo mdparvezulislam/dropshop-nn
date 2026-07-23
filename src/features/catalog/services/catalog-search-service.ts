@@ -9,7 +9,7 @@ import {
   CollectionRepository,
 } from "../repositories/classification-repository";
 import { Product } from "../domain/product-entity";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 
 export interface AutocompleteResult {
   suggestions: string[];

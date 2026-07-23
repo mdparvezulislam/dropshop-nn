@@ -1,10 +1,10 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
-import { checkPermission } from "@/shared/lib/check-permission";
+import { auth } from "@/lib/auth";
+import { checkPermission } from "@/lib/check-permission";
 import { ProductService } from "../services/product-service";
 import { PricingService } from "@/features/pricing/services/pricing-service";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 import { ProductRepository } from "../repositories/product-repository";
 

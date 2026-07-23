@@ -1,9 +1,9 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { TrustedDeviceModel, TrustedDeviceDocument } from "./trusted-device-model";
 import { TrustedDevice } from "../domain/security-types";
-import { DatabaseQueryOptions } from "@/shared/lib/database/types";
-import { logger } from "@/shared/utils/logger";
-import { DatabaseError, NotFoundError } from "@/shared/errors/app-error";
+import { DatabaseQueryOptions } from "@/lib/database/types";
+import { logger } from "@/lib/utils/logger";
+import { DatabaseError, NotFoundError } from "@/lib/errors/app-error";
 
 export class TrustedDeviceRepository extends BaseRepository<TrustedDeviceDocument, TrustedDevice> {
   constructor() {

@@ -1,7 +1,7 @@
 import { SettingRepository } from "../repositories/setting-repository";
 import type { SettingEntry, SettingCategory } from "../domain/setting-entity";
-import { logger } from "@/shared/utils/logger";
-import { EventBus } from "@/shared/lib/event-bus/event-bus";
+import { logger } from "@/lib/utils/logger";
+import { EventBus } from "@/lib/event-bus/event-bus";
 
 // In-Memory Cache for fast synchronous lookups
 const SETTING_CACHE = new Map<string, any>();

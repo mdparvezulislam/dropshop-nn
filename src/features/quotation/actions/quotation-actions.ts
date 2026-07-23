@@ -1,7 +1,7 @@
 "use server";
 
 import * as z from "zod";
-import { auth } from "@/shared/lib/auth";
+import { auth } from "@/lib/auth";
 import { QuotationService } from "@/features/quotation/services/quotation-service";
 
 const createQuotationSchema = z.object({

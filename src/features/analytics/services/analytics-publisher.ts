@@ -1,8 +1,8 @@
 import { randomUUID } from "crypto";
-import { EventBus } from "@/shared/lib/event-bus";
+import { EventBus } from "@/lib/event-bus";
 import type { TrackEventInput } from "../domain/analytics-entity";
 import { AnalyticsIngestionService } from "./analytics-ingestion-service";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 
 /**
  * Single entry point for publishing analytics events.

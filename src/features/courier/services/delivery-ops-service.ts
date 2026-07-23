@@ -3,8 +3,8 @@ import { DeliveryAttemptRepository } from "../repositories/delivery-attempt-repo
 import { LogisticsAuditRepository } from "../repositories/logistics-audit-repository";
 import type { DeliveryAttempt, DeliveryFailureReason } from "../domain/delivery-attempt-entity";
 import type { Shipment } from "../domain/shipment-entity";
-import { EventBus } from "@/shared/lib/event-bus/event-bus";
-import { logger } from "@/shared/utils/logger";
+import { EventBus } from "@/lib/event-bus/event-bus";
+import { logger } from "@/lib/utils/logger";
 
 export interface RecordAttemptInput {
   shipmentId: string;

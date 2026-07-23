@@ -4,15 +4,15 @@ import * as React from "react";
 import { Shield, Plus, Pencil, Trash2, Percent, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import { listGlobalRulesAction, createGlobalRuleAction, updateGlobalRuleAction, deleteGlobalRuleAction } from "@/features/pricing/actions/pricing-engine-actions";
-import { ListLayout } from "@/shared/components/workspace/list-layout";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/shared/components/ui/dialog";
-import { Input } from "@/shared/components/ui/input";
-import { Select } from "@/shared/components/ui/select";
-import { FormField } from "@/shared/components/forms/form-field";
-import { SectionHeader } from "@/shared/components/workspace/section-header";
+import { ListLayout } from "@/components/workspace/list-layout";
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { FormField } from "@/components/forms/form-field";
+import { SectionHeader } from "@/components/workspace/section-header";
 
 type Rule = { id: string; name: string; channel: string; markupType: string; markupValue: number; minMarginPercent?: number; maxDiscount?: number; isActive: boolean; priority: number; roundPriceTo?: number; };
 

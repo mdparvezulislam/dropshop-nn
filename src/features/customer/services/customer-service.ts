@@ -1,9 +1,9 @@
 import { CustomerRepository } from "../repositories/customer-repository";
 import type { Customer, CustomerAddress, CustomerNote, CustomerStatus, AddressType } from "../domain/customer-entity";
 import { OrderRepository } from "@/features/order/repositories/order-repository";
-import { logger } from "@/shared/utils/logger";
-import { EventBus } from "@/shared/lib/event-bus/event-bus";
-import { runInTransaction } from "@/shared/lib/database/query-builder";
+import { logger } from "@/lib/utils/logger";
+import { EventBus } from "@/lib/event-bus/event-bus";
+import { runInTransaction } from "@/lib/database/query-builder";
 
 export interface CreateCustomerInput {
   workspaceId: string;

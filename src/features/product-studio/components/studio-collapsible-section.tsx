@@ -3,7 +3,7 @@
 import * as React from "react";
 import { ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "@/shared/utils/cn";
+import { cn } from "@/lib/utils/cn";
 
 export interface StudioCollapsibleSectionProps {
   id: string;

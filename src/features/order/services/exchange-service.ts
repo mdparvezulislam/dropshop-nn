@@ -2,10 +2,10 @@ import { ExchangeRepository } from "../repositories/exchange-repository";
 import { OrderRepository } from "../repositories/order-repository";
 import { OrderTimelineService } from "./order-timeline-service";
 import { canTransitionExchange, getExchangeHumanLabel, type ExchangeStatus, type ExchangeEntity } from "../domain/exchange-entity";
-import { EventBus } from "@/shared/lib/event-bus";
-import { NotFoundError, ValidationError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import { runInTransaction } from "@/shared/lib/database/query-builder";
+import { EventBus } from "@/lib/event-bus";
+import { NotFoundError, ValidationError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { runInTransaction } from "@/lib/database/query-builder";
 import type { CreateExchangeInput, UpdateExchangeStatusInput } from "../types/validation";
 
 export class ExchangeService {

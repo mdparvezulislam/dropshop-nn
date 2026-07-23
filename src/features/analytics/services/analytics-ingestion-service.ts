@@ -7,9 +7,9 @@ import {
   type AnalyticsModule,
   type TrackEventInput,
 } from "../domain/analytics-entity";
-import type { BusinessEvent } from "@/shared/lib/event-bus/types";
-import { logger } from "@/shared/utils/logger";
-import { ValidationError } from "@/shared/errors/app-error";
+import type { BusinessEvent } from "@/lib/event-bus/types";
+import { logger } from "@/lib/utils/logger";
+import { ValidationError } from "@/lib/errors/app-error";
 
 function sanitizeMetadata(
   input?: Record<string, unknown>,

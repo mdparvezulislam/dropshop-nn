@@ -3,9 +3,9 @@ import { WalletRepository } from "../repositories/wallet-repository";
 import { SnapshotRepository } from "../repositories/snapshot-repository";
 import { FinanceAuditRepository } from "../repositories/finance-audit-repository";
 import type { DailySnapshot, MonthlySnapshot } from "../domain/closing-snapshot-entity";
-import { logger } from "@/shared/utils/logger";
-import { EventBus } from "@/shared/lib/event-bus/event-bus";
-import { runInTransaction } from "@/shared/lib/database/query-builder";
+import { logger } from "@/lib/utils/logger";
+import { EventBus } from "@/lib/event-bus/event-bus";
+import { runInTransaction } from "@/lib/database/query-builder";
 
 export class FinancialClosingService {
   private readonly ledgerRepository: LedgerRepository;

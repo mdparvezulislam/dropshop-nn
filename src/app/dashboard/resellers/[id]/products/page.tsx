@@ -3,10 +3,10 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { Card, CardHeader, CardContent } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
-import { Input } from "@/shared/components/ui/input";
-import { Button } from "@/shared/components/ui/button";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableHeader,
@@ -14,8 +14,8 @@ import {
   TableRow,
   TableHead,
   TableCell,
-} from "@/shared/components/ui/table";
-import { EmptyState } from "@/shared/components/ui/empty-state";
+} from "@/components/ui/table";
+import { EmptyState } from "@/components/ui/empty-state";
 import {
   assignProductAction,
   favoriteResellerProductAction,
@@ -24,7 +24,7 @@ import {
 } from "@/features/reseller/actions/reseller-actions";
 import { toast } from "sonner";
 import { ArrowLeft, Search, Plus, Heart, EyeOff, Trash2, DollarSign } from "lucide-react";
-import { formatCentsToCurrency } from "@/shared/utils/currency-utils";
+import { formatCentsToCurrency } from "@/lib/utils/currency-utils";
 
 type CatalogItem = {
   id: string;

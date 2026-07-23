@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/shared/utils/cn";
+import { cn } from "@/lib/utils/cn";
 
 export type AnalyticsPreset = "today" | "7d" | "30d" | "90d" | "12m";
 

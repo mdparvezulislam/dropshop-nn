@@ -1,7 +1,7 @@
-import { BaseRepository } from "@/shared/lib/database/generic-repository";
+import { BaseRepository } from "@/lib/database/generic-repository";
 import { WarrantyModel } from "./warranty-model";
 import type { WarrantyEntity, WarrantyStatus } from "../domain/warranty-entity";
-import type { BaseDocument } from "@/shared/lib/database/types";
+import type { BaseDocument } from "@/lib/database/types";
 
 export interface WarrantyDocument extends BaseDocument {
   warrantyNumber: string;

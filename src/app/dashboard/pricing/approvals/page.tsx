@@ -4,12 +4,12 @@ import * as React from "react";
 import { CheckCircle, Check, X, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { listPendingApprovalsAction, listAllApprovalsAction, approvePriceAction, rejectPriceAction } from "@/features/pricing/actions/pricing-engine-actions";
-import { DataTable, type DataTableColumn } from "@/shared/components/ui/data-table";
-import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/shared/components/ui/dialog";
-import { Input } from "@/shared/components/ui/input";
-import { SectionHeader } from "@/shared/components/workspace/section-header";
+import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { SectionHeader } from "@/components/workspace/section-header";
 
 type Approval = { id: string; entityType: string; entityId: string; requestedByName?: string; status: string; reason: string; changes: Array<{field:string;oldValue:any;newValue:any}>; createdAt: string; };
 

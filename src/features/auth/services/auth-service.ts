@@ -1,9 +1,9 @@
 import { UserRepository } from "../repositories/user-repository";
 import { RoleRepository } from "../repositories/role-repository";
 import { User } from "../domain/user-entity";
-import { hashPassword, comparePassword } from "@/shared/utils/hash";
-import { ValidationError, UnauthorizedError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
+import { hashPassword, comparePassword } from "@/lib/utils/hash";
+import { ValidationError, UnauthorizedError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
 
 export class AuthService {
   private readonly userRepository: UserRepository;

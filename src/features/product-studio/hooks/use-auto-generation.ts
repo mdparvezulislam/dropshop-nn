@@ -1,5 +1,5 @@
 import * as React from "react";
-import { generateSlug } from "@/shared/utils/slug-utils";
+import { generateSlug } from "@/lib/utils/slug-utils";
 
 export interface GeneratedData {
   slug: string;

@@ -1,9 +1,9 @@
 import { OrderNoteRepository } from "../repositories/order-note-repository";
 import { OrderRepository } from "../repositories/order-repository";
 import { OrderTimelineService } from "./order-timeline-service";
-import { NotFoundError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import { generateUUID } from "@/shared/utils/id-utils";
+import { NotFoundError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { generateUUID } from "@/lib/utils/id-utils";
 import type { OrderNote, NoteType } from "../domain/note-entity";
 import type { CreateOrderNoteInput } from "../types/validation";
 

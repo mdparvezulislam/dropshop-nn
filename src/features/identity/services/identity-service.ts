@@ -1,9 +1,9 @@
 import { UserRepository } from "@/features/auth/repositories/user-repository";
 import { RoleRepository } from "@/features/auth/repositories/role-repository";
-import { hashPassword } from "@/shared/utils/hash";
-import { ValidationError } from "@/shared/errors/app-error";
-import { logger } from "@/shared/utils/logger";
-import { EventBus } from "@/shared/lib/event-bus";
+import { hashPassword } from "@/lib/utils/hash";
+import { ValidationError } from "@/lib/errors/app-error";
+import { logger } from "@/lib/utils/logger";
+import { EventBus } from "@/lib/event-bus";
 import { IDENTITY_EVENTS } from "../domain/identity-events";
 import { BusinessProfileService } from "./business-profile-service";
 import type { BusinessRegistrationInput, CustomerRegistrationInput } from "../types/validation";

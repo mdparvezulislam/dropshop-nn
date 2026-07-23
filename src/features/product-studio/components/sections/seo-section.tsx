@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { Input } from "@/shared/components/ui/input";
-import { Textarea } from "@/shared/components/ui/textarea";
-import { FormField } from "@/shared/components/forms/form-field";
-import { TagsInput } from "@/shared/components/forms/tags-input";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { FormField } from "@/components/forms/form-field";
+import { TagsInput } from "@/components/forms/tags-input";
 import { StudioSection } from "../studio-layout";
-import { Card, CardContent } from "@/shared/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Globe, Search } from "lucide-react";
 
 export interface SEOSectionProps {

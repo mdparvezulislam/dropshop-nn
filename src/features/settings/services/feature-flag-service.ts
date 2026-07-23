@@ -1,7 +1,7 @@
 import { SettingRepository } from "../repositories/setting-repository";
 import type { FeatureFlagEntry, FeatureFlagState } from "../domain/setting-entity";
-import { logger } from "@/shared/utils/logger";
-import { EventBus } from "@/shared/lib/event-bus/event-bus";
+import { logger } from "@/lib/utils/logger";
+import { EventBus } from "@/lib/event-bus/event-bus";
 
 export const DEFAULT_FEATURE_FLAGS_REGISTRY: Array<Omit<FeatureFlagEntry, "id" | "createdAt" | "updatedAt" | "isDeleted" | "status">> = [
   { key: "customer-module", name: "Customer Commerce Module", description: "Customer registration, checkout profiles, cart sync", state: "on" },

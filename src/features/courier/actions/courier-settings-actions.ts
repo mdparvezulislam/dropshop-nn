@@ -1,7 +1,7 @@
 "use server";
 
-import { auth } from "@/shared/lib/auth";
-import { checkPermission } from "@/shared/lib/check-permission";
+import { auth } from "@/lib/auth";
+import { checkPermission } from "@/lib/check-permission";
 import { CourierSettingsService } from "../services/courier-settings-service";
 import { PathaoAuthService } from "../services/pathao-auth-service";
 import { CourierApiLogRepository } from "../repositories/courier-api-log-repository";
@@ -10,7 +10,7 @@ import {
   savePathaoSettingsSchema,
   issuePathaoTokenSchema,
 } from "../types/validation";
-import { logger } from "@/shared/utils/logger";
+import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 
 export async function getCourierSettingsDashboardAction(): Promise<{
