@@ -1,172 +1,108 @@
-"use client";
-
-import { motion } from "framer-motion";
 import Link from "next/link";
-import {
-  User,
-  Store,
-  PackageOpen,
-  TrendingUp,
-  BarChart3,
-  Percent,
-  Gift,
-  Truck,
-  ArrowRight,
-} from "lucide-react";
-import { usePermissions } from "@/hooks/use-permissions";
+import { ArrowRight, Store, PackageCheck, Building2, CheckCircle2 } from "lucide-react";
 
-function GuestHighlights() {
-  return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {[
-        { icon: Gift, title: "Exclusive Discounts", desc: "Get member-only prices on thousands of products" },
-        { icon: Truck, title: "Free Shipping", desc: "On orders over ৳2,000 — no minimums for members" },
-        { icon: TrendingUp, title: "Track Orders", desc: "Real-time tracking for all your purchases" },
-        { icon: Percent, title: "Flash Sale Alerts", desc: "Be the first to know about limited-time deals" },
-      ].map((item) => (
-        <div key={item.title} className="p-5 rounded-xl border border-border/60 bg-card hover:border-primary/20 transition-all">
-          <div className="p-2.5 rounded-lg bg-primary/10 text-primary w-fit mb-3">
-            <item.icon className="h-4 w-4" />
-          </div>
-          <h3 className="text-sm font-semibold text-foreground mb-1">{item.title}</h3>
-          <p className="text-xs text-foreground/50">{item.desc}</p>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function CustomerHighlights() {
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {[
-          { label: "Orders", value: "3", icon: Truck },
-          { label: "Wishlist", value: "12 items", icon: Gift },
-          { label: "Saved", value: "৳1,250", icon: Percent },
-        ].map((stat) => (
-          <div key={stat.label} className="p-4 rounded-xl border border-border/60 bg-card text-center">
-            <div className="p-2 rounded-lg bg-primary/10 text-primary w-fit mx-auto mb-2">
-              <stat.icon className="h-4 w-4" />
-            </div>
-            <p className="text-xl font-bold text-foreground">{stat.value}</p>
-            <p className="text-xs text-foreground/50">{stat.label}</p>
-          </div>
-        ))}
-      </div>
-      <Link
-        href="/dashboard"
-        className="inline-flex items-center justify-center gap-2 h-10 rounded-lg bg-primary text-primary-foreground text-sm font-semibold px-6 hover:bg-primary/90 transition-colors"
-      >
-        Go to Dashboard
-        <ArrowRight className="h-4 w-4" />
-      </Link>
-    </div>
-  );
-}
-
-function ResellerHighlights() {
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {[
-          { label: "Profit Margin", value: "Up to 25%", icon: Percent },
-          { label: "Products", value: "5,000+", icon: PackageOpen },
-          { label: "Marketing Kit", value: "Ready to use", icon: BarChart3 },
-        ].map((stat) => (
-          <div key={stat.label} className="p-4 rounded-xl border border-border/60 bg-card text-center">
-            <div className="p-2 rounded-lg text-primary w-fit mx-auto mb-2">
-              <stat.icon className="h-4 w-4" />
-            </div>
-            <p className="text-xl font-bold text-foreground">{stat.value}</p>
-            <p className="text-xs text-foreground/50">{stat.label}</p>
-          </div>
-        ))}
-      </div>
-      <div className="flex flex-wrap gap-3">
-        <Link
-          href="/reseller"
-          className="inline-flex items-center gap-2 h-10 rounded-lg bg-primary text-primary-foreground text-sm font-semibold px-6 hover:bg-primary/90 transition-colors"
-        >
-          Reseller Dashboard
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-        <Link
-          href="/reseller/marketing"
-          className="inline-flex items-center gap-2 h-10 rounded-lg border border-border/60 text-foreground/70 text-sm font-semibold px-6 hover:bg-muted/60 transition-colors"
-        >
-          Marketing Kit
-          <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-function WholesaleHighlights() {
-  return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {[
-          { label: "MOQ Deals", value: "Low MOQ", icon: PackageOpen },
-          { label: "Wholesale Pricing", value: "Up to 40% off", icon: Percent },
-          { label: "Bulk Shipping", value: "Discounted rates", icon: Truck },
-        ].map((stat) => (
-          <div key={stat.label} className="p-4 rounded-xl border border-border/60 bg-card text-center">
-            <div className="p-2 rounded-lg text-primary w-fit mx-auto mb-2">
-              <stat.icon className="h-4 w-4" />
-            </div>
-            <p className="text-xl font-bold text-foreground">{stat.value}</p>
-            <p className="text-xs text-foreground/50">{stat.label}</p>
-          </div>
-        ))}
-      </div>
-      <Link
-        href="/wholesale"
-        className="inline-flex items-center gap-2 h-10 rounded-lg bg-primary text-primary-foreground text-sm font-semibold px-6 hover:bg-primary/90 transition-colors"
-      >
-        Wholesale Dashboard
-        <ArrowRight className="h-4 w-4" />
-      </Link>
-    </div>
-  );
-}
+const roles = [
+  {
+    title: "Reseller & Dropshipper Track",
+    subtitle: "Zero Inventory Risk",
+    description: "Launch your Facebook, Instagram, or Website shop with 10,000+ ready-to-sell products. Set your own prices and keep 100% of your retail margin.",
+    icon: Store,
+    href: "/become-reseller",
+    cta: "Start Dropshipping Now",
+    badge: "Most Popular",
+    benefits: ["Zero upfront inventory cost", "1-Click product sync & marketing kit", "Automated Pathao/Steadfast delivery", "Instant profit wallet withdrawal"],
+  },
+  {
+    title: "Wholesale & Bulk Buyer Track",
+    subtitle: "Direct Factory Sourcing",
+    description: "Bulk purchasing power with tiered discount matrices. Access factory-direct inventory, tax invoices, and dedicated account management.",
+    icon: PackageCheck,
+    href: "/become-wholesale-partner",
+    cta: "Wholesale Partner Portal",
+    badge: "Bulk Savings",
+    benefits: ["Factory tier pricing (-35%)", "Flexible MOQ start from 10 pcs", "Dedicated BD account manager", "Custom packaging & branding"],
+  },
+  {
+    title: "Direct Supplier Track",
+    subtitle: "Nationwide Distribution",
+    description: "List your inventory on Bangladesh's premier commerce OS. Reach 5,000+ active resellers and wholesale buyers across 64 districts.",
+    icon: Building2,
+    href: "/become-supplier",
+    cta: "Join as Verified Supplier",
+    badge: "High Growth",
+    benefits: ["Reach 5,000+ active sellers", "Automated stock & order sync", "Guaranteed weekly payouts", "Full inventory analytics hub"],
+  },
+];
 
 export function RoleHighlights() {
-  const { userRole } = usePermissions();
-
   return (
-    <section className="py-16 lg:py-24">
+    <section className="py-16 lg:py-24 bg-card border-y border-border/60">
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="text-center max-w-2xl mx-auto mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              {!userRole
-                ? "Join Our Community"
-                : userRole === "reseller"
-                  ? "Your Reseller Toolkit"
-                  : userRole === "wholesaler"
-                    ? "Wholesale Benefits"
-                    : "Your Account Overview"}
-            </h2>
-            <p className="mt-2 text-foreground/50">
-              {!userRole
-                ? "Create an account and unlock exclusive benefits"
-                : "Everything you need to manage your business"}
-            </p>
-          </div>
+        <div className="text-center mb-14 space-y-3">
+          <span className="text-xs font-bold uppercase tracking-widest text-primary px-3.5 py-1 rounded-full bg-accent border border-primary/20">
+            Partner Ecosystem
+          </span>
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-foreground">
+            Who Is DropshopNN Built For?
+          </h2>
+          <p className="text-base text-muted-foreground max-w-2xl mx-auto">
+            Select your commerce track to start sourcing, selling, or supplying products across Bangladesh with enterprise automation.
+          </p>
+        </div>
 
-          {!userRole && <GuestHighlights />}
-          {(userRole === "admin" || userRole === "user") && <CustomerHighlights />}
-          {userRole === "reseller" && <ResellerHighlights />}
-          {userRole === "wholesaler" && <WholesaleHighlights />}
-        </motion.div>
+        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+          {roles.map((role) => (
+            <div
+              key={role.title}
+              className="rounded-3xl bg-white border border-border/80 p-6 sm:p-8 flex flex-col justify-between hover:border-primary/40 hover:shadow-xl transition-all duration-300 relative overflow-hidden group"
+            >
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="w-12 h-12 rounded-2xl bg-accent text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <role.icon className="h-6 w-6" />
+                  </div>
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-primary bg-accent px-2.5 py-1 rounded-md border border-primary/20">
+                    {role.badge}
+                  </span>
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-extrabold text-foreground group-hover:text-primary transition-colors">
+                    {role.title}
+                  </h3>
+                  <p className="text-xs font-bold text-primary/80 mt-0.5">{role.subtitle}</p>
+                </div>
+
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {role.description}
+                </p>
+
+                <ul className="space-y-2.5 pt-2 border-t border-border/50">
+                  {role.benefits.map((benefit) => (
+                    <li key={benefit} className="flex items-start gap-2 text-xs text-foreground/80 font-medium">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <span>{benefit}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="pt-6 mt-6 border-t border-border/50">
+                <Link
+                  href={role.href}
+                  className="inline-flex items-center justify-center gap-2 w-full h-12 rounded-xl bg-primary text-white font-bold text-xs hover:bg-primary/90 transition-all shadow-sm active:scale-[0.98]"
+                >
+                  {role.cta}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
+
+export default RoleHighlights;
+

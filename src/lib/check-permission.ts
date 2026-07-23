@@ -11,27 +11,30 @@ export interface SessionUser {
 export type Session = { user?: SessionUser } | null;
 
 /**
- * Check if the session has a specific permission. Throws on failure.
+ * Check if the session has a specific permission. Super admin & Admin bypass all restrictions. Throws on failure.
  */
 export function checkPermission(session: Session, permission: string): void {
   if (!session) {
     throw new UnauthorizedError("Session expired or invalid");
   }
+  const userRole = session.user?.role ? normalize(session.user.role) : "";
   const permissions = session.user?.permissions || [];
-  if (!permissions.includes("*") && !permissions.includes(permission)) {
-    throw new ForbiddenError(`Missing required permission: ${permission}`);
+  if (userRole === "super_admin" || userRole === "admin" || permissions.includes("*") || permissions.includes(permission)) {
+    return;
   }
+  throw new ForbiddenError(`Missing required permission: ${permission}`);
 }
 
 /**
- * Check if the session has at least one of the required permissions. Throws on failure.
+ * Check if the session has at least one of the required permissions. Super admin & Admin bypass all restrictions. Throws on failure.
  */
 export function checkAnyPermission(session: Session, permissions: string[]): void {
   if (!session) {
     throw new UnauthorizedError("Session expired or invalid");
   }
+  const userRole = session.user?.role ? normalize(session.user.role) : "";
   const userPermissions = session.user?.permissions || [];
-  if (userPermissions.includes("*")) return;
+  if (userRole === "super_admin" || userRole === "admin" || userPermissions.includes("*")) return;
   const hasAny = permissions.some((p) => userPermissions.includes(p));
   if (!hasAny) {
     throw new ForbiddenError(`Missing required permissions: ${permissions.join(" or ")}`);
@@ -39,14 +42,15 @@ export function checkAnyPermission(session: Session, permissions: string[]): voi
 }
 
 /**
- * Check if the session has all required permissions. Throws on failure.
+ * Check if the session has all required permissions. Super admin & Admin bypass all restrictions. Throws on failure.
  */
 export function checkAllPermissions(session: Session, permissions: string[]): void {
   if (!session) {
     throw new UnauthorizedError("Session expired or invalid");
   }
+  const userRole = session.user?.role ? normalize(session.user.role) : "";
   const userPermissions = session.user?.permissions || [];
-  if (userPermissions.includes("*")) return;
+  if (userRole === "super_admin" || userRole === "admin" || userPermissions.includes("*")) return;
   const missing = permissions.filter((p) => !userPermissions.includes(p));
   if (missing.length > 0) {
     throw new ForbiddenError(`Missing required permissions: ${missing.join(", ")}`);
@@ -54,7 +58,7 @@ export function checkAllPermissions(session: Session, permissions: string[]): vo
 }
 
 /**
- * Check if the session has a specific role. Throws on failure.
+ * Check if the session has a specific role. Super admin & Admin have access to all roles. Throws on failure.
  */
 export function checkRole(session: Session, role: string): void {
   if (!session) {
@@ -64,13 +68,15 @@ export function checkRole(session: Session, role: string): void {
   if (!userRole) {
     throw new ForbiddenError("No role assigned");
   }
-  if (normalize(userRole) !== normalize(role)) {
-    throw new ForbiddenError(`Missing required role: ${role}`);
+  const normalizedUserRole = normalize(userRole);
+  if (normalizedUserRole === "super_admin" || normalizedUserRole === "admin" || normalizedUserRole === normalize(role)) {
+    return;
   }
+  throw new ForbiddenError(`Missing required role: ${role}`);
 }
 
 /**
- * Check if the session has at least one of the required roles. Throws on failure.
+ * Check if the session has at least one of the required roles. Super admin & Admin have access to all roles. Throws on failure.
  */
 export function checkAnyRole(session: Session, roles: string[]): void {
   if (!session) {
@@ -81,6 +87,7 @@ export function checkAnyRole(session: Session, roles: string[]): void {
     throw new ForbiddenError("No role assigned");
   }
   const normalized = normalize(userRole);
+  if (normalized === "super_admin" || normalized === "admin") return;
   const hasAny = roles.some((r) => normalize(r) === normalized);
   if (!hasAny) {
     throw new ForbiddenError(`Missing required role: ${roles.join(" or ")}`);

@@ -19,50 +19,52 @@ export function BlogCard({ post }: BlogCardProps): React.ReactElement {
   return (
     <Link
       href={`/blog/${post.slug}`}
-      className="group overflow-hidden rounded-xl border border-border/60 bg-card transition-all hover:border-primary/20 hover:shadow-md"
+      className="group overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-xs transition-all duration-200 hover:border-amber-400 hover:shadow-md flex flex-col justify-between"
     >
-      <div className="relative aspect-video bg-muted">
-        {post.coverImage ? (
-          <Image
-            src={post.coverImage}
-            alt={post.title}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-            sizes="(max-width: 768px) 100vw, 33vw"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-sm text-foreground/20">
-            Article
-          </div>
-        )}
-      </div>
-      <div className="space-y-3 p-4">
-        <div className="flex flex-wrap items-center gap-2 text-[11px] text-foreground/40">
-          {post.category && (
-            <span className="rounded-full bg-primary/10 px-2 py-0.5 font-medium text-primary">
-              {post.category}
-            </span>
+      <div>
+        <div className="relative aspect-video bg-slate-100 overflow-hidden">
+          {post.coverImage ? (
+            <Image
+              src={post.coverImage}
+              alt={post.title}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              sizes="(max-width: 768px) 100vw, 33vw"
+            />
+          ) : (
+            <div className="flex h-full items-center justify-center text-xs font-bold text-slate-500">
+              আর্টিক্যাল
+            </div>
           )}
-          {date && (
-            <span className="inline-flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
-              {date}
-            </span>
-          )}
-          <span className="inline-flex items-center gap-1">
-            <Clock className="h-3 w-3" />
-            {readTime}
-          </span>
         </div>
-        <h3 className="line-clamp-2 text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
-          {post.title}
-        </h3>
-        {post.excerpt && (
-          <p className="line-clamp-2 text-xs text-foreground/50">{post.excerpt}</p>
-        )}
-        {post.authorName && (
-          <p className="text-[11px] text-foreground/40">By {post.authorName}</p>
-        )}
+        <div className="space-y-3 p-5">
+          <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold text-slate-600">
+            {post.category && (
+              <span className="rounded-full bg-amber-50 border border-amber-200 px-2.5 py-0.5 font-black text-amber-900">
+                {post.category}
+              </span>
+            )}
+            {date && (
+              <span className="inline-flex items-center gap-1">
+                <Calendar className="h-3 w-3 text-slate-500" />
+                {date}
+              </span>
+            )}
+            <span className="inline-flex items-center gap-1">
+              <Clock className="h-3 w-3 text-slate-500" />
+              {readTime}
+            </span>
+          </div>
+          <h3 className="line-clamp-2 text-base font-black text-slate-900 transition-colors group-hover:text-amber-600">
+            {post.title}
+          </h3>
+          {post.excerpt && (
+            <p className="line-clamp-2 text-xs font-bold text-slate-600 leading-relaxed">{post.excerpt}</p>
+          )}
+          {post.authorName && (
+            <p className="text-[11px] font-extrabold text-slate-500">By {post.authorName}</p>
+          )}
+        </div>
       </div>
     </Link>
   );

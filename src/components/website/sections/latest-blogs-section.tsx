@@ -55,18 +55,18 @@ export function LatestBlogsSection({
   if (posts.length === 0) return null;
 
   return (
-    <section className="py-16 lg:py-24">
+    <section className="py-16 lg:py-24 bg-white">
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex items-end justify-between">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[hsl(222_47%_11%)]">
               {title}
             </h2>
-            <p className="mt-2 text-foreground/50">{description}</p>
+            <p className="mt-2 text-[hsl(215_16%_47%)]">{description}</p>
           </div>
           <Link
             href="/blog"
-            className="hidden items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary/80 sm:inline-flex"
+            className="hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
           >
             View All Posts
             <ArrowRight className="h-4 w-4" />
@@ -78,9 +78,9 @@ export function LatestBlogsSection({
             <Link
               key={post.slug}
               href={post.slug.startsWith("/") ? post.slug : `/blog/${post.slug}`}
-              className="group overflow-hidden rounded-xl border border-border/60 bg-card transition-all hover:border-primary/20 hover:shadow-md"
+              className="group overflow-hidden rounded-2xl border border-[hsl(0_0%_91%)] bg-white transition-all hover:border-primary/30 hover:shadow-md"
             >
-              <div className="relative aspect-video bg-muted">
+              <div className="relative aspect-video bg-[hsl(0_0%_96%)]">
                 {post.coverImage ? (
                   <Image
                     src={post.coverImage}
@@ -90,14 +90,14 @@ export function LatestBlogsSection({
                     sizes="(max-width: 768px) 100vw, 33vw"
                   />
                 ) : (
-                  <div className="flex h-full items-center justify-center text-sm text-foreground/20">
+                  <div className="flex h-full items-center justify-center text-sm text-[hsl(215_16%_47%/0.3)]">
                     Blog Image
                   </div>
                 )}
               </div>
-              <div className="space-y-3 p-4">
-                <div className="flex flex-wrap items-center gap-2 text-[11px] text-foreground/40">
-                  <span className="rounded-full bg-primary/10 px-2 py-0.5 font-medium text-primary">
+              <div className="space-y-3 p-5">
+                <div className="flex flex-wrap items-center gap-2 text-[11px] text-[hsl(215_16%_47%)]">
+                  <span className="rounded-full bg-primary/10 px-2.5 py-0.5 font-semibold text-primary">
                     {post.category}
                   </span>
                   {post.date && (
@@ -111,11 +111,11 @@ export function LatestBlogsSection({
                     {post.readTime}
                   </span>
                 </div>
-                <h3 className="line-clamp-2 text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
+                <h3 className="line-clamp-2 text-sm font-semibold text-[hsl(222_47%_11%)] transition-colors group-hover:text-primary">
                   {post.title}
                 </h3>
                 {post.excerpt && (
-                  <p className="line-clamp-2 text-xs text-foreground/50">{post.excerpt}</p>
+                  <p className="line-clamp-2 text-xs text-[hsl(215_16%_47%)]">{post.excerpt}</p>
                 )}
               </div>
             </Link>
@@ -125,7 +125,7 @@ export function LatestBlogsSection({
         <div className="mt-6 text-center md:hidden">
           <Link
             href="/blog"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary/80"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
           >
             View All Posts
             <ArrowRight className="h-4 w-4" />

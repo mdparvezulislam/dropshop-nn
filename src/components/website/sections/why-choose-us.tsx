@@ -1,68 +1,62 @@
-import { Shield, Zap, HeadphonesIcon, Package, BarChart3, Globe } from "lucide-react";
+import { Shield, Zap, Users, BarChart3, Globe, Timer } from "lucide-react";
 
-interface WhyChooseUsProps {
-  title?: string;
-  description?: string;
-}
-
-const features = [
+const benefits = [
   {
-    icon: Package,
-    title: "Premium Products",
-    description: "Curated selection of high-quality products from verified suppliers across Bangladesh.",
+    icon: Shield,
+    title: "Verified Suppliers",
+    description: "All suppliers are verified for authenticity and quality. Your trust is our priority.",
   },
   {
     icon: Zap,
     title: "Automated Fulfillment",
-    description: "End-to-end order automation from placement to delivery tracking.",
+    description: "Orders are processed and dispatched automatically. No manual handling needed.",
   },
   {
-    icon: Shield,
-    title: "Secure Platform",
-    description: "Enterprise-grade security with SSL encryption and secure payment processing.",
+    icon: Users,
+    title: "190+ Countries",
+    description: "Sell to customers worldwide. We handle the logistics cross-border.",
   },
   {
     icon: BarChart3,
-    title: "Real-Time Analytics",
-    description: "Comprehensive analytics dashboard with sales, inventory, and profit tracking.",
-  },
-  {
-    icon: HeadphonesIcon,
-    title: "24/7 Support",
-    description: "Dedicated support team available around the clock for all your questions.",
+    title: "Real-time Analytics",
+    description: "Track sales, profits, and performance with enterprise-grade dashboards.",
   },
   {
     icon: Globe,
-    title: "Pan-Bangladesh Coverage",
-    description: "Nationwide shipping network with reliable delivery to all districts.",
+    title: "Bilingual Support",
+    description: "Full Bangla and English support for all platform features and communications.",
+  },
+  {
+    icon: Timer,
+    title: "2-5 Day Delivery",
+    description: "Fast and reliable delivery across Bangladesh. Real-time tracking included.",
   },
 ];
 
-export function WhyChooseUs({
-  title = "Why Choose DropshopNN",
-  description = "The enterprise commerce platform built for Bangladesh",
-}: WhyChooseUsProps) {
+export function WhyChooseUs() {
   return (
-    <section className="py-16 lg:py-24">
+    <section className="py-16 lg:py-24 bg-[hsl(0_0%_96%)]">
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-            {title}
+        <div className="text-center mb-12">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[hsl(222_47%_11%)]">
+            Why Choose DropshopNN
           </h2>
-          <p className="mt-2 text-foreground/50">{description}</p>
+          <p className="mt-3 text-lg text-[hsl(215_16%_47%)] max-w-2xl mx-auto">
+            We provide everything you need to start and grow your dropshipping business
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature) => (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {benefits.map((benefit) => (
             <div
-              key={feature.title}
-              className="p-6 rounded-xl border border-border/60 bg-card hover:border-primary/20 hover:shadow-md transition-all"
+              key={benefit.title}
+              className="rounded-2xl bg-white border border-[hsl(0_0%_91%)] p-6 hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
             >
-              <div className="p-3 rounded-lg bg-primary/10 text-primary w-fit mb-4">
-                <feature.icon className="h-5 w-5" />
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                <benefit.icon className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="text-base font-semibold text-foreground mb-2">{feature.title}</h3>
-              <p className="text-sm text-foreground/50 leading-relaxed">{feature.description}</p>
+              <h3 className="text-lg font-bold text-[hsl(222_47%_11%)] mb-2">{benefit.title}</h3>
+              <p className="text-sm text-[hsl(215_16%_47%)] leading-relaxed">{benefit.description}</p>
             </div>
           ))}
         </div>

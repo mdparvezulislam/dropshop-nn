@@ -1,0 +1,101 @@
+/* ============================================================
+   PUBLIC-WEBSITE-001: Enterprise Storefront Theme Override
+   Design Language: Soft Red / Warm Amber + Warm White + High Contrast Black Text
+   ============================================================ */
+
+[data-layout="public"] {
+  color-scheme: light;
+
+  /* ── Color System (DS-001 Warm Premium Amber Primary) ── */
+  --primary: 38 92% 50%;           /* #F59E0B Warm Amber */
+  --primary-foreground: 0 0% 100%;
+
+  --accent: 38 100% 96%;          /* #FFFBEB Warm Cream/Gold Tint */
+  --accent-foreground: 38 92% 40%; /* Dark Golden Amber */
+
+  --ring: 38 92% 50%;              /* Amber Focus Ring */
+
+  /* ── Background & Cards (Pure Light Warm) ── */
+  --background: 0 0% 98%;         /* #FAFAFA Soft warm white */
+  --card: 0 0% 100%;              /* #FFFFFF Pure white cards */
+  --muted: 0 0% 96%;              /* #F4F4F5 Light warm gray */
+  --border: 0 0% 91%;             /* #E8E8E8 Soft borders */
+
+  /* ── Secondary (Deep Neutral) ── */
+  --secondary: 222 47% 11%;       /* #111827 Deep slate */
+  --secondary-foreground: 0 0% 98%;
+
+  /* ── Semantic Status ── */
+  --success: 142 71% 45%;         /* #22C55E */
+  --success-foreground: 0 0% 100%;
+  --warning: 38 92% 50%;          /* #F59E0B */
+  --warning-foreground: 222 47% 11%;
+  --destructive: 0 84% 60%;       /* #EF4444 */
+  --destructive-foreground: 0 0% 100%;
+  --info: 217 91% 60%;            /* #3B82F6 */
+  --info-foreground: 0 0% 100%;
+
+  /* ── Muted & Foreground (ALWAYS High Contrast Dark Text for Public) ── */
+  --foreground: 222 47% 11%;      /* #111827 High-contrast black text */
+  --muted-foreground: 215 16% 35%; /* #4B5563 Crisp dark gray text */
+
+  /* ── Popover & Input ── */
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --input: 0 0% 91%;
+
+  /* ── Sidebar & Topbar ── */
+  --sidebar: 0 0% 100%;
+  --sidebar-foreground: 222 47% 11%;
+  --sidebar-muted: 0 0% 97.3%;
+  --sidebar-accent: 0 84% 60%;
+  --sidebar-border: 0 0% 91%;
+  --sidebar-active-bg: 0 85% 96%;
+  --sidebar-active-border: 0 84% 60%;
+  --sidebar-active-text: 222 47% 11%;
+
+  --topbar: 0 0% 100%;
+  --topbar-border: 0 0% 91%;
+
+  /* ── Shadows (Very soft, subtle) ── */
+  --shadow-xs: 0 1px 2px hsl(0 0% 0% / 0.03);
+  --shadow-sm: 0 1px 3px hsl(0 0% 0% / 0.04), 0 1px 2px hsl(0 0% 0% / 0.02);
+  --shadow-md: 0 4px 12px hsl(0 0% 0% / 0.05);
+  --shadow-lg: 0 12px 32px hsl(0 0% 0% / 0.07);
+  --shadow-xl: 0 20px 48px hsl(0 0% 0% / 0.1);
+  --shadow-glow: 0 0 0 1px hsl(0 84% 60% / 0.2), 0 0 20px hsl(0 84% 60% / 0.1);
+  --shadow-glow-lg: 0 0 0 1px hsl(0 84% 60% / 0.3), 0 0 40px hsl(0 84% 60% / 0.15);
+}
+
+/* ── Enforce Light Mode Variables even when root html has .dark ── */
+html.dark [data-layout="public"],
+[data-layout="public"].dark {
+  --background: 0 0% 98%;
+  --card: 0 0% 100%;
+  --foreground: 222 47% 11%;
+  --muted-foreground: 215 16% 35%;
+  --border: 0 0% 91%;
+  --input: 0 0% 91%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+}
+
+/* ── Subtle Grid Background ── */
+[data-layout="public"] {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent calc(var(--space-16) - 1px),
+      hsl(0 0% 90% / 0.2) calc(var(--space-16) - 1px),
+      hsl(0 0% 90% / 0.2) var(--space-16)
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent calc(var(--space-16) - 1px),
+      hsl(0 0% 90% / 0.2) calc(var(--space-16) - 1px),
+      hsl(0 0% 90% / 0.2) var(--space-16)
+    );
+  background-attachment: fixed;
+}

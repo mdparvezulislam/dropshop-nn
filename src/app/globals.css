@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "../features/public/styles/public-theme.css";
 
 /* ============================================================
    DropshopNN Commerce OS — Centralized Design Token System

@@ -3,41 +3,31 @@ import {
   getPublicTrendingProductsAction,
   getPublicNewArrivalsAction,
   getPublicFlashDealsAction,
-  getPublicBrandsAction,
   getPublicCategoriesAction,
 } from "@/features/catalog/actions/public-actions";
-import { listPublicBlogAction } from "@/features/cms/actions/content-actions";
-import type { CmsContent } from "@/features/cms/domain/content-entity";
-import type { PaginatedResult } from "@/types";
 
-import { HeroSection } from "@/components/website/sections/hero-section";
-import { CategoryShowcase } from "@/components/website/sections/category-showcase";
-import { FeaturedProductsSection } from "@/components/website/sections/featured-products-section";
-import { TrendingProductsSection } from "@/components/website/sections/trending-products-section";
-import { NewArrivalsSection } from "@/components/website/sections/new-arrivals-section";
-import { FlashDealsSection } from "@/components/website/sections/flash-deals-section";
-import { BrandSlider } from "@/components/website/sections/brand-slider";
-import { WhyChooseUs } from "@/components/website/sections/why-choose-us";
-import { HowItWorks } from "@/components/website/sections/how-it-works";
-import { RoleHighlights } from "@/components/website/sections/role-highlights";
-import { TestimonialsSection } from "@/components/website/sections/testimonials-section";
 import {
-  LatestBlogsSection,
-  mapCmsPostToBlogCard,
-} from "@/components/website/sections/latest-blogs-section";
-import { NewsletterSection } from "@/components/website/sections/newsletter-section";
-import { FooterCta } from "@/components/website/sections/footer-cta";
+  HeroSection,
+  TrustSection,
+  CategoryShowcase,
+  FlashDealsSection,
+  CampaignBannerSection,
+  NewArrivalsSection,
+  WhyChooseUsSection,
+  TestimonialsSection,
+  NewsletterSection,
+} from "@/components/website/sections";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "DropshopNN - Enterprise Commerce Operating System for Bangladesh",
+  title: "DropshopNN - বাংলাদেশের বিশ্বস্ত ড্রপশিপিং ও হোলসেল প্ল্যাটফর্ম",
   description:
-    "Premium dropshipping platform for retailers, resellers, and wholesalers across Bangladesh. Source, sell, and scale with automated fulfillment.",
+    "বাংলাদেশের সবচেয়ে বিশ্বস্ত প্রোডাক্ট সাপ্লাই প্ল্যাটফর্ম। রিসেলার, হোলসেলার এবং ড্রপশিপারদের জন্য অল-ইন-ওয়ান সমাধান।",
   openGraph: {
     title: "DropshopNN - Enterprise Commerce OS",
     description:
-      "Source, sell, and scale across Bangladesh with automated dropshipping.",
+      "সোর্স করুন, বিক্রি করুন, ব্যবসা বাড়ান DropshopNN এর সাথে।",
     type: "website",
     locale: "en_BD",
   },
@@ -45,42 +35,43 @@ export const metadata = {
 
 export default async function HomePage() {
   const [
-    featuredRes,
-    trendingRes,
-    newArrivalsRes,
     flashDealsRes,
-    brandsRes,
+    newArrivalsRes,
     categoriesRes,
-    blogRes,
   ] = await Promise.all([
-    getPublicFeaturedProductsAction(8),
-    getPublicTrendingProductsAction(8),
-    getPublicNewArrivalsAction(8),
-    getPublicFlashDealsAction(6),
-    getPublicBrandsAction(),
+    getPublicFlashDealsAction(5),
+    getPublicNewArrivalsAction(6),
     getPublicCategoriesAction(),
-    listPublicBlogAction({ page: 1, limit: 3 }),
   ]);
-
-  const blogData = (blogRes.success ? blogRes.data : null) as PaginatedResult<CmsContent> | null;
-  const blogPosts = (blogData?.items ?? []).map(mapCmsPostToBlogCard);
 
   return (
     <>
+      {/* 1. Split Hero Section */}
       <HeroSection />
+
+      {/* 2. Horizontal 5-Item Trust Bar */}
+      <TrustSection />
+
+      {/* 3. 8 Popular Category Showcase */}
       <CategoryShowcase categories={categoriesRes.data} />
-      <FeaturedProductsSection products={featuredRes.data} />
-      <TrendingProductsSection products={trendingRes.data} />
-      <NewArrivalsSection products={newArrivalsRes.data} />
+
+      {/* 4. Flash Sale with Live Timer */}
       <FlashDealsSection products={flashDealsRes.data} />
-      <BrandSlider brands={brandsRes.data} />
-      <WhyChooseUs />
-      <HowItWorks />
-      <RoleHighlights />
+
+      {/* 5. Dual Promotional Partner Banners */}
+      <CampaignBannerSection />
+
+      {/* 6. New Arrivals (6 Product Cards) */}
+      <NewArrivalsSection products={newArrivalsRes.data} />
+
+      {/* 7. Why Choose Us (5 Feature Cards) */}
+      <WhyChooseUsSection />
+
+      {/* 8. Merchant Testimonials */}
       <TestimonialsSection />
-      <LatestBlogsSection posts={blogPosts} />
+
+      {/* 9. Newsletter Subscription & Contact Actions */}
       <NewsletterSection />
-      <FooterCta />
     </>
   );
 }

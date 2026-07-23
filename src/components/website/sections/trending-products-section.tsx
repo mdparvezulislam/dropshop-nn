@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, TrendingUp } from "lucide-react";
+import { ArrowRight, Flame } from "lucide-react";
 import { ProductGrid } from "../product-grid";
 import type { ProductCardData } from "../product-card";
 
@@ -12,26 +12,29 @@ interface TrendingProductsSectionProps {
 export function TrendingProductsSection({
   products,
   title = "Trending Now",
-  description = "Most popular products this week",
+  description = "Most popular products customers are loving this week",
 }: TrendingProductsSectionProps) {
   if (products.length === 0) return null;
 
   return (
-    <section className="py-16 lg:py-24">
+    <section className="py-20 lg:py-28 bg-white">
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
-        <div className="flex items-end justify-between mb-8">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-                {title}
-              </h2>
+        <div className="flex items-end justify-between mb-12">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="inline-flex items-center justify-center h-10 w-10 rounded-lg bg-primary/10 text-primary">
+                <Flame className="h-5 w-5" />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-widest text-primary/60">Trending</span>
             </div>
-            <p className="text-foreground/50">{description}</p>
+            <h2 className="text-5xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[hsl(222_47%_11%)]">
+              {title}
+            </h2>
+            <p className="text-lg text-[hsl(215_16%_47%)] max-w-2xl mt-3">{description}</p>
           </div>
           <Link
             href="/products?sort=trending"
-            className="hidden sm:inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+            className="hidden sm:inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-primary/80 transition-colors"
           >
             View All
             <ArrowRight className="h-4 w-4" />
@@ -40,10 +43,10 @@ export function TrendingProductsSection({
 
         <ProductGrid products={products} />
 
-        <div className="mt-8 text-center sm:hidden">
+        <div className="mt-12 text-center sm:hidden">
           <Link
             href="/products?sort=trending"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-primary/80 transition-colors"
           >
             View All Trending Products
             <ArrowRight className="h-4 w-4" />

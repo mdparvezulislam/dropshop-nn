@@ -1,83 +1,52 @@
-import { ShoppingBag, Store, PackageOpen } from "lucide-react";
+import { Store, ShoppingCart, TrendingUp } from "lucide-react";
 
-interface HowItWorksProps {
-  title?: string;
-  description?: string;
-}
-
-const roles = [
+const steps = [
   {
-    role: "Customer",
-    icon: ShoppingBag,
-    steps: [
-      "Browse our catalog of premium products",
-      "Add items to your cart and checkout securely",
-      "Receive tracking and enjoy fast delivery",
-    ],
-    cta: { label: "Start Shopping", href: "/products" },
-  },
-  {
-    role: "Reseller",
     icon: Store,
-    steps: [
-      "Register and get approved as a reseller",
-      "Access exclusive reseller pricing on thousands of products",
-      "Dropship directly to your customers with automated fulfillment",
-    ],
-    cta: { label: "Become a Reseller", href: "/reseller/register" },
+    title: "Browse & Select",
+    description: "Explore thousands of products from verified suppliers. Add items to your store with one click.",
   },
   {
-    role: "Wholesale Buyer",
-    icon: PackageOpen,
-    steps: [
-      "Get approved for wholesale purchasing",
-      "Buy in bulk at discounted wholesale prices",
-      "Scale your business with MOQ-based pricing tiers",
-    ],
-    cta: { label: "Wholesale Registration", href: "/wholesale/register" },
+    icon: ShoppingCart,
+    title: "Customer Orders",
+    description: "When a customer places an order, we automatically fulfill it from our supplier network.",
+  },
+  {
+    icon: TrendingUp,
+    title: "Earn Profits",
+    description: "We handle inventory, packaging, and shipping. You keep the profit margin.",
   },
 ];
 
-export function HowItWorks({
-  title = "How It Works",
-  description = "Choose your path and start growing your business",
-}: HowItWorksProps) {
+export function HowItWorks() {
   return (
-    <section className="py-16 lg:py-24 bg-muted/30">
+    <section className="py-16 lg:py-24 bg-white">
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-            {title}
+        <div className="text-center mb-12">
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[hsl(222_47%_11%)]">
+            How It Works
           </h2>
-          <p className="mt-2 text-foreground/50">{description}</p>
+          <p className="mt-3 text-lg text-[hsl(215_16%_47%)] max-w-2xl mx-auto">
+            Start your dropshipping journey in three simple steps
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {roles.map((role) => (
-            <div
-              key={role.role}
-              className="p-6 rounded-xl border border-border/60 bg-card relative"
-            >
-              <div className="p-3 rounded-lg bg-primary/10 text-primary w-fit mb-4">
-                <role.icon className="h-5 w-5" />
+        <div className="grid md:grid-cols-3 gap-8 lg:gap-12 relative">
+          {steps.map((step, index) => (
+            <div key={step.title} className="relative flex flex-col items-center text-center">
+              {index < steps.length - 1 && (
+                <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-px bg-[hsl(0_0%_91%)] border-t-2 border-dashed border-[hsl(0_0%_91%)] pointer-events-none" style={{ borderTopStyle: "dashed" }} />
+              )}
+              <div className="relative">
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 relative z-10 border-2 border-primary/20">
+                  <step.icon className="h-7 w-7 text-primary" />
+                </div>
+                <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold shadow-sm z-20">
+                  {index + 1}
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-4">{role.role}</h3>
-              <ol className="space-y-3 mb-6">
-                {role.steps.map((step, i) => (
-                  <li key={i} className="flex items-start gap-3 text-sm text-foreground/60">
-                    <span className="flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold mt-0.5">
-                      {i + 1}
-                    </span>
-                    {step}
-                  </li>
-                ))}
-              </ol>
-              <a
-                href={role.cta.href}
-                className="inline-flex items-center justify-center w-full h-10 rounded-lg bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors"
-              >
-                {role.cta.label}
-              </a>
+              <h3 className="text-lg font-bold text-[hsl(222_47%_11%)] mb-2">{step.title}</h3>
+              <p className="text-sm text-[hsl(215_16%_47%)] leading-relaxed max-w-xs">{step.description}</p>
             </div>
           ))}
         </div>

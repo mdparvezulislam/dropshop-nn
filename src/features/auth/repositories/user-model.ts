@@ -18,7 +18,8 @@ export interface UserDBFields {
   phone: string;
   fullName: string;
   passwordHash: string;
-  role: string;
+  role: string; // Controls system permissions (e.g. admin, super_admin, staff, viewer)
+  memberships: string[]; // Controls business capabilities (e.g. ["customer", "reseller", "wholesaler"])
   status: "active" | "pending" | "suspended" | "blocked";
   profileImage?: string;
   emailVerifiedAt?: Date | null;
@@ -34,7 +35,7 @@ export interface UserDBFields {
   passwordResetToken?: string;
   passwordResetTokenExpiresAt?: Date | null;
   mustChangePassword: boolean;
-  trustedDevices: string[]; // Array of device IDs
+  trustedDevices: string[];
 }
 
 export type UserDocument = BaseDocument & UserDBFields;
@@ -49,6 +50,7 @@ const userSchema = new Schema<UserDocument>(
     fullName: { type: String, required: true },
     passwordHash: { type: String, required: true },
     role: { type: String, required: true, index: true },
+    memberships: { type: [String], default: ["customer"], index: true },
     status: {
       type: String,
       enum: ["active", "pending", "suspended", "blocked"],

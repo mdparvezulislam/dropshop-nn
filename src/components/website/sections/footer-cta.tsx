@@ -15,10 +15,10 @@ export function FooterCta({
   secondaryCta = { label: "Talk to Sales", href: "/contact" },
 }: FooterCtaProps) {
   return (
-    <section className="py-16 lg:py-24 border-t border-border/40">
+    <section className="py-16 lg:py-24 border-t border-[hsl(0_0%_91%)] bg-white">
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/80 to-primary/60 p-8 sm:p-12 lg:p-16 text-center">
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none" />
+          <div className="absolute inset-0 public-grid-bg pointer-events-none" />
 
           <div className="relative">
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-white mb-3">

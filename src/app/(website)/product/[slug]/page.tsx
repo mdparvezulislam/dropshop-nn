@@ -1,14 +1,12 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getPublicProductBySlugAction } from "@/features/catalog/actions/public-actions";
 import { ProductGallery } from "@/components/website/product-gallery";
 import { ProductPagePanel } from "@/components/website/product-page-panel";
-import { ProductDescription } from "@/components/website/product-description";
-import { ProductSpecifications } from "@/components/website/product-specifications";
-import { ReviewsSection } from "@/components/website/reviews-section";
+import { ProductTabsSection } from "@/components/website/product-tabs-section";
 import { RelatedProducts } from "@/components/website/related-products";
 import { StickyPurchaseBar } from "@/components/website/sticky-purchase-bar";
-import { MarketingKit } from "@/components/website/marketing-kit";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -26,18 +24,13 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const featuredMedia = product.media?.find((m) => m.isFeatured);
 
   return {
-    title: `${product.name} - DropshopNN`,
-    description: product.shortDescription ?? `Shop ${product.name} on DropshopNN`,
+    title: `${product.name} - DropshopNN Bangladesh`,
+    description: product.shortDescription ?? `বাংলাদেশে কিনুন ${product.name} সেরা পাইকারি ও রিসেলিং রেটে।`,
     openGraph: {
       title: product.name,
       description: product.shortDescription ?? undefined,
       images: featuredMedia ? [{ url: featuredMedia.url }] : undefined,
       type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: product.name,
-      description: product.shortDescription ?? undefined,
     },
     alternates: {
       canonical: `/product/${product.slug}`,
@@ -61,7 +54,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         alt: m.altText ?? product.name,
         type: (m.type === "video" ? "video" : "image") as "image" | "video" | "model",
       }))
-    : [{ url: "", alt: product.name }];
+    : [{ url: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80", alt: product.name }];
 
   const specifications =
     product.content?.specifications?.map((s) => ({
@@ -99,25 +92,32 @@ export default async function ProductPage({ params }: ProductPageProps) {
     ...(pricing.retailPrice > 0 && {
       offers: {
         "@type": "Offer",
-        price: pricing.retailPrice,
+        price: (pricing.retailPrice / 100).toFixed(2),
         priceCurrency: pricing.currency,
         availability: `https://schema.org/InStock`,
       },
     }),
-    ...(product.media?.[0] && {
-      image: product.media.map((m) => m.url),
-    }),
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-[hsl(0_0%_98%)] text-slate-900 py-8">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
+      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+        {/* Breadcrumb */}
+        <nav className="text-xs font-bold text-slate-600 mb-6 flex items-center gap-2">
+          <Link href="/" className="hover:text-amber-600 transition-colors">হোম</Link>
+          <span>/</span>
+          <Link href="/products" className="hover:text-amber-600 transition-colors">ক্যাটালগ</Link>
+          <span>/</span>
+          <span className="text-slate-900 font-black truncate">{product.name}</span>
+        </nav>
+
+        {/* Gallery & Purchase Panel Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
           <div>
             <ProductGallery
               images={galleryImages}
@@ -144,34 +144,24 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </div>
         </div>
 
-        <div className="max-w-4xl">
-          <ProductDescription
-            description={product.shortDescription}
-            highlights={product.content?.highlights}
-            features={product.content?.features}
-            includedItems={product.content?.includedItems}
-          />
+        {/* Product Tabs (Overview, Specs, Reviews, Q&A, Shipping, Wholesale) */}
+        <ProductTabsSection
+          description={product.shortDescription}
+          highlights={product.content?.highlights}
+          specifications={specifications}
+        />
 
-          <ProductSpecifications specifications={specifications} />
-
-          <MarketingKit productName={product.name} />
-
-          <ReviewsSection
-            rating={4.5}
-            totalCount={0}
-            reviews={[]}
-          />
+        {/* Related Products */}
+        <div className="mt-12">
+          <RelatedProducts products={relatedProducts} />
         </div>
-
-        <RelatedProducts products={relatedProducts} />
       </div>
 
-      <div data-purchase-end />
       <StickyPurchaseBar
         name={product.name}
-        price={`${pricing.currency === "BDT" ? "৳" : "$"}${pricing.retailPrice.toLocaleString("en-BD", { minimumFractionDigits: 2 })}`}
+        price={`৳${(pricing.retailPrice / 100).toFixed(0)}`}
         stockStatus="in_stock"
       />
-    </>
+    </div>
   );
 }

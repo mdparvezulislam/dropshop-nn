@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils/cn";
 import { usePermissions } from "@/hooks/use-permissions";
 
 export interface PriceDisplayProps {
-  retailPrice: number;
+  retailPrice: number; // in poisha or BDT
   resellerPrice?: number;
   wholesalePrice?: number;
   costPrice?: number;
@@ -26,16 +26,26 @@ export function PriceDisplay({
 }: PriceDisplayProps) {
   const { userRole } = usePermissions();
   const symbol = currency === "BDT" ? "৳" : "$";
-  const hasDiscount = comparePrice && comparePrice > retailPrice;
-  const discountPercent = hasDiscount ? Math.round(((comparePrice - retailPrice) / comparePrice) * 100) : 0;
+
+  // Normalize poisha to BDT if > 10000
+  const normalizedRetail = retailPrice > 10000 ? retailPrice / 100 : retailPrice;
+  const normalizedCompare = comparePrice && comparePrice > 10000 ? comparePrice / 100 : comparePrice;
+  const normalizedReseller = resellerPrice && resellerPrice > 10000 ? resellerPrice / 100 : resellerPrice;
+  const normalizedWholesale = wholesalePrice && wholesalePrice > 10000 ? wholesalePrice / 100 : wholesalePrice;
+  const normalizedCost = costPrice && costPrice > 10000 ? costPrice / 100 : costPrice;
+
+  const hasDiscount = normalizedCompare != null && normalizedCompare > normalizedRetail;
+  const discountPercent = hasDiscount
+    ? Math.round(((normalizedCompare - normalizedRetail) / normalizedCompare) * 100)
+    : 0;
 
   const formatPrice = (price: number) =>
-    `${symbol}${price.toLocaleString("en-BD", { minimumFractionDigits: 2 })}`;
+    `${symbol}${price.toLocaleString("en-BD", { maximumFractionDigits: 0 })}`;
 
   const renderPrice = (label: string, price: number, isCurrent = false) => (
-    <div className={cn("flex items-center justify-between gap-2", isCurrent && "font-semibold")}>
-      {showLabel && <span className="text-xs text-foreground/50">{label}</span>}
-      <span className={cn("tabular-nums", isCurrent ? "text-foreground" : "text-foreground/60")}>
+    <div className={cn("flex items-center justify-between gap-2", isCurrent && "font-black")}>
+      {showLabel && <span className="text-xs text-slate-500 font-bold">{label}</span>}
+      <span className={cn("tabular-nums", isCurrent ? "text-slate-900 font-black text-sm sm:text-base" : "text-slate-600 font-bold text-xs")}>
         {formatPrice(price)}
       </span>
     </div>
@@ -44,30 +54,30 @@ export function PriceDisplay({
   if (userRole === "admin" || userRole === "super_admin") {
     return (
       <div className={cn("space-y-1", className)}>
-        {costPrice != null && renderPrice("Cost", costPrice)}
-        {renderPrice("Retail", retailPrice, true)}
-        {resellerPrice != null && renderPrice("Reseller", resellerPrice)}
-        {wholesalePrice != null && renderPrice("Wholesale", wholesalePrice)}
+        {normalizedCost != null && renderPrice("Cost", normalizedCost)}
+        {renderPrice("Retail", normalizedRetail, true)}
+        {normalizedReseller != null && renderPrice("Reseller", normalizedReseller)}
+        {normalizedWholesale != null && renderPrice("Wholesale", normalizedWholesale)}
         {hasDiscount && (
-          <div className="flex items-center gap-1.5 text-xs text-destructive">
-            <span className="font-medium">-{discountPercent}%</span>
-            <span className="line-through text-foreground/40">{formatPrice(comparePrice!)}</span>
+          <div className="flex items-center gap-1.5 text-xs text-red-600 font-bold">
+            <span className="font-black">-{discountPercent}%</span>
+            <span className="line-through text-slate-400">{formatPrice(normalizedCompare!)}</span>
           </div>
         )}
       </div>
     );
   }
 
-  if (userRole === "reseller" && resellerPrice != null) {
+  if (userRole === "reseller" && normalizedReseller != null) {
     return (
       <div className={cn("space-y-1", className)}>
-        {renderPrice("Your Price", resellerPrice, true)}
-        <div className="flex items-center gap-1.5 text-xs text-foreground/40">
-          <span className="line-through">{formatPrice(retailPrice)}</span>
-          <span className="text-success">Save {formatPrice(retailPrice - resellerPrice)}</span>
+        {renderPrice("Your Price", normalizedReseller, true)}
+        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500">
+          <span className="line-through text-slate-400">{formatPrice(normalizedRetail)}</span>
+          <span className="text-emerald-700 font-extrabold">Save {formatPrice(normalizedRetail - normalizedReseller)}</span>
         </div>
         {hasDiscount && discountPercent > 0 && (
-          <span className="inline-block text-[10px] font-semibold text-destructive bg-destructive/10 px-1.5 py-0.5 rounded">
+          <span className="inline-block text-[10px] font-black text-red-600 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded">
             -{discountPercent}%
           </span>
         )}
@@ -75,29 +85,32 @@ export function PriceDisplay({
     );
   }
 
-  if (userRole === "wholesaler" && wholesalePrice != null) {
+  if (userRole === "wholesaler" && normalizedWholesale != null) {
     return (
       <div className={cn("space-y-1", className)}>
-        {renderPrice("Wholesale", wholesalePrice, true)}
-        <div className="flex items-center gap-1.5 text-xs text-foreground/40">
-          <span className="line-through">{formatPrice(retailPrice)}</span>
-          <span className="text-success">Wholesale discount applied</span>
+        {renderPrice("Wholesale", normalizedWholesale, true)}
+        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500">
+          <span className="line-through text-slate-400">{formatPrice(normalizedRetail)}</span>
+          <span className="text-emerald-700 font-extrabold">Wholesale discount applied</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={cn("space-y-1", className)}>
-      {renderPrice("", retailPrice, true)}
-      {hasDiscount && (
-        <div className="flex items-center gap-2">
-          <span className="text-xs line-through text-foreground/40">{formatPrice(comparePrice!)}</span>
-          <span className="text-[10px] font-semibold text-destructive bg-destructive/10 px-1.5 py-0.5 rounded">
-            -{discountPercent}%
+    <div className={cn("space-y-0.5", className)}>
+      <div className="flex items-baseline gap-2">
+        <span className="text-sm sm:text-base font-black text-slate-900 tabular-nums">
+          {formatPrice(normalizedRetail)}
+        </span>
+        {hasDiscount && (
+          <span className="text-xs font-bold line-through text-slate-400 tabular-nums">
+            {formatPrice(normalizedCompare!)}
           </span>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
+
+export default PriceDisplay;

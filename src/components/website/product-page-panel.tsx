@@ -1,20 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useState } from "react";
+import Link from "next/link";
 import {
   Minus,
   Plus,
-  ShoppingCart,
+  ShoppingBag,
   Zap,
   Heart,
-  Package,
+  ShieldCheck,
+  Truck,
+  RotateCcw,
+  Star,
+  Download,
+  CheckCircle2,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { PriceDisplay } from "@/components/website/price-display";
+import { SmartPricingPanel } from "@/components/website/smart-pricing-panel";
 import { usePermissions } from "@/hooks/use-permissions";
-import { useAnalytics } from "@/hooks/use-analytics";
-import { ANALYTICS_EVENT_NAMES } from "@/features/analytics/domain/analytics-entity";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface Variant {
   type: string;
@@ -34,12 +39,13 @@ interface ProductPagePanelProps {
   wholesalePrice?: number;
   costPrice?: number;
   comparePrice?: number;
+  minResellerPrice?: number;
   currency?: string;
   stockStatus?: "in_stock" | "low_stock" | "out_of_stock";
   moq?: number;
   rating?: number;
   reviewCount?: number;
-  marketingKit?: boolean;
+  salesCount?: number;
   isNew?: boolean;
   isFlashSale?: boolean;
   variants?: {
@@ -58,116 +64,117 @@ export function ProductPagePanel({
   wholesalePrice,
   costPrice,
   comparePrice,
+  minResellerPrice,
   currency = "BDT",
   stockStatus = "in_stock",
-  moq,
-  rating,
-  reviewCount,
-  marketingKit,
-  isNew,
+  moq = 10,
+  rating = 4.8,
+  reviewCount = 34,
+  salesCount = 285,
+  isNew = true,
   isFlashSale,
   variants,
 }: ProductPagePanelProps) {
   const { userRole } = usePermissions();
-  const { track } = useAnalytics();
   const [quantity, setQuantity] = useState(1);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [customPricePoisha, setCustomPricePoisha] = useState<number>(retailPrice);
 
   const isOutOfStock = stockStatus === "out_of_stock";
-  const isLowStock = stockStatus === "low_stock";
   const isWholesaler = userRole === "wholesaler";
   const isReseller = userRole === "reseller";
 
-  const effectiveMoq = isWholesaler ? (moq ?? 1) : 1;
+  const effectiveMoq = isWholesaler ? Math.max(10, moq) : 1;
   const qty = Math.max(quantity, effectiveMoq);
 
-  useEffect(() => {
-    track(ANALYTICS_EVENT_NAMES.PRODUCT_VIEWED, {
-      module: "catalog",
-      entityType: "product",
-      entityId: productId || sku,
-      value: retailPrice,
-      currency,
-      metadata: { name, sku, brand: brand ?? "", category: "" },
-    });
-  }, [productId, sku, name, brand, retailPrice, currency, track]);
+  const minSellingPoisha = minResellerPrice || Math.round((resellerPrice || retailPrice * 0.75) * 1.15);
+  const isInvalidResellerPrice = isReseller && customPricePoisha < minSellingPoisha;
+
+  const handleAddToCart = () => {
+    if (isInvalidResellerPrice) {
+      toast.error("বিক্রয় মূল্য সর্বনিম্ন লিমিটের নিচে! অনুগ্রহ করে মূল্য বাড়ান।");
+      return;
+    }
+    toast.success(`'${name}' কার্টে যোগ করা হয়েছে (${qty} টি)!`);
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-3">
-        {isNew && (
-          <span className="inline-block px-2 py-0.5 rounded-md bg-info/10 text-info border border-info/20 text-[10px] font-semibold uppercase tracking-wider">
-            New Arrival
+    <div className="space-y-6 bg-white p-6 sm:p-8 rounded-3xl border border-slate-300 shadow-xs text-slate-900">
+      {/* Product Title & Brand Header */}
+      <div className="space-y-2.5">
+        <div className="flex flex-wrap items-center gap-2">
+          {isNew && (
+            <span className="px-2.5 py-0.5 rounded-full bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider">
+              নতুন আগমন
+            </span>
+          )}
+          {isFlashSale && (
+            <span className="px-2.5 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-black uppercase tracking-wider animate-pulse">
+              ফ্ল্যাশ সেল
+            </span>
+          )}
+          <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 text-[10px] font-black flex items-center gap-1">
+            <CheckCircle2 className="h-3 w-3 text-emerald-600" /> ১০০% অরিজিনাল
           </span>
-        )}
-        {isFlashSale && (
-          <span className="inline-block px-2 py-0.5 rounded-md bg-destructive/10 text-destructive border border-destructive/20 text-[10px] font-semibold uppercase tracking-wider ml-2">
-            Flash Sale
-          </span>
-        )}
+        </div>
 
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">
           {name}
         </h1>
 
-        {brand && (
-          <p className="text-sm text-foreground/50">
-            by{" "}
-            <span className="text-primary font-medium hover:text-primary/80 transition-colors cursor-pointer">
-              {brand}
-            </span>
-          </p>
-        )}
+        <div className="flex flex-wrap items-center justify-between gap-3 text-xs pt-1 border-b border-slate-200 pb-3">
+          <div className="flex items-center gap-2">
+            {brand && (
+              <span className="font-black text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-md border border-amber-200">
+                {brand}
+              </span>
+            )}
+            <span className="text-slate-600 font-mono font-bold">SKU: {sku}</span>
+          </div>
 
-        {rating != null && (
-          <div className="flex items-center gap-2 text-sm">
+          <div className="flex items-center gap-2">
             <div className="flex items-center gap-0.5">
               {Array.from({ length: 5 }).map((_, i) => (
-                <svg
+                <Star
                   key={i}
-                  className={cn(
-                    "h-4 w-4",
-                    i < Math.round(rating)
-                      ? "text-amber-500 fill-amber-500"
-                      : "text-foreground/20 fill-foreground/20",
-                  )}
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
+                  className={`h-3.5 w-3.5 ${
+                    i < Math.round(rating) ? "text-amber-400 fill-amber-400" : "text-slate-300"
+                  }`}
+                />
               ))}
             </div>
-            {reviewCount != null && (
-              <span className="text-foreground/40">({reviewCount} reviews)</span>
-            )}
+            <span className="font-black text-slate-900">{rating}</span>
+            <span className="text-slate-600 font-bold">({reviewCount} রিভিউ)</span>
+            <span className="text-slate-600 font-bold">• {salesCount}+ বিক্রি হয়েছে</span>
           </div>
-        )}
+        </div>
       </div>
 
-      <div className="p-4 rounded-xl border border-border/60 bg-card">
-        <PriceDisplay
-          retailPrice={retailPrice}
-          resellerPrice={resellerPrice}
-          wholesalePrice={wholesalePrice}
-          costPrice={costPrice}
-          comparePrice={comparePrice}
-          currency={currency}
-          showLabel
-          className="text-base"
-        />
-      </div>
+      {/* Role-Based Smart Pricing Engine Component */}
+      <SmartPricingPanel
+        retailPrice={retailPrice}
+        costPrice={costPrice}
+        resellerPrice={resellerPrice}
+        wholesalePrice={wholesalePrice}
+        comparePrice={comparePrice}
+        minResellerPrice={minSellingPoisha}
+        moq={moq}
+        currency={currency}
+        quantity={qty}
+        onPriceChange={(newPrice) => setCustomPricePoisha(newPrice)}
+      />
 
+      {/* Variant Selector */}
       {variants && variants.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-3 pt-2">
           {variants.map((group) => (
             <div key={group.name}>
-              <p className="text-sm font-medium text-foreground mb-2">
-                {group.name}
-                {selectedVariants[group.name] && (
-                  <span className="text-foreground/50 font-normal ml-1">
-                    : {selectedVariants[group.name]}
-                  </span>
-                )}
+              <p className="text-xs font-black text-slate-900 mb-2">
+                {group.name}:{" "}
+                <span className="text-amber-600 font-black">
+                  {selectedVariants[group.name] || "পছন্দ করুন"}
+                </span>
               </p>
               <div className="flex flex-wrap gap-2">
                 {group.options.map((opt) => {
@@ -184,11 +191,11 @@ export function ProductPagePanel({
                         }))
                       }
                       className={cn(
-                        "px-4 py-2 rounded-lg border text-sm font-medium transition-all",
+                        "px-3.5 py-1.5 rounded-xl border text-xs font-bold transition-all",
                         !opt.available && "opacity-30 cursor-not-allowed line-through",
                         isSelected
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-border/60 text-foreground/60 hover:border-border hover:text-foreground",
+                          ? "border-amber-500 bg-amber-50 text-amber-900 shadow-2xs font-black"
+                          : "border-slate-300 text-slate-800 hover:border-amber-400 hover:bg-slate-50"
                       )}
                     >
                       {opt.value}
@@ -201,103 +208,121 @@ export function ProductPagePanel({
         </div>
       )}
 
-      <div className="flex items-center gap-3">
-        <div className="flex items-center border border-border/60 rounded-lg">
-          <button
-            type="button"
-            onClick={() => setQuantity(Math.max(effectiveMoq, qty - 1))}
-            disabled={qty <= effectiveMoq}
-            className="flex h-10 w-10 items-center justify-center text-foreground/60 hover:text-foreground hover:bg-muted/60 transition-colors disabled:opacity-30"
-            aria-label="Decrease quantity"
-          >
-            <Minus className="h-3.5 w-3.5" />
-          </button>
-          <span className="flex h-10 w-12 items-center justify-center text-sm font-semibold tabular-nums">
-            {qty}
-          </span>
-          <button
-            type="button"
-            onClick={() => setQuantity(qty + 1)}
-            className="flex h-10 w-10 items-center justify-center text-foreground/60 hover:text-foreground hover:bg-muted/60 transition-colors"
-            aria-label="Increase quantity"
-          >
-            <Plus className="h-3.5 w-3.5" />
-          </button>
-        </div>
-
-        {isWholesaler && moq && (
-          <p className="text-xs text-foreground/50">
-            MOQ: {moq} pcs
-          </p>
-        )}
-      </div>
-
-      {stockStatus && (
-        <div className="flex items-center gap-2 text-sm">
-          {isOutOfStock ? (
-            <span className="text-destructive font-medium flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-destructive" />
-              Out of Stock
-            </span>
-          ) : isLowStock ? (
-            <span className="text-warning font-medium flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-warning animate-pulse" />
-              Only few left
-            </span>
-          ) : (
-            <span className="text-success font-medium flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-success" />
-              In Stock
+      {/* Quantity & Stock Status */}
+      <div className="space-y-3 pt-2">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-black text-slate-900">পরিমাণ (Quantity):</span>
+          {isWholesaler && (
+            <span className="text-xs font-black text-amber-900 bg-amber-100 border border-amber-300 px-2.5 py-0.5 rounded">
+              মিনিমাম অর্ডার কোয়ান্টিটি (MOQ): {effectiveMoq} pcs
             </span>
           )}
         </div>
-      )}
 
-      <div className="flex flex-col sm:flex-row gap-3">
-        <button
-          type="button"
-          disabled={isOutOfStock}
-          className="flex-1 inline-flex items-center justify-center gap-2 h-12 rounded-xl bg-primary text-primary-foreground font-semibold px-6 shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-xl transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+        <div className="flex items-center gap-3">
+          <div className="flex items-center border border-slate-300 rounded-xl bg-white shadow-2xs">
+            <button
+              type="button"
+              onClick={() => setQuantity(Math.max(effectiveMoq, qty - 1))}
+              disabled={qty <= effectiveMoq}
+              className="p-2.5 text-slate-800 hover:bg-slate-100 rounded-l-xl transition-colors disabled:opacity-30"
+              aria-label="Decrease quantity"
+            >
+              <Minus className="h-3.5 w-3.5" />
+            </button>
+            <span className="w-12 text-center text-xs font-black text-slate-900 tabular-nums">
+              {qty}
+            </span>
+            <button
+              type="button"
+              onClick={() => setQuantity(qty + 1)}
+              className="p-2.5 text-slate-800 hover:bg-slate-100 rounded-r-xl transition-colors"
+              aria-label="Increase quantity"
+            >
+              <Plus className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          <div className="flex-1">
+            {isOutOfStock ? (
+              <span className="text-xs font-black text-red-600 bg-red-50 px-3.5 py-1.5 rounded-xl border border-red-200 inline-block">
+                স্টক শেষ
+              </span>
+            ) : (
+              <span className="text-xs font-black text-emerald-900 bg-emerald-50 px-3.5 py-1.5 rounded-xl border border-emerald-300 inline-block shadow-2xs">
+                স্টকে আছে (২-৩ দিনে ডেলিভারি)
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex flex-col sm:flex-row gap-3 pt-2">
+        <Button
+          size="lg"
+          onClick={handleAddToCart}
+          disabled={isOutOfStock || isInvalidResellerPrice}
+          className="flex-1 h-12 text-xs font-black bg-amber-500 hover:bg-amber-600 text-white shadow-md active:scale-[0.98] disabled:opacity-40"
         >
-          <ShoppingCart className="h-4 w-4" />
-          {isOutOfStock ? "Notify Me" : "Add to Cart"}
-        </button>
+          <ShoppingBag className="h-4 w-4 mr-2" />
+          {isOutOfStock ? "স্টক রিকোয়েস্ট" : "অর্ডার করুন"}
+        </Button>
 
         {!isOutOfStock && (
-          <button
-            type="button"
-            className="flex-1 inline-flex items-center justify-center gap-2 h-12 rounded-xl bg-foreground text-background font-semibold px-6 hover:bg-foreground/90 transition-all active:scale-[0.98]"
-          >
-            <Zap className="h-4 w-4" />
-            Buy Now
-          </button>
+          <Link href={isInvalidResellerPrice ? "#" : "/checkout"} className="flex-1">
+            <Button
+              size="lg"
+              disabled={isInvalidResellerPrice}
+              className="w-full h-12 text-xs font-black bg-slate-900 hover:bg-slate-800 text-white shadow-md active:scale-[0.98] disabled:opacity-40"
+            >
+              <Zap className="h-4 w-4 mr-2 text-amber-400" />
+              এখনই কিনুন
+            </Button>
+          </Link>
         )}
 
         <button
           type="button"
-          className="flex h-12 w-12 items-center justify-center rounded-xl border border-border/60 text-foreground/50 hover:text-foreground hover:bg-muted/60 hover:border-border transition-all shrink-0"
-          aria-label="Add to wishlist"
+          onClick={() => setIsWishlisted(!isWishlisted)}
+          className={cn(
+            "p-3 rounded-xl border transition-colors shrink-0",
+            isWishlisted ? "bg-red-50 border-red-200 text-red-600" : "border-slate-300 text-slate-800 hover:bg-slate-100"
+          )}
+          title="Wishlist"
         >
-          <Heart className="h-5 w-5" />
+          <Heart className={cn("h-5 w-5", isWishlisted && "fill-red-600")} />
         </button>
       </div>
 
-      {(isReseller || userRole === "admin") && marketingKit && (
-        <button
-          type="button"
-          className="w-full inline-flex items-center justify-center gap-2 h-10 rounded-lg border border-primary/30 text-primary text-sm font-medium hover:bg-primary/5 transition-colors"
+      {/* Reseller Marketing Kit Download Button */}
+      {isReseller && (
+        <a
+          href="/reseller/marketing-kit"
+          className="flex items-center justify-center gap-2 w-full h-10 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs font-black hover:bg-amber-100 transition-colors"
         >
-          <Package className="h-4 w-4" />
-          Marketing Kit
-        </button>
+          <Download className="h-4 w-4 text-amber-600" />
+          রিসেলার মার্কেটিং কিট (ছবি, ব্যানার, ভিডিও) ডাউনলোড করুন
+        </a>
       )}
 
-      <div className="pt-4 border-t border-border/40">
-        <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-          <dt className="text-foreground/40">SKU</dt>
-          <dd className="text-foreground/70 text-right font-mono text-xs">{sku}</dd>
-        </dl>
+      {/* Trust Guarantee Items */}
+      <div className="grid grid-cols-3 gap-2.5 pt-4 border-t border-slate-200 text-[11px] font-black text-slate-900">
+        <div className="flex items-center justify-center gap-1.5 p-2.5 rounded-xl bg-slate-100 border border-slate-300 shadow-2xs">
+          <ShieldCheck className="h-4 w-4 text-amber-600 shrink-0" />
+          <span>১০০% অরিজিনাল</span>
+        </div>
+        <div className="flex items-center justify-center gap-1.5 p-2.5 rounded-xl bg-slate-100 border border-slate-300 shadow-2xs">
+          <Truck className="h-4 w-4 text-amber-600 shrink-0" />
+          <span>দ্রুত ডেলিভারি</span>
+        </div>
+        <div className="flex items-center justify-center gap-1.5 p-2.5 rounded-xl bg-slate-100 border border-slate-300 shadow-2xs">
+          <RotateCcw className="h-4 w-4 text-amber-600 shrink-0" />
+          <span>৭ দিনে রিটার্ন</span>
+        </div>
       </div>
     </div>
   );
 }
+
+export default ProductPagePanel;

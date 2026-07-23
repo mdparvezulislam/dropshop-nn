@@ -1,159 +1,92 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, Star, Quote } from "lucide-react";
+import { motion } from "framer-motion";
+import { Star, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 
-interface Testimonial {
-  name: string;
-  role: string;
-  company: string;
-  content: string;
-  rating: number;
-  avatar?: string;
-}
-
-interface TestimonialsSectionProps {
-  testimonials?: Testimonial[];
-  title?: string;
-  description?: string;
-}
-
-const defaultTestimonials: Testimonial[] = [
+const TESTIMONIALS = [
   {
-    name: "Rafiq Hasan",
-    role: "Reseller",
-    company: "Dhaka",
-    content: "DropshopNN transformed my business. The automated fulfillment means I can focus on sales while they handle the logistics. My profit margins have never been better.",
+    name: "মোহাব্বাত চৌধুরী",
+    role: "রিসেলার, ঢাকা",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
     rating: 5,
+    content: "DropshopNN এর সাথে কাজ করে আমি খুবই সন্তুষ্ট। প্রোডাক্ট কোয়ালিটি এবং ডেলিভারি সার্ভিস অসাধারণ!",
   },
   {
-    name: "Sadia Rahman",
-    role: "Wholesale Buyer",
-    company: "Chittagong",
-    content: "The wholesale pricing tiers are incredibly competitive. I've been able to scale my retail chain significantly since partnering with DropshopNN.",
+    name: "ফারিয়া আক্তার",
+    role: "এন্টারপ্রেনার, চট্টগ্রাম",
+    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80",
     rating: 5,
+    content: "বাল্ক অর্ডারে সেরা দাম এবং ফাস্ট ডেলিভারি পাই। আমার ব্যবসা অনেক সহজে চলছে।",
   },
   {
-    name: "Kamal Hossain",
-    role: "Retailer",
-    company: "Sylhet",
-    content: "What sets DropshopNN apart is the real-time inventory and pricing. No more guessing games — I know exactly what's available and at what price.",
+    name: "মাহমুদুল হাসান রেজওয়ান",
+    role: "ড্রপশিপার, সিলেট",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
     rating: 5,
-  },
-  {
-    name: "Nusrat Jahan",
-    role: "Online Store Owner",
-    company: "Khulna",
-    content: "The product catalog is extensive and the quality is consistently excellent. My customers love the fast delivery and I love the easy returns process.",
-    rating: 4,
+    content: "স্টক ছাড়াই ব্যবসা শুরু করেছি। DropshopNN আমার জন্য গেম চেঞ্জার!",
   },
 ];
 
-export function TestimonialsSection({
-  testimonials = defaultTestimonials,
-  title = "What Our Partners Say",
-  description = "Trusted by businesses across Bangladesh",
-}: TestimonialsSectionProps) {
-  const [current, setCurrent] = useState(0);
-  const [direction, setDirection] = useState(0);
-
-  const next = () => {
-    setDirection(1);
-    setCurrent((prev) => (prev + 1) % testimonials.length);
-  };
-
-  const prev = () => {
-    setDirection(-1);
-    setCurrent((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-  };
-
-  if (testimonials.length === 0) return null;
-
-  const variants = {
-    enter: (dir: number) => ({ x: dir > 0 ? 200 : -200, opacity: 0 }),
-    center: { x: 0, opacity: 1 },
-    exit: (dir: number) => ({ x: dir > 0 ? -200 : 200, opacity: 0 }),
-  };
-
+export function TestimonialsSection(): React.ReactElement {
   return (
-    <section className="py-16 lg:py-24 bg-muted/30">
+    <section className="py-12 lg:py-16 bg-white border-b border-slate-200" aria-label="Client Testimonials">
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-            {title}
-          </h2>
-          <p className="mt-2 text-foreground/50">{description}</p>
+        <div className="flex items-end justify-between mb-8">
+          <div>
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+              আমাদের ক্লায়েন্টদের মতামত
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 font-bold mt-1">
+              তাদের অভিজ্ঞতা জানুন
+            </p>
+          </div>
+
+          <Link
+            href="/reviews"
+            className="inline-flex items-center gap-1.5 text-xs font-extrabold text-amber-600 hover:text-amber-700 transition-colors"
+          >
+            সব দেখুন
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
         </div>
 
-        <div className="max-w-3xl mx-auto">
-          <div className="relative min-h-[220px]">
-            <AnimatePresence mode="wait" custom={direction}>
-              <motion.div
-                key={current}
-                custom={direction}
-                variants={variants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="p-8 rounded-xl border border-border/60 bg-card text-center"
-              >
-                <Quote className="h-8 w-8 text-primary/20 mx-auto mb-4" />
-                <div className="flex justify-center gap-0.5 mb-4">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`h-4 w-4 ${i < testimonials[current].rating ? "text-amber-500 fill-amber-500" : "text-foreground/20"}`}
-                    />
-                  ))}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {TESTIMONIALS.map((t, idx) => (
+            <motion.div
+              key={t.name}
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: idx * 0.1 }}
+              className="p-6 rounded-2xl bg-white border border-slate-300 hover:border-amber-400 hover:shadow-md transition-all duration-300 space-y-4"
+            >
+              <div className="flex items-center gap-3">
+                <div className="relative w-11 h-11 rounded-full overflow-hidden shrink-0 border border-amber-200">
+                  <Image src={t.avatar} alt={t.name} fill className="object-cover" />
                 </div>
-                <p className="text-sm sm:text-base text-foreground/70 leading-relaxed mb-6 italic">
-                  &ldquo;{testimonials[current].content}&rdquo;
-                </p>
                 <div>
-                  <p className="font-semibold text-foreground">{testimonials[current].name}</p>
-                  <p className="text-xs text-foreground/40">
-                    {testimonials[current].role} &middot; {testimonials[current].company}
-                  </p>
+                  <h3 className="text-sm font-black text-slate-900">{t.name}</h3>
+                  <p className="text-[11px] font-bold text-slate-600">{t.role}</p>
                 </div>
-              </motion.div>
-            </AnimatePresence>
-          </div>
+              </div>
 
-          <div className="flex items-center justify-center gap-4 mt-6">
-            <button
-              type="button"
-              onClick={prev}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/60 text-foreground/50 hover:text-foreground hover:bg-muted/60 transition-colors"
-              aria-label="Previous testimonial"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <div className="flex gap-2">
-              {testimonials.map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); }}
-                  className={`h-2 rounded-full transition-all ${
-                    i === current ? "w-6 bg-primary" : "w-2 bg-foreground/20 hover:bg-foreground/30"
-                  }`}
-                  aria-label={`Go to testimonial ${i + 1}`}
-                />
-              ))}
-            </div>
-            <button
-              type="button"
-              onClick={next}
-              className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/60 text-foreground/50 hover:text-foreground hover:bg-muted/60 transition-colors"
-              aria-label="Next testimonial"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
+              <div className="flex items-center gap-0.5">
+                {Array.from({ length: t.rating }).map((_, i) => (
+                  <Star key={i} className="h-4 w-4 text-amber-400 fill-amber-400" />
+                ))}
+              </div>
+
+              <p className="text-xs text-slate-800 leading-relaxed font-bold">
+                &ldquo;{t.content}&rdquo;
+              </p>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
+
+export default TestimonialsSection;
