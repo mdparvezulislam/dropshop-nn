@@ -64,7 +64,14 @@ export function SpecificationSection({
 
   React.useEffect(() => {
     setLocalSpecs(
-      currentSpecs.map((s) => ({ ...s, group: (s as SpecWithGroup).group || "General" })),
+      currentSpecs.map((s: any) => ({
+        ...s,
+        key: s.key || s.label || `spec_${Math.random()}`,
+        label: s.label || s.key || "Specification",
+        type: s.type || "text",
+        value: s.value !== undefined ? s.value : "",
+        group: s.group || "General",
+      })),
     );
   }, [currentSpecs]);
 
@@ -249,7 +256,7 @@ export function SpecificationSection({
                           </div>
                         ) : (
                           <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                            <label className="text-xs font-bold text-foreground truncate">{field.label}</label>
+                            <label className="text-xs font-bold text-foreground truncate">{field.label || field.key}</label>
                             <button
                               type="button"
                               onClick={() => handleStartRename(field.key, field.label)}

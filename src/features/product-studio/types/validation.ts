@@ -1,7 +1,9 @@
 import { z } from "zod";
 
 export const studioVariantRowSchema = z.object({
-  id: z.string(),
+  id: z.string().optional(),
+  name: z.string().optional().or(z.literal("")),
+  attributes: z.record(z.string(), z.string()).optional(),
   color: z.string().optional().or(z.literal("")),
   size: z.string().optional().or(z.literal("")),
   storage: z.string().optional().or(z.literal("")),
@@ -11,7 +13,14 @@ export const studioVariantRowSchema = z.object({
   sku: z.string().min(2, "Variant SKU is required").trim(),
   weight: z.number().nonnegative().optional(),
   price: z.number().nonnegative().optional(),
-  stock: z.number().int().nonnegative().optional(),
+  priceAdjustment: z.number().optional().default(0),
+  stock: z.number().int().nonnegative().optional().default(0),
+  image: z.string().optional().or(z.literal("")),
+  status: z.preprocess(
+    (val) => (typeof val === "string" ? (val.toLowerCase() === "published" ? "active" : val.toLowerCase()) : val),
+    z.enum(["active", "inactive"]).default("active")
+  ),
+  isActive: z.boolean().optional().default(true),
 });
 
 export const studioMediaItemSchema = z.object({
@@ -21,9 +30,15 @@ export const studioMediaItemSchema = z.object({
   altText: z.string().optional().or(z.literal("")),
 });
 
+export const studioSpecificationSchema = z.object({
+  key: z.string().min(1, "Specification key required"),
+  value: z.string().min(1, "Specification value required"),
+  group: z.string().optional().default("general"),
+});
+
 export const studioSEOSchema = z.object({
-  metaTitle: z.string().max(70).optional().or(z.literal("")),
-  metaDescription: z.string().max(160).optional().or(z.literal("")),
+  metaTitle: z.string().max(100).optional().or(z.literal("")),
+  metaDescription: z.string().max(300).optional().or(z.literal("")),
   metaKeywords: z.array(z.string()).optional(),
   slug: z.string().optional().or(z.literal("")),
   ogImage: z.string().optional().or(z.literal("")),
@@ -55,6 +70,10 @@ export const createStudioProductSchema = z.object({
   sku: z.string().min(2, "SKU is required").max(100).trim(),
   shortDescription: z.string().max(500).optional().or(z.literal("")),
   richDescription: z.string().optional(),
+  description: z.string().optional().or(z.literal("")),
+  notice: z.string().optional().or(z.literal("")),
+  badges: z.array(z.string()).default([]),
+  specifications: z.array(studioSpecificationSchema).default([]),
   productModel: z.string().optional().or(z.literal("")),
   barcode: z.string().optional().or(z.literal("")),
   brandId: z.string().optional().or(z.literal("")),
@@ -62,7 +81,10 @@ export const createStudioProductSchema = z.object({
   supplierId: z.string().optional().or(z.literal("")),
   tags: z.array(z.string()).default([]),
   visibility: z.enum(["public", "private", "hidden", "supplier_only"]).default("public"),
-  status: z.enum(["draft", "pending_review", "active", "inactive", "archived"]).default("draft"),
+  status: z.preprocess(
+    (val) => (typeof val === "string" ? (val.toLowerCase() === "published" ? "active" : val.toLowerCase()) : val),
+    z.enum(["draft", "pending_review", "active", "inactive", "archived"]).default("draft")
+  ),
   featured: z.boolean().default(false),
   trending: z.boolean().default(false),
   flashSale: z.boolean().default(false),

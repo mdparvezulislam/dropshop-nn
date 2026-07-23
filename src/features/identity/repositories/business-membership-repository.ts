@@ -40,7 +40,7 @@ export class BusinessMembershipRepository extends BaseRepository<BusinessMembers
 
   public async upsertMembership(
     userId: string,
-    membershipType: "customer" | "reseller" | "wholesaler",
+    membershipType: string,
     grantedBy: string,
     status: "active" | "suspended" | "expired" = "active"
   ): Promise<BusinessMembershipEntity> {

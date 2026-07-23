@@ -1,0 +1,299 @@
+"use client";
+
+import * as React from "react";
+import { Zap, ImagePlus, DollarSign, Package, Layers, Building2, FileText, Sparkles, ToggleLeft, ToggleRight, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import type { StudioFormState } from "../hooks/use-product-studio";
+
+interface StudioQuickCreateProps {
+  form: StudioFormState;
+  update: (field: keyof StudioFormState, value: unknown) => void;
+  bulkUpdate: (partial: Partial<StudioFormState>) => void;
+  onSave: () => Promise<void>;
+  onPublish: () => Promise<void>;
+  saving: boolean;
+  onSwitchToAdvanced: () => void;
+}
+
+export function StudioQuickCreate({
+  form,
+  update,
+  bulkUpdate,
+  onSave,
+  onPublish,
+  saving,
+  onSwitchToAdvanced,
+}: StudioQuickCreateProps) {
+  const costNum = parseFloat(form.costPrice) || 0;
+  const autoSelling = costNum > 0 ? (costNum * 1.3).toFixed(0) : "";
+  const autoReseller = costNum > 0 ? (costNum * 1.2).toFixed(0) : "";
+  const autoWholesale = costNum > 0 ? (costNum * 1.12).toFixed(0) : "";
+
+  const handleQuickSubmit = async (publishImmediate = false) => {
+    if (!form.name.trim()) {
+      toast.error("Product Name is required (প্রোডাক্টের নাম আবশ্যক)");
+      return;
+    }
+    if (!form.costPrice || costNum <= 0) {
+      toast.error("Cost Price is required (ক্রয় মূল্য আবশ্যক)");
+      return;
+    }
+
+    bulkUpdate({
+      sellingPrice: form.sellingPrice || autoSelling,
+      resellerPrice: form.resellerPrice || autoReseller,
+      wholesalePrice: form.wholesalePrice || autoWholesale,
+      status: publishImmediate ? "active" : "draft",
+    });
+
+    if (publishImmediate) {
+      await onPublish();
+    } else {
+      await onSave();
+    }
+  };
+
+  const primaryImageUrl = form.media && form.media.length > 0 ? form.media[0].url : "";
+
+  return (
+    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+      {/* Header Banner */}
+      <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div className="flex items-center space-x-3">
+          <div className="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-500">
+            <Zap className="w-6 h-6" />
+          </div>
+          <div>
+            <h2 className="text-lg font-black text-white flex items-center space-x-2">
+              <span>Express Quick Create Workspace</span>
+              <span className="text-[10px] bg-amber-500 text-slate-950 px-2 py-0.5 rounded font-extrabold uppercase">
+                High-Speed Express
+              </span>
+            </h2>
+            <p className="text-xs text-slate-400">
+              Enter core product details. SKU, Slug, & Tier Prices auto-calculate instantly.
+            </p>
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onSwitchToAdvanced}
+          className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white text-xs font-bold"
+        >
+          <span>Advanced Mode</span>
+          <ArrowRight className="w-4 h-4 ml-1.5" />
+        </Button>
+      </div>
+
+      {/* Core Quick Fields Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Field 1: Product Name */}
+        <div className="space-y-2 md:col-span-2">
+          <label className="text-xs font-bold text-slate-200 flex items-center justify-between">
+            <span>1. Product Name (প্রোডাক্টের নাম) *</span>
+            <span className="text-[10px] text-amber-400 font-semibold">Auto-generates SKU & Slug</span>
+          </label>
+          <input
+            type="text"
+            value={form.name}
+            onChange={(e) => update("name", e.target.value)}
+            placeholder="e.g. T900 Ultra Smart Watch - Gold Edition"
+            className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white font-medium text-sm focus:outline-none focus:border-amber-500 transition"
+          />
+        </div>
+
+        {/* Field 2: Category Select */}
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-slate-200 flex items-center space-x-1.5">
+            <Layers className="w-3.5 h-3.5 text-amber-500" />
+            <span>2. Category (ক্যাটাগরি) *</span>
+          </label>
+          <input
+            type="text"
+            value={form.categoryName || form.categoryId}
+            onChange={(e) => {
+              update("categoryName", e.target.value);
+              update("categoryId", e.target.value);
+            }}
+            placeholder="e.g. Smart Watch & Electronics"
+            className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-medium text-sm focus:outline-none focus:border-amber-500 transition"
+          />
+        </div>
+
+        {/* Field 3: Brand / Manufacturer */}
+        <div className="space-y-2">
+          <label className="text-xs font-bold text-slate-200 flex items-center space-x-1.5">
+            <Building2 className="w-3.5 h-3.5 text-amber-500" />
+            <span>3. Brand / Manufacturer (ব্র্যান্ড)</span>
+          </label>
+          <input
+            type="text"
+            value={form.brandName || form.brandId}
+            onChange={(e) => {
+              update("brandName", e.target.value);
+              update("brandId", e.target.value);
+            }}
+            placeholder="e.g. Unique Store BD / Apple"
+            className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-medium text-sm focus:outline-none focus:border-amber-500 transition"
+          />
+        </div>
+
+        {/* Field 4: Initial Stock */}
+        <div className="space-y-2 md:col-span-2">
+          <label className="text-xs font-bold text-slate-200 flex items-center space-x-1.5">
+            <Package className="w-3.5 h-3.5 text-amber-500" />
+            <span>4. Initial Stock (প্রাথমিক স্টক) *</span>
+          </label>
+          <input
+            type="number"
+            value={form.stock}
+            onChange={(e) => update("stock", e.target.value)}
+            placeholder="50"
+            className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-medium text-sm focus:outline-none focus:border-amber-500 transition"
+          />
+        </div>
+
+        {/* Field 5: Cost Price & Auto-Calculated Tiers */}
+        <div className="space-y-2 md:col-span-2 bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <label className="text-xs font-bold text-amber-400 flex items-center space-x-1.5">
+            <DollarSign className="w-4 h-4" />
+            <span>5. Cost Price (ক্রয় মূল্য ৳) *</span>
+          </label>
+          <input
+            type="number"
+            value={form.costPrice}
+            onChange={(e) => update("costPrice", e.target.value)}
+            placeholder="800"
+            className="w-full px-4 py-2.5 bg-slate-900 border border-amber-500/30 rounded-xl text-amber-400 font-extrabold text-base focus:outline-none focus:border-amber-500 transition"
+          />
+
+          {/* Auto Tier Preview */}
+          {costNum > 0 && (
+            <div className="pt-3 grid grid-cols-3 gap-2 text-xs border-t border-slate-800/80">
+              <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-800 text-center">
+                <span className="block text-[10px] text-slate-400 font-semibold uppercase">Retail (+30%)</span>
+                <span className="font-black text-amber-400 text-sm">৳{autoSelling}</span>
+              </div>
+              <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-800 text-center">
+                <span className="block text-[10px] text-slate-400 font-semibold uppercase">Reseller (+20%)</span>
+                <span className="font-black text-blue-400 text-sm">৳{autoReseller}</span>
+              </div>
+              <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-800 text-center">
+                <span className="block text-[10px] text-slate-400 font-semibold uppercase">Wholesale (+12%)</span>
+                <span className="font-black text-emerald-400 text-sm">৳{autoWholesale}</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Field 6: Primary Image Upload / URL */}
+        <div className="space-y-2 md:col-span-2">
+          <label className="text-xs font-bold text-slate-200 flex items-center space-x-1.5">
+            <ImagePlus className="w-4 h-4 text-amber-500" />
+            <span>6. Primary Image (ছবি লিঙ্ক / আপলোড) *</span>
+          </label>
+          <div className="flex items-center space-x-3">
+            <input
+              type="text"
+              value={primaryImageUrl}
+              onChange={(e) => {
+                const url = e.target.value;
+                update("media", url ? [{ url, type: "image", isFeatured: true }] : []);
+              }}
+              placeholder="https://ik.imagekit.io/dropshop/products/watch.jpg"
+              className="flex-1 px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-medium text-sm focus:outline-none focus:border-amber-500 transition"
+            />
+            {primaryImageUrl && (
+              <div className="w-11 h-11 rounded-lg overflow-hidden border border-amber-500/50 shrink-0">
+                <img src={primaryImageUrl} alt="Preview" className="w-full h-full object-cover" />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Field 7: Short Pitch Summary */}
+        <div className="space-y-2 md:col-span-2">
+          <label className="text-xs font-bold text-slate-200 flex items-center space-x-1.5">
+            <FileText className="w-4 h-4 text-amber-500" />
+            <span>7. Short Summary Pitch (সংক্ষিপ্ত বিবরণ)</span>
+          </label>
+          <textarea
+            rows={2}
+            value={form.shortDescription}
+            onChange={(e) => update("shortDescription", e.target.value)}
+            placeholder="Brief summary used for store cards, search snippets, and mobile catalog..."
+            className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white font-medium text-xs focus:outline-none focus:border-amber-500 transition"
+          />
+        </div>
+
+        {/* Field 8: High-Visibility Promo Notice */}
+        <div className="space-y-2 md:col-span-2">
+          <label className="text-xs font-bold text-amber-400 flex items-center space-x-1.5">
+            <Sparkles className="w-4 h-4" />
+            <span>8. Special Promo Notice (বিশেষ নোটিশ)</span>
+          </label>
+          <input
+            type="text"
+            value={form.notice || ""}
+            onChange={(e) => update("notice", e.target.value)}
+            placeholder="e.g. ৩ দিনের মধ্যে ফ্রি ডেলিভারি / ১০০% অরিজিনাল অফিশিয়াল ওয়ারেন্টি"
+            className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-amber-300 font-medium text-xs focus:outline-none focus:border-amber-500 transition"
+          />
+        </div>
+
+        {/* Field 9: Status Toggle */}
+        <div className="space-y-2 md:col-span-2 bg-slate-950 p-4 rounded-xl border border-slate-800 flex items-center justify-between">
+          <div>
+            <label className="text-xs font-bold text-white block">
+              9. Initial Status (স্ট্যাটাস) *
+            </label>
+            <span className="text-[11px] text-slate-400 block">
+              {form.status === "active" ? "Product will be live on storefront immediately" : "Product saved as Draft"}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => update("status", form.status === "active" ? "draft" : "active")}
+            className="flex items-center space-x-2 text-xs font-black uppercase px-4 py-2 rounded-xl transition border border-amber-500/40 bg-amber-500/10 text-amber-400"
+          >
+            {form.status === "active" ? (
+              <>
+                <ToggleRight className="w-5 h-5 text-emerald-400" />
+                <span className="text-emerald-400">ACTIVE (পাবলিশড)</span>
+              </>
+            ) : (
+              <>
+                <ToggleLeft className="w-5 h-5 text-slate-400" />
+                <span className="text-slate-400">DRAFT (খসড়া)</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Action CTA Buttons */}
+      <div className="flex items-center justify-end space-x-3 pt-4 border-t border-slate-800">
+        <Button
+          type="button"
+          disabled={saving}
+          onClick={() => handleQuickSubmit(false)}
+          className="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl"
+        >
+          Save Draft (খসড়া)
+        </Button>
+        <Button
+          type="button"
+          disabled={saving}
+          onClick={() => handleQuickSubmit(true)}
+          className="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black px-6 py-2.5 rounded-xl shadow-lg shadow-amber-500/20"
+        >
+          Publish Product Now (পাবলিশ করুন)
+        </Button>
+      </div>
+    </div>
+  );
+}

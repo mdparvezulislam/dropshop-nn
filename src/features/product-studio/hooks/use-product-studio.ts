@@ -3,7 +3,9 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { checkSkuUniquenessAction, checkSlugUniquenessAction } from "@/features/catalog/actions/product-actions";
 import { saveStudioProductAction, publishStudioProductAction } from "../actions/studio-actions";
+import { SmartParserService } from "../utils/smart-parser";
 import { useAutosave, type SaveState } from "./use-autosave";
 import { useHealthScore } from "./use-health-score";
 import { useAutoClassification } from "./use-auto-classification";
@@ -36,6 +38,9 @@ export interface StudioFormState {
   newArrival: boolean;
   warranty: string;
   returnPolicy: string;
+  notice?: string;
+  badges?: string[];
+  specifications?: Array<{ key: string; value: string }>;
 
   /* Pricing */
   costPrice: string;
@@ -87,7 +92,7 @@ const INITIAL_STATE: StudioFormState = {
   productModel: "", barcode: "", brandId: "", brandName: "", categoryId: "", categoryName: "", supplierId: "",
   tags: [], visibility: "public", status: "draft",
   featured: false, trending: false, flashSale: false, newArrival: true,
-  warranty: "", returnPolicy: "",
+  warranty: "", returnPolicy: "", notice: "", badges: [], specifications: [],
   costPrice: "", sellingPrice: "", wholesalePrice: "", resellerPrice: "", comparePrice: "", campaignPrice: "", manualPriceOverrides: {},
   inventorySku: "", inventoryBarcode: "", stock: "0", reservedStock: "0", incomingStock: "0", lowStockThreshold: "5",
   warehouseLocation: "DHAKA-CENTRAL-WH1", weight: "0.5",
@@ -116,7 +121,8 @@ export function useProductStudio(existingId?: string): {
   handleAutoGenerateSKU: () => void;
   handleApplyAutoPricing: (pricing: Partial<StudioFormState>) => void;
   handleResetAutoPricing: () => void;
-  handleSave: () => Promise<void>;
+  handleMagicParse: (customText?: string) => void;
+  handleSave: (overrideStatus?: string) => Promise<void>;
   handlePublish: () => Promise<void>;
   handlePreview: () => void;
   saving: boolean;
@@ -245,19 +251,114 @@ export function useProductStudio(existingId?: string): {
     });
   }, [form.costPrice, bulkUpdate]);
 
-  const handleSave = React.useCallback(async () => {
+  const handleMagicParse = React.useCallback((customText?: string) => {
+    const textToParse = customText || form.richDescription || form.shortDescription || form.name || "";
+    if (!textToParse.trim()) {
+      toast.error("Please enter or paste product text in the description field first! (বিবরণ লিখুন বা পেস্ট করুন)");
+      return;
+    }
+
+    const parsed = SmartParserService.parse(textToParse);
+    const updates: Partial<StudioFormState> = {};
+    const report: string[] = [];
+
+    // 1. Title: Always auto-fill parsed title if available
+    if (parsed.title) {
+      updates.name = parsed.title;
+      report.push("Product Title");
+    }
+
+    // 2. SEO Meta Description (truncated to 160 chars max)
+    if (parsed.seoDescription) {
+      const cleanSeo = parsed.seoDescription.length > 160
+        ? parsed.seoDescription.substring(0, 157).trim() + "..."
+        : parsed.seoDescription;
+      updates.metaDescription = cleanSeo;
+      report.push("SEO Meta Description");
+
+      const cleanPitch = parsed.seoDescription.length > 500
+        ? parsed.seoDescription.substring(0, 497).trim() + "..."
+        : parsed.seoDescription;
+      updates.shortDescription = cleanPitch;
+      report.push("Short Summary Pitch");
+    }
+
+    // 3. Specifications: Format as [{ key, label, value, group, type }]
+    if (parsed.specifications && parsed.specifications.length > 0) {
+      const existingSpecs = form.specifications || [];
+      const specMap = new Map<string, any>();
+
+      // Preserve existing
+      for (const s of existingSpecs) {
+        if (s.key) specMap.set(s.key.toLowerCase(), s);
+      }
+
+      // Add/overwrite parsed specs
+      for (const s of parsed.specifications) {
+        specMap.set(s.key.toLowerCase(), {
+          key: s.key.trim(),
+          label: s.label || s.key.trim(),
+          value: String(s.value).trim(),
+          group: s.group || "General",
+          type: "text" as const,
+        });
+      }
+
+      updates.specifications = Array.from(specMap.values());
+      report.push(`${parsed.specifications.length} Specifications`);
+    }
+
+    // 4. Tags / Keywords: Flat array of string tags
+    if (parsed.keywords && parsed.keywords.length > 0) {
+      const tagSet = new Set(form.tags || []);
+      for (const kw of parsed.keywords) {
+        const cleanKw = kw.trim().toLowerCase();
+        if (cleanKw) tagSet.add(cleanKw);
+      }
+      updates.tags = Array.from(tagSet);
+      report.push(`${parsed.keywords.length} Tags`);
+    }
+
+    // 5. Features: Append HTML bullet list to richDescription if features exist
+    if (parsed.features && parsed.features.length > 0) {
+      const currentDescription = form.richDescription || textToParse;
+      if (!currentDescription.includes("<ul>") && !currentDescription.includes("<li>")) {
+        const featureHtml = `\n<h3>Key Features</h3>\n<ul>\n${parsed.features
+          .map((f) => `  <li>${f}</li>`)
+          .join("\n")}\n</ul>`;
+        updates.richDescription = `${currentDescription}\n${featureHtml}`;
+        report.push(`${parsed.features.length} Features`);
+      }
+    }
+
+    if (Object.keys(updates).length > 0) {
+      bulkUpdate(updates);
+      toast.success(`⚡ Product data successfully parsed and applied to fields! (${report.join(", ")})`);
+    } else {
+      toast.info("Could not extract any product attributes from the provided text.");
+    }
+  }, [form.richDescription, form.shortDescription, form.name, form.specifications, form.tags, bulkUpdate]);
+
+  const scrollToSection = React.useCallback((id: string) => {
+    setActiveSection(id);
+    document.getElementById(`studio-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
+  const handleSave = React.useCallback(async (overrideStatus?: string) => {
     if (!form.name.trim()) {
-      toast.error("Product title is required");
+      toast.error("Product title is required (প্রোডাক্টের নাম আবশ্যক)");
       scrollToSection("general");
       return;
     }
     setSaving(true);
     try {
-      const payload = buildPayload(form);
+      const formToSave = overrideStatus ? { ...form, status: overrideStatus } : form;
+      const payload = buildPayload(formToSave);
       const res = await saveStudioProductAction(payload, productIdRef.current);
       if (res.success && res.data?.id) {
         productIdRef.current = res.data.id;
-        toast.success("Product saved as draft");
+        toast.success(overrideStatus === "active" ? "Product published successfully! (পাবলিশ সফল হয়েছে)" : "Product saved as draft (খসড়া সংরক্ষিত)");
+        if (overrideStatus) setForm((prev) => ({ ...prev, status: overrideStatus }));
         if (!existingId) {
           router.replace(`/dashboard/products/${res.data.id}/edit`);
         }
@@ -269,28 +370,39 @@ export function useProductStudio(existingId?: string): {
     } finally {
       setSaving(false);
     }
-  }, [form, existingId, router]);
+  }, [form, existingId, router, scrollToSection]);
 
   const handlePublish = React.useCallback(async () => {
-    if (!productIdRef.current) {
-      await handleSave();
+    if (!form.name.trim()) {
+      toast.error("Product title is required (প্রোডাক্টের নাম আবশ্যক)");
+      return;
     }
-    if (!productIdRef.current) return;
     setSaving(true);
     try {
-      const res = await publishStudioProductAction(productIdRef.current);
-      if (res.success) {
-        toast.success("Product published to channels!");
-        update("status", "active");
+      // 1. Save with status = active
+      const formToSave = { ...form, status: "active" };
+      const payload = buildPayload(formToSave);
+      const res = await saveStudioProductAction(payload, productIdRef.current);
+      if (res.success && res.data?.id) {
+        productIdRef.current = res.data.id;
+        // 2. Trigger publish action
+        const pubRes = await publishStudioProductAction(res.data.id);
+        if (pubRes.success) {
+          toast.success("Product published to storefront! (পাবলিশ সম্পন্ন)");
+          setForm((prev) => ({ ...prev, status: "active" }));
+          router.push("/dashboard/products");
+        } else {
+          toast.error(pubRes.error || "Publish failed");
+        }
       } else {
-        toast.error(res.error || "Publish failed");
+        toast.error(res.error || "Failed to publish product");
       }
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Publish failed");
     } finally {
       setSaving(false);
     }
-  }, [handleSave, update]);
+  }, [form, existingId, router]);
 
   const handlePreview = React.useCallback(() => {
     if (productIdRef.current) {
@@ -299,11 +411,6 @@ export function useProductStudio(existingId?: string): {
       toast.info("Save product draft first to preview");
     }
   }, [form.slug]);
-
-  const scrollToSection = React.useCallback((id: string) => {
-    setActiveSection(id);
-    document.getElementById(`studio-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, []);
 
   const sections = React.useMemo(() => [
     { id: "general", label: "General" },
@@ -325,7 +432,7 @@ export function useProductStudio(existingId?: string): {
 
   return {
     form, update, bulkUpdate,
-    handleAutoGenerateSKU, handleApplyAutoPricing, handleResetAutoPricing,
+    handleAutoGenerateSKU, handleApplyAutoPricing, handleResetAutoPricing, handleMagicParse,
     handleSave, handlePublish, handlePreview,
     saving, saveState, healthResult,
     activeSection, setActiveSection, scrollToSection,
@@ -341,6 +448,10 @@ function buildPayload(form: StudioFormState): Record<string, unknown> {
     sku: form.sku.trim() || form.inventorySku || `SKU-${Date.now()}`,
     shortDescription: form.shortDescription || undefined,
     richDescription: form.richDescription || undefined,
+    description: form.richDescription || form.shortDescription || undefined,
+    notice: form.notice || undefined,
+    badges: form.badges || [],
+    specifications: form.specifications || [],
     productModel: form.productModel || undefined,
     barcode: form.barcode || undefined,
     brandId: form.brandId || undefined,
@@ -355,16 +466,24 @@ function buildPayload(form: StudioFormState): Record<string, unknown> {
     newArrival: form.newArrival,
     warranty: form.warranty || undefined,
     returnPolicy: form.returnPolicy || undefined,
-    variants: form.variants
-      .filter((v) => v.sku.trim())
+    variants: (form.variants || [])
+      .filter((v) => v.sku && v.sku.trim())
       .map((v) => ({
+        id: v.id,
+        name: (v as any).name || [v.color, v.size, v.storage].filter(Boolean).join(" / "),
+        attributes: (v as any).attributes,
+        sku: v.sku.trim(),
+        priceAdjustment: (v as any).priceAdjustment ?? 0,
+        stock: (v as any).stock ?? 0,
+        image: (v as any).image || undefined,
+        status: (v as any).status || "active",
+        isActive: (v as any).isActive ?? true,
         color: v.color || undefined,
         size: v.size || undefined,
         storage: v.storage || undefined,
         ram: v.ram || undefined,
         capacity: v.capacity || undefined,
         material: v.material || undefined,
-        sku: v.sku.trim(),
         weight: v.weight,
       })),
     media: form.media.map((m) => ({

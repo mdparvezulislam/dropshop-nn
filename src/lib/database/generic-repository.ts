@@ -154,6 +154,7 @@ export abstract class BaseRepository<
         { $set: data as any },
         {
           new: true,
+          runValidators: true,
           session: options?.session,
         },
       );

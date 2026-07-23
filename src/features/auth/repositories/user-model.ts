@@ -18,7 +18,8 @@ export interface UserDBFields {
   phone: string;
   fullName: string;
   passwordHash: string;
-  role: string; // Controls system permissions (e.g. admin, super_admin, staff, viewer)
+  role: string; // Primary system role (e.g. admin, super_admin, staff, viewer)
+  roles: string[]; // Array of system roles (e.g. ["admin", "support"])
   memberships: string[]; // Controls business capabilities (e.g. ["customer", "reseller", "wholesaler"])
   status: "active" | "pending" | "suspended" | "blocked";
   profileImage?: string;
@@ -50,6 +51,7 @@ const userSchema = new Schema<UserDocument>(
     fullName: { type: String, required: true },
     passwordHash: { type: String, required: true },
     role: { type: String, required: true, index: true },
+    roles: { type: [String], default: ["viewer"], index: true },
     memberships: { type: [String], default: ["customer"], index: true },
     status: {
       type: String,

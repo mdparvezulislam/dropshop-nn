@@ -2,11 +2,37 @@ import { BaseDBEntity } from "@/lib/database/types";
 
 export type ProductStatus = "draft" | "pending_review" | "active" | "inactive" | "archived";
 
-export type ProductVisibility = "public" | "private" | "hidden" | "supplier_only";
+export type ProductVisibility =
+  | "public"
+  | "private"
+  | "hidden"
+  | "supplier_only"
+  | "reseller_only"
+  | "wholesale_only";
 
 export type ProductType = "simple" | "variant" | "bundle" | "digital" | "service" | "gift_card";
 
+export type ProductBadge =
+  | "featured"
+  | "trending"
+  | "flash_sale"
+  | "new_arrival"
+  | "best_seller"
+  | "limited"
+  | string;
+
 export interface ProductVariant {
+  id?: string;
+  name?: string;
+  attributes?: Record<string, string>;
+  sku: string;
+  priceAdjustment?: number;
+  stock?: number;
+  image?: string;
+  status?: "active" | "inactive";
+  isActive?: boolean;
+
+  // Legacy fields kept for backward compatibility
   color?: string;
   size?: string;
   storage?: string;
@@ -14,7 +40,6 @@ export interface ProductVariant {
   capacity?: string;
   material?: string;
   bundle?: string;
-  sku: string;
   barcode?: string;
   weight?: number;
   weightUnit?: string;
@@ -25,18 +50,17 @@ export interface ProductVariant {
     unit?: string;
   };
   images?: string[];
-  status: "active" | "inactive";
   sortOrder?: number;
   customAttributes?: Record<string, string>;
 }
 
 export interface ProductMedia {
   url: string;
-  type: "image" | "video" | "document";
-  isFeatured: boolean;
+  type?: "image" | "video" | "document";
+  isFeatured?: boolean;
   altText?: string;
   caption?: string;
-  sortOrder: number;
+  sortOrder?: number;
   width?: number;
   height?: number;
   fileSize?: number;
@@ -61,11 +85,12 @@ export interface ProductSEO {
 export interface ProductSpecification {
   key: string;
   value: string;
-  group: "specification" | "technical" | "general";
+  group?: "specification" | "technical" | "general" | string;
 }
 
 export interface ProductContent {
-  richDescription?: Record<string, unknown>;
+  richDescription?: Record<string, unknown> | string | unknown;
+  description?: string;
   highlights?: string[];
   includedItems?: string[];
   features?: string[];
@@ -78,8 +103,8 @@ export interface ProductContent {
 export interface SupplierReference {
   supplierId: string;
   supplierSku?: string;
-  isPrimary: boolean;
-  sortOrder: number;
+  isPrimary?: boolean;
+  sortOrder?: number;
 }
 
 export interface ProductSearchMetadata {
@@ -91,30 +116,50 @@ export interface ProductSearchMetadata {
 }
 
 export interface Product extends BaseDBEntity {
+  // Section 01: Identity
   name: string;
   slug: string;
   sku: string;
   barcode?: string;
-  gtin?: string;
-  productType: ProductType;
-  shortDescription?: string;
-  productModel?: string;
-  brandId?: string;
+
+  // Section 02: Classification
   categoryId?: string;
+  brandId?: string;
   supplierId?: string;
-  status: ProductStatus;
+  tags: string[];
   visibility: ProductVisibility;
-  featured: boolean;
-  trending: boolean;
-  flashSale: boolean;
-  newArrival: boolean;
-  variants: ProductVariant[];
+  status: ProductStatus;
+  badges: string[];
+
+  // Section 03: Content
+  shortDescription?: string;
+  description?: string;
+  notice?: string;
+  specifications: ProductSpecification[];
+
+  // Section 04: Media
   media: ProductMedia[];
+
+  // Section 05: Variants
+  hasVariants?: boolean;
+  variants: ProductVariant[];
+
+  // Section 06: Minimal SEO
+  metaTitle?: string;
+  metaDescription?: string;
+
+  // Legacy Fields (kept with optional access & backward compatibility)
+  gtin?: string;
+  productType?: ProductType;
+  productModel?: string;
+  featured?: boolean;
+  trending?: boolean;
+  flashSale?: boolean;
+  newArrival?: boolean;
   seo?: ProductSEO;
   content?: ProductContent;
-  suppliers: SupplierReference[];
+  suppliers?: SupplierReference[];
   searchMetadata?: ProductSearchMetadata;
-  tags: string[];
 }
 
 export default Product;

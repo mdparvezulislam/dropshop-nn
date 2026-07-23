@@ -4,7 +4,7 @@ import { BaseDocument } from "@/lib/database/types";
 
 export interface BusinessMembershipDBFields {
   userId: string;
-  membershipType: "customer" | "reseller" | "wholesaler";
+  membershipType: string;
   status: "active" | "suspended" | "expired";
   grantedAt: Date;
   grantedBy: string;
@@ -20,7 +20,7 @@ const { status: _, ...membershipBaseFields } = baseFieldsDefinition;
 const businessMembershipSchema = new Schema<BusinessMembershipDocument>(
   {
     userId: { type: String, required: true, index: true },
-    membershipType: { type: String, enum: ["customer", "reseller", "wholesaler"], required: true, index: true },
+    membershipType: { type: String, required: true, index: true },
     status: { type: String, enum: ["active", "suspended", "expired"], default: "active", index: true },
     grantedAt: { type: Date, default: Date.now, required: true },
     grantedBy: { type: String, required: true },

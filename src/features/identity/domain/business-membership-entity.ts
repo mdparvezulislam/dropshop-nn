@@ -1,6 +1,37 @@
 import { BaseDBEntity } from "@/lib/database/types";
 
-export type BusinessMembershipType = "customer" | "reseller" | "wholesaler";
+export type BusinessMembershipType = string;
+
+export interface MembershipBenefits {
+  features: string[];
+  pricingRules: {
+    ruleType: string;
+    discountPercent?: number;
+    marginPercent?: number;
+  };
+  minimumOrderAmount: number;
+  discountRules: {
+    minQty?: number;
+    discountPercent?: number;
+  };
+  accessRules: string[];
+  dashboardVisibility: boolean;
+  marketingAccess: boolean;
+}
+
+export interface BusinessMembershipTypeEntity extends BaseDBEntity {
+  slug: string;
+  name: string;
+  banglaName: string;
+  description: string;
+  icon: string;
+  color: string;
+  priority: number;
+  approvalRequired: boolean;
+  isActive: boolean;
+  isArchived: boolean;
+  benefits: MembershipBenefits;
+}
 
 export type MembershipStatus = "active" | "suspended" | "expired";
 
@@ -57,7 +88,7 @@ export interface BusinessMembershipApplicationEntity extends BaseDBEntity {
   userFullName: string;
   userPhone: string;
   userEmail: string;
-  membershipType: "reseller" | "wholesaler";
+  membershipType: string;
   status: ApplicationStatus;
   commonFields: CommonApplicationFields;
   resellerFields?: ResellerApplicationFields;

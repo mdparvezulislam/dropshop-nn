@@ -3,8 +3,110 @@
 import { auth } from "@/lib/auth";
 import { checkAnyRole } from "@/lib/check-permission";
 import { businessMembershipService } from "../services/business-membership-service";
+import BusinessMembershipTypeService from "../services/business-membership-type-service";
 import { businessMembershipApplicationRepository } from "../repositories/business-membership-application-repository";
-import { ApplicationStatus } from "../domain/business-membership-entity";
+import { ApplicationStatus, MembershipBenefits } from "../domain/business-membership-entity";
+
+const typeService = new BusinessMembershipTypeService();
+
+export async function adminGetMembershipTypesAction() {
+  try {
+    const session = await auth();
+    checkAnyRole(session, ["super_admin", "admin", "manager", "staff"]);
+
+    const types = await typeService.getAllTypes();
+    return { success: true, data: types };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "মেম্বারশিপ টাইপ তালিকা লোড করা যায়নি",
+    };
+  }
+}
+
+export async function adminCreateMembershipTypeAction(input: {
+  slug: string;
+  name: string;
+  banglaName: string;
+  description: string;
+  icon?: string;
+  color?: string;
+  priority?: number;
+  approvalRequired?: boolean;
+  isActive?: boolean;
+  benefits?: Partial<MembershipBenefits>;
+}) {
+  try {
+    const session = await auth();
+    checkAnyRole(session, ["super_admin", "admin"]);
+
+    const created = await typeService.createType(input);
+    return { success: true, data: created };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "মেম্বারশিপ টাইপ তৈরি করা যায়নি",
+    };
+  }
+}
+
+export async function adminUpdateMembershipTypeAction(
+  id: string,
+  updates: {
+    name?: string;
+    banglaName?: string;
+    description?: string;
+    icon?: string;
+    color?: string;
+    priority?: number;
+    approvalRequired?: boolean;
+    isActive?: boolean;
+    benefits?: Partial<MembershipBenefits>;
+  },
+) {
+  try {
+    const session = await auth();
+    checkAnyRole(session, ["super_admin", "admin"]);
+
+    const updated = await typeService.updateType(id, updates as never);
+    return { success: true, data: updated };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "মেম্বারশিপ টাইপ আপডেট করা যায়নি",
+    };
+  }
+}
+
+export async function adminArchiveMembershipTypeAction(id: string) {
+  try {
+    const session = await auth();
+    checkAnyRole(session, ["super_admin", "admin"]);
+
+    const archived = await typeService.archiveType(id);
+    return { success: true, data: archived };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "মেম্বারশিপ টাইপ আরকাইভ করা যায়নি",
+    };
+  }
+}
+
+export async function adminToggleMembershipTypeActiveAction(id: string, isActive: boolean) {
+  try {
+    const session = await auth();
+    checkAnyRole(session, ["super_admin", "admin"]);
+
+    const toggled = await typeService.toggleActive(id, isActive);
+    return { success: true, data: toggled };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "মেম্বারশিপ স্ট্যাটাস পরিবর্তন করা যায়নি",
+    };
+  }
+}
 
 export async function adminGetMembershipApplicationsAction(params: {
   status?: ApplicationStatus;
@@ -62,7 +164,7 @@ export async function adminReviewApplicationAction(input: {
 
 export async function adminManageUserMembershipsAction(input: {
   targetUserId: string;
-  memberships: ("customer" | "reseller" | "wholesaler")[];
+  memberships: string[];
   actionNote?: string;
 }) {
   try {

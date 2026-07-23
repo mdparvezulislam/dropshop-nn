@@ -1,6 +1,17 @@
 import { z } from "zod";
 
 export const productVariantSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().optional().or(z.literal("")),
+  attributes: z.record(z.string(), z.string()).optional(),
+  sku: z.string().min(2, "Variant SKU is required").trim(),
+  priceAdjustment: z.number().optional().default(0),
+  stock: z.number().int().nonnegative().optional().default(0),
+  image: z.string().optional().or(z.literal("")),
+  status: z.enum(["active", "inactive"]).default("active"),
+  isActive: z.boolean().optional().default(true),
+
+  // Legacy fields kept for backward compatibility
   color: z.string().optional().or(z.literal("")),
   size: z.string().optional().or(z.literal("")),
   storage: z.string().optional().or(z.literal("")),
@@ -8,7 +19,6 @@ export const productVariantSchema = z.object({
   capacity: z.string().optional().or(z.literal("")),
   material: z.string().optional().or(z.literal("")),
   bundle: z.string().optional().or(z.literal("")),
-  sku: z.string().min(2, "Variant SKU is required").trim(),
   barcode: z.string().optional().or(z.literal("")),
   weight: z.number().nonnegative().optional(),
   weightUnit: z.string().optional().or(z.literal("")),
@@ -21,14 +31,13 @@ export const productVariantSchema = z.object({
     })
     .optional(),
   images: z.array(z.string()).optional(),
-  status: z.enum(["active", "inactive"]).default("active"),
   sortOrder: z.number().int().nonnegative().optional(),
   customAttributes: z.record(z.string(), z.string()).optional(),
 });
 
 export const productMediaSchema = z.object({
-  url: z.string().url("Invalid media URL"),
-  type: z.enum(["image", "video", "document"]),
+  url: z.string().min(1, "Media URL is required"),
+  type: z.enum(["image", "video", "document"]).default("image"),
   isFeatured: z.boolean().default(false),
   altText: z.string().optional().or(z.literal("")),
   caption: z.string().optional().or(z.literal("")),
@@ -40,39 +49,36 @@ export const productMediaSchema = z.object({
 });
 
 export const productSEOSchema = z.object({
-  metaTitle: z.string().max(70, "Meta title too long (max 70)").optional().or(z.literal("")),
-  metaDescription: z
-    .string()
-    .max(160, "Meta description too long (max 160)")
-    .optional()
-    .or(z.literal("")),
+  metaTitle: z.string().max(100).optional().or(z.literal("")),
+  metaDescription: z.string().max(300).optional().or(z.literal("")),
   metaKeywords: z.array(z.string()).optional(),
-  canonicalUrl: z.string().url().optional().or(z.literal("")),
-  ogTitle: z.string().max(70).optional().or(z.literal("")),
-  ogDescription: z.string().max(200).optional().or(z.literal("")),
-  ogImage: z.string().url().optional().or(z.literal("")),
+  canonicalUrl: z.string().optional().or(z.literal("")),
+  ogTitle: z.string().optional().or(z.literal("")),
+  ogDescription: z.string().optional().or(z.literal("")),
+  ogImage: z.string().optional().or(z.literal("")),
   ogType: z.string().optional().or(z.literal("")),
-  twitterTitle: z.string().max(70).optional().or(z.literal("")),
-  twitterDescription: z.string().max(200).optional().or(z.literal("")),
-  twitterImage: z.string().url().optional().or(z.literal("")),
+  twitterTitle: z.string().optional().or(z.literal("")),
+  twitterDescription: z.string().optional().or(z.literal("")),
+  twitterImage: z.string().optional().or(z.literal("")),
   twitterCardType: z.enum(["summary", "summary_large_image"]).optional(),
 });
 
 export const productSpecificationSchema = z.object({
   key: z.string().min(1, "Key is required").trim(),
   value: z.string().min(1, "Value is required").trim(),
-  group: z.enum(["specification", "technical", "general"]).default("general"),
+  group: z.string().optional().default("general"),
 });
 
 export const productContentSchema = z.object({
-  richDescription: z.record(z.string(), z.unknown()).optional(),
-  highlights: z.array(z.string().max(200)).max(10).optional(),
+  richDescription: z.union([z.record(z.string(), z.unknown()), z.string(), z.unknown()]).optional(),
+  description: z.string().optional().or(z.literal("")),
+  highlights: z.array(z.string()).optional(),
   includedItems: z.array(z.string()).optional(),
-  features: z.array(z.string().max(500)).max(20).optional(),
-  specifications: z.array(productSpecificationSchema).max(50).optional(),
+  features: z.array(z.string()).optional(),
+  specifications: z.array(productSpecificationSchema).optional(),
   technicalDetails: z.record(z.string(), z.unknown()).optional(),
-  warrantyInformation: z.string().max(2000).optional().or(z.literal("")),
-  returnPolicy: z.string().max(2000).optional().or(z.literal("")),
+  warrantyInformation: z.string().optional().or(z.literal("")),
+  returnPolicy: z.string().optional().or(z.literal("")),
 });
 
 export const supplierReferenceSchema = z.object({
@@ -85,29 +91,41 @@ export const supplierReferenceSchema = z.object({
 export const searchMetadataSchema = z.object({
   searchKeywords: z.array(z.string()).optional(),
   searchSynonyms: z.array(z.string()).optional(),
-  searchWeight: z.number().min(0).max(10).optional(),
-  popularityScore: z.number().int().min(0).max(100).optional(),
+  searchWeight: z.number().optional(),
+  popularityScore: z.number().optional(),
   searchable: z.boolean().optional(),
 });
 
 export const createProductSchema = z.object({
   name: z.string().min(2, "Product name is required").max(255).trim(),
-  sku: z.string().min(2, "SKU is required").max(100).trim(),
+  slug: z.string().optional().or(z.literal("")),
+  sku: z.string().optional().or(z.literal("")),
   barcode: z.string().optional().or(z.literal("")),
   gtin: z.string().optional().or(z.literal("")),
   productType: z.enum(["simple", "variant", "bundle", "digital", "service", "gift_card"]).default("simple"),
-  shortDescription: z.string().max(500).optional().or(z.literal("")),
+  shortDescription: z.string().optional().or(z.literal("")),
+  description: z.string().optional().or(z.literal("")),
+  notice: z.string().optional().or(z.literal("")),
   productModel: z.string().optional().or(z.literal("")),
   brandId: z.string().optional().or(z.literal("")),
   categoryId: z.string().optional().or(z.literal("")),
   supplierId: z.string().optional().or(z.literal("")),
-  visibility: z.enum(["public", "private", "hidden", "supplier_only"]).default("public"),
-  featured: z.boolean().default(false),
-  trending: z.boolean().default(false),
-  flashSale: z.boolean().default(false),
-  newArrival: z.boolean().default(false),
-  variants: z.array(productVariantSchema).min(1, "At least one variant is required"),
+  status: z.preprocess(
+    (val) => (typeof val === "string" ? (val.toLowerCase() === "published" ? "active" : val.toLowerCase()) : val),
+    z.enum(["draft", "pending_review", "active", "inactive", "archived"]).default("draft")
+  ),
+  visibility: z.enum(["public", "private", "hidden", "supplier_only", "reseller_only", "wholesale_only"]).default("public"),
+  badges: z.array(z.string()).default([]),
+  featured: z.boolean().optional().default(false),
+  trending: z.boolean().optional().default(false),
+  flashSale: z.boolean().optional().default(false),
+  newArrival: z.boolean().optional().default(false),
+  hasVariants: z.boolean().optional().default(false),
+  variants: z.array(productVariantSchema).default([]),
   media: z.array(productMediaSchema).default([]),
+  specifications: z.array(productSpecificationSchema).default([]),
+  metaTitle: z.string().optional().or(z.literal("")),
+  metaDescription: z.string().optional().or(z.literal("")),
   seo: productSEOSchema.optional(),
   content: productContentSchema.optional(),
   suppliers: z.array(supplierReferenceSchema).default([]),
@@ -123,23 +141,23 @@ export type UpdateProductInput = z.infer<typeof updateProductSchema>;
 
 export const brandSchema = z.object({
   name: z.string().min(2, "Brand name is required").max(100).trim(),
-  logo: z.string().url().optional().or(z.literal("")),
+  logo: z.string().optional().or(z.literal("")),
   description: z.string().optional().or(z.literal("")),
-  website: z.string().url().optional().or(z.literal("")),
+  website: z.string().optional().or(z.literal("")),
 });
 
 export const categorySchema = z.object({
   name: z.string().min(2, "Category name is required").max(100).trim(),
   parentCategoryId: z.string().optional().or(z.literal("")),
   description: z.string().optional().or(z.literal("")),
-  image: z.string().url().optional().or(z.literal("")),
+  image: z.string().optional().or(z.literal("")),
   sortOrder: z.number().int().nonnegative().default(0),
 });
 
 export const collectionSchema = z.object({
   name: z.string().min(2, "Collection name is required").max(100).trim(),
   description: z.string().optional().or(z.literal("")),
-  image: z.string().url().optional().or(z.literal("")),
+  image: z.string().optional().or(z.literal("")),
   isActive: z.boolean().default(true),
   sortOrder: z.number().int().nonnegative().default(0),
   productIds: z.array(z.string()).default([]),

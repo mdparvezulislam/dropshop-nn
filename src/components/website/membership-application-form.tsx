@@ -25,7 +25,7 @@ import {
 import { BusinessMembershipApplicationEntity } from "@/features/identity/domain/business-membership-entity";
 
 interface MembershipApplicationFormProps {
-  membershipType: "reseller" | "wholesaler";
+  membershipType: string;
   existingApplication?: BusinessMembershipApplicationEntity | null;
   onSuccess?: () => void;
 }

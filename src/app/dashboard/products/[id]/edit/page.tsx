@@ -1,33 +1,62 @@
 "use client";
 
 import * as React from "react";
+import dynamic from "next/dynamic";
 import { useParams } from "next/navigation";
 import { StudioLayout } from "@/features/product-studio/components/studio-layout";
 import { StudioHeader } from "@/features/product-studio/components/studio-header";
-import { StudioMobileNav } from "@/features/product-studio/components/studio-mobile-nav";
 import { StudioRightSidebar } from "@/features/product-studio/components/sidebar/studio-right-sidebar";
-import { VariantStudioSection } from "@/features/product-studio/components/sections/variant-studio-section";
-import { CollectionsChannelsSection } from "@/features/product-studio/components/sections/collections-channels-section";
-import { SEOAdvancedSection } from "@/features/product-studio/components/sections/seo-advanced-section";
-import { MarketingStudioSection } from "@/features/product-studio/components/sections/marketing-studio-section";
-import { RelationshipsSection } from "@/features/product-studio/components/sections/relationships-section";
-import { SupplierStudioSection } from "@/features/product-studio/components/sections/supplier-studio-section";
-import { PublishingStudioSection } from "@/features/product-studio/components/sections/publishing-studio-section";
-
+import { StudioQuickCreate } from "@/features/product-studio/components/studio-quick-create";
+import { StudioLivePreview } from "@/features/product-studio/components/studio-live-preview";
 import { useProductStudio } from "@/features/product-studio/hooks/use-product-studio";
+import { checkSkuUniquenessAction, checkSlugUniquenessAction } from "@/features/catalog/actions/product-actions";
+import { getStudioProductAction } from "@/features/product-studio/actions/studio-actions";
+
 import { GeneralSection } from "@/features/product-studio/components/sections/general-section";
-import { DescriptionSection } from "@/features/product-studio/components/sections/description-section";
+import { BadgesStudioSection } from "@/features/product-studio/components/sections/badges-studio-section";
 import { CategorySection } from "@/features/product-studio/components/sections/category-section";
 import { BrandSection } from "@/features/product-studio/components/sections/brand-section";
+import { VariantStudioSection } from "@/features/product-studio/components/sections/variant-studio-section";
 import { SpecificationSection } from "@/features/product-studio/components/sections/specification-section";
 import { MediaSection } from "@/features/product-studio/components/sections/media-section";
 import { PricingSection } from "@/features/product-studio/components/sections/pricing-section";
 import { CostStudioSection } from "@/features/product-studio/components/sections/cost-studio-section";
 import { InventorySection } from "@/features/product-studio/components/sections/inventory-section";
-import { SEOSection } from "@/features/product-studio/components/sections/seo-section";
-import { getProductAction } from "@/features/catalog/actions/product-actions";
+import { CollectionsChannelsSection } from "@/features/product-studio/components/sections/collections-channels-section";
+import { SEOAdvancedSection } from "@/features/product-studio/components/sections/seo-advanced-section";
+
+import { Zap, Sliders, Eye } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
+
+// Lazy load heavy rich text and supplier sections
+const LazyDescriptionSection = dynamic(
+  () =>
+    import("@/features/product-studio/components/sections/description-section").then(
+      (m) => m.DescriptionSection
+    ),
+  {
+    loading: () => <div className="p-4 bg-slate-900 border border-slate-800 rounded-xl text-slate-400 text-xs flex items-center space-x-2"><Spinner size="sm" /><span>Loading Rich Text Editor…</span></div>,
+    ssr: false,
+  }
+);
+
+const LazySupplierStudioSection = dynamic(
+  () =>
+    import("@/features/product-studio/components/sections/supplier-studio-section").then(
+      (m) => m.SupplierStudioSection
+    ),
+  { ssr: false }
+);
+
+const LazyPublishingStudioSection = dynamic(
+  () =>
+    import("@/features/product-studio/components/sections/publishing-studio-section").then(
+      (m) => m.PublishingStudioSection
+    ),
+  { ssr: false }
+);
 
 export default function EditProductStudioPage(): React.ReactElement {
   const params = useParams();
@@ -35,7 +64,7 @@ export default function EditProductStudioPage(): React.ReactElement {
 
   const {
     form, update, bulkUpdate,
-    handleAutoGenerateSKU, handleApplyAutoPricing, handleResetAutoPricing,
+    handleAutoGenerateSKU, handleApplyAutoPricing, handleResetAutoPricing, handleMagicParse,
     handleSave, handlePublish, handlePreview,
     saving, saveState, healthResult,
     activeSection, setActiveSection, scrollToSection,
@@ -43,7 +72,10 @@ export default function EditProductStudioPage(): React.ReactElement {
   } = useProductStudio(id);
 
   const [loadingProduct, setLoadingProduct] = React.useState(true);
-  const [currentSectionIndex, setCurrentSectionIndex] = React.useState(0);
+  const [mode, setMode] = React.useState<"quick" | "advanced">("advanced");
+  const [showPreview, setShowPreview] = React.useState(false);
+  const [skuUniqueError, setSkuUniqueError] = React.useState<string | null>(null);
+  const [slugUniqueError, setSlugUniqueError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     async function load() {
@@ -52,44 +84,74 @@ export default function EditProductStudioPage(): React.ReactElement {
         return;
       }
       try {
-        const res = await getProductAction(id);
+        const res = await getStudioProductAction(id);
         if (res.success && res.data) {
-          const p = res.data as any;
-          bulkUpdate({
-            name: p.title ?? p.name ?? "",
-            productType: p.productType ?? "simple",
-            sku: p.sku ?? "",
-            shortDescription: p.shortDescription ?? "",
-            richDescription: p.richDescription ?? p.description ?? "",
-            productModel: p.productModel ?? "",
-            barcode: p.barcode ?? "",
-            brandId: p.brandId ?? p.brand?.id ?? "",
-            categoryId: p.categoryId ?? p.category?.id ?? "",
-            supplierId: p.supplierId ?? "",
-            status: p.status ?? "draft",
-            visibility: p.visibility ?? "public",
-            costPrice: String(p.costPrice ?? p.pricing?.costPrice ?? 0),
-            sellingPrice: String(p.retailPrice ?? p.price ?? p.pricing?.sellingPrice ?? 0),
-            wholesalePrice: String(p.wholesalePrice ?? p.pricing?.wholesalePrice ?? 0),
-            resellerPrice: String(p.resellerPrice ?? p.pricing?.resellerPrice ?? 0),
-            comparePrice: String(p.comparePrice ?? p.pricing?.comparePrice ?? 0),
-            stock: String(p.stockQuantity ?? p.inventory?.stock ?? 0),
-            lowStockThreshold: String(p.inventory?.lowStockThreshold ?? 5),
-            media: (p.images ?? p.media ?? []).map((img: any, i: number) => ({
-              id: img.id || `m-${i}`,
-              url: typeof img === "string" ? img : img.url,
-              type: "image",
-              isFeatured: i === 0,
-              altText: img.altText || undefined,
-            })),
-            slug: p.slug ?? p.seo?.slug ?? "",
-            metaTitle: p.seo?.metaTitle ?? p.title ?? "",
-            metaDescription: p.seo?.metaDescription ?? p.shortDescription ?? "",
-            metaKeywords: p.seo?.metaKeywords ?? [],
-          });
+          const { product: p, pricing: pr, inventory: inv } = res.data as any;
+          if (p) {
+            const costVal = p.costPrice || (pr?.baseCostPrice ? pr.baseCostPrice / 100 : 0);
+            const sellingVal = p.sellingPrice || p.retailPrice || (pr?.sellingPrice ? pr.sellingPrice / 100 : 0);
+            const wholesaleVal = p.wholesalePrice || (pr?.wholesalePrice ? pr.wholesalePrice / 100 : 0);
+            const resellerVal = p.resellerPrice || (pr?.resellerPrice ? pr.resellerPrice / 100 : 0);
+            const compareVal = p.comparePrice || (pr?.comparePrice ? pr.comparePrice / 100 : 0);
+            const stockVal = p.stockQuantity ?? p.stock ?? inv?.availableStock ?? 0;
+
+            bulkUpdate({
+              name: p.name || p.title || "",
+              productType: p.productType || "simple",
+              sku: p.sku || "",
+              shortDescription: p.shortDescription || "",
+              richDescription: p.richDescription || p.description || "",
+              notice: p.notice || "",
+              productModel: p.productModel || "",
+              barcode: p.barcode || "",
+              brandId: p.brandId ? String(p.brandId) : "",
+              categoryId: p.categoryId ? String(p.categoryId) : "",
+              supplierId: p.supplierId ? String(p.supplierId) : "",
+              status: p.status || "draft",
+              visibility: p.visibility || "public",
+              badges: p.badges || [],
+              specifications: p.specifications || p.content?.specifications || [],
+              costPrice: costVal > 0 ? String(costVal) : "",
+              sellingPrice: sellingVal > 0 ? String(sellingVal) : "",
+              wholesalePrice: wholesaleVal > 0 ? String(wholesaleVal) : "",
+              resellerPrice: resellerVal > 0 ? String(resellerVal) : "",
+              comparePrice: compareVal > 0 ? String(compareVal) : "",
+              stock: String(stockVal),
+              lowStockThreshold: String(inv?.lowStockThreshold || 5),
+              inventorySku: p.sku || "",
+              variants: (p.variants || []).map((v: any, i: number) => ({
+                id: v.id || `v-${i}`,
+                name: v.name || "",
+                attributes: v.attributes || undefined,
+                sku: v.sku || `${p.sku}-v${i + 1}`,
+                priceAdjustment: v.priceAdjustment ?? 0,
+                stock: v.stock ?? 0,
+                image: v.image || undefined,
+                status: v.status || "active",
+                isActive: v.isActive ?? true,
+                color: v.color || "",
+                size: v.size || "",
+                storage: v.storage || "",
+                ram: v.ram || "",
+                capacity: v.capacity || "",
+                material: v.material || "",
+              })),
+              media: (p.media || p.images || []).map((img: any, i: number) => ({
+                id: img.id || `m-${i}`,
+                url: typeof img === "string" ? img : img.url,
+                type: img.type || "image",
+                isFeatured: img.isFeatured || i === 0,
+                altText: img.altText || undefined,
+              })),
+              slug: p.slug || "",
+              metaTitle: p.metaTitle || p.seo?.metaTitle || p.name || "",
+              metaDescription: p.metaDescription || p.seo?.metaDescription || p.shortDescription || "",
+              metaKeywords: p.metaKeywords || p.seo?.metaKeywords || [],
+            });
+          }
         }
-      } catch {
-        toast.error("Failed to load product details");
+      } catch (err) {
+        toast.error("Failed to load product details for edit");
       } finally {
         setLoadingProduct(false);
       }
@@ -97,29 +159,41 @@ export default function EditProductStudioPage(): React.ReactElement {
     load();
   }, [id, bulkUpdate]);
 
+  // Background Uniqueness Check for SKU
+  React.useEffect(() => {
+    if (!form.sku.trim() || !id) return;
+    const timer = setTimeout(async () => {
+      const res = await checkSkuUniquenessAction(form.sku, id);
+      if (res.success && res.data && !res.data.isUnique) {
+        setSkuUniqueError("SKU is already in use by another product");
+      } else {
+        setSkuUniqueError(null);
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [form.sku, id]);
+
+  // Background Uniqueness Check for Slug
+  React.useEffect(() => {
+    if (!form.slug.trim() || !id) return;
+    const timer = setTimeout(async () => {
+      const res = await checkSlugUniquenessAction(form.slug, id);
+      if (res.success && res.data && !res.data.isUnique) {
+        setSlugUniqueError("URL Slug is already in use");
+      } else {
+        setSlugUniqueError(null);
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [form.slug, id]);
+
   if (loadingProduct) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background text-muted-foreground gap-2">
-        <Spinner size="sm" /> Loading Product Studio…
+      <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-400 gap-2">
+        <Spinner size="sm" /> Loading Product Studio V2…
       </div>
     );
   }
-
-  const handlePrevSection = () => {
-    if (currentSectionIndex > 0) {
-      const prevIdx = currentSectionIndex - 1;
-      setCurrentSectionIndex(prevIdx);
-      scrollToSection(sections[prevIdx].id);
-    }
-  };
-
-  const handleNextSection = () => {
-    if (currentSectionIndex < sections.length - 1) {
-      const nextIdx = currentSectionIndex + 1;
-      setCurrentSectionIndex(nextIdx);
-      scrollToSection(sections[nextIdx].id);
-    }
-  };
 
   const header = (
     <StudioHeader
@@ -130,163 +204,224 @@ export default function EditProductStudioPage(): React.ReactElement {
       saving={saving}
       onSave={handleSave}
       onPublish={handlePublish}
-      onPreview={handlePreview}
+      onPreview={() => setShowPreview(!showPreview)}
       isEditing={true}
     />
   );
 
   const main = (
-    <>
-      <GeneralSection
-        name={form.name}
-        onNameChange={(v) => update("name", v)}
-        sku={form.sku}
-        onSkuChange={(v) => update("sku", v)}
-        shortDescription={form.shortDescription}
-        onShortDescriptionChange={(v) => update("shortDescription", v)}
-        productModel={form.productModel}
-        onProductModelChange={(v) => update("productModel", v)}
-        barcode={form.barcode}
-        onBarcodeChange={(v) => update("barcode", v)}
-        onAutoGenerateSKU={handleAutoGenerateSKU}
-      />
+    <div className="space-y-6">
+      {/* Mode Switcher Banner */}
+      <div className="flex items-center justify-between p-3 bg-slate-900 border border-slate-800 rounded-xl">
+        <div className="flex items-center space-x-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
+          <button
+            type="button"
+            onClick={() => setMode("quick")}
+            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center space-x-1.5 ${
+              mode === "quick"
+                ? "bg-amber-500 text-slate-950 shadow-md"
+                : "text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            <Zap className="w-3.5 h-3.5" />
+            <span>Quick Edit</span>
+          </button>
 
-      <DescriptionSection
-        value={form.richDescription}
-        onChange={(v) => update("richDescription", v)}
-      />
+          <button
+            type="button"
+            onClick={() => setMode("advanced")}
+            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center space-x-1.5 ${
+              mode === "advanced"
+                ? "bg-amber-500 text-slate-950 shadow-md"
+                : "text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            <Sliders className="w-3.5 h-3.5" />
+            <span>Advanced Mode (ফুল স্টুডিও)</span>
+          </button>
+        </div>
 
-      <CategorySection
-        categoryId={form.categoryId}
-        onCategoryChange={(id) => update("categoryId", id)}
-        tags={form.tags}
-        onTagsChange={(t) => update("tags", t)}
-      />
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setShowPreview(!showPreview)}
+          className={`border-slate-800 text-xs font-bold ${
+            showPreview ? "bg-amber-500/20 text-amber-400 border-amber-500/40" : "text-slate-300 hover:bg-slate-800"
+          }`}
+        >
+          <Eye className="w-3.5 h-3.5 mr-1.5" />
+          <span>{showPreview ? "Hide Preview" : "Live Preview"}</span>
+        </Button>
+      </div>
 
-      <BrandSection
-        brandId={form.brandId}
-        onBrandChange={(id) => update("brandId", id)}
-      />
+      {/* SKU / Slug Validation Warning */}
+      {(skuUniqueError || slugUniqueError) && (
+        <div className="bg-red-500/10 border border-red-500/30 p-3 rounded-xl text-red-400 text-xs font-semibold">
+          {skuUniqueError && <p>• {skuUniqueError}</p>}
+          {slugUniqueError && <p>• {slugUniqueError}</p>}
+        </div>
+      )}
 
-      <VariantStudioSection
-        variants={form.variants as any}
-        onChange={(vars) => update("variants", vars)}
-        baseSku={form.sku}
-        basePrice={parseFloat(form.sellingPrice) || 1200}
-        baseCost={parseFloat(form.costPrice) || 800}
-      />
+      {mode === "quick" ? (
+        <StudioQuickCreate
+          form={form}
+          update={update}
+          bulkUpdate={bulkUpdate}
+          onSave={handleSave}
+          onPublish={handlePublish}
+          saving={saving}
+          onSwitchToAdvanced={() => setMode("advanced")}
+        />
+      ) : (
+        <>
+          <GeneralSection
+            name={form.name}
+            onNameChange={(v) => update("name", v)}
+            sku={form.sku}
+            onSkuChange={(v) => update("sku", v)}
+            shortDescription={form.shortDescription}
+            onShortDescriptionChange={(v) => update("shortDescription", v)}
+            productModel={form.productModel}
+            onProductModelChange={(v) => update("productModel", v)}
+            barcode={form.barcode}
+            onBarcodeChange={(v) => update("barcode", v)}
+            onAutoGenerateSKU={handleAutoGenerateSKU}
+          />
 
-      <SpecificationSection
-        categoryName={form.categoryId || "Smart Watch"}
-      />
+          <BadgesStudioSection
+            badges={form.badges}
+            onChange={(b) => update("badges", b)}
+          />
 
-      <MediaSection
-        items={form.media}
-        onChange={(items) => update("media", items)}
-      />
+          <LazyDescriptionSection
+            value={form.richDescription}
+            onChange={(v) => update("richDescription", v)}
+            onMagicParse={() => handleMagicParse()}
+          />
 
-      <PricingSection
-        costPrice={form.costPrice}
-        onCostPriceChange={(v) => update("costPrice", v)}
-        sellingPrice={form.sellingPrice}
-        onSellingPriceChange={(v) => update("sellingPrice", v)}
-        wholesalePrice={form.wholesalePrice}
-        onWholesalePriceChange={(v) => update("wholesalePrice", v)}
-        resellerPrice={form.resellerPrice}
-        onResellerPriceChange={(v) => update("resellerPrice", v)}
-        comparePrice={form.comparePrice}
-        onComparePriceChange={(v) => update("comparePrice", v)}
-        campaignPrice={form.campaignPrice}
-        onCampaignPriceChange={(v) => update("campaignPrice", v)}
-        onApplyAutoPricing={handleApplyAutoPricing}
-        showResetButton={Object.keys(form.manualPriceOverrides ?? {}).length > 0}
-        onResetAutoPricing={handleResetAutoPricing}
-      />
+          <CategorySection
+            categoryId={form.categoryId}
+            onCategoryChange={(id) => update("categoryId", id)}
+            tags={form.tags}
+            onTagsChange={(t) => update("tags", t)}
+          />
 
-      <CostStudioSection productId={id ?? ""} />
+          <BrandSection
+            brandId={form.brandId}
+            onBrandChange={(id) => update("brandId", id)}
+          />
 
-      <InventorySection
-        sku={form.inventorySku || form.sku}
-        onSkuChange={(v) => update("inventorySku", v)}
-        barcode={form.inventoryBarcode || form.barcode}
-        onBarcodeChange={(v) => update("inventoryBarcode", v)}
-        stock={form.stock}
-        onStockChange={(v) => update("stock", v)}
-        lowStockThreshold={form.lowStockThreshold}
-        onLowStockThresholdChange={(v) => update("lowStockThreshold", v)}
-        reservedStock={form.reservedStock}
-        onReservedStockChange={(v) => update("reservedStock", v)}
-        incomingStock={form.incomingStock}
-        onIncomingStockChange={(v) => update("incomingStock", v)}
-        warehouseLocation={form.warehouseLocation}
-        onWarehouseLocationChange={(v) => update("warehouseLocation", v)}
-        weight={form.weight}
-        onWeightChange={(v) => update("weight", v)}
-      />
+          <VariantStudioSection
+            variants={form.variants as any}
+            onChange={(vars) => update("variants", vars)}
+            baseSku={form.sku}
+            basePrice={parseFloat(form.sellingPrice) || 1200}
+            baseCost={parseFloat(form.costPrice) || 800}
+          />
 
-      <CollectionsChannelsSection
-        visibility={form.visibility}
-        onVisibilityChange={(v) => update("visibility", v)}
-        selectedCollectionIds={form.selectedCollectionIds}
-        onCollectionsChange={(ids) => update("selectedCollectionIds", ids)}
-      />
+          <SpecificationSection
+            categoryName={form.categoryId || "Smart Watch"}
+          />
 
-      <SEOAdvancedSection
-        name={form.name}
-        sku={form.sku}
-        barcode={form.barcode}
-        metaTitle={form.metaTitle}
-        onMetaTitleChange={(v) => update("metaTitle", v)}
-        metaDescription={form.metaDescription}
-        onMetaDescriptionChange={(v) => update("metaDescription", v)}
-        slug={form.slug}
-        onSlugChange={(v) => update("slug", v)}
-        ogImage={form.ogImage}
-        onOgImageChange={(v) => update("ogImage", v)}
-      />
+          <MediaSection
+            items={form.media}
+            onChange={(items) => update("media", items)}
+          />
 
-      <MarketingStudioSection
-        productName={form.name}
-        tags={form.tags}
-        onTagsChange={(t) => update("tags", t)}
-        bulletFeatures={form.bulletFeatures}
-        onBulletFeaturesChange={(b) => update("bulletFeatures", b)}
-      />
+          <PricingSection
+            costPrice={form.costPrice}
+            onCostPriceChange={(v) => update("costPrice", v)}
+            sellingPrice={form.sellingPrice}
+            onSellingPriceChange={(v) => update("sellingPrice", v)}
+            wholesalePrice={form.wholesalePrice}
+            onWholesalePriceChange={(v) => update("wholesalePrice", v)}
+            resellerPrice={form.resellerPrice}
+            onResellerPriceChange={(v) => update("resellerPrice", v)}
+            comparePrice={form.comparePrice}
+            onComparePriceChange={(v) => update("comparePrice", v)}
+            campaignPrice={form.campaignPrice}
+            onCampaignPriceChange={(v) => update("campaignPrice", v)}
+            onApplyAutoPricing={handleApplyAutoPricing}
+            showResetButton={Object.keys(form.manualPriceOverrides ?? {}).length > 0}
+            onResetAutoPricing={handleResetAutoPricing}
+          />
 
-      <RelationshipsSection
-        relationships={form.relationships}
-        onRelationshipsChange={(rels) => update("relationships", rels)}
-      />
+          <CostStudioSection productId={id ?? ""} />
 
-      <SupplierStudioSection
-        supplierId={form.supplierId}
-        onSupplierIdChange={(v) => update("supplierId", v)}
-        supplierSku={form.supplierSku}
-        onSupplierSkuChange={(v) => update("supplierSku", v)}
-        supplierCost={form.supplierCost}
-        onSupplierCostChange={(v) => update("supplierCost", v)}
-        leadTimeDays={form.leadTimeDays}
-        onLeadTimeDaysChange={(v) => update("leadTimeDays", v)}
-        purchaseLink={form.purchaseLink}
-        onPurchaseLinkChange={(v) => update("purchaseLink", v)}
-        supplierNotes={form.supplierNotes}
-        onSupplierNotesChange={(v) => update("supplierNotes", v)}
-      />
+          <InventorySection
+            sku={form.inventorySku || form.sku}
+            onSkuChange={(v) => update("inventorySku", v)}
+            barcode={form.inventoryBarcode || form.barcode}
+            onBarcodeChange={(v) => update("inventoryBarcode", v)}
+            stock={form.stock}
+            onStockChange={(v) => update("stock", v)}
+            lowStockThreshold={form.lowStockThreshold}
+            onLowStockThresholdChange={(v) => update("lowStockThreshold", v)}
+            reservedStock={form.reservedStock}
+            onReservedStockChange={(v) => update("reservedStock", v)}
+            incomingStock={form.incomingStock}
+            onIncomingStockChange={(v) => update("incomingStock", v)}
+            warehouseLocation={form.warehouseLocation}
+            onWarehouseLocationChange={(v) => update("warehouseLocation", v)}
+            weight={form.weight}
+            onWeightChange={(v) => update("weight", v)}
+          />
 
-      <PublishingStudioSection
-        status={form.status}
-        onStatusChange={(s) => update("status", s)}
-        scheduledDate={form.scheduledPublishDate}
-        onScheduledDateChange={(v) => update("scheduledPublishDate", v)}
-        scheduledTime={form.scheduledPublishTime}
-        onScheduledTimeChange={(v) => update("scheduledPublishTime", v)}
-        timezone={form.timezone}
-        onTimezoneChange={(v) => update("timezone", v)}
-        scheduledUnpublishDate={form.scheduledUnpublishDate}
-        onScheduledUnpublishDateChange={(v) => update("scheduledUnpublishDate", v)}
-        healthResult={healthResult}
-      />
-    </>
+          <CollectionsChannelsSection
+            visibility={form.visibility}
+            onVisibilityChange={(v) => update("visibility", v)}
+            selectedCollectionIds={form.selectedCollectionIds}
+            onCollectionsChange={(ids) => update("selectedCollectionIds", ids)}
+          />
+
+          <SEOAdvancedSection
+            name={form.name}
+            sku={form.sku}
+            barcode={form.barcode}
+            metaTitle={form.metaTitle}
+            onMetaTitleChange={(v) => update("metaTitle", v)}
+            metaDescription={form.metaDescription}
+            onMetaDescriptionChange={(v) => update("metaDescription", v)}
+            slug={form.slug}
+            onSlugChange={(v) => update("slug", v)}
+            ogImage={form.ogImage}
+            onOgImageChange={(v) => update("ogImage", v)}
+          />
+
+          <LazySupplierStudioSection
+            supplierId={form.supplierId}
+            onSupplierIdChange={(v) => update("supplierId", v)}
+            supplierSku={form.supplierSku}
+            onSupplierSkuChange={(v) => update("supplierSku", v)}
+            supplierCost={form.supplierCost}
+            onSupplierCostChange={(v) => update("supplierCost", v)}
+            leadTimeDays={form.leadTimeDays}
+            onLeadTimeDaysChange={(v) => update("leadTimeDays", v)}
+            purchaseLink={form.purchaseLink}
+            onPurchaseLinkChange={(v) => update("purchaseLink", v)}
+            supplierNotes={form.supplierNotes}
+            onSupplierNotesChange={(v) => update("supplierNotes", v)}
+          />
+
+          <LazyPublishingStudioSection
+            status={form.status}
+            onStatusChange={(s) => update("status", s)}
+            scheduledDate={form.scheduledPublishDate}
+            onScheduledDateChange={(v) => update("scheduledPublishDate", v)}
+            scheduledTime={form.scheduledPublishTime}
+            onScheduledTimeChange={(v) => update("scheduledPublishTime", v)}
+            timezone={form.timezone}
+            onTimezoneChange={(v) => update("timezone", v)}
+            scheduledUnpublishDate={form.scheduledUnpublishDate}
+            onScheduledUnpublishDateChange={(v) => update("scheduledUnpublishDate", v)}
+            healthResult={healthResult}
+          />
+        </>
+      )}
+
+      {/* Live Preview Drawer */}
+      {showPreview && <StudioLivePreview form={form} className="mt-6" />}
+    </div>
   );
 
   const sidebar = (
@@ -297,7 +432,7 @@ export default function EditProductStudioPage(): React.ReactElement {
       onStatusChange={(v) => update("status", v)}
       onPublish={handlePublish}
       onSave={handleSave}
-      onPreview={handlePreview}
+      onPreview={() => setShowPreview(!showPreview)}
       saving={saving}
       saveState={saveState}
       productName={form.name}
@@ -309,18 +444,5 @@ export default function EditProductStudioPage(): React.ReactElement {
     />
   );
 
-  const mobileFooter = (
-    <StudioMobileNav
-      currentSectionIndex={currentSectionIndex}
-      totalSections={sections.length}
-      onPrevSection={handlePrevSection}
-      onNextSection={handleNextSection}
-      onSave={handleSave}
-      onPublish={handlePublish}
-      saving={saving}
-      status={form.status}
-    />
-  );
-
-  return <StudioLayout header={header} main={main} sidebar={sidebar} mobileFooter={mobileFooter} />;
+  return <StudioLayout header={header} main={main} sidebar={sidebar} />;
 }

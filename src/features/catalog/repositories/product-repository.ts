@@ -25,7 +25,37 @@ export class ProductRepository extends BaseRepository<ProductDocument, Product> 
     super(ProductModel, ProductRepository.mapToDomain);
   }
 
-  private static mapToDomain(doc: ProductDocument): Product {
+  public static mapToDomain(doc: ProductDocument): Product {
+    const rawBadges = Array.isArray(doc.badges) && doc.badges.length > 0 ? doc.badges : [];
+    const inferredBadges: string[] = [...rawBadges];
+    if (doc.featured && !inferredBadges.includes("featured")) inferredBadges.push("featured");
+    if (doc.trending && !inferredBadges.includes("trending")) inferredBadges.push("trending");
+    if (doc.flashSale && !inferredBadges.includes("flash_sale")) inferredBadges.push("flash_sale");
+    if (doc.newArrival && !inferredBadges.includes("new_arrival")) inferredBadges.push("new_arrival");
+
+    const description =
+      doc.description ||
+      doc.content?.description ||
+      (typeof doc.content?.richDescription === "string" ? doc.content.richDescription : undefined);
+
+    const metaTitle = doc.metaTitle || doc.seo?.metaTitle || doc.name;
+    const metaDescription = doc.metaDescription || doc.seo?.metaDescription || doc.shortDescription || "";
+
+    const specifications =
+      Array.isArray(doc.specifications) && doc.specifications.length > 0
+        ? doc.specifications.map((s: any) => ({
+            key: s.key,
+            value: s.value,
+            group: s.group || "general",
+          }))
+        : doc.content?.specifications
+        ? doc.content.specifications.map((s: any) => ({
+            key: s.key,
+            value: s.value,
+            group: s.group || "general",
+          }))
+        : [];
+
     return {
       id: doc._id.toString(),
       name: doc.name,
@@ -35,18 +65,33 @@ export class ProductRepository extends BaseRepository<ProductDocument, Product> 
       gtin: doc.gtin,
       productType: (doc.productType as Product["productType"]) ?? "simple",
       shortDescription: doc.shortDescription,
+      description,
+      notice: doc.notice,
       productModel: doc.productModel,
       brandId: doc.brandId?.toString(),
       categoryId: doc.categoryId?.toString(),
       supplierId: doc.supplierId?.toString(),
       status: doc.status as Product["status"],
       visibility: doc.visibility as Product["visibility"],
-      featured: doc.featured || false,
-      trending: doc.trending || false,
-      flashSale: doc.flashSale || false,
-      newArrival: doc.newArrival || false,
+      badges: inferredBadges,
+      featured: doc.featured || inferredBadges.includes("featured"),
+      trending: doc.trending || inferredBadges.includes("trending"),
+      flashSale: doc.flashSale || inferredBadges.includes("flash_sale"),
+      newArrival: doc.newArrival || inferredBadges.includes("new_arrival"),
+      hasVariants: doc.hasVariants || (doc.variants && doc.variants.length > 0),
       variants: doc.variants
         ? doc.variants.map((v: any) => ({
+            id: v.id || v._id?.toString(),
+            name: v.name || [v.color, v.size, v.storage].filter(Boolean).join(" / "),
+            attributes: v.attributes ? Object.fromEntries(v.attributes as any) : undefined,
+            sku: v.sku,
+            priceAdjustment: v.priceAdjustment ?? 0,
+            stock: v.stock ?? 0,
+            image: v.image || (v.images && v.images.length > 0 ? v.images[0] : undefined),
+            status: v.status || "active",
+            isActive: v.isActive ?? true,
+
+            // Legacy attributes
             color: v.color,
             size: v.size,
             storage: v.storage,
@@ -54,7 +99,6 @@ export class ProductRepository extends BaseRepository<ProductDocument, Product> 
             capacity: v.capacity,
             material: v.material,
             bundle: v.bundle,
-            sku: v.sku,
             barcode: v.barcode,
             weight: v.weight,
             weightUnit: v.weightUnit,
@@ -67,7 +111,6 @@ export class ProductRepository extends BaseRepository<ProductDocument, Product> 
                 }
               : undefined,
             images: v.images,
-            status: v.status,
             sortOrder: v.sortOrder,
             customAttributes: v.customAttributes
               ? Object.fromEntries(v.customAttributes as any)
@@ -77,21 +120,24 @@ export class ProductRepository extends BaseRepository<ProductDocument, Product> 
       media: doc.media
         ? doc.media.map((m: any) => ({
             url: m.url,
-            type: m.type,
-            isFeatured: m.isFeatured,
+            type: m.type || "image",
+            isFeatured: m.isFeatured || false,
             altText: m.altText,
             caption: m.caption,
-            sortOrder: m.sortOrder,
+            sortOrder: m.sortOrder || 0,
             width: m.width,
             height: m.height,
             fileSize: m.fileSize,
             mimeType: m.mimeType,
           }))
         : [],
+      specifications,
+      metaTitle,
+      metaDescription,
       seo: doc.seo
         ? {
-            metaTitle: doc.seo.metaTitle,
-            metaDescription: doc.seo.metaDescription,
+            metaTitle: doc.seo.metaTitle || metaTitle,
+            metaDescription: doc.seo.metaDescription || metaDescription,
             metaKeywords: doc.seo.metaKeywords,
             canonicalUrl: doc.seo.canonicalUrl,
             ogTitle: doc.seo.ogTitle,
@@ -103,25 +149,20 @@ export class ProductRepository extends BaseRepository<ProductDocument, Product> 
             twitterImage: doc.seo.twitterImage,
             twitterCardType: doc.seo.twitterCardType,
           }
-        : undefined,
+        : { metaTitle, metaDescription },
       content: doc.content
         ? {
-            richDescription: doc.content.richDescription,
+            richDescription: doc.content.richDescription || description,
+            description,
             highlights: doc.content.highlights,
             includedItems: doc.content.includedItems,
             features: doc.content.features,
-            specifications: doc.content.specifications
-              ? doc.content.specifications.map((s: any) => ({
-                  key: s.key,
-                  value: s.value,
-                  group: s.group,
-                }))
-              : undefined,
+            specifications,
             technicalDetails: doc.content.technicalDetails,
             warrantyInformation: doc.content.warrantyInformation,
             returnPolicy: doc.content.returnPolicy,
           }
-        : undefined,
+        : { description, specifications },
       suppliers: doc.suppliers
         ? doc.suppliers.map((s: any) => ({
             supplierId: s.supplierId,
@@ -145,7 +186,7 @@ export class ProductRepository extends BaseRepository<ProductDocument, Product> 
       createdBy: doc.createdBy,
       updatedBy: doc.updatedBy,
       deletedAt: doc.deletedAt,
-      isDeleted: doc.isDeleted,
+      isDeleted: doc.isDeleted || false,
       metadata: doc.metadata ? Object.fromEntries(doc.metadata as any) : undefined,
     };
   }

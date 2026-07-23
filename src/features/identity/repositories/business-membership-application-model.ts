@@ -7,7 +7,7 @@ export interface ApplicationDBFields {
   userFullName: string;
   userPhone: string;
   userEmail: string;
-  membershipType: "reseller" | "wholesaler";
+  membershipType: string;
   status: "pending" | "under_review" | "need_info" | "approved" | "rejected" | "suspended" | "expired";
   commonFields: {
     fullName: string;
@@ -52,7 +52,7 @@ const applicationSchema = new Schema<ApplicationDocument>(
     userFullName: { type: String, required: true },
     userPhone: { type: String, required: true },
     userEmail: { type: String, required: true },
-    membershipType: { type: String, enum: ["reseller", "wholesaler"], required: true, index: true },
+    membershipType: { type: String, required: true, index: true },
     status: {
       type: String,
       enum: ["pending", "under_review", "need_info", "approved", "rejected", "suspended", "expired"],

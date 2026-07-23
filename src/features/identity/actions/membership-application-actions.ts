@@ -7,7 +7,7 @@ import { businessMembershipRepository } from "../repositories/business-membershi
 import { CommonApplicationFields, ResellerApplicationFields, WholesalerApplicationFields } from "../domain/business-membership-entity";
 
 export async function submitMembershipApplicationAction(input: {
-  membershipType: "reseller" | "wholesaler";
+  membershipType: string;
   commonFields: CommonApplicationFields;
   resellerFields?: ResellerApplicationFields;
   wholesalerFields?: WholesalerApplicationFields;
@@ -71,7 +71,7 @@ export async function updateMembershipApplicationAction(input: {
   }
 }
 
-export async function getUserMembershipStatusAction(membershipType: "reseller" | "wholesaler") {
+export async function getUserMembershipStatusAction(membershipType: string) {
   try {
     const session = await auth();
     const user = session?.user as { id?: string } | undefined;

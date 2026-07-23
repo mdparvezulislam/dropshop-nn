@@ -149,9 +149,9 @@ export function StudioRightSidebar({
               <RefreshCw className={`h-3.5 w-3.5 ${saving ? "animate-spin" : ""}`} />
               {saveState === "saving" ? "Saving Changes…" : saveState === "saved" ? "Autosaved" : "Save Draft"}
             </Button>
-            <Button size="sm" variant="outline" className="w-full justify-center gap-1.5 font-semibold" onClick={onPublish} disabled={saving || status === "active"}>
-              <Send className="h-3.5 w-3.5 text-primary" />
-              {status === "active" ? "Published" : "Publish Product"}
+            <Button size="sm" className="w-full justify-center gap-1.5 font-extrabold shadow-xs bg-amber-500 hover:bg-amber-600 text-slate-950" onClick={onPublish} disabled={saving}>
+              <Send className="h-3.5 w-3.5" />
+              {status === "active" ? "Publish Changes" : "Publish Product"}
             </Button>
           </div>
         </CardContent>

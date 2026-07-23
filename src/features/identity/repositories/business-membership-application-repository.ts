@@ -34,7 +34,7 @@ export class BusinessMembershipApplicationRepository extends BaseRepository<Appl
 
   public async findActiveByUserAndType(
     userId: string,
-    membershipType: "reseller" | "wholesaler"
+    membershipType: string
   ): Promise<BusinessMembershipApplicationEntity | null> {
     await this.ensureConnected();
     const doc = await BusinessMembershipApplicationModel.findOne({

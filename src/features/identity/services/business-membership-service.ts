@@ -24,7 +24,7 @@ export class BusinessMembershipService {
     userFullName: string;
     userPhone: string;
     userEmail: string;
-    membershipType: "reseller" | "wholesaler";
+    membershipType: string;
     commonFields: CommonApplicationFields;
     resellerFields?: ResellerApplicationFields;
     wholesalerFields?: WholesalerApplicationFields;
@@ -306,7 +306,7 @@ export class BusinessMembershipService {
    */
   public async adminManageUserMemberships(input: {
     targetUserId: string;
-    memberships: ("customer" | "reseller" | "wholesaler")[];
+    memberships: string[];
     adminId: string;
     adminRole: string;
     actionNote?: string;
@@ -324,15 +324,8 @@ export class BusinessMembershipService {
     await user.save();
 
     // Sync BusinessMembership DB Records
-    for (const type of ["customer", "reseller", "wholesaler"] as const) {
-      if (newMemberships.includes(type)) {
-        await businessMembershipRepository.upsertMembership(input.targetUserId, type, input.adminId, "active");
-      } else {
-        const existing = await businessMembershipRepository.findByUserAndType(input.targetUserId, type);
-        if (existing) {
-          await businessMembershipRepository.update(existing.id, { status: "suspended", suspendedAt: new Date() });
-        }
-      }
+    for (const type of newMemberships) {
+      await businessMembershipRepository.upsertMembership(input.targetUserId, type as any, input.adminId, "active");
     }
 
     // Log History

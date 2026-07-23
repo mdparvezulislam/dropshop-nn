@@ -119,7 +119,57 @@ export async function updateUserStatusAdminAction(payload: unknown): Promise<{
   } catch (err) {
     return {
       success: false,
-      error: err instanceof Error ? err.message : "Failed to update user",
+      error: err instanceof Error ? err.message : "Failed to update user status",
+    };
+  }
+}
+
+const updateUserRolesSchema = z.object({
+  userId: z.string().min(1),
+  roles: z.array(z.string()).min(1),
+});
+
+export async function updateUserRolesAdminAction(payload: unknown): Promise<{
+  success: boolean;
+  data?: Omit<User, "passwordHash">;
+  error?: string;
+}> {
+  try {
+    const session = await auth();
+    checkPermission(session, "User.Update");
+    const validated = updateUserRolesSchema.parse(payload);
+    const actor = sessionActor(session);
+    const repo = new UserRepository();
+
+    const user = await repo.findById(validated.userId);
+    if (!user) {
+      return { success: false, error: "User not found" };
+    }
+
+    const primaryRole = validated.roles[0] || "viewer";
+    const updated = await repo.update(validated.userId, {
+      role: primaryRole,
+      roles: validated.roles,
+    } as any);
+
+    await AuditLogger.record({
+      action: "user.roles_updated",
+      entityType: "user",
+      entityId: validated.userId,
+      actor: { id: actor.id, name: actor.name, role: actor.role },
+      changes: [
+        { field: "roles", oldValue: user.roles, newValue: validated.roles },
+        { field: "primaryRole", oldValue: user.role, newValue: primaryRole },
+      ],
+    });
+
+    revalidatePath("/dashboard/identity/users");
+    revalidatePath("/dashboard/identity/roles");
+    return { success: true, data: stripUser(updated) };
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to update user roles",
     };
   }
 }

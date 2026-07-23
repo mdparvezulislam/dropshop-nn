@@ -13,6 +13,8 @@ export interface User extends BaseDBEntity {
   fullName: string;
   passwordHash: string;
   role: string;
+  roles: string[];
+  memberships: string[];
   status: "active" | "pending" | "suspended" | "blocked";
   profileImage?: string;
   emailVerifiedAt?: Date | null;

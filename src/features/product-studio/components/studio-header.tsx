@@ -167,12 +167,12 @@ export function StudioHeader({
 
           <Button
             size="sm"
-            className="gap-1.5 text-xs font-extrabold shadow-xs"
+            className="gap-1.5 text-xs font-extrabold shadow-xs bg-amber-500 hover:bg-amber-600 text-slate-950"
             onClick={onPublish}
-            disabled={saving || status === "active"}
+            disabled={saving}
           >
             <Send className="h-3.5 w-3.5" />
-            {status === "active" ? "Published" : "Publish"}
+            {status === "active" ? "Publish Changes" : "Publish"}
           </Button>
         </div>
       </div>

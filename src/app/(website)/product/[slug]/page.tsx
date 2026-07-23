@@ -4,9 +4,9 @@ import Link from "next/link";
 import { getPublicProductBySlugAction } from "@/features/catalog/actions/public-actions";
 import { ProductGallery } from "@/components/website/product-gallery";
 import { ProductPagePanel } from "@/components/website/product-page-panel";
-import { ProductTabsSection } from "@/components/website/product-tabs-section";
+import { ProductTabsAndAccordions } from "@/components/website/product-tabs-and-accordions";
 import { RelatedProducts } from "@/components/website/related-products";
-import { StickyPurchaseBar } from "@/components/website/sticky-purchase-bar";
+import { generateProductJsonLd } from "@/lib/seo/json-ld-generator";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   }
 
   const { product } = result.data;
-  const featuredMedia = product.media?.find((m) => m.isFeatured);
+  const featuredMedia = product.media?.find((m) => m.isFeatured) || product.media?.[0];
 
   return {
     title: `${product.name} - DropshopNN Bangladesh`,
@@ -38,7 +38,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   };
 }
 
-export default async function ProductPage({ params }: ProductPageProps) {
+export default async function PublicProductDetailsPage({ params }: ProductPageProps) {
   const { slug } = await params;
   const result = await getPublicProductBySlugAction(slug);
 
@@ -53,70 +53,50 @@ export default async function ProductPage({ params }: ProductPageProps) {
         url: m.url,
         alt: m.altText ?? product.name,
         type: (m.type === "video" ? "video" : "image") as "image" | "video" | "model",
+        isFeatured: m.isFeatured || false,
       }))
-    : [{ url: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80", alt: product.name }];
+    : [
+        {
+          url: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80",
+          alt: product.name,
+          isFeatured: true,
+        },
+      ];
 
   const specifications =
+    product.specifications?.map((s) => ({
+      key: s.key,
+      value: s.value,
+      group: s.group || "general",
+    })) ??
     product.content?.specifications?.map((s) => ({
       key: s.key,
       value: s.value,
-    })) ?? [];
+      group: s.group || "general",
+    })) ??
+    [];
 
-  const variantGroups = product.variants?.length
-    ? [
-        {
-          name: "Color",
-          options: [
-            ...new Set(
-              product.variants.filter((v) => v.color).map((v) => v.color!),
-            ),
-          ].map((c) => ({ type: "color" as const, value: c, available: true })),
-        },
-        {
-          name: "Size",
-          options: [
-            ...new Set(
-              product.variants.filter((v) => v.size).map((v) => v.size!),
-            ),
-          ].map((s) => ({ type: "size" as const, value: s, available: true })),
-        },
-      ].filter((g) => g.options.length > 0)
-    : undefined;
-
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.name,
-    description: product.shortDescription,
-    sku: product.sku,
-    ...(pricing.retailPrice > 0 && {
-      offers: {
-        "@type": "Offer",
-        price: (pricing.retailPrice / 100).toFixed(2),
-        priceCurrency: pricing.currency,
-        availability: `https://schema.org/InStock`,
-      },
-    }),
-  };
+  const jsonLd = generateProductJsonLd(product, pricing.retailPrice, pricing.currency);
 
   return (
-    <div className="min-h-screen bg-[hsl(0_0%_98%)] text-slate-900 py-8">
+    <div data-layout="public" className="min-h-screen bg-slate-50 text-slate-900 py-6 pb-24 md:pb-12">
+      {/* Google SEO Schema.org JSON-LD */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
-        {/* Breadcrumb */}
-        <nav className="text-xs font-bold text-slate-600 mb-6 flex items-center gap-2">
-          <Link href="/" className="hover:text-amber-600 transition-colors">হোম</Link>
+        {/* Breadcrumbs */}
+        <nav className="text-xs font-bold text-slate-500 mb-6 flex items-center gap-2">
+          <Link href="/" className="hover:text-red-600 transition-colors">হোম</Link>
           <span>/</span>
-          <Link href="/products" className="hover:text-amber-600 transition-colors">ক্যাটালগ</Link>
+          <Link href="/products" className="hover:text-red-600 transition-colors">ক্যাটালগ</Link>
           <span>/</span>
           <span className="text-slate-900 font-black truncate">{product.name}</span>
         </nav>
 
-        {/* Gallery & Purchase Panel Grid */}
+        {/* Hero Section: Gallery (Left) & Details Panel (Right) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
           <div>
             <ProductGallery
@@ -130,6 +110,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
               name={product.name}
               brand={product.brandId}
               sku={product.sku}
+              shortDescription={product.shortDescription}
+              notice={product.notice}
+              warehouseLocation="DHAKA-CENTRAL-WH1"
               retailPrice={pricing.retailPrice}
               resellerPrice={pricing.resellerPrice}
               wholesalePrice={pricing.wholesalePrice}
@@ -138,30 +121,26 @@ export default async function ProductPage({ params }: ProductPageProps) {
               currency={pricing.currency}
               isNew={product.newArrival}
               isFlashSale={product.flashSale}
-              variants={variantGroups}
+              variants={product.variants as any}
+              images={galleryImages}
               moq={pricing.moq}
             />
           </div>
         </div>
 
-        {/* Product Tabs (Overview, Specs, Reviews, Q&A, Shipping, Wholesale) */}
-        <ProductTabsSection
-          description={product.shortDescription}
+        {/* Specifications & Overview Section (Mobile Accordions + Desktop Tabs) */}
+        <ProductTabsAndAccordions
+          description={product.description || product.shortDescription}
           highlights={product.content?.highlights}
           specifications={specifications}
+          notice={product.notice}
         />
 
-        {/* Related Products */}
+        {/* Related Products Slider */}
         <div className="mt-12">
           <RelatedProducts products={relatedProducts} />
         </div>
       </div>
-
-      <StickyPurchaseBar
-        name={product.name}
-        price={`৳${(pricing.retailPrice / 100).toFixed(0)}`}
-        stockStatus="in_stock"
-      />
     </div>
   );
 }

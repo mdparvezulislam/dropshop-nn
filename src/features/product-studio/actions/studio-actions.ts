@@ -24,31 +24,32 @@ export async function saveStudioProductAction(
   formData: unknown,
   existingId?: string,
 ): Promise<{ success: boolean; data?: { id: string }; error?: string }> {
-  const session = await auth();
-  const actor = getActor(session);
+  try {
+    const session = await auth();
+    const actor = getActor(session);
 
-  if (existingId) {
-    checkPermission(session, "Product.Update");
-  } else {
-    checkPermission(session, "Product.Create");
-  }
+    if (existingId) {
+      checkPermission(session, "Product.Update");
+    } else {
+      checkPermission(session, "Product.Create");
+    }
 
-  const validated = existingId
-    ? updateStudioProductSchema.parse(formData)
-    : createStudioProductSchema.parse(formData);
+    const validated = existingId
+      ? updateStudioProductSchema.parse(formData)
+      : createStudioProductSchema.parse(formData);
 
-  const productService = new ProductService();
-  let productId = existingId;
+    const productService = new ProductService();
+    let productId = existingId;
 
-  /* Step 1: Create or update catalog product */
-  if (existingId) {
-    const updatePayload = mapStudioToCatalog(validated as CreateStudioProductInput);
-    await productService.update(existingId, updatePayload as any, actor);
-  } else {
-    const catalogPayload = mapStudioToCatalog(validated as CreateStudioProductInput);
-    const product = await productService.create(catalogPayload as any, actor);
-    productId = product.id;
-  }
+    /* Step 1: Create or update catalog product */
+    if (existingId) {
+      const updatePayload = mapStudioToCatalog(validated as CreateStudioProductInput);
+      await productService.update(existingId, updatePayload as any, actor);
+    } else {
+      const catalogPayload = mapStudioToCatalog(validated as CreateStudioProductInput);
+      const product = await productService.create(catalogPayload as any, actor);
+      productId = product.id;
+    }
 
   /* Step 2: Create pricing record if pricing data provided */
   const pricingData = "pricing" in validated ? validated.pricing : undefined;
@@ -152,6 +153,13 @@ export async function saveStudioProductAction(
   }
 
   return { success: true, data: { id: productId! } };
+  } catch (error: unknown) {
+    logger.error("saveStudioProductAction failed", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to save product",
+    };
+  }
 }
 
 export async function getStudioProductAction(id: string): Promise<{
@@ -307,10 +315,15 @@ export async function autoCalculateStudioPricingAction(input: {
 }
 
 function mapStudioToCatalog(input: CreateStudioProductInput): Record<string, unknown> {
+  const p = input.pricing || {};
   return {
     name: input.name,
     sku: input.sku,
     shortDescription: input.shortDescription || undefined,
+    description: (input as any).description || input.richDescription || input.shortDescription || undefined,
+    notice: (input as any).notice || undefined,
+    badges: (input as any).badges || [],
+    specifications: (input as any).specifications || [],
     productModel: input.productModel || undefined,
     barcode: input.barcode || undefined,
     brandId: input.brandId || undefined,
@@ -322,22 +335,37 @@ function mapStudioToCatalog(input: CreateStudioProductInput): Record<string, unk
     trending: input.trending,
     flashSale: input.flashSale,
     newArrival: input.newArrival,
-    tags: input.tags,
-    variants: input.variants.map((v) => ({
+    tags: input.tags || [],
+    costPrice: p.costPrice || undefined,
+    sellingPrice: p.sellingPrice || undefined,
+    retailPrice: p.sellingPrice || undefined,
+    wholesalePrice: p.wholesalePrice || undefined,
+    resellerPrice: p.resellerPrice || undefined,
+    comparePrice: p.comparePrice || undefined,
+    metaTitle: input.seo?.metaTitle || (input as any).metaTitle || input.name,
+    metaDescription: input.seo?.metaDescription || (input as any).metaDescription || input.shortDescription || "",
+    variants: (input.variants || []).map((v: any) => ({
+      id: v.id,
+      name: v.name || [v.color, v.size, v.storage].filter(Boolean).join(" / "),
+      attributes: v.attributes,
+      sku: v.sku,
+      priceAdjustment: v.priceAdjustment ?? 0,
+      stock: v.stock ?? 0,
+      image: v.image || (v.images && v.images.length > 0 ? v.images[0] : undefined),
+      status: v.status || "active",
+      isActive: v.isActive ?? true,
       color: v.color || undefined,
       size: v.size || undefined,
       storage: v.storage || undefined,
       ram: v.ram || undefined,
       capacity: v.capacity || undefined,
       material: v.material || undefined,
-      sku: v.sku,
       weight: v.weight,
-      status: "active" as const,
     })),
-    media: input.media.map((m) => ({
+    media: (input.media || []).map((m: any) => ({
       url: m.url,
-      type: m.type,
-      isFeatured: m.isFeatured,
+      type: m.type || "image",
+      isFeatured: m.isFeatured || false,
       altText: m.altText || undefined,
       sortOrder: 0,
     })),
@@ -353,6 +381,7 @@ function mapStudioToCatalog(input: CreateStudioProductInput): Record<string, unk
       richDescription: input.richDescription ? { html: input.richDescription } : undefined,
       warrantyInformation: input.warranty || undefined,
       returnPolicy: input.returnPolicy || undefined,
+      specifications: (input as any).specifications || [],
     },
   };
 }

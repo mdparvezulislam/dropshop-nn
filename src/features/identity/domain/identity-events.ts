@@ -14,6 +14,12 @@ export const IDENTITY_EVENTS = {
   STORE_CREATED: "identity.store_created",
   STORE_UPDATED: "identity.store_updated",
   WORKSPACE_CREATED: "identity.workspace_created",
+  MEMBERSHIP_APPLIED: "identity.membership_applied",
+  MEMBERSHIP_APPROVED: "identity.membership_approved",
+  MEMBERSHIP_REJECTED: "identity.membership_rejected",
+  MEMBERSHIP_SUSPENDED: "identity.membership_suspended",
+  MEMBERSHIP_ACTIVATED: "identity.membership_activated",
+  MEMBERSHIP_ARCHIVED: "identity.membership_archived",
 } as const;
 
 export type IdentityEventType = (typeof IDENTITY_EVENTS)[keyof typeof IDENTITY_EVENTS];

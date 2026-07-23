@@ -71,49 +71,75 @@ async function resolvePricingByRole(
   productId: string,
   pricing: ProductPricing | null,
   role?: string,
+  memberships: string[] = [],
+  product?: Product | null,
 ): Promise<ProductPricingData> {
+  const pAny = (product || {}) as any;
+  const rawCost = pAny.costPrice ? parseFloat(String(pAny.costPrice)) : undefined;
+  const rawSelling = pAny.sellingPrice || pAny.retailPrice || pAny.price ? parseFloat(String(pAny.sellingPrice || pAny.retailPrice || pAny.price)) : undefined;
+
+  let retailPrice = pricing?.sellingPrice || rawSelling || (rawCost ? Math.round(rawCost * 1.30) : 1200);
+  let resellerPrice = pricing?.resellerPrice || (rawCost ? Math.round(rawCost * 1.20) : Math.round(retailPrice * 0.80));
+  let wholesalePrice = pricing?.wholesalePrice || (rawCost ? Math.round(rawCost * 1.12) : Math.round(retailPrice * 0.70));
+  let costPrice = pricing?.baseCostPrice || rawCost || Math.round(retailPrice * 0.65);
+  let comparePrice = pricing?.comparePrice || Math.round(retailPrice * 1.25);
+
   const base = {
-    retailPrice: pricing?.sellingPrice ?? 0,
-    comparePrice: pricing?.comparePrice,
-    costPrice: pricing?.baseCostPrice,
-    moq: undefined as number | undefined,
+    retailPrice,
+    resellerPrice,
+    wholesalePrice,
+    comparePrice,
+    costPrice,
+    moq: 10,
     currency: pricing?.currency ?? "BDT",
   };
 
-  if (!pricing) return base;
-
   try {
     const engine = new PricingEngineService();
-    const costPrice = pricing.baseCostPrice;
+    const effectiveCost = costPrice > 0 ? costPrice : Math.round(retailPrice * 0.7);
 
-    if (role === "admin" || role === "super_admin") {
+    const isAdmin = role === "admin" || role === "super_admin";
+    const isReseller = memberships.includes("reseller") || role === "reseller";
+    const isWholesaler = memberships.includes("wholesaler") || role === "wholesaler";
+
+    if (isAdmin || (isReseller && isWholesaler)) {
       const [retail, reseller, wholesale] = await Promise.all([
-        engine.calculatePrice({ productId, costPrice, quantity: 1, role: "customer" }),
-        engine.calculatePrice({ productId, costPrice, quantity: 1, role: "reseller" }),
-        engine.calculatePrice({ productId, costPrice, quantity: 1, role: "wholesaler" }),
+        engine.calculatePrice({ productId, costPrice: effectiveCost, quantity: 1, role: "customer" }),
+        engine.calculatePrice({ productId, costPrice: effectiveCost, quantity: 1, role: "reseller" }),
+        engine.calculatePrice({ productId, costPrice: effectiveCost, quantity: 1, role: "wholesaler" }),
       ]);
       return {
-        retailPrice: retail.unitPrice,
-        resellerPrice: reseller.unitPrice,
-        wholesalePrice: wholesale.unitPrice,
-        comparePrice: pricing.comparePrice,
-        costPrice: pricing.baseCostPrice,
-        currency: pricing.currency,
+        retailPrice: retail.unitPrice || retailPrice,
+        resellerPrice: reseller.unitPrice || resellerPrice,
+        wholesalePrice: wholesale.unitPrice || wholesalePrice,
+        comparePrice,
+        costPrice: effectiveCost,
+        moq: 10,
+        currency: pricing?.currency ?? "BDT",
       };
     }
 
-    if (role === "reseller" || role === "wholesaler") {
-      const engineRole = role === "reseller" ? "reseller" : "wholesaler";
-      const result = await engine.calculatePrice({ productId, costPrice, quantity: 1, role: engineRole });
+    if (isReseller) {
+      const result = await engine.calculatePrice({ productId, costPrice: effectiveCost, quantity: 1, role: "reseller" });
       return {
         ...base,
-        retailPrice: result.unitPrice,
-        ...(role === "reseller" ? { resellerPrice: result.unitPrice } : { wholesalePrice: result.unitPrice, moq: 10 }),
+        retailPrice,
+        resellerPrice: result.unitPrice || resellerPrice,
       };
     }
 
-    const result = await engine.calculatePrice({ productId, costPrice, quantity: 1, role: "customer" });
-    return { ...base, retailPrice: result.unitPrice };
+    if (isWholesaler) {
+      const result = await engine.calculatePrice({ productId, costPrice: effectiveCost, quantity: 1, role: "wholesaler" });
+      return {
+        ...base,
+        retailPrice,
+        wholesalePrice: result.unitPrice || wholesalePrice,
+        moq: 10,
+      };
+    }
+
+    const result = await engine.calculatePrice({ productId, costPrice: effectiveCost, quantity: 1, role: "customer" });
+    return { ...base, retailPrice: result.unitPrice || retailPrice };
   } catch {
     return base;
   }
@@ -216,7 +242,9 @@ export async function getPublicProductBySlugAction(
 ): Promise<ProductDetailResult> {
   try {
     const session = await auth();
-    const role = (session?.user as { role?: string } | undefined)?.role;
+    const user = session?.user as { role?: string; memberships?: string[] } | undefined;
+    const role = user?.role;
+    const memberships = user?.memberships || [];
 
     const productService = new ProductService();
     const product = await productService.findBySlug(slug);
@@ -225,7 +253,7 @@ export async function getPublicProductBySlugAction(
     const pricingService = new PricingService();
     const pricing = await pricingService.getPricingByProduct(product.id);
 
-    const pricingData = await resolvePricingByRole(product.id, pricing, role);
+    const pricingData = await resolvePricingByRole(product.id, pricing, role, memberships, product);
 
     const relatedResult = await productService.list(
       {

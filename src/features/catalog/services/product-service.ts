@@ -32,7 +32,7 @@ export class ProductService {
   }
 
   private async generateUniqueSlug(name: string): Promise<string> {
-    const baseSlug = generateSlug(name);
+    const baseSlug = generateSlug(name || "product");
     let uniqueSlug = baseSlug;
     let counter = 1;
     while (true) {
@@ -44,14 +44,26 @@ export class ProductService {
     return uniqueSlug;
   }
 
+  private generateUniqueSKU(name: string): string {
+    const prefix = name.trim() ? name.trim().substring(0, 3).toUpperCase() : "DS";
+    const rand = Math.floor(100000 + Math.random() * 900000);
+    return `DS-${prefix}-${rand}`;
+  }
+
   async create(data: CreateProductInput, actor?: ActorInfo): Promise<Product> {
     logger.info("ProductService: creating product", { name: data.name, actor: actor?.id });
 
-    const existingSku = await this.productRepository.findBySku(data.sku);
+    // Automation 1: Auto SKU if missing
+    let finalSku = data.sku ? data.sku.toUpperCase().trim() : this.generateUniqueSKU(data.name);
+    let existingSku = await this.productRepository.findBySku(finalSku);
     if (existingSku) {
-      throw new ValidationError("SKU already exists", {
-        sku: ["A product with this SKU is already registered"],
-      });
+      if (data.sku) {
+        throw new ValidationError("SKU already exists", {
+          sku: ["A product with this SKU is already registered"],
+        });
+      } else {
+        finalSku = `${finalSku}-${Math.floor(100 + Math.random() * 900)}`;
+      }
     }
 
     if (data.barcode) {
@@ -63,7 +75,8 @@ export class ProductService {
       }
     }
 
-    const slug = await this.generateUniqueSlug(data.name);
+    // Automation 2: Auto Slug
+    const slug = data.slug ? data.slug.toLowerCase().trim() : await this.generateUniqueSlug(data.name);
 
     if (data.brandId) {
       const brand = await this.brandRepository.findById(data.brandId);
@@ -78,10 +91,27 @@ export class ProductService {
         });
     }
 
+    // Automation 3: Auto Badges consolidation
+    const badges: string[] = Array.isArray(data.badges) ? [...data.badges] : [];
+    if (data.featured && !badges.includes("featured")) badges.push("featured");
+    if (data.trending && !badges.includes("trending")) badges.push("trending");
+    if (data.flashSale && !badges.includes("flash_sale")) badges.push("flash_sale");
+    if (data.newArrival && !badges.includes("new_arrival")) badges.push("new_arrival");
+
+    // Automation 4: Auto SEO Meta Title & Description
+    const metaTitle = data.metaTitle || data.seo?.metaTitle || data.name;
+    const metaDescription =
+      data.metaDescription || data.seo?.metaDescription || data.shortDescription || "";
+
     const product = await this.productRepository.create({
       ...data,
+      sku: finalSku,
       slug,
-      status: "draft",
+      badges,
+      metaTitle,
+      metaDescription,
+      status: data.status || "draft",
+      visibility: data.visibility || "public",
     });
 
     await EventBus.publish(
@@ -135,7 +165,9 @@ export class ProductService {
 
     let slug = existing.slug;
     if (data.name && data.name.trim().toLowerCase() !== existing.name.trim().toLowerCase()) {
-      slug = await this.generateUniqueSlug(data.name);
+      slug = data.slug ? data.slug.toLowerCase().trim() : await this.generateUniqueSlug(data.name);
+    } else if (data.slug && data.slug !== existing.slug) {
+      slug = data.slug.toLowerCase().trim();
     }
 
     if (data.sku && data.sku.toUpperCase().trim() !== existing.sku.toUpperCase().trim()) {
@@ -151,7 +183,20 @@ export class ProductService {
         });
     }
 
-    const updated = await this.productRepository.update(id, { ...data, slug });
+    const badges: string[] = Array.isArray(data.badges) ? [...data.badges] : [...(existing.badges || [])];
+    if (data.featured !== undefined) {
+      if (data.featured && !badges.includes("featured")) badges.push("featured");
+      else if (!data.featured && badges.includes("featured")) {
+        const idx = badges.indexOf("featured");
+        if (idx !== -1) badges.splice(idx, 1);
+      }
+    }
+
+    const updated = await this.productRepository.update(id, {
+      ...data,
+      slug,
+      badges,
+    });
 
     const changedFields = Object.keys(data);
     await EventBus.publish(
@@ -172,29 +217,6 @@ export class ProductService {
           productId: updated.id,
           oldVisibility: existing.visibility,
           newVisibility: data.visibility,
-        },
-        { actor, source: "catalog-service" },
-      );
-    }
-
-    if (data.seo && JSON.stringify(data.seo) !== JSON.stringify(existing.seo)) {
-      await EventBus.publish(
-        CATALOG_EVENTS.SEO_UPDATED,
-        {
-          productId: updated.id,
-          changedFields: Object.keys(data.seo),
-        },
-        { actor, source: "catalog-service" },
-      );
-    }
-
-    if (data.brandId !== existing.brandId || data.categoryId !== existing.categoryId) {
-      await EventBus.publish(
-        CATALOG_EVENTS.CLASSIFICATION_CHANGED,
-        {
-          productId: updated.id,
-          brandId: data.brandId || existing.brandId,
-          categoryId: data.categoryId || existing.categoryId,
         },
         { actor, source: "catalog-service" },
       );
@@ -255,14 +277,11 @@ export class ProductService {
     const existing = await this.productRepository.findById(id);
     if (!existing) throw new NotFoundError("Product not found");
 
-    if (existing.status === "active") throw new ValidationError("Product is already published");
     if (existing.status === "archived")
       throw new ValidationError("Cannot publish an archived product");
 
-    if (existing.productType !== "simple" && existing.productType !== "digital" && existing.productType !== "service" && existing.productType !== "gift_card") {
-      if (existing.variants.length === 0) {
-        throw new ValidationError("Product must have at least one variant before publishing");
-      }
+    if (existing.status === "active") {
+      return existing;
     }
 
     const updated = await this.productRepository.update(id, { status: "active" as const });
@@ -342,20 +361,27 @@ export class ProductService {
       barcode: existing.barcode ? `${existing.barcode}-DUP` : undefined,
       gtin: existing.gtin ? `${existing.gtin}-DUP` : undefined,
       shortDescription: existing.shortDescription,
+      description: existing.description,
+      notice: existing.notice,
       productModel: existing.productModel,
       brandId: existing.brandId,
       categoryId: existing.categoryId,
       supplierId: existing.supplierId,
       visibility: existing.visibility,
+      badges: [...(existing.badges || [])],
       featured: false,
       trending: false,
       flashSale: false,
       newArrival: false,
+      hasVariants: existing.hasVariants,
       variants: existing.variants.map((v) => ({
         ...v,
         sku: `${v.sku}-DUP-${Date.now().toString().slice(-4)}`,
       })),
       media: existing.media,
+      specifications: existing.specifications,
+      metaTitle: existing.metaTitle,
+      metaDescription: existing.metaDescription,
       seo: existing.seo,
       content: existing.content,
       suppliers: existing.suppliers,
@@ -402,7 +428,10 @@ export class ProductService {
     if (existingVariant) throw new ValidationError("Variant SKU already exists on this product");
 
     product.variants.push(variant);
-    const updated = await this.productRepository.update(productId, { variants: product.variants });
+    const updated = await this.productRepository.update(productId, {
+      variants: product.variants,
+      hasVariants: true,
+    });
 
     await EventBus.publish(
       CATALOG_EVENTS.VARIANT_CREATED,
@@ -480,7 +509,10 @@ export class ProductService {
     if (!product) throw new NotFoundError("Product not found");
 
     product.variants = product.variants.filter((v) => v.sku !== sku);
-    const updated = await this.productRepository.update(productId, { variants: product.variants });
+    const updated = await this.productRepository.update(productId, {
+      variants: product.variants,
+      hasVariants: product.variants.length > 0,
+    });
 
     await EventBus.publish(
       CATALOG_EVENTS.PRODUCT_UPDATED,
@@ -616,6 +648,8 @@ export class ProductService {
     if (!existing) throw new NotFoundError("Product not found");
 
     const updated = await this.productRepository.update(id, {
+      metaTitle: seo.metaTitle || existing.metaTitle,
+      metaDescription: seo.metaDescription || existing.metaDescription,
       seo: { ...existing.seo, ...seo },
     });
 
