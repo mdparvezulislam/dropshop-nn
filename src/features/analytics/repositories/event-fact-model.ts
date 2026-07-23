@@ -24,7 +24,7 @@ const eventFactSchema = new Schema(
     value: { type: Number },
     currency: { type: String },
     metadata: { type: Schema.Types.Mixed, default: {} },
-    idempotencyKey: { type: String, index: true },
+    idempotencyKey: { type: String },
     ...baseFields,
   },
   { ...baseSchemaOptions, collection: "analytics_event_facts" },

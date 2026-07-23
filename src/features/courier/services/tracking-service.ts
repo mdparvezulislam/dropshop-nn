@@ -29,7 +29,7 @@ export class TrackingService {
     const oldStatus = shipment.status;
     const newStatus = trackingResult.status;
 
-    let updatedHistory = [...shipment.history];
+    const updatedHistory = [...shipment.history];
     if (oldStatus !== newStatus || trackingResult.message) {
       updatedHistory.push({
         status: newStatus,

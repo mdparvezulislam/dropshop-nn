@@ -374,9 +374,9 @@ export class RoleManagementService {
     const matrix: Record<string, Record<string, boolean>> = {};
     for (const role of roles) {
       matrix[role.id] = {};
-      for (const module of allModules) {
+      for (const mod of allModules) {
         for (const action of sortedActions) {
-          const perm = `${module}.${action}`;
+          const perm = `${mod}.${action}`;
           matrix[role.id][perm] =
             role.permissions.includes("*") || role.permissions.includes(perm);
         }

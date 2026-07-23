@@ -1,4 +1,4 @@
-import { AuthProvider } from "@/components/auth-provider";
+import { AuthProvider } from "@/providers/auth-provider";
 import { SiteHeader } from "@/components/website/site-header";
 import { SiteFooter } from "@/components/website/site-footer";
 import { CookieBanner } from "@/components/website/cookie-banner";

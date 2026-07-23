@@ -18,13 +18,16 @@ export const metadata: Metadata = {
     "Enterprise-grade dropshipping management, order ingestion, and logistics orchestration platform.",
 };
 
+const isBuildTime =
+  process.env.NEXT_PHASE === "phase-production-build" ||
+  process.env.NEXT_PHASE === "phase-export";
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  if (typeof window === "undefined") {
-    // Trigger platform bootstrap eagerly on server
+  if (typeof window === "undefined" && !isBuildTime) {
     import("@/lib/platform/bootstrap-server").then(({ ensurePlatformInitialized }) => {
       ensurePlatformInitialized().catch(() => {});
     });

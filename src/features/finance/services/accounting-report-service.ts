@@ -69,7 +69,7 @@ export class AccountingReportService {
     let grossRevenueCents = 0;
     let costOfGoodsSoldCents = 0; // estimated 70% of gross
     let grossProfitCents = 0;
-    let operatingExpensesCents = 0;
+    const operatingExpensesCents = 0;
     let refundLossCents = 0;
     let payoutFeesCents = 0;
 

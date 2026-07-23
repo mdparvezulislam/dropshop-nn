@@ -2,10 +2,15 @@ import { PlatformBootstrap } from "./platform-bootstrap";
 import { BackgroundJobs } from "./jobs";
 import { logger } from "@/lib/utils/logger";
 
+const isBuildTime =
+  process.env.NEXT_PHASE === "phase-production-build" ||
+  process.env.NEXT_PHASE === "phase-export";
+
 let bootstrapped = false;
 
 export async function ensurePlatformInitialized(): Promise<void> {
   if (bootstrapped) return;
+  if (isBuildTime) return;
   bootstrapped = true;
 
   if (typeof window === "undefined") {

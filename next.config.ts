@@ -1,8 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  // images domain setup
   images: {
     remotePatterns: [
       {
@@ -12,6 +10,10 @@ const nextConfig: NextConfig = {
     ],
   },
   reactCompiler: true,
+  serverExternalPackages: ["mongoose", "bcrypt", "bcryptjs", "bullmq", "ioredis", "sharp"],
+  outputFileTracingIncludes: {
+    "/": ["./node_modules/.pnpm/**/*"],
+  },
 };
 
 export default nextConfig;

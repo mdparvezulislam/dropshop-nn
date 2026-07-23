@@ -3,6 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import * as React from "react";
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   DollarSign, Search, X, TrendingUp, ArrowUp, ArrowDown,
@@ -30,7 +31,7 @@ import { SectionHeader } from "@/components/workspace/section-header";
 import { formatCentsToCurrency } from "@/lib/utils/currency-utils";
 import { cn } from "@/lib/utils/cn";
 
-export default function CostIntelligenceCenter(): React.ReactElement {
+function CostIntelligenceContent(): React.ReactElement {
   const searchParams = useSearchParams();
   const updateParam = searchParams.get("update");
   const historyParam = searchParams.get("history");
@@ -357,5 +358,13 @@ export default function CostIntelligenceCenter(): React.ReactElement {
         </div>
       )}
     </div>
+  );
+}
+
+export default function CostIntelligenceCenter(): React.ReactElement {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background p-6 flex items-center justify-center"><p className="text-muted-foreground">Loading...</p></div>}>
+      <CostIntelligenceContent />
+    </Suspense>
   );
 }

@@ -13,13 +13,20 @@ if (!cached) {
   cached = (global as any).mongooseConnection = { conn: null, promise: null };
 }
 
+const isBuildTime =
+  process.env.NEXT_PHASE === "phase-production-build" ||
+  process.env.NEXT_PHASE === "phase-export";
+
 export class DatabaseConnectionManager {
   private static maxRetries = 5;
   private static retryIntervalMs = 2000;
 
   static async connect(retries = DatabaseConnectionManager.maxRetries): Promise<typeof mongoose> {
+    if (isBuildTime) {
+      throw new Error("Database connection attempted during build time");
+    }
+
     if (cached.conn) {
-      logger.debug("Database connection already established (cached)");
       return cached.conn;
     }
 
@@ -32,7 +39,6 @@ export class DatabaseConnectionManager {
         serverSelectionTimeoutMS: 5000,
       };
 
-      logger.info(`Connecting to MongoDB... (Retries left: ${retries})`);
       cached.promise = mongoose
         .connect(env.MONGO_URI, opts)
         .then((mongooseInstance) => {
@@ -44,9 +50,6 @@ export class DatabaseConnectionManager {
           cached.promise = null;
 
           if (retries > 1) {
-            logger.info(
-              `Waiting ${DatabaseConnectionManager.retryIntervalMs / 1000}s before retrying...`,
-            );
             await new Promise((resolve) =>
               setTimeout(resolve, DatabaseConnectionManager.retryIntervalMs),
             );
@@ -60,7 +63,6 @@ export class DatabaseConnectionManager {
     try {
       cached.conn = await cached.promise;
 
-      // Bootstrap platform engines on connection
       if (typeof window === "undefined") {
         try {
           const { ensurePlatformInitialized } = await import("@/lib/platform/bootstrap-server");
@@ -106,6 +108,7 @@ export class DatabaseConnectionManager {
 if (
   typeof process !== "undefined" &&
   process.env.NEXT_RUNTIME !== "edge" &&
+  !isBuildTime &&
   !(global as any).databaseShutdownRegistered
 ) {
   const shutdown = async (signal: string) => {
@@ -124,3 +127,4 @@ if (
   (process as any)["on"]("SIGTERM", () => shutdown("SIGTERM"));
   (global as any).databaseShutdownRegistered = true;
 }
+
