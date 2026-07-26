@@ -1,202 +1,261 @@
 "use client";
 
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { SlidersHorizontal, RotateCcw, Check, Store, Building2 } from "lucide-react";
-import type { Category, Brand } from "@/features/catalog/domain/classification-entity";
+import { useId, type FormEvent, type ReactElement } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Check, RotateCcw, SlidersHorizontal } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
+import type {
+  PublicBrandInfo,
+  PublicCategoryInfo,
+} from "@/features/catalog/domain/public-catalog-types";
 
-interface CatalogFilterSidebarProps {
-  categories?: Category[];
-  brands?: Brand[];
+export interface CatalogFilterSidebarProps {
+  /** Real category list with product counts; null = the taxonomy fetch failed. */
+  categories: PublicCategoryInfo[] | null;
+  /** Real brand list with product counts; null = the taxonomy fetch failed. */
+  brands: PublicBrandInfo[] | null;
 }
 
-export function CatalogFilterSidebar({ categories = [], brands = [] }: CatalogFilterSidebarProps) {
+const rowClass = (selected: boolean): string =>
+  cn(
+    "flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-amber-600",
+    selected
+      ? "border border-amber-200 bg-amber-50 font-black text-amber-900"
+      : "text-slate-800 hover:bg-slate-100",
+  );
+
+function TaxonomyError({ label }: { label: string }): ReactElement {
+  return (
+    <p
+      role="alert"
+      className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-2 text-[11px] font-bold text-red-700"
+    >
+      {label} লোড করা যায়নি। পেজটি রিলোড করে আবার চেষ্টা করুন।
+    </p>
+  );
+}
+
+export function CatalogFilterSidebar({
+  categories,
+  brands,
+}: CatalogFilterSidebarProps): ReactElement {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const minPriceId = useId();
+  const maxPriceId = useId();
 
-  const selectedCategory = searchParams.get("category") || "";
-  const selectedBrand = searchParams.get("brand") || "";
-  const minPrice = searchParams.get("minPrice") || "";
-  const maxPrice = searchParams.get("maxPrice") || "";
-  const inStockOnly = searchParams.get("stockStatus") === "in_stock";
-  const wholesaleOnly = searchParams.get("wholesaleOnly") === "true";
-  const resellerFriendly = searchParams.get("resellerFriendly") === "true";
+  const selectedCategory = searchParams.get("category") ?? "";
+  const selectedBrand = searchParams.get("brand") ?? "";
+  const minPrice = searchParams.get("minPrice") ?? "";
+  const maxPrice = searchParams.get("maxPrice") ?? "";
+  const inStockOnly = searchParams.get("inStock") === "1";
+  const onSaleOnly = searchParams.get("onSale") === "1";
 
-  const updateParam = (key: string, value: string | null) => {
+  /** Applies param changes and always resets pagination back to page 1. */
+  const updateParams = (changes: Record<string, string | null>): void => {
     const params = new URLSearchParams(searchParams.toString());
-    if (value) {
-      params.set(key, value);
-    } else {
-      params.delete(key);
+    for (const [key, value] of Object.entries(changes)) {
+      if (value === null || value === "") {
+        params.delete(key);
+      } else {
+        params.set(key, value);
+      }
     }
-    router.push(`${pathname}?${params.toString()}`);
+    params.delete("page");
+    const qs = params.toString();
+    router.push(qs ? `${pathname}?${qs}` : pathname);
   };
 
-  const handleReset = () => {
-    router.push(pathname);
+  const handlePriceSubmit = (event: FormEvent<HTMLFormElement>): void => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const parse = (raw: FormDataEntryValue | null): string | null => {
+      const n = Number(String(raw ?? "").trim());
+      return Number.isFinite(n) && n > 0 ? String(n) : null;
+    };
+    updateParams({ minPrice: parse(form.get("minPrice")), maxPrice: parse(form.get("maxPrice")) });
+  };
+
+  const handleReset = (): void => {
+    // Filters are cleared; an active search query (q) is intentionally kept.
+    const q = searchParams.get("q");
+    router.push(q ? `${pathname}?q=${encodeURIComponent(q)}` : pathname);
   };
 
   return (
-    <aside className="w-full space-y-6">
-      <div className="rounded-2xl bg-white border border-slate-300 p-5 shadow-xs space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+    <aside aria-label="প্রোডাক্ট ফিল্টার" className="w-full space-y-6">
+      <div className="space-y-6 rounded-2xl border border-slate-300 bg-white p-5 shadow-xs">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-3">
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="h-4 w-4 text-amber-500" />
+            <SlidersHorizontal className="h-4 w-4 text-amber-500" aria-hidden />
             <h3 className="text-sm font-black text-slate-900">ফিল্টার করুন</h3>
           </div>
           <button
             type="button"
             onClick={handleReset}
-            className="flex items-center gap-1 text-xs font-extrabold text-amber-600 hover:underline"
+            className="flex items-center gap-1 rounded text-xs font-extrabold text-amber-700 hover:underline focus-visible:outline-2 focus-visible:outline-amber-600"
           >
-            <RotateCcw className="h-3 w-3" />
+            <RotateCcw className="h-3 w-3" aria-hidden />
             রিসেট
           </button>
         </div>
 
-        {/* Categories Filter */}
         <div className="space-y-2.5">
           <h4 className="text-xs font-black uppercase tracking-wider text-slate-600">ক্যাটাগরি</h4>
-          <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
-            <button
-              type="button"
-              onClick={() => updateParam("category", null)}
-              className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-bold text-left transition-colors ${
-                !selectedCategory
-                  ? "bg-amber-50 text-amber-900 border border-amber-200 font-black"
-                  : "text-slate-800 hover:bg-slate-100"
-              }`}
-            >
-              <span>সকল ক্যাটাগরি</span>
-              {!selectedCategory && <Check className="h-3.5 w-3.5 text-amber-600" />}
-            </button>
-            {categories.map((cat) => (
+          {categories === null ? (
+            <TaxonomyError label="ক্যাটাগরি" />
+          ) : (
+            <div className="max-h-48 space-y-1 overflow-y-auto pr-1">
               <button
-                key={cat.id}
                 type="button"
-                onClick={() => updateParam("category", cat.id)}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-bold text-left transition-colors ${
-                  selectedCategory === cat.id
-                    ? "bg-amber-50 text-amber-900 border border-amber-200 font-black"
-                    : "text-slate-800 hover:bg-slate-100"
-                }`}
+                onClick={() => updateParams({ category: null })}
+                aria-pressed={!selectedCategory}
+                className={rowClass(!selectedCategory)}
               >
-                <span className="truncate">{cat.name}</span>
-                {selectedCategory === cat.id && (
-                  <Check className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+                <span>সকল ক্যাটাগরি</span>
+                {!selectedCategory && (
+                  <Check className="h-3.5 w-3.5 shrink-0 text-amber-600" aria-hidden />
                 )}
               </button>
-            ))}
-          </div>
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() =>
+                    updateParams({ category: selectedCategory === cat.slug ? null : cat.slug })
+                  }
+                  aria-pressed={selectedCategory === cat.slug}
+                  className={rowClass(selectedCategory === cat.slug)}
+                >
+                  <span className="truncate">{cat.name}</span>
+                  <span className="flex shrink-0 items-center gap-1.5">
+                    <span className="text-[10px] font-extrabold text-slate-500 tabular-nums">
+                      {cat.productCount}
+                    </span>
+                    {selectedCategory === cat.slug && (
+                      <Check className="h-3.5 w-3.5 text-amber-600" aria-hidden />
+                    )}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* BDT Price Range */}
-        <div className="space-y-2.5 pt-2 border-t border-slate-200">
+        <div className="space-y-2.5 border-t border-slate-200 pt-2">
           <h4 className="text-xs font-black uppercase tracking-wider text-slate-600">
-            দাম এর সীমা (৳ BDT)
+            দামের সীমা (৳ BDT)
           </h4>
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              type="number"
-              placeholder="সর্বনিম্ন"
-              defaultValue={minPrice}
-              onBlur={(e) => updateParam("minPrice", e.target.value || null)}
-              className="h-9 px-3 text-xs font-bold rounded-xl bg-white border border-slate-300 text-slate-900 placeholder:text-slate-500 outline-none focus:border-amber-500 shadow-2xs"
-            />
-            <input
-              type="number"
-              placeholder="সর্বোচ্চ"
-              defaultValue={maxPrice}
-              onBlur={(e) => updateParam("maxPrice", e.target.value || null)}
-              className="h-9 px-3 text-xs font-bold rounded-xl bg-white border border-slate-300 text-slate-900 placeholder:text-slate-500 outline-none focus:border-amber-500 shadow-2xs"
-            />
-          </div>
+          <form onSubmit={handlePriceSubmit} className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label htmlFor={minPriceId} className="sr-only">
+                  সর্বনিম্ন দাম (টাকা)
+                </label>
+                <input
+                  id={minPriceId}
+                  name="minPrice"
+                  type="number"
+                  min={0}
+                  inputMode="numeric"
+                  placeholder="সর্বনিম্ন"
+                  defaultValue={minPrice}
+                  key={`min-${minPrice}`}
+                  className="h-9 w-full rounded-xl border border-slate-300 bg-white px-3 text-xs font-bold text-slate-900 shadow-2xs placeholder:text-slate-500 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500"
+                />
+              </div>
+              <div>
+                <label htmlFor={maxPriceId} className="sr-only">
+                  সর্বোচ্চ দাম (টাকা)
+                </label>
+                <input
+                  id={maxPriceId}
+                  name="maxPrice"
+                  type="number"
+                  min={0}
+                  inputMode="numeric"
+                  placeholder="সর্বোচ্চ"
+                  defaultValue={maxPrice}
+                  key={`max-${maxPrice}`}
+                  className="h-9 w-full rounded-xl border border-slate-300 bg-white px-3 text-xs font-bold text-slate-900 shadow-2xs placeholder:text-slate-500 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500"
+                />
+              </div>
+            </div>
+            <button
+              type="submit"
+              className="h-8 w-full rounded-xl bg-amber-500 text-xs font-extrabold text-slate-950 transition-colors hover:bg-amber-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
+            >
+              দাম প্রয়োগ করুন
+            </button>
+          </form>
         </div>
 
-        {/* Brands Filter */}
-        {brands.length > 0 && (
-          <div className="space-y-2.5 pt-2 border-t border-slate-200">
-            <h4 className="text-xs font-black uppercase tracking-wider text-slate-600">
-              ব্র্যান্ড
-            </h4>
-            <div className="space-y-1 max-h-40 overflow-y-auto pr-1">
+        <div className="space-y-2.5 border-t border-slate-200 pt-2">
+          <h4 className="text-xs font-black uppercase tracking-wider text-slate-600">ব্র্যান্ড</h4>
+          {brands === null ? (
+            <TaxonomyError label="ব্র্যান্ড" />
+          ) : brands.length === 0 ? (
+            <p className="text-[11px] font-bold text-slate-500">কোনো ব্র্যান্ড নেই</p>
+          ) : (
+            <div className="max-h-40 space-y-1 overflow-y-auto pr-1">
               <button
                 type="button"
-                onClick={() => updateParam("brand", null)}
-                className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-bold text-left transition-colors ${
-                  !selectedBrand
-                    ? "bg-amber-50 text-amber-900 border border-amber-200 font-black"
-                    : "text-slate-800 hover:bg-slate-100"
-                }`}
+                onClick={() => updateParams({ brand: null })}
+                aria-pressed={!selectedBrand}
+                className={rowClass(!selectedBrand)}
               >
                 <span>সকল ব্র্যান্ড</span>
-                {!selectedBrand && <Check className="h-3.5 w-3.5 text-amber-600" />}
+                {!selectedBrand && (
+                  <Check className="h-3.5 w-3.5 shrink-0 text-amber-600" aria-hidden />
+                )}
               </button>
               {brands.map((b) => (
                 <button
                   key={b.id}
                   type="button"
-                  onClick={() => updateParam("brand", b.id)}
-                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-bold text-left transition-colors ${
-                    selectedBrand === b.id
-                      ? "bg-amber-50 text-amber-900 border border-amber-200 font-black"
-                      : "text-slate-800 hover:bg-slate-100"
-                  }`}
+                  onClick={() => updateParams({ brand: selectedBrand === b.slug ? null : b.slug })}
+                  aria-pressed={selectedBrand === b.slug}
+                  className={rowClass(selectedBrand === b.slug)}
                 >
                   <span className="truncate">{b.name}</span>
-                  {selectedBrand === b.id && (
-                    <Check className="h-3.5 w-3.5 text-amber-600 shrink-0" />
-                  )}
+                  <span className="flex shrink-0 items-center gap-1.5">
+                    <span className="text-[10px] font-extrabold text-slate-500 tabular-nums">
+                      {b.productCount}
+                    </span>
+                    {selectedBrand === b.slug && (
+                      <Check className="h-3.5 w-3.5 text-amber-600" aria-hidden />
+                    )}
+                  </span>
                 </button>
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Special Toggles */}
-        <div className="space-y-2.5 pt-2 border-t border-slate-200">
+        <div className="space-y-2.5 border-t border-slate-200 pt-2">
           <h4 className="text-xs font-black uppercase tracking-wider text-slate-600">
-            বিশেষ ফিল্টার
+            প্রাপ্যতা ও অফার
           </h4>
 
-          {/* In Stock Only */}
-          <label className="flex items-center gap-2.5 text-xs font-bold text-slate-800 cursor-pointer">
+          <label className="flex cursor-pointer items-center gap-2.5 text-xs font-bold text-slate-800">
             <input
               type="checkbox"
               checked={inStockOnly}
-              onChange={(e) => updateParam("stockStatus", e.target.checked ? "in_stock" : null)}
-              className="h-4 w-4 rounded text-amber-500 border-slate-300 focus:ring-amber-500"
+              onChange={(e) => updateParams({ inStock: e.target.checked ? "1" : null })}
+              className="h-4 w-4 rounded border-slate-300 text-amber-500 focus-visible:outline-2 focus-visible:outline-amber-600"
             />
             <span>শুধুমাত্র স্টকে থাকা প্রোডাক্ট</span>
           </label>
 
-          {/* Wholesale Only */}
-          <label className="flex items-center gap-2.5 text-xs font-bold text-slate-800 cursor-pointer">
+          <label className="flex cursor-pointer items-center gap-2.5 text-xs font-bold text-slate-800">
             <input
               type="checkbox"
-              checked={wholesaleOnly}
-              onChange={(e) => updateParam("wholesaleOnly", e.target.checked ? "true" : null)}
-              className="h-4 w-4 rounded text-amber-500 border-slate-300 focus:ring-amber-500"
+              checked={onSaleOnly}
+              onChange={(e) => updateParams({ onSale: e.target.checked ? "1" : null })}
+              className="h-4 w-4 rounded border-slate-300 text-amber-500 focus-visible:outline-2 focus-visible:outline-amber-600"
             />
-            <span className="flex items-center gap-1">
-              <Building2 className="h-3.5 w-3.5 text-amber-500" />
-              হোলসেল প্রোডাক্টস
-            </span>
-          </label>
-
-          {/* Reseller Friendly */}
-          <label className="flex items-center gap-2.5 text-xs font-bold text-slate-800 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={resellerFriendly}
-              onChange={(e) => updateParam("resellerFriendly", e.target.checked ? "true" : null)}
-              className="h-4 w-4 rounded text-amber-500 border-slate-300 focus:ring-amber-500"
-            />
-            <span className="flex items-center gap-1">
-              <Store className="h-3.5 w-3.5 text-amber-500" />
-              উচ্চ মার্জিন রিসেলিং
-            </span>
+            <span>শুধুমাত্র ডিসকাউন্ট প্রোডাক্ট</span>
           </label>
         </div>
       </div>

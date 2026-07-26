@@ -1,4 +1,3 @@
-import type { ProductCardData } from "@/components/website/product-card";
 import type { Category, Brand } from "@/features/catalog/domain/classification-entity";
 
 export interface HeroSlideData {

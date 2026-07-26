@@ -15,6 +15,8 @@ import {
   Settings,
   Moon,
   Sun,
+  Laptop,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { getBreadcrumbs, type Breadcrumb } from "./nav-config";
@@ -24,11 +26,20 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { NotificationBell } from "@/features/notification/components/notification-bell";
+import { useTheme, type Theme } from "@/providers/theme-provider";
+
+const THEME_OPTIONS: ReadonlyArray<{ value: Theme; label: string; icon: LucideIcon }> = [
+  { value: "light", label: "Light", icon: Sun },
+  { value: "dark", label: "Dark", icon: Moon },
+  { value: "system", label: "System", icon: Laptop },
+];
 
 export interface TopbarUserMenuItem {
   label: string;
@@ -64,13 +75,7 @@ export function Topbar({
   const pathname = usePathname();
   const router = useRouter();
   const crumbs = getBreadcrumbsFn(pathname);
-  const [dark, setDark] = React.useState(false);
-
-  const toggleTheme = (): void => {
-    const next = !dark;
-    setDark(next);
-    document.documentElement.classList.toggle("dark", next);
-  };
+  const { theme, resolvedTheme, setTheme } = useTheme();
 
   const menuItems: TopbarUserMenuItem[] = userMenuItems ?? [
     { label: "Profile", href: "/dashboard" },
@@ -176,19 +181,42 @@ export function Topbar({
           <Search className="h-4 w-4" />
         </Button>
 
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={toggleTheme}
-          aria-label="Toggle theme"
-          className="h-8 w-8 text-muted-foreground hover:text-foreground transition-transform hover:scale-105"
-        >
-          {dark ? (
-            <Sun className="h-4 w-4 text-amber-500" />
-          ) : (
-            <Moon className="h-4 w-4 text-slate-700" />
-          )}
-        </Button>
+        {/* Theme Toggle Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={`Theme: ${theme}. Change theme`}
+              className="h-8 w-8 text-muted-foreground hover:text-foreground transition-transform hover:scale-105"
+            >
+              {resolvedTheme === "dark" ? (
+                <Sun className="h-4 w-4 text-amber-500" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-40 shadow-xl border-border">
+            <DropdownMenuLabel className="p-2 text-[11px] font-bold">Theme</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuRadioGroup
+              value={theme}
+              onValueChange={(value) => setTheme(value as Theme)}
+            >
+              {THEME_OPTIONS.map(({ value, label, icon: Icon }) => (
+                <DropdownMenuRadioItem
+                  key={value}
+                  value={value}
+                  className="text-xs font-medium gap-2 py-2"
+                >
+                  <Icon className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span>{label}</span>
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <NotificationBell />
 

@@ -88,6 +88,59 @@ export interface StudioTabItem {
   disabled?: boolean;
 }
 
+/* ─────────────────────────────── Tab List ─────────────────────────────────── */
+
+export interface StudioTabListProps
+  extends
+    Omit<React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root>, "children">,
+    VariantProps<typeof tabsListVariants> {
+  tabs: StudioTabItem[];
+  /** If true, the tab bar scrolls horizontally (use on narrow containers) */
+  scrollable?: boolean;
+  /** Accessible name for the tab list. */
+  label?: string;
+}
+
+/**
+ * Navigation-only tab bar.
+ *
+ * Use when the panels are laid out elsewhere in the page (e.g. beside a sidebar).
+ * `StudioTabs` renders both the bar and the panels; pairing that with a separate
+ * panel region renders every panel twice.
+ */
+export function StudioTabList({
+  tabs,
+  variant,
+  scrollable = false,
+  className,
+  label,
+  ...props
+}: StudioTabListProps): React.ReactElement {
+  return (
+    <TabsPrimitive.Root className={cn("flex flex-col", className)} {...props}>
+      <TabsPrimitive.List
+        aria-label={label}
+        className={cn(tabsListVariants({ variant }), scrollable && "overflow-x-auto ws-scroll")}
+      >
+        {tabs.map((tab) => (
+          <TabsPrimitive.Trigger
+            key={tab.value}
+            value={tab.value}
+            disabled={tab.disabled}
+            className={cn(tabsTriggerVariants({ variant }))}
+          >
+            {tab.icon ? <span className="h-4 w-4 shrink-0">{tab.icon}</span> : null}
+            <span className="truncate">{tab.label}</span>
+            {tab.badgeCount !== undefined && tab.badgeCount > 0 ? (
+              <TabBadge count={tab.badgeCount} variant={tab.badgeVariant ?? "info"} />
+            ) : null}
+          </TabsPrimitive.Trigger>
+        ))}
+      </TabsPrimitive.List>
+    </TabsPrimitive.Root>
+  );
+}
+
 /* ─────────────────────────────── Root ─────────────────────────────────────── */
 
 export interface StudioTabsProps

@@ -18,11 +18,23 @@ export interface CheckoutShippingInfo {
   receiverName: string;
   phone: string;
   alternativePhone?: string;
+  /** Customer email — links the order to an account's history. */
+  email?: string;
   division: string;
   district: string;
   upazila: string;
   area: string;
   address: string;
+  postalCode?: string;
+  landmark?: string;
+  /** "home" | "office" — free string for future labels. */
+  addressLabel?: string;
+  /** Selected shipping method id (e.g. "standard"). */
+  shippingMethod?: string;
+  /** Delivery charge in MINOR units — included in totals.grandTotal. */
+  deliveryCharge?: number;
+  /** Selected payment method id — stored only; gateways are a later phase. */
+  paymentMethod?: string;
   deliveryNote?: string;
 }
 

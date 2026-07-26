@@ -1,5 +1,15 @@
 import { z } from "zod";
 
+/**
+ * Price inputs arrive from the studio as strings (`""`, `"1200"`). Coerce them so a
+ * blank field becomes `undefined` rather than failing the `z.number()` check.
+ */
+function priceInput(val: unknown): number | undefined {
+  if (val === "" || val === undefined || val === null) return undefined;
+  const parsed = Number(val);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
 export const studioVariantRowSchema = z.object({
   id: z.string().optional(),
   name: z.string().optional().or(z.literal("")),
@@ -50,32 +60,35 @@ export const studioSEOSchema = z.object({
 });
 
 export const studioPricingSchema = z.object({
-  costPrice: z.preprocess(
-    (val) => (val === "" || val === undefined || val === null ? undefined : Number(val)),
-    z.number().nonnegative().optional(),
-  ),
-  sellingPrice: z.number().nonnegative().optional(),
-  wholesalePrice: z.number().nonnegative().optional(),
-  resellerPrice: z.number().nonnegative().optional(),
-  comparePrice: z.number().nonnegative().optional(),
-  campaignPrice: z.number().nonnegative().optional(),
+  costPrice: z.preprocess(priceInput, z.number().nonnegative().optional()),
+  sellingPrice: z.preprocess(priceInput, z.number().nonnegative().optional()),
+  wholesalePrice: z.preprocess(priceInput, z.number().nonnegative().optional()),
+  resellerPrice: z.preprocess(priceInput, z.number().nonnegative().optional()),
+  comparePrice: z.preprocess(priceInput, z.number().nonnegative().optional()),
+  campaignPrice: z.preprocess(priceInput, z.number().nonnegative().optional()),
   margin: z.number().optional(),
   profit: z.number().optional(),
   manualPriceOverrides: z.record(z.string(), z.boolean()).optional(),
 });
 
+/** Coerces number-ish form inputs (`""`, `"12"`, `null`) into a number, or `undefined` when blank. */
+function numericInput(fallback?: number) {
+  return (val: unknown): number | undefined => {
+    if (val === "" || val === undefined || val === null) return fallback;
+    const parsed = Number(val);
+    return Number.isFinite(parsed) ? parsed : fallback;
+  };
+}
+
 export const studioInventorySchema = z.object({
   sku: z.string().optional(),
   barcode: z.string().optional().or(z.literal("")),
-  stock: z.preprocess(
-    (val) => (val === "" || val === undefined || val === null ? 0 : Number(val)),
-    z.number().int().nonnegative().default(0),
-  ),
-  reservedStock: z.number().int().nonnegative().default(0),
-  incomingStock: z.number().int().nonnegative().default(0),
-  lowStockThreshold: z.number().int().nonnegative().default(5),
+  stock: z.preprocess(numericInput(0), z.number().int().nonnegative().default(0)),
+  reservedStock: z.preprocess(numericInput(0), z.number().int().nonnegative().default(0)),
+  incomingStock: z.preprocess(numericInput(0), z.number().int().nonnegative().default(0)),
+  lowStockThreshold: z.preprocess(numericInput(5), z.number().int().nonnegative().default(5)),
   warehouseLocation: z.string().optional().or(z.literal("")),
-  weight: z.number().nonnegative().optional(),
+  weight: z.preprocess(numericInput(), z.number().nonnegative().optional()),
 });
 
 export const createStudioProductSchema = z.object({

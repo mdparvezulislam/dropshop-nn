@@ -3,19 +3,24 @@
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { ProductService } from "../services/product-service";
+import { ProductRepository } from "../repositories/product-repository";
+import { BrandRepository, CategoryRepository } from "../repositories/classification-repository";
+import type { Product } from "../domain/product-entity";
 import { PricingService } from "@/features/pricing/services/pricing-service";
-import { checkPermission } from "@/lib/check-permission";
+import { PricingRepository } from "@/features/pricing/repositories/pricing-repository";
+import { InventoryService } from "@/features/inventory/services/inventory-service";
+import { InventoryRepository } from "@/features/inventory/repositories/inventory-repository";
+import { checkPermission, sessionActor } from "@/lib/check-permission";
 import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
-import { ProductModel } from "../repositories/product-model";
 
 export interface CatalogSummaryStats {
   total: number;
   active: number;
   draft: number;
+  archived: number;
   outOfStock: number;
   lowStock: number;
-  campaign: number;
 }
 
 export async function getCatalogSummaryStatsAction(): Promise<{
@@ -24,156 +29,361 @@ export async function getCatalogSummaryStatsAction(): Promise<{
   error?: string;
 }> {
   try {
-    const service = new ProductService();
-    const result = await service.list({}, { limit: 200 });
-    const items = result.items || [];
+    const session = await auth();
+    checkPermission(session, "Product.View");
 
-    const stats: CatalogSummaryStats = {
-      total: result.totalCount || items.length,
-      active: items.filter((p: any) => p.status === "active").length,
-      draft: items.filter((p: any) => p.status === "draft").length,
-      outOfStock: items.filter((p: any) => (p.stockQuantity ?? p.stock ?? 0) <= 0).length,
-      lowStock: items.filter((p: any) => {
-        const qty = p.stockQuantity ?? p.stock ?? 0;
-        return qty > 0 && qty <= 10;
-      }).length,
-      campaign: items.filter((p: any) => p.flashSale || p.campaignPrice > 0).length,
-    };
+    const productRepository = new ProductRepository();
+    const inventoryService = new InventoryService();
 
-    return { success: true, data: stats };
-  } catch (err: unknown) {
-    logger.error("Failed to fetch catalog summary stats", err);
+    const [statusCounts, lowStock, outOfStock] = await Promise.all([
+      productRepository.countCatalogStatuses(),
+      inventoryService.getLowStockList().catch(() => []),
+      inventoryService.getOutOfStockList().catch(() => []),
+    ]);
+
     return {
       success: true,
-      data: { total: 0, active: 0, draft: 0, outOfStock: 0, lowStock: 0, campaign: 0 },
+      data: {
+        total: statusCounts.total,
+        active: statusCounts.active,
+        draft: statusCounts.draft,
+        archived: statusCounts.archived,
+        outOfStock: outOfStock.length,
+        lowStock: lowStock.length,
+      },
+    };
+  } catch (err: unknown) {
+    // Previously returned `success: true` with zeroes, presenting a failed query as an
+    // empty-but-healthy catalog. Report the failure so the UI can say so.
+    logger.error("Failed to fetch catalog summary stats", err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to load catalog statistics",
     };
   }
 }
 
+const catalogListQuerySchema = z.object({
+  tab: z
+    .enum(["all", "active", "draft", "low_stock", "out_of_stock", "campaign", "archived"])
+    .default("all"),
+  search: z.string().trim().max(200).optional(),
+  categoryId: z.string().trim().max(64).optional(),
+  brandId: z.string().trim().max(64).optional(),
+  limit: z.number().int().min(1).max(200).default(50),
+  cursor: z.string().trim().max(64).optional(),
+});
+
+export type CatalogListQuery = z.input<typeof catalogListQuerySchema>;
+
+export interface CatalogListItem {
+  id: string;
+  name: string;
+  sku: string;
+  category: string;
+  brand: string;
+  price: number;
+  costPrice: number;
+  stock: number;
+  status: string;
+  image: string;
+  updatedAt?: string;
+}
+
+export interface CatalogListResult {
+  items: CatalogListItem[];
+  totalCount: number;
+  cursor: string | null;
+  hasMore: boolean;
+}
+
+/**
+ * Product List data source.
+ *
+ * Replaces the previous flow, which forwarded an arbitrary client-supplied object
+ * straight into the Mongo query (so `{ search: "x" }` matched a non-existent `search`
+ * field and always returned nothing) and then padded absent prices/stock with invented
+ * placeholder numbers. Filters are now validated, search hits real fields, and price and
+ * stock are read from the pricing and inventory engines.
+ */
+export async function listCatalogProductsAction(query: CatalogListQuery): Promise<{
+  success: boolean;
+  data?: CatalogListResult;
+  error?: string;
+}> {
+  try {
+    const session = await auth();
+    checkPermission(session, "Product.View");
+
+    const { tab, search, categoryId, brandId, limit, cursor } = catalogListQuerySchema.parse(query);
+
+    const filter: Record<string, unknown> = {};
+    if (tab === "active" || tab === "draft" || tab === "archived") filter.status = tab;
+    if (tab === "campaign") filter.badges = { $in: ["flash_sale", "featured"] };
+    if (categoryId) filter.categoryId = categoryId;
+    if (brandId) filter.brandId = brandId;
+    if (search) {
+      const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const pattern = new RegExp(escaped, "i");
+      filter.$or = [{ name: pattern }, { sku: pattern }, { slug: pattern }, { tags: pattern }];
+    }
+
+    const productRepository = new ProductRepository();
+    const page = await productRepository.findWithCursor({ limit, cursor }, filter);
+
+    const enriched = await enrichCatalogItems(page.items);
+
+    // Stock-derived tabs are resolved after the inventory join, since stock lives in the
+    // inventory engine rather than on the product document.
+    const items =
+      tab === "low_stock"
+        ? enriched.filter((item) => item.stock > 0 && item.stock <= 10)
+        : tab === "out_of_stock"
+          ? enriched.filter((item) => item.stock <= 0)
+          : enriched;
+
+    return {
+      success: true,
+      data: {
+        items,
+        totalCount: page.totalCount,
+        cursor: page.cursor ?? null,
+        hasMore: page.hasMore,
+      },
+    };
+  } catch (err: unknown) {
+    logger.error("Failed to list catalog products", err);
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to load product catalog",
+    };
+  }
+}
+
+/** Joins pricing, inventory and taxonomy names onto a page of products in bulk. */
+async function enrichCatalogItems(products: Product[]): Promise<CatalogListItem[]> {
+  if (products.length === 0) return [];
+
+  const productIds = products.map((p) => p.id);
+  const categoryIds = [...new Set(products.map((p) => p.categoryId).filter(Boolean))] as string[];
+  const brandIds = [...new Set(products.map((p) => p.brandId).filter(Boolean))] as string[];
+
+  const [pricingRows, inventoryRows, categories, brands] = await Promise.all([
+    new PricingRepository().find({ productId: { $in: productIds } }).catch(() => []),
+    new InventoryRepository().find({ productId: { $in: productIds } }).catch(() => []),
+    categoryIds.length > 0
+      ? new CategoryRepository().find({ _id: { $in: categoryIds } }).catch(() => [])
+      : Promise.resolve([]),
+    brandIds.length > 0
+      ? new BrandRepository().find({ _id: { $in: brandIds } }).catch(() => [])
+      : Promise.resolve([]),
+  ]);
+
+  const pricingByProduct = new Map(pricingRows.map((row) => [row.productId, row]));
+  const stockByProduct = new Map<string, number>();
+  for (const row of inventoryRows) {
+    stockByProduct.set(
+      row.productId,
+      (stockByProduct.get(row.productId) ?? 0) + row.availableStock,
+    );
+  }
+  const categoryNames = new Map(categories.map((c) => [c.id, c.name]));
+  const brandNames = new Map(brands.map((b) => [b.id, b.name]));
+
+  return products.map((product) => {
+    const pricing = pricingByProduct.get(product.id);
+    const featured = product.media.find((m) => m.isFeatured) ?? product.media[0];
+
+    return {
+      id: product.id,
+      name: product.name,
+      sku: product.sku,
+      // Empty string, never a fabricated placeholder — the UI renders its own "—".
+      category: product.categoryId ? (categoryNames.get(product.categoryId) ?? "") : "",
+      brand: product.brandId ? (brandNames.get(product.brandId) ?? "") : "",
+      price: pricing ? pricing.sellingPrice / 100 : 0,
+      costPrice: pricing ? pricing.baseCostPrice / 100 : 0,
+      stock: stockByProduct.get(product.id) ?? 0,
+      status: product.status,
+      image: featured?.url ?? "",
+      updatedAt:
+        product.updatedAt instanceof Date ? product.updatedAt.toISOString() : product.updatedAt,
+    };
+  });
+}
+
+const bulkUpdateSchema = z.object({
+  ids: z.array(z.string().min(1)).min(1, "At least one product ID is required").max(500),
+  changes: z.object({
+    status: z.enum(["draft", "pending_review", "active", "inactive", "archived"]).optional(),
+    priceAdjustment: z
+      .object({
+        type: z.enum(["percent_add", "percent_sub", "fixed"]),
+        value: z.number().nonnegative(),
+      })
+      .optional(),
+    stockAdjustment: z
+      .object({ type: z.enum(["set", "add", "sub"]), value: z.number().int().nonnegative() })
+      .optional(),
+    categoryId: z.string().min(1).optional(),
+    brandId: z.string().min(1).optional(),
+  }),
+});
+
+export type BulkProductChanges = z.infer<typeof bulkUpdateSchema>["changes"];
+
 export async function bulkUpdateProductsAction(
   ids: string[],
-  changes: {
-    status?: string;
-    priceAdjustment?: { type: "percent_add" | "percent_sub" | "fixed"; value: number };
-    stockAdjustment?: { type: "set" | "add" | "sub"; value: number };
-    categoryId?: string;
-    brandId?: string;
-  },
-): Promise<{ success: boolean; updatedCount?: number; error?: string }> {
+  changes: BulkProductChanges,
+): Promise<{ success: boolean; updatedCount?: number; failedCount?: number; error?: string }> {
   try {
     const session = await auth();
     checkPermission(session, "Product.Update");
+    const actor = sessionActor(session);
+    const validated = bulkUpdateSchema.parse({ ids, changes });
+
     const service = new ProductService();
+    const pricingService = new PricingService();
+    const inventoryService = new InventoryService();
 
     let updated = 0;
-    for (const id of ids) {
-      const existing = await service.findById(id);
-      if (!existing) continue;
+    let failed = 0;
 
-      const updateData: any = {};
-      if (changes.status) updateData.status = changes.status;
-      if (changes.categoryId) updateData.categoryId = changes.categoryId;
-      if (changes.brandId) updateData.brandId = changes.brandId;
+    for (const id of validated.ids) {
+      try {
+        const existing = await service.findById(id);
+        if (!existing) {
+          failed++;
+          continue;
+        }
 
-      if (changes.priceAdjustment) {
-        try {
-          const pricingService = new PricingService();
+        const { status, categoryId, brandId, priceAdjustment, stockAdjustment } = validated.changes;
+
+        if (status || categoryId || brandId) {
+          await service.update(
+            id,
+            {
+              ...(status ? { status } : {}),
+              ...(categoryId ? { categoryId } : {}),
+              ...(brandId ? { brandId } : {}),
+            },
+            actor,
+          );
+        }
+
+        if (priceAdjustment) {
           const pricing = await pricingService.getPricingByProduct(id);
           if (pricing) {
             const currentPrice = pricing.sellingPrice;
-            let newPrice = currentPrice;
-            if (changes.priceAdjustment.type === "percent_add") {
-              newPrice = Math.round(currentPrice * (1 + changes.priceAdjustment.value / 100));
-            } else if (changes.priceAdjustment.type === "percent_sub") {
-              newPrice = Math.max(
-                0,
-                Math.round(currentPrice * (1 - changes.priceAdjustment.value / 100)),
-              );
-            } else if (changes.priceAdjustment.type === "fixed") {
-              newPrice = Math.max(0, changes.priceAdjustment.value);
-            }
-            const userObj = session?.user as any;
-            await pricingService.updatePricing(pricing.id, { sellingPrice: newPrice }, userObj?.id);
+            const newPrice =
+              priceAdjustment.type === "percent_add"
+                ? Math.round(currentPrice * (1 + priceAdjustment.value / 100))
+                : priceAdjustment.type === "percent_sub"
+                  ? Math.max(0, Math.round(currentPrice * (1 - priceAdjustment.value / 100)))
+                  : // A fixed amount arrives in BDT; pricing stores minor units.
+                    Math.max(0, Math.round(priceAdjustment.value * 100));
+            await pricingService.updatePricing(pricing.id, { sellingPrice: newPrice }, actor.id);
           }
-        } catch {
-          logger.warn("Price adjustment failed via PricingService, skipping", { id });
         }
-      }
 
-      if (changes.stockAdjustment) {
-        const currentStock = (existing as any).stockQuantity ?? (existing as any).stock ?? 0;
-        if (changes.stockAdjustment.type === "set") {
-          updateData.stockQuantity = Math.max(0, changes.stockAdjustment.value);
-        } else if (changes.stockAdjustment.type === "add") {
-          updateData.stockQuantity = currentStock + changes.stockAdjustment.value;
-        } else if (changes.stockAdjustment.type === "sub") {
-          updateData.stockQuantity = Math.max(0, currentStock - changes.stockAdjustment.value);
+        if (stockAdjustment) {
+          // Routed through the inventory engine — `stockQuantity` is not a product field
+          // and the previous write was silently discarded by the schema.
+          const inventory = await inventoryService.getInventoryByProduct(id);
+          if (inventory) {
+            const current = inventory.availableStock;
+            const availableStock =
+              stockAdjustment.type === "set"
+                ? stockAdjustment.value
+                : stockAdjustment.type === "add"
+                  ? current + stockAdjustment.value
+                  : Math.max(0, current - stockAdjustment.value);
+            await inventoryService.updateInventory(inventory.id, { availableStock }, actor.id);
+          }
         }
-      }
 
-      const userObj = session?.user as any;
-      await service.update(id, updateData, {
-        id: userObj?.id || "admin",
-        name: userObj?.name || "Admin",
-        role: userObj?.role || "ADMIN",
-      });
-      updated++;
+        updated++;
+      } catch (itemError) {
+        logger.warn("Bulk update failed for product", {
+          id,
+          error: itemError instanceof Error ? itemError.message : "unknown",
+        });
+        failed++;
+      }
     }
 
     revalidatePath("/dashboard/products");
-    return { success: true, updatedCount: updated };
+    return { success: true, updatedCount: updated, failedCount: failed };
   } catch (err: unknown) {
     logger.error("Failed bulk update products", err);
     return { success: false, error: err instanceof Error ? err.message : "Bulk update failed" };
   }
 }
 
+const inlineUpdateSchema = z.object({
+  id: z.string().min(1, "Product ID is required"),
+  // Allow-listed: the previous implementation wrote any client-named field straight
+  // onto the product document (`updateData[field] = value`), including `isDeleted`.
+  field: z.enum(["price", "costPrice", "stock", "status", "name"]),
+  value: z.union([z.string(), z.number()]),
+});
+
 export async function inlineUpdateProductAction(
   id: string,
   field: string,
-  value: any,
-): Promise<{ success: boolean; data?: any; error?: string }> {
+  value: string | number,
+): Promise<{ success: boolean; error?: string }> {
   try {
     const session = await auth();
     checkPermission(session, "Product.Update");
-    const service = new ProductService();
+    const actor = sessionActor(session);
 
-    const updateData: Record<string, any> = {};
-    const userObj = session?.user as any;
+    const parsed = inlineUpdateSchema.parse({ id, field, value });
+    const numericValue = Number(parsed.value);
 
-    if (field === "price") {
-      const pricingService = new PricingService();
-      const pricing = await pricingService.getPricingByProduct(id);
-      if (pricing) {
-        await pricingService.updatePricing(
-          pricing.id,
-          { sellingPrice: Math.round(parseFloat(value) || 0) },
-          userObj?.id,
-        );
+    if (parsed.field === "price") {
+      if (!Number.isFinite(numericValue) || numericValue < 0) {
+        return { success: false, error: "Price must be a non-negative number" };
       }
-    } else if (field === "costPrice") {
+      const pricingService = new PricingService();
+      const pricing = await pricingService.getPricingByProduct(parsed.id);
+      if (!pricing) {
+        return { success: false, error: "This product has no pricing record yet" };
+      }
+      // Pricing is stored in minor units; the grid edits major units (BDT).
+      await pricingService.updatePricing(
+        pricing.id,
+        { sellingPrice: Math.round(numericValue * 100) },
+        actor.id,
+      );
+    } else if (parsed.field === "costPrice") {
+      if (!Number.isFinite(numericValue) || numericValue < 0) {
+        return { success: false, error: "Cost price must be a non-negative number" };
+      }
       const { createCostVersionSchema } = await import("@/features/cost/types/validation");
       const { CostVersionService } = await import("@/features/cost/services/cost-version-service");
-      const costService = new CostVersionService();
       const input = createCostVersionSchema.parse({
-        productId: id,
-        costPrice: Math.round(parseFloat(value) || 0),
+        productId: parsed.id,
+        costPrice: Math.round(numericValue * 100),
         reason: "manual_correction",
       });
-      await costService.createCostVersion(input, {
-        id: userObj?.id ?? "unknown",
-        name: userObj?.name,
-      });
-    } else if (field === "stock") updateData.stockQuantity = parseInt(value) || 0;
-    else if (field === "status") updateData.status = value;
-    else updateData[field] = value;
-
-    if (Object.keys(updateData).length > 0) {
-      const updated = await service.update(id, updateData, {
-        id: userObj?.id || "admin",
-        name: userObj?.name || "Admin",
-        role: userObj?.role || "ADMIN",
-      });
+      await new CostVersionService().createCostVersion(input, { id: actor.id, name: actor.name });
+    } else if (parsed.field === "stock") {
+      if (!Number.isInteger(numericValue) || numericValue < 0) {
+        return { success: false, error: "Stock must be a non-negative whole number" };
+      }
+      // Stock lives in the inventory engine — writing `stockQuantity` onto the product
+      // document was silently dropped by the Mongoose schema.
+      const result = await setProductStock(parsed.id, numericValue, actor.id);
+      if (!result.ok) return { success: false, error: result.error };
+    } else if (parsed.field === "status") {
+      const status = z
+        .enum(["draft", "pending_review", "active", "inactive", "archived"])
+        .parse(parsed.value);
+      await new ProductService().update(parsed.id, { status }, actor);
+    } else {
+      const name = z.string().min(2).max(255).parse(parsed.value);
+      await new ProductService().update(parsed.id, { name }, actor);
     }
 
     revalidatePath("/dashboard/products");
@@ -184,10 +394,29 @@ export async function inlineUpdateProductAction(
   }
 }
 
+/** Writes an absolute available-stock figure through the inventory engine. */
+async function setProductStock(
+  productId: string,
+  availableStock: number,
+  actorId: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const inventoryService = new InventoryService();
+  const existing = await inventoryService.getInventoryByProduct(productId);
+  if (!existing) {
+    return { ok: false, error: "This product has no inventory record yet" };
+  }
+  await inventoryService.updateInventory(existing.id, { availableStock }, actorId);
+  return { ok: true };
+}
+
 export async function exportProductsAction(
   ids?: string[],
 ): Promise<{ success: boolean; csvContent?: string; error?: string }> {
   try {
+    // SECURITY: a full catalog dump (SKUs, prices, stock) is staff-only.
+    const session = await auth();
+    checkPermission(session, "Product.View");
+
     const service = new ProductService();
     const pricingService = new PricingService();
     const result = await service.list({}, { limit: 500 });
@@ -271,12 +500,7 @@ export async function bulkPublishProductsAction(ids: string[]): Promise<{
     checkPermission(session, "Product.Update");
     const validated = bulkIdsSchema.parse({ ids });
     const service = new ProductService();
-    const userObj = session?.user as any;
-    const actor = {
-      id: userObj?.id || "admin",
-      name: userObj?.name || "Admin",
-      role: userObj?.role || "ADMIN",
-    };
+    const actor = sessionActor(session);
 
     let processed = 0;
     let failed = 0;
@@ -310,12 +534,7 @@ export async function bulkArchiveProductsAction(
     checkPermission(session, "Product.Update");
     const validated = bulkIdsOptionalReasonSchema.parse({ ids, reason });
     const service = new ProductService();
-    const userObj = session?.user as any;
-    const actor = {
-      id: userObj?.id || "admin",
-      name: userObj?.name || "Admin",
-      role: userObj?.role || "ADMIN",
-    };
+    const actor = sessionActor(session);
 
     let processed = 0;
     let failed = 0;
@@ -346,12 +565,7 @@ export async function bulkDeleteProductsAction(ids: string[]): Promise<{
     checkPermission(session, "Product.Delete");
     const validated = bulkIdsSchema.parse({ ids });
     const service = new ProductService();
-    const userObj = session?.user as any;
-    const actor = {
-      id: userObj?.id || "admin",
-      name: userObj?.name || "Admin",
-      role: userObj?.role || "ADMIN",
-    };
+    const actor = sessionActor(session);
 
     let processed = 0;
     let failed = 0;
@@ -382,15 +596,17 @@ export async function bulkRestoreProductsAction(ids: string[]): Promise<{
     checkPermission(session, "Product.Update");
     const validated = bulkIdsSchema.parse({ ids });
 
+    // Routed through the service so restores are audited and versioned like every
+    // other lifecycle transition, instead of writing to the Mongoose model directly.
+    const service = new ProductService();
+    const actor = sessionActor(session);
+
     let processed = 0;
     let failed = 0;
     for (const id of validated.ids) {
       try {
-        const result = await ProductModel.findByIdAndUpdate(id, {
-          $set: { isDeleted: false, deletedAt: null },
-        }).exec();
-        if (result) processed++;
-        else failed++;
+        await service.restore(id, actor);
+        processed++;
       } catch {
         failed++;
       }
@@ -417,12 +633,7 @@ export async function bulkCategoryChangeAction(
     checkPermission(session, "Product.Update");
     const validated = bulkIdsWithCategorySchema.parse({ ids, categoryId });
     const service = new ProductService();
-    const userObj = session?.user as any;
-    const actor = {
-      id: userObj?.id || "admin",
-      name: userObj?.name || "Admin",
-      role: userObj?.role || "ADMIN",
-    };
+    const actor = sessionActor(session);
 
     let processed = 0;
     let failed = 0;
@@ -459,12 +670,7 @@ export async function bulkBrandChangeAction(
     checkPermission(session, "Product.Update");
     const validated = bulkIdsWithBrandSchema.parse({ ids, brandId });
     const service = new ProductService();
-    const userObj = session?.user as any;
-    const actor = {
-      id: userObj?.id || "admin",
-      name: userObj?.name || "Admin",
-      role: userObj?.role || "ADMIN",
-    };
+    const actor = sessionActor(session);
 
     let processed = 0;
     let failed = 0;
@@ -499,20 +705,17 @@ export async function bulkStatusChangeAction(
   try {
     const session = await auth();
     checkPermission(session, "Product.Update");
-    const validated = bulkIdsWithStatusSchema.parse({ ids, status: status as any });
+    const validated = bulkIdsWithStatusSchema.parse({ ids, status });
     const service = new ProductService();
-    const userObj = session?.user as any;
-    const actor = {
-      id: userObj?.id || "admin",
-      name: userObj?.name || "Admin",
-      role: userObj?.role || "ADMIN",
-    };
+    const actor = sessionActor(session);
 
     let processed = 0;
     let failed = 0;
     for (const id of validated.ids) {
       try {
-        await ProductModel.findByIdAndUpdate(id, { $set: { status: validated.status } }).exec();
+        // Service-routed: the direct model write skipped validation, audit trail,
+        // version history and the catalog event bus.
+        await service.update(id, { status: validated.status }, actor);
         processed++;
       } catch {
         failed++;

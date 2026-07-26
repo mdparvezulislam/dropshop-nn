@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { auth } from "@/lib/auth";
+import { logger } from "@/lib/utils/logger";
 import { AuthService } from "@/features/auth/services/auth-service";
 import { UserRepository } from "@/features/auth/repositories/user-repository";
 import { UserAddressRepository } from "../repositories/user-address-repository";
@@ -86,8 +87,13 @@ export async function getAccountOverviewAction(): Promise<{
 
     const orderService = new OrderService();
     const sortParams: SortParams = { sortBy: "createdAt", sortOrder: "desc" };
-    const orderResult = await orderService.listOrders(
-      { search: user.email },
+    // Ownership filter (customerId OR email) — a regex "search" over
+    // name/phone fields can never represent ownership.
+    const { OrderRepository } = await import("@/features/order/repositories/order-repository");
+    const ownershipClauses: Record<string, unknown>[] = [{ "customer.customerId": currentUserId }];
+    if (user.email) ownershipClauses.push({ "customer.email": user.email });
+    const orderResult = await new OrderRepository().findPaginated(
+      { $or: ownershipClauses },
       { page: 1, limit: 5 },
       sortParams,
     );
@@ -112,7 +118,7 @@ export async function getAccountOverviewAction(): Promise<{
           id: o.id,
           orderNumber: o.orderNumber,
           status: o.status,
-          total: o.pricing?.total || 0,
+          total: o.pricing?.grandTotal ? Math.round(o.pricing.grandTotal) / 100 : 0,
           createdAt: o.createdAt,
         })),
       },
@@ -259,6 +265,12 @@ export async function updateAddressAction(
     const validated = addressSchema.partial().parse(data);
     const repo = new UserAddressRepository();
 
+    // SECURITY: repository updates are id-only — prove ownership first.
+    const existing = await repo.findById(addressId);
+    if (!existing || existing.userId !== sessionUser.id) {
+      return { success: false, error: "Address not found" };
+    }
+
     if (validated.isDefault) {
       await repo.unsetDefault(sessionUser.id);
     }
@@ -281,15 +293,20 @@ export async function deleteAddressAction(addressId: string): Promise<{
 }> {
   try {
     const session = await auth();
-    getSessionUser(session);
+    const sessionUser = getSessionUser(session);
 
     const repo = new UserAddressRepository();
+    const existing = await repo.findById(addressId);
+    if (!existing || existing.userId !== sessionUser.id) {
+      return { success: false, error: "Address not found" };
+    }
+
     await repo.delete(addressId);
     revalidatePath("/account/addresses");
     return { success: true };
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Failed to delete address";
-    return { success: false, error: msg };
+    logger.error("deleteAddressAction failed", err);
+    return { success: false, error: "Failed to delete address" };
   }
 }
 
@@ -315,10 +332,14 @@ export async function getOrdersAction(
     const userRepo = new UserRepository();
     const user = await userRepo.findById(sessionUser.id);
 
-    const orderService = new OrderService();
     const sortParams: SortParams = { sortBy: "createdAt", sortOrder: "desc" };
-    const result = await orderService.listOrders(
-      user?.email ? { search: user.email } : {},
+    // Ownership filter only — an empty filter here previously returned EVERY
+    // customer's orders to any logged-in user.
+    const { OrderRepository } = await import("@/features/order/repositories/order-repository");
+    const ownershipClauses: Record<string, unknown>[] = [{ "customer.customerId": sessionUser.id }];
+    if (user?.email) ownershipClauses.push({ "customer.email": user.email });
+    const result = await new OrderRepository().findPaginated(
+      { $or: ownershipClauses },
       { page, limit },
       sortParams,
     );
@@ -330,7 +351,7 @@ export async function getOrdersAction(
           id: o.id,
           orderNumber: o.orderNumber,
           status: o.status,
-          total: o.pricing?.total || 0,
+          total: o.pricing?.grandTotal ? Math.round(o.pricing.grandTotal) / 100 : 0,
           itemCount: o.items?.length || 0,
           createdAt: o.createdAt,
         })),
@@ -442,16 +463,21 @@ export async function removeWishlistItemAction(wishlistId: string): Promise<{
 }> {
   try {
     const session = await auth();
-    getSessionUser(session);
+    const sessionUser = getSessionUser(session);
 
     const repo = new WishlistItemRepository();
+    const existing = await repo.findById(wishlistId);
+    if (!existing || existing.userId !== sessionUser.id) {
+      return { success: false, error: "Item not found" };
+    }
+
     await repo.delete(wishlistId);
 
     revalidatePath("/account/wishlist");
     return { success: true };
   } catch (err) {
-    const msg = err instanceof Error ? err.message : "Failed to remove from wishlist";
-    return { success: false, error: msg };
+    logger.error("removeWishlistItemAction failed", err);
+    return { success: false, error: "Failed to remove from wishlist" };
   }
 }
 

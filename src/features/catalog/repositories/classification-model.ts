@@ -10,8 +10,15 @@ export interface BrandDBFields {
   name: string;
   slug: string;
   logo?: string;
+  banner?: string;
   description?: string;
   website?: string;
+  country?: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  sortOrder: number;
+  metaTitle?: string;
+  metaDescription?: string;
 }
 
 export type BrandDocument = BaseDocument & BrandDBFields;
@@ -21,8 +28,15 @@ const brandSchema = new Schema<BrandDocument>(
     name: { type: String, required: true, unique: true, index: true },
     slug: { type: String, required: true, unique: true, index: true },
     logo: { type: String, required: false },
+    banner: { type: String, required: false },
     description: { type: String, required: false },
     website: { type: String, required: false },
+    country: { type: String, required: false },
+    isActive: { type: Boolean, default: true, index: true },
+    isFeatured: { type: Boolean, default: false, index: true },
+    sortOrder: { type: Number, default: 0 },
+    metaTitle: { type: String, required: false },
+    metaDescription: { type: String, required: false },
     ...baseFieldsDefinition,
   },
   baseSchemaOptions,
@@ -39,7 +53,13 @@ export interface CategoryDBFields {
   parentCategoryId?: mongoose.Types.ObjectId | null;
   description?: string;
   image?: string;
+  icon?: string;
   sortOrder: number;
+  isActive: boolean;
+  isFeatured: boolean;
+  visibility: string;
+  metaTitle?: string;
+  metaDescription?: string;
 }
 
 export type CategoryDocument = BaseDocument & CategoryDBFields;
@@ -56,7 +76,13 @@ const categorySchema = new Schema<CategoryDocument>(
     },
     description: { type: String, required: false },
     image: { type: String, required: false },
+    icon: { type: String, required: false },
     sortOrder: { type: Number, default: 0 },
+    isActive: { type: Boolean, default: true, index: true },
+    isFeatured: { type: Boolean, default: false, index: true },
+    visibility: { type: String, enum: ["public", "hidden"], default: "public" },
+    metaTitle: { type: String, required: false },
+    metaDescription: { type: String, required: false },
     ...baseFieldsDefinition,
   },
   baseSchemaOptions,

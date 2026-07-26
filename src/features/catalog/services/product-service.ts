@@ -5,7 +5,7 @@ import {
 } from "../repositories/product-repository";
 import { BrandRepository } from "../repositories/classification-repository";
 import { CategoryRepository } from "../repositories/classification-repository";
-import { Product } from "../domain/product-entity";
+import type { Product, ProductMedia, ProductSEO, ProductVariant } from "../domain/product-entity";
 import { ValidationError, NotFoundError } from "@/lib/errors/app-error";
 import { logger } from "@/lib/utils/logger";
 import { EventBus } from "@/lib/event-bus";
@@ -17,6 +17,36 @@ import { ProductVersionService } from "./product-version-service";
 import { ProductAuditService } from "./product-audit-service";
 import { PricingService } from "@/features/pricing/services/pricing-service";
 import { ProductAutomationEngine } from "./product-automation-engine";
+
+/**
+ * Transient pricing/stock hints that ride along with a product payload. They are consumed
+ * by the automation engine and the pricing record, and are not persisted on the product
+ * document itself (the Product schema has no such fields).
+ */
+export interface ProductWriteHints {
+  costPrice?: number;
+  sellingPrice?: number;
+  wholesalePrice?: number;
+  resellerPrice?: number;
+  comparePrice?: number;
+  stock?: number;
+}
+
+type CreateProductPayload = CreateProductInput & ProductWriteHints;
+type UpdateProductPayload = UpdateProductInput & ProductWriteHints;
+
+/** Converts a major-unit (BDT) amount into the integer minor units the pricing domain stores. */
+function toMinorUnits(amount?: number | null): number {
+  if (!amount || !Number.isFinite(amount) || amount <= 0) return 0;
+  return Math.round(amount * 100);
+}
+
+/** Drops keys whose value is `undefined` so a merge never blanks an existing field. */
+function stripUndefined<T extends object>(source: T): Partial<T> {
+  return Object.fromEntries(
+    Object.entries(source).filter(([, value]) => value !== undefined),
+  ) as Partial<T>;
+}
 
 export class ProductService {
   private readonly productRepository: ProductRepository;
@@ -40,7 +70,7 @@ export class ProductService {
     );
   }
 
-  async create(data: CreateProductInput, actor?: ActorInfo): Promise<Product> {
+  async create(data: CreateProductPayload, actor?: ActorInfo): Promise<Product> {
     logger.info("ProductService: creating product", { name: data.name, actor: actor?.id });
 
     // ── Validate brand/category references ──
@@ -68,8 +98,8 @@ export class ProductService {
       metaTitle: data.metaTitle || data.seo?.metaTitle,
       metaDescription: data.metaDescription || data.seo?.metaDescription,
       tags: data.tags,
-      costPrice: (data as any).costPrice ?? null,
-      stock: (data as any).stock ?? (data as any).stockQuantity ?? null,
+      costPrice: data.costPrice ?? null,
+      stock: data.stock ?? null,
       badges: data.badges,
     });
 
@@ -114,20 +144,16 @@ export class ProductService {
     });
 
     // ── Auto-create pricing record ──
-    const pricingPayload = (data as any).pricing;
     if (enriched.finalPricing.sellingPrice && enriched.finalPricing.sellingPrice > 0) {
       try {
-        const costCents =
-          (pricingPayload?.costPrice ?? 0) > 0
-            ? Math.round((pricingPayload?.costPrice ?? 0) * 100)
-            : 0;
+        const costCents = toMinorUnits(data.costPrice);
         await this.pricingService.createPricing(
           {
             productId: product.id,
             variantSku: product.sku,
             baseCostPrice: costCents,
-            purchasePrice: pricingPayload?.purchasePrice ?? 0,
-            supplierPrice: pricingPayload?.supplierPrice ?? 0,
+            purchasePrice: 0,
+            supplierPrice: 0,
             sellingPrice: Math.round(enriched.finalPricing.sellingPrice * 100),
             wholesalePrice: enriched.finalPricing.wholesalePrice
               ? Math.round(enriched.finalPricing.wholesalePrice * 100)
@@ -135,9 +161,7 @@ export class ProductService {
             resellerPrice: enriched.finalPricing.resellerPrice
               ? Math.round(enriched.finalPricing.resellerPrice * 100)
               : Math.round(enriched.finalPricing.sellingPrice * 100 * 0.85),
-            comparePrice: pricingPayload?.comparePrice
-              ? Math.round(pricingPayload.comparePrice * 100)
-              : 0,
+            comparePrice: toMinorUnits(data.comparePrice),
             discountAmount: 0,
             discountPercentage: 0,
             taxRate: 0,
@@ -207,7 +231,7 @@ export class ProductService {
     return this.productRepository.findBySku(sku);
   }
 
-  async update(id: string, data: UpdateProductInput, actor?: ActorInfo): Promise<Product> {
+  async update(id: string, data: UpdateProductPayload, actor?: ActorInfo): Promise<Product> {
     logger.info("ProductService: updating product", { id, actor: actor?.id });
 
     const existing = await this.productRepository.findById(id);
@@ -243,8 +267,7 @@ export class ProductService {
 
     // ── Dynamic badges ──
     const inputBadges = Array.isArray(data.badges) ? data.badges : [...(existing.badges || [])];
-    const existingStock = (existing as any).stock ?? (existing as any).stockQuantity ?? null;
-    const inputStock = (data as any).stock ?? (data as any).stockQuantity ?? existingStock;
+    const inputStock = data.stock ?? null;
     const badges = this.automationEngine.assignDynamicBadges(
       new Date(),
       existing.createdAt,
@@ -270,36 +293,37 @@ export class ProductService {
       "";
 
     // ── Persist ──
+    // `seo` and `content` are whole sub-documents: `$set` replaces them outright, so a
+    // partial patch (e.g. SEO-only save) would drop unrelated stored keys. Merge first.
+    const mergedSeo = data.seo ? { ...existing.seo, ...stripUndefined(data.seo) } : undefined;
+    const mergedContent = data.content
+      ? { ...existing.content, ...stripUndefined(data.content) }
+      : undefined;
+
     const updated = await this.productRepository.update(id, {
       ...data,
       slug,
       badges,
       metaTitle,
       metaDescription,
+      ...(mergedSeo ? { seo: mergedSeo } : {}),
+      ...(mergedContent ? { content: mergedContent } : {}),
     });
 
     const changedFields = Object.keys(data);
 
     // ── Auto-pricing on costPrice change ──
-    const updatePricingPayload = (data as any).pricing;
-    if (updatePricingPayload?.costPrice && updatePricingPayload.costPrice > 0) {
+    if (data.costPrice && data.costPrice > 0) {
       try {
         const pricing = await this.pricingService.getPricingByProduct(id);
-        const costCents = Math.round(updatePricingPayload.costPrice * 100);
         if (pricing) {
           await this.pricingService.updatePricing(
             pricing.id,
             {
-              baseCostPrice: costCents,
-              sellingPrice: updatePricingPayload.sellingPrice
-                ? Math.round(updatePricingPayload.sellingPrice * 100)
-                : undefined,
-              wholesalePrice: updatePricingPayload.wholesalePrice
-                ? Math.round(updatePricingPayload.wholesalePrice * 100)
-                : undefined,
-              resellerPrice: updatePricingPayload.resellerPrice
-                ? Math.round(updatePricingPayload.resellerPrice * 100)
-                : undefined,
+              baseCostPrice: toMinorUnits(data.costPrice),
+              sellingPrice: data.sellingPrice ? toMinorUnits(data.sellingPrice) : undefined,
+              wholesalePrice: data.wholesalePrice ? toMinorUnits(data.wholesalePrice) : undefined,
+              resellerPrice: data.resellerPrice ? toMinorUnits(data.resellerPrice) : undefined,
             },
             actor?.id,
           );
@@ -343,8 +367,12 @@ export class ProductService {
       editorId: actor?.id,
       editorName: actor?.name,
       changedFields,
-      oldValues: Object.fromEntries(changedFields.map((k) => [k, (existing as any)[k]])),
-      newValues: Object.fromEntries(changedFields.map((k) => [k, (data as any)[k]])),
+      oldValues: Object.fromEntries(
+        changedFields.map((k) => [k, (existing as unknown as Record<string, unknown>)[k]]),
+      ),
+      newValues: Object.fromEntries(
+        changedFields.map((k) => [k, (data as unknown as Record<string, unknown>)[k]]),
+      ),
       summary: `Product ${updated.name} updated`,
     });
     await this.versionService.createVersion(updated.id, changedFields, actor?.id, actor?.name);
@@ -431,7 +459,9 @@ export class ProductService {
 
     const existing = await this.productRepository.findById(id);
     if (!existing) throw new NotFoundError("Product not found");
-    if (existing.status === "archived") throw new ValidationError("Product is already archived");
+    // Idempotent, mirroring `publish`: re-archiving is a no-op, not an error. Bulk
+    // archive previously counted already-archived products as failures.
+    if (existing.status === "archived") return existing;
 
     const updated = await this.productRepository.update(id, { status: "archived" as const });
 
@@ -468,19 +498,71 @@ export class ProductService {
     return updated;
   }
 
+  /**
+   * Restores an archived or soft-deleted product back to `draft`.
+   * Restoring to `draft` (never straight to `active`) keeps an unpublish→republish
+   * decision explicit rather than silently returning stale listings to the storefront.
+   */
+  async restore(id: string, actor?: ActorInfo): Promise<Product> {
+    logger.info("ProductService: restoring product", { id, actor: actor?.id });
+
+    const existing = await this.productRepository.findById(id, { showDeleted: true });
+    if (!existing) throw new NotFoundError("Product not found");
+
+    const updated = await this.productRepository.update(
+      id,
+      { status: "draft" as const, isDeleted: false, deletedAt: undefined },
+      { showDeleted: true },
+    );
+
+    await EventBus.publish(
+      CATALOG_EVENTS.PRODUCT_UPDATED,
+      {
+        productId: updated.id,
+        sku: updated.sku,
+        changedFields: ["status", "isDeleted"],
+        updatedAt: new Date().toISOString(),
+      },
+      { actor, source: "catalog-service" },
+    );
+
+    await this.auditService.record({
+      productId: updated.id,
+      action: "restored",
+      editorId: actor?.id,
+      editorName: actor?.name,
+      changedFields: ["status", "isDeleted"],
+      oldValues: { status: existing.status, isDeleted: existing.isDeleted },
+      newValues: { status: "draft", isDeleted: false },
+      summary: `Product ${updated.name} restored`,
+    });
+    await this.versionService.createVersion(
+      updated.id,
+      ["status", "isDeleted"],
+      actor?.id,
+      actor?.name,
+      "Restored",
+    );
+
+    return updated;
+  }
+
   async duplicate(id: string, actor?: ActorInfo): Promise<Product> {
     logger.info("ProductService: duplicating product", { id, actor: actor?.id });
 
     const existing = await this.productRepository.findById(id);
     if (!existing) throw new NotFoundError("Product not found");
 
-    const newSku = `${existing.sku}-DUP-${Date.now().toString().slice(-4)}`;
+    const salt = Date.now().toString(36).slice(-5).toUpperCase();
+    const newSku = `${existing.sku}-DUP-${salt}`;
     const name = `${existing.name} (Copy)`;
 
     const duplicated = await this.productRepository.create({
       name,
-      slug: generateSlug(name),
+      // A copy must never collide with the source's URL or go live implicitly.
+      slug: await this.automationEngine.generateUniqueSlug(name),
       sku: newSku,
+      status: "draft" as const,
       barcode: existing.barcode ? `${existing.barcode}-DUP` : undefined,
       gtin: existing.gtin ? `${existing.gtin}-DUP` : undefined,
       shortDescription: existing.shortDescription,
@@ -497,9 +579,11 @@ export class ProductService {
       flashSale: false,
       newArrival: false,
       hasVariants: existing.hasVariants,
-      variants: existing.variants.map((v) => ({
+      // Index-salted so multiple variants copied within the same millisecond stay unique.
+      variants: existing.variants.map((v, index) => ({
         ...v,
-        sku: `${v.sku}-DUP-${Date.now().toString().slice(-4)}`,
+        id: undefined,
+        sku: `${v.sku}-DUP-${salt}${index > 0 ? `-${index}` : ""}`,
       })),
       media: existing.media,
       specifications: existing.specifications,
@@ -547,7 +631,11 @@ export class ProductService {
     return duplicated;
   }
 
-  async addVariant(productId: string, variant: any, actor?: ActorInfo): Promise<Product> {
+  async addVariant(
+    productId: string,
+    variant: ProductVariant,
+    actor?: ActorInfo,
+  ): Promise<Product> {
     logger.info("ProductService: adding variant", { productId, sku: variant.sku });
 
     const product = await this.productRepository.findById(productId);
@@ -600,7 +688,7 @@ export class ProductService {
   async updateVariant(
     productId: string,
     sku: string,
-    data: any,
+    data: Partial<ProductVariant>,
     actor?: ActorInfo,
   ): Promise<Product> {
     logger.info("ProductService: updating variant", { productId, sku });
@@ -685,7 +773,7 @@ export class ProductService {
     return updated;
   }
 
-  async addMedia(productId: string, media: any, actor?: ActorInfo): Promise<Product> {
+  async addMedia(productId: string, media: ProductMedia, actor?: ActorInfo): Promise<Product> {
     logger.info("ProductService: adding media", { productId });
 
     const product = await this.productRepository.findById(productId);
@@ -806,7 +894,7 @@ export class ProductService {
     return updated;
   }
 
-  async updateSEO(id: string, seo: any, actor?: ActorInfo): Promise<Product> {
+  async updateSEO(id: string, seo: ProductSEO, actor?: ActorInfo): Promise<Product> {
     logger.info("ProductService: updating SEO", { id, actor: actor?.id });
 
     const existing = await this.productRepository.findById(id);

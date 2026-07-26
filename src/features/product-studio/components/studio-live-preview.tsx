@@ -39,7 +39,7 @@ export function StudioLivePreview({ form, className = "" }: StudioLivePreviewPro
       className={`flex flex-col bg-card border border-border rounded-2xl overflow-hidden shadow-2xl ${className}`}
     >
       {/* Device Switcher Toolbar */}
-      <div className="flex items-center justify-between px-4 py-3 bg-muted/50 dark:bg-slate-950 border-b border-border dark:border-slate-800">
+      <div className="flex items-center justify-between px-4 py-3 bg-muted/50 border-b border-border">
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 rounded-full bg-red-500/80" />
           <div className="w-3 h-3 rounded-full bg-amber-500/80" />
@@ -50,13 +50,13 @@ export function StudioLivePreview({ form, className = "" }: StudioLivePreviewPro
           </span>
         </div>
 
-        <div className="flex items-center space-x-1 bg-muted/30 dark:bg-slate-900 p-1 rounded-lg border border-border dark:border-slate-800">
+        <div className="flex items-center space-x-1 bg-muted/30 p-1 rounded-lg border border-border">
           <button
             type="button"
             onClick={() => setDevice("desktop")}
             className={`p-1.5 rounded-md text-xs font-semibold transition-all flex items-center space-x-1 ${
               device === "desktop"
-                ? "bg-amber-500 text-slate-950 shadow-md"
+                ? "bg-amber-500 text-amber-950 shadow-md"
                 : "text-muted-foreground hover:text-foreground"
             }`}
             title="Desktop View"
@@ -69,7 +69,7 @@ export function StudioLivePreview({ form, className = "" }: StudioLivePreviewPro
             onClick={() => setDevice("tablet")}
             className={`p-1.5 rounded-md text-xs font-semibold transition-all flex items-center space-x-1 ${
               device === "tablet"
-                ? "bg-amber-500 text-slate-950 shadow-md"
+                ? "bg-amber-500 text-amber-950 shadow-md"
                 : "text-muted-foreground hover:text-foreground"
             }`}
             title="Tablet View"
@@ -82,7 +82,7 @@ export function StudioLivePreview({ form, className = "" }: StudioLivePreviewPro
             onClick={() => setDevice("mobile")}
             className={`p-1.5 rounded-md text-xs font-semibold transition-all flex items-center space-x-1 ${
               device === "mobile"
-                ? "bg-amber-500 text-slate-950 shadow-md"
+                ? "bg-amber-500 text-amber-950 shadow-md"
                 : "text-muted-foreground hover:text-foreground"
             }`}
             title="Mobile View"
@@ -94,7 +94,7 @@ export function StudioLivePreview({ form, className = "" }: StudioLivePreviewPro
       </div>
 
       {/* Preview Viewport Frame */}
-      <div className="flex-1 bg-muted/20 dark:bg-slate-950 p-4 overflow-auto flex justify-center items-start">
+      <div className="flex-1 bg-muted/20 p-4 overflow-auto flex justify-center items-start">
         <div
           className={`bg-card text-foreground transition-all duration-300 rounded-xl overflow-hidden shadow-2xl border border-border ${
             device === "desktop"
@@ -105,7 +105,7 @@ export function StudioLivePreview({ form, className = "" }: StudioLivePreviewPro
           }`}
         >
           {/* Mock Header Navbar */}
-          <div className="bg-slate-900 text-white px-4 py-2 text-xs flex justify-between items-center border-b border-slate-800">
+          <div className="bg-primary/10 text-foreground px-4 py-2 text-xs flex justify-between items-center border-b border-border">
             <span className="font-bold tracking-wide text-amber-400">DropshopNN Store</span>
             <span className="text-muted-foreground">
               bd.dropshop.com/products/{form.slug || "sample-slug"}
@@ -116,8 +116,8 @@ export function StudioLivePreview({ form, className = "" }: StudioLivePreviewPro
           <div className="p-4 sm:p-6 space-y-6">
             {/* Notice Bar */}
             {form.notice && (
-              <div className="bg-amber-50 border border-amber-200 text-amber-800 px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2">
-                <Sparkles className="w-4 h-4 text-amber-600 shrink-0" />
+              <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 px-3.5 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2">
+                <Sparkles className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
                 <span>{form.notice}</span>
               </div>
             )}
@@ -141,7 +141,7 @@ export function StudioLivePreview({ form, className = "" }: StudioLivePreviewPro
                       {form.badges.map((badge: string) => (
                         <span
                           key={badge}
-                          className="bg-amber-500 text-slate-950 text-[10px] font-black uppercase px-2 py-0.5 rounded shadow"
+                          className="bg-amber-500 dark:bg-amber-500 text-amber-950 dark:text-amber-950 text-[10px] font-black uppercase px-2 py-0.5 rounded shadow"
                         >
                           {badge.replace("_", " ")}
                         </span>

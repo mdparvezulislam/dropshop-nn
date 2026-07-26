@@ -1,5 +1,4 @@
 import { URL } from "url";
-import { isIP } from "net";
 
 export class UrlFetchError extends Error {
   constructor(
@@ -25,22 +24,39 @@ const PRIVATE_IP_RANGES = [
   /^172\.(1[6-9]|2\d|3[01])\./,
   /^192\.168\./,
   /^0\./,
+  /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./, // RFC 6598 carrier-grade NAT
+  /^169\.254\./, // link-local, incl. the 169.254.169.254 cloud metadata endpoint
   /^::1$/,
   /^fc00:/,
+  /^fd00:/,
   /^fe80:/,
 ];
 
+const BLOCKED_HOSTNAMES = new Set([
+  "localhost",
+  "127.0.0.1",
+  "0.0.0.0",
+  "::1",
+  "[::1]",
+  "metadata.google.internal",
+]);
+
 function isPrivateIP(ip: string): boolean {
-  return PRIVATE_IP_RANGES.some((range) => range.test(ip));
+  const normalized = ip.replace(/^\[|\]$/g, "").replace(/^::ffff:/i, "");
+  return PRIVATE_IP_RANGES.some((range) => range.test(normalized));
 }
 
-async function resolveHostname(hostname: string): Promise<string[]> {
+async function resolveHostname(hostname: string): Promise<string[] | null> {
   const { promises: dns } = await import("dns");
   try {
-    const addresses = await dns.resolve4(hostname);
-    return addresses;
+    const [v4, v6] = await Promise.all([
+      dns.resolve4(hostname).catch(() => [] as string[]),
+      dns.resolve6(hostname).catch(() => [] as string[]),
+    ]);
+    const addresses = [...v4, ...v6];
+    return addresses.length > 0 ? addresses : null;
   } catch {
-    return [hostname];
+    return null;
   }
 }
 
@@ -56,27 +72,46 @@ function validateUrl(raw: string): URL {
     throw new UrlFetchError("Only HTTP and HTTPS URLs are allowed", "INVALID_URL");
   }
 
-  if (url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "0.0.0.0") {
+  const hostname = url.hostname.toLowerCase();
+  if (BLOCKED_HOSTNAMES.has(hostname) || hostname.endsWith(".localhost")) {
     throw new UrlFetchError("Localhost URLs are not allowed", "SSRF_BLOCKED");
+  }
+
+  // Catches literal-IP targets before any DNS lookup happens.
+  if (isPrivateIP(hostname)) {
+    throw new UrlFetchError("Private network addresses are not allowed", "SSRF_BLOCKED");
   }
 
   return url;
 }
 
-async function checkSsfr(url: URL): Promise<void> {
-  try {
-    const ips = await resolveHostname(url.hostname);
-    for (const ip of ips) {
-      if (isPrivateIP(ip)) {
-        throw new UrlFetchError(
-          `Blocked SSRF attempt: ${url.hostname} resolves to private IP ${ip}`,
-          "SSRF_BLOCKED",
-        );
-      }
-    }
-  } catch (err) {
-    if (err instanceof UrlFetchError) throw err;
+/**
+ * Resolves the host and rejects private/link-local targets.
+ *
+ * A resolution failure is now treated as a block rather than a pass: the previous
+ * implementation fell back to testing the raw hostname string against IP regexes,
+ * which never matched, so any host DNS could not resolve was allowed through.
+ */
+async function assertPublicHost(url: URL): Promise<void> {
+  const ips = await resolveHostname(url.hostname);
+  if (!ips) {
+    throw new UrlFetchError(`Could not resolve host: ${url.hostname}`, "SSRF_BLOCKED");
   }
+  for (const ip of ips) {
+    if (isPrivateIP(ip)) {
+      throw new UrlFetchError(
+        `Blocked SSRF attempt: ${url.hostname} resolves to private IP ${ip}`,
+        "SSRF_BLOCKED",
+      );
+    }
+  }
+}
+
+/** Runs the full URL + DNS guard. Applied to the initial URL and to every redirect hop. */
+async function assertFetchable(rawUrl: string): Promise<URL> {
+  const url = validateUrl(rawUrl);
+  await assertPublicHost(url);
+  return url;
 }
 
 function buildAbortSignal(timeout: number): { signal: AbortSignal; clear: () => void } {
@@ -99,8 +134,7 @@ export async function fetchPageHtml(
     userAgent = "Mozilla/5.0 (compatible; DropshopNN/1.0; +https://dropshopnn.com/bot) AppleWebKit/537.36 (KHTML, like Gecko)",
   } = options;
 
-  const url = validateUrl(rawUrl);
-  await checkSsfr(url);
+  const url = await assertFetchable(rawUrl);
 
   const { signal, clear } = buildAbortSignal(timeout);
 
@@ -125,7 +159,10 @@ export async function fetchPageHtml(
           throw new UrlFetchError("Too many redirects", "HTTP_ERROR");
         }
         const location = response.headers.get("location")!;
-        currentUrl = new URL(location, currentUrl).href;
+        // Every hop is re-validated: a public URL that 302s to 127.0.0.1 or to the
+        // 169.254.169.254 metadata endpoint would otherwise bypass the entry check.
+        const nextUrl = new URL(location, currentUrl).href;
+        currentUrl = (await assertFetchable(nextUrl)).href;
         continue;
       }
 
@@ -173,11 +210,14 @@ export async function fetchPageHtml(
 
     throw new UrlFetchError("Unexpected redirect loop exit", "NETWORK_ERROR");
   } catch (err) {
-    clear();
     if (err instanceof UrlFetchError) throw err;
     if ((err as Error).name === "AbortError") {
       throw new UrlFetchError("Request timed out", "TIMEOUT");
     }
     throw new UrlFetchError(`Network error: ${(err as Error).message}`, "NETWORK_ERROR");
+  } finally {
+    // Previously only cleared on the error path, leaving a live abort timer (and its
+    // event-loop handle) behind after every successful fetch.
+    clear();
   }
 }

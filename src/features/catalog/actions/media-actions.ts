@@ -5,6 +5,7 @@ import { ProductService } from "../services/product-service";
 import { UnauthorizedError } from "@/lib/errors/app-error";
 import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
+import { checkPermission } from "@/lib/check-permission";
 
 function getSessionUser(session: any): { id: string; name?: string; role?: string } {
   if (!session?.user) throw new UnauthorizedError("Session expired or invalid");
@@ -13,6 +14,8 @@ function getSessionUser(session: any): { id: string; name?: string; role?: strin
 
 export async function addProductMediaAction(productId: string, formData: any) {
   const session = await auth();
+  // SECURITY: product media/variants/SEO are catalog writes — staff only.
+  checkPermission(session, "Product.Update");
   const sessionUser = getSessionUser(session);
 
   logger.info("Catalog Action: addProductMediaAction", { productId });
@@ -32,6 +35,8 @@ export async function addProductMediaAction(productId: string, formData: any) {
 
 export async function removeProductMediaAction(productId: string, mediaUrl: string) {
   const session = await auth();
+  // SECURITY: product media/variants/SEO are catalog writes — staff only.
+  checkPermission(session, "Product.Update");
   const sessionUser = getSessionUser(session);
 
   logger.info("Catalog Action: removeProductMediaAction", { productId });
@@ -49,6 +54,8 @@ export async function removeProductMediaAction(productId: string, mediaUrl: stri
 
 export async function setFeaturedMediaAction(productId: string, mediaUrl: string) {
   const session = await auth();
+  // SECURITY: product media/variants/SEO are catalog writes — staff only.
+  checkPermission(session, "Product.Update");
   const sessionUser = getSessionUser(session);
 
   logger.info("Catalog Action: setFeaturedMediaAction", { productId });
@@ -66,6 +73,8 @@ export async function setFeaturedMediaAction(productId: string, mediaUrl: string
 
 export async function addProductVariantAction(productId: string, formData: any) {
   const session = await auth();
+  // SECURITY: product media/variants/SEO are catalog writes — staff only.
+  checkPermission(session, "Product.Update");
   const sessionUser = getSessionUser(session);
 
   logger.info("Catalog Action: addProductVariantAction", { productId });
@@ -85,6 +94,8 @@ export async function addProductVariantAction(productId: string, formData: any) 
 
 export async function updateProductVariantAction(productId: string, sku: string, formData: any) {
   const session = await auth();
+  // SECURITY: product media/variants/SEO are catalog writes — staff only.
+  checkPermission(session, "Product.Update");
   const sessionUser = getSessionUser(session);
 
   logger.info("Catalog Action: updateProductVariantAction", { productId, sku });
@@ -104,6 +115,8 @@ export async function updateProductVariantAction(productId: string, sku: string,
 
 export async function removeProductVariantAction(productId: string, sku: string) {
   const session = await auth();
+  // SECURITY: product media/variants/SEO are catalog writes — staff only.
+  checkPermission(session, "Product.Update");
   const sessionUser = getSessionUser(session);
 
   logger.info("Catalog Action: removeProductVariantAction", { productId, sku });
@@ -121,6 +134,8 @@ export async function removeProductVariantAction(productId: string, sku: string)
 
 export async function updateProductSEOAction(productId: string, formData: any) {
   const session = await auth();
+  // SECURITY: product media/variants/SEO are catalog writes — staff only.
+  checkPermission(session, "Product.Update");
   const sessionUser = getSessionUser(session);
 
   logger.info("Catalog Action: updateProductSEOAction", { productId });

@@ -1,20 +1,10 @@
-"use client";
+import type { ReactNode } from "react";
+import { DashboardLayoutClient } from "./layout-client";
 
-import { LayoutDashboard } from "lucide-react";
-import { WorkspaceLayout } from "@/components/workspace/workspace-layout";
-import { WORKSPACE_SHELLS } from "@/components/workspace/workspace-registry";
+// Role-gated workspace — always rendered per-request, never statically
+// exported. (Segment config must live in a server file to be honored.)
+export const dynamic = "force-dynamic";
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}): React.ReactElement {
-  return (
-    <WorkspaceLayout
-      config={WORKSPACE_SHELLS.admin}
-      workspaceIcon={<LayoutDashboard className="h-4 w-4" />}
-    >
-      {children}
-    </WorkspaceLayout>
-  );
+export default function DashboardLayout({ children }: { children: ReactNode }): ReactNode {
+  return <DashboardLayoutClient>{children}</DashboardLayoutClient>;
 }

@@ -1,67 +1,179 @@
 import Link from "next/link";
-import { CheckCircle2, Package, Truck, ArrowRight, Printer, FileText } from "lucide-react";
+import { CheckCircle2, Phone, ArrowRight, ShoppingBag, Printer } from "lucide-react";
+import { auth } from "@/lib/auth";
+import { getOrderByAccessTokenAction } from "@/features/order/actions/customer-order-actions";
+import {
+  OrderProgress,
+  OrderItemsList,
+  OrderTotals,
+  OrderAddressCard,
+  OrderDownloadsPlaceholder,
+  OrderStatusBadge,
+  formatOrderDate,
+} from "@/components/website/orders/order-view";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Order Placed Successfully - DropshopNN Bangladesh",
-  description:
-    "Thank you for your order! Your consignment has been queued for Pathao / Steadfast delivery.",
+  title: "অর্ডার সম্পন্ন",
+  robots: { index: false, follow: false },
 };
 
 interface PageProps {
-  searchParams: Promise<{ id?: string }>;
+  searchParams: Promise<{ n?: string; k?: string }>;
 }
 
 export default async function OrderSuccessPage({ searchParams }: PageProps) {
-  const { id } = await searchParams;
-  const orderNumber = id || "ORD-2026-00001";
+  const { n, k } = await searchParams;
+
+  const [session, orderResult] = await Promise.all([
+    auth(),
+    k ? getOrderByAccessTokenAction(k) : Promise.resolve(null),
+  ]);
+  const order = orderResult?.success ? orderResult.data : null;
+  const isAuthenticated = Boolean(session?.user);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-12">
-      <div className="container mx-auto px-4 max-w-3xl">
-        <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-8 sm:p-12 text-center backdrop-blur-md shadow-2xl">
-          <div className="w-20 h-20 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-10 h-10 text-emerald-400" />
+    <div className="min-h-screen bg-[hsl(0_0%_98%)] text-slate-900 py-8 sm:py-12">
+      <div className="mx-auto px-4 max-w-3xl space-y-5">
+        {/* Confirmation banner */}
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 text-center shadow-xs">
+          <div className="w-16 h-16 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto mb-4">
+            <CheckCircle2 className="w-8 h-8 text-emerald-600" aria-hidden />
           </div>
-
-          <h1 className="text-3xl font-extrabold text-white font-heading mb-2">
-            Order Placed Successfully!
-          </h1>
-          <p className="text-sm text-slate-400 max-w-md mx-auto mb-6">
-            Thank you for shopping with DropshopNN. Your order has been registered and sent to
-            supplier warehouse fulfillment.
+          <h1 className="text-2xl sm:text-3xl font-black mb-1.5">অর্ডার সফলভাবে সম্পন্ন হয়েছে!</h1>
+          <p className="text-sm font-medium text-slate-600">
+            আমাদের টিম শীঘ্রই ফোনে যোগাযোগ করে অর্ডারটি নিশ্চিত করবে।
           </p>
+          {(order || n) && (
+            <div className="inline-flex flex-col gap-1 px-6 py-3 mt-4 rounded-2xl bg-slate-50 border border-slate-200">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                অর্ডার নম্বর
+              </span>
+              <span className="text-lg font-black font-mono">{order?.orderNumber ?? n}</span>
+              {order && (
+                <span className="mx-auto">
+                  <OrderStatusBadge status={order.status} />
+                </span>
+              )}
+            </div>
+          )}
+        </div>
 
-          <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 mb-8 inline-block text-left w-full max-w-md">
-            <div className="flex justify-between items-center text-xs pb-3 border-b border-slate-800">
-              <span className="text-slate-400">Order Number</span>
-              <span className="font-mono font-bold text-amber-400">{orderNumber}</span>
+        {order ? (
+          <>
+            {/* Progress */}
+            <div className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-7 shadow-xs">
+              <OrderProgress status={order.status} />
             </div>
-            <div className="flex justify-between items-center text-xs py-3 border-b border-slate-800">
-              <span className="text-slate-400">Fulfillment Status</span>
-              <span className="text-emerald-400 font-semibold">Confirmed</span>
-            </div>
-            <div className="flex justify-between items-center text-xs pt-3">
-              <span className="text-slate-400">Estimated Delivery</span>
-              <span className="text-slate-200">24-48 Hours (Pathao Express)</span>
-            </div>
-          </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* Summary */}
+              <section
+                aria-labelledby="success-summary-heading"
+                className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs space-y-3"
+              >
+                <h2 id="success-summary-heading" className="text-sm font-black">
+                  অর্ডার সামারি
+                </h2>
+                <OrderItemsList items={order.items} />
+                <OrderTotals order={order} />
+              </section>
+
+              {/* Delivery + payment */}
+              <section
+                aria-labelledby="success-delivery-heading"
+                className="bg-white border border-slate-200 rounded-3xl p-5 sm:p-6 shadow-xs space-y-4"
+              >
+                <div>
+                  <h2 id="success-delivery-heading" className="text-sm font-black mb-2">
+                    ডেলিভারি ঠিকানা
+                  </h2>
+                  <OrderAddressCard order={order} />
+                </div>
+                <dl className="text-xs font-bold text-slate-600 space-y-1 pt-3 border-t border-slate-100">
+                  <div className="flex justify-between">
+                    <dt>অর্ডারের তারিখ</dt>
+                    <dd className="text-slate-900">{formatOrderDate(order.placedAt)}</dd>
+                  </div>
+                  {order.shippingMethodLabel && (
+                    <div className="flex justify-between">
+                      <dt>ডেলিভারি পদ্ধতি</dt>
+                      <dd className="text-slate-900">{order.shippingMethodLabel}</dd>
+                    </div>
+                  )}
+                  {order.shippingEta && (
+                    <div className="flex justify-between">
+                      <dt>আনুমানিক ডেলিভারি</dt>
+                      <dd className="text-slate-900">{order.shippingEta}</dd>
+                    </div>
+                  )}
+                  {order.paymentMethodLabel && (
+                    <div className="flex justify-between">
+                      <dt>পেমেন্ট পদ্ধতি</dt>
+                      <dd className="text-slate-900">{order.paymentMethodLabel}</dd>
+                    </div>
+                  )}
+                </dl>
+                <div className="pt-3 border-t border-slate-100">
+                  <h3 className="text-xs font-black text-slate-900 mb-2 flex items-center gap-1.5">
+                    <Printer className="h-3.5 w-3.5 text-slate-400" aria-hidden />
+                    ডাউনলোড
+                  </h3>
+                  <OrderDownloadsPlaceholder />
+                </div>
+              </section>
+            </div>
+
+            {/* Next steps */}
+            <div className="bg-amber-50/70 border border-amber-200 rounded-3xl p-5 text-xs font-bold text-amber-900 space-y-1">
+              <p className="font-black">পরবর্তী ধাপ:</p>
+              <p>১. আমাদের টিম ফোনে অর্ডার নিশ্চিত করবে ({order.customerPhone})।</p>
+              <p>২. নিশ্চিত হওয়ার পর প্রোডাক্ট প্যাক হয়ে কুরিয়ারে যাবে।</p>
+              <p>
+                ৩. যেকোনো সময়{" "}
+                <Link href="/track-order" className="underline">
+                  অর্ডার ট্র্যাক
+                </Link>{" "}
+                করুন — অর্ডার নম্বর ও মোবাইল নম্বর লাগবে।
+              </p>
+            </div>
+          </>
+        ) : (
+          <p className="text-center text-xs font-bold text-slate-500">
+            অর্ডারের বিস্তারিত দেখতে{" "}
+            <Link href="/track-order" className="text-amber-700 underline">
+              অর্ডার ট্র্যাক পেজ
+            </Link>{" "}
+            ব্যবহার করুন।
+          </p>
+        )}
+
+        {/* Actions */}
+        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-1">
+          {isAuthenticated && order && (
             <Link
-              href={`/track-order?q=${orderNumber}`}
-              className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs px-6 py-3 rounded-xl transition-colors shadow-lg shadow-amber-500/10 inline-flex items-center gap-2"
+              href={`/account/orders/${order.id}`}
+              className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl border border-slate-300 text-slate-700 hover:bg-white text-sm font-black transition-colors focus-visible:outline-2 focus-visible:outline-amber-500"
             >
-              <Truck className="w-4 h-4" /> Track Order Status
+              অর্ডার দেখুন
             </Link>
-            <Link
-              href="/products"
-              className="bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-200 font-semibold text-xs px-6 py-3 rounded-xl transition-colors inline-flex items-center gap-2"
-            >
-              Continue Shopping <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
+          )}
+          <Link
+            href="/products"
+            className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-sm font-black transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
+          >
+            <ShoppingBag className="h-4 w-4" aria-hidden />
+            আরও শপিং করুন
+            <ArrowRight className="h-4 w-4" aria-hidden />
+          </Link>
+          <Link
+            href="/contact"
+            className="inline-flex items-center justify-center gap-2 h-12 px-6 rounded-xl border border-slate-300 text-slate-700 hover:bg-white text-sm font-black transition-colors focus-visible:outline-2 focus-visible:outline-amber-500"
+          >
+            <Phone className="h-4 w-4" aria-hidden />
+            যোগাযোগ
+          </Link>
         </div>
       </div>
     </div>

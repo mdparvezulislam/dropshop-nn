@@ -16,6 +16,8 @@ export interface PricingTotals {
   subtotal: number;
   discountTotal: number;
   taxTotal: number;
+  /** Delivery charge in minor units; always included in grandTotal. */
+  shippingTotal?: number;
   grandTotal: number;
   currency: string;
 }

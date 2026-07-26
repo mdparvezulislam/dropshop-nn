@@ -1,11 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, ZoomIn, Play, RotateCw, Shield, ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
+import { X, ZoomIn, Play, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { PRODUCT_IMAGE_PLACEHOLDER } from "@/config/site";
+import { optimizedImageUrl, PRODUCT_BLUR_DATA_URL } from "@/lib/utils/image-url";
 
-interface GalleryImage {
+export interface GalleryMedia {
   url: string;
   alt?: string;
   type?: "image" | "video" | "model";
@@ -13,185 +15,278 @@ interface GalleryImage {
 }
 
 interface ProductGalleryProps {
-  images: GalleryImage[];
+  media: GalleryMedia[];
   title: string;
-  marketingAssets?: boolean;
+  /** Variant-selected image URL — gallery jumps to it when it changes. */
   selectedImage?: string;
 }
 
-export function ProductGallery({
-  images = [],
-  title,
-  marketingAssets,
-  selectedImage,
-}: ProductGalleryProps) {
-  // Determine initial featured index
-  const initialIndex = React.useMemo(() => {
-    if (!images || images.length === 0) return 0;
-    const featuredIdx = images.findIndex((img) => img.isFeatured);
-    return featuredIdx !== -1 ? featuredIdx : 0;
-  }, [images]);
+/**
+ * PDP media gallery. Real <Image> elements (SEO, LCP, alt text), CSS
+ * scroll-snap swipe on mobile, hover-zoom overlay on desktop, and a
+ * fullscreen lightbox with dialog semantics. Videos render natively.
+ */
+export function ProductGallery({ media, title, selectedImage }: ProductGalleryProps) {
+  const items = React.useMemo<GalleryMedia[]>(
+    () =>
+      media.length > 0
+        ? media
+        : [{ url: PRODUCT_IMAGE_PLACEHOLDER, alt: title, type: "image", isFeatured: true }],
+    [media, title],
+  );
 
-  const [selected, setSelected] = React.useState<number>(initialIndex);
+  const initialIndex = React.useMemo(() => {
+    const featuredIdx = items.findIndex((m) => m.isFeatured);
+    return featuredIdx !== -1 ? featuredIdx : 0;
+  }, [items]);
+
+  const [selected, setSelected] = React.useState(initialIndex);
   const [lightboxOpen, setLightboxOpen] = React.useState(false);
   const [zoomed, setZoomed] = React.useState(false);
-  const [zoomPos, setZoomPos] = React.useState({ x: 0, y: 0 });
+  const [zoomPos, setZoomPos] = React.useState({ x: 50, y: 50 });
+  const trackRef = React.useRef<HTMLDivElement>(null);
+  const lightboxCloseRef = React.useRef<HTMLButtonElement>(null);
+  const zoomTriggerRef = React.useRef<HTMLButtonElement>(null);
 
-  // Sync selected image if variant selection changes
+  const scrollToIndex = React.useCallback((index: number) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const child = track.children[index] as HTMLElement | undefined;
+    child?.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  }, []);
+
+  const select = React.useCallback(
+    (index: number) => {
+      const clamped = ((index % items.length) + items.length) % items.length;
+      setSelected(clamped);
+      scrollToIndex(clamped);
+    },
+    [items.length, scrollToIndex],
+  );
+
+  // Variant image sync
   React.useEffect(() => {
-    if (!selectedImage || !images || images.length === 0) return;
-    const matchIdx = images.findIndex((img) => img.url === selectedImage);
-    if (matchIdx !== -1) {
-      setSelected(matchIdx);
-    }
-  }, [selectedImage, images]);
+    if (!selectedImage) return;
+    const matchIdx = items.findIndex((m) => m.url === selectedImage);
+    if (matchIdx !== -1) select(matchIdx);
+  }, [selectedImage, items, select]);
+
+  // Track mobile swipe position → active dot
+  const handleTrackScroll = React.useCallback(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    const index = Math.round(track.scrollLeft / track.clientWidth);
+    setSelected((prev) => (prev === index ? prev : Math.min(index, items.length - 1)));
+  }, [items.length]);
+
+  // Lightbox: Escape + focus management
+  React.useEffect(() => {
+    if (!lightboxOpen) return;
+    lightboxCloseRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setLightboxOpen(false);
+        zoomTriggerRef.current?.focus();
+      }
+      if (e.key === "ArrowLeft") select(selected - 1);
+      if (e.key === "ArrowRight") select(selected + 1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightboxOpen, select, selected]);
 
   const handleMouseMove = React.useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       if (!zoomed) return;
       const rect = e.currentTarget.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      setZoomPos({ x, y });
+      setZoomPos({
+        x: ((e.clientX - rect.left) / rect.width) * 100,
+        y: ((e.clientY - rect.top) / rect.height) * 100,
+      });
     },
     [zoomed],
   );
 
-  const handlePrev = () => {
-    setSelected((prev) => (prev > 0 ? prev - 1 : images.length - 1));
-  };
-
-  const handleNext = () => {
-    setSelected((prev) => (prev < images.length - 1 ? prev + 1 : 0));
-  };
-
-  if (!images || images.length === 0) {
-    return (
-      <div className="aspect-square rounded-3xl bg-slate-100 flex items-center justify-center border border-slate-200">
-        <span className="text-slate-400 text-xs font-semibold">ছবি উপলব্ধ নেই</span>
-      </div>
-    );
-  }
-
-  const current = images[selected] || images[0];
+  const current = items[selected] ?? items[0];
+  const isPlaceholder = current.url === PRODUCT_IMAGE_PLACEHOLDER;
 
   return (
     <>
       <div className="space-y-3">
-        {/* HERO IMAGE CONTAINER */}
+        {/* Main media: mobile = swipeable snap track; desktop = single frame with hover zoom */}
         <div
-          className="relative aspect-square rounded-3xl bg-slate-100 overflow-hidden cursor-crosshair group border border-slate-200 shadow-xs"
-          onMouseEnter={() => setZoomed(true)}
+          className="relative rounded-3xl bg-slate-100 overflow-hidden border border-slate-200 shadow-xs group"
+          onMouseEnter={() => current.type !== "video" && setZoomed(true)}
           onMouseLeave={() => setZoomed(false)}
           onMouseMove={handleMouseMove}
         >
-          {current.type === "video" ? (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/10">
-              <div className="flex items-center space-x-2 px-4 py-2 rounded-full bg-white/90 text-slate-900 text-xs font-bold shadow-md">
-                <Play className="h-4 w-4 text-red-600" />
-                <span>Play Video</span>
+          <div
+            ref={trackRef}
+            onScroll={handleTrackScroll}
+            onKeyDown={(e) => {
+              if (e.key === "ArrowLeft") {
+                e.preventDefault();
+                select(selected - 1);
+              }
+              if (e.key === "ArrowRight") {
+                e.preventDefault();
+                select(selected + 1);
+              }
+            }}
+            tabIndex={items.length > 1 ? 0 : -1}
+            className="flex overflow-x-auto snap-x snap-mandatory scrollbar-none md:overflow-hidden focus-visible:outline-2 focus-visible:outline-amber-500"
+            aria-roledescription="carousel"
+            aria-label={`${title} — ছবি গ্যালারি (অ্যারো কী দিয়ে নেভিগেট করুন)`}
+          >
+            {items.map((item, index) => (
+              <div
+                key={`${item.url}-${index}`}
+                className={cn(
+                  "relative w-full shrink-0 snap-center aspect-square",
+                  // Desktop shows only the selected frame
+                  "md:transition-none",
+                  index !== selected && "md:hidden",
+                )}
+                role="group"
+                aria-roledescription="slide"
+                aria-label={`${index + 1} / ${items.length}`}
+              >
+                {item.type === "video" ? (
+                  <video
+                    src={item.url}
+                    controls
+                    playsInline
+                    preload="metadata"
+                    className="absolute inset-0 h-full w-full object-contain bg-black"
+                    aria-label={item.alt ?? `${title} ভিডিও`}
+                  />
+                ) : (
+                  <Image
+                    src={optimizedImageUrl(item.url, 1280)}
+                    alt={item.alt ?? title}
+                    fill
+                    priority={index === initialIndex}
+                    placeholder={isPlaceholder ? undefined : "blur"}
+                    blurDataURL={PRODUCT_BLUR_DATA_URL}
+                    className={cn(
+                      "object-cover",
+                      isPlaceholder && "object-contain p-10 opacity-70",
+                    )}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 640px"
+                  />
+                )}
               </div>
-            </div>
-          ) : (
+            ))}
+          </div>
+
+          {/* Desktop hover zoom overlay (progressive enhancement over the real <Image>) */}
+          {zoomed && current.type !== "video" && !isPlaceholder && (
             <div
-              className="absolute inset-0 bg-cover bg-center transition-transform duration-200"
+              aria-hidden
+              className="absolute inset-0 hidden md:block pointer-events-none bg-no-repeat"
               style={{
-                backgroundImage: `url(${current.url})`,
-                transform: zoomed ? "scale(1.5)" : "scale(1)",
-                backgroundPosition: zoomed ? `${zoomPos.x}% ${zoomPos.y}%` : "center",
+                backgroundImage: `url(${optimizedImageUrl(current.url, 1920)})`,
+                backgroundSize: "200%",
+                backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
               }}
             />
           )}
 
-          {current.type === "model" && (
-            <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-white/90 border border-slate-200 text-[10px] font-bold text-slate-800 flex items-center space-x-1 backdrop-blur-xs">
-              <RotateCw className="h-3 w-3 text-red-600" />
-              <span>360° View</span>
-            </div>
-          )}
-
-          {marketingAssets && (
-            <div className="absolute top-3 right-3 px-2.5 py-1 rounded-lg bg-red-600 text-white text-[10px] font-black flex items-center space-x-1 shadow-md">
-              <Shield className="h-3 w-3" />
-              <span>HD Asset</span>
-            </div>
-          )}
-
-          {/* MOBILE SWIPE NAVIGATION CHEVRONS (High-touch targets 44x44px) */}
-          {images.length > 1 && (
+          {/* Desktop arrows */}
+          {items.length > 1 && (
             <>
               <button
                 type="button"
-                onClick={handlePrev}
-                className="absolute left-2 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full bg-white/80 border border-slate-200 text-slate-800 hover:bg-white transition-colors shadow-md md:hidden"
-                aria-label="Previous Image"
+                onClick={() => select(selected - 1)}
+                className="absolute left-3 top-1/2 -translate-y-1/2 hidden md:flex h-11 w-11 items-center justify-center rounded-full bg-white/85 border border-slate-200 text-slate-800 hover:bg-white transition-colors shadow-md opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-amber-500"
+                aria-label="আগের ছবি"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-5 h-5" aria-hidden />
               </button>
               <button
                 type="button"
-                onClick={handleNext}
-                className="absolute right-2 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full bg-white/80 border border-slate-200 text-slate-800 hover:bg-white transition-colors shadow-md md:hidden"
-                aria-label="Next Image"
+                onClick={() => select(selected + 1)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 hidden md:flex h-11 w-11 items-center justify-center rounded-full bg-white/85 border border-slate-200 text-slate-800 hover:bg-white transition-colors shadow-md opacity-0 group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-amber-500"
+                aria-label="পরের ছবি"
               >
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className="w-5 h-5" aria-hidden />
               </button>
             </>
           )}
 
-          {/* ZOOM FULLSCREEN TRIGGER */}
-          <button
-            type="button"
-            onClick={() => setLightboxOpen(true)}
-            className="absolute bottom-3 right-3 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-xl bg-white/90 border border-slate-200 text-slate-800 hover:bg-white transition-colors shadow-md opacity-0 group-hover:opacity-100"
-            aria-label="View full size"
-          >
-            <ZoomIn className="h-4 w-4" />
-          </button>
+          {/* Fullscreen trigger */}
+          {current.type !== "video" && !isPlaceholder && (
+            <button
+              ref={zoomTriggerRef}
+              type="button"
+              onClick={() => setLightboxOpen(true)}
+              className="absolute bottom-3 right-3 h-11 w-11 flex items-center justify-center rounded-xl bg-white/90 border border-slate-200 text-slate-800 hover:bg-white transition-colors shadow-md md:opacity-0 md:group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-amber-500"
+              aria-label="ফুলস্ক্রিনে দেখুন"
+            >
+              <ZoomIn className="h-4 w-4" aria-hidden />
+            </button>
+          )}
         </div>
 
-        {/* MOBILE PAGINATION DOTS (Visible on Mobile Only) */}
-        {images.length > 1 && (
-          <div className="flex items-center justify-center space-x-1.5 py-1 md:hidden">
-            {images.map((_, idx) => (
+        {/* Mobile dots */}
+        {items.length > 1 && (
+          <div
+            className="flex items-center justify-center gap-1.5 py-1 md:hidden"
+            role="tablist"
+            aria-label="গ্যালারি নেভিগেশন"
+          >
+            {items.map((_, idx) => (
               <button
                 key={idx}
                 type="button"
-                onClick={() => setSelected(idx)}
+                role="tab"
+                aria-selected={selected === idx}
+                onClick={() => select(idx)}
                 className={cn(
-                  "h-2 rounded-full transition-all min-w-[20px] min-h-[20px] flex items-center justify-center",
-                  selected === idx ? "bg-red-600 w-6" : "bg-slate-300 w-2",
+                  "h-5 min-w-5 flex items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-amber-500",
                 )}
-                aria-label={`Go to slide ${idx + 1}`}
-              />
+                aria-label={`ছবি ${idx + 1} দেখুন`}
+              >
+                <span
+                  aria-hidden
+                  className={cn(
+                    "h-2 rounded-full transition-all",
+                    selected === idx ? "bg-amber-500 w-6" : "bg-slate-300 w-2",
+                  )}
+                />
+              </button>
             ))}
           </div>
         )}
 
-        {/* DESKTOP THUMBNAILS GRID (Visible on Desktop Only) */}
-        {images.length > 1 && (
+        {/* Desktop thumbnails */}
+        {items.length > 1 && (
           <div className="hidden md:flex gap-2.5 overflow-x-auto pb-1">
-            {images.map((img, i) => (
+            {items.map((item, i) => (
               <button
-                key={i}
+                key={`${item.url}-thumb-${i}`}
                 type="button"
-                onClick={() => setSelected(i)}
+                onClick={() => select(i)}
+                aria-label={`ছবি ${i + 1} দেখুন`}
+                aria-current={selected === i}
                 className={cn(
-                  "relative min-w-[64px] min-h-[64px] rounded-2xl overflow-hidden border-2 transition-all shrink-0",
+                  "relative h-16 w-16 rounded-2xl overflow-hidden border-2 transition-all shrink-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500",
                   selected === i
-                    ? "border-red-600 ring-2 ring-red-600/30"
+                    ? "border-amber-500 ring-2 ring-amber-500/30"
                     : "border-slate-200 hover:border-slate-400",
                 )}
-                aria-label={`View image ${i + 1}`}
               >
-                <div
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{ backgroundImage: `url(${img.url})` }}
+                <Image
+                  src={optimizedImageUrl(item.url, 128)}
+                  alt=""
+                  fill
+                  className="object-cover"
+                  sizes="64px"
                 />
-                {img.type === "video" && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                    <Play className="h-4 w-4 text-white" />
-                  </div>
+                {item.type === "video" && (
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/30">
+                    <Play className="h-4 w-4 text-white" aria-hidden />
+                  </span>
                 )}
               </button>
             ))}
@@ -199,46 +294,74 @@ export function ProductGallery({
         )}
       </div>
 
-      {/* FULLSCREEN LIGHTBOX MODAL */}
-      <AnimatePresence>
-        {lightboxOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4"
-            onClick={() => setLightboxOpen(false)}
+      {/* Fullscreen lightbox */}
+      {lightboxOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${title} — বড় ছবি`}
+          className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4"
+          onClick={() => {
+            setLightboxOpen(false);
+            zoomTriggerRef.current?.focus();
+          }}
+        >
+          <button
+            ref={lightboxCloseRef}
+            type="button"
+            onClick={() => {
+              setLightboxOpen(false);
+              zoomTriggerRef.current?.focus();
+            }}
+            className="absolute top-4 right-4 h-11 w-11 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors focus-visible:outline-2 focus-visible:outline-white"
+            aria-label="বন্ধ করুন"
           >
-            <button
-              type="button"
-              onClick={() => setLightboxOpen(false)}
-              className="absolute top-4 right-4 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-              aria-label="Close lightbox"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="max-w-4xl max-h-[90vh] w-full"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div
-                className="w-full min-h-[350px] sm:min-h-[550px] rounded-2xl bg-cover bg-center"
-                style={{
-                  backgroundImage: `url(${current.url})`,
-                  aspectRatio: "4/3",
+            <X className="h-5 w-5" aria-hidden />
+          </button>
+
+          <div
+            className="relative w-full max-w-4xl aspect-[4/3] max-h-[85vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Image
+              src={optimizedImageUrl(current.url, 1920)}
+              alt={current.alt ?? title}
+              placeholder="blur"
+              blurDataURL={PRODUCT_BLUR_DATA_URL}
+              fill
+              className="object-contain"
+              sizes="(max-width: 1024px) 100vw, 896px"
+            />
+          </div>
+
+          {items.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  select(selected - 1);
                 }}
-              />
-              <p className="text-white/70 text-xs font-semibold text-center mt-3">
-                {current.alt ?? title}
-              </p>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                className="absolute left-4 top-1/2 -translate-y-1/2 h-11 w-11 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-white"
+                aria-label="আগের ছবি"
+              >
+                <ChevronLeft className="w-5 h-5" aria-hidden />
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  select(selected + 1);
+                }}
+                className="absolute right-4 top-1/2 -translate-y-1/2 h-11 w-11 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-white"
+                aria-label="পরের ছবি"
+              >
+                <ChevronRight className="w-5 h-5" aria-hidden />
+              </button>
+            </>
+          )}
+        </div>
+      )}
     </>
   );
 }

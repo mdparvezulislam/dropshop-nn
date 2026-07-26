@@ -45,7 +45,9 @@ export function QRCodeModal({
         </DialogHeader>
 
         <div className="space-y-4 pt-3">
-          <div className="p-5 rounded-2xl border border-border bg-card dark:bg-card flex flex-col items-center justify-center space-y-3 shadow-2xs">
+          {/* Pinned to a light plate in both themes: a barcode must stay
+              dark-on-light to remain scannable. */}
+          <div className="p-5 rounded-2xl border border-border bg-white flex flex-col items-center justify-center space-y-3 shadow-2xs">
             {/* SVG Representation of Barcode */}
             <div className="w-full h-16 flex items-center justify-center gap-1 overflow-hidden">
               {codeValue.split("").map((char, i) => {
@@ -59,7 +61,7 @@ export function QRCodeModal({
                 );
               })}
             </div>
-            <p className="font-mono text-xs font-bold text-foreground tracking-widest uppercase">
+            <p className="font-mono text-xs font-bold text-black tracking-widest uppercase">
               *{codeValue}*
             </p>
           </div>

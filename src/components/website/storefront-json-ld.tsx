@@ -1,14 +1,20 @@
-export function StorefrontJsonLd() {
+import { SITE_NAME, SITE_URL } from "@/config/site";
+
+/**
+ * Organization / WebSite / OnlineStore structured data. Every URL derives
+ * from SITE_URL — no hardcoded domains. Contact number is the real one from
+ * the contact page.
+ */
+export function StorefrontJsonLd(): React.ReactElement {
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
       {
         "@type": "Organization",
-        "@id": "https://dropshopnn.com/#organization",
-        name: "DropshopNN",
-        url: "https://dropshopnn.com",
-        logo: "https://dropshopnn.com/logo.png",
-        description: "Enterprise Commerce Operating System & Dropshipping Platform in Bangladesh",
+        "@id": `${SITE_URL}/#organization`,
+        name: SITE_NAME,
+        url: SITE_URL,
+        description: "Dropshipping and wholesale product supply platform in Bangladesh",
         address: {
           "@type": "PostalAddress",
           addressLocality: "Dhaka",
@@ -16,7 +22,7 @@ export function StorefrontJsonLd() {
         },
         contactPoint: {
           "@type": "ContactPoint",
-          telephone: "+880-1700-000000",
+          telephone: "+8801410777606",
           contactType: "customer service",
           areaServed: "BD",
           availableLanguage: ["English", "Bengali"],
@@ -24,25 +30,25 @@ export function StorefrontJsonLd() {
       },
       {
         "@type": "WebSite",
-        "@id": "https://dropshopnn.com/#website",
-        url: "https://dropshopnn.com",
-        name: "DropshopNN Enterprise Commerce",
+        "@id": `${SITE_URL}/#website`,
+        url: SITE_URL,
+        name: SITE_NAME,
         publisher: {
-          "@id": "https://dropshopnn.com/#organization",
+          "@id": `${SITE_URL}/#organization`,
         },
         potentialAction: {
           "@type": "SearchAction",
-          target: "https://dropshopnn.com/search?q={search_term_string}",
+          target: `${SITE_URL}/search?q={search_term_string}`,
           "query-input": "required name=search_term_string",
         },
       },
       {
         "@type": "OnlineStore",
-        "@id": "https://dropshopnn.com/#store",
-        name: "DropshopNN Official Storefront",
-        url: "https://dropshopnn.com",
+        "@id": `${SITE_URL}/#store`,
+        name: `${SITE_NAME} Storefront`,
+        url: SITE_URL,
         description:
-          "Source gadgets, mobile accessories, smart electronics, and home utilities at wholesale & retail rates across Bangladesh.",
+          "Gadgets, mobile accessories, smart electronics, and home utilities at wholesale and retail rates across Bangladesh.",
       },
     ],
   };

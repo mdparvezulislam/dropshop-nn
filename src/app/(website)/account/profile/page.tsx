@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { UserRepository } from "@/features/auth/repositories/user-repository";
-import { UserAddressRepository } from "@/features/identity/repositories/user-address-repository";
 import { ProfilePageContent } from "./profile-content";
 
 export const metadata: Metadata = {
@@ -11,11 +11,26 @@ export const metadata: Metadata = {
 
 export default async function ProfilePage() {
   const session = await auth();
-  const user = session?.user as { id?: string; name?: string } | undefined;
-  if (!user?.id) return null;
+  const user = session?.user as { id?: string } | undefined;
+  if (!user?.id) redirect("/auth/login");
 
-  const userRepo = new UserRepository();
-  const profile = await userRepo.findById(user.id);
+  const profile = await new UserRepository().findById(user.id);
+  if (!profile) redirect("/auth/login");
 
-  return <ProfilePageContent user={profile!} />;
+  // SECURITY: explicit allow-list. Passing the entity object here previously
+  // serialized passwordHash, login history (IPs/UAs), and trusted devices
+  // into the client payload — structural typing does not strip fields.
+  return (
+    <ProfilePageContent
+      user={{
+        id: profile.id,
+        fullName: profile.fullName,
+        email: profile.email,
+        phone: profile.phone,
+        role: profile.role,
+        username: profile.username,
+        profileImage: profile.profileImage,
+      }}
+    />
+  );
 }

@@ -1,10 +1,11 @@
+import type { Metadata } from "next";
 import {
   getPublicFeaturedProductsAction,
-  getPublicTrendingProductsAction,
   getPublicNewArrivalsAction,
   getPublicFlashDealsAction,
   getPublicCategoriesAction,
 } from "@/features/catalog/actions/public-actions";
+import { SITE_LOCALE } from "@/config/site";
 
 import {
   HeroSection,
@@ -13,60 +14,54 @@ import {
   FlashDealsSection,
   CampaignBannerSection,
   NewArrivalsSection,
+  FeaturedProductsSection,
   WhyChooseUsSection,
-  TestimonialsSection,
-  NewsletterSection,
 } from "@/components/website/sections";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
-export const metadata = {
-  title: "DropshopNN - বাংলাদেশের বিশ্বস্ত ড্রপশিপিং ও হোলসেল প্ল্যাটফর্ম",
+export const metadata: Metadata = {
   description:
-    "বাংলাদেশের সবচেয়ে বিশ্বস্ত প্রোডাক্ট সাপ্লাই প্ল্যাটফর্ম। রিসেলার, হোলসেলার এবং ড্রপশিপারদের জন্য অল-ইন-ওয়ান সমাধান।",
+    "রিসেলার, হোলসেলার এবং ড্রপশিপারদের জন্য অল-ইন-ওয়ান প্রোডাক্ট সাপ্লাই প্ল্যাটফর্ম। অরিজিনাল প্রোডাক্ট, সারা বাংলাদেশে ক্যাশ অন ডেলিভারি।",
   openGraph: {
-    title: "DropshopNN - Enterprise Commerce OS",
-    description: "সোর্স করুন, বিক্রি করুন, ব্যবসা বাড়ান DropshopNN এর সাথে।",
+    title: "DropshopNN — বাংলাদেশের অনলাইন শপ",
+    description: "সোর্স করুন, বিক্রি করুন, ব্যবসা বাড়ান DropshopNN এর সাথে।",
     type: "website",
-    locale: "en_BD",
+    locale: SITE_LOCALE,
   },
 };
 
-export default async function HomePage() {
-  const [flashDealsRes, newArrivalsRes, categoriesRes] = await Promise.all([
-    getPublicFlashDealsAction(5),
-    getPublicNewArrivalsAction(6),
+export default async function HomePage(): Promise<React.ReactElement> {
+  const [flashDealsRes, newArrivalsRes, featuredRes, categoriesRes] = await Promise.all([
+    getPublicFlashDealsAction(10),
+    getPublicNewArrivalsAction(12),
+    getPublicFeaturedProductsAction(8),
     getPublicCategoriesAction(),
   ]);
 
+  // A failed fetch omits its section — no fake fallback data, ever.
+  const flashDeals = flashDealsRes.success ? flashDealsRes.data : [];
+  const newArrivals = newArrivalsRes.success ? newArrivalsRes.data : [];
+  const featured = featuredRes.success ? featuredRes.data : [];
+  const categories = categoriesRes.success ? categoriesRes.data : [];
+
+  // The first product section actually rendered gets LCP priority on its first row.
+  const firstProductSection: "flash" | "new" | "featured" =
+    flashDeals.length > 0 ? "flash" : newArrivals.length > 0 ? "new" : "featured";
+
   return (
     <>
-      {/* 1. Split Hero Section */}
       <HeroSection />
-
-      {/* 2. Horizontal 5-Item Trust Bar */}
       <TrustSection />
-
-      {/* 3. 8 Popular Category Showcase */}
-      <CategoryShowcase categories={categoriesRes.data} />
-
-      {/* 4. Flash Sale with Live Timer */}
-      <FlashDealsSection products={flashDealsRes.data} />
-
-      {/* 5. Dual Promotional Partner Banners */}
+      <CategoryShowcase categories={categories} />
+      <FlashDealsSection products={flashDeals} priorityFirstRow={firstProductSection === "flash"} />
       <CampaignBannerSection />
-
-      {/* 6. New Arrivals (6 Product Cards) */}
-      <NewArrivalsSection products={newArrivalsRes.data} />
-
-      {/* 7. Why Choose Us (5 Feature Cards) */}
+      <NewArrivalsSection products={newArrivals} priorityFirstRow={firstProductSection === "new"} />
+      <FeaturedProductsSection
+        products={featured}
+        priorityFirstRow={firstProductSection === "featured"}
+      />
       <WhyChooseUsSection />
-
-      {/* 8. Merchant Testimonials */}
-      <TestimonialsSection />
-
-      {/* 9. Newsletter Subscription & Contact Actions */}
-      <NewsletterSection />
     </>
   );
 }

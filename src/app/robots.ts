@@ -1,12 +1,26 @@
 import type { MetadataRoute } from "next";
+import { SITE_URL } from "@/config/site";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/dashboard/", "/reseller/", "/wholesale/", "/supplier/", "/account/", "/api/"],
+      disallow: [
+        "/dashboard/",
+        "/reseller/",
+        "/wholesale/",
+        "/supplier/",
+        "/account/",
+        "/api/",
+        "/cart",
+        "/checkout/",
+        "/order/",
+        "/wishlist",
+        "/compare",
+        "/auth/",
+      ],
     },
-    sitemap: "https://dropshop.com.bd/sitemap.xml",
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

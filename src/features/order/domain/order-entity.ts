@@ -16,11 +16,19 @@ export interface ShippingSnapshot {
   receiverName: string;
   phone: string;
   alternativePhone?: string;
+  email?: string;
   division: string;
   district: string;
   upazila: string;
   area: string;
   address: string;
+  postalCode?: string;
+  landmark?: string;
+  addressLabel?: string;
+  shippingMethod?: string;
+  /** Delivery charge in minor units, mirrored from checkout. */
+  deliveryCharge?: number;
+  paymentMethod?: string;
   deliveryNote?: string;
 }
 

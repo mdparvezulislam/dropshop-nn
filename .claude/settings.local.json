@@ -1,5 +1,27 @@
 {
   "permissions": {
-    "allow": ["Bash(xargs ls -la)", "Bash(npx tsc *)", "Bash(npx next *)"]
+    "allow": [
+      "Bash(xargs ls -la)",
+      "Bash(npx tsc *)",
+      "Bash(npx next *)",
+      "Bash(grep -o 'dark.\\\\{0,120\\\\}')",
+      "Bash(echo \"EXIT:$?\")",
+      "Bash(echo \"TSC_EXIT=$?\")",
+      "Bash(npm run *)",
+      "Bash(echo \"BUILD_EXIT=$?\")",
+      "Bash(/bin/ls -1)",
+      "Bash(/bin/ls -1 docs)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(git stash *)",
+      "Bash(echo \"BASE_BUILD_EXIT=$?\")",
+      "Bash(npx eslint *)",
+      "Bash(node -e \"let d='';process.stdin.on\\('data',c=>d+=c\\).on\\('end',\\(\\)=>{const r=JSON.parse\\(d\\);for\\(const f of r\\){const errs=f.messages.filter\\(m=>m.severity===2\\);if\\(errs.length\\)console.log\\(f.filePath.replace\\(process.cwd\\(\\)+'/',''\\)+'\\\\n'+errs.map\\(m=>'  '+m.line+':'+m.column+' '+m.ruleId+' — '+m.message\\).join\\('\\\\n'\\)\\);}}\\)\")",
+      "Bash(echo \"TSC=$?\")",
+      "Bash(curl -s http://localhost:3000/ -o /private/tmp/claude-501/-Users-parvez-CODE-dropshop-nn/22f6bad6-a505-4e22-aa04-0b446dc6dd7f/scratchpad/home.html -w \"HTTP=%{http_code}\\\\n\")",
+      "Bash(python3 -)",
+      "Bash(grep -n \"createProductSchema.parse\\\\|create\\(\\\\s*$\" src/features/product-studio/actions/studio-actions.ts)",
+      "Bash(pkill -f \"next dev\")",
+      "Bash(npx prettier *)"
+    ]
   }
 }

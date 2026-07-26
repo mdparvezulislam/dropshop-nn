@@ -344,7 +344,7 @@ export class SmartParserService {
   public static stripHtml(html: string): string {
     if (!html) return "";
 
-    let text = html
+    const text = html
       // Replace block tags with newline to preserve paragraph structure
       .replace(/<\/(p|div|h1|h2|h3|h4|h5|h6|li|tr|table)>/gi, "\n")
       .replace(/<br\s*\/?>/gi, "\n")

@@ -288,6 +288,11 @@ export class ProductAutomationEngine {
   /**
    * Calculates tiered pricing from cost price using the PricingEngine.
    * Falls back to simple percentage markups when no pricing rules exist.
+   *
+   * Input and output are both in major currency units (BDT). The PricingEngine works
+   * in minor units, so its result is converted back before returning — otherwise the
+   * engine path returned cents while the fallback path returned taka, and callers
+   * that re-multiply by 100 inflated engine-derived prices 100×.
    */
   async applyPricingRules(
     costPrice?: number | null,
@@ -311,9 +316,9 @@ export class ProductAutomationEngine {
 
       if (result.retailPrice > 0) {
         return {
-          sellingPrice: result.retailPrice,
-          wholesalePrice: result.wholesalePrice,
-          resellerPrice: result.resellerPrice,
+          sellingPrice: result.retailPrice / 100,
+          wholesalePrice: result.wholesalePrice / 100,
+          resellerPrice: result.resellerPrice / 100,
         };
       }
     } catch (err) {

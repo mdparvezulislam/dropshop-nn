@@ -18,7 +18,8 @@ export const registrationSchema = z.object({
   phone: phoneSchema,
   fullName: z.string().min(2, "Full name must be at least 2 characters").trim(),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  role: z.string().min(1, "Role is required"),
+  // SECURITY: no `role` field. Public registration NEVER accepts a role from
+  // the client — the server assigns the fixed customer role (see AuthService).
 });
 
 export type RegistrationInput = z.infer<typeof registrationSchema>;

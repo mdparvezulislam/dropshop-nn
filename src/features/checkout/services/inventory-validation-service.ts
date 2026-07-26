@@ -37,9 +37,16 @@ export class InventoryValidationService {
     );
 
     if (!inventory) {
-      throw new NotFoundError(
-        `Inventory not found for product ${request.productId}${request.variantSku ? ` / ${request.variantSku}` : ""}`,
-      );
+      // Untracked product (no inventory record) — dropship-sellable, matching
+      // the storefront's stock semantics. Reservation soft-passes the same way.
+      return {
+        productId: request.productId,
+        variantSku: request.variantSku,
+        quantity: request.quantity,
+        available: request.quantity,
+        isValid: true,
+        message: "Inventory untracked",
+      };
     }
 
     const available = inventory.availableStock - inventory.reservedStock;

@@ -26,13 +26,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const { DatabaseConnectionManager } = await import("@/lib/database/connection-manager");
           await DatabaseConnectionManager.connect();
 
-          try {
-            const { ensureDemoAdminSeeded } = await import("@/lib/database/seeds/demo-admin-seed");
-            await ensureDemoAdminSeeded();
-          } catch (seedError) {
-            logger.warn("Admin seed skipped", {
-              error: seedError instanceof Error ? seedError.message : String(seedError),
-            });
+          // SECURITY: the known-credential demo admin is a development
+          // convenience only — never seeded in production, and even in dev it
+          // requires an explicit opt-in flag.
+          if (process.env.NODE_ENV !== "production" && process.env.ENABLE_DEMO_SEED === "true") {
+            try {
+              const { ensureDemoAdminSeeded } = await import(
+                "@/lib/database/seeds/demo-admin-seed"
+              );
+              await ensureDemoAdminSeeded();
+            } catch (seedError) {
+              logger.warn("Admin seed skipped", {
+                error: seedError instanceof Error ? seedError.message : String(seedError),
+              });
+            }
           }
 
           const headers =

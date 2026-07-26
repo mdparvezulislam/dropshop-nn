@@ -218,6 +218,25 @@ export const WORKSPACE_NAV: NavSection[] = [
         ],
       },
       {
+        label: "Categories & Brands",
+        icon: FolderTree,
+        anyPermission: ["Product.View", "Product.Create"],
+        children: [
+          {
+            label: "Categories",
+            href: "/dashboard/catalog/categories",
+            icon: FolderTree,
+            permission: "Product.View",
+          },
+          {
+            label: "Brands",
+            href: "/dashboard/catalog/brands",
+            icon: Award,
+            permission: "Product.View",
+          },
+        ],
+      },
+      {
         label: "Pricing Engine",
         icon: DollarSign,
         anyPermission: ["Pricing.View", "Pricing.Manage"],

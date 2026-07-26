@@ -40,11 +40,11 @@ export function DescriptionSection({
             <Button
               type="button"
               size="sm"
-              className="shrink-0 gap-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold shadow-xs transition-all hover:scale-102 active:scale-98"
+              className="shrink-0 gap-1.5 bg-amber-500 hover:bg-amber-600 text-amber-950 dark:text-amber-950 font-bold shadow-xs transition-all hover:scale-102 active:scale-98"
               onClick={() => onMagicParse?.(value)}
               title="Auto-extract Title, Specs, SEO Meta, and Tags using SmartParser"
             >
-              <Sparkles className="h-4 w-4 fill-slate-950" />⚡ Magic Parse
+              <Sparkles className="h-4 w-4 fill-amber-950 dark:fill-amber-950" />⚡ Magic Parse
             </Button>
           ) : null}
         </div>

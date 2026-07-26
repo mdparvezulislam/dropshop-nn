@@ -79,6 +79,7 @@ export default function EditProductStudioPage(): React.ReactElement {
     form,
     update,
     bulkUpdate,
+    hydrate,
     handleAutoGenerateSKU,
     handleApplyAutoPricing,
     handleResetAutoPricing,
@@ -111,90 +112,99 @@ export default function EditProductStudioPage(): React.ReactElement {
       }
       try {
         const res = await getStudioProductAction(id);
-        if (res.success && res.data) {
-          const { product: p, pricing: pr, inventory: inv } = res.data as any;
-          if (p) {
-            const costVal = p.costPrice || (pr?.baseCostPrice ? pr.baseCostPrice / 100 : 0);
-            const sellingVal =
-              p.sellingPrice || p.retailPrice || (pr?.sellingPrice ? pr.sellingPrice / 100 : 0);
-            const wholesaleVal =
-              p.wholesalePrice || (pr?.wholesalePrice ? pr.wholesalePrice / 100 : 0);
-            const resellerVal = p.resellerPrice || (pr?.resellerPrice ? pr.resellerPrice / 100 : 0);
-            const compareVal = p.comparePrice || (pr?.comparePrice ? pr.comparePrice / 100 : 0);
-            const stockVal = p.stockQuantity ?? p.stock ?? inv?.availableStock ?? 0;
-
-            bulkUpdate({
-              name: p.name || p.title || "",
-              productType: p.productType || "simple",
-              sku: p.sku || "",
-              shortDescription: p.shortDescription || "",
-              richDescription: p.richDescription || p.description || "",
-              notice: p.notice || "",
-              productModel: p.productModel || "",
-              barcode: p.barcode || "",
-              brandId: p.brandId ? String(p.brandId) : "",
-              categoryId: p.categoryId ? String(p.categoryId) : "",
-              supplierId: p.supplierId ? String(p.supplierId) : "",
-              status: p.status || "draft",
-              visibility: p.visibility || "public",
-              badges: p.badges || [],
-              specifications: (p.specifications || p.content?.specifications || []).map(
-                (s: any) => ({
-                  key: s.key || `spec_${Math.random().toString(36).slice(2, 6)}`,
-                  label: s.label || s.key || "",
-                  type: s.type || "text",
-                  value: s.value !== undefined ? s.value : "",
-                  group: s.group || "General",
-                }),
-              ),
-              costPrice: costVal > 0 ? String(costVal) : "",
-              sellingPrice: sellingVal > 0 ? String(sellingVal) : "",
-              wholesalePrice: wholesaleVal > 0 ? String(wholesaleVal) : "",
-              resellerPrice: resellerVal > 0 ? String(resellerVal) : "",
-              comparePrice: compareVal > 0 ? String(compareVal) : "",
-              stock: String(stockVal),
-              lowStockThreshold: String(inv?.lowStockThreshold || 5),
-              inventorySku: p.sku || "",
-              variants: (p.variants || []).map((v: any, i: number) => ({
-                id: v.id || `v-${i}`,
-                name: v.name || "",
-                attributes: v.attributes || undefined,
-                sku: v.sku || `${p.sku}-v${i + 1}`,
-                priceAdjustment: v.priceAdjustment ?? 0,
-                stock: v.stock ?? 0,
-                image: v.image || undefined,
-                status: v.status || "active",
-                isActive: v.isActive ?? true,
-                color: v.color || "",
-                size: v.size || "",
-                storage: v.storage || "",
-                ram: v.ram || "",
-                capacity: v.capacity || "",
-                material: v.material || "",
-              })),
-              media: (p.media || p.images || []).map((img: any, i: number) => ({
-                id: img.id || `m-${i}`,
-                url: typeof img === "string" ? img : img.url,
-                type: img.type || "image",
-                isFeatured: img.isFeatured || i === 0,
-                altText: img.altText || undefined,
-              })),
-              slug: p.slug || "",
-              metaTitle: p.metaTitle || p.seo?.metaTitle || p.name || "",
-              metaDescription:
-                p.metaDescription || p.seo?.metaDescription || p.shortDescription || "",
-              metaKeywords: p.metaKeywords || p.seo?.metaKeywords || [],
-            });
-          }
+        if (!res.success || !res.data?.product) {
+          toast.error(res.error || "Product not found");
+          return;
         }
-      } catch (err) {
-        toast.error("Failed to load product details for edit");
+
+        const { product: p, pricing: pr, inventory: inv } = res.data;
+        const toMajor = (minor?: number): string => (minor && minor > 0 ? String(minor / 100) : "");
+
+        // Every field the studio can edit is hydrated here. Anything left out is sent
+        // back empty on the next save and silently erases the stored value — that is how
+        // tags, warranty and the return policy were being wiped on edit.
+        hydrate({
+          name: p.name || "",
+          productType: p.productType || "simple",
+          sku: p.sku || "",
+          shortDescription: p.shortDescription || "",
+          richDescription: p.description || "",
+          notice: p.notice || "",
+          productModel: p.productModel || "",
+          barcode: p.barcode || "",
+          brandId: p.brandId ? String(p.brandId) : "",
+          categoryId: p.categoryId ? String(p.categoryId) : "",
+          supplierId: p.supplierId ? String(p.supplierId) : "",
+          status: p.status || "draft",
+          visibility: p.visibility || "public",
+          badges: p.badges || [],
+          tags: p.tags || [],
+          featured: Boolean(p.featured),
+          trending: Boolean(p.trending),
+          flashSale: Boolean(p.flashSale),
+          newArrival: Boolean(p.newArrival),
+          warranty: p.content?.warrantyInformation || "",
+          returnPolicy: p.content?.returnPolicy || "",
+          bulletFeatures: p.content?.features || [],
+          specifications: (p.specifications || []).map((s, i) => ({
+            key: s.key || `spec_${i + 1}`,
+            label: s.key || "",
+            type: "text" as const,
+            value: s.value ?? "",
+            group: s.group || "General",
+          })),
+          costPrice: toMajor(pr?.baseCostPrice),
+          sellingPrice: toMajor(pr?.sellingPrice),
+          wholesalePrice: toMajor(pr?.wholesalePrice),
+          resellerPrice: toMajor(pr?.resellerPrice),
+          comparePrice: toMajor(pr?.comparePrice),
+          // Loaded prices are the stored truth, not manual overrides — leaving these set
+          // would freeze the tier prices against later cost changes.
+          manualPriceOverrides: {},
+          stock: String(inv?.availableStock ?? 0),
+          reservedStock: String(inv?.reservedStock ?? 0),
+          incomingStock: String(inv?.incomingStock ?? 0),
+          lowStockThreshold: String(inv?.lowStockThreshold ?? 5),
+          inventorySku: p.sku || "",
+          inventoryBarcode: p.barcode || "",
+          variants: (p.variants || []).map((v, i) => ({
+            id: v.id || `v-${i}`,
+            name: v.name || "",
+            attributes: v.attributes,
+            sku: v.sku || `${p.sku}-v${i + 1}`,
+            priceAdjustment: v.priceAdjustment ?? 0,
+            stock: v.stock ?? 0,
+            image: v.image,
+            status: v.status || "active",
+            isActive: v.isActive ?? true,
+            color: v.color || "",
+            size: v.size || "",
+            storage: v.storage || "",
+            ram: v.ram || "",
+            capacity: v.capacity || "",
+            material: v.material || "",
+          })),
+          media: (p.media || []).map((m, i) => ({
+            id: `m-${i}`,
+            url: m.url,
+            type: m.type || "image",
+            isFeatured: m.isFeatured ?? i === 0,
+            altText: m.altText,
+          })),
+          slug: p.slug || "",
+          metaTitle: p.metaTitle || p.seo?.metaTitle || p.name || "",
+          metaDescription: p.metaDescription || p.seo?.metaDescription || p.shortDescription || "",
+          metaKeywords: p.seo?.metaKeywords || [],
+          ogImage: p.seo?.ogImage || "",
+        });
+      } catch (err: unknown) {
+        toast.error(err instanceof Error ? err.message : "Failed to load product for edit");
       } finally {
         setLoadingProduct(false);
       }
     }
     load();
-  }, [id, bulkUpdate]);
+  }, [id, hydrate]);
 
   // Background Uniqueness Check for SKU
   React.useEffect(() => {
@@ -261,12 +271,12 @@ export default function EditProductStudioPage(): React.ReactElement {
       <div className="min-h-screen flex flex-col bg-background">
         {header}
         <div className="flex-1 mx-auto w-full max-w-[94rem] px-3 sm:px-6 lg:px-8 py-5">
-          <div className="flex items-center justify-between mb-5 p-3 bg-muted dark:bg-slate-900 border border-border dark:border-slate-800 rounded-xl">
-            <div className="flex items-center gap-1 bg-card dark:bg-slate-950 p-1 rounded-lg border border-border dark:border-slate-800">
+          <div className="flex items-center justify-between mb-5 p-3 bg-muted border border-border rounded-xl">
+            <div className="flex items-center gap-1 bg-card p-1 rounded-lg border border-border">
               <button
                 type="button"
                 onClick={() => setMode("quick")}
-                className="px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 bg-amber-500 text-white shadow-md"
+                className="px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 bg-amber-500 text-amber-950 shadow-md"
               >
                 <Zap className="w-3.5 h-3.5" />
                 <span>Quick Edit</span>
@@ -312,8 +322,8 @@ export default function EditProductStudioPage(): React.ReactElement {
       {header}
 
       <div className="mx-auto w-full max-w-[94rem] px-3 sm:px-6 lg:px-8 pt-5">
-        <div className="flex items-center justify-between mb-5 p-3 bg-muted dark:bg-slate-900 border border-border dark:border-slate-800 rounded-xl">
-          <div className="flex items-center gap-1 bg-card dark:bg-slate-950 p-1 rounded-lg border border-border dark:border-slate-800">
+        <div className="flex items-center justify-between mb-5 p-3 bg-muted border border-border rounded-xl">
+          <div className="flex items-center gap-1 bg-card p-1 rounded-lg border border-border">
             <button
               type="button"
               onClick={() => setMode("quick")}
@@ -325,7 +335,7 @@ export default function EditProductStudioPage(): React.ReactElement {
             <button
               type="button"
               onClick={() => setMode("advanced")}
-              className="px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 bg-amber-500 text-white shadow-md"
+              className="px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 bg-amber-500 text-amber-950 shadow-md"
             >
               <Sliders className="w-3.5 h-3.5" />
               <span>Advanced Mode (ফুল স্টুডিও)</span>
@@ -467,8 +477,8 @@ export default function EditProductStudioPage(): React.ReactElement {
             variants={form.variants as any}
             onChange={(vars) => update("variants", vars)}
             baseSku={form.sku}
-            basePrice={parseFloat(form.sellingPrice) || 1200}
-            baseCost={parseFloat(form.costPrice) || 800}
+            basePrice={parseFloat(form.sellingPrice) || 0}
+            baseCost={parseFloat(form.costPrice) || 0}
           />
         </StudioTabPanel>
 

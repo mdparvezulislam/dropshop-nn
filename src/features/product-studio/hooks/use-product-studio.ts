@@ -9,7 +9,11 @@ import { useAutosave, type SaveState } from "./use-autosave";
 import { useHealthScore } from "./use-health-score";
 import { useAutoClassification } from "./use-auto-classification";
 import { useAutoGeneration } from "./use-auto-generation";
-import type { HealthScoreResult, SpecificationField } from "../types/studio-types";
+import type {
+  HealthScoreResult,
+  ProductRelationship,
+  SpecificationField,
+} from "../types/studio-types";
 import type { VariantRow } from "../components/sections/variants-section";
 import type { MediaItem } from "../components/sections/media-section";
 import type { ProductType } from "@/features/catalog/domain/product-entity";
@@ -89,7 +93,7 @@ export interface StudioFormState {
   leadTimeDays: string;
   purchaseLink: string;
   supplierNotes: string;
-  relationships: any[];
+  relationships: ProductRelationship[];
   scheduledPublishDate: string;
   scheduledPublishTime: string;
   scheduledUnpublishDate: string;
@@ -172,6 +176,7 @@ export function useProductStudio(existingId?: string): {
   form: StudioFormState;
   update: (field: keyof StudioFormState, value: unknown) => void;
   bulkUpdate: (partial: Partial<StudioFormState>) => void;
+  hydrate: (partial: Partial<StudioFormState>) => void;
   handleAutoGenerateSKU: () => void;
   handleApplyAutoPricing: (pricing: Partial<StudioFormState>) => void;
   handleResetAutoPricing: () => void;
@@ -200,15 +205,25 @@ export function useProductStudio(existingId?: string): {
   const { generate: autoGenerate } = useAutoGeneration();
 
   const doSave = React.useCallback(async () => {
+    // Autosave must never create a half-formed product: the studio schema requires
+    // a name (>=2 chars) and a SKU (>=2 chars), so skip until both are present.
+    const payload = buildPayload(form);
+    if (form.name.trim().length < 2 || String(payload.sku ?? "").trim().length < 2) {
+      return { success: false, error: "Incomplete draft" };
+    }
+
     setSaving(true);
     try {
-      const payload = buildPayload(form);
       const res = await saveStudioProductAction(payload, productIdRef.current);
       if (res.success && res.data?.id) {
         productIdRef.current = res.data.id;
         if (!existingId) {
           router.replace(`/dashboard/products/${res.data.id}/edit`);
         }
+      } else if (!res.success) {
+        // Autosave failures were previously invisible; surface them so a broken
+        // draft is never mistaken for a saved one.
+        toast.error(res.error || "Autosave failed");
       }
       return res;
     } finally {
@@ -287,6 +302,15 @@ export function useProductStudio(existingId?: string): {
     },
     [triggerSave],
   );
+
+  /**
+   * Loads server state into the form WITHOUT marking it dirty. Using `bulkUpdate`
+   * for hydration made simply opening the edit page schedule an autosave, which
+   * wrote a redundant audit entry and product version on every page view.
+   */
+  const hydrate = React.useCallback((partial: Partial<StudioFormState>) => {
+    setForm((prev) => ({ ...prev, ...partial }));
+  }, []);
 
   const { parse: rawParse, isParsing, summary: parseSummary } = useSmartParse(form, bulkUpdate);
   const handleMagicParse = React.useCallback(
@@ -395,7 +419,7 @@ export function useProductStudio(existingId?: string): {
     } finally {
       setSaving(false);
     }
-  }, [form, existingId, router]);
+  }, [form, router]);
 
   const handlePreview = React.useCallback(() => {
     if (productIdRef.current) {
@@ -409,6 +433,7 @@ export function useProductStudio(existingId?: string): {
     form,
     update,
     bulkUpdate,
+    hydrate,
     handleAutoGenerateSKU,
     handleApplyAutoPricing,
     handleResetAutoPricing,
@@ -474,14 +499,14 @@ function buildPayload(form: StudioFormState): Record<string, unknown> {
       .filter((v) => v.sku && v.sku.trim())
       .map((v) => ({
         id: v.id,
-        name: (v as any).name || [v.color, v.size, v.storage].filter(Boolean).join(" / "),
-        attributes: (v as any).attributes,
+        name: v.name || [v.color, v.size, v.storage].filter(Boolean).join(" / "),
+        attributes: v.attributes,
         sku: v.sku.trim(),
-        priceAdjustment: (v as any).priceAdjustment ?? 0,
-        stock: (v as any).stock ?? 0,
-        image: (v as any).image || undefined,
-        status: (v as any).status || "active",
-        isActive: (v as any).isActive ?? true,
+        priceAdjustment: v.priceAdjustment ?? 0,
+        stock: v.stock ?? 0,
+        image: v.image || undefined,
+        status: v.status || "active",
+        isActive: v.isActive ?? true,
         color: v.color || undefined,
         size: v.size || undefined,
         storage: v.storage || undefined,
@@ -509,13 +534,18 @@ function buildPayload(form: StudioFormState): Record<string, unknown> {
       wholesalePrice: parseFloat(form.wholesalePrice) || 0,
       resellerPrice: parseFloat(form.resellerPrice) || 0,
       comparePrice: parseFloat(form.comparePrice) || 0,
+      campaignPrice: parseFloat(form.campaignPrice) || 0,
       manualPriceOverrides: form.manualPriceOverrides,
     },
     inventory: {
       sku: form.inventorySku || form.sku || undefined,
       barcode: form.inventoryBarcode || form.barcode || undefined,
       stock: parseInt(form.stock) || 0,
+      reservedStock: parseInt(form.reservedStock) || 0,
+      incomingStock: parseInt(form.incomingStock) || 0,
       lowStockThreshold: parseInt(form.lowStockThreshold) || 5,
+      warehouseLocation: form.warehouseLocation || undefined,
+      weight: parseFloat(form.weight) || undefined,
     },
     bulletFeatures: form.bulletFeatures,
     selectedCollectionIds: form.selectedCollectionIds,

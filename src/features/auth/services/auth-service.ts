@@ -29,14 +29,19 @@ export class AuthService {
     this.roleRepository = new RoleRepository();
   }
 
+  // SECURITY: public registration always creates a plain customer account.
+  // Role is a server-side constant — elevated roles are only ever assigned by
+  // an admin through the identity module.
+  private static readonly PUBLIC_REGISTRATION_ROLE = "Customer";
+
   async register(data: {
     username: string;
     email: string;
     phone: string;
     fullName: string;
     password: string;
-    role: string;
   }): Promise<User> {
+    const role = AuthService.PUBLIC_REGISTRATION_ROLE;
     const cleanUsername = data.username.toLowerCase().trim();
     const cleanEmail = data.email.toLowerCase().trim();
     const cleanPhone = data.phone.trim();
@@ -44,7 +49,6 @@ export class AuthService {
     logger.info("AuthService: registering new user profile", {
       email: cleanEmail,
       username: cleanUsername,
-      role: data.role,
     });
 
     const [existingEmail, existingPhone, existingUser] = await Promise.all([
@@ -62,34 +66,31 @@ export class AuthService {
       throw new ValidationError("Registration input validation failed", validationErrors);
     }
 
-    let roleDoc = await this.roleRepository.findByName(data.role);
+    let roleDoc = await this.roleRepository.findByName(role);
     if (!roleDoc) {
-      logger.info("AuthService: auto-creating missing role during registration", {
-        role: data.role,
-      });
       roleDoc = await this.roleRepository.create({
-        name: data.role,
-        description: `Role for ${data.role}`,
-        permissions:
-          data.role === "Super Admin" ? ["*"] : [`${data.role.replace(/\s+/g, "")}.Access`],
+        name: role,
+        description: "Default customer role",
+        permissions: ["Customer.Access"],
         status: "active",
       });
     }
 
     const passwordHash = await hashPassword(data.password);
-    const memberships = getMembershipsForRole(data.role);
+    const memberships = getMembershipsForRole(role);
     const user = await this.userRepository.create({
       username: cleanUsername,
       email: cleanEmail,
       phone: cleanPhone,
       fullName: data.fullName.trim(),
       passwordHash,
-      role: data.role,
-      roles: [data.role],
+      role,
+      roles: [role],
       memberships,
       status: "active",
-      emailVerifiedAt: new Date(),
-      phoneVerifiedAt: new Date(),
+      // Honest state: nothing is verified until a real verification flow runs.
+      emailVerifiedAt: null,
+      phoneVerifiedAt: null,
       loginHistory: [],
     });
 

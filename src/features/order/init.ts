@@ -201,8 +201,9 @@ export function registerOrderFeatureFlags(): void {
           customer: {
             customerId: checkout.createdBy || undefined,
             name: checkout.shipping?.receiverName || "Guest Customer",
-            phone: checkout.shipping?.phone || "+8801700000000",
-            email: undefined,
+            // Never fabricate contact data — missing stays missing.
+            phone: checkout.shipping?.phone || "",
+            email: checkout.shipping?.email || undefined,
           },
           shipping: checkout.shipping as any,
           pricing: {

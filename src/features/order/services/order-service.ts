@@ -449,7 +449,9 @@ export class OrderService {
     }
 
     if (filter.search) {
-      const searchRegex = { $regex: filter.search, $options: "i" };
+      // User input is escaped — a search string must never become a regex operator.
+      const escaped = filter.search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const searchRegex = { $regex: escaped, $options: "i" };
       dbFilter.$or = [
         { orderNumber: searchRegex },
         { "customer.name": searchRegex },

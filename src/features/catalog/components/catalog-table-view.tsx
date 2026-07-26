@@ -4,16 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import {
-  Package,
-  FileEdit,
-  Copy,
-  Trash2,
-  Eye,
-  CheckCircle2,
-  AlertTriangle,
-  XCircle,
-} from "lucide-react";
+import { Package, FileEdit, Copy, Trash2, Eye, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 export interface ProductCatalogItem {
@@ -37,9 +28,52 @@ export interface CatalogTableViewProps {
   onToggleSelect: (id: string) => void;
   onToggleSelectAll: () => void;
   onPreview: (id: string) => void;
-  onInlineUpdate: (id: string, field: string, val: any) => void;
+  onInlineUpdate: (id: string, field: string, val: string) => void;
   onDuplicate: (id: string) => void;
   onDelete: (id: string) => void;
+}
+
+/** Renders any product lifecycle status, including `inactive` and `pending_review`,
+ * which previously all fell through to the "Archived" badge. */
+function ProductStatusBadge({ status }: { status: string }): React.ReactElement {
+  switch (status) {
+    case "active":
+      return (
+        <Badge variant="success" size="xs" className="gap-1 font-bold">
+          <CheckCircle2 className="h-3 w-3" /> সক্রিয় (Active)
+        </Badge>
+      );
+    case "draft":
+      return (
+        <Badge variant="warning" size="xs" className="gap-1 font-bold">
+          <FileEdit className="h-3 w-3" /> খসড়া (Draft)
+        </Badge>
+      );
+    case "pending_review":
+      return (
+        <Badge variant="warning" size="xs" className="gap-1 font-bold">
+          পর্যালোচনায় (Pending)
+        </Badge>
+      );
+    case "inactive":
+      return (
+        <Badge variant="outline" size="xs" className="gap-1 font-bold">
+          নিষ্ক্রিয় (Inactive)
+        </Badge>
+      );
+    case "archived":
+      return (
+        <Badge variant="outline" size="xs" className="gap-1 font-bold">
+          আর্কাইভ (Archived)
+        </Badge>
+      );
+    default:
+      return (
+        <Badge variant="outline" size="xs" className="gap-1 font-bold">
+          {status}
+        </Badge>
+      );
+  }
 }
 
 export function CatalogTableView({
@@ -56,7 +90,7 @@ export function CatalogTableView({
   const [editingCell, setEditingCell] = React.useState<{ id: string; field: string } | null>(null);
   const [editValue, setEditValue] = React.useState("");
 
-  const startInlineEdit = (id: string, field: string, currentVal: any) => {
+  const startInlineEdit = (id: string, field: string, currentVal: number | string) => {
     setEditingCell({ id, field });
     setEditValue(String(currentVal));
   };
@@ -103,6 +137,7 @@ export function CatalogTableView({
             <th className="p-3 w-8">
               <input
                 type="checkbox"
+                aria-label="Select all products on this page"
                 checked={selectedIds.length === items.length && items.length > 0}
                 onChange={onToggleSelectAll}
                 className="h-3.5 w-3.5 rounded border-border text-primary"
@@ -136,6 +171,7 @@ export function CatalogTableView({
                 <td className="p-3" onClick={(e) => e.stopPropagation()}>
                   <input
                     type="checkbox"
+                    aria-label={`Select ${item.name}`}
                     checked={isSelected}
                     onChange={() => onToggleSelect(item.id)}
                     className="h-3.5 w-3.5 rounded border-border text-primary"
@@ -145,9 +181,11 @@ export function CatalogTableView({
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-muted/40 overflow-hidden shadow-2xs">
                       {item.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element -- CDN thumbnails from arbitrary supplier hosts
                         <img
                           src={item.image}
-                          alt={item.name}
+                          alt=""
+                          loading="lazy"
                           className="h-full w-full object-cover"
                         />
                       ) : (
@@ -166,8 +204,8 @@ export function CatalogTableView({
                 </td>
                 <td className="p-3">
                   <div className="space-y-0.5">
-                    <p className="font-bold text-foreground/90">{item.category}</p>
-                    <p className="text-[11px] text-muted-foreground">{item.brand}</p>
+                    <p className="font-bold text-foreground/90">{item.category || "—"}</p>
+                    <p className="text-[11px] text-muted-foreground">{item.brand || "—"}</p>
                   </div>
                 </td>
                 <td className="p-3 text-right" onClick={(e) => e.stopPropagation()}>
@@ -241,19 +279,7 @@ export function CatalogTableView({
                   )}
                 </td>
                 <td className="p-3">
-                  {item.status === "active" ? (
-                    <Badge variant="success" size="xs" className="gap-1 font-bold">
-                      <CheckCircle2 className="h-3 w-3" /> সক্রিয় (Active)
-                    </Badge>
-                  ) : item.status === "draft" ? (
-                    <Badge variant="warning" size="xs" className="gap-1 font-bold">
-                      <FileEdit className="h-3 w-3" /> খসড়া (Draft)
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" size="xs" className="gap-1 font-bold">
-                      আর্কাইভ (Archived)
-                    </Badge>
-                  )}
+                  <ProductStatusBadge status={item.status} />
                 </td>
                 <td className="p-3 text-right" onClick={(e) => e.stopPropagation()}>
                   <div className="flex justify-end gap-1">

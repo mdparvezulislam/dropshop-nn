@@ -1,60 +1,59 @@
 import Link from "next/link";
 import { ArrowRight, Flame } from "lucide-react";
-import { ProductGrid } from "../product-grid";
-import type { ProductCardData } from "../product-card";
+import { ProductCard } from "../product-card";
+import type { PublicProductCard } from "@/features/catalog/domain/public-catalog-types";
 
 interface TrendingProductsSectionProps {
-  products: ProductCardData[];
+  products: PublicProductCard[];
   title?: string;
   description?: string;
 }
 
+/** Real trending-badged products only. Empty data renders nothing. */
 export function TrendingProductsSection({
   products,
-  title = "Trending Now",
-  description = "Most popular products customers are loving this week",
-}: TrendingProductsSectionProps) {
+  title = "ট্রেন্ডিং প্রোডাক্ট",
+  description = "এই মুহূর্তে আলোচিত প্রোডাক্টসমূহ",
+}: TrendingProductsSectionProps): React.ReactElement | null {
   if (products.length === 0) return null;
 
   return (
-    <section className="py-20 lg:py-28 bg-white">
+    <section
+      className="py-12 lg:py-16 bg-white border-b border-slate-200"
+      aria-labelledby="trending-products-heading"
+    >
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
-        <div className="flex items-end justify-between mb-12">
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <div className="inline-flex items-center justify-center h-10 w-10 rounded-lg bg-primary/10 text-primary">
-                <Flame className="h-5 w-5" />
-              </div>
-              <span className="text-xs font-bold uppercase tracking-widest text-primary/60">
-                Trending
-              </span>
+        <div className="flex items-end justify-between mb-8">
+          <div>
+            <div className="flex items-center gap-2">
+              <Flame className="h-5 w-5 text-amber-500" aria-hidden />
+              <h2
+                id="trending-products-heading"
+                className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900"
+              >
+                {title}
+              </h2>
             </div>
-            <h2 className="text-5xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[hsl(222_47%_11%)]">
-              {title}
-            </h2>
-            <p className="text-lg text-[hsl(215_16%_47%)] max-w-2xl mt-3">{description}</p>
+            <p className="text-xs sm:text-sm text-slate-600 font-bold mt-1">{description}</p>
           </div>
+
           <Link
-            href="/products?sort=trending"
-            className="hidden sm:inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-primary/80 transition-colors"
+            href="/products?badge=trending"
+            className="inline-flex items-center gap-1.5 text-xs font-extrabold text-amber-600 hover:text-amber-700 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 rounded"
           >
-            View All
-            <ArrowRight className="h-4 w-4" />
+            সব দেখুন
+            <ArrowRight className="h-3.5 w-3.5" aria-hidden />
           </Link>
         </div>
 
-        <ProductGrid products={products} />
-
-        <div className="mt-12 text-center sm:hidden">
-          <Link
-            href="/products?sort=trending"
-            className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-primary/80 transition-colors"
-          >
-            View All Trending Products
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+          {products.slice(0, 8).map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
         </div>
       </div>
     </section>
   );
 }
+
+export default TrendingProductsSection;

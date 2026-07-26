@@ -3,12 +3,17 @@
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { ProductService } from "@/features/catalog/services/product-service";
+import type { ProductWriteHints } from "@/features/catalog/services/product-service";
+import type { CreateProductInput, UpdateProductInput } from "@/features/catalog/types/validation";
+import type { Product } from "@/features/catalog/domain/product-entity";
 import { PricingService } from "@/features/pricing/services/pricing-service";
 import { PricingEngineService } from "@/features/pricing/services/pricing-engine-service";
+import type { ProductPricing } from "@/features/pricing/domain/pricing-entity";
 import { InventoryService } from "@/features/inventory/services/inventory-service";
+import type { ProductInventory } from "@/features/inventory/domain/inventory-entity";
 import type { CreateInventoryInput } from "@/features/inventory/types/validation";
 import { createStudioProductSchema, updateStudioProductSchema } from "../types/validation";
-import { checkPermission } from "@/lib/check-permission";
+import { checkPermission, type Session } from "@/lib/check-permission";
 import { UnauthorizedError } from "@/lib/errors/app-error";
 import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
@@ -17,15 +22,26 @@ import { EventBus } from "@/lib/event-bus";
 import { runImportPipeline } from "../utils/url-importer/import-pipeline";
 import type { ImportResult } from "../utils/url-importer/types";
 
-function getActor(session: any): { id: string; name?: string; role?: string } {
-  if (!session?.user) throw new UnauthorizedError("Session expired or invalid");
-  return session.user;
+/** Catalog-domain payload projected from the studio form. All keys are optional: the edit
+ * path sends a partial patch and the mapper drops keys the studio did not supply. */
+type CatalogWritePayload = Partial<CreateProductInput & UpdateProductInput & ProductWriteHints>;
+
+function getActor(session: Session): { id: string; name?: string; role?: string } {
+  const user = session?.user;
+  if (!user?.id) throw new UnauthorizedError("Session expired or invalid");
+  return { id: user.id, name: user.name ?? undefined, role: user.role };
+}
+
+/** Converts a major-unit (BDT) amount into the integer minor units the pricing domain stores. */
+function toCents(amount: number | undefined | null): number {
+  if (!amount || !Number.isFinite(amount) || amount <= 0) return 0;
+  return Math.round(amount * 100);
 }
 
 export async function saveStudioProductAction(
   formData: unknown,
   existingId?: string,
-): Promise<{ success: boolean; data?: { id: string }; error?: string }> {
+): Promise<{ success: boolean; data?: { id: string }; error?: string; warnings?: string[] }> {
   try {
     const session = await auth();
     const actor = getActor(session);
@@ -42,115 +58,142 @@ export async function saveStudioProductAction(
 
     const productService = new ProductService();
     let productId = existingId;
+    const warnings: string[] = [];
 
     /* Step 1: Create or update catalog product */
+    const catalogPayload = mapStudioToCatalog(validated);
     if (existingId) {
-      const updatePayload = mapStudioToCatalog(validated as CreateStudioProductInput);
-      await productService.update(existingId, updatePayload as any, actor);
+      await productService.update(existingId, catalogPayload, actor);
     } else {
-      const catalogPayload = mapStudioToCatalog(validated as CreateStudioProductInput);
-      const product = await productService.create(catalogPayload as any, actor);
+      const product = await productService.create(
+        catalogPayload as Parameters<ProductService["create"]>[0],
+        actor,
+      );
       productId = product.id;
     }
 
-    /* Step 2: Create pricing record if pricing data provided */
-    const pricingData = "pricing" in validated ? validated.pricing : undefined;
+    /**
+     * The pricing/inventory records are keyed by (productId, variantSku). Both must be
+     * upserted: on the edit path a record already exists, and the previous
+     * create-only implementation threw "already exists" and swallowed the error,
+     * so price and stock edits silently never persisted.
+     */
+    // Keyed on the product SKU, matching the record ProductService.create seeds. Using the
+    // first variant's SKU here produced a second, orphaned pricing row on every create.
+    const variantSku = validated.sku || undefined;
+
+    /* Step 2: Upsert pricing */
+    const pricingData = validated.pricing;
     if (pricingData && productId && (pricingData.sellingPrice || pricingData.costPrice)) {
       try {
         const pricingService = new PricingService();
-        const variantSku = (validated.variants?.[0]?.sku ||
-          validated.sku ||
-          `SKU-${Date.now()}`) as string;
+        const manualOverrides = pricingData.manualPriceOverrides ?? {};
+        const costCents = toCents(pricingData.costPrice);
 
-        const costCents = pricingData.costPrice ? Math.round(pricingData.costPrice * 100) : 0;
-        const manualOverrides: Record<string, boolean> =
-          (pricingData as any).manualPriceOverrides ?? {};
+        // Tier prices the admin did not explicitly override are derived from cost.
+        const sellingCents =
+          manualOverrides.sellingPrice || !costCents
+            ? toCents(pricingData.sellingPrice)
+            : Math.round(costCents * 1.3);
+        const wholesaleCents =
+          manualOverrides.wholesalePrice || !costCents
+            ? toCents(pricingData.wholesalePrice)
+            : Math.round(costCents * 1.12);
+        const resellerCents =
+          manualOverrides.resellerPrice || !costCents
+            ? toCents(pricingData.resellerPrice)
+            : Math.round(costCents * 1.2);
 
-        const pricingPayload = {
-          productId,
-          variantSku,
-          baseCostPrice: costCents,
-          purchasePrice: 0,
-          supplierPrice: 0,
-          sellingPrice: pricingData.sellingPrice ? Math.round(pricingData.sellingPrice * 100) : 0,
-          wholesalePrice: pricingData.wholesalePrice
-            ? Math.round(pricingData.wholesalePrice * 100)
-            : 0,
-          resellerPrice: pricingData.resellerPrice
-            ? Math.round(pricingData.resellerPrice * 100)
-            : 0,
-          comparePrice: pricingData.comparePrice ? Math.round(pricingData.comparePrice * 100) : 0,
-          discountAmount: 0,
-          discountPercentage: 0,
-          taxRate: 0,
-          taxInclusive: false,
-          commissionRate: 0,
-          currency: "BDT",
-          pricingRule: "fixed" as const,
-          status: "active" as const,
-        };
+        const existingPricing = await pricingService.getPricingByProduct(productId, variantSku);
 
-        await pricingService.createPricing(pricingPayload, actor.id);
-
-        if (costCents > 0) {
-          if (!manualOverrides.sellingPrice) {
-            pricingPayload.sellingPrice = Math.round(costCents * 1.3);
-          }
-          if (!manualOverrides.wholesalePrice) {
-            pricingPayload.wholesalePrice = Math.round(costCents * 1.12);
-          }
-          if (!manualOverrides.resellerPrice) {
-            pricingPayload.resellerPrice = Math.round(costCents * 1.2);
-          }
-          if (
-            !manualOverrides.sellingPrice ||
-            !manualOverrides.wholesalePrice ||
-            !manualOverrides.resellerPrice
-          ) {
-            await pricingService.updatePricing(
+        if (existingPricing) {
+          await pricingService.updatePricing(
+            existingPricing.id,
+            {
+              baseCostPrice: costCents,
+              sellingPrice: sellingCents,
+              wholesalePrice: wholesaleCents,
+              resellerPrice: resellerCents,
+              comparePrice: toCents(pricingData.comparePrice),
+            },
+            actor.id,
+          );
+        } else {
+          await pricingService.createPricing(
+            {
               productId,
-              {
-                sellingPrice: pricingPayload.sellingPrice,
-                wholesalePrice: pricingPayload.wholesalePrice,
-                resellerPrice: pricingPayload.resellerPrice,
-              },
-              actor.id,
-            );
-          }
+              variantSku,
+              baseCostPrice: costCents,
+              purchasePrice: 0,
+              supplierPrice: 0,
+              sellingPrice: sellingCents,
+              wholesalePrice: wholesaleCents,
+              resellerPrice: resellerCents,
+              comparePrice: toCents(pricingData.comparePrice),
+              discountAmount: 0,
+              discountPercentage: 0,
+              taxRate: 0,
+              taxInclusive: false,
+              commissionRate: 0,
+              currency: "BDT",
+              pricingRule: "fixed" as const,
+              status: "active" as const,
+            },
+            actor.id,
+          );
         }
       } catch (err) {
-        logger.error("StudioAction: pricing creation failed", err);
+        logger.error("StudioAction: pricing persistence failed", err);
+        warnings.push("Product saved, but pricing could not be updated.");
       }
     }
 
-    /* Step 3: Create inventory record if stock data provided */
-    const inventoryData = "inventory" in validated ? validated.inventory : undefined;
-    if (inventoryData && productId && inventoryData.stock > 0) {
+    /* Step 3: Upsert inventory */
+    const inventoryData = validated.inventory;
+    if (inventoryData && productId) {
       try {
         const inventoryService = new InventoryService();
-        const variantSku = (validated.variants?.[0]?.sku ||
-          validated.sku ||
-          `SKU-${Date.now()}`) as string;
-        const inventoryPayload: CreateInventoryInput = {
+        const existingInventory = await inventoryService.getInventoryByProduct(
           productId,
           variantSku,
-          availableStock: inventoryData.stock,
-          reservedStock: 0,
-          incomingStock: 0,
-          damagedStock: 0,
-          returnedStock: 0,
-          soldStock: 0,
-          virtualStock: 0,
-          safetyStock: 0,
-          reorderLevel: inventoryData.lowStockThreshold || 5,
-          lowStockThreshold: inventoryData.lowStockThreshold || 5,
-          allowPreOrder: false,
-          allowBackorder: false,
-          status: "active",
-        };
-        await inventoryService.createInventory(inventoryPayload, productId);
+        );
+        const lowStockThreshold = inventoryData.lowStockThreshold ?? 5;
+
+        if (existingInventory) {
+          await inventoryService.updateInventory(
+            existingInventory.id,
+            {
+              availableStock: inventoryData.stock,
+              reservedStock: inventoryData.reservedStock,
+              incomingStock: inventoryData.incomingStock,
+              reorderLevel: lowStockThreshold,
+              lowStockThreshold,
+            },
+            actor.id,
+          );
+        } else if (inventoryData.stock > 0 || inventoryData.incomingStock > 0) {
+          const inventoryPayload: CreateInventoryInput = {
+            productId,
+            variantSku,
+            availableStock: inventoryData.stock,
+            reservedStock: inventoryData.reservedStock,
+            incomingStock: inventoryData.incomingStock,
+            damagedStock: 0,
+            returnedStock: 0,
+            soldStock: 0,
+            virtualStock: 0,
+            safetyStock: 0,
+            reorderLevel: lowStockThreshold,
+            lowStockThreshold,
+            allowPreOrder: false,
+            allowBackorder: false,
+            status: "active",
+          };
+          await inventoryService.createInventory(inventoryPayload, actor.id);
+        }
       } catch (err) {
-        logger.error("StudioAction: inventory creation failed", err);
+        logger.error("StudioAction: inventory persistence failed", err);
+        warnings.push("Product saved, but stock could not be updated.");
       }
     }
 
@@ -173,22 +216,40 @@ export async function saveStudioProductAction(
     revalidatePath("/dashboard/products");
     if (productId) {
       revalidatePath(`/dashboard/products/${productId}`);
+      revalidatePath(`/dashboard/products/${productId}/edit`);
     }
 
-    return { success: true, data: { id: productId! } };
+    if (!productId) {
+      return { success: false, error: "Product was saved but no identifier was returned" };
+    }
+
+    return {
+      success: true,
+      data: { id: productId },
+      ...(warnings.length > 0 ? { warnings } : {}),
+    };
   } catch (error: unknown) {
     logger.error("saveStudioProductAction failed", error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Failed to save product",
-    };
+    return { success: false, error: toActionError(error, "Failed to save product") };
   }
 }
 
-interface StudioProductData {
-  product: unknown;
-  pricing: unknown;
-  inventory: unknown;
+/** Normalizes thrown errors (including Zod issues) into a single admin-readable message. */
+function toActionError(error: unknown, fallback: string): string {
+  if (error instanceof z.ZodError) {
+    const issue = error.issues[0];
+    if (issue) {
+      const path = issue.path.join(".");
+      return path ? `${path}: ${issue.message}` : issue.message;
+    }
+  }
+  return error instanceof Error ? error.message : fallback;
+}
+
+export interface StudioProductData {
+  product: Product | null;
+  pricing: ProductPricing | null;
+  inventory: ProductInventory | null;
 }
 
 export async function getStudioProductAction(id: string): Promise<{
@@ -196,74 +257,141 @@ export async function getStudioProductAction(id: string): Promise<{
   data?: StudioProductData;
   error?: string;
 }> {
-  const session = await auth();
-  getActor(session);
-
-  const productService = new ProductService();
-  const product = await productService.findById(id);
-  let pricing = null;
-  let inventory = null;
-
   try {
-    const pricingService = new PricingService();
-    pricing = await pricingService.getPricingByProduct(id);
-  } catch {
-    // Pricing not found
-  }
+    const session = await auth();
+    getActor(session);
+    checkPermission(session, "Product.View");
 
+    const productService = new ProductService();
+    const product = await productService.findById(id);
+    if (!product) {
+      return { success: false, error: "Product not found" };
+    }
+
+    const variantSku = product.variants?.[0]?.sku || product.sku;
+    const [pricing, inventory] = await Promise.all([
+      new PricingService()
+        .getPricingByProduct(id, variantSku)
+        .catch(() => null)
+        .then((p) => p ?? new PricingService().getPricingByProduct(id).catch(() => null)),
+      new InventoryService()
+        .getInventoryByProduct(id, variantSku)
+        .catch(() => null)
+        .then((i) => i ?? new InventoryService().getInventoryByProduct(id).catch(() => null)),
+    ]);
+
+    return { success: true, data: { product, pricing, inventory } };
+  } catch (error: unknown) {
+    logger.error("getStudioProductAction failed", error, { id });
+    return { success: false, error: toActionError(error, "Failed to load product") };
+  }
+}
+
+export interface ProductDetailView extends StudioProductData {
+  categoryName: string;
+  brandName: string;
+}
+
+/**
+ * Read model for the admin product detail page, which needs resolved taxonomy names,
+ * pricing and stock — it previously rendered raw `categoryId`/`brandId` ObjectIds and had
+ * no access to price or stock at all.
+ */
+export async function getProductDetailAction(id: string): Promise<{
+  success: boolean;
+  data?: ProductDetailView;
+  error?: string;
+}> {
   try {
-    const inventoryService = new InventoryService();
-    inventory = await inventoryService.getInventoryByProduct(id);
-  } catch {
-    // Inventory not found
-  }
+    const base = await getStudioProductAction(id);
+    if (!base.success || !base.data?.product) {
+      return { success: false, error: base.error ?? "Product not found" };
+    }
 
-  return { success: true, data: { product, pricing, inventory } };
+    const { product } = base.data;
+    const { BrandRepository, CategoryRepository } =
+      await import("@/features/catalog/repositories/classification-repository");
+
+    const [category, brand] = await Promise.all([
+      product.categoryId
+        ? new CategoryRepository().findById(product.categoryId).catch(() => null)
+        : Promise.resolve(null),
+      product.brandId
+        ? new BrandRepository().findById(product.brandId).catch(() => null)
+        : Promise.resolve(null),
+    ]);
+
+    return {
+      success: true,
+      data: {
+        ...base.data,
+        categoryName: category?.name ?? "",
+        brandName: brand?.name ?? "",
+      },
+    };
+  } catch (error: unknown) {
+    logger.error("getProductDetailAction failed", error, { id });
+    return { success: false, error: toActionError(error, "Failed to load product") };
+  }
 }
 
 export async function publishStudioProductAction(id: string): Promise<{
   success: boolean;
   error?: string;
 }> {
-  const session = await auth();
-  checkPermission(session, "Product.Publish");
-  const actor = getActor(session);
+  try {
+    const session = await auth();
+    checkPermission(session, "Product.Publish");
+    const actor = getActor(session);
 
-  const productService = new ProductService();
-  await productService.publish(id, actor);
+    await new ProductService().publish(id, actor);
 
-  revalidatePath(`/dashboard/products/${id}`);
-  return { success: true };
+    revalidatePath("/dashboard/products");
+    revalidatePath(`/dashboard/products/${id}`);
+    return { success: true };
+  } catch (error: unknown) {
+    logger.error("publishStudioProductAction failed", error, { id });
+    return { success: false, error: toActionError(error, "Failed to publish product") };
+  }
 }
 
 export async function archiveStudioProductAction(id: string): Promise<{
   success: boolean;
   error?: string;
 }> {
-  const session = await auth();
-  checkPermission(session, "Product.Archive");
-  const actor = getActor(session);
+  try {
+    const session = await auth();
+    checkPermission(session, "Product.Archive");
+    const actor = getActor(session);
 
-  const productService = new ProductService();
-  await productService.archive(id, "Archived from Product Studio", actor);
+    await new ProductService().archive(id, "Archived from Product Studio", actor);
 
-  revalidatePath(`/dashboard/products/${id}`);
-  return { success: true };
+    revalidatePath("/dashboard/products");
+    revalidatePath(`/dashboard/products/${id}`);
+    return { success: true };
+  } catch (error: unknown) {
+    logger.error("archiveStudioProductAction failed", error, { id });
+    return { success: false, error: toActionError(error, "Failed to archive product") };
+  }
 }
 
 export async function deleteStudioProductAction(id: string): Promise<{
   success: boolean;
   error?: string;
 }> {
-  const session = await auth();
-  checkPermission(session, "Product.Delete");
-  const actor = getActor(session);
+  try {
+    const session = await auth();
+    checkPermission(session, "Product.Delete");
+    const actor = getActor(session);
 
-  const productService = new ProductService();
-  await productService.delete(id, actor);
+    await new ProductService().delete(id, actor);
 
-  revalidatePath("/dashboard/products");
-  return { success: true };
+    revalidatePath("/dashboard/products");
+    return { success: true };
+  } catch (error: unknown) {
+    logger.error("deleteStudioProductAction failed", error, { id });
+    return { success: false, error: toActionError(error, "Failed to delete product") };
+  }
 }
 
 export async function getBrandsAction(): Promise<{
@@ -271,14 +399,18 @@ export async function getBrandsAction(): Promise<{
   data?: Array<{ id: string; name: string }>;
   error?: string;
 }> {
-  const session = await auth();
-  getActor(session);
+  try {
+    const session = await auth();
+    getActor(session);
 
-  const { BrandRepository } =
-    await import("@/features/catalog/repositories/classification-repository");
-  const repo = new BrandRepository();
-  const brands = await repo.find({});
-  return { success: true, data: brands.map((b: any) => ({ id: b.id, name: b.name })) };
+    const { BrandRepository } =
+      await import("@/features/catalog/repositories/classification-repository");
+    const brands = await new BrandRepository().find({});
+    return { success: true, data: brands.map((b) => ({ id: b.id, name: b.name })) };
+  } catch (error: unknown) {
+    logger.error("getBrandsAction failed", error);
+    return { success: false, error: toActionError(error, "Failed to load brands") };
+  }
 }
 
 export async function getCategoriesAction(): Promise<{
@@ -286,14 +418,18 @@ export async function getCategoriesAction(): Promise<{
   data?: Array<{ id: string; name: string }>;
   error?: string;
 }> {
-  const session = await auth();
-  getActor(session);
+  try {
+    const session = await auth();
+    getActor(session);
 
-  const { CategoryRepository } =
-    await import("@/features/catalog/repositories/classification-repository");
-  const repo = new CategoryRepository();
-  const categories = await repo.find({});
-  return { success: true, data: categories.map((c: any) => ({ id: c.id, name: c.name })) };
+    const { CategoryRepository } =
+      await import("@/features/catalog/repositories/classification-repository");
+    const categories = await new CategoryRepository().find({});
+    return { success: true, data: categories.map((c) => ({ id: c.id, name: c.name })) };
+  } catch (error: unknown) {
+    logger.error("getCategoriesAction failed", error);
+    return { success: false, error: toActionError(error, "Failed to load categories") };
+  }
 }
 
 export async function autoCalculateStudioPricingAction(input: {
@@ -374,18 +510,28 @@ export async function importFromUrlAction(rawUrl: string): Promise<{
   }
 }
 
-function mapStudioToCatalog(input: CreateStudioProductInput): Record<string, unknown> {
-  const p = input.pricing || {};
-  return {
+/**
+ * Projects the studio form onto the catalog domain payload.
+ *
+ * Only keys the studio actually supplied are emitted — on the edit path the schema is
+ * `.partial()`, and emitting `undefined` for an absent key used to overwrite stored
+ * values (tags, media and content sub-fields were being wiped on every save).
+ */
+function mapStudioToCatalog(
+  input: CreateStudioProductInput | UpdateStudioProductInput,
+): CatalogWritePayload {
+  const p = input.pricing;
+
+  const payload: Record<string, unknown> = {
     productType: input.productType,
     name: input.name,
     sku: input.sku,
+    slug: input.seo?.slug || undefined,
     shortDescription: input.shortDescription || undefined,
-    description:
-      (input as any).description || input.richDescription || input.shortDescription || undefined,
-    notice: (input as any).notice || undefined,
-    badges: (input as any).badges || [],
-    specifications: (input as any).specifications || [],
+    description: input.description || input.richDescription || input.shortDescription || undefined,
+    notice: input.notice || undefined,
+    badges: input.badges,
+    specifications: input.specifications,
     productModel: input.productModel || undefined,
     barcode: input.barcode || undefined,
     brandId: input.brandId || undefined,
@@ -397,24 +543,23 @@ function mapStudioToCatalog(input: CreateStudioProductInput): Record<string, unk
     trending: input.trending,
     flashSale: input.flashSale,
     newArrival: input.newArrival,
-    tags: input.tags || [],
-    costPrice: p.costPrice || undefined,
-    sellingPrice: p.sellingPrice || undefined,
-    retailPrice: p.sellingPrice || undefined,
-    wholesalePrice: p.wholesalePrice || undefined,
-    resellerPrice: p.resellerPrice || undefined,
-    comparePrice: p.comparePrice || undefined,
-    metaTitle: input.seo?.metaTitle || (input as any).metaTitle || input.name,
-    metaDescription:
-      input.seo?.metaDescription || (input as any).metaDescription || input.shortDescription || "",
-    variants: (input.variants || []).map((v: any) => ({
+    tags: input.tags,
+    // Consumed by ProductAutomationEngine for tier derivation; not persisted on the product doc.
+    costPrice: p?.costPrice || undefined,
+    sellingPrice: p?.sellingPrice || undefined,
+    wholesalePrice: p?.wholesalePrice || undefined,
+    resellerPrice: p?.resellerPrice || undefined,
+    comparePrice: p?.comparePrice || undefined,
+    metaTitle: input.seo?.metaTitle || input.name || undefined,
+    metaDescription: input.seo?.metaDescription || input.shortDescription || undefined,
+    variants: input.variants?.map((v) => ({
       id: v.id,
       name: v.name || [v.color, v.size, v.storage].filter(Boolean).join(" / "),
       attributes: v.attributes,
       sku: v.sku,
       priceAdjustment: v.priceAdjustment ?? 0,
       stock: v.stock ?? 0,
-      image: v.image || (v.images && v.images.length > 0 ? v.images[0] : undefined),
+      image: v.image || undefined,
       status: v.status || "active",
       isActive: v.isActive ?? true,
       color: v.color || undefined,
@@ -425,12 +570,12 @@ function mapStudioToCatalog(input: CreateStudioProductInput): Record<string, unk
       material: v.material || undefined,
       weight: v.weight,
     })),
-    media: (input.media || []).map((m: any) => ({
+    media: input.media?.map((m, index) => ({
       url: m.url,
       type: m.type || "image",
       isFeatured: m.isFeatured || false,
       altText: m.altText || undefined,
-      sortOrder: 0,
+      sortOrder: index,
     })),
     seo: input.seo
       ? {
@@ -440,11 +585,24 @@ function mapStudioToCatalog(input: CreateStudioProductInput): Record<string, unk
           ogImage: input.seo.ogImage || undefined,
         }
       : undefined,
-    content: {
-      richDescription: input.richDescription ? { html: input.richDescription } : undefined,
-      warrantyInformation: input.warranty || undefined,
-      returnPolicy: input.returnPolicy || undefined,
-      specifications: (input as any).specifications || [],
-    },
+    content: buildContentPatch(input),
   };
+
+  for (const key of Object.keys(payload)) {
+    if (payload[key] === undefined) delete payload[key];
+  }
+
+  return payload as CatalogWritePayload;
+}
+
+/** Builds the `content` sub-document, omitting it entirely when the studio sent nothing for it. */
+function buildContentPatch(
+  input: CreateStudioProductInput | UpdateStudioProductInput,
+): Record<string, unknown> | undefined {
+  const content: Record<string, unknown> = {};
+  if (input.richDescription) content.richDescription = { html: input.richDescription };
+  if (input.warranty) content.warrantyInformation = input.warranty;
+  if (input.returnPolicy) content.returnPolicy = input.returnPolicy;
+  if (input.specifications) content.specifications = input.specifications;
+  return Object.keys(content).length > 0 ? content : undefined;
 }

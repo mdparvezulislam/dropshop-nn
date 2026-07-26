@@ -19,8 +19,14 @@ export default function WebsiteError({
       <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
         সাময়িক গোলযোগ ঘটেছে (System Error)
       </h1>
+      {/* Never render error.message — internal details stay on the server. */}
       <p className="mt-2 text-xs sm:text-sm text-muted-foreground max-w-md leading-relaxed font-medium">
-        {error.message || "একটি অনাকাঙ্ক্ষিত ত্রুটি ঘটেছে। অনুগ্রহ করে পুনরায় চেষ্টা করুন।"}
+        একটি অনাকাঙ্ক্ষিত ত্রুটি ঘটেছে। অনুগ্রহ করে পুনরায় চেষ্টা করুন।
+        {error.digest && (
+          <span className="block mt-1 text-[10px] text-muted-foreground/70 font-mono">
+            রেফারেন্স: {error.digest}
+          </span>
+        )}
       </p>
       <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
         <Button

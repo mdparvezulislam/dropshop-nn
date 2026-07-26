@@ -165,7 +165,7 @@ export default function ProductActivityPage(): React.ReactElement {
           label="Archived"
           sublabel="আর্কাইভ"
           value={stats.archived ?? 0}
-          textColor="text-slate-400"
+          textColor="text-muted-foreground"
         />
         <StatCard
           icon={ImageOff}

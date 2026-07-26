@@ -28,7 +28,9 @@ function canAccessPath(role: string | null | undefined, pathname: string): boole
     r.includes("admin");
 
   if (pathname.startsWith("/dashboard")) {
-    return isStaff || r === "customer";
+    // Admin workspace is staff-only. Customers were previously allowed into
+    // every /dashboard page that lacked an explicit permission mapping.
+    return isStaff;
   }
   if (pathname.startsWith("/reseller")) {
     return isStaff || r.includes("reseller");
@@ -134,6 +136,8 @@ export const authConfig = {
         pathname.startsWith("/reseller") ||
         pathname.startsWith("/wholesale") ||
         pathname.startsWith("/supplier");
+      // Account area: any authenticated user, but never anonymous.
+      const isAccountArea = pathname.startsWith("/account");
 
       const role = (auth?.user as { role?: string } | undefined)?.role;
       const permissions = (auth?.user as { permissions?: string[] } | undefined)?.permissions;
@@ -152,6 +156,10 @@ export const authConfig = {
         }
 
         return true;
+      }
+
+      if (isAccountArea && !isLoggedIn) {
+        return false;
       }
 
       if (isAuthRoute && isLoggedIn) {

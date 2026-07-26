@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "@/features/public/styles/public-theme.css";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { SITE_URL } from "@/config/site";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,9 +16,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DropshopNN - Enterprise Logistics & Dropshipping Management Platform",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "DropshopNN — বাংলাদেশের অনলাইন শপ",
+    template: "%s | DropshopNN",
+  },
   description:
-    "Enterprise-grade dropshipping management, order ingestion, and logistics orchestration platform.",
+    "অরিজিনাল প্রোডাক্ট, পাইকারি ও খুচরা দামে — রিসেলার, হোলসেলার এবং ড্রপশিপারদের জন্য বাংলাদেশের অনলাইন শপ।",
 };
 
 const isBuildTime =
@@ -61,7 +66,15 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
+      {/* Extensions (password managers, anti-trackers) inject attributes such as
+          `bis_register` onto <body> before React hydrates, which otherwise reports a
+          hydration mismatch on every page load. */}
+      <body
+        className="min-h-full flex flex-col bg-background text-foreground"
+        suppressHydrationWarning
+      >
+        {/* Must stay the first node in <body>: it runs before any content is
+            painted, so the saved theme is applied with no flash. */}
         <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
         <ThemeProvider>{children}</ThemeProvider>
       </body>

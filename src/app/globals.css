@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @import "../features/public/styles/public-theme.css";
 
+/* Tailwind v4 defaults the `dark:` variant to `prefers-color-scheme`, which
+   ignores an explicit user choice. Bind it to the `.dark` class written by the
+   theme bootstrap script so `dark:` utilities follow the saved preference. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ============================================================
    DropshopNN Commerce OS — Centralized Design Token System
    Design Language: Warm Premium Amber Enterprise Commerce OS
@@ -458,7 +463,9 @@
   --studio-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.04);
 }
 
-[data-layout="studio"].dark {
+/* `.dark` lives on <html> while `data-layout` is on a nested element, so these
+   must be a descendant selector rather than a compound one. */
+.dark [data-layout="studio"] {
   --studio-bg: #0c0a09;
   --studio-card: #1c1917;
   --studio-card-hover: #292524;

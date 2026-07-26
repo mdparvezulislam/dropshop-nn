@@ -19,24 +19,73 @@ import { DEFAULT_CURRENCY } from "@/constants";
 import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 
+type ActorIdentity = { userId: string; role: string; memberships: string[] };
+
+/**
+ * SECURITY: identity always comes from the session — never from the client.
+ * Cart/checkout ids are opaque handles, so every id-taking action must prove
+ * the record belongs to the caller before reading or mutating it.
+ */
+async function requireActor(): Promise<ActorIdentity | null> {
+  const session = await auth();
+  const user = session?.user as
+    | { id?: string; role?: string; memberships?: string[] }
+    | undefined;
+  if (!user?.id) return null;
+  return {
+    userId: user.id,
+    role: (user.role ?? "").toLowerCase().replace(/\s+/g, "_"),
+    memberships: user.memberships ?? [],
+  };
+}
+
+function isStaff(actor: ActorIdentity): boolean {
+  return actor.role === "admin" || actor.role === "super_admin" || actor.role.includes("admin");
+}
+
+function actorOwnsCart(
+  cart: { userId?: string; resellerId?: string; wholesaleId?: string },
+  actor: ActorIdentity,
+): boolean {
+  if (isStaff(actor)) return true;
+  return (
+    cart.userId === actor.userId ||
+    cart.resellerId === actor.userId ||
+    cart.wholesaleId === actor.userId
+  );
+}
+
+const UNAUTHENTICATED = { success: false as const, error: "Authentication required" };
+const FORBIDDEN = { success: false as const, error: "Not found" };
+const GENERIC_ERROR = "Request could not be completed";
+
+/** Loads a cart only when the session user owns it. */
+async function loadOwnedCart(cartId: string, actor: ActorIdentity) {
+  const cart = await new CartService().getCart(cartId);
+  if (!cart || !actorOwnsCart(cart, actor)) return null;
+  return cart;
+}
+
 export async function getOrCreateCartAction(formData: unknown): Promise<{
   success: boolean;
   data?: Awaited<ReturnType<CartService["getOrCreateCart"]>>;
   error?: string;
 }> {
   try {
+    const actor = await requireActor();
+    if (!actor) return UNAUTHENTICATED;
+
     const validated = getActiveCartSchema.parse(formData);
     const service = new CartService();
+    // Client-supplied userId/resellerId are ignored — identity is the session.
     const result = await service.getOrCreateCart({
       type: validated.type as any,
-      sessionId: validated.sessionId,
-      userId: validated.userId,
-      resellerId: validated.resellerId,
+      userId: actor.userId,
     });
     return { success: true, data: result };
-  } catch (error: any) {
+  } catch (error) {
     logger.error("getOrCreateCartAction failed", error);
-    return { success: false, error: error.message };
+    return { success: false, error: GENERIC_ERROR };
   }
 }
 
@@ -46,19 +95,21 @@ export async function addCartItemAction(formData: unknown): Promise<{
   error?: string;
 }> {
   try {
+    const actor = await requireActor();
+    if (!actor) return UNAUTHENTICATED;
+
     const validated = addCartItemSchema.parse(formData);
     const service = new CartService();
 
     const cart = validated.cartId
-      ? await service.getCart(validated.cartId)
+      ? await loadOwnedCart(validated.cartId, actor)
       : await service.getOrCreateCart({
           type: validated.type as any,
-          sessionId: validated.sessionId,
-          userId: validated.userId,
-          resellerId: validated.resellerId,
+          userId: actor.userId,
         });
+    if (!cart) return FORBIDDEN;
 
-    const cartId = cart!.id;
+    const cartId = cart.id;
     const result = await service.addItem(
       cartId,
       {
@@ -77,9 +128,9 @@ export async function addCartItemAction(formData: unknown): Promise<{
 
     revalidatePath("/dashboard/checkout");
     return { success: true, data: result };
-  } catch (error: any) {
+  } catch (error) {
     logger.error("addCartItemAction failed", error);
-    return { success: false, error: error.message };
+    return { success: false, error: GENERIC_ERROR };
   }
 }
 
@@ -89,18 +140,22 @@ export async function updateCartItemAction(formData: unknown): Promise<{
   error?: string;
 }> {
   try {
+    const actor = await requireActor();
+    if (!actor) return UNAUTHENTICATED;
+
     const validated = updateCartItemSchema.parse(formData);
-    const service = new CartService();
-    const result = await service.updateItemQuantity(
+    if (!(await loadOwnedCart(validated.cartId, actor))) return FORBIDDEN;
+
+    const result = await new CartService().updateItemQuantity(
       validated.cartId,
       validated.itemIndex,
       validated.quantity,
     );
     revalidatePath("/dashboard/checkout");
     return { success: true, data: result };
-  } catch (error: any) {
+  } catch (error) {
     logger.error("updateCartItemAction failed", error);
-    return { success: false, error: error.message };
+    return { success: false, error: GENERIC_ERROR };
   }
 }
 
@@ -110,14 +165,18 @@ export async function removeCartItemAction(formData: unknown): Promise<{
   error?: string;
 }> {
   try {
+    const actor = await requireActor();
+    if (!actor) return UNAUTHENTICATED;
+
     const validated = removeCartItemSchema.parse(formData);
-    const service = new CartService();
-    const result = await service.removeItem(validated.cartId, validated.itemIndex);
+    if (!(await loadOwnedCart(validated.cartId, actor))) return FORBIDDEN;
+
+    const result = await new CartService().removeItem(validated.cartId, validated.itemIndex);
     revalidatePath("/dashboard/checkout");
     return { success: true, data: result };
-  } catch (error: any) {
+  } catch (error) {
     logger.error("removeCartItemAction failed", error);
-    return { success: false, error: error.message };
+    return { success: false, error: GENERIC_ERROR };
   }
 }
 
@@ -127,13 +186,16 @@ export async function clearCartAction(cartId: string): Promise<{
   error?: string;
 }> {
   try {
-    const service = new CartService();
-    const result = await service.clearCart(cartId);
+    const actor = await requireActor();
+    if (!actor) return UNAUTHENTICATED;
+    if (!(await loadOwnedCart(cartId, actor))) return FORBIDDEN;
+
+    const result = await new CartService().clearCart(cartId);
     revalidatePath("/dashboard/checkout");
     return { success: true, data: result };
-  } catch (error: any) {
+  } catch (error) {
     logger.error("clearCartAction failed", error);
-    return { success: false, error: error.message };
+    return { success: false, error: GENERIC_ERROR };
   }
 }
 
@@ -143,14 +205,18 @@ export async function startCheckoutAction(formData: unknown): Promise<{
   error?: string;
 }> {
   try {
+    const actor = await requireActor();
+    if (!actor) return UNAUTHENTICATED;
+
     const validated = startCheckoutSchema.parse(formData);
-    const service = new CheckoutService();
-    const result = await service.startCheckout(validated.cartId);
+    if (!(await loadOwnedCart(validated.cartId, actor))) return FORBIDDEN;
+
+    const result = await new CheckoutService().startCheckout(validated.cartId);
     revalidatePath("/dashboard/checkout");
     return { success: true, data: result };
-  } catch (error: any) {
+  } catch (error) {
     logger.error("startCheckoutAction failed", error);
-    return { success: false, error: error.message };
+    return { success: false, error: GENERIC_ERROR };
   }
 }
 
@@ -160,14 +226,20 @@ export async function setCheckoutShippingAction(formData: unknown): Promise<{
   error?: string;
 }> {
   try {
+    const actor = await requireActor();
+    if (!actor) return UNAUTHENTICATED;
+
     const validated = submitCheckoutSchema.parse(formData);
     const service = new CheckoutService();
+    const existing = await service.getSession(validated.checkoutId);
+    if (!existing || !(await loadOwnedCart(existing.cartId, actor))) return FORBIDDEN;
+
     const result = await service.setShipping(validated.checkoutId, validated.shipping);
     revalidatePath("/dashboard/checkout");
     return { success: true, data: result };
-  } catch (error: any) {
+  } catch (error) {
     logger.error("setCheckoutShippingAction failed", error);
-    return { success: false, error: error.message };
+    return { success: false, error: GENERIC_ERROR };
   }
 }
 
@@ -204,12 +276,18 @@ export async function getCheckoutSessionAction(checkoutId: string): Promise<{
   error?: string;
 }> {
   try {
-    const service = new CheckoutService();
-    const result = await service.getSession(checkoutId);
+    const actor = await requireActor();
+    if (!actor) return UNAUTHENTICATED;
+
+    const result = await new CheckoutService().getSession(checkoutId);
+    // Same response for "missing" and "not yours" — no existence oracle.
+    if (!result || !(await loadOwnedCart(result.cartId, actor))) {
+      return { success: true, data: null };
+    }
     return { success: true, data: result };
-  } catch (error: any) {
+  } catch (error) {
     logger.error("getCheckoutSessionAction failed", error);
-    return { success: false, error: error.message };
+    return { success: false, error: GENERIC_ERROR };
   }
 }
 
@@ -219,12 +297,17 @@ export async function getOrderDraftAction(draftId: string): Promise<{
   error?: string;
 }> {
   try {
-    const service = new CheckoutService();
-    const result = await service.getDraft(draftId);
+    const actor = await requireActor();
+    if (!actor) return UNAUTHENTICATED;
+
+    const result = await new CheckoutService().getDraft(draftId);
+    if (!result || !(await loadOwnedCart(result.cartId, actor))) {
+      return { success: true, data: null };
+    }
     return { success: true, data: result };
-  } catch (error: any) {
+  } catch (error) {
     logger.error("getOrderDraftAction failed", error);
-    return { success: false, error: error.message };
+    return { success: false, error: GENERIC_ERROR };
   }
 }
 
@@ -291,12 +374,28 @@ export async function completeRoleCheckoutAction(formData: unknown): Promise<{
     const cartService = new CartService();
     const checkoutService = new CheckoutService();
 
+    // Price overrides are a B2B feature: only authenticated reseller/
+    // wholesaler/admin sessions may use them, and never below the
+    // server-resolved price (mark-up only — the zero-price exploit is closed).
+    const session = await auth();
+    const sessionUser = session?.user as
+      { id?: string; role?: string; memberships?: string[] } | undefined;
+    const sessionRole = (sessionUser?.role ?? "").toLowerCase().replace(/\s+/g, "_");
+    const canOverridePrices = Boolean(
+      sessionUser?.id &&
+      (sessionRole === "admin" ||
+        sessionRole === "super_admin" ||
+        (sessionUser.memberships ?? []).some((m) => m === "reseller" || m === "wholesaler")),
+    );
+
+    // Order attribution comes from the session when present; anonymous callers
+    // cannot claim another user's identity.
     const cart = await cartService.getOrCreateCart({
       type: validated.type,
       sessionId: validated.sessionId,
-      userId: validated.userId,
-      resellerId: validated.resellerId,
-      wholesaleId: validated.wholesaleId,
+      userId: sessionUser?.id ?? undefined,
+      resellerId: sessionUser?.id ? validated.resellerId : undefined,
+      wholesaleId: sessionUser?.id ? validated.wholesaleId : undefined,
       currency: DEFAULT_CURRENCY,
     });
 
@@ -319,7 +418,7 @@ export async function completeRoleCheckoutAction(formData: unknown): Promise<{
         validated.type,
       );
 
-      if (item.unitPriceOverride !== undefined) {
+      if (item.unitPriceOverride !== undefined && canOverridePrices) {
         const fresh = await cartService.getCart(cart.id);
         if (fresh) {
           const idx = fresh.items.findIndex(
@@ -330,7 +429,8 @@ export async function completeRoleCheckoutAction(formData: unknown): Promise<{
           if (idx >= 0) {
             const target = fresh.items[idx];
             const cost = target.profitPreview?.costBasis ?? 0;
-            const override = item.unitPriceOverride;
+            // Floor at the server-resolved price: overrides may only mark UP.
+            const override = Math.max(item.unitPriceOverride, target.resolvedPrice);
             fresh.items[idx] = {
               ...target,
               resolvedPrice: override,
@@ -367,7 +467,7 @@ export async function completeRoleCheckoutAction(formData: unknown): Promise<{
       deliveryNote: `payment:${validated.paymentMethod};deliveryCharge:${validated.deliveryCharge}`,
     };
 
-    const result = await checkoutService.fullCheckout(cart.id, shipping, validated.userId);
+    const result = await checkoutService.fullCheckout(cart.id, shipping, sessionUser?.id);
 
     revalidatePath("/reseller/orders");
     revalidatePath("/wholesale/orders");

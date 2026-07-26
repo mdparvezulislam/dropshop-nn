@@ -161,7 +161,7 @@ export function StudioRightSidebar({
             </Button>
             <Button
               size="sm"
-              className="w-full justify-center gap-1.5 font-extrabold shadow-xs bg-amber-500 hover:bg-amber-600 text-slate-950"
+              className="w-full justify-center gap-1.5 font-extrabold shadow-xs bg-amber-500 hover:bg-amber-600 text-amber-950 dark:text-amber-950"
               onClick={onPublish}
               disabled={saving}
             >

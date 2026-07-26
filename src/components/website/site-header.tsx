@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
 import { Menu, Search, ChevronDown, Store } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { AnnouncementBar } from "./announcement-bar";
@@ -12,6 +11,7 @@ import { SearchInput } from "./search-input";
 import { AccountMenu } from "./account-menu";
 import { CartButton } from "./cart-button";
 import { Button } from "@/components/ui/button";
+import type { PublicCategoryInfo } from "@/features/catalog/domain/public-catalog-types";
 
 const BANGLA_NAV_ITEMS = [
   { label: "হোম", href: "/" },
@@ -21,22 +21,29 @@ const BANGLA_NAV_ITEMS = [
   { label: "ব্র্যান্ড", href: "/brands" },
   { label: "ব্লগ", href: "/blog" },
   { label: "যোগাযোগ", href: "/contact" },
-];
+] as const;
 
-export function SiteHeader() {
+const MEGA_MENU_ID = "site-mega-menu";
+
+export interface SiteHeaderProps {
+  /** Real taxonomy from the server layout; empty when the fetch failed. */
+  categories?: PublicCategoryInfo[];
+}
+
+export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactElement {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [activeMega, setActiveMega] = useState<string | null>(null);
+  const [megaOpen, setMegaOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
+    const onScroll = (): void => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
+    const onKeyDown = (e: KeyboardEvent): void => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         setSearchOpen(true);
@@ -61,16 +68,17 @@ export function SiteHeader() {
             {/* Mobile menu trigger */}
             <button
               type="button"
-              className="lg:hidden -ml-1 p-2 text-slate-800 hover:text-slate-900 transition-colors"
+              className="lg:hidden -ml-1 p-2 text-slate-800 hover:text-slate-900 transition-colors focus-visible:outline-2 focus-visible:outline-amber-500 rounded-lg"
               onClick={() => setMobileOpen(true)}
-              aria-label="Open menu"
+              aria-label="মেনু খুলুন"
+              aria-haspopup="dialog"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-5 w-5" aria-hidden />
             </button>
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-white font-black text-xl shadow-md group-hover:scale-105 transition-transform">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-slate-950 font-black text-xl shadow-md group-hover:scale-105 transition-transform">
                 D
               </div>
               <div className="flex flex-col">
@@ -84,97 +92,114 @@ export function SiteHeader() {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav
-              className="hidden xl:flex items-center gap-6 ml-6"
-              role="navigation"
-              aria-label="Main navigation"
-            >
-              {BANGLA_NAV_ITEMS.map((item) => (
-                <div
-                  key={item.label}
-                  className="relative group"
-                  onMouseEnter={() => item.hasMega && setActiveMega(item.label)}
-                  onMouseLeave={() => setActiveMega(null)}
-                >
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      "flex items-center gap-1 py-2 text-xs sm:text-sm font-black text-slate-800 hover:text-amber-600 transition-colors",
-                    )}
+            <nav className="hidden xl:flex items-center gap-6 ml-6" aria-label="প্রধান নেভিগেশন">
+              {BANGLA_NAV_ITEMS.map((item) =>
+                "hasMega" in item && item.hasMega ? (
+                  <div
+                    key={item.label}
+                    className="relative"
+                    onMouseEnter={() => setMegaOpen(true)}
+                    onMouseLeave={() => setMegaOpen(false)}
+                    onBlur={(e) => {
+                      // Close only when focus leaves the trigger AND the panel.
+                      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+                        setMegaOpen(false);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Escape") setMegaOpen(false);
+                    }}
                   >
-                    {item.label}
-                    {item.hasMega && (
+                    <button
+                      type="button"
+                      aria-expanded={megaOpen}
+                      aria-haspopup="true"
+                      aria-controls={MEGA_MENU_ID}
+                      onFocus={() => setMegaOpen(true)}
+                      onClick={() => setMegaOpen((open) => !open)}
+                      className="flex items-center gap-1 py-2 text-xs sm:text-sm font-black text-slate-800 hover:text-amber-600 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 rounded"
+                    >
+                      {item.label}
                       <ChevronDown
+                        aria-hidden
                         className={cn(
                           "h-3.5 w-3.5 text-slate-500 transition-transform duration-200",
-                          activeMega === item.label && "rotate-180 text-amber-600",
+                          megaOpen && "rotate-180 text-amber-600",
                         )}
                       />
-                    )}
-                  </Link>
-                  {item.hasMega && (
+                    </button>
                     <MegaMenu
-                      isOpen={activeMega === item.label}
-                      onClose={() => setActiveMega(null)}
+                      id={MEGA_MENU_ID}
+                      isOpen={megaOpen}
+                      onClose={() => setMegaOpen(false)}
+                      categories={categories}
                     />
-                  )}
-                </div>
-              ))}
+                  </div>
+                ) : (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    className="py-2 text-xs sm:text-sm font-black text-slate-800 hover:text-amber-600 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 rounded"
+                  >
+                    {item.label}
+                  </Link>
+                ),
+              )}
             </nav>
 
             <div className="flex-1" />
 
             {/* Search + Action Buttons */}
             <div className="flex items-center gap-3">
-              {/* Enterprise Search Input Trigger */}
               <button
                 type="button"
                 onClick={() => setSearchOpen(true)}
-                className="hidden lg:flex items-center gap-2.5 px-3.5 py-2 text-xs font-bold text-slate-600 bg-slate-100/80 border border-slate-300/80 rounded-xl hover:bg-white hover:border-amber-500 hover:text-slate-900 transition-all w-52 xl:w-64 shadow-2xs group"
+                className="hidden lg:flex items-center gap-2.5 px-3.5 py-2 text-xs font-bold text-slate-600 bg-slate-100/80 border border-slate-300/80 rounded-xl hover:bg-white hover:border-amber-500 hover:text-slate-900 transition-all w-52 xl:w-64 shadow-2xs group focus-visible:outline-2 focus-visible:outline-amber-500"
               >
-                <Search className="h-3.5 w-3.5 shrink-0 text-slate-500 group-hover:text-amber-500 transition-colors" />
+                <Search
+                  className="h-3.5 w-3.5 shrink-0 text-slate-500 group-hover:text-amber-500 transition-colors"
+                  aria-hidden
+                />
                 <span className="truncate">প্রোডাক্ট সার্চ করুন...</span>
                 <span className="ml-auto text-[10px] font-mono font-bold text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-300">
                   ⌘K
                 </span>
               </button>
 
-              {/* Reseller Become CTA (Golden Amber Button) */}
               <Link href="/become-reseller" className="hidden sm:inline-flex">
                 <Button
                   size="sm"
-                  className="h-9 px-4 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs"
+                  className="h-9 px-4 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xs"
                 >
-                  <Store className="h-3.5 w-3.5 mr-1.5" />
+                  <Store className="h-3.5 w-3.5 mr-1.5" aria-hidden />
                   রিসেলার হন
                 </Button>
               </Link>
 
-              {/* Wholesale Login Link */}
               <Link
                 href="/become-wholesale-partner"
-                className="hidden md:inline-block text-xs font-extrabold text-slate-800 hover:text-amber-600 transition-colors px-2 py-1"
+                className="hidden md:inline-block text-xs font-extrabold text-slate-800 hover:text-amber-600 transition-colors px-2 py-1 focus-visible:outline-2 focus-visible:outline-amber-500 rounded"
               >
-                হোলসেলার লগইন
+                হোলসেলার হন
               </Link>
 
-              {/* Cart Button */}
               <CartButton />
 
-              {/* Account Menu */}
               <AccountMenu />
             </div>
           </div>
         </div>
       </header>
 
-      <AnimatePresence>
-        {mobileOpen && <MobileNav isOpen={mobileOpen} onClose={() => setMobileOpen(false)} />}
-      </AnimatePresence>
+      {mobileOpen && (
+        <MobileNav
+          isOpen={mobileOpen}
+          onClose={() => setMobileOpen(false)}
+          categories={categories}
+        />
+      )}
 
-      <AnimatePresence>
-        {searchOpen && <SearchInput open={searchOpen} onClose={() => setSearchOpen(false)} />}
-      </AnimatePresence>
+      {searchOpen && <SearchInput open={searchOpen} onClose={() => setSearchOpen(false)} />}
     </>
   );
 }

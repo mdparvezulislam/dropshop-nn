@@ -1,10 +1,16 @@
 "use client";
 
 import { cn } from "@/lib/utils/cn";
-import { usePermissions } from "@/hooks/use-permissions";
 
+/**
+ * All prices are BDT major units, resolved and role-gated SERVER-side.
+ * This component renders exactly what it receives: tier prices are only
+ * present in props when the server decided the viewer may see them.
+ */
 export interface PriceDisplayProps {
-  retailPrice: number; // in poisha or BDT
+  retailPrice: number;
+  /** Active promotional price (already validated < retailPrice server-side). */
+  campaignPrice?: number;
   resellerPrice?: number;
   wholesalePrice?: number;
   costPrice?: number;
@@ -16,6 +22,7 @@ export interface PriceDisplayProps {
 
 export function PriceDisplay({
   retailPrice,
+  campaignPrice,
   resellerPrice,
   wholesalePrice,
   costPrice,
@@ -24,28 +31,33 @@ export function PriceDisplay({
   showLabel = true,
   className,
 }: PriceDisplayProps) {
-  const { userRole } = usePermissions();
-  const symbol = currency === "BDT" ? "৳" : "$";
+  const symbol = currency === "BDT" ? "৳" : currency;
 
-  // Normalize poisha to BDT if > 10000
-  const normalizedRetail = retailPrice > 10000 ? retailPrice / 100 : retailPrice;
-  const normalizedCompare =
-    comparePrice && comparePrice > 10000 ? comparePrice / 100 : comparePrice;
-  const normalizedReseller =
-    resellerPrice && resellerPrice > 10000 ? resellerPrice / 100 : resellerPrice;
-  const normalizedWholesale =
-    wholesalePrice && wholesalePrice > 10000 ? wholesalePrice / 100 : wholesalePrice;
-  const normalizedCost = costPrice && costPrice > 10000 ? costPrice / 100 : costPrice;
+  const currentPrice = campaignPrice ?? retailPrice;
+  const strikePrice =
+    campaignPrice !== undefined
+      ? retailPrice
+      : comparePrice !== undefined && comparePrice > retailPrice
+        ? comparePrice
+        : undefined;
 
-  const hasDiscount = normalizedCompare != null && normalizedCompare > normalizedRetail;
+  const hasDiscount = strikePrice !== undefined && strikePrice > currentPrice;
   const discountPercent = hasDiscount
-    ? Math.round(((normalizedCompare - normalizedRetail) / normalizedCompare) * 100)
+    ? Math.round(((strikePrice - currentPrice) / strikePrice) * 100)
     : 0;
 
   const formatPrice = (price: number) =>
     `${symbol}${price.toLocaleString("en-BD", { maximumFractionDigits: 0 })}`;
 
-  const renderPrice = (label: string, price: number, isCurrent = false) => (
+  if (currentPrice <= 0) {
+    return (
+      <div className={cn("text-sm font-bold text-slate-500", className)}>
+        দামের জন্য যোগাযোগ করুন
+      </div>
+    );
+  }
+
+  const renderRow = (label: string, price: number, isCurrent = false) => (
     <div className={cn("flex items-center justify-between gap-2", isCurrent && "font-black")}>
       {showLabel && <span className="text-xs text-slate-500 font-bold">{label}</span>}
       <span
@@ -61,50 +73,22 @@ export function PriceDisplay({
     </div>
   );
 
-  if (userRole === "admin" || userRole === "super_admin") {
+  const hasTierRows =
+    costPrice !== undefined || resellerPrice !== undefined || wholesalePrice !== undefined;
+
+  if (hasTierRows) {
     return (
       <div className={cn("space-y-1", className)}>
-        {normalizedCost != null && renderPrice("Cost", normalizedCost)}
-        {renderPrice("Retail", normalizedRetail, true)}
-        {normalizedReseller != null && renderPrice("Reseller", normalizedReseller)}
-        {normalizedWholesale != null && renderPrice("Wholesale", normalizedWholesale)}
+        {costPrice !== undefined && renderRow("Cost", costPrice)}
+        {renderRow("Retail", currentPrice, true)}
+        {resellerPrice !== undefined && renderRow("Reseller", resellerPrice)}
+        {wholesalePrice !== undefined && renderRow("Wholesale", wholesalePrice)}
         {hasDiscount && (
           <div className="flex items-center gap-1.5 text-xs text-red-600 font-bold">
             <span className="font-black">-{discountPercent}%</span>
-            <span className="line-through text-slate-400">{formatPrice(normalizedCompare!)}</span>
+            <span className="line-through text-slate-400">{formatPrice(strikePrice)}</span>
           </div>
         )}
-      </div>
-    );
-  }
-
-  if (userRole === "reseller" && normalizedReseller != null) {
-    return (
-      <div className={cn("space-y-1", className)}>
-        {renderPrice("Your Price", normalizedReseller, true)}
-        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500">
-          <span className="line-through text-slate-400">{formatPrice(normalizedRetail)}</span>
-          <span className="text-emerald-700 font-extrabold">
-            Save {formatPrice(normalizedRetail - normalizedReseller)}
-          </span>
-        </div>
-        {hasDiscount && discountPercent > 0 && (
-          <span className="inline-block text-[10px] font-black text-red-600 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded">
-            -{discountPercent}%
-          </span>
-        )}
-      </div>
-    );
-  }
-
-  if (userRole === "wholesaler" && normalizedWholesale != null) {
-    return (
-      <div className={cn("space-y-1", className)}>
-        {renderPrice("Wholesale", normalizedWholesale, true)}
-        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500">
-          <span className="line-through text-slate-400">{formatPrice(normalizedRetail)}</span>
-          <span className="text-emerald-700 font-extrabold">Wholesale discount applied</span>
-        </div>
       </div>
     );
   }
@@ -113,12 +97,17 @@ export function PriceDisplay({
     <div className={cn("space-y-0.5", className)}>
       <div className="flex items-baseline gap-2">
         <span className="text-sm sm:text-base font-black text-slate-900 tabular-nums">
-          {formatPrice(normalizedRetail)}
+          {formatPrice(currentPrice)}
         </span>
         {hasDiscount && (
-          <span className="text-xs font-bold line-through text-slate-400 tabular-nums">
-            {formatPrice(normalizedCompare!)}
-          </span>
+          <>
+            <span className="text-xs font-bold line-through text-slate-400 tabular-nums">
+              {formatPrice(strikePrice)}
+            </span>
+            <span className="text-[10px] font-black text-red-600 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded">
+              -{discountPercent}%
+            </span>
+          </>
         )}
       </div>
     </div>

@@ -1,26 +1,10 @@
-"use client";
+import type { ReactNode } from "react";
+import { WholesaleLayoutClient } from "./layout-client";
 
-import { Warehouse } from "lucide-react";
-import { WorkspaceLayout } from "@/components/workspace/workspace-layout";
-import { WORKSPACE_SHELLS } from "@/components/workspace/workspace-registry";
+// Role-gated workspace — always rendered per-request, never statically
+// exported. (Segment config must live in a server file to be honored.)
+export const dynamic = "force-dynamic";
 
-export default function WholesaleLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}): React.ReactElement {
-  return (
-    <WorkspaceLayout
-      config={WORKSPACE_SHELLS.wholesale}
-      workspaceIcon={<Warehouse className="h-4 w-4" />}
-      userMenuItems={[
-        { label: "Account", href: "/account" },
-        { label: "Settings", href: "/wholesale/settings" },
-        { label: "Switch workspace", href: "/dashboard" },
-        { label: "Sign out", destructive: true },
-      ]}
-    >
-      {children}
-    </WorkspaceLayout>
-  );
+export default function WholesaleLayout({ children }: { children: ReactNode }): ReactNode {
+  return <WholesaleLayoutClient>{children}</WholesaleLayoutClient>;
 }

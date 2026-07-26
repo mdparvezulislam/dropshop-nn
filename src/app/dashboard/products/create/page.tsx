@@ -152,7 +152,7 @@ export default function CreateProductStudioPage(): React.ReactElement {
               <span className="font-bold block">
                 Unsaved Local Draft Found (খসড়া তথ্য পাওয়া গেছে)
               </span>
-              <span className="text-amber-600 dark:text-slate-400">
+              <span className="text-amber-600 dark:text-amber-300/80">
                 Would you like to restore your previously edited product details?
               </span>
             </div>
@@ -197,12 +197,12 @@ export default function CreateProductStudioPage(): React.ReactElement {
         {header}
         <div className="flex-1 mx-auto w-full max-w-[94rem] px-3 sm:px-6 lg:px-8 py-5">
           {/* Mode Switcher */}
-          <div className="flex items-center justify-between mb-5 p-3 bg-muted dark:bg-slate-900 border border-border dark:border-slate-800 rounded-xl">
-            <div className="flex items-center gap-1 bg-card dark:bg-slate-950 p-1 rounded-lg border border-border dark:border-slate-800">
+          <div className="flex items-center justify-between mb-5 p-3 bg-muted border border-border rounded-xl">
+            <div className="flex items-center gap-1 bg-card p-1 rounded-lg border border-border">
               <button
                 type="button"
                 onClick={() => setMode("quick")}
-                className="px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 bg-amber-500 text-white shadow-md"
+                className="px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 bg-amber-500 text-amber-950 shadow-md"
               >
                 <Zap className="w-3.5 h-3.5" />
                 <span>Quick Create (6 Core Fields)</span>
@@ -250,8 +250,8 @@ export default function CreateProductStudioPage(): React.ReactElement {
 
       <div className="mx-auto w-full max-w-[94rem] px-3 sm:px-6 lg:px-8 pt-5">
         {/* Mode Switcher + Preview */}
-        <div className="flex items-center justify-between mb-5 p-3 bg-muted dark:bg-slate-900 border border-border dark:border-slate-800 rounded-xl">
-          <div className="flex items-center gap-1 bg-card dark:bg-slate-950 p-1 rounded-lg border border-border dark:border-slate-800">
+        <div className="flex items-center justify-between mb-5 p-3 bg-muted border border-border rounded-xl">
+          <div className="flex items-center gap-1 bg-card p-1 rounded-lg border border-border">
             <button
               type="button"
               onClick={() => setMode("quick")}
@@ -263,7 +263,7 @@ export default function CreateProductStudioPage(): React.ReactElement {
             <button
               type="button"
               onClick={() => setMode("advanced")}
-              className="px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 bg-amber-500 text-white shadow-md"
+              className="px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 bg-amber-500 text-amber-950 shadow-md"
             >
               <Sliders className="w-3.5 h-3.5" />
               <span>Advanced Mode (ফুল স্টুডিও)</span>
@@ -384,8 +384,8 @@ export default function CreateProductStudioPage(): React.ReactElement {
             variants={form.variants as any}
             onChange={(vars) => update("variants", vars)}
             baseSku={form.sku}
-            basePrice={parseFloat(form.sellingPrice) || 1200}
-            baseCost={parseFloat(form.costPrice) || 800}
+            basePrice={parseFloat(form.sellingPrice) || 0}
+            baseCost={parseFloat(form.costPrice) || 0}
           />
         </StudioTabPanel>
 

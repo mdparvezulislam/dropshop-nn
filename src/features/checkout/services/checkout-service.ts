@@ -246,12 +246,16 @@ export class CheckoutService {
 
       const resolvedPrices = session.resolvedPrices;
       const subtotal = resolvedPrices.reduce((sum, p) => sum + p.totalPrice, 0);
-      const grandTotal = subtotal;
+      // Delivery charge is part of the order total — never smuggled through
+      // notes, never dropped. Stored in minor units on the shipping info.
+      const shippingTotal = session.shipping?.deliveryCharge ?? 0;
+      const grandTotal = subtotal + shippingTotal;
 
       const totals: CheckoutTotals = {
         subtotal,
         discountTotal: 0,
         taxTotal: 0,
+        shippingTotal,
         grandTotal,
         currency: cart.currency,
       };
@@ -261,12 +265,13 @@ export class CheckoutService {
         return sum + (resolved ? resolved.unitPrice * item.quantity : 0);
       }, 0);
 
+      // Shipping is pass-through, not margin — profit math uses subtotal.
       const profitPreview: CheckoutProfitPreview = {
         totalCostBasis,
-        totalRevenue: grandTotal,
-        totalProfit: grandTotal - totalCostBasis,
+        totalRevenue: subtotal,
+        totalProfit: subtotal - totalCostBasis,
         averageMargin:
-          totalCostBasis > 0 ? ((grandTotal - totalCostBasis) / totalCostBasis) * 100 : 0,
+          totalCostBasis > 0 ? ((subtotal - totalCostBasis) / totalCostBasis) * 100 : 0,
       };
 
       const draft = await this.orderDraftRepository.create({

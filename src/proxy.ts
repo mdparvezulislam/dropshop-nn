@@ -9,6 +9,7 @@ export const config = {
     "/reseller/:path*",
     "/wholesale/:path*",
     "/supplier/:path*",
+    "/account/:path*",
     "/auth/:path*",
   ],
 };

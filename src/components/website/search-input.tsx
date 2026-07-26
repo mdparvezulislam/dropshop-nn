@@ -1,38 +1,39 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useCallback, useEffect, useId, useRef, useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { Search, X, TrendingUp, Clock, ArrowRight, Package } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight, Clock, Loader2, Package, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { PRODUCT_IMAGE_PLACEHOLDER } from "@/config/site";
+import { searchAutocompleteAction } from "@/features/catalog/actions/public-actions";
 
 const RECENT_STORAGE_KEY = "dropshopnn_recent_searches";
 const MAX_RECENT = 5;
-const TRENDING_SEARCHES = [
-  "wireless headphones",
-  "smart watch",
-  "phone case",
-  "men t-shirt",
-  "women bag",
-  "led light",
-  "sneakers",
-  "bluetooth speaker",
-];
 
 interface AutocompleteSuggestion {
   type: "product" | "category" | "brand" | "suggestion";
   label: string;
   href?: string;
   image?: string;
+  /** BDT, only for product suggestions with a configured price. */
+  price?: number;
 }
+
+const TYPE_LABELS: Record<AutocompleteSuggestion["type"], string> = {
+  product: "প্রোডাক্ট",
+  category: "ক্যাটাগরি",
+  brand: "ব্র্যান্ড",
+  suggestion: "সার্চ",
+};
 
 export interface SearchInputProps {
   open: boolean;
   onClose: () => void;
 }
 
-function getRecentSearches(): string[] {
+function readRecentSearches(): string[] {
   try {
     const raw = sessionStorage.getItem(RECENT_STORAGE_KEY);
     return raw ? (JSON.parse(raw) as string[]) : [];
@@ -41,34 +42,50 @@ function getRecentSearches(): string[] {
   }
 }
 
-function addRecentSearch(query: string) {
+function addRecentSearch(query: string): void {
   try {
-    const recent = getRecentSearches().filter((s) => s !== query);
+    const recent = readRecentSearches().filter((s) => s !== query);
     recent.unshift(query);
     sessionStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(recent.slice(0, MAX_RECENT)));
   } catch {
-    console.info("Storage unavailable");
+    // Storage unavailable (private mode etc.) — recents are best-effort only.
   }
 }
 
-export function SearchInput({ open, onClose }: SearchInputProps) {
+function formatBdt(value: number): string {
+  return `৳${value.toLocaleString("en-BD", { maximumFractionDigits: 0 })}`;
+}
+
+export function SearchInput({ open, onClose }: SearchInputProps): ReactElement | null {
   const router = useRouter();
+  const listboxId = useId();
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<AutocompleteSuggestion[]>([]);
-  const [recentSearches] = useState<string[]>(getRecentSearches);
+  // Initialized empty and read in an effect — sessionStorage must never be
+  // touched during render (hydration mismatch risk).
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const requestSeqRef = useRef(0);
 
-  const allSuggestions = suggestions.length > 0 ? suggestions : [];
   const showRecent = query.trim().length < 2;
 
+  // Open: remember the invoker, load recents, focus the input.
+  // Close/unmount: restore focus to the invoker.
   useEffect(() => {
-    if (open) {
-      setTimeout(() => inputRef.current?.focus(), 50);
-    }
+    if (!open) return;
+    previousFocusRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setRecentSearches(readRecentSearches());
+    const timer = setTimeout(() => inputRef.current?.focus(), 50);
+    return () => {
+      clearTimeout(timer);
+      previousFocusRef.current?.focus();
+    };
   }, [open]);
 
   useEffect(() => {
@@ -76,66 +93,66 @@ export function SearchInput({ open, onClose }: SearchInputProps) {
       setQuery("");
       setSuggestions([]);
       setSelectedIndex(-1);
+      setLoading(false);
     }
   }, [open]);
 
   useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent): void => {
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [onClose]);
+  }, [open, onClose]);
 
-  const fetchSuggestions = useCallback(async (q: string) => {
+  const fetchSuggestions = useCallback(async (q: string): Promise<void> => {
+    const seq = ++requestSeqRef.current;
     if (q.trim().length < 2) {
       setSuggestions([]);
+      setLoading(false);
       return;
     }
-
     setLoading(true);
     try {
-      const { searchAutocompleteAction } =
-        await import("@/features/catalog/actions/public-actions");
       const res = await searchAutocompleteAction(q);
-      if (res.success && res.data) {
+      if (seq !== requestSeqRef.current) return;
+      if (res.success) {
         const items: AutocompleteSuggestion[] = [];
-
         for (const p of res.data.products) {
           items.push({
             type: "product",
             label: p.name,
             href: `/product/${p.slug}`,
-            image: p.image,
+            image: p.image || undefined,
+            price: p.price > 0 ? p.price : undefined,
           });
         }
-
         for (const c of res.data.categories) {
           items.push({ type: "category", label: c.name, href: `/category/${c.slug}` });
         }
-
         for (const b of res.data.brands) {
-          items.push({ type: "brand", label: b.name, href: `/brand/${b.slug}` });
+          items.push({ type: "brand", label: b.name, href: `/brands/${b.slug}` });
         }
-
         for (const s of res.data.suggestions) {
           if (!items.some((i) => i.label === s)) {
             items.push({ type: "suggestion", label: s });
           }
         }
-
         setSuggestions(items.slice(0, 10));
+      } else {
+        setSuggestions([]);
       }
     } catch {
-      setSuggestions([]);
+      if (seq === requestSeqRef.current) setSuggestions([]);
     } finally {
-      setLoading(false);
+      if (seq === requestSeqRef.current) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => fetchSuggestions(query), 250);
+    debounceRef.current = setTimeout(() => void fetchSuggestions(query), 250);
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
@@ -143,10 +160,10 @@ export function SearchInput({ open, onClose }: SearchInputProps) {
 
   const visibleItems: AutocompleteSuggestion[] = showRecent
     ? recentSearches.map((s) => ({ type: "suggestion", label: s }))
-    : allSuggestions;
+    : suggestions;
 
   const handleSubmit = useCallback(
-    (q: string) => {
+    (q: string): void => {
       if (!q.trim()) return;
       addRecentSearch(q.trim());
       onClose();
@@ -155,7 +172,7 @@ export function SearchInput({ open, onClose }: SearchInputProps) {
     [onClose, router],
   );
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent): void => {
     if (e.key === "ArrowDown") {
       e.preventDefault();
       setSelectedIndex((prev) => (prev < visibleItems.length - 1 ? prev + 1 : 0));
@@ -191,34 +208,27 @@ export function SearchInput({ open, onClose }: SearchInputProps) {
 
   if (!open) return null;
 
+  const optionId = (index: number): string => `${listboxId}-option-${index}`;
+
   return (
     <>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.15 }}
+      <div
         className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
         onClick={onClose}
+        aria-hidden
       />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96, y: -8 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.96, y: -8 }}
-        transition={{ duration: 0.15, ease: "easeOut" }}
-        className="fixed left-1/2 top-[15%] z-[61] w-full max-w-lg -translate-x-1/2"
-      >
-        <div className="mx-4 rounded-xl border border-border/60 bg-card shadow-2xl overflow-hidden">
-          <div className="flex items-center gap-3 px-4 border-b border-border/40">
+      <div className="fixed left-1/2 top-[15%] z-[61] w-full max-w-lg -translate-x-1/2">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="প্রোডাক্ট সার্চ"
+          className="mx-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl"
+        >
+          <div className="flex items-center gap-3 border-b border-slate-200 px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-amber-500">
             {loading ? (
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 0.8, ease: "linear" }}
-              >
-                <Search className="h-4 w-4 text-foreground/40 shrink-0" />
-              </motion.div>
+              <Loader2 className="h-4 w-4 shrink-0 animate-spin text-amber-500" aria-hidden />
             ) : (
-              <Search className="h-4 w-4 text-foreground/40 shrink-0" />
+              <Search className="h-4 w-4 shrink-0 text-slate-400" aria-hidden />
             )}
             <input
               ref={inputRef}
@@ -226,39 +236,44 @@ export function SearchInput({ open, onClose }: SearchInputProps) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Search products, brands, categories..."
-              className="flex-1 py-3.5 bg-transparent text-sm text-foreground placeholder:text-foreground/30 outline-none"
+              placeholder="প্রোডাক্ট, ব্র্যান্ড বা ক্যাটাগরি খুঁজুন..."
+              aria-label="প্রোডাক্ট, ব্র্যান্ড বা ক্যাটাগরি খুঁজুন"
+              className="flex-1 bg-transparent py-3.5 text-sm text-slate-900 outline-none placeholder:text-slate-400"
               role="combobox"
               aria-expanded={visibleItems.length > 0}
-              aria-controls="search-suggestions"
+              aria-controls={listboxId}
+              aria-autocomplete="list"
+              aria-activedescendant={selectedIndex >= 0 ? optionId(selectedIndex) : undefined}
               autoComplete="off"
             />
             {query && (
               <button
                 type="button"
                 onClick={() => setQuery("")}
-                className="p-1 text-foreground/30 hover:text-foreground/60 transition-colors"
+                aria-label="সার্চ টেক্সট মুছুন"
+                className="rounded p-1 text-slate-400 transition-colors hover:text-slate-700 focus-visible:outline-2 focus-visible:outline-amber-600"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4" aria-hidden />
               </button>
             )}
-            <kbd className="hidden sm:inline-flex text-[10px] font-medium text-foreground/30 bg-muted/60 px-1.5 py-0.5 rounded border border-border/30">
+            <kbd className="hidden rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 sm:inline-flex">
               ESC
             </kbd>
           </div>
 
           <div
             ref={listRef}
-            id="search-suggestions"
+            id={listboxId}
             role="listbox"
+            aria-label="সার্চ সাজেশন"
             className="max-h-80 overflow-y-auto p-2"
           >
             {showRecent && recentSearches.length > 0 && (
               <div className="space-y-1 p-2">
-                <div className="flex items-center gap-2 mb-2">
-                  <Clock className="h-3.5 w-3.5 text-foreground/40" />
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-foreground/40">
-                    Recent
+                <div className="mb-2 flex items-center gap-2">
+                  <Clock className="h-3.5 w-3.5 text-slate-400" aria-hidden />
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                    সাম্প্রতিক সার্চ
                   </span>
                 </div>
                 {recentSearches.map((s, i) => (
@@ -266,44 +281,33 @@ export function SearchInput({ open, onClose }: SearchInputProps) {
                     key={s}
                     type="button"
                     role="option"
+                    id={optionId(i)}
                     aria-selected={selectedIndex === i}
                     data-index={i}
                     onClick={() => handleSubmit(s)}
                     className={cn(
-                      "flex w-full items-center gap-3 px-3 py-2 rounded-lg text-sm text-left transition-colors",
+                      "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors focus-visible:outline-2 focus-visible:outline-amber-600",
                       selectedIndex === i
-                        ? "bg-primary/10 text-primary"
-                        : "text-foreground/70 hover:bg-muted/60",
+                        ? "bg-amber-50 text-amber-900"
+                        : "text-slate-700 hover:bg-slate-100",
                     )}
                   >
-                    <Clock className="h-3.5 w-3.5 shrink-0 text-foreground/30" />
+                    <Clock className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden />
                     <span className="truncate">{s}</span>
-                    <ArrowRight className="h-3.5 w-3.5 ml-auto shrink-0 text-foreground/20" />
+                    <ArrowRight
+                      className="ml-auto h-3.5 w-3.5 shrink-0 text-slate-300"
+                      aria-hidden
+                    />
                   </button>
                 ))}
               </div>
             )}
 
             {showRecent && recentSearches.length === 0 && (
-              <div className="space-y-1 p-2">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="h-3.5 w-3.5 text-foreground/40" />
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-foreground/40">
-                    Trending
-                  </span>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {TRENDING_SEARCHES.slice(0, 8).map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => handleSubmit(s)}
-                      className="px-2.5 py-1 text-xs text-foreground/60 bg-muted/50 hover:bg-muted rounded-full transition-colors"
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
+              <div className="px-3 py-8 text-center">
+                <p className="text-sm text-slate-500">
+                  টাইপ করে প্রোডাক্ট, ব্র্যান্ড বা ক্যাটাগরি খুঁজুন
+                </p>
               </div>
             )}
 
@@ -316,39 +320,65 @@ export function SearchInput({ open, onClose }: SearchInputProps) {
                         href={item.href}
                         onClick={onClose}
                         role="option"
+                        id={optionId(i)}
                         aria-selected={selectedIndex === i}
                         data-index={i}
                         className={cn(
-                          "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group",
-                          selectedIndex === i ? "bg-primary/10 text-primary" : "hover:bg-muted/60",
+                          "group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors focus-visible:outline-2 focus-visible:outline-amber-600",
+                          selectedIndex === i ? "bg-amber-50" : "hover:bg-slate-100",
                         )}
                       >
-                        <Package className="h-3.5 w-3.5 shrink-0 text-foreground/30" />
-                        <div className="flex-1 min-w-0">
-                          <span className="text-sm text-foreground/80 truncate block">
+                        {item.type === "product" ? (
+                          <span className="relative h-8 w-8 shrink-0 overflow-hidden rounded-md border border-slate-200 bg-slate-100">
+                            <Image
+                              src={item.image || PRODUCT_IMAGE_PLACEHOLDER}
+                              alt=""
+                              aria-hidden
+                              fill
+                              className="object-cover"
+                              sizes="32px"
+                            />
+                          </span>
+                        ) : (
+                          <Package className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden />
+                        )}
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm text-slate-800">
                             {item.label}
                           </span>
-                          <span className="text-[10px] text-foreground/30 uppercase tracking-wider">
-                            {item.type}
+                          <span className="text-[10px] uppercase tracking-wider text-slate-400">
+                            {TYPE_LABELS[item.type]}
+                            {item.price !== undefined && (
+                              <span className="ml-1.5 font-bold text-amber-700 tabular-nums">
+                                {formatBdt(item.price)}
+                              </span>
+                            )}
                           </span>
-                        </div>
-                        <ArrowRight className="h-3.5 w-3.5 shrink-0 text-foreground/20 group-hover:text-foreground/50 transition-colors" />
+                        </span>
+                        <ArrowRight
+                          className="h-3.5 w-3.5 shrink-0 text-slate-300 transition-colors group-hover:text-slate-500"
+                          aria-hidden
+                        />
                       </Link>
                     ) : (
                       <button
                         type="button"
                         role="option"
+                        id={optionId(i)}
                         aria-selected={selectedIndex === i}
                         data-index={i}
                         onClick={() => handleSubmit(item.label)}
                         className={cn(
-                          "flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors group",
-                          selectedIndex === i ? "bg-primary/10 text-primary" : "hover:bg-muted/60",
+                          "group flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition-colors focus-visible:outline-2 focus-visible:outline-amber-600",
+                          selectedIndex === i ? "bg-amber-50 text-amber-900" : "hover:bg-slate-100",
                         )}
                       >
-                        <Search className="h-3.5 w-3.5 shrink-0 text-foreground/30" />
-                        <span className="truncate text-foreground/80">{item.label}</span>
-                        <ArrowRight className="h-3.5 w-3.5 ml-auto shrink-0 text-foreground/20 group-hover:text-foreground/50 transition-colors" />
+                        <Search className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden />
+                        <span className="truncate text-slate-800">{item.label}</span>
+                        <ArrowRight
+                          className="ml-auto h-3.5 w-3.5 shrink-0 text-slate-300 transition-colors group-hover:text-slate-500"
+                          aria-hidden
+                        />
                       </button>
                     )}
                   </div>
@@ -358,51 +388,48 @@ export function SearchInput({ open, onClose }: SearchInputProps) {
 
             {!showRecent && visibleItems.length === 0 && query.trim().length >= 2 && !loading && (
               <div className="py-8 text-center">
-                <p className="text-sm text-foreground/40">No suggestions found</p>
-                <p className="text-xs text-foreground/30 mt-1">
-                  Press Enter to search for &ldquo;{query}&rdquo;
+                <p className="text-sm text-slate-500">কোনো সাজেশন পাওয়া যায়নি</p>
+                <p className="mt-1 text-xs text-slate-400">
+                  &ldquo;{query}&rdquo; খুঁজতে Enter চাপুন
                 </p>
               </div>
             )}
 
-            {!showRecent && loading && (
-              <div className="py-8 text-center">
-                <motion.div
-                  animate={{ opacity: [0.4, 1, 0.4] }}
-                  transition={{ repeat: Infinity, duration: 1.5 }}
-                  className="text-sm text-foreground/40"
-                >
-                  Searching...
-                </motion.div>
+            {!showRecent && loading && visibleItems.length === 0 && (
+              <div className="py-8 text-center" role="status">
+                <p className="animate-pulse text-sm text-slate-500">খোঁজা হচ্ছে...</p>
               </div>
             )}
           </div>
 
-          <div className="px-4 py-2 border-t border-border/30 bg-muted/20 flex items-center justify-between">
-            <div className="flex items-center gap-3 text-[10px] text-foreground/30">
+          <div className="flex items-center justify-between border-t border-slate-200 bg-slate-50 px-4 py-2">
+            <div className="flex items-center gap-3 text-[10px] text-slate-400">
               <span>
-                <kbd className="inline-flex text-[10px] font-medium bg-muted/60 px-1 py-0.5 rounded border border-border/30 mr-0.5">
+                <kbd className="mr-0.5 inline-flex rounded border border-slate-200 bg-slate-100 px-1 py-0.5 text-[10px] font-medium">
                   ↑↓
                 </kbd>
-                Navigate
+                নেভিগেট
               </span>
               <span>
-                <kbd className="inline-flex text-[10px] font-medium bg-muted/60 px-1 py-0.5 rounded border border-border/30 mr-0.5">
+                <kbd className="mr-0.5 inline-flex rounded border border-slate-200 bg-slate-100 px-1 py-0.5 text-[10px] font-medium">
                   ↵
                 </kbd>
-                Open
+                খুলুন
               </span>
             </div>
             <button
               type="button"
               onClick={() => handleSubmit(query)}
-              className="text-[10px] font-medium text-primary/70 hover:text-primary transition-colors"
+              disabled={!query.trim()}
+              className="rounded text-[10px] font-bold text-amber-700 transition-colors hover:text-amber-800 disabled:cursor-not-allowed disabled:text-slate-300 focus-visible:outline-2 focus-visible:outline-amber-600"
             >
-              View all results
+              সব ফলাফল দেখুন
             </button>
           </div>
         </div>
-      </motion.div>
+      </div>
     </>
   );
 }
+
+export default SearchInput;

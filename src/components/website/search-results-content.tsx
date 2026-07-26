@@ -1,88 +1,113 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState, type FormEvent, type ReactElement, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { Search, ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowLeft, Search } from "lucide-react";
 import { ProductsCatalogClient } from "./products-catalog-client";
 import { EmptySearch } from "./empty-search";
-import type { ProductCardData } from "./product-card";
+import { TrendingSearches } from "./trending-searches";
+import type {
+  PublicBrandInfo,
+  PublicCategoryInfo,
+  PublicListResult,
+} from "@/features/catalog/domain/public-catalog-types";
 
 export interface SearchResultsContentProps {
-  initialQuery: string;
-  initialProducts: ProductCardData[];
-  initialCursor: string | null;
-  initialHasMore: boolean;
-  initialTotal: number;
+  query: string;
+  /** Server-fetched result page; null when there is no (valid) query. */
+  result: (PublicListResult & { query: string }) | null;
+  categories: PublicCategoryInfo[] | null;
+  brands: PublicBrandInfo[] | null;
+  /** Real top category names (by product count) for the empty landing. */
+  trendingTerms: string[];
+  /** Server-rendered pagination links. */
+  pagination?: ReactNode;
 }
 
-export function SearchResultsContent({ initialQuery, initialProducts }: SearchResultsContentProps) {
+/**
+ * Thin interactive shell for /search. Data comes fully server-rendered; this
+ * component only pushes new URLs (new query / trending term) to the router.
+ */
+export function SearchResultsContent({
+  query,
+  result,
+  categories,
+  brands,
+  trendingTerms,
+  pagination,
+}: SearchResultsContentProps): ReactElement {
   const router = useRouter();
-  const [inputValue, setInputValue] = useState(initialQuery);
+  const searchInputId = useId();
+  const [inputValue, setInputValue] = useState(query);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && inputValue.trim()) {
-      router.push(`/search?q=${encodeURIComponent(inputValue.trim())}`);
-    }
+  const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
+    event.preventDefault();
+    const q = inputValue.trim();
+    if (q) router.push(`/search?q=${encodeURIComponent(q)}`);
   };
 
-  const mappedProducts: ProductCardData[] = initialProducts.map((p) => ({
-    id: p.id,
-    name: p.name,
-    slug: p.slug,
-    image: p.image || "",
-    retailPrice: p.retailPrice,
-    resellerPrice: p.resellerPrice,
-    wholesalePrice: p.wholesalePrice,
-    comparePrice: p.comparePrice,
-    rating: p.rating ?? 4.8,
-    reviewCount: p.reviewCount ?? 10,
-    brand: p.brand,
-    stockStatus: p.stockStatus as "in_stock" | "low_stock" | "out_of_stock",
-    moq: p.moq,
-    isNew: true,
-  }));
+  const hasResults = result !== null && result.items.length > 0;
 
   return (
-    <div className="min-h-screen bg-[hsl(0_0%_98%)] text-slate-900 py-8">
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8 space-y-6">
-        {/* Search Header */}
+    <div className="min-h-screen bg-[hsl(0_0%_98%)] py-8 text-slate-900">
+      <div className="mx-auto max-w-(--content-max) space-y-6 px-4 sm:px-6 lg:px-8">
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
+              type="button"
               onClick={() => router.back()}
-              className="-ml-2 text-xs font-black text-slate-700 hover:text-amber-600"
+              className="-ml-2 flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-black text-slate-700 transition-colors hover:text-amber-700 focus-visible:outline-2 focus-visible:outline-amber-600"
             >
-              <ArrowLeft className="h-4 w-4 mr-1" /> ফিরে যান
-            </Button>
+              <ArrowLeft className="h-4 w-4" aria-hidden /> ফিরে যান
+            </button>
           </div>
 
-          <div className="relative max-w-xl">
-            <Search className="absolute left-3.5 top-3 h-4 w-4 text-slate-500" />
+          <form role="search" onSubmit={handleSubmit} className="relative max-w-xl">
+            <label htmlFor={searchInputId} className="sr-only">
+              প্রোডাক্ট, ব্র্যান্ড বা কি-ওয়ার্ড খুঁজুন
+            </label>
+            <Search className="absolute left-3.5 top-3 h-4 w-4 text-slate-500" aria-hidden />
             <input
-              type="text"
+              id={searchInputId}
+              type="search"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="প্রোডাক্ট, ব্র্যান্ড বা কি-ওয়ার্ড খুঁজুন..."
-              className="w-full h-10 pl-10 pr-4 text-xs font-bold rounded-xl bg-white border border-slate-300 text-slate-900 placeholder:text-slate-500 outline-none focus:border-amber-500 shadow-2xs"
+              placeholder="প্রোডাক্ট, ব্র্যান্ড বা কি-ওয়ার্ড খুঁজুন..."
+              className="h-10 w-full rounded-xl border border-slate-300 bg-white pl-10 pr-4 text-xs font-bold text-slate-900 shadow-2xs placeholder:text-slate-500 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500"
             />
-          </div>
+          </form>
 
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900">
-            {initialQuery
-              ? `"${initialQuery}" এর জন্য ${mappedProducts.length} টি প্রোডাক্ট পাওয়া গেছে`
+          <h1 className="text-xl font-black text-slate-900 sm:text-2xl">
+            {query && result
+              ? `"${query}" এর জন্য ${result.totalCount.toLocaleString("en-BD")} টি প্রোডাক্ট পাওয়া গেছে`
               : "প্রোডাক্ট অনুসন্ধান"}
           </h1>
         </div>
 
-        {/* Search Results Grid or Empty Search */}
-        {!initialQuery || mappedProducts.length === 0 ? (
-          <EmptySearch query={initialQuery} />
+        {!query || result === null ? (
+          <div className="space-y-6 rounded-3xl border border-slate-200 bg-white p-8 shadow-xs">
+            <p className="text-sm font-bold text-slate-700">
+              উপরের সার্চ বক্সে টাইপ করে প্রোডাক্ট, ব্র্যান্ড বা ক্যাটাগরি খুঁজুন।
+            </p>
+            <TrendingSearches
+              terms={trendingTerms}
+              title="জনপ্রিয় ক্যাটাগরি"
+              onSelect={(term) => router.push(`/search?q=${encodeURIComponent(term)}`)}
+            />
+          </div>
+        ) : !hasResults ? (
+          <EmptySearch query={query} />
         ) : (
-          <ProductsCatalogClient initialProducts={mappedProducts} categories={[]} brands={[]} />
+          <ProductsCatalogClient
+            products={result.items}
+            totalCount={result.totalCount}
+            categories={categories}
+            brands={brands}
+            pagination={pagination}
+            defaultSort="relevance"
+            showSearchBox={false}
+            resetHref={`/search?q=${encodeURIComponent(query)}`}
+          />
         )}
       </div>
     </div>

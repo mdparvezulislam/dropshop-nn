@@ -1,0 +1,5 @@
+{
+  "permissions": {
+    "allow": ["Bash(/bin/ls -1 public)", "Bash(/bin/ls src/app/)"]
+  }
+}

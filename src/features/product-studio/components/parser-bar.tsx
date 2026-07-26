@@ -159,11 +159,11 @@ export function ParserBar({
               <Button
                 type="button"
                 size="sm"
-                className="gap-1.5 font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xs"
+                className="gap-1.5 font-bold bg-amber-500 hover:bg-amber-600 text-amber-950 dark:text-amber-950 shadow-xs"
                 onClick={handleParse}
                 disabled={isParsing || !text.trim()}
               >
-                <Sparkles className="h-3.5 w-3.5 fill-slate-950" />
+                <Sparkles className="h-3.5 w-3.5 fill-amber-950 dark:fill-amber-950" />
                 {isParsing ? "Parsing…" : "⚡ Magic Parse"}
               </Button>
             </div>

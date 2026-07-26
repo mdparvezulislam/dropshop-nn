@@ -21,7 +21,13 @@ const envSchema = z.object({
     .transform((val) => val || undefined)
     .optional(),
 
-  AUTH_SECRET: z.string().min(8, "AUTH_SECRET must be at least 8 characters"),
+  AUTH_SECRET: z
+    .string()
+    .min(8, "AUTH_SECRET must be at least 8 characters")
+    .refine(
+      (value) => process.env.NODE_ENV !== "production" || value.length >= 32,
+      "AUTH_SECRET must be at least 32 characters in production",
+    ),
   AUTH_URL: z.string().url().optional(),
   ENCRYPTION_MASTER_KEY: z
     .string()

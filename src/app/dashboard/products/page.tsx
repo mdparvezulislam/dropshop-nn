@@ -4,15 +4,16 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
-  listProductsAction,
   deleteProductAction,
   duplicateProductAction,
 } from "@/features/catalog/actions/product-actions";
 import {
   getCatalogSummaryStatsAction,
   inlineUpdateProductAction,
+  listCatalogProductsAction,
   type CatalogSummaryStats,
 } from "@/features/catalog/actions/product-catalog-actions";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useCatalogWorkspace } from "@/features/catalog/hooks/use-catalog-workspace";
 import { CatalogWorkspaceHeader } from "@/features/catalog/components/catalog-workspace-header";
 import { CatalogSummaryCards } from "@/features/catalog/components/catalog-summary-cards";
@@ -26,6 +27,8 @@ import { CatalogPreviewDrawer } from "@/features/catalog/components/catalog-prev
 import { CatalogBulkModal } from "@/features/catalog/components/modals/catalog-bulk-modal";
 import { CatalogImportModal } from "@/features/catalog/components/modals/catalog-import-modal";
 import { CatalogExportModal } from "@/features/catalog/components/modals/catalog-export-modal";
+
+const PAGE_SIZE = 50;
 
 export default function ProductsMasterWorkspacePage(): React.ReactElement {
   const router = useRouter();
@@ -51,81 +54,71 @@ export default function ProductsMasterWorkspacePage(): React.ReactElement {
   } = useCatalogWorkspace();
 
   const [items, setItems] = React.useState<ProductCatalogItem[]>([]);
+  const [totalCount, setTotalCount] = React.useState(0);
   const [stats, setStats] = React.useState<CatalogSummaryStats>({
     total: 0,
     active: 0,
     draft: 0,
+    archived: 0,
     outOfStock: 0,
     lowStock: 0,
-    campaign: 0,
   });
   const [loading, setLoading] = React.useState(true);
+
+  // Search previously re-queried the server on every keystroke.
+  const debouncedSearch = useDebounce(filters.search, 350);
 
   const loadData = React.useCallback(async () => {
     setLoading(true);
     try {
       const [listRes, statsRes] = await Promise.all([
-        listProductsAction(
-          {
-            ...(activeTab === "active" ? { status: "active" } : {}),
-            ...(activeTab === "draft" ? { status: "draft" } : {}),
-            ...(activeTab === "archived" ? { status: "archived" } : {}),
-            ...(filters.search ? { search: filters.search } : {}),
-          },
-          { limit: 100 },
-        ),
+        listCatalogProductsAction({
+          tab: activeTab,
+          search: debouncedSearch || undefined,
+          limit: PAGE_SIZE,
+        }),
         getCatalogSummaryStatsAction(),
       ]);
 
       if (listRes.success && listRes.data) {
-        const d = listRes.data as any;
-        const mapped: ProductCatalogItem[] = (d.items ?? []).map((p: any) => ({
-          id: p.id,
-          name: p.title ?? p.name ?? "Untitled Product",
-          sku: p.sku ?? "SKU-PROD",
-          category: p.category?.name ?? p.category ?? "General",
-          brand: p.brand?.name ?? p.brand ?? "Default Brand",
-          price: p.retailPrice ?? p.price ?? 1200,
-          costPrice: p.costPrice ?? 800,
-          stock: p.stockQuantity ?? p.stock ?? 25,
-          status: p.status ?? "draft",
-          image:
-            p.images?.[0]?.url ||
-            (typeof p.images?.[0] === "string" ? p.images[0] : "") ||
-            p.image ||
-            "",
-          updatedAt: p.updatedAt,
-        }));
-
-        let filtered = mapped;
-        if (activeTab === "low_stock") {
-          filtered = mapped.filter((x) => x.stock > 0 && x.stock <= 10);
-        } else if (activeTab === "out_of_stock") {
-          filtered = mapped.filter((x) => x.stock <= 0);
-        }
-
-        setItems(filtered);
+        setItems(listRes.data.items);
+        setTotalCount(listRes.data.totalCount);
+      } else {
+        setItems([]);
+        setTotalCount(0);
+        toast.error(listRes.error || "Failed to load product catalog");
       }
 
       if (statsRes.success && statsRes.data) {
         setStats(statsRes.data);
+      } else if (statsRes.error) {
+        toast.error(statsRes.error);
       }
-    } catch {
-      toast.error(" Failed to load product catalog");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to load product catalog");
     } finally {
       setLoading(false);
     }
-  }, [activeTab, filters.search]);
+  }, [activeTab, debouncedSearch]);
 
   React.useEffect(() => {
     loadData();
   }, [loadData]);
 
+  // A tab or search change invalidates the current selection.
+  React.useEffect(() => {
+    clearSelection();
+  }, [activeTab, debouncedSearch, clearSelection]);
+
   const handleDelete = async (id: string) => {
     try {
-      await deleteProductAction(id);
-      toast.success("পণ্য মুছে ফেলা হয়েছে (Product deleted)");
-      loadData();
+      const res = await deleteProductAction(id);
+      if (res.success) {
+        toast.success("পণ্য মুছে ফেলা হয়েছে (Product deleted)");
+        loadData();
+      } else {
+        toast.error(res.error || "Delete failed");
+      }
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Delete failed");
     }
@@ -137,21 +130,27 @@ export default function ProductsMasterWorkspacePage(): React.ReactElement {
       if (res.success) {
         toast.success("পণ্য কপি করা হয়েছে (Product duplicated)");
         loadData();
+      } else {
+        toast.error(res.error || "Duplicate failed");
       }
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Duplicate failed");
     }
   };
 
-  const handleInlineUpdate = async (id: string, field: string, val: any) => {
+  const handleInlineUpdate = async (id: string, field: string, val: string) => {
     try {
       const res = await inlineUpdateProductAction(id, field, val);
       if (res.success) {
         toast.success("পণ্য তথ্য আপডেট হয়েছে (Product updated)");
         loadData();
+      } else {
+        // Inline-edit failures used to be swallowed, leaving the old value on screen
+        // with no indication the write never happened.
+        toast.error(res.error || "Inline edit failed");
       }
-    } catch {
-      toast.error("Inline edit failed");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Inline edit failed");
     }
   };
 

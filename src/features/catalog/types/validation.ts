@@ -155,20 +155,59 @@ export const updateProductSchema = createProductSchema.partial();
 
 export type UpdateProductInput = z.infer<typeof updateProductSchema>;
 
-export const brandSchema = z.object({
+/** Optional URL that also tolerates an empty field and a missing scheme. */
+const optionalUrl = z.preprocess((value) => {
+  if (typeof value !== "string") return value;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  // Admins type "nike.com"; store a resolvable URL rather than rejecting the input.
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+}, z.url("Enter a valid website address").max(300).optional());
+
+const optionalText = (max: number) => z.string().trim().max(max).optional().or(z.literal(""));
+
+export const createBrandSchema = z.object({
   name: z.string().min(2, "Brand name is required").max(100).trim(),
-  logo: z.string().optional().or(z.literal("")),
-  description: z.string().optional().or(z.literal("")),
-  website: z.string().optional().or(z.literal("")),
+  slug: optionalText(120),
+  logo: optionalText(500),
+  banner: optionalText(500),
+  description: optionalText(1000),
+  website: optionalUrl,
+  country: optionalText(80),
+  isActive: z.boolean().default(true),
+  isFeatured: z.boolean().default(false),
+  sortOrder: z.number().int().nonnegative().default(0),
+  metaTitle: optionalText(100),
+  metaDescription: optionalText(300),
 });
 
-export const categorySchema = z.object({
+export type CreateBrandInput = z.infer<typeof createBrandSchema>;
+export const updateBrandSchema = createBrandSchema.partial();
+export type UpdateBrandInput = z.infer<typeof updateBrandSchema>;
+
+export const createCategorySchema = z.object({
   name: z.string().min(2, "Category name is required").max(100).trim(),
-  parentCategoryId: z.string().optional().or(z.literal("")),
-  description: z.string().optional().or(z.literal("")),
-  image: z.string().optional().or(z.literal("")),
+  slug: optionalText(120),
+  // `null` clears the parent (promote to root); `undefined` leaves it untouched on update.
+  parentCategoryId: z.string().trim().max(64).nullable().optional().or(z.literal("")),
+  description: optionalText(1000),
+  image: optionalText(500),
+  icon: optionalText(80),
   sortOrder: z.number().int().nonnegative().default(0),
+  isActive: z.boolean().default(true),
+  isFeatured: z.boolean().default(false),
+  visibility: z.enum(["public", "hidden"]).default("public"),
+  metaTitle: optionalText(100),
+  metaDescription: optionalText(300),
 });
+
+export type CreateCategoryInput = z.infer<typeof createCategorySchema>;
+export const updateCategorySchema = createCategorySchema.partial();
+export type UpdateCategoryInput = z.infer<typeof updateCategorySchema>;
+
+/** Retained for existing callers; superseded by the create/update pairs above. */
+export const brandSchema = createBrandSchema;
+export const categorySchema = createCategorySchema;
 
 export const collectionSchema = z.object({
   name: z.string().min(2, "Collection name is required").max(100).trim(),

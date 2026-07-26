@@ -1,5 +1,6 @@
 "use server";
 
+import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { ProductService } from "../services/product-service";
 import { createProductSchema, updateProductSchema } from "../types/validation";
@@ -176,7 +177,7 @@ export async function duplicateProductAction(id: string) {
 export async function getProductAction(id: string) {
   try {
     const session = await auth();
-    getSessionUser(session);
+    checkPermission(session, "Product.View");
 
     const service = new ProductService();
     const result = await service.findById(id);
@@ -192,6 +193,11 @@ export async function getProductAction(id: string) {
 
 export async function getProductBySlugAction(slug: string) {
   try {
+    // Admin-side raw read. The public storefront must use
+    // getPublicProductBySlugAction (curated DTO, status/visibility gated).
+    const session = await auth();
+    checkPermission(session, "Product.View");
+
     const service = new ProductService();
     const result = await service.findBySlug(slug);
 
@@ -204,18 +210,33 @@ export async function getProductBySlugAction(slug: string) {
   }
 }
 
+const listProductsFilterSchema = z
+  .object({
+    status: z.enum(["draft", "active", "pending_review", "inactive", "archived"]).optional(),
+    visibility: z.enum(["public", "private", "hidden", "supplier_only"]).optional(),
+    categoryId: z.string().regex(/^[0-9a-fA-F]{24}$/).optional(),
+    brandId: z.string().regex(/^[0-9a-fA-F]{24}$/).optional(),
+    supplierId: z.string().regex(/^[0-9a-fA-F]{24}$/).optional(),
+    featured: z.boolean().optional(),
+  })
+  .strip();
+
 export async function listProductsAction(
   filter: Record<string, unknown> = {},
   pagination: { cursor?: string; limit?: number } = {},
 ) {
   try {
     const session = await auth();
-    getSessionUser(session);
+    checkPermission(session, "Product.View");
+
+    // SECURITY: allow-listed filter only — the previous version forwarded the
+    // client object straight into Mongo (operator injection).
+    const safeFilter = listProductsFilterSchema.parse(filter);
 
     const service = new ProductService();
-    const result = await service.list(filter, {
+    const result = await service.list(safeFilter, {
       cursor: pagination.cursor,
-      limit: pagination.limit || 20,
+      limit: Math.min(Math.max(pagination.limit || 20, 1), 100),
     });
 
     return { success: true, data: result };
@@ -261,6 +282,8 @@ export async function updateProductStatusAction(
 
 export async function checkSkuUniquenessAction(sku: string, currentProductId?: string) {
   try {
+    // Authoring aid — gated so it cannot be used to enumerate the catalog.
+    checkPermission(await auth(), "Product.View");
     const service = new ProductService();
     const existing = await service.findBySku(sku.trim().toUpperCase());
     const isUnique = !existing || (Boolean(currentProductId) && existing.id === currentProductId);
@@ -272,6 +295,7 @@ export async function checkSkuUniquenessAction(sku: string, currentProductId?: s
 
 export async function checkSlugUniquenessAction(slug: string, currentProductId?: string) {
   try {
+    checkPermission(await auth(), "Product.View");
     const service = new ProductService();
     const existing = await service.findBySlug(slug.trim().toLowerCase());
     const isUnique = !existing || (Boolean(currentProductId) && existing.id === currentProductId);

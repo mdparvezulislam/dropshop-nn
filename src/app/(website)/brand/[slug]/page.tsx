@@ -1,4 +1,11 @@
-import BrandDetailPage, { generateMetadata } from "../../brands/[slug]/page";
+import { permanentRedirect } from "next/navigation";
 
-export { generateMetadata };
-export default BrandDetailPage;
+interface BrandAliasProps {
+  params: Promise<{ slug: string }>;
+}
+
+/** Legacy alias — the canonical brand route is /brands/[slug]. */
+export default async function BrandAliasPage({ params }: BrandAliasProps): Promise<never> {
+  const { slug } = await params;
+  permanentRedirect(`/brands/${encodeURIComponent(slug)}`);
+}

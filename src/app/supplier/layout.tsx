@@ -1,26 +1,10 @@
-"use client";
+import type { ReactNode } from "react";
+import { SupplierLayoutClient } from "./layout-client";
 
-import { Building2 } from "lucide-react";
-import { WorkspaceLayout } from "@/components/workspace/workspace-layout";
-import { WORKSPACE_SHELLS } from "@/components/workspace/workspace-registry";
+// Role-gated workspace — always rendered per-request, never statically
+// exported. (Segment config must live in a server file to be honored.)
+export const dynamic = "force-dynamic";
 
-export default function SupplierLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}): React.ReactElement {
-  return (
-    <WorkspaceLayout
-      config={WORKSPACE_SHELLS.supplier}
-      workspaceIcon={<Building2 className="h-4 w-4" />}
-      userMenuItems={[
-        { label: "Account", href: "/account" },
-        { label: "Settings", href: "/supplier/settings" },
-        { label: "Switch workspace", href: "/dashboard" },
-        { label: "Sign out", destructive: true },
-      ]}
-    >
-      {children}
-    </WorkspaceLayout>
-  );
+export default function SupplierLayout({ children }: { children: ReactNode }): ReactNode {
+  return <SupplierLayoutClient>{children}</SupplierLayoutClient>;
 }

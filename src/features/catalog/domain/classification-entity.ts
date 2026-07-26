@@ -4,8 +4,17 @@ export interface Brand extends BaseDBEntity {
   name: string;
   slug: string;
   logo?: string;
+  banner?: string;
   description?: string;
   website?: string;
+  country?: string;
+  isActive: boolean;
+  isFeatured: boolean;
+  sortOrder: number;
+  metaTitle?: string;
+  metaDescription?: string;
+  /** Denormalised product count, refreshed on read. Not persisted. */
+  productCount?: number;
 }
 
 export interface Category extends BaseDBEntity {
@@ -14,7 +23,23 @@ export interface Category extends BaseDBEntity {
   parentCategoryId?: string | null;
   description?: string;
   image?: string;
+  icon?: string;
   sortOrder: number;
+  isActive: boolean;
+  isFeatured: boolean;
+  visibility: "public" | "hidden";
+  metaTitle?: string;
+  metaDescription?: string;
+  /** Denormalised product count, refreshed on read. Not persisted. */
+  productCount?: number;
+}
+
+/** A category plus its resolved ancestry, for hierarchical pickers and breadcrumbs. */
+export interface CategoryTreeNode extends Category {
+  children: CategoryTreeNode[];
+  depth: number;
+  /** e.g. "Electronics > Mobile > Accessories" */
+  path: string;
 }
 
 export interface Collection extends BaseDBEntity {

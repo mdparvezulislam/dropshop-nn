@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils/cn";
 import {
   Info,
@@ -22,7 +21,7 @@ import {
 } from "lucide-react";
 export { StudioTabPanel } from "@/components/ui/studio-tabs";
 
-import { StudioTabs, type StudioTabItem } from "@/components/ui/studio-tabs";
+import { StudioTabList, type StudioTabItem } from "@/components/ui/studio-tabs";
 import { Button } from "@/components/ui/button";
 import type { SaveState } from "../hooks/use-autosave";
 import type { HealthScoreResult } from "../types/studio-types";
@@ -92,13 +91,11 @@ export interface NewStudioLayoutProps {
 export interface StudioLayoutContextValue {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  isMobile: boolean;
 }
 
 export const StudioLayoutCtx = React.createContext<StudioLayoutContextValue>({
   activeTab: "basic",
   setActiveTab: () => {},
-  isMobile: false,
 });
 
 export function useStudioLayout(): StudioLayoutContextValue {
@@ -131,36 +128,40 @@ export function NewStudioLayout({
   urlImportBar,
 }: NewStudioLayoutProps): React.ReactElement {
   const [activeTab, setActiveTab] = React.useState("basic");
-  const [mobileStep, setMobileStep] = React.useState(0);
   const [mobileSettingsOpen, setMobileSettingsOpen] = React.useState(false);
-  const [isMobile, setIsMobile] = React.useState(false);
 
-  React.useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
+  /**
+   * The mobile stepper and the desktop tab bar are two views of one selection, so the
+   * step index is derived from `activeTab` rather than tracked separately. Both chromes
+   * render at every width and are shown/hidden with CSS breakpoints — the previous
+   * `window.innerWidth` switch flashed the desktop bar on mobile before hydration and
+   * re-rendered the whole studio on every resize event.
+   */
+  const mobileStep = Math.max(
+    0,
+    MOBILE_STEPS.findIndex((t) => t.value === activeTab),
+  );
+
+  const handleTabChange = React.useCallback((value: string) => {
+    setActiveTab(value);
   }, []);
 
-  /* Sync desktop tab → mobile step */
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-    const idx = MOBILE_STEPS.findIndex((t) => t.value === value);
-    if (idx !== -1) setMobileStep(idx);
-  };
-
-  const handleMobileStep = (step: number) => {
+  const handleMobileStep = React.useCallback((step: number) => {
     if (step < 0 || step >= MOBILE_STEPS.length) return;
-    setMobileStep(step);
     setActiveTab(MOBILE_STEPS[step].value);
-  };
+  }, []);
 
   const showSidebar = activeTab !== "preview";
 
   const ctxValue = React.useMemo<StudioLayoutContextValue>(
-    () => ({ activeTab, setActiveTab: handleTabChange, isMobile }),
-    [activeTab, isMobile],
+    () => ({ activeTab, setActiveTab: handleTabChange }),
+    [activeTab, handleTabChange],
   );
+
+  const activePanel = React.Children.toArray(children).find((child) => {
+    if (!React.isValidElement(child)) return false;
+    return (child.props as { value?: string }).value === activeTab;
+  });
 
   return (
     <StudioLayoutCtx.Provider value={ctxValue}>
@@ -180,123 +181,100 @@ export function NewStudioLayout({
           <div className="mx-auto w-full max-w-[94rem] px-3 sm:px-6 lg:px-8 pt-2">{parserBar}</div>
         ) : null}
 
-        {/* ── Desktop Tab Bar ── */}
-        {!isMobile && (
-          <div className="sticky top-0 z-30 border-b border-border bg-card shadow-2xs">
-            <div className="mx-auto w-full max-w-[94rem] px-3 sm:px-6">
-              <StudioTabs
-                tabs={STUDIO_TABS}
-                variant="enclosed"
-                scrollable
-                value={activeTab}
-                onValueChange={handleTabChange}
-              >
-                {children}
-              </StudioTabs>
-            </div>
+        {/* ── Desktop Tab Bar (navigation only — panels render once in <main>) ── */}
+        <div className="hidden md:block sticky top-0 z-30 border-b border-border bg-card shadow-2xs">
+          <div className="mx-auto w-full max-w-[94rem] px-3 sm:px-6">
+            <StudioTabList
+              tabs={STUDIO_TABS}
+              variant="enclosed"
+              scrollable
+              label="Product studio sections"
+              value={activeTab}
+              onValueChange={handleTabChange}
+            />
           </div>
-        )}
+        </div>
 
         {/* ── Mobile Stepper ── */}
-        {isMobile && (
-          <div className="sticky top-0 z-30 border-b border-border bg-card px-3 py-2.5">
-            <div className="flex items-center justify-between">
-              <button
-                type="button"
-                onClick={() => handleMobileStep(mobileStep - 1)}
-                disabled={mobileStep === 0}
-                className="flex items-center gap-1 text-xs font-semibold text-muted-foreground disabled:opacity-30 disabled:pointer-events-none hover:text-foreground min-h-10 px-1"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                <span>Prev</span>
-              </button>
+        <div className="md:hidden sticky top-0 z-30 border-b border-border bg-card px-3 py-2.5">
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => handleMobileStep(mobileStep - 1)}
+              disabled={mobileStep === 0}
+              className="flex items-center gap-1 text-xs font-semibold text-muted-foreground disabled:opacity-30 disabled:pointer-events-none hover:text-foreground min-h-10 px-1"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <span>Prev</span>
+            </button>
 
-              <div className="flex items-center gap-1.5">
-                {MOBILE_STEPS.map((_, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => handleMobileStep(i)}
+            <div className="flex items-center gap-1.5" role="tablist" aria-label="Studio steps">
+              {MOBILE_STEPS.map((step, i) => (
+                <button
+                  key={step.value}
+                  type="button"
+                  role="tab"
+                  aria-selected={i === mobileStep}
+                  onClick={() => handleMobileStep(i)}
+                  // 8px dot inside a 40px hit area — the dot alone was far below the
+                  // 44px minimum touch target.
+                  className="grid h-10 w-5 place-items-center"
+                  aria-label={`${step.label} (step ${i + 1} of ${MOBILE_STEPS.length})`}
+                >
+                  <span
                     className={cn(
-                      "h-2 w-2 rounded-full transition-all duration-200",
+                      "block h-2 rounded-full transition-all duration-200",
                       i === mobileStep
                         ? "bg-amber-500 w-5"
                         : i < mobileStep
-                          ? "bg-amber-500/50"
-                          : "bg-muted-foreground/20 dark:bg-slate-600",
+                          ? "bg-amber-500/50 w-2"
+                          : "bg-muted-foreground/20 w-2",
                     )}
-                    aria-label={`Step ${i + 1}`}
                   />
-                ))}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => handleMobileStep(mobileStep + 1)}
-                disabled={mobileStep >= MOBILE_STEPS.length - 1}
-                className="flex items-center gap-1 text-xs font-semibold text-muted-foreground disabled:opacity-30 disabled:pointer-events-none hover:text-foreground min-h-10 px-1"
-              >
-                <span>Next</span>
-                <ChevronRight className="h-4 w-4" />
-              </button>
+                </button>
+              ))}
             </div>
 
-            {/* Step label */}
-            <p className="text-center text-[11px] font-bold text-muted-foreground mt-1.5">
-              {mobileStep + 1} / {MOBILE_STEPS.length} &mdash; {MOBILE_STEP_LABELS[mobileStep]}
-            </p>
+            <button
+              type="button"
+              onClick={() => handleMobileStep(mobileStep + 1)}
+              disabled={mobileStep >= MOBILE_STEPS.length - 1}
+              className="flex items-center gap-1 text-xs font-semibold text-muted-foreground disabled:opacity-30 disabled:pointer-events-none hover:text-foreground min-h-10 px-1"
+            >
+              <span>Next</span>
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
-        )}
+
+          {/* Step label */}
+          <p className="text-center text-[11px] font-bold text-muted-foreground mt-1.5">
+            {mobileStep + 1} / {MOBILE_STEPS.length} &mdash; {MOBILE_STEP_LABELS[mobileStep]}
+          </p>
+        </div>
 
         {/* ── Alert Banner ── */}
-        {alert && <div className="px-4 sm:px-6 py-3">{alert}</div>}
+        {alert && (
+          <div className="mx-auto w-full max-w-[94rem] px-3 sm:px-6 lg:px-8 py-3">{alert}</div>
+        )}
 
-        {/* ── Main Content (desktop: sidebar layout; mobile: full-width) ── */}
+        {/* ── Main Content ── */}
         <div
           className={cn(
-            "flex-1",
-            !isMobile && showSidebar
-              ? "mx-auto w-full max-w-[94rem] px-3 sm:px-6 lg:px-8 py-5 flex gap-6"
-              : isMobile
-                ? "px-3 py-4 pb-28" /* extra pb for bottom bar */
-                : "mx-auto w-full max-w-[94rem] px-3 sm:px-6 lg:px-8 py-5",
+            "flex-1 mx-auto w-full max-w-[94rem]",
+            "px-3 sm:px-6 lg:px-8 py-4 sm:py-5",
+            "pb-28 md:pb-5" /* clearance for the mobile action bar */,
+            showSidebar && "lg:flex lg:gap-6",
           )}
         >
-          {/* Main content area */}
-          <main
-            className={cn("min-w-0", !isMobile && showSidebar ? "w-full lg:w-[72%]" : "w-full")}
-          >
-            {/* Desktop: render the active tab content */}
-            {!isMobile
-              ? React.Children.map(children, (child) => {
-                  if (!React.isValidElement(child)) return null;
-                  const props = child.props as { value?: string };
-                  if (props.value === activeTab) {
-                    return (
-                      <div key={props.value} className="animate-fade-in">
-                        {child}
-                      </div>
-                    );
-                  }
-                  return null;
-                })
-              : /* Mobile: render only the current step's content */
-                React.Children.map(children, (child) => {
-                  if (!React.isValidElement(child)) return null;
-                  const props = child.props as { value?: string };
-                  if (props.value === MOBILE_STEPS[mobileStep]?.value) {
-                    return (
-                      <div key={props.value} className="animate-fade-in">
-                        {child}
-                      </div>
-                    );
-                  }
-                  return null;
-                })}
+          {/* Panels render exactly once, here. */}
+          <main className={cn("min-w-0", showSidebar ? "w-full lg:w-[72%]" : "w-full")}>
+            <div key={activeTab} className="animate-fade-in">
+              {activePanel}
+            </div>
           </main>
 
           {/* Right Sidebar (desktop only, hidden on preview tab) */}
-          {!isMobile && showSidebar && (
+          {showSidebar && (
             <aside className="hidden lg:block w-[28%] shrink-0">
               <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto ws-scroll space-y-4 pr-0.5">
                 <StudioRightSidebar
@@ -322,9 +300,11 @@ export function NewStudioLayout({
         </div>
 
         {/* ── Mobile Settings Drawer ── */}
-        {isMobile && mobileSettingsOpen && (
-          <div className="fixed inset-0 z-50 flex">
-            <div
+        {mobileSettingsOpen && (
+          <div className="md:hidden fixed inset-0 z-50 flex" role="dialog" aria-modal="true">
+            <button
+              type="button"
+              aria-label="Close settings"
               className="absolute inset-0 bg-black/40"
               onClick={() => setMobileSettingsOpen(false)}
             />
@@ -334,7 +314,7 @@ export function NewStudioLayout({
                 <button
                   type="button"
                   onClick={() => setMobileSettingsOpen(false)}
-                  className="text-xs font-semibold text-muted-foreground hover:text-foreground"
+                  className="text-xs font-semibold text-muted-foreground hover:text-foreground min-h-10 px-2"
                 >
                   Close
                 </button>
@@ -361,51 +341,49 @@ export function NewStudioLayout({
         )}
 
         {/* ── Mobile Bottom Save Bar ── */}
-        {isMobile && (
-          <div className="fixed bottom-0 inset-x-0 z-40 border-t border-border bg-card px-3 py-3 shadow-2xl">
-            <div className="flex items-center justify-between gap-1.5 max-w-lg mx-auto">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-11 px-2.5 text-xs font-semibold text-muted-foreground"
-                onClick={() => setMobileSettingsOpen(true)}
-              >
-                <Settings2 className="h-5 w-5" />
-              </Button>
+        <div className="md:hidden fixed bottom-0 inset-x-0 z-40 border-t border-border bg-card px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-2xl">
+          <div className="flex items-center justify-between gap-1.5 max-w-lg mx-auto">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-11 px-2.5 text-xs font-semibold text-muted-foreground"
+              onClick={() => setMobileSettingsOpen(true)}
+            >
+              <Settings2 className="h-5 w-5" />
+            </Button>
 
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-11 gap-1.5 text-xs font-semibold flex-1"
-                onClick={onSave}
-                disabled={saving}
-              >
-                <Save className="h-4 w-4 text-amber-500" />
-                Save Draft
-              </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-11 gap-1.5 text-xs font-semibold flex-1"
+              onClick={onSave}
+              disabled={saving}
+            >
+              <Save className="h-4 w-4 text-amber-500" />
+              Save Draft
+            </Button>
 
-              <Button
-                size="sm"
-                className="h-11 gap-1.5 text-xs font-extrabold shadow-xs bg-amber-500 hover:bg-amber-600 text-slate-950 flex-1"
-                onClick={onPublish}
-                disabled={saving}
-              >
-                <Send className="h-4 w-4" />
-                {status === "active" ? "Changes" : "Publish"}
-              </Button>
+            <Button
+              size="sm"
+              className="h-11 gap-1.5 text-xs font-extrabold shadow-xs bg-amber-500 hover:bg-amber-600 text-amber-950 flex-1"
+              onClick={onPublish}
+              disabled={saving}
+            >
+              <Send className="h-4 w-4" />
+              {status === "active" ? "Changes" : "Publish"}
+            </Button>
 
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-11 px-2.5 text-xs font-semibold text-muted-foreground"
-                onClick={() => handleMobileStep(mobileStep + 1)}
-                disabled={mobileStep >= MOBILE_STEPS.length - 1}
-              >
-                <ChevronRight className="h-5 w-5" />
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-11 px-2.5 text-xs font-semibold text-muted-foreground"
+              onClick={() => handleMobileStep(mobileStep + 1)}
+              disabled={mobileStep >= MOBILE_STEPS.length - 1}
+            >
+              <ChevronRight className="h-5 w-5" />
+            </Button>
           </div>
-        )}
+        </div>
       </div>
     </StudioLayoutCtx.Provider>
   );

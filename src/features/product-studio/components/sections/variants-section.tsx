@@ -19,6 +19,14 @@ export interface VariantRow {
   weight?: number;
   price?: number;
   stock?: number;
+
+  /* Enterprise generic-attribute variant fields (PRODUCT-DOMAIN-002A) */
+  name?: string;
+  attributes?: Record<string, string>;
+  priceAdjustment?: number;
+  image?: string;
+  status?: "active" | "inactive";
+  isActive?: boolean;
 }
 
 export interface VariantsSectionProps {

@@ -1,3 +1,4 @@
+import type { PipelineStage } from "mongoose";
 import { BaseRepository } from "@/lib/database/generic-repository";
 import { ProductModel, ProductDocument } from "./product-model";
 import { Product } from "../domain/product-entity";
@@ -17,6 +18,37 @@ export interface PaginatedCatalogResult<T> {
   totalCount: number;
   cursor?: string | null;
   hasMore: boolean;
+  limit: number;
+}
+
+export interface PublicCardPricingRow {
+  sellingPrice?: number;
+  comparePrice?: number;
+  promotionalPrice?: number;
+  currency?: string;
+}
+
+export interface PublicCardQueryParams {
+  filter: Record<string, unknown>;
+  textQuery?: string;
+  minPriceMinor?: number;
+  maxPriceMinor?: number;
+  onSale?: boolean;
+  inStock?: boolean;
+  sort: "newest" | "price_asc" | "price_desc" | "featured" | "name_asc" | "relevance";
+  page: number;
+  limit: number;
+}
+
+export interface PublicCardQueryResult {
+  items: Array<{
+    product: Product;
+    pricing: PublicCardPricingRow | null;
+    /** Summed available stock across active inventory rows; null = untracked. */
+    stockTotal: number | null;
+  }>;
+  totalCount: number;
+  page: number;
   limit: number;
 }
 
@@ -236,7 +268,11 @@ export class ProductRepository extends BaseRepository<ProductDocument, Product> 
 
       const hasMore = docs.length > params.limit;
       const items = docs.slice(0, params.limit);
-      const totalCount = await this.model.countDocuments(filter).exec();
+      // Counted against the same predicate as the page itself — counting `filter`
+      // alone included soft-deleted products and over-reported the total.
+      const totalCount = await this.model
+        .countDocuments({ ...filter, isDeleted: { $ne: true } })
+        .exec();
 
       return {
         items: items.map((doc: any) => ProductRepository.mapToDomain(doc as ProductDocument)),
@@ -312,11 +348,242 @@ export class ProductRepository extends BaseRepository<ProductDocument, Product> 
     }
   }
 
+  /** Minimal projection for the XML sitemap: slug + updatedAt of publicly visible products. */
+  async findSlugsForSitemap(limit = 5000): Promise<Array<{ slug: string; updatedAt?: Date }>> {
+    try {
+      await this.ensureConnected();
+      const docs = await this.model
+        .find({ status: "active", visibility: "public", isDeleted: { $ne: true } })
+        .select("slug updatedAt")
+        .sort({ updatedAt: -1 })
+        .limit(limit)
+        .lean()
+        .exec();
+      return docs.map((doc: any) => ({ slug: doc.slug, updatedAt: doc.updatedAt }));
+    } catch (error) {
+      logger.error("ProductRepository findSlugsForSitemap failed", error);
+      throw new DatabaseError("Database query error", error);
+    }
+  }
+
   async countByStatus(status: string): Promise<number> {
     try {
       return this.count({ status });
     } catch (error) {
       logger.error("ProductRepository countByStatus failed", error, { status });
+      throw new DatabaseError("Database count error", error);
+    }
+  }
+
+  /**
+   * Product counts grouped by a reference field (`categoryId`, `brandId`, …).
+   * One aggregation for the whole taxonomy instead of a count query per row.
+   */
+  async groupCountBy(
+    field: "categoryId" | "brandId" | "supplierId",
+    match: Record<string, unknown> = {},
+  ): Promise<{ key: string; count: number }[]> {
+    try {
+      await this.ensureConnected();
+      const rows = await this.model
+        .aggregate<{ _id: unknown; count: number }>([
+          { $match: { ...match, isDeleted: { $ne: true }, [field]: { $ne: null } } },
+          { $group: { _id: `$${field}`, count: { $sum: 1 } } },
+        ])
+        .exec();
+      return rows
+        .filter((row) => row._id !== null && row._id !== undefined)
+        .map((row) => ({ key: String(row._id), count: row.count }));
+    } catch (error) {
+      logger.error("ProductRepository groupCountBy failed", error, { field });
+      throw new DatabaseError("Database count error", error);
+    }
+  }
+
+  /**
+   * Public storefront listing query: joins the base pricing row and the
+   * inventory total in ONE aggregation so lists never fan out into
+   * per-product queries, price sorting/filtering happens in the database
+   * (pre-pagination), and stock is real.
+   *
+   * Monetary inputs/outputs here are MINOR units (paisa) — conversion to BDT
+   * is the PublicCatalogService's job.
+   */
+  async findPublicCards(params: PublicCardQueryParams): Promise<PublicCardQueryResult> {
+    try {
+      await this.ensureConnected();
+
+      const match: Record<string, unknown> = { ...params.filter, isDeleted: { $ne: true } };
+      if (params.textQuery) match.$text = { $search: params.textQuery };
+
+      const pipeline: PipelineStage[] = [
+        { $match: match },
+        // Base pricing row: prefer the product-level row (no variantSku).
+        // Missing values sort before strings, so the variantSku-less row wins.
+        {
+          $lookup: {
+            from: "productpricings",
+            let: { pid: "$_id" },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$productId", "$$pid"] } } },
+              { $sort: { variantSku: 1 } },
+              { $limit: 1 },
+              {
+                $project: {
+                  _id: 0,
+                  sellingPrice: 1,
+                  comparePrice: 1,
+                  promotionalPrice: 1,
+                  currency: 1,
+                },
+              },
+            ],
+            as: "pricingRows",
+          },
+        },
+        {
+          $lookup: {
+            from: "productinventories",
+            let: { pid: "$_id" },
+            pipeline: [
+              { $match: { $expr: { $eq: ["$productId", "$$pid"] } } },
+              { $match: { status: "active" } },
+              { $group: { _id: null, total: { $sum: "$availableStock" } } },
+            ],
+            as: "stockRows",
+          },
+        },
+        {
+          $addFields: {
+            publicPricing: { $first: "$pricingRows" },
+            publicStockTotal: { $first: "$stockRows.total" },
+            publicStockTracked: { $gt: [{ $size: "$stockRows" }, 0] },
+          },
+        },
+        {
+          $addFields: {
+            publicEffectivePrice: {
+              $cond: [
+                {
+                  $and: [
+                    { $gt: ["$publicPricing.promotionalPrice", 0] },
+                    { $lt: ["$publicPricing.promotionalPrice", "$publicPricing.sellingPrice"] },
+                  ],
+                },
+                "$publicPricing.promotionalPrice",
+                "$publicPricing.sellingPrice",
+              ],
+            },
+          },
+        },
+      ];
+
+      if (params.minPriceMinor !== undefined || params.maxPriceMinor !== undefined) {
+        const range: Record<string, number> = {};
+        if (params.minPriceMinor !== undefined) range.$gte = params.minPriceMinor;
+        if (params.maxPriceMinor !== undefined) range.$lte = params.maxPriceMinor;
+        pipeline.push({ $match: { publicEffectivePrice: range } });
+      }
+
+      if (params.onSale) {
+        pipeline.push({
+          $match: {
+            $expr: {
+              $or: [
+                {
+                  $and: [
+                    { $gt: ["$publicPricing.promotionalPrice", 0] },
+                    { $lt: ["$publicPricing.promotionalPrice", "$publicPricing.sellingPrice"] },
+                  ],
+                },
+                { $gt: ["$publicPricing.comparePrice", "$publicPricing.sellingPrice"] },
+              ],
+            },
+          },
+        });
+      }
+
+      if (params.inStock) {
+        // Untracked products (no inventory rows) count as sellable —
+        // dropship items are not stock-managed locally.
+        pipeline.push({
+          $match: {
+            $or: [{ publicStockTracked: false }, { publicStockTotal: { $gt: 0 } }],
+          },
+        });
+      }
+
+      const sortStage: Record<string, 1 | -1 | { $meta: "textScore" }> =
+        params.textQuery && params.sort === "relevance"
+          ? { score: { $meta: "textScore" }, createdAt: -1 }
+          : params.sort === "price_asc"
+            ? { publicEffectivePrice: 1, _id: 1 }
+            : params.sort === "price_desc"
+              ? { publicEffectivePrice: -1, _id: -1 }
+              : params.sort === "featured"
+                ? { featured: -1, createdAt: -1, _id: -1 }
+                : params.sort === "name_asc"
+                  ? { name: 1, _id: 1 }
+                  : { createdAt: -1, _id: -1 };
+
+      const page = Math.max(1, params.page);
+      const limit = params.limit;
+
+      pipeline.push({
+        $facet: {
+          items: [{ $sort: sortStage }, { $skip: (page - 1) * limit }, { $limit: limit }],
+          total: [{ $count: "n" }],
+        },
+      });
+
+      const [result] = await this.model.aggregate(pipeline).exec();
+      const docs: Array<
+        ProductDocument & {
+          publicPricing?: PublicCardPricingRow | null;
+          publicStockTotal?: number | null;
+          publicStockTracked?: boolean;
+        }
+      > = result?.items ?? [];
+      const totalCount: number = result?.total?.[0]?.n ?? 0;
+
+      return {
+        items: docs.map((doc) => ({
+          product: ProductRepository.mapToDomain(doc as ProductDocument),
+          pricing: doc.publicPricing ?? null,
+          stockTotal: doc.publicStockTracked ? (doc.publicStockTotal ?? 0) : null,
+        })),
+        totalCount,
+        page,
+        limit,
+      };
+    } catch (error) {
+      logger.error("ProductRepository findPublicCards failed", error);
+      throw new DatabaseError("Database query error", error);
+    }
+  }
+
+  /**
+   * Live catalog counters. Computed in the database rather than by paging documents
+   * into memory, so the dashboard KPIs reflect the whole catalog and not just page 1.
+   */
+  async countCatalogStatuses(): Promise<{
+    total: number;
+    active: number;
+    draft: number;
+    archived: number;
+  }> {
+    try {
+      await this.ensureConnected();
+      const base = { isDeleted: { $ne: true } };
+      const [total, active, draft, archived] = await Promise.all([
+        this.model.countDocuments(base).exec(),
+        this.model.countDocuments({ ...base, status: "active" }).exec(),
+        this.model.countDocuments({ ...base, status: "draft" }).exec(),
+        this.model.countDocuments({ ...base, status: "archived" }).exec(),
+      ]);
+      return { total, active, draft, archived };
+    } catch (error) {
+      logger.error("ProductRepository countCatalogStatuses failed", error);
       throw new DatabaseError("Database count error", error);
     }
   }

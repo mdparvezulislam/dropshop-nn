@@ -14,8 +14,10 @@ import {
   ToggleRight,
   ArrowRight,
 } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { useTaxonomy } from "@/features/catalog/hooks/use-taxonomy";
 import type { StudioFormState } from "../hooks/use-product-studio";
 
 interface StudioQuickCreateProps {
@@ -37,6 +39,7 @@ export function StudioQuickCreate({
   saving,
   onSwitchToAdvanced,
 }: StudioQuickCreateProps) {
+  const { flatCategories, brands, loading: taxonomyLoading } = useTaxonomy();
   const costNum = parseFloat(form.costPrice) || 0;
   const autoSelling = costNum > 0 ? (costNum * 1.3).toFixed(0) : "";
   const autoReseller = costNum > 0 ? (costNum * 1.2).toFixed(0) : "";
@@ -69,9 +72,9 @@ export function StudioQuickCreate({
   const primaryImageUrl = form.media && form.media.length > 0 ? form.media[0].url : "";
 
   return (
-    <div className="bg-card dark:bg-slate-900 border border-border dark:border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+    <div className="bg-card border border-border rounded-2xl p-6 shadow-xl space-y-6">
       {/* Header Banner */}
-      <div className="flex items-center justify-between pb-4 border-b border-border dark:border-slate-800">
+      <div className="flex items-center justify-between pb-4 border-b border-border">
         <div className="flex items-center space-x-3">
           <div className="p-2.5 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-500">
             <Zap className="w-6 h-6" />
@@ -79,7 +82,7 @@ export function StudioQuickCreate({
           <div>
             <h2 className="text-lg font-black text-foreground flex items-center space-x-2">
               <span>Express Quick Create Workspace</span>
-              <span className="text-[10px] bg-amber-500 text-slate-950 px-2 py-0.5 rounded font-extrabold uppercase">
+              <span className="text-[10px] bg-amber-500 text-amber-950 px-2 py-0.5 rounded font-extrabold uppercase">
                 High-Speed Express
               </span>
             </h2>
@@ -93,7 +96,7 @@ export function StudioQuickCreate({
           type="button"
           variant="outline"
           onClick={onSwitchToAdvanced}
-          className="border-border dark:border-slate-700 text-muted-foreground hover:bg-muted hover:text-foreground text-xs font-bold"
+          className="border-border text-muted-foreground hover:bg-muted hover:text-foreground text-xs font-bold"
         >
           <span>Advanced Mode</span>
           <ArrowRight className="w-4 h-4 ml-1.5" />
@@ -115,44 +118,90 @@ export function StudioQuickCreate({
             value={form.name}
             onChange={(e) => update("name", e.target.value)}
             placeholder="e.g. T900 Ultra Smart Watch - Gold Edition"
-            className="w-full px-4 py-3 bg-card dark:bg-slate-950 border border-border dark:border-slate-800 rounded-xl text-foreground font-medium text-sm focus:outline-none focus:border-amber-500 transition"
+            className="w-full px-4 py-3 bg-card border border-border rounded-xl text-foreground font-medium text-sm focus:outline-none focus:border-amber-500 transition"
           />
         </div>
 
         {/* Field 2: Category Select */}
         <div className="space-y-2">
-          <label className="text-xs font-bold text-foreground flex items-center space-x-1.5">
+          <label
+            htmlFor="quick-category"
+            className="text-xs font-bold text-foreground flex items-center space-x-1.5"
+          >
             <Layers className="w-3.5 h-3.5 text-amber-500" />
             <span>2. Category (ক্যাটাগরি) *</span>
           </label>
-          <input
-            type="text"
-            value={form.categoryName || form.categoryId}
+          {/* A real picker, not free text: these fields hold ObjectId references, and
+              typing a name into them wrote an unresolvable id that failed on save. */}
+          <select
+            id="quick-category"
+            value={form.categoryId}
             onChange={(e) => {
-              update("categoryName", e.target.value);
+              const selected = flatCategories.find((c) => c.id === e.target.value);
               update("categoryId", e.target.value);
+              update("categoryName", selected?.name ?? "");
             }}
-            placeholder="e.g. Smart Watch & Electronics"
-            className="w-full px-4 py-2.5 bg-card dark:bg-slate-950 border border-border dark:border-slate-800 rounded-xl text-foreground font-medium text-sm focus:outline-none focus:border-amber-500 transition"
-          />
+            disabled={taxonomyLoading}
+            className="w-full px-4 py-2.5 bg-card border border-border rounded-xl text-foreground font-medium text-sm focus:outline-none focus:border-amber-500 transition disabled:opacity-60"
+          >
+            <option value="">
+              {taxonomyLoading ? "Loading categories…" : "— Select a category —"}
+            </option>
+            {flatCategories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {"\u00A0".repeat(category.depth * 3)}
+                {category.depth > 0 ? "└ " : ""}
+                {category.name}
+              </option>
+            ))}
+          </select>
+          {!taxonomyLoading && flatCategories.length === 0 && (
+            <Link
+              href="/dashboard/catalog/categories"
+              target="_blank"
+              className="inline-block text-[11px] font-bold text-amber-600 dark:text-amber-500 hover:underline"
+            >
+              + Create your first category
+            </Link>
+          )}
         </div>
 
         {/* Field 3: Brand / Manufacturer */}
         <div className="space-y-2">
-          <label className="text-xs font-bold text-foreground flex items-center space-x-1.5">
+          <label
+            htmlFor="quick-brand"
+            className="text-xs font-bold text-foreground flex items-center space-x-1.5"
+          >
             <Building2 className="w-3.5 h-3.5 text-amber-500" />
             <span>3. Brand / Manufacturer (ব্র্যান্ড)</span>
           </label>
-          <input
-            type="text"
-            value={form.brandName || form.brandId}
+          <select
+            id="quick-brand"
+            value={form.brandId}
             onChange={(e) => {
-              update("brandName", e.target.value);
+              const selected = brands.find((b) => b.id === e.target.value);
               update("brandId", e.target.value);
+              update("brandName", selected?.name ?? "");
             }}
-            placeholder="e.g. Unique Store BD / Apple"
-            className="w-full px-4 py-2.5 bg-card dark:bg-slate-950 border border-border dark:border-slate-800 rounded-xl text-foreground font-medium text-sm focus:outline-none focus:border-amber-500 transition"
-          />
+            disabled={taxonomyLoading}
+            className="w-full px-4 py-2.5 bg-card border border-border rounded-xl text-foreground font-medium text-sm focus:outline-none focus:border-amber-500 transition disabled:opacity-60"
+          >
+            <option value="">{taxonomyLoading ? "Loading brands…" : "— No brand —"}</option>
+            {brands.map((brand) => (
+              <option key={brand.id} value={brand.id}>
+                {brand.name}
+              </option>
+            ))}
+          </select>
+          {!taxonomyLoading && brands.length === 0 && (
+            <Link
+              href="/dashboard/catalog/brands"
+              target="_blank"
+              className="inline-block text-[11px] font-bold text-amber-600 dark:text-amber-500 hover:underline"
+            >
+              + Create your first brand
+            </Link>
+          )}
         </div>
 
         {/* Field 4: Initial Stock */}
@@ -166,12 +215,12 @@ export function StudioQuickCreate({
             value={form.stock}
             onChange={(e) => update("stock", e.target.value)}
             placeholder="50"
-            className="w-full px-4 py-2.5 bg-card dark:bg-slate-950 border border-border dark:border-slate-800 rounded-xl text-foreground font-medium text-sm focus:outline-none focus:border-amber-500 transition"
+            className="w-full px-4 py-2.5 bg-card border border-border rounded-xl text-foreground font-medium text-sm focus:outline-none focus:border-amber-500 transition"
           />
         </div>
 
         {/* Field 5: Cost Price & Auto-Calculated Tiers */}
-        <div className="space-y-2 md:col-span-2 bg-muted/30 dark:bg-slate-950 p-4 rounded-xl border border-border dark:border-slate-800">
+        <div className="space-y-2 md:col-span-2 bg-muted/30 p-4 rounded-xl border border-border">
           <label className="text-xs font-bold text-amber-400 flex items-center space-x-1.5">
             <DollarSign className="w-4 h-4" />
             <span>5. Cost Price (ক্রয় মূল্য ৳) *</span>
@@ -181,25 +230,25 @@ export function StudioQuickCreate({
             value={form.costPrice}
             onChange={(e) => update("costPrice", e.target.value)}
             placeholder="800"
-            className="w-full px-4 py-2.5 bg-card dark:bg-slate-900 border border-amber-500/30 rounded-xl text-amber-400 font-extrabold text-base focus:outline-none focus:border-amber-500 transition"
+            className="w-full px-4 py-2.5 bg-card border border-amber-500/30 rounded-xl text-amber-400 font-extrabold text-base focus:outline-none focus:border-amber-500 transition"
           />
 
           {/* Auto Tier Preview */}
           {costNum > 0 && (
-            <div className="pt-3 grid grid-cols-3 gap-2 text-xs border-t border-border/80 dark:border-slate-800/80">
-              <div className="bg-muted dark:bg-slate-900 p-2.5 rounded-lg border border-border dark:border-slate-800 text-center">
+            <div className="pt-3 grid grid-cols-3 gap-2 text-xs border-t border-border/80">
+              <div className="bg-muted p-2.5 rounded-lg border border-border text-center">
                 <span className="block text-[10px] text-muted-foreground font-semibold uppercase">
                   Retail (+30%)
                 </span>
                 <span className="font-black text-amber-400 text-sm">৳{autoSelling}</span>
               </div>
-              <div className="bg-muted dark:bg-slate-900 p-2.5 rounded-lg border border-border dark:border-slate-800 text-center">
+              <div className="bg-muted p-2.5 rounded-lg border border-border text-center">
                 <span className="block text-[10px] text-muted-foreground font-semibold uppercase">
                   Reseller (+20%)
                 </span>
                 <span className="font-black text-blue-400 text-sm">৳{autoReseller}</span>
               </div>
-              <div className="bg-muted dark:bg-slate-900 p-2.5 rounded-lg border border-border dark:border-slate-800 text-center">
+              <div className="bg-muted p-2.5 rounded-lg border border-border text-center">
                 <span className="block text-[10px] text-muted-foreground font-semibold uppercase">
                   Wholesale (+12%)
                 </span>
@@ -224,7 +273,7 @@ export function StudioQuickCreate({
                 update("media", url ? [{ url, type: "image", isFeatured: true }] : []);
               }}
               placeholder="https://ik.imagekit.io/dropshop/products/watch.jpg"
-              className="flex-1 px-4 py-2.5 bg-card dark:bg-slate-950 border border-border dark:border-slate-800 rounded-xl text-foreground font-medium text-sm focus:outline-none focus:border-amber-500 transition"
+              className="flex-1 px-4 py-2.5 bg-card border border-border rounded-xl text-foreground font-medium text-sm focus:outline-none focus:border-amber-500 transition"
             />
             {primaryImageUrl && (
               <div className="w-11 h-11 rounded-lg overflow-hidden border border-amber-500/50 shrink-0">
@@ -245,7 +294,7 @@ export function StudioQuickCreate({
             value={form.shortDescription}
             onChange={(e) => update("shortDescription", e.target.value)}
             placeholder="Brief summary used for store cards, search snippets, and mobile catalog..."
-            className="w-full px-4 py-2.5 bg-card dark:bg-slate-950 border border-border dark:border-slate-800 rounded-xl text-foreground font-medium text-xs focus:outline-none focus:border-amber-500 transition"
+            className="w-full px-4 py-2.5 bg-card border border-border rounded-xl text-foreground font-medium text-xs focus:outline-none focus:border-amber-500 transition"
           />
         </div>
 
@@ -260,12 +309,12 @@ export function StudioQuickCreate({
             value={form.notice || ""}
             onChange={(e) => update("notice", e.target.value)}
             placeholder="e.g. ৩ দিনের মধ্যে ফ্রি ডেলিভারি / ১০০% অরিজিনাল অফিশিয়াল ওয়ারেন্টি"
-            className="w-full px-4 py-2.5 bg-card dark:bg-slate-950 border border-border dark:border-slate-800 rounded-xl text-amber-300 font-medium text-xs focus:outline-none focus:border-amber-500 transition"
+            className="w-full px-4 py-2.5 bg-card border border-border rounded-xl text-amber-300 font-medium text-xs focus:outline-none focus:border-amber-500 transition"
           />
         </div>
 
         {/* Field 9: Status Toggle */}
-        <div className="space-y-2 md:col-span-2 bg-muted/30 dark:bg-slate-950 p-4 rounded-xl border border-border dark:border-slate-800 flex items-center justify-between">
+        <div className="space-y-2 md:col-span-2 bg-muted/30 p-4 rounded-xl border border-border flex items-center justify-between">
           <div>
             <label className="text-xs font-bold text-foreground block">
               9. Initial Status (স্ট্যাটাস) *
@@ -298,12 +347,12 @@ export function StudioQuickCreate({
       </div>
 
       {/* Action CTA Buttons */}
-      <div className="flex items-center justify-end space-x-3 pt-4 border-t border-border dark:border-slate-800">
+      <div className="flex items-center justify-end space-x-3 pt-4 border-t border-border">
         <Button
           type="button"
           disabled={saving}
           onClick={() => handleQuickSubmit(false)}
-          className="bg-muted dark:bg-slate-800 hover:bg-muted/80 dark:hover:bg-slate-700 text-foreground text-xs font-bold px-5 py-2.5 rounded-xl"
+          className="bg-muted hover:bg-muted/80 text-foreground text-xs font-bold px-5 py-2.5 rounded-xl"
         >
           Save Draft (খসড়া)
         </Button>
@@ -311,7 +360,7 @@ export function StudioQuickCreate({
           type="button"
           disabled={saving}
           onClick={() => handleQuickSubmit(true)}
-          className="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black px-6 py-2.5 rounded-xl shadow-lg shadow-amber-500/20"
+          className="bg-amber-500 hover:bg-amber-600 text-amber-950 text-xs font-black px-6 py-2.5 rounded-xl shadow-lg shadow-amber-500/20"
         >
           Publish Product Now (পাবলিশ করুন)
         </Button>

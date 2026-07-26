@@ -1,69 +1,120 @@
 "use client";
 
-import { useState } from "react";
-import { ProductCard, type ProductCardData } from "./product-card";
-import { ShopToolbar } from "./shop-toolbar";
+import { useEffect, useRef, useState, type ReactElement, type ReactNode } from "react";
+import Link from "next/link";
+import { RotateCcw, Search, X } from "lucide-react";
+import { ProductCard } from "./product-card";
+import { ShopToolbar, type CatalogViewMode } from "./shop-toolbar";
 import { CatalogFilterSidebar } from "./catalog-filter-sidebar";
 import { QuickViewDrawer } from "./quick-view-drawer";
 import { CompareDrawer } from "./compare-drawer";
-import type { Category, Brand } from "@/features/catalog/domain/classification-entity";
-import { SlidersHorizontal, Search, RotateCcw } from "lucide-react";
-import Link from "next/link";
+import type {
+  PublicBrandInfo,
+  PublicCategoryInfo,
+  PublicProductCard,
+} from "@/features/catalog/domain/public-catalog-types";
 
-interface ProductsCatalogClientProps {
-  initialProducts: ProductCardData[];
-  categories: Category[];
-  brands: Brand[];
+export interface ProductsCatalogClientProps {
+  /** Server-fetched page of products; the grid re-renders via server navigation. */
+  products: PublicProductCard[];
+  /** Real total from PublicListResult.totalCount. */
+  totalCount: number;
+  categories: PublicCategoryInfo[] | null;
+  brands: PublicBrandInfo[] | null;
+  /** Server-rendered pagination links (ProductPagination). */
+  pagination?: ReactNode;
+  defaultSort?: "newest" | "relevance";
+  showSearchBox?: boolean;
+  /** Where the "reset filters" empty-state link points. */
+  resetHref?: string;
 }
 
+/**
+ * Thin interactive shell around the server-rendered catalog. The only client
+ * state here is presentation (view mode, drawers, mobile filter panel) —
+ * filtering, sorting and paging all go through URL params and re-render on
+ * the server. No client-side product fetching or duplicated product state.
+ */
 export function ProductsCatalogClient({
-  initialProducts,
+  products,
+  totalCount,
   categories,
   brands,
-}: ProductsCatalogClientProps) {
-  const [viewMode, setViewMode] = useState<"grid" | "compact" | "list">("grid");
-  const [quickViewProduct, setQuickViewProduct] = useState<ProductCardData | null>(null);
-  const [compareList, setCompareList] = useState<ProductCardData[]>([]);
+  pagination,
+  defaultSort = "newest",
+  showSearchBox = true,
+  resetHref = "/products",
+}: ProductsCatalogClientProps): ReactElement {
+  const [viewMode, setViewMode] = useState<CatalogViewMode>("grid");
+  const [quickViewProduct, setQuickViewProduct] = useState<PublicProductCard | null>(null);
+  const [compareList, setCompareList] = useState<PublicProductCard[]>([]);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const mobileCloseButtonRef = useRef<HTMLButtonElement>(null);
 
-  const handleCompare = (product: ProductCardData) => {
-    if (compareList.some((p) => p.id === product.id)) return;
-    if (compareList.length >= 4) return;
-    setCompareList((prev) => [...prev, product]);
+  useEffect(() => {
+    if (!mobileFilterOpen) return;
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    mobileCloseButtonRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === "Escape") setMobileFilterOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      previous?.focus();
+    };
+  }, [mobileFilterOpen]);
+
+  const handleCompare = (product: PublicProductCard): void => {
+    setCompareList((prev) => {
+      if (prev.some((p) => p.id === product.id) || prev.length >= 4) return prev;
+      return [...prev, product];
+    });
   };
 
-  const handleRemoveCompare = (id: string) => {
+  const handleRemoveCompare = (id: string): void => {
     setCompareList((prev) => prev.filter((p) => p.id !== id));
   };
 
   return (
     <div>
-      {/* Sticky Shop Toolbar */}
       <ShopToolbar
-        totalItems={initialProducts.length}
+        totalCount={totalCount}
         viewMode={viewMode}
         onViewChange={setViewMode}
-        onMobileFilterToggle={() => setMobileFilterOpen(!mobileFilterOpen)}
+        onMobileFilterToggle={() => setMobileFilterOpen((open) => !open)}
+        defaultSort={defaultSort}
+        showSearchBox={showSearchBox}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
-        {/* Desktop Filter Sidebar */}
-        <div className="hidden lg:block lg:col-span-1">
+      <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-4">
+        <div className="hidden lg:col-span-1 lg:block">
           <CatalogFilterSidebar categories={categories} brands={brands} />
         </div>
 
-        {/* Mobile Drawer Filter */}
         {mobileFilterOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden bg-black/50 backdrop-blur-xs p-4 overflow-y-auto">
-            <div className="bg-white rounded-3xl p-5 max-w-sm ml-auto space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b">
-                <h3 className="text-sm font-extrabold text-foreground">ফিল্টার অপশন</h3>
+          <div
+            className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-4 backdrop-blur-xs lg:hidden"
+            onClick={() => setMobileFilterOpen(false)}
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label="ফিল্টার অপশন"
+              onClick={(e) => e.stopPropagation()}
+              className="ml-auto max-w-sm space-y-4 rounded-3xl bg-white p-5"
+            >
+              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                <h3 className="text-sm font-extrabold text-slate-900">ফিল্টার অপশন</h3>
                 <button
+                  ref={mobileCloseButtonRef}
                   type="button"
                   onClick={() => setMobileFilterOpen(false)}
-                  className="text-xs font-bold text-slate-500 hover:text-foreground"
+                  aria-label="ফিল্টার প্যানেল বন্ধ করুন"
+                  className="flex items-center gap-1 rounded text-xs font-bold text-slate-500 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-amber-600"
                 >
-                  বন্ধ করুন ✕
+                  বন্ধ করুন
+                  <X className="h-3.5 w-3.5" aria-hidden />
                 </button>
               </div>
               <CatalogFilterSidebar categories={categories} brands={brands} />
@@ -71,53 +122,54 @@ export function ProductsCatalogClient({
           </div>
         )}
 
-        {/* Main Product Grid / List */}
         <div className="lg:col-span-3">
-          {initialProducts.length === 0 ? (
-            <div className="rounded-3xl bg-white border border-border/80 p-12 text-center space-y-4">
-              <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto">
-                <Search className="h-6 w-6" />
+          {products.length === 0 ? (
+            <div className="space-y-4 rounded-3xl border border-slate-200 bg-white p-12 text-center shadow-xs">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
+                <Search className="h-6 w-6" aria-hidden />
               </div>
-              <h3 className="text-lg font-black text-foreground">কোনো প্রোডাক্ট পাওয়া যায়নি</h3>
-              <p className="text-xs text-muted-foreground max-w-md mx-auto">
-                আপনার ফিল্টার অথবা অনুসন্ধানের কি-ওয়ার্ড পরিবর্তন করে পুনরায় চেষ্টা করুন।
+              <h3 className="text-lg font-black text-slate-900">কোনো প্রোডাক্ট পাওয়া যায়নি</h3>
+              <p className="mx-auto max-w-md text-xs text-slate-600">
+                আপনার ফিল্টার অথবা অনুসন্ধানের কি-ওয়ার্ড পরিবর্তন করে পুনরায় চেষ্টা করুন।
               </p>
               <Link
-                href="/products"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-amber-500 text-white text-xs font-extrabold hover:bg-amber-600 transition-colors"
+                href={resetHref}
+                className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-extrabold text-slate-950 transition-colors hover:bg-amber-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
               >
-                <RotateCcw className="h-3.5 w-3.5" />
+                <RotateCcw className="h-3.5 w-3.5" aria-hidden />
                 ফিল্টার রিসেট করুন
               </Link>
             </div>
           ) : (
-            <div
-              className={
-                viewMode === "grid"
-                  ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
-                  : viewMode === "compact"
-                    ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5"
-                    : "space-y-4"
-              }
-            >
-              {initialProducts.map((p) => (
-                <ProductCard
-                  key={p.id}
-                  product={p}
-                  viewMode={viewMode}
-                  onQuickView={(prod) => setQuickViewProduct(prod)}
-                  onCompare={handleCompare}
-                />
-              ))}
-            </div>
+            <>
+              <div
+                className={
+                  viewMode === "grid"
+                    ? "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
+                    : viewMode === "compact"
+                      ? "grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-4"
+                      : "space-y-4"
+                }
+              >
+                {products.map((product, index) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    viewMode={viewMode}
+                    priority={index < 4}
+                    onQuickView={setQuickViewProduct}
+                    onCompare={handleCompare}
+                  />
+                ))}
+              </div>
+              {pagination}
+            </>
           )}
         </div>
       </div>
 
-      {/* Quick View Drawer */}
       <QuickViewDrawer product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
 
-      {/* Compare Floating Bar */}
       <CompareDrawer
         products={compareList}
         onRemove={handleRemoveCompare}

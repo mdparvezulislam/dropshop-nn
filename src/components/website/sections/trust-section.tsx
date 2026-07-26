@@ -1,55 +1,32 @@
-"use client";
-
-import { motion } from "framer-motion";
 import { ShieldCheck, TrendingUp, Truck, CreditCard, Headset } from "lucide-react";
 
-const trustItems = [
+const TRUST_ITEMS = [
   {
     icon: ShieldCheck,
     label: "অরিজিনাল প্রোডাক্ট",
-    description: "১০০% অরিজিনাল ও গ্যারান্টি",
+    description: "১০০% অরিজিনাল প্রোডাক্ট",
   },
   {
     icon: TrendingUp,
     label: "সহজ ড্রপশিপিং",
-    description: "বীজ ছাড়াই ব্যবসা শুরু করুন",
+    description: "স্টক ছাড়াই ব্যবসা শুরু করুন",
   },
   {
     icon: Truck,
-    label: "ফাস্ট ডেলিভারি",
-    description: "সারা বাংলাদেশে দ্রুত ডেলিভারি",
+    label: "সারাদেশে ডেলিভারি",
+    description: "৬৪ জেলায় ডেলিভারি",
   },
   {
     icon: CreditCard,
     label: "সিকিউর পেমেন্ট",
-    description: "বিকাশ ও ডিজিটাল পেমেন্ট",
+    description: "বিকাশ, নগদ ও ক্যাশ অন ডেলিভারি",
   },
   {
     icon: Headset,
-    label: "২৪/৭ সাপোর্ট",
-    description: "যেকোনো সময় সহায়তা পান",
+    label: "কাস্টমার সাপোর্ট",
+    description: "প্রয়োজনে সহায়তা পান",
   },
-];
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.35 },
-  },
-};
+] as const;
 
 export function TrustSection(): React.ReactElement {
   return (
@@ -58,23 +35,16 @@ export function TrustSection(): React.ReactElement {
       aria-label="Trust Bar"
     >
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4"
-        >
-          {trustItems.map((item) => {
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4">
+          {TRUST_ITEMS.map((item) => {
             const Icon = item.icon;
             return (
-              <motion.div
+              <div
                 key={item.label}
-                variants={itemVariants}
                 className="flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-slate-300 hover:border-amber-400 hover:shadow-xs transition-all duration-300 group"
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-50 text-amber-600 shrink-0 group-hover:scale-110 transition-transform">
-                  <Icon className="h-5 w-5" />
+                  <Icon className="h-5 w-5" aria-hidden />
                 </div>
                 <div>
                   <h3 className="text-xs sm:text-sm font-black text-slate-900 leading-snug">
@@ -84,10 +54,10 @@ export function TrustSection(): React.ReactElement {
                     {item.description}
                   </p>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

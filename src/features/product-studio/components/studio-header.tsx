@@ -185,7 +185,7 @@ export function StudioHeader({
 
           <Button
             size="sm"
-            className="gap-1.5 text-xs font-extrabold shadow-xs bg-amber-500 hover:bg-amber-600 text-slate-950 h-9 sm:h-9 max-sm:h-10 shrink-0"
+            className="gap-1.5 text-xs font-extrabold shadow-xs bg-amber-500 hover:bg-amber-600 text-amber-950 dark:text-amber-950 h-9 sm:h-9 max-sm:h-10 shrink-0"
             onClick={onPublish}
             disabled={saving}
           >
