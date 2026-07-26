@@ -26,7 +26,9 @@ export class AutomationExportService {
     if (!workflowData) return false;
 
     try {
-      await workflowRepository.create(workflowData as unknown as Parameters<typeof workflowRepository.create>[0]);
+      await workflowRepository.create(
+        workflowData as unknown as Parameters<typeof workflowRepository.create>[0],
+      );
       return true;
     } catch {
       return false;

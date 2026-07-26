@@ -45,12 +45,16 @@ export default function StaffAssignmentPage(): React.ReactElement {
     setLoading(false);
   };
 
-  React.useEffect(() => { load(); }, [roleFilter]);
+  React.useEffect(() => {
+    load();
+  }, [roleFilter]);
 
   const handleComplete = async (assignmentId: string) => {
     const res = await completeStaffAssignmentAction({ assignmentId });
-    if (res.success) { toast.success("অ্যাসাইনমেন্ট সম্পন্ন হয়েছে"); load(); }
-    else toast.error(res.error || "ব্যর্থ");
+    if (res.success) {
+      toast.success("অ্যাসাইনমেন্ট সম্পন্ন হয়েছে");
+      load();
+    } else toast.error(res.error || "ব্যর্থ");
   };
 
   const handleAssign = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -66,8 +70,11 @@ export default function StaffAssignmentPage(): React.ReactElement {
       notes: form.get("notes") as string,
     };
     const res = await assignStaffAction(data);
-    if (res.success) { toast.success("স্টাফ অ্যাসাইন করা হয়েছে"); setShowAssignForm(false); load(); }
-    else toast.error(res.error || "ব্যর্থ");
+    if (res.success) {
+      toast.success("স্টাফ অ্যাসাইন করা হয়েছে");
+      setShowAssignForm(false);
+      load();
+    } else toast.error(res.error || "ব্যর্থ");
     setAssigning(false);
   };
 
@@ -82,7 +89,10 @@ export default function StaffAssignmentPage(): React.ReactElement {
     <div className="min-h-screen bg-background p-4 sm:p-6 space-y-5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/orders" className="p-2 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground">
+          <Link
+            href="/dashboard/orders"
+            className="p-2 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
@@ -94,7 +104,9 @@ export default function StaffAssignmentPage(): React.ReactElement {
           <Button variant="outline" onClick={() => setShowAssignForm(true)}>
             <UserPlus className="h-4 w-4 mr-1" /> Assign
           </Button>
-          <Button variant="ghost" onClick={load}><RefreshCw className="h-4 w-4" /></Button>
+          <Button variant="ghost" onClick={load}>
+            <RefreshCw className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 
@@ -113,16 +125,26 @@ export default function StaffAssignmentPage(): React.ReactElement {
               <Input name="orderNumber" placeholder="Order #" required className="h-9" />
               <Input name="staffId" placeholder="Staff ID" required className="h-9" />
               <Input name="staffName" placeholder="Staff Name" required className="h-9" />
-              <select name="role" required className="h-9 rounded-md border border-border bg-background px-3 text-sm text-foreground">
+              <select
+                name="role"
+                required
+                className="h-9 rounded-md border border-border bg-background px-3 text-sm text-foreground"
+              >
                 <option value="">Role নির্বাচন করুন</option>
                 {ROLE_OPTIONS.map((r) => (
-                  <option key={r.value} value={r.value}>{r.label} ({r.en})</option>
+                  <option key={r.value} value={r.value}>
+                    {r.label} ({r.en})
+                  </option>
                 ))}
               </select>
               <Input name="notes" placeholder="Notes (optional)" className="h-9" />
               <div className="sm:col-span-2 flex justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => setShowAssignForm(false)}>Cancel</Button>
-                <Button type="submit" disabled={assigning}>{assigning ? "Assigning..." : "Assign"}</Button>
+                <Button type="button" variant="outline" onClick={() => setShowAssignForm(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={assigning}>
+                  {assigning ? "Assigning..." : "Assign"}
+                </Button>
               </div>
             </form>
           </CardContent>
@@ -140,7 +162,9 @@ export default function StaffAssignmentPage(): React.ReactElement {
           >
             <option value="">সবগুলো</option>
             {ROLE_OPTIONS.map((r) => (
-              <option key={r.value} value={r.value}>{r.label}</option>
+              <option key={r.value} value={r.value}>
+                {r.label}
+              </option>
             ))}
           </select>
         </CardContent>
@@ -152,41 +176,61 @@ export default function StaffAssignmentPage(): React.ReactElement {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border/50 bg-muted/30">
-                <th className="p-3 text-left text-xs font-semibold text-muted-foreground">অর্ডার #</th>
-                <th className="p-3 text-left text-xs font-semibold text-muted-foreground">স্টাফের নাম</th>
+                <th className="p-3 text-left text-xs font-semibold text-muted-foreground">
+                  অর্ডার #
+                </th>
+                <th className="p-3 text-left text-xs font-semibold text-muted-foreground">
+                  স্টাফের নাম
+                </th>
                 <th className="p-3 text-left text-xs font-semibold text-muted-foreground">রোল</th>
-                <th className="p-3 text-left text-xs font-semibold text-muted-foreground">অ্যাসাইন করেছেন</th>
-                <th className="p-3 text-left text-xs font-semibold text-muted-foreground">স্ট্যাটাস</th>
-                <th className="p-3 text-right text-xs font-semibold text-muted-foreground">অ্যাকশন</th>
+                <th className="p-3 text-left text-xs font-semibold text-muted-foreground">
+                  অ্যাসাইন করেছেন
+                </th>
+                <th className="p-3 text-left text-xs font-semibold text-muted-foreground">
+                  স্ট্যাটাস
+                </th>
+                <th className="p-3 text-right text-xs font-semibold text-muted-foreground">
+                  অ্যাকশন
+                </th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={6} className="p-12 text-center text-muted-foreground">লোড হচ্ছে...</td></tr>
-              ) : assignments.length === 0 ? (
-                <tr><td colSpan={6} className="p-12 text-center text-muted-foreground">কোনো তথ্য নেই</td></tr>
-              ) : assignments.map((a: any) => (
-                <tr key={a.id} className="border-b border-border/30 hover:bg-muted/20">
-                  <td className="p-3 font-medium">{a.orderNumber}</td>
-                  <td className="p-3 text-sm">{a.staffName}</td>
-                  <td className="p-3 text-sm">
-                    <Badge variant="outline">{ROLE_LABEL[a.role] ?? a.role}</Badge>
-                  </td>
-                  <td className="p-3 text-sm text-muted-foreground">{a.assignedBy}</td>
-                  <td className="p-3">
-                    <Badge variant={getVariant(isCompleted(a) ? "completed" : "active")}>
-                      {isCompleted(a) ? "সম্পন্ন" : "সক্রিয়"}
-                    </Badge>
-                  </td>
-                  <td className="p-3 text-right">
-                    {!isCompleted(a) && (
-                      <Button size="sm" variant="outline" onClick={() => handleComplete(a.id)}>
-                        <CheckCircle className="h-3.5 w-3.5 mr-1" /> Complete
-                      </Button>
-                    )}
+                <tr>
+                  <td colSpan={6} className="p-12 text-center text-muted-foreground">
+                    লোড হচ্ছে...
                   </td>
                 </tr>
-              ))}
+              ) : assignments.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="p-12 text-center text-muted-foreground">
+                    কোনো তথ্য নেই
+                  </td>
+                </tr>
+              ) : (
+                assignments.map((a: any) => (
+                  <tr key={a.id} className="border-b border-border/30 hover:bg-muted/20">
+                    <td className="p-3 font-medium">{a.orderNumber}</td>
+                    <td className="p-3 text-sm">{a.staffName}</td>
+                    <td className="p-3 text-sm">
+                      <Badge variant="outline">{ROLE_LABEL[a.role] ?? a.role}</Badge>
+                    </td>
+                    <td className="p-3 text-sm text-muted-foreground">{a.assignedBy}</td>
+                    <td className="p-3">
+                      <Badge variant={getVariant(isCompleted(a) ? "completed" : "active")}>
+                        {isCompleted(a) ? "সম্পন্ন" : "সক্রিয়"}
+                      </Badge>
+                    </td>
+                    <td className="p-3 text-right">
+                      {!isCompleted(a) && (
+                        <Button size="sm" variant="outline" onClick={() => handleComplete(a.id)}>
+                          <CheckCircle className="h-3.5 w-3.5 mr-1" /> Complete
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </CardContent>

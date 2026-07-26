@@ -1,8 +1,17 @@
 import { BaseRepository } from "@/lib/database/generic-repository";
-import { BusinessMembershipApplicationModel, ApplicationDocument } from "./business-membership-application-model";
-import { BusinessMembershipApplicationEntity, ApplicationStatus } from "../domain/business-membership-entity";
+import {
+  BusinessMembershipApplicationModel,
+  ApplicationDocument,
+} from "./business-membership-application-model";
+import {
+  BusinessMembershipApplicationEntity,
+  ApplicationStatus,
+} from "../domain/business-membership-entity";
 
-export class BusinessMembershipApplicationRepository extends BaseRepository<ApplicationDocument, BusinessMembershipApplicationEntity> {
+export class BusinessMembershipApplicationRepository extends BaseRepository<
+  ApplicationDocument,
+  BusinessMembershipApplicationEntity
+> {
   constructor() {
     super(BusinessMembershipApplicationModel, BusinessMembershipApplicationRepository.mapToDomain);
   }
@@ -34,7 +43,7 @@ export class BusinessMembershipApplicationRepository extends BaseRepository<Appl
 
   public async findActiveByUserAndType(
     userId: string,
-    membershipType: string
+    membershipType: string,
   ): Promise<BusinessMembershipApplicationEntity | null> {
     await this.ensureConnected();
     const doc = await BusinessMembershipApplicationModel.findOne({
@@ -46,7 +55,9 @@ export class BusinessMembershipApplicationRepository extends BaseRepository<Appl
       .sort({ createdAt: -1 })
       .lean();
     if (!doc) return null;
-    return BusinessMembershipApplicationRepository.mapToDomain(doc as unknown as ApplicationDocument);
+    return BusinessMembershipApplicationRepository.mapToDomain(
+      doc as unknown as ApplicationDocument,
+    );
   }
 
   public async findByUserId(userId: string): Promise<BusinessMembershipApplicationEntity[]> {
@@ -54,7 +65,9 @@ export class BusinessMembershipApplicationRepository extends BaseRepository<Appl
     const docs = await BusinessMembershipApplicationModel.find({ userId, deletedAt: null })
       .sort({ createdAt: -1 })
       .lean();
-    return docs.map((d) => BusinessMembershipApplicationRepository.mapToDomain(d as unknown as ApplicationDocument));
+    return docs.map((d) =>
+      BusinessMembershipApplicationRepository.mapToDomain(d as unknown as ApplicationDocument),
+    );
   }
 
   public async listApplications(params: {
@@ -63,7 +76,11 @@ export class BusinessMembershipApplicationRepository extends BaseRepository<Appl
     search?: string;
     page?: number;
     limit?: number;
-  }): Promise<{ items: BusinessMembershipApplicationEntity[]; totalCount: number; totalPages: number }> {
+  }): Promise<{
+    items: BusinessMembershipApplicationEntity[];
+    totalCount: number;
+    totalPages: number;
+  }> {
     await this.ensureConnected();
     const page = Math.max(1, params.page || 1);
     const limit = Math.min(100, Math.max(1, params.limit || 20));
@@ -102,7 +119,7 @@ export class BusinessMembershipApplicationRepository extends BaseRepository<Appl
     ]);
 
     const items = docs.map((d) =>
-      BusinessMembershipApplicationRepository.mapToDomain(d as unknown as ApplicationDocument)
+      BusinessMembershipApplicationRepository.mapToDomain(d as unknown as ApplicationDocument),
     );
 
     return {
@@ -146,4 +163,5 @@ export class BusinessMembershipApplicationRepository extends BaseRepository<Appl
   }
 }
 
-export const businessMembershipApplicationRepository = new BusinessMembershipApplicationRepository();
+export const businessMembershipApplicationRepository =
+  new BusinessMembershipApplicationRepository();

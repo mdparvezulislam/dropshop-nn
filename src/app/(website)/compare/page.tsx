@@ -6,7 +6,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Compare Products - DropshopNN Bangladesh",
-  description: "Compare specifications, retail vs wholesale prices, warranties, and features side-by-side.",
+  description:
+    "Compare specifications, retail vs wholesale prices, warranties, and features side-by-side.",
 };
 
 export default async function ComparePage() {
@@ -24,7 +25,8 @@ export default async function ComparePage() {
             Compare Tech Specs & Prices
           </h1>
           <p className="text-sm text-slate-400">
-            Compare specifications, charging speeds, audio drivers, and reseller margins side-by-side.
+            Compare specifications, charging speeds, audio drivers, and reseller margins
+            side-by-side.
           </p>
         </div>
 

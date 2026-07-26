@@ -1,6 +1,9 @@
 import type { TaskDefinition, TaskCategory, ActionType } from "../domain/automation-entity";
 
-type TaskHandler = (config: Record<string, unknown>, context: Record<string, unknown>) => Promise<Record<string, unknown>>;
+type TaskHandler = (
+  config: Record<string, unknown>,
+  context: Record<string, unknown>,
+) => Promise<Record<string, unknown>>;
 
 const tasks = new Map<string, TaskDefinition>();
 
@@ -11,7 +14,7 @@ export function registerTask(
   category: TaskCategory,
   actionType: ActionType,
   configSchema: Record<string, unknown>,
-  handler: TaskHandler
+  handler: TaskHandler,
 ): void {
   tasks.set(key, {
     key,
@@ -144,21 +147,75 @@ const defaultHandlers: Record<string, TaskHandler> = {
 
 export function initializeTaskLibrary(): void {
   const taskDefs: Array<[string, string, string, TaskCategory, ActionType]> = [
-    ["send_notification", "Send Notification", "Send push/in-app notification", "notification", "send_notification"],
+    [
+      "send_notification",
+      "Send Notification",
+      "Send push/in-app notification",
+      "notification",
+      "send_notification",
+    ],
     ["send_email", "Send Email", "Send transactional email", "communication", "send_email"],
     ["send_sms", "Send SMS", "Send SMS message", "communication", "send_sms"],
-    ["create_shipment", "Create Shipment", "Create courier shipment", "logistics", "create_shipment"],
+    [
+      "create_shipment",
+      "Create Shipment",
+      "Create courier shipment",
+      "logistics",
+      "create_shipment",
+    ],
     ["update_order_status", "Update Order Status", "Change order status", "order", "update_order"],
-    ["adjust_inventory", "Adjust Inventory", "Update product stock level", "inventory", "update_inventory"],
-    ["credit_wallet", "Credit Wallet", "Add funds to user wallet", "finance", "create_wallet_transaction"],
-    ["debit_wallet", "Debit Wallet", "Deduct from user wallet", "finance", "create_wallet_transaction"],
+    [
+      "adjust_inventory",
+      "Adjust Inventory",
+      "Update product stock level",
+      "inventory",
+      "update_inventory",
+    ],
+    [
+      "credit_wallet",
+      "Credit Wallet",
+      "Add funds to user wallet",
+      "finance",
+      "create_wallet_transaction",
+    ],
+    [
+      "debit_wallet",
+      "Debit Wallet",
+      "Deduct from user wallet",
+      "finance",
+      "create_wallet_transaction",
+    ],
     ["generate_invoice", "Generate Invoice", "Create order invoice", "finance", "generate_invoice"],
-    ["generate_report", "Generate Report", "Create analytics report", "analytics", "generate_report"],
-    ["trigger_analytics", "Trigger Analytics", "Emit analytics event", "analytics", "trigger_analytics_event"],
-    ["execute_webhook", "Execute Webhook", "Call external webhook URL", "webhook", "execute_webhook"],
+    [
+      "generate_report",
+      "Generate Report",
+      "Create analytics report",
+      "analytics",
+      "generate_report",
+    ],
+    [
+      "trigger_analytics",
+      "Trigger Analytics",
+      "Emit analytics event",
+      "analytics",
+      "trigger_analytics_event",
+    ],
+    [
+      "execute_webhook",
+      "Execute Webhook",
+      "Call external webhook URL",
+      "webhook",
+      "execute_webhook",
+    ],
     ["delay", "Delay", "Wait for specified time", "system", "delay"],
     ["wait", "Wait", "Wait for condition", "system", "wait"],
-    ["stop_workflow", "Stop Workflow", "Stop current workflow execution", "system", "stop_workflow"],
+    [
+      "stop_workflow",
+      "Stop Workflow",
+      "Stop current workflow execution",
+      "system",
+      "stop_workflow",
+    ],
   ];
 
   for (const [key, name, description, category, actionType] of taskDefs) {

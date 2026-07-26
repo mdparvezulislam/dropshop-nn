@@ -25,7 +25,9 @@ export default function ReportDetailPage() {
     setLoading(false);
   }, [params.id]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   if (loading) {
     return (
@@ -49,7 +51,9 @@ export default function ReportDetailPage() {
         <div>
           <h1 className="text-xl font-bold tracking-tight sm:text-2xl">{report.title}</h1>
           <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-            <Badge variant="info" size="xs">{report.type}</Badge>
+            <Badge variant="info" size="xs">
+              {report.type}
+            </Badge>
             <span>Generated {new Date(report.generatedAt).toLocaleString()}</span>
             {report.generatedBy && <span>by {report.generatedBy}</span>}
           </div>
@@ -67,7 +71,13 @@ export default function ReportDetailPage() {
       {report.charts.length > 0 && (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           {report.charts.map((chart) => (
-            <AnalyticsChart key={chart.id} title={chart.title} data={chart.data} type={chart.type} valueLabel={chart.title} />
+            <AnalyticsChart
+              key={chart.id}
+              title={chart.title}
+              data={chart.data}
+              type={chart.type}
+              valueLabel={chart.title}
+            />
           ))}
         </div>
       )}

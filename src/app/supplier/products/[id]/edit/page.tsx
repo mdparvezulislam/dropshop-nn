@@ -58,8 +58,16 @@ export default function SupplierEditProductPage(): React.ReactElement {
             richDescription: p.description ?? p.richDescription ?? "",
             productModel: p.productModel ?? "",
             barcode: p.barcode ?? "",
-            costPrice: p.costPrice ? String(p.costPrice / 100) : p.pricing?.cost ? String(p.pricing.cost / 100) : "",
-            sellingPrice: p.retailPrice ? String(p.retailPrice / 100) : p.pricing?.retail ? String(p.pricing.retail / 100) : "",
+            costPrice: p.costPrice
+              ? String(p.costPrice / 100)
+              : p.pricing?.cost
+                ? String(p.pricing.cost / 100)
+                : "",
+            sellingPrice: p.retailPrice
+              ? String(p.retailPrice / 100)
+              : p.pricing?.retail
+                ? String(p.pricing.retail / 100)
+                : "",
             wholesalePrice: p.pricing?.wholesale ? String(p.pricing.wholesale / 100) : "",
             stock: String(p.stock ?? p.inventory?.available ?? 0),
             lowStockThreshold: String(p.lowStockThreshold ?? p.inventory?.lowStockThreshold ?? 5),
@@ -92,8 +100,10 @@ export default function SupplierEditProductPage(): React.ReactElement {
   const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
   const updateVariant = (id: string, field: keyof VariantRow, value: string) =>
     setVariants((vs) => vs.map((v) => (v.id === id ? { ...v, [field]: value } : v)));
-  const addVariant = () => setVariants((vs) => [...vs, { ...EMPTY_VARIANT, id: crypto.randomUUID() }]);
-  const removeVariant = (id: string) => setVariants((vs) => (vs.length > 1 ? vs.filter((v) => v.id !== id) : vs));
+  const addVariant = () =>
+    setVariants((vs) => [...vs, { ...EMPTY_VARIANT, id: crypto.randomUUID() }]);
+  const removeVariant = (id: string) =>
+    setVariants((vs) => (vs.length > 1 ? vs.filter((v) => v.id !== id) : vs));
 
   async function handleSubmit(status?: "draft" | "pending_review") {
     if (!form.name.trim()) {
@@ -115,7 +125,8 @@ export default function SupplierEditProductPage(): React.ReactElement {
 
     setSaving(true);
     try {
-      const { saveStudioProductAction } = await import("@/features/product-studio/actions/studio-actions");
+      const { saveStudioProductAction } =
+        await import("@/features/product-studio/actions/studio-actions");
       const payload: Record<string, unknown> = {
         name: form.name.trim(),
         sku: form.sku.trim(),
@@ -126,8 +137,12 @@ export default function SupplierEditProductPage(): React.ReactElement {
         variants: validVariants.length > 0 ? validVariants : undefined,
         pricing: {
           costPrice: form.costPrice ? Math.round(parseFloat(form.costPrice) * 100) : undefined,
-          sellingPrice: form.sellingPrice ? Math.round(parseFloat(form.sellingPrice) * 100) : undefined,
-          wholesalePrice: form.wholesalePrice ? Math.round(parseFloat(form.wholesalePrice) * 100) : undefined,
+          sellingPrice: form.sellingPrice
+            ? Math.round(parseFloat(form.sellingPrice) * 100)
+            : undefined,
+          wholesalePrice: form.wholesalePrice
+            ? Math.round(parseFloat(form.wholesalePrice) * 100)
+            : undefined,
         },
         inventory: {
           stock: parseInt(form.stock || "0", 10),
@@ -138,7 +153,9 @@ export default function SupplierEditProductPage(): React.ReactElement {
 
       const res = await saveStudioProductAction(payload, productId ?? (params.id as string));
       if (res.success) {
-        toast.success(status === "pending_review" ? "Changes submitted for review" : "Product updated");
+        toast.success(
+          status === "pending_review" ? "Changes submitted for review" : "Product updated",
+        );
         router.push("/supplier/products");
       } else {
         toast.error(res.error ?? "Failed to update product");
@@ -176,31 +193,65 @@ export default function SupplierEditProductPage(): React.ReactElement {
             <CardContent className="p-4 space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">Product Name *</label>
-                  <Input placeholder="e.g. Samsung Galaxy S24" value={form.name} onChange={(e) => update("name", e.target.value)} />
+                  <label className="text-xs font-medium text-muted-foreground">
+                    Product Name *
+                  </label>
+                  <Input
+                    placeholder="e.g. Samsung Galaxy S24"
+                    value={form.name}
+                    onChange={(e) => update("name", e.target.value)}
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-muted-foreground">SKU *</label>
-                  <Input placeholder="e.g. SAMS24-BLK-128" value={form.sku} onChange={(e) => update("sku", e.target.value)} />
+                  <Input
+                    placeholder="e.g. SAMS24-BLK-128"
+                    value={form.sku}
+                    onChange={(e) => update("sku", e.target.value)}
+                  />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <label className="text-xs font-medium text-muted-foreground">Model</label>
-                  <Input placeholder="e.g. SM-S921B" value={form.productModel} onChange={(e) => update("productModel", e.target.value)} />
+                  <Input
+                    placeholder="e.g. SM-S921B"
+                    value={form.productModel}
+                    onChange={(e) => update("productModel", e.target.value)}
+                  />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">Barcode / GTIN</label>
-                  <Input placeholder="e.g. 8806095350147" value={form.barcode} onChange={(e) => update("barcode", e.target.value)} />
+                  <label className="text-xs font-medium text-muted-foreground">
+                    Barcode / GTIN
+                  </label>
+                  <Input
+                    placeholder="e.g. 8806095350147"
+                    value={form.barcode}
+                    onChange={(e) => update("barcode", e.target.value)}
+                  />
                 </div>
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Short Description</label>
-                <Textarea placeholder="Brief product description..." value={form.shortDescription} onChange={(e) => update("shortDescription", e.target.value)} rows={2} />
+                <label className="text-xs font-medium text-muted-foreground">
+                  Short Description
+                </label>
+                <Textarea
+                  placeholder="Brief product description..."
+                  value={form.shortDescription}
+                  onChange={(e) => update("shortDescription", e.target.value)}
+                  rows={2}
+                />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Full Description</label>
-                <Textarea placeholder="Detailed product description..." value={form.richDescription} onChange={(e) => update("richDescription", e.target.value)} rows={5} />
+                <label className="text-xs font-medium text-muted-foreground">
+                  Full Description
+                </label>
+                <Textarea
+                  placeholder="Detailed product description..."
+                  value={form.richDescription}
+                  onChange={(e) => update("richDescription", e.target.value)}
+                  rows={5}
+                />
               </div>
             </CardContent>
           </Card>
@@ -212,16 +263,43 @@ export default function SupplierEditProductPage(): React.ReactElement {
             <CardContent className="p-4">
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">Cost Price (৳)</label>
-                  <Input type="number" step="0.01" min="0" placeholder="0.00" value={form.costPrice} onChange={(e) => update("costPrice", e.target.value)} />
+                  <label className="text-xs font-medium text-muted-foreground">
+                    Cost Price (৳)
+                  </label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    value={form.costPrice}
+                    onChange={(e) => update("costPrice", e.target.value)}
+                  />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">Selling Price (৳)</label>
-                  <Input type="number" step="0.01" min="0" placeholder="0.00" value={form.sellingPrice} onChange={(e) => update("sellingPrice", e.target.value)} />
+                  <label className="text-xs font-medium text-muted-foreground">
+                    Selling Price (৳)
+                  </label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    value={form.sellingPrice}
+                    onChange={(e) => update("sellingPrice", e.target.value)}
+                  />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">Wholesale Price (৳)</label>
-                  <Input type="number" step="0.01" min="0" placeholder="0.00" value={form.wholesalePrice} onChange={(e) => update("wholesalePrice", e.target.value)} />
+                  <label className="text-xs font-medium text-muted-foreground">
+                    Wholesale Price (৳)
+                  </label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    value={form.wholesalePrice}
+                    onChange={(e) => update("wholesalePrice", e.target.value)}
+                  />
                 </div>
               </div>
             </CardContent>
@@ -230,25 +308,64 @@ export default function SupplierEditProductPage(): React.ReactElement {
           <Card>
             <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
               <CardTitle className="text-sm">Variants</CardTitle>
-              <Button variant="outline" size="sm" onClick={addVariant}>+ Add Variant</Button>
+              <Button variant="outline" size="sm" onClick={addVariant}>
+                + Add Variant
+              </Button>
             </CardHeader>
             <CardContent className="p-4 space-y-3">
               {variants.map((v, idx) => (
                 <div key={v.id || idx} className="rounded-lg border border-border p-3 space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-muted-foreground">Variant {idx + 1}</span>
+                    <span className="text-xs font-medium text-muted-foreground">
+                      Variant {idx + 1}
+                    </span>
                     {variants.length > 1 && (
-                      <Button variant="ghost" size="sm" className="h-6 text-xs text-destructive" onClick={() => removeVariant(v.id)}>Remove</Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 text-xs text-destructive"
+                        onClick={() => removeVariant(v.id)}
+                      >
+                        Remove
+                      </Button>
                     )}
                   </div>
                   <div className="grid gap-3 sm:grid-cols-3">
-                    <Input placeholder="SKU *" value={v.sku} onChange={(e) => updateVariant(v.id, "sku", e.target.value)} />
-                    <Input placeholder="Label (e.g. Black 128GB)" value={v.label} onChange={(e) => updateVariant(v.id, "label", e.target.value)} />
-                    <Input type="number" step="0.01" min="0" placeholder="Price (৳)" value={v.price} onChange={(e) => updateVariant(v.id, "price", e.target.value)} />
+                    <Input
+                      placeholder="SKU *"
+                      value={v.sku}
+                      onChange={(e) => updateVariant(v.id, "sku", e.target.value)}
+                    />
+                    <Input
+                      placeholder="Label (e.g. Black 128GB)"
+                      value={v.label}
+                      onChange={(e) => updateVariant(v.id, "label", e.target.value)}
+                    />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="Price (৳)"
+                      value={v.price}
+                      onChange={(e) => updateVariant(v.id, "price", e.target.value)}
+                    />
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <Input type="number" min="0" placeholder="Stock" value={v.stock} onChange={(e) => updateVariant(v.id, "stock", e.target.value)} />
-                    <Input type="number" step="0.01" min="0" placeholder="Weight (kg)" value={v.weight} onChange={(e) => updateVariant(v.id, "weight", e.target.value)} />
+                    <Input
+                      type="number"
+                      min="0"
+                      placeholder="Stock"
+                      value={v.stock}
+                      onChange={(e) => updateVariant(v.id, "stock", e.target.value)}
+                    />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      placeholder="Weight (kg)"
+                      value={v.weight}
+                      onChange={(e) => updateVariant(v.id, "weight", e.target.value)}
+                    />
                   </div>
                 </div>
               ))}
@@ -264,11 +381,23 @@ export default function SupplierEditProductPage(): React.ReactElement {
             <CardContent className="p-4 space-y-3">
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-muted-foreground">Stock</label>
-                <Input type="number" min="0" value={form.stock} onChange={(e) => update("stock", e.target.value)} />
+                <Input
+                  type="number"
+                  min="0"
+                  value={form.stock}
+                  onChange={(e) => update("stock", e.target.value)}
+                />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-muted-foreground">Low Stock Threshold</label>
-                <Input type="number" min="0" value={form.lowStockThreshold} onChange={(e) => update("lowStockThreshold", e.target.value)} />
+                <label className="text-xs font-medium text-muted-foreground">
+                  Low Stock Threshold
+                </label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={form.lowStockThreshold}
+                  onChange={(e) => update("lowStockThreshold", e.target.value)}
+                />
               </div>
             </CardContent>
           </Card>
@@ -278,11 +407,20 @@ export default function SupplierEditProductPage(): React.ReactElement {
               <CardTitle className="text-sm">Actions</CardTitle>
             </CardHeader>
             <CardContent className="p-4 space-y-2">
-              <Button className="w-full gap-1.5" variant="outline" disabled={saving} onClick={() => handleSubmit()}>
+              <Button
+                className="w-full gap-1.5"
+                variant="outline"
+                disabled={saving}
+                onClick={() => handleSubmit()}
+              >
                 {saving ? <Spinner className="h-3.5 w-3.5" /> : <Save className="h-3.5 w-3.5" />}
                 Save Changes
               </Button>
-              <Button className="w-full gap-1.5" disabled={saving} onClick={() => handleSubmit("pending_review")}>
+              <Button
+                className="w-full gap-1.5"
+                disabled={saving}
+                onClick={() => handleSubmit("pending_review")}
+              >
                 {saving ? <Spinner className="h-3.5 w-3.5" /> : <Send className="h-3.5 w-3.5" />}
                 Submit for Review
               </Button>

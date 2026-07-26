@@ -288,7 +288,9 @@ export async function transitionWithdrawalAction(formData: unknown): Promise<{
       );
     } else if (validated.toStatus === "completed") {
       if (!validated.referenceNumber) {
-        throw new Error("Reference transaction ID number is required to confirm payment completion");
+        throw new Error(
+          "Reference transaction ID number is required to confirm payment completion",
+        );
       }
       result = await service.payWithdrawal(
         validated.withdrawalId,
@@ -351,7 +353,9 @@ export async function listWithdrawalsAction(queryParams: unknown = {}): Promise<
     const repo = new WithdrawalRepository();
     if (typeof queryParams === "string") {
       const items = await repo.findByWalletId(queryParams);
-      items.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+      items.sort(
+        (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime(),
+      );
       return { success: true, data: { items, total: items.length } };
     }
 
@@ -414,7 +418,9 @@ export async function listInvoicesAction(): Promise<{
 
     const query = isReseller ? { createdBy: session.user.id } : {};
     const results = await repo.find(query);
-    results.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    results.sort(
+      (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime(),
+    );
     return { success: true, data: results };
   } catch (error: any) {
     logger.error("listInvoicesAction failed", error);
@@ -449,7 +455,10 @@ export async function settleOrderAction(orderId: string): Promise<{
   }
 }
 
-export async function processRefundAction(orderId: string, reason?: string): Promise<{
+export async function processRefundAction(
+  orderId: string,
+  reason?: string,
+): Promise<{
   success: boolean;
   data?: any;
   error?: string;

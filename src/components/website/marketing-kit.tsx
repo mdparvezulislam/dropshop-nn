@@ -15,16 +15,10 @@ const defaultAssets = [
   { label: "Social Media Kit", type: "social" as const, url: "#" },
 ];
 
-export function MarketingKit({
-  productName,
-  assets = defaultAssets,
-}: MarketingKitProps) {
+export function MarketingKit({ productName, assets = defaultAssets }: MarketingKitProps) {
   const { userRole } = usePermissions();
 
-  const hasAccess =
-    userRole === "reseller" ||
-    userRole === "admin" ||
-    userRole === "super_admin";
+  const hasAccess = userRole === "reseller" || userRole === "admin" || userRole === "super_admin";
 
   if (!hasAccess) return null;
 
@@ -43,9 +37,7 @@ export function MarketingKit({
       className="py-8 border-t border-border/40"
     >
       <h2 className="text-lg font-semibold text-foreground mb-2">Marketing Kit</h2>
-      <p className="text-sm text-foreground/50 mb-4">
-        Download assets for {productName}
-      </p>
+      <p className="text-sm text-foreground/50 mb-4">Download assets for {productName}</p>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {assets.map((asset) => {
           const Icon = typeIcons[asset.type];

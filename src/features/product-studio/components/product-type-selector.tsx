@@ -116,7 +116,12 @@ export function ProductTypeSelector({
               </div>
 
               <div>
-                <p className={cn("text-sm font-bold", isSelected ? "text-foreground" : "text-foreground/90")}>
+                <p
+                  className={cn(
+                    "text-sm font-bold",
+                    isSelected ? "text-foreground" : "text-foreground/90",
+                  )}
+                >
                   {option.label}
                 </p>
                 <p className="text-[11px] font-semibold text-primary/70 mt-0.5">
@@ -124,9 +129,7 @@ export function ProductTypeSelector({
                 </p>
               </div>
 
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {option.description}
-              </p>
+              <p className="text-xs text-muted-foreground leading-relaxed">{option.description}</p>
 
               {option.type === "simple" && (
                 <span className="inline-flex items-center rounded-md bg-success/15 px-2 py-0.5 text-[10px] font-bold text-success">

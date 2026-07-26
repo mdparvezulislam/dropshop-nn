@@ -97,11 +97,7 @@ export class RiskRepository extends BaseRepository<RiskFlagDocument, RiskFlagEnt
     return counts;
   }
 
-  async resolve(
-    id: string,
-    resolution: string,
-    resolvedBy: string,
-  ): Promise<RiskFlagEntity> {
+  async resolve(id: string, resolution: string, resolvedBy: string): Promise<RiskFlagEntity> {
     return this.update(id, {
       resolved: true,
       resolvedAt: new Date(),

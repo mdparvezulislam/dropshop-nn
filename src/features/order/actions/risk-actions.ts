@@ -3,10 +3,7 @@
 import { auth } from "@/lib/auth";
 import { checkPermission } from "@/lib/check-permission";
 import { RiskService } from "../services/risk-service";
-import {
-  createRiskFlagSchema,
-  resolveRiskFlagSchema,
-} from "../types/validation";
+import { createRiskFlagSchema, resolveRiskFlagSchema } from "../types/validation";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/utils/logger";
 

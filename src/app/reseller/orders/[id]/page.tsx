@@ -96,7 +96,12 @@ export default function ResellerOrderDetailPage(): React.ReactElement {
         </Button>
         <PageHeader
           title={`Order ${order.orderNumber ?? "—"}`}
-          badge={<StatusChip label={getHumanLabel(order.status)} tone={statusToneFromValue(order.status)} />}
+          badge={
+            <StatusChip
+              label={getHumanLabel(order.status)}
+              tone={statusToneFromValue(order.status)}
+            />
+          }
           description={`Placed on ${new Date(order.createdAt).toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}`}
         />
       </div>
@@ -126,7 +131,8 @@ export default function ResellerOrderDetailPage(): React.ReactElement {
                       <div className="pb-3">
                         <p className="text-sm font-medium">{entry.action ?? entry.status}</p>
                         <p className="text-xs text-muted-foreground">
-                          {entry.actor ?? "System"} · {new Date(entry.createdAt ?? entry.timestamp).toLocaleString()}
+                          {entry.actor ?? "System"} ·{" "}
+                          {new Date(entry.createdAt ?? entry.timestamp).toLocaleString()}
                         </p>
                       </div>
                     </div>
@@ -147,12 +153,17 @@ export default function ResellerOrderDetailPage(): React.ReactElement {
             <CardContent className="p-4">
               <div className="divide-y divide-border">
                 {items.map((item: any, i: number) => (
-                  <div key={i} className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
+                  <div
+                    key={i}
+                    className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0"
+                  >
                     <div>
                       <p className="text-sm font-medium">{item.productName}</p>
                       <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
                     </div>
-                    <span className="text-sm font-medium tabular-nums">{formatCents(item.totalPrice ?? item.unitPrice * item.quantity)}</span>
+                    <span className="text-sm font-medium tabular-nums">
+                      {formatCents(item.totalPrice ?? item.unitPrice * item.quantity)}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -178,7 +189,9 @@ export default function ResellerOrderDetailPage(): React.ReactElement {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Address</span>
-                <span className="font-medium text-right max-w-[60%]">{order.shippingInfo?.address ?? order.customer?.address ?? "—"}</span>
+                <span className="font-medium text-right max-w-[60%]">
+                  {order.shippingInfo?.address ?? order.customer?.address ?? "—"}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Courier</span>
@@ -187,7 +200,9 @@ export default function ResellerOrderDetailPage(): React.ReactElement {
               {order.shippingInfo?.trackingNumber && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Tracking</span>
-                  <span className="font-medium font-mono text-xs">{order.shippingInfo.trackingNumber}</span>
+                  <span className="font-medium font-mono text-xs">
+                    {order.shippingInfo.trackingNumber}
+                  </span>
                 </div>
               )}
             </CardContent>
@@ -204,21 +219,29 @@ export default function ResellerOrderDetailPage(): React.ReactElement {
             <CardContent className="p-4 space-y-2 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span className="font-medium">{formatCents(order.pricing?.subtotal ?? order.pricing?.grandTotal ?? 0)}</span>
+                <span className="font-medium">
+                  {formatCents(order.pricing?.subtotal ?? order.pricing?.grandTotal ?? 0)}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Delivery</span>
-                <span className="font-medium">{formatCents(order.shippingInfo?.deliveryCharge ?? 0)}</span>
+                <span className="font-medium">
+                  {formatCents(order.shippingInfo?.deliveryCharge ?? 0)}
+                </span>
               </div>
               <Separator />
               <div className="flex justify-between text-base">
                 <span className="font-semibold">Grand Total</span>
-                <span className="font-bold tabular-nums text-primary">{formatCents(order.pricing?.grandTotal ?? 0)}</span>
+                <span className="font-bold tabular-nums text-primary">
+                  {formatCents(order.pricing?.grandTotal ?? 0)}
+                </span>
               </div>
               <Separator />
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Your Profit</span>
-                <span className="font-semibold text-success">{formatCents(order.profitPreview?.totalProfit ?? 0)}</span>
+                <span className="font-semibold text-success">
+                  {formatCents(order.profitPreview?.totalProfit ?? 0)}
+                </span>
               </div>
             </CardContent>
           </Card>
@@ -247,7 +270,9 @@ export default function ResellerOrderDetailPage(): React.ReactElement {
 
           <Card>
             <CardHeader className="p-4 pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground">Order Info</CardTitle>
+              <CardTitle className="text-xs font-medium text-muted-foreground">
+                Order Info
+              </CardTitle>
             </CardHeader>
             <CardContent className="p-4 pt-0 space-y-1.5 text-xs text-muted-foreground">
               <p>Type: {order.type ?? "N/A"}</p>

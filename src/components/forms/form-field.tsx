@@ -38,7 +38,10 @@ export function FormField({
       </div>
       {children}
       {error ? (
-        <p className="flex items-center gap-1 text-[11px] font-medium text-destructive animate-fade-in" role="alert">
+        <p
+          className="flex items-center gap-1 text-[11px] font-medium text-destructive animate-fade-in"
+          role="alert"
+        >
           <AlertCircle className="h-3 w-3 shrink-0" />
           {error}
         </p>

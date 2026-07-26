@@ -48,7 +48,9 @@ function StatCard({ title, value, icon, color = "primary" }: StatCardProps): Rea
     <Card className="border-border/50 bg-card">
       <CardContent className="p-5">
         <div className="flex items-center gap-3">
-          <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${colorClasses[color]}`}>
+          <div
+            className={`h-10 w-10 rounded-xl flex items-center justify-center ${colorClasses[color]}`}
+          >
             {icon}
           </div>
           <div>
@@ -104,7 +106,9 @@ export default function SecurityPage(): React.ReactElement {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-foreground">সিকিউরিটি সেন্টার</h1>
-            <p className="text-sm text-muted-foreground">Enterprise Identity Lifecycle & Security Center</p>
+            <p className="text-sm text-muted-foreground">
+              Enterprise Identity Lifecycle & Security Center
+            </p>
           </div>
         </div>
         <Button variant="ghost" size="sm" onClick={load}>
@@ -114,18 +118,78 @@ export default function SecurityPage(): React.ReactElement {
 
       {/* Stats Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Active Users" value={stats?.activeUsers ?? 0} icon={<Users className="h-5 w-5" />} color="primary" />
-        <StatCard title="Logged-in Users" value={stats?.loggedInUsers ?? 0} icon={<Users className="h-5 w-5" />} color="sky" />
-        <StatCard title="Failed Logins" value={stats?.failedLoginAttempts ?? 0} icon={<AlertTriangle className="h-5 w-5" />} color="rose" />
-        <StatCard title="Locked Accounts" value={stats?.lockedAccounts ?? 0} icon={<Lock className="h-5 w-5" />} color="rose" />
-        <StatCard title="Suspended Users" value={stats?.suspendedUsers ?? 0} icon={<Lock className="h-5 w-5" />} color="amber" />
-        <StatCard title="Blocked Users" value={stats?.blockedUsers ?? 0} icon={<Lock className="h-5 w-5" />} color="rose" />
-        <StatCard title="Pending Verifications" value={stats?.pendingVerifications ?? 0} icon={<Clock className="h-5 w-5" />} color="amber" />
-        <StatCard title="Password Resets" value={stats?.passwordResetRequests ?? 0} icon={<Key className="h-5 w-5" />} color="primary" />
-        <StatCard title="Active Sessions" value={stats?.activeSessions ?? 0} icon={<Smartphone className="h-5 w-5" />} color="sky" />
-        <StatCard title="Trusted Devices" value={stats?.trustedDevices ?? 0} icon={<Smartphone className="h-5 w-5" />} color="emerald" />
-        <StatCard title="New Devices Today" value={stats?.newDevicesToday ?? 0} icon={<Smartphone className="h-5 w-5" />} color="primary" />
-        <StatCard title="Security Events" value={stats?.securityEvents?.total ?? 0} icon={<Shield className="h-5 w-5" />} color="primary" />
+        <StatCard
+          title="Active Users"
+          value={stats?.activeUsers ?? 0}
+          icon={<Users className="h-5 w-5" />}
+          color="primary"
+        />
+        <StatCard
+          title="Logged-in Users"
+          value={stats?.loggedInUsers ?? 0}
+          icon={<Users className="h-5 w-5" />}
+          color="sky"
+        />
+        <StatCard
+          title="Failed Logins"
+          value={stats?.failedLoginAttempts ?? 0}
+          icon={<AlertTriangle className="h-5 w-5" />}
+          color="rose"
+        />
+        <StatCard
+          title="Locked Accounts"
+          value={stats?.lockedAccounts ?? 0}
+          icon={<Lock className="h-5 w-5" />}
+          color="rose"
+        />
+        <StatCard
+          title="Suspended Users"
+          value={stats?.suspendedUsers ?? 0}
+          icon={<Lock className="h-5 w-5" />}
+          color="amber"
+        />
+        <StatCard
+          title="Blocked Users"
+          value={stats?.blockedUsers ?? 0}
+          icon={<Lock className="h-5 w-5" />}
+          color="rose"
+        />
+        <StatCard
+          title="Pending Verifications"
+          value={stats?.pendingVerifications ?? 0}
+          icon={<Clock className="h-5 w-5" />}
+          color="amber"
+        />
+        <StatCard
+          title="Password Resets"
+          value={stats?.passwordResetRequests ?? 0}
+          icon={<Key className="h-5 w-5" />}
+          color="primary"
+        />
+        <StatCard
+          title="Active Sessions"
+          value={stats?.activeSessions ?? 0}
+          icon={<Smartphone className="h-5 w-5" />}
+          color="sky"
+        />
+        <StatCard
+          title="Trusted Devices"
+          value={stats?.trustedDevices ?? 0}
+          icon={<Smartphone className="h-5 w-5" />}
+          color="emerald"
+        />
+        <StatCard
+          title="New Devices Today"
+          value={stats?.newDevicesToday ?? 0}
+          icon={<Smartphone className="h-5 w-5" />}
+          color="primary"
+        />
+        <StatCard
+          title="Security Events"
+          value={stats?.securityEvents?.total ?? 0}
+          icon={<Shield className="h-5 w-5" />}
+          color="primary"
+        />
       </div>
 
       {/* Security Events Summary */}
@@ -139,19 +203,27 @@ export default function SecurityPage(): React.ReactElement {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <p className="text-2xl font-bold text-foreground">{stats.securityEvents.unresolved}</p>
+                <p className="text-2xl font-bold text-foreground">
+                  {stats.securityEvents.unresolved}
+                </p>
                 <p className="text-xs text-muted-foreground">Unresolved</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-rose-400">{stats.securityEvents.bySeverity?.critical ?? 0}</p>
+                <p className="text-2xl font-bold text-rose-400">
+                  {stats.securityEvents.bySeverity?.critical ?? 0}
+                </p>
                 <p className="text-xs text-muted-foreground">Critical</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-amber-400">{stats.securityEvents.bySeverity?.high ?? 0}</p>
+                <p className="text-2xl font-bold text-amber-400">
+                  {stats.securityEvents.bySeverity?.high ?? 0}
+                </p>
                 <p className="text-xs text-muted-foreground">High</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-sky-400">{stats.securityEvents.bySeverity?.medium ?? 0}</p>
+                <p className="text-2xl font-bold text-sky-400">
+                  {stats.securityEvents.bySeverity?.medium ?? 0}
+                </p>
                 <p className="text-xs text-muted-foreground">Medium</p>
               </div>
             </div>
@@ -182,9 +254,13 @@ export default function SecurityPage(): React.ReactElement {
                   <div className="flex items-center gap-2 min-w-0">
                     <Badge
                       variant={
-                        event.severity === "critical" ? "destructive" :
-                        event.severity === "high" ? "warning" :
-                        event.severity === "medium" ? "secondary" : "muted"
+                        event.severity === "critical"
+                          ? "destructive"
+                          : event.severity === "high"
+                            ? "warning"
+                            : event.severity === "medium"
+                              ? "secondary"
+                              : "muted"
                       }
                       className="text-[9px] shrink-0"
                     >
@@ -193,16 +269,23 @@ export default function SecurityPage(): React.ReactElement {
                     <span className="text-xs font-medium truncate">{event.title}</span>
                   </div>
                   <span className="text-[10px] text-muted-foreground shrink-0">
-                    {new Date(event.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                    {new Date(event.createdAt).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </span>
                 </div>
                 {event.description && (
-                  <p className="text-[10px] text-muted-foreground mt-1 truncate">{event.description}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1 truncate">
+                    {event.description}
+                  </p>
                 )}
               </div>
             ))}
             {events.length === 0 && (
-              <p className="text-center text-muted-foreground text-sm py-8">কোনো সিকিউরিটি ইভেন্ট নেই</p>
+              <p className="text-center text-muted-foreground text-sm py-8">
+                কোনো সিকিউরিটি ইভেন্ট নেই
+              </p>
             )}
           </CardContent>
         </Card>
@@ -236,7 +319,10 @@ export default function SecurityPage(): React.ReactElement {
                       {f.attemptCount}x
                     </Badge>
                     <span className="text-[10px] text-muted-foreground">
-                      {new Date(f.lastAttemptAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      {new Date(f.lastAttemptAt).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
                     </span>
                   </div>
                 </div>

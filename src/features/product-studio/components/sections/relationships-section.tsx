@@ -41,7 +41,7 @@ export function RelationshipsSection({
   relationships = [],
   onRelationshipsChange,
 }: RelationshipsSectionProps): React.ReactElement {
-  const { suggestedItems } = useProductRelationships(categoryName, brandName);
+  const { suggestedItems } = useProductRelationships();
   const [searchQuery, setSearchQuery] = React.useState("");
   const [searchResults, setSearchResults] = React.useState<SearchResult[]>([]);
   const [searching, setSearching] = React.useState(false);
@@ -62,7 +62,7 @@ export function RelationshipsSection({
     try {
       const res = await listProductsAction({ search: query }, { limit: 10 });
       if (res.success && res.data) {
-        const items = Array.isArray(res.data) ? res.data : (res.data as any).items ?? [];
+        const items = Array.isArray(res.data) ? res.data : ((res.data as any).items ?? []);
         setSearchResults(
           items.map((p: any) => ({
             id: p.id,
@@ -158,7 +158,11 @@ export function RelationshipsSection({
                   className="flex items-center gap-3 w-full p-3 text-left hover:bg-muted/40 transition-colors border-b border-border/50 last:border-b-0"
                 >
                   {product.image ? (
-                    <img src={product.image} alt="" className="h-8 w-8 rounded-md object-cover bg-muted" />
+                    <img
+                      src={product.image}
+                      alt=""
+                      className="h-8 w-8 rounded-md object-cover bg-muted"
+                    />
                   ) : (
                     <div className="h-8 w-8 rounded-md bg-muted flex items-center justify-center text-muted-foreground">
                       <Link2 className="h-3.5 w-3.5" />
@@ -166,7 +170,9 @@ export function RelationshipsSection({
                   )}
                   <div className="min-w-0 flex-1">
                     <p className="text-xs font-bold text-foreground truncate">{product.name}</p>
-                    <p className="text-[11px] font-mono text-muted-foreground">{product.sku} • ৳{product.price.toLocaleString()}</p>
+                    <p className="text-[11px] font-mono text-muted-foreground">
+                      {product.sku} • ৳{product.price.toLocaleString()}
+                    </p>
                   </div>
                   <Plus className="h-3.5 w-3.5 text-primary shrink-0" />
                 </button>
@@ -189,7 +195,10 @@ export function RelationshipsSection({
               </span>
               <button
                 type="button"
-                onClick={() => { setShowTypePicker(false); setPendingProduct(null); }}
+                onClick={() => {
+                  setShowTypePicker(false);
+                  setPendingProduct(null);
+                }}
                 className="p-1 text-muted-foreground hover:text-foreground"
               >
                 <X className="h-3.5 w-3.5" />
@@ -212,7 +221,14 @@ export function RelationshipsSection({
               ))}
             </div>
             <div className="flex justify-end gap-2 pt-1">
-              <Button size="sm" variant="ghost" onClick={() => { setShowTypePicker(false); setPendingProduct(null); }}>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setShowTypePicker(false);
+                  setPendingProduct(null);
+                }}
+              >
                 Cancel
               </Button>
               <Button size="sm" className="gap-1" onClick={handleConfirmAdd}>
@@ -230,18 +246,25 @@ export function RelationshipsSection({
         ) : (
           <div className="grid gap-2 sm:grid-cols-2">
             {relationships.map((rel) => (
-              <div key={rel.id} className="flex items-center justify-between p-3 rounded-xl border border-border bg-card shadow-2xs">
+              <div
+                key={rel.id}
+                className="flex items-center justify-between p-3 rounded-xl border border-border bg-card shadow-2xs"
+              >
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
                     <Badge variant="outline" size="xs" className="font-bold uppercase text-[9px]">
                       {rel.type.replace(/_/g, " ")}
                     </Badge>
-                    <span className="text-xs font-bold text-foreground truncate">{rel.targetProductName}</span>
+                    <span className="text-xs font-bold text-foreground truncate">
+                      {rel.targetProductName}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
                     <span className="font-mono">{rel.targetProductSku}</span>
                     <span>•</span>
-                    <span className="font-mono font-bold text-foreground">৳{rel.targetProductPrice.toLocaleString()}</span>
+                    <span className="font-mono font-bold text-foreground">
+                      ৳{rel.targetProductPrice.toLocaleString()}
+                    </span>
                   </div>
                 </div>
                 <button

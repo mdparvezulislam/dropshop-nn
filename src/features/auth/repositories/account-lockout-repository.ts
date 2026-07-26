@@ -5,7 +5,10 @@ import { DatabaseQueryOptions } from "@/lib/database/types";
 import { logger } from "@/lib/utils/logger";
 import { DatabaseError, NotFoundError } from "@/lib/errors/app-error";
 
-export class AccountLockoutRepository extends BaseRepository<AccountLockoutDocument, AccountLockout> {
+export class AccountLockoutRepository extends BaseRepository<
+  AccountLockoutDocument,
+  AccountLockout
+> {
   constructor() {
     super(AccountLockoutModel, AccountLockoutRepository.mapToDomain);
   }
@@ -33,7 +36,10 @@ export class AccountLockoutRepository extends BaseRepository<AccountLockoutDocum
     };
   }
 
-  async findByUserId(userId: string, options?: DatabaseQueryOptions): Promise<AccountLockout | null> {
+  async findByUserId(
+    userId: string,
+    options?: DatabaseQueryOptions,
+  ): Promise<AccountLockout | null> {
     try {
       await this.ensureConnected();
       const query = AccountLockoutModel.findOne({ userId }).session(options?.session || null);
@@ -47,7 +53,12 @@ export class AccountLockoutRepository extends BaseRepository<AccountLockoutDocum
     }
   }
 
-  async unlock(userId: string, unlockedBy: string, notes?: string, options?: DatabaseQueryOptions): Promise<AccountLockout> {
+  async unlock(
+    userId: string,
+    unlockedBy: string,
+    notes?: string,
+    options?: DatabaseQueryOptions,
+  ): Promise<AccountLockout> {
     try {
       await this.ensureConnected();
       const existing = await this.findByUserId(userId, options);
@@ -78,10 +89,7 @@ export class AccountLockoutRepository extends BaseRepository<AccountLockoutDocum
     try {
       await this.ensureConnected();
       const query = AccountLockoutModel.find({
-        $or: [
-          { unlocksAt: { $gt: new Date() } },
-          { unlocksAt: null, type: "permanent" },
-        ],
+        $or: [{ unlocksAt: { $gt: new Date() } }, { unlocksAt: null, type: "permanent" }],
       }).session(options?.session || null);
       if (options?.lean) query.lean();
       if (options?.showDeleted) query.setOptions({ showDeleted: true });

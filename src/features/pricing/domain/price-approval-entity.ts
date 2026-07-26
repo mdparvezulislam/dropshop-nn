@@ -2,7 +2,8 @@ import { BaseDBEntity } from "@/lib/database/types";
 
 export type ApprovalStatus = "pending" | "approved" | "rejected" | "cancelled";
 
-export type ApprovalEntityType = "product_pricing" | "global_rule" | "profile" | "campaign" | "bulk_update";
+export type ApprovalEntityType =
+  "product_pricing" | "global_rule" | "profile" | "campaign" | "bulk_update";
 
 export interface PriceChange {
   field: string;

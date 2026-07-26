@@ -57,7 +57,7 @@ export function NotificationsOverview(): React.ReactElement {
       forceChannels: true,
     });
     setSending(false);
-    setMessage(res.success ? "Notification queued and delivered." : res.error ?? "Send failed");
+    setMessage(res.success ? "Notification queued and delivered." : (res.error ?? "Send failed"));
     if (res.success) {
       setTitle("");
       setBody("");
@@ -78,7 +78,11 @@ export function NotificationsOverview(): React.ReactElement {
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={load} disabled={loading} className="gap-1.5">
-            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+            {loading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="h-3.5 w-3.5" />
+            )}
             Refresh
           </Button>
           <Link href="/dashboard/notifications/templates">
@@ -150,7 +154,11 @@ export function NotificationsOverview(): React.ReactElement {
               disabled={sending || !userId || !title}
               className="gap-1.5"
             >
-              {sending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Bell className="h-3.5 w-3.5" />}
+              {sending ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Bell className="h-3.5 w-3.5" />
+              )}
               Send
             </Button>
           </CardContent>

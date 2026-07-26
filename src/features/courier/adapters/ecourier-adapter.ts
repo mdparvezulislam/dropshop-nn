@@ -33,7 +33,10 @@ export class ECourierAdapter implements CourierProvider {
     };
   }
 
-  async cancelShipment(trackingCode: string, consignmentId?: string): Promise<{ success: boolean; error?: string }> {
+  async cancelShipment(
+    trackingCode: string,
+    consignmentId?: string,
+  ): Promise<{ success: boolean; error?: string }> {
     return { success: true };
   }
 

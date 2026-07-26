@@ -79,7 +79,11 @@ export async function cancelShipmentAction(formData: unknown): Promise<{
   try {
     const validated = cancelShipmentSchema.parse(formData);
     const service = new LogisticsService();
-    const result = await service.cancelShipment(validated.shipmentId, validated.reason, session.user.id);
+    const result = await service.cancelShipment(
+      validated.shipmentId,
+      validated.reason,
+      session.user.id,
+    );
     revalidatePath("/dashboard/courier");
     return { success: true, data: result };
   } catch (error: any) {

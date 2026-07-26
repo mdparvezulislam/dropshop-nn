@@ -42,7 +42,9 @@ import {
 } from "lucide-react";
 
 export function DeliveryAutomationUI(): React.ReactElement {
-  const [activeTab, setActiveTab] = React.useState<"automations" | "polling" | "logs">("automations");
+  const [activeTab, setActiveTab] = React.useState<"automations" | "polling" | "logs">(
+    "automations",
+  );
   const [loading, setLoading] = React.useState(false);
   const [data, setData] = React.useState<any>(null);
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -56,7 +58,10 @@ export function DeliveryAutomationUI(): React.ReactElement {
   const tabSliderRef = React.useRef<HTMLDivElement>(null);
   const scrollTabs = (direction: "left" | "right") => {
     if (tabSliderRef.current) {
-      tabSliderRef.current.scrollBy({ left: direction === "left" ? -280 : 280, behavior: "smooth" });
+      tabSliderRef.current.scrollBy({
+        left: direction === "left" ? -280 : 280,
+        behavior: "smooth",
+      });
     }
   };
 
@@ -102,7 +107,9 @@ export function DeliveryAutomationUI(): React.ReactElement {
     try {
       const res = await runAdaptivePollingWorkerAction();
       if (res.success) {
-        toast.success(`Adaptive Polling Worker completed: ${res.processedCount} shipments synchronized`);
+        toast.success(
+          `Adaptive Polling Worker completed: ${res.processedCount} shipments synchronized`,
+        );
         loadAllData();
       } else {
         toast.error(res.error || "Polling worker failed");
@@ -143,13 +150,19 @@ export function DeliveryAutomationUI(): React.ReactElement {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-slate-800 pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Delivery Automation & Courier Orchestration</h1>
-            <Badge variant="outline" className="border-cyan-500/30 text-cyan-400 bg-cyan-950/40 text-[10px]">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+              Delivery Automation & Courier Orchestration
+            </h1>
+            <Badge
+              variant="outline"
+              className="border-cyan-500/30 text-cyan-400 bg-cyan-950/40 text-[10px]"
+            >
               LOGISTICS-HUB-001C
             </Badge>
           </div>
           <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Automatic Post-Booking Lifecycle Engine, Rider & Hub Synchronization, Hybrid Webhook+Polling Worker & Event Automation
+            Automatic Post-Booking Lifecycle Engine, Rider & Hub Synchronization, Hybrid
+            Webhook+Polling Worker & Event Automation
           </p>
         </div>
 
@@ -162,10 +175,22 @@ export function DeliveryAutomationUI(): React.ReactElement {
               className="pl-8 text-xs bg-slate-900 border-slate-800"
             />
           </div>
-          <Button onClick={handleRunPollingNow} disabled={pollingBusy} size="sm" className="bg-cyan-600 hover:bg-cyan-500 text-xs gap-1.5">
-            <Play className={`h-3.5 w-3.5 ${pollingBusy ? "animate-spin" : ""}`} /> Run 5-Min Sync Now
+          <Button
+            onClick={handleRunPollingNow}
+            disabled={pollingBusy}
+            size="sm"
+            className="bg-cyan-600 hover:bg-cyan-500 text-xs gap-1.5"
+          >
+            <Play className={`h-3.5 w-3.5 ${pollingBusy ? "animate-spin" : ""}`} /> Run 5-Min Sync
+            Now
           </Button>
-          <Button onClick={loadAllData} size="sm" variant="ghost" disabled={loading} className="text-slate-400 hover:text-white">
+          <Button
+            onClick={loadAllData}
+            size="sm"
+            variant="ghost"
+            disabled={loading}
+            className="text-slate-400 hover:text-white"
+          >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </Button>
         </div>
@@ -177,7 +202,9 @@ export function DeliveryAutomationUI(): React.ReactElement {
           <CardContent className="p-4 space-y-1">
             <p className="text-[11px] font-medium text-slate-400">Active Automations</p>
             <div className="flex items-center justify-between">
-              <p className="text-xl font-bold text-cyan-400">{data?.metrics?.activeShipmentsCount || 0}</p>
+              <p className="text-xl font-bold text-cyan-400">
+                {data?.metrics?.activeShipmentsCount || 0}
+              </p>
               <Activity className="h-4 w-4 text-cyan-400" />
             </div>
           </CardContent>
@@ -207,7 +234,9 @@ export function DeliveryAutomationUI(): React.ReactElement {
           <CardContent className="p-4 space-y-1">
             <p className="text-[11px] font-medium text-slate-400">Avg Sync Latency</p>
             <div className="flex items-center justify-between">
-              <p className="text-xl font-bold text-amber-300">{data?.metrics?.avgSyncTimeMs || 420} ms</p>
+              <p className="text-xl font-bold text-amber-300">
+                {data?.metrics?.avgSyncTimeMs || 420} ms
+              </p>
               <Clock className="h-4 w-4 text-amber-300" />
             </div>
           </CardContent>
@@ -232,7 +261,9 @@ export function DeliveryAutomationUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("automations")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "automations" ? "bg-cyan-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "automations"
+                ? "bg-cyan-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <Truck className="h-3.5 w-3.5" /> Shipment Automations ({automationsList.length})
@@ -240,7 +271,9 @@ export function DeliveryAutomationUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("polling")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "polling" ? "bg-cyan-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "polling"
+                ? "bg-cyan-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <Zap className="h-3.5 w-3.5 text-yellow-400" /> Hybrid Polling Worker
@@ -261,7 +294,9 @@ export function DeliveryAutomationUI(): React.ReactElement {
       {activeTab === "automations" && (
         <Card className="bg-slate-900/80 border-slate-800">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-white">Automated Delivery Lifecycle Pipeline</CardTitle>
+            <CardTitle className="text-base font-semibold text-white">
+              Automated Delivery Lifecycle Pipeline
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -290,17 +325,19 @@ export function DeliveryAutomationUI(): React.ReactElement {
                         <p className="font-bold text-white">{a.shipmentNumber}</p>
                         <p className="font-mono text-[10px] text-cyan-400">{a.trackingCode}</p>
                       </TableCell>
-                      <TableCell className="text-xs uppercase font-semibold text-indigo-400">{a.provider}</TableCell>
+                      <TableCell className="text-xs uppercase font-semibold text-indigo-400">
+                        {a.provider}
+                      </TableCell>
                       <TableCell className="text-xs">
                         <Badge
                           variant={
                             a.currentStatus === "delivered"
                               ? "success"
                               : a.currentStatus === "out_for_delivery"
-                              ? "warning"
-                              : a.currentStatus === "returned"
-                              ? "destructive"
-                              : "outline"
+                                ? "warning"
+                                : a.currentStatus === "returned"
+                                  ? "destructive"
+                                  : "outline"
                           }
                         >
                           {a.currentStatus}
@@ -316,9 +353,14 @@ export function DeliveryAutomationUI(): React.ReactElement {
                           <span className="text-slate-500 text-[11px]">Unassigned</span>
                         )}
                       </TableCell>
-                      <TableCell className="text-xs text-slate-300">{a.currentHub || "N/A"}</TableCell>
+                      <TableCell className="text-xs text-slate-300">
+                        {a.currentHub || "N/A"}
+                      </TableCell>
                       <TableCell className="text-xs">
-                        <Badge variant={a.pollingStatus === "active" ? "success" : "outline"} className="capitalize">
+                        <Badge
+                          variant={a.pollingStatus === "active" ? "success" : "outline"}
+                          className="capitalize"
+                        >
                           {a.pollingStatus}
                         </Badge>
                       </TableCell>
@@ -338,7 +380,9 @@ export function DeliveryAutomationUI(): React.ReactElement {
                           variant="outline"
                           className="h-7 text-[11px] border-slate-700"
                         >
-                          <RefreshCw className={`h-3 w-3 ${syncingId === a.shipmentId ? "animate-spin" : ""}`} />
+                          <RefreshCw
+                            className={`h-3 w-3 ${syncingId === a.shipmentId ? "animate-spin" : ""}`}
+                          />
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -354,7 +398,9 @@ export function DeliveryAutomationUI(): React.ReactElement {
       {activeTab === "polling" && (
         <Card className="bg-slate-900/80 border-slate-800">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-white">Hybrid Webhook & Adaptive Polling Worker</CardTitle>
+            <CardTitle className="text-base font-semibold text-white">
+              Hybrid Webhook & Adaptive Polling Worker
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 max-w-xl">
             <div className="p-4 rounded-lg bg-slate-950 border border-slate-800 space-y-2">
@@ -363,11 +409,16 @@ export function DeliveryAutomationUI(): React.ReactElement {
                 <Badge variant="success">Adaptive 5 Minutes</Badge>
               </div>
               <p className="text-xs text-slate-400">
-                Queries active non-terminal shipments from Pathao and Steadfast APIs automatically as a fallback when courier webhooks are delayed.
+                Queries active non-terminal shipments from Pathao and Steadfast APIs automatically
+                as a fallback when courier webhooks are delayed.
               </p>
             </div>
 
-            <Button onClick={handleRunPollingNow} disabled={pollingBusy} className="bg-cyan-600 hover:bg-cyan-500 text-xs">
+            <Button
+              onClick={handleRunPollingNow}
+              disabled={pollingBusy}
+              className="bg-cyan-600 hover:bg-cyan-500 text-xs"
+            >
               Execute Manual Polling Sync Iteration
             </Button>
           </CardContent>
@@ -380,10 +431,17 @@ export function DeliveryAutomationUI(): React.ReactElement {
           <div className="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-lg p-5 space-y-4 max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div>
-                <h3 className="text-base font-bold text-white">Shipment Timeline [{selectedAutomation.shipmentNumber}]</h3>
+                <h3 className="text-base font-bold text-white">
+                  Shipment Timeline [{selectedAutomation.shipmentNumber}]
+                </h3>
                 <p className="text-xs font-mono text-cyan-400">{selectedAutomation.trackingCode}</p>
               </div>
-              <Button onClick={() => setSelectedAutomation(null)} size="sm" variant="ghost" className="text-slate-400">
+              <Button
+                onClick={() => setSelectedAutomation(null)}
+                size="sm"
+                variant="ghost"
+                className="text-slate-400"
+              >
                 Close
               </Button>
             </div>
@@ -392,15 +450,21 @@ export function DeliveryAutomationUI(): React.ReactElement {
               <div className="p-3 rounded bg-slate-950 border border-slate-800 grid grid-cols-2 gap-2">
                 <div>
                   <span className="text-slate-400">Rider Name:</span>{" "}
-                  <span className="font-semibold text-white">{selectedAutomation.rider?.name || "Unassigned"}</span>
+                  <span className="font-semibold text-white">
+                    {selectedAutomation.rider?.name || "Unassigned"}
+                  </span>
                 </div>
                 <div>
                   <span className="text-slate-400">Rider Phone:</span>{" "}
-                  <span className="font-mono text-slate-300">{selectedAutomation.rider?.phone || "N/A"}</span>
+                  <span className="font-mono text-slate-300">
+                    {selectedAutomation.rider?.phone || "N/A"}
+                  </span>
                 </div>
                 <div>
                   <span className="text-slate-400">Current Hub:</span>{" "}
-                  <span className="font-semibold text-indigo-400">{selectedAutomation.currentHub || "N/A"}</span>
+                  <span className="font-semibold text-indigo-400">
+                    {selectedAutomation.currentHub || "N/A"}
+                  </span>
                 </div>
                 <div>
                   <span className="text-slate-400">COD Settlement:</span>{" "}
@@ -413,11 +477,15 @@ export function DeliveryAutomationUI(): React.ReactElement {
               <h4 className="font-bold text-white pt-2">Chronological Tracking Events</h4>
               <div className="space-y-2">
                 {(selectedAutomation.timeline || []).map((t: any, idx: number) => (
-                  <div key={idx} className="p-3 rounded bg-slate-950 border border-slate-800 flex items-start justify-between gap-3">
+                  <div
+                    key={idx}
+                    className="p-3 rounded bg-slate-950 border border-slate-800 flex items-start justify-between gap-3"
+                  >
                     <div>
                       <p className="font-semibold text-white">{t.description}</p>
                       <p className="text-[11px] text-slate-400">
-                        {new Date(t.timestamp).toLocaleString()} • Location: {t.location || t.hub || "Transit"}
+                        {new Date(t.timestamp).toLocaleString()} • Location:{" "}
+                        {t.location || t.hub || "Transit"}
                       </p>
                     </div>
                     <Badge variant="outline" className="capitalize">

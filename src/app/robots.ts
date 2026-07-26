@@ -5,14 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: [
-        "/dashboard/",
-        "/reseller/",
-        "/wholesale/",
-        "/supplier/",
-        "/account/",
-        "/api/",
-      ],
+      disallow: ["/dashboard/", "/reseller/", "/wholesale/", "/supplier/", "/account/", "/api/"],
     },
     sitemap: "https://dropshop.com.bd/sitemap.xml",
   };

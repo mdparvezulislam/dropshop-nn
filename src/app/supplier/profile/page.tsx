@@ -2,16 +2,7 @@
 
 import * as React from "react";
 import { toast } from "sonner";
-import {
-  Building2,
-  User,
-  Phone,
-  Mail,
-  MapPin,
-  Save,
-  Shield,
-  CreditCard,
-} from "lucide-react";
+import { Building2, User, Phone, Mail, MapPin, Save, Shield, CreditCard } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,19 +35,27 @@ export default function SupplierProfilePage(): React.ReactElement {
           </CardHeader>
           <CardContent className="p-4 space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="businessName" className="text-xs">Business Name</Label>
+              <Label htmlFor="businessName" className="text-xs">
+                Business Name
+              </Label>
               <Input id="businessName" placeholder="Your business name" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="businessType" className="text-xs">Business Type</Label>
+              <Label htmlFor="businessType" className="text-xs">
+                Business Type
+              </Label>
               <Input id="businessType" placeholder="e.g. Manufacturer, Importer, Distributor" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="description" className="text-xs">Business Description</Label>
+              <Label htmlFor="description" className="text-xs">
+                Business Description
+              </Label>
               <Input id="description" placeholder="Brief description of your business" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="website" className="text-xs">Website</Label>
+              <Label htmlFor="website" className="text-xs">
+                Website
+              </Label>
               <Input id="website" type="url" placeholder="https://example.com" />
             </div>
           </CardContent>
@@ -70,15 +69,21 @@ export default function SupplierProfilePage(): React.ReactElement {
           </CardHeader>
           <CardContent className="p-4 space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="tradeLicense" className="text-xs">Trade License Number</Label>
+              <Label htmlFor="tradeLicense" className="text-xs">
+                Trade License Number
+              </Label>
               <Input id="tradeLicense" placeholder="Enter trade license" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="bin" className="text-xs">BIN / VAT Number</Label>
+              <Label htmlFor="bin" className="text-xs">
+                BIN / VAT Number
+              </Label>
               <Input id="bin" placeholder="Enter BIN or VAT number" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="tin" className="text-xs">TIN Number</Label>
+              <Label htmlFor="tin" className="text-xs">
+                TIN Number
+              </Label>
               <Input id="tin" placeholder="Enter TIN number" />
             </div>
           </CardContent>
@@ -92,16 +97,22 @@ export default function SupplierProfilePage(): React.ReactElement {
           </CardHeader>
           <CardContent className="p-4 space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="contactPerson" className="text-xs">Contact Person</Label>
+              <Label htmlFor="contactPerson" className="text-xs">
+                Contact Person
+              </Label>
               <Input id="contactPerson" placeholder="Full name" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="phone" className="text-xs">Phone</Label>
+                <Label htmlFor="phone" className="text-xs">
+                  Phone
+                </Label>
                 <Input id="phone" type="tel" placeholder="01XXXXXXXXX" />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="email" className="text-xs">Email</Label>
+                <Label htmlFor="email" className="text-xs">
+                  Email
+                </Label>
                 <Input id="email" type="email" placeholder="email@example.com" />
               </div>
             </div>
@@ -116,16 +127,22 @@ export default function SupplierProfilePage(): React.ReactElement {
           </CardHeader>
           <CardContent className="p-4 space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="address" className="text-xs">Business Address</Label>
+              <Label htmlFor="address" className="text-xs">
+                Business Address
+              </Label>
               <Input id="address" placeholder="Street address" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="city" className="text-xs">City</Label>
+                <Label htmlFor="city" className="text-xs">
+                  City
+                </Label>
                 <Input id="city" placeholder="City" />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="district" className="text-xs">District</Label>
+                <Label htmlFor="district" className="text-xs">
+                  District
+                </Label>
                 <Input id="district" placeholder="District" />
               </div>
             </div>
@@ -141,26 +158,36 @@ export default function SupplierProfilePage(): React.ReactElement {
           <CardContent className="p-4 space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="bankName" className="text-xs">Bank Name</Label>
+                <Label htmlFor="bankName" className="text-xs">
+                  Bank Name
+                </Label>
                 <Input id="bankName" placeholder="Bank name" />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="branch" className="text-xs">Branch</Label>
+                <Label htmlFor="branch" className="text-xs">
+                  Branch
+                </Label>
                 <Input id="branch" placeholder="Branch name" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="accountName" className="text-xs">Account Name</Label>
+                <Label htmlFor="accountName" className="text-xs">
+                  Account Name
+                </Label>
                 <Input id="accountName" placeholder="Account holder name" />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="accountNumber" className="text-xs">Account Number</Label>
+                <Label htmlFor="accountNumber" className="text-xs">
+                  Account Number
+                </Label>
                 <Input id="accountNumber" placeholder="Account number" />
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="routingNumber" className="text-xs">Routing Number</Label>
+              <Label htmlFor="routingNumber" className="text-xs">
+                Routing Number
+              </Label>
               <Input id="routingNumber" placeholder="Routing number" />
             </div>
           </CardContent>

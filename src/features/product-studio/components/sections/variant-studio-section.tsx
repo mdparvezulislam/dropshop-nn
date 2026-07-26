@@ -13,7 +13,6 @@ import {
   LayoutGrid,
   Plus,
   Trash2,
-  Image as ImageIcon,
   Check,
   X,
   Pencil,
@@ -108,13 +107,16 @@ export function VariantStudioSection({
 
   const { generateMatrix } = useVariantMatrix();
 
-  const isAttrActive = React.useCallback((attrName: string): boolean => {
-    return activeAttrs.some((a) => a.name.toLowerCase() === attrName.toLowerCase());
-  }, [activeAttrs]);
+  const isAttrActive = React.useCallback(
+    (attrName: string): boolean => {
+      return activeAttrs.some((a) => a.name.toLowerCase() === attrName.toLowerCase());
+    },
+    [activeAttrs],
+  );
 
   const handleAddDefaultAttr = (attr: AttributeItem) => {
     if (isAttrActive(attr.name)) {
-      toast.info(`${attr.name} is already in the active list`);
+      toast.message(`${attr.name} is already in the active list`);
       return;
     }
     const newAttr: AttributeItem = {
@@ -162,7 +164,7 @@ export function VariantStudioSection({
   const handleAddCustomAttr = () => {
     if (!customAttrName.trim()) return;
     if (isAttrActive(customAttrName.trim())) {
-      toast.info(`${customAttrName.trim()} is already in the active list`);
+      toast.message(`${customAttrName.trim()} is already in the active list`);
       return;
     }
     const newAttr: AttributeItem = {
@@ -191,7 +193,10 @@ export function VariantStudioSection({
     };
 
     for (const attr of activeAttrs) {
-      const values = attr.values.split(",").map((s) => s.trim()).filter(Boolean);
+      const values = attr.values
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
       if (values.length === 0) continue;
 
       const lowerName = attr.name.toLowerCase().trim();
@@ -225,14 +230,25 @@ export function VariantStudioSection({
 
     const generated = generateMatrix(options);
     onChange(generated);
-    toast.success(`Generated ${generated.length} variant combinations across ${activeAttrs.length} attributes!`);
+    toast.success(
+      `Generated ${generated.length} variant combinations across ${activeAttrs.length} attributes!`,
+    );
   };
 
   // Quick Entry fallback
   const handleQuickEntryGenerate = () => {
-    const colors = colorInput.split(",").map((s) => s.trim()).filter(Boolean);
-    const storages = storageInput.split(",").map((s) => s.trim()).filter(Boolean);
-    const sizes = sizeInput.split(",").map((s) => s.trim()).filter(Boolean);
+    const colors = colorInput
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const storages = storageInput
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const sizes = sizeInput
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
 
     if (colors.length === 0 && storages.length === 0 && sizes.length === 0) {
       toast.error("Enter at least one color, edition, or size option");
@@ -287,9 +303,7 @@ export function VariantStudioSection({
   };
 
   const toggleSelect = (id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   };
 
   const handleApplyBulkChanges = (changes: {
@@ -312,17 +326,52 @@ export function VariantStudioSection({
 
   const renderAttributeBadges = (v: ExtendedVariantRow) => {
     const badges: React.ReactNode[] = [];
-    if (v.color) badges.push(<Badge key="color" variant="outline" size="xs">{v.color}</Badge>);
-    if (v.storage) badges.push(<Badge key="storage" variant="outline" size="xs">{v.storage}</Badge>);
-    if (v.size) badges.push(<Badge key="size" variant="outline" size="xs">{v.size}</Badge>);
-    if (v.ram) badges.push(<Badge key="ram" variant="outline" size="xs">{v.ram}</Badge>);
-    if (v.material) badges.push(<Badge key="material" variant="outline" size="xs">{v.material}</Badge>);
+    if (v.color)
+      badges.push(
+        <Badge key="color" variant="outline" size="xs">
+          {v.color}
+        </Badge>,
+      );
+    if (v.storage)
+      badges.push(
+        <Badge key="storage" variant="outline" size="xs">
+          {v.storage}
+        </Badge>,
+      );
+    if (v.size)
+      badges.push(
+        <Badge key="size" variant="outline" size="xs">
+          {v.size}
+        </Badge>,
+      );
+    if (v.ram)
+      badges.push(
+        <Badge key="ram" variant="outline" size="xs">
+          {v.ram}
+        </Badge>,
+      );
+    if (v.material)
+      badges.push(
+        <Badge key="material" variant="outline" size="xs">
+          {v.material}
+        </Badge>,
+      );
     if (v.dynamicAttrs) {
       for (const [key, val] of Object.entries(v.dynamicAttrs)) {
-        if (val) badges.push(<Badge key={key} variant="secondary" size="xs">{key}: {val}</Badge>);
+        if (val)
+          badges.push(
+            <Badge key={key} variant="secondary" size="xs">
+              {key}: {val}
+            </Badge>,
+          );
       }
     }
-    if (badges.length === 0) badges.push(<span key="empty" className="text-muted-foreground">—</span>);
+    if (badges.length === 0)
+      badges.push(
+        <span key="empty" className="text-muted-foreground">
+          —
+        </span>,
+      );
     return badges;
   };
 
@@ -348,7 +397,9 @@ export function VariantStudioSection({
                 onClick={() => setViewMode("table")}
                 className={cn(
                   "rounded-md p-1 text-xs font-semibold transition-all",
-                  viewMode === "table" ? "bg-primary text-primary-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground",
+                  viewMode === "table"
+                    ? "bg-primary text-primary-foreground shadow-2xs"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
                 title="Table Matrix View"
               >
@@ -359,7 +410,9 @@ export function VariantStudioSection({
                 onClick={() => setViewMode("card")}
                 className={cn(
                   "rounded-md p-1 text-xs font-semibold transition-all",
-                  viewMode === "card" ? "bg-primary text-primary-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground",
+                  viewMode === "card"
+                    ? "bg-primary text-primary-foreground shadow-2xs"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
                 title="Card Grid View"
               >
@@ -409,7 +462,8 @@ export function VariantStudioSection({
           <div className="p-4 rounded-xl border border-border bg-card space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs font-extrabold uppercase tracking-wider text-foreground flex items-center gap-1.5">
-                <Layers className="h-3.5 w-3.5 text-primary" /> Active Attributes ({activeAttrs.length})
+                <Layers className="h-3.5 w-3.5 text-primary" /> Active Attributes (
+                {activeAttrs.length})
               </span>
               <span className="text-xs text-muted-foreground">
                 These attributes are used for variant matrix generation
@@ -428,32 +482,32 @@ export function VariantStudioSection({
                     className="flex items-center gap-2 p-2 rounded-lg border border-border/60 bg-muted/20"
                   >
                     {editingAttr === attr.id ? (
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 sm:gap-2 flex-1 min-w-0">
                         <Input
                           value={editAttrName}
                           onChange={(e) => setEditAttrName(e.target.value)}
-                          className="h-7 w-32 text-xs font-bold"
-                          placeholder="Attribute name"
+                          className="h-8 text-xs font-bold w-24 sm:w-32"
+                          placeholder="Name"
                         />
                         <Input
                           value={editAttrValues}
                           onChange={(e) => setEditAttrValues(e.target.value)}
-                          className="h-7 flex-1 text-xs font-mono"
+                          className="h-8 text-xs font-mono flex-1 min-w-0"
                           placeholder="Value1, Value2, Value3"
                         />
                         <button
                           type="button"
                           onClick={handleSaveEditAttr}
-                          className="p-1 text-primary hover:text-primary/80"
+                          className="p-1.5 text-primary hover:text-primary/80 shrink-0"
                         >
-                          <Check className="h-3.5 w-3.5" />
+                          <Check className="h-4 w-4" />
                         </button>
                         <button
                           type="button"
                           onClick={() => setEditingAttr(null)}
-                          className="p-1 text-muted-foreground hover:text-foreground"
+                          className="p-1.5 text-muted-foreground hover:text-foreground shrink-0"
                         >
-                          <X className="h-3.5 w-3.5" />
+                          <X className="h-4 w-4" />
                         </button>
                       </div>
                     ) : (
@@ -461,18 +515,18 @@ export function VariantStudioSection({
                         <button
                           type="button"
                           onClick={() => handleMoveAttr(attr.id, "up")}
-                          className="p-0.5 text-muted-foreground/50 hover:text-foreground"
+                          className="p-1 text-muted-foreground/50 hover:text-foreground"
                           title="Move up"
                         >
-                          <ArrowUp className="h-3 w-3" />
+                          <ArrowUp className="h-3.5 w-3.5" />
                         </button>
                         <button
                           type="button"
                           onClick={() => handleMoveAttr(attr.id, "down")}
-                          className="p-0.5 text-muted-foreground/50 hover:text-foreground"
+                          className="p-1 text-muted-foreground/50 hover:text-foreground"
                           title="Move down"
                         >
-                          <ArrowDown className="h-3 w-3" />
+                          <ArrowDown className="h-3.5 w-3.5" />
                         </button>
                         <div className="flex-1 min-w-0">
                           <span className="text-xs font-bold text-foreground">{attr.name}</span>
@@ -504,33 +558,37 @@ export function VariantStudioSection({
             )}
 
             {/* Add Custom Attribute */}
-            <div className="flex items-center gap-2 pt-1 border-t border-border/50">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5 sm:gap-2 pt-1 border-t border-border/50">
               <Input
                 value={customAttrName}
                 onChange={(e) => setCustomAttrName(e.target.value)}
                 placeholder="Custom attribute name (e.g. Finish)"
-                className="h-7 w-44 text-xs"
+                className="h-9 sm:h-7 w-full sm:w-44 text-xs"
               />
               <Input
                 value={customAttrValues}
                 onChange={(e) => setCustomAttrValues(e.target.value)}
                 placeholder="Matte, Glossy, Textured"
-                className="h-7 flex-1 text-xs font-mono"
+                className="h-9 sm:h-7 flex-1 text-xs font-mono"
               />
               <Button
                 type="button"
                 size="sm"
                 variant="outline"
-                className="h-7 gap-1 text-xs font-semibold shrink-0"
+                className="h-9 sm:h-7 gap-1 text-xs font-semibold shrink-0"
                 onClick={handleAddCustomAttr}
               >
-                <Plus className="h-3 w-3" /> Add
+                <Plus className="h-4 sm:h-3 w-4 sm:w-3" /> Add
               </Button>
             </div>
 
             {/* Generate Button */}
             <div className="flex justify-end gap-2 pt-1 border-t border-border/50">
-              <Button size="sm" className="gap-1.5 font-bold shadow-xs" onClick={handleGenerateMatrix}>
+              <Button
+                size="sm"
+                className="gap-1.5 font-bold shadow-xs"
+                onClick={handleGenerateMatrix}
+              >
                 <Wand2 className="h-3.5 w-3.5" /> Generate Combinations Matrix
               </Button>
             </div>
@@ -544,7 +602,11 @@ export function VariantStudioSection({
               className="flex items-center justify-between w-full px-4 py-2.5 bg-muted/20 hover:bg-muted/40 transition-colors"
             >
               <span className="text-xs font-extrabold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                {quickEntryOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+                {quickEntryOpen ? (
+                  <ChevronDown className="h-3.5 w-3.5" />
+                ) : (
+                  <ChevronRight className="h-3.5 w-3.5" />
+                )}
                 Quick Entry (Legacy 3-field generator)
               </span>
             </button>
@@ -577,7 +639,12 @@ export function VariantStudioSection({
                   </FormField>
                 </div>
                 <div className="flex justify-end gap-2">
-                  <Button size="sm" variant="outline" className="gap-1.5 text-xs font-semibold" onClick={handleQuickEntryGenerate}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1.5 text-xs font-semibold"
+                    onClick={handleQuickEntryGenerate}
+                  >
                     <Wand2 className="h-3.5 w-3.5" /> Generate from Quick Entry
                   </Button>
                 </div>
@@ -612,7 +679,12 @@ export function VariantStudioSection({
                   </Button>
                 ) : null}
 
-                <Button size="sm" variant="outline" className="gap-1 text-xs font-semibold" onClick={handleAddSingleVariant}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1 text-xs font-semibold"
+                  onClick={handleAddSingleVariant}
+                >
                   <Plus className="h-3.5 w-3.5" /> Add Variant
                 </Button>
               </div>
@@ -621,7 +693,7 @@ export function VariantStudioSection({
 
           {/* Variant Matrix Table View */}
           {viewMode === "table" ? (
-            <div className="ws-scroll max-h-96 overflow-y-auto rounded-xl border border-border bg-card">
+            <div className="ws-scroll max-h-96 overflow-auto rounded-xl border border-border bg-card">
               <table className="w-full text-left text-xs">
                 <thead className="sticky top-0 bg-muted/90 backdrop-blur-xs border-b border-border font-bold text-muted-foreground">
                   <tr>
@@ -638,14 +710,21 @@ export function VariantStudioSection({
                   {variants.length === 0 ? (
                     <tr>
                       <td colSpan={7} className="p-6 text-center text-muted-foreground">
-                        No variants generated yet. Use the Attribute Manager above or click Add Variant.
+                        No variants generated yet. Use the Attribute Manager above or click Add
+                        Variant.
                       </td>
                     </tr>
                   ) : (
                     variants.map((v) => {
                       const isSelected = selectedIds.includes(v.id);
                       return (
-                        <tr key={v.id} className={cn("hover:bg-muted/40 transition-colors", isSelected && "bg-accent/40")}>
+                        <tr
+                          key={v.id}
+                          className={cn(
+                            "hover:bg-muted/40 transition-colors",
+                            isSelected && "bg-accent/40",
+                          )}
+                        >
                           <td className="p-3">
                             <input
                               type="checkbox"
@@ -658,34 +737,40 @@ export function VariantStudioSection({
                             <Input
                               value={v.sku}
                               onChange={(e) => handleUpdateVariant(v.id, { sku: e.target.value })}
-                              className="h-8 font-mono text-xs font-bold w-36"
+                              className="h-8 font-mono text-xs font-bold w-full min-w-28 sm:w-36"
                             />
                           </td>
                           <td className="p-3">
-                            <div className="flex flex-wrap gap-1">
-                              {renderAttributeBadges(v)}
-                            </div>
+                            <div className="flex flex-wrap gap-1">{renderAttributeBadges(v)}</div>
                           </td>
                           <td className="p-3">
                             <Input
                               type="number"
                               value={v.price}
-                              onChange={(e) => handleUpdateVariant(v.id, { price: parseFloat(e.target.value) || 0 })}
-                              className="h-8 font-mono text-xs font-bold w-24"
+                              onChange={(e) =>
+                                handleUpdateVariant(v.id, {
+                                  price: parseFloat(e.target.value) || 0,
+                                })
+                              }
+                              className="h-8 font-mono text-xs font-bold w-full min-w-20 sm:w-24"
                             />
                           </td>
                           <td className="p-3">
                             <Input
                               type="number"
                               value={v.stock}
-                              onChange={(e) => handleUpdateVariant(v.id, { stock: parseInt(e.target.value) || 0 })}
-                              className="h-8 font-mono text-xs font-bold w-20"
+                              onChange={(e) =>
+                                handleUpdateVariant(v.id, { stock: parseInt(e.target.value) || 0 })
+                              }
+                              className="h-8 font-mono text-xs font-bold w-full min-w-16 sm:w-20"
                             />
                           </td>
                           <td className="p-3">
                             <select
                               value={v.status}
-                              onChange={(e) => handleUpdateVariant(v.id, { status: e.target.value as any })}
+                              onChange={(e) =>
+                                handleUpdateVariant(v.id, { status: e.target.value as any })
+                              }
                               className="h-8 rounded-lg border border-border bg-card px-2 text-[11px] font-semibold"
                             >
                               <option value="active">Active</option>
@@ -714,7 +799,10 @@ export function VariantStudioSection({
             /* Card Grid View */
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               {variants.map((v) => (
-                <div key={v.id} className="p-3 rounded-xl border border-border bg-card shadow-2xs space-y-2 relative group">
+                <div
+                  key={v.id}
+                  className="p-3 rounded-xl border border-border bg-card shadow-2xs space-y-2 relative group"
+                >
                   <div className="flex items-center justify-between">
                     <span className="font-mono font-bold text-xs truncate">{v.sku}</span>
                     <button
@@ -725,25 +813,31 @@ export function VariantStudioSection({
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   </div>
-                  <div className="flex flex-wrap gap-1">
-                    {renderAttributeBadges(v)}
-                  </div>
+                  <div className="flex flex-wrap gap-1">{renderAttributeBadges(v)}</div>
                   <div className="grid grid-cols-2 gap-2 pt-1">
                     <div>
-                      <label className="text-[10px] text-muted-foreground font-bold uppercase">Price (৳)</label>
+                      <label className="text-[10px] text-muted-foreground font-bold uppercase">
+                        Price (৳)
+                      </label>
                       <Input
                         type="number"
                         value={v.price}
-                        onChange={(e) => handleUpdateVariant(v.id, { price: parseFloat(e.target.value) || 0 })}
+                        onChange={(e) =>
+                          handleUpdateVariant(v.id, { price: parseFloat(e.target.value) || 0 })
+                        }
                         className="h-7 text-xs font-mono font-bold"
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] text-muted-foreground font-bold uppercase">Stock</label>
+                      <label className="text-[10px] text-muted-foreground font-bold uppercase">
+                        Stock
+                      </label>
                       <Input
                         type="number"
                         value={v.stock}
-                        onChange={(e) => handleUpdateVariant(v.id, { stock: parseInt(e.target.value) || 0 })}
+                        onChange={(e) =>
+                          handleUpdateVariant(v.id, { stock: parseInt(e.target.value) || 0 })
+                        }
                         className="h-7 text-xs font-mono font-bold"
                       />
                     </div>

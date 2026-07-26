@@ -20,7 +20,8 @@ export class AggregationService {
 
     const [revenue, orders, sessions, productViews] = await Promise.all([
       this.facts.sumValueInRange(from, to, [
-        ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID,
+        ANALYTICS_EVENT_NAMES.ORDER_CREATED,
+        ANALYTICS_EVENT_NAMES.ORDER_PAID,
       ]),
       this.facts.countInRange(from, to, {
         eventName: [ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID],
@@ -46,15 +47,17 @@ export class AggregationService {
     const saved = await this.snapshotRepo.create(snapshot as any);
     await this.snapshotRepo.markImmutable(saved.id);
 
-    await this.cache.invalidateAll([
-      "executive", "order", "finance", "product",
-    ]);
+    await this.cache.invalidateAll(["executive", "order", "finance", "product"]);
 
-    await EventBus.publish(ANALYTICS_DOMAIN_EVENTS.SNAPSHOT_CREATED, {
-      snapshotId: saved.id,
-      type: "daily",
-      date: from.toISOString(),
-    }, { source: "aggregation-service" });
+    await EventBus.publish(
+      ANALYTICS_DOMAIN_EVENTS.SNAPSHOT_CREATED,
+      {
+        snapshotId: saved.id,
+        type: "daily",
+        date: from.toISOString(),
+      },
+      { source: "aggregation-service" },
+    );
 
     logger.info(`Daily snapshot created: ${from.toISOString().slice(0, 10)}`, saved.metrics);
     return saved;
@@ -69,7 +72,8 @@ export class AggregationService {
 
     const [revenue, orders, sessions, productViews, topProducts] = await Promise.all([
       this.facts.sumValueInRange(from, to, [
-        ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID,
+        ANALYTICS_EVENT_NAMES.ORDER_CREATED,
+        ANALYTICS_EVENT_NAMES.ORDER_PAID,
       ]),
       this.facts.countInRange(from, to, {
         eventName: [ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID],
@@ -89,7 +93,10 @@ export class AggregationService {
         topProducts: topProducts.map((r) => ({ id: r.key, count: r.count })),
       },
       metrics: {
-        revenue, orders, sessions, productViews,
+        revenue,
+        orders,
+        sessions,
+        productViews,
         totalEvents: 0,
         conversionRate: sessions > 0 ? Math.round((orders / sessions) * 1000) : 0,
         aov: orders > 0 ? Math.round(revenue / orders) : 0,
@@ -105,11 +112,15 @@ export class AggregationService {
     const saved = await this.snapshotRepo.create(snapshot as any);
     await this.snapshotRepo.markImmutable(saved.id);
 
-    await EventBus.publish(ANALYTICS_DOMAIN_EVENTS.SNAPSHOT_CREATED, {
-      snapshotId: saved.id,
-      type: "monthly",
-      date: from.toISOString().slice(0, 7),
-    }, { source: "aggregation-service" });
+    await EventBus.publish(
+      ANALYTICS_DOMAIN_EVENTS.SNAPSHOT_CREATED,
+      {
+        snapshotId: saved.id,
+        type: "monthly",
+        date: from.toISOString().slice(0, 7),
+      },
+      { source: "aggregation-service" },
+    );
 
     logger.info(`Monthly snapshot created: ${from.toISOString().slice(0, 7)}`, saved.metrics);
     return saved;
@@ -150,11 +161,15 @@ export class AggregationService {
     const saved = await this.snapshotRepo.create(snapshot as any);
     await this.snapshotRepo.markImmutable(saved.id);
 
-    await EventBus.publish(ANALYTICS_DOMAIN_EVENTS.SNAPSHOT_CREATED, {
-      snapshotId: saved.id,
-      type: "yearly",
-      year: y,
-    }, { source: "aggregation-service" });
+    await EventBus.publish(
+      ANALYTICS_DOMAIN_EVENTS.SNAPSHOT_CREATED,
+      {
+        snapshotId: saved.id,
+        type: "yearly",
+        year: y,
+      },
+      { source: "aggregation-service" },
+    );
 
     return saved;
   }

@@ -45,15 +45,17 @@ export default function ResellerWithdrawPage(): React.ReactElement {
 
       if (wdRes.status === "fulfilled" && wdRes.value.success) {
         const items = (Array.isArray(wdRes.value.data) ? wdRes.value.data : []) as any[];
-        setRows(items.map((e: any) => ({
-          id: e.id ?? e._id,
-          amount: e.amount ?? 0,
-          status: e.status ?? "pending",
-          method: e.method ?? "—",
-          account: e.account ?? "—",
-          note: e.note ?? "",
-          createdAt: e.createdAt,
-        })));
+        setRows(
+          items.map((e: any) => ({
+            id: e.id ?? e._id,
+            amount: e.amount ?? 0,
+            status: e.status ?? "pending",
+            method: e.method ?? "—",
+            account: e.account ?? "—",
+            note: e.note ?? "",
+            createdAt: e.createdAt,
+          })),
+        );
       }
     } catch {
       toast.error("Failed to load withdrawal data");
@@ -62,7 +64,9 @@ export default function ResellerWithdrawPage(): React.ReactElement {
     }
   }, []);
 
-  React.useEffect(() => { load(); }, [load]);
+  React.useEffect(() => {
+    load();
+  }, [load]);
 
   const formatCents = (cents: number): string =>
     `৳${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
@@ -123,7 +127,12 @@ export default function ResellerWithdrawPage(): React.ReactElement {
         </div>
 
         <div className="space-y-4">
-          <StatCard label="Available Balance" value={formatCents(balance)} icon={Wallet} accent="success" />
+          <StatCard
+            label="Available Balance"
+            value={formatCents(balance)}
+            icon={Wallet}
+            accent="success"
+          />
           <WithdrawForm balance={balance} walletId={walletId} onSuccess={load} />
         </div>
       </div>

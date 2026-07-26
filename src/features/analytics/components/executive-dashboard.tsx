@@ -5,10 +5,7 @@ import { motion } from "framer-motion";
 import { Download, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  getExecutiveDashboardAction,
-  exportAnalyticsAction,
-} from "../actions/analytics-actions";
+import { getExecutiveDashboardAction, exportAnalyticsAction } from "../actions/analytics-actions";
 import { MetricCard } from "./metric-card";
 import { AnalyticsChart } from "./analytics-chart";
 import { TimeRangeFilter, type AnalyticsPreset } from "./time-range-filter";
@@ -35,18 +32,26 @@ export function ExecutiveDashboard(): React.ReactElement {
     setLoading(false);
   }, [preset]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const handleExport = async () => {
     setExporting(true);
-    const res = await exportAnalyticsAction({ format: "csv", filters: { preset }, type: "executive" });
+    const res = await exportAnalyticsAction({
+      format: "csv",
+      filters: { preset },
+      type: "executive",
+    });
     setExporting(false);
     if (!res.success || !res.data) return;
     const { content, filename, mimeType } = res.data;
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = filename; a.click();
+    a.href = url;
+    a.download = filename;
+    a.click();
     URL.revokeObjectURL(url);
   };
 
@@ -60,18 +65,34 @@ export function ExecutiveDashboard(): React.ReactElement {
         <div className="flex flex-wrap items-center gap-2">
           <TimeRangeFilter value={preset} onChange={setPreset} />
           <Button variant="outline" size="sm" onClick={load} disabled={loading} className="gap-1.5">
-            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+            {loading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="h-3.5 w-3.5" />
+            )}
             Refresh
           </Button>
-          <Button variant="outline" size="sm" onClick={handleExport} disabled={exporting} className="gap-1.5">
-            {exporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExport}
+            disabled={exporting}
+            className="gap-1.5"
+          >
+            {exporting ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Download className="h-3.5 w-3.5" />
+            )}
             Export
           </Button>
         </div>
       </div>
 
       {error && (
-        <p className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-600">{error}</p>
+        <p className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-600">
+          {error}
+        </p>
       )}
 
       {loading && !data ? (
@@ -82,20 +103,101 @@ export function ExecutiveDashboard(): React.ReactElement {
         <>
           {/* Today's Metrics */}
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
-            <MetricCard metric={{ key: "today_revenue", label: "Today's Revenue", value: data.todayRevenue, format: "currency", currency: "BDT" }} index={0} />
-            <MetricCard metric={{ key: "today_orders", label: "Today's Orders", value: data.todayOrders, format: "number" }} index={1} />
-            <MetricCard metric={{ key: "today_shipments", label: "Today's Shipments", value: data.todayShipments, format: "number" }} index={2} />
-            <MetricCard metric={{ key: "today_deliveries", label: "Today's Deliveries", value: data.todayDeliveries, format: "number" }} index={3} />
-            <MetricCard metric={{ key: "today_returns", label: "Today's Returns", value: data.todayReturns, format: "number" }} index={4} />
+            <MetricCard
+              metric={{
+                key: "today_revenue",
+                label: "Today's Revenue",
+                value: data.todayRevenue,
+                format: "currency",
+                currency: "BDT",
+              }}
+              index={0}
+            />
+            <MetricCard
+              metric={{
+                key: "today_orders",
+                label: "Today's Orders",
+                value: data.todayOrders,
+                format: "number",
+              }}
+              index={1}
+            />
+            <MetricCard
+              metric={{
+                key: "today_shipments",
+                label: "Today's Shipments",
+                value: data.todayShipments,
+                format: "number",
+              }}
+              index={2}
+            />
+            <MetricCard
+              metric={{
+                key: "today_deliveries",
+                label: "Today's Deliveries",
+                value: data.todayDeliveries,
+                format: "number",
+              }}
+              index={3}
+            />
+            <MetricCard
+              metric={{
+                key: "today_returns",
+                label: "Today's Returns",
+                value: data.todayReturns,
+                format: "number",
+              }}
+              index={4}
+            />
           </div>
 
           {/* Period Metrics */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-            <MetricCard metric={{ key: "gross_sales", label: "Gross Sales", value: data.grossSales, format: "currency", currency: "BDT" }} />
-            <MetricCard metric={{ key: "net_sales", label: "Net Sales", value: data.netSales, format: "currency", currency: "BDT" }} />
-            <MetricCard metric={{ key: "profit", label: "Profit", value: data.profit, format: "currency", currency: "BDT" }} />
-            <MetricCard metric={{ key: "expenses", label: "Expenses", value: data.expenses, format: "currency", currency: "BDT" }} />
-            <MetricCard metric={{ key: "outstanding_cod", label: "Outstanding COD", value: data.outstandingCOD, format: "currency", currency: "BDT" }} />
+            <MetricCard
+              metric={{
+                key: "gross_sales",
+                label: "Gross Sales",
+                value: data.grossSales,
+                format: "currency",
+                currency: "BDT",
+              }}
+            />
+            <MetricCard
+              metric={{
+                key: "net_sales",
+                label: "Net Sales",
+                value: data.netSales,
+                format: "currency",
+                currency: "BDT",
+              }}
+            />
+            <MetricCard
+              metric={{
+                key: "profit",
+                label: "Profit",
+                value: data.profit,
+                format: "currency",
+                currency: "BDT",
+              }}
+            />
+            <MetricCard
+              metric={{
+                key: "expenses",
+                label: "Expenses",
+                value: data.expenses,
+                format: "currency",
+                currency: "BDT",
+              }}
+            />
+            <MetricCard
+              metric={{
+                key: "outstanding_cod",
+                label: "Outstanding COD",
+                value: data.outstandingCOD,
+                format: "currency",
+                currency: "BDT",
+              }}
+            />
           </div>
 
           {/* KPI Cards */}
@@ -107,8 +209,19 @@ export function ExecutiveDashboard(): React.ReactElement {
 
           {/* Charts */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <AnalyticsChart title="Revenue Trend" data={data.revenueSeries} valueLabel="Revenue" type="area" />
-            <AnalyticsChart title="Orders Trend" data={data.ordersSeries} valueLabel="Orders" type="bar" color="hsl(var(--chart-2, 200 80% 50%))" />
+            <AnalyticsChart
+              title="Revenue Trend"
+              data={data.revenueSeries}
+              valueLabel="Revenue"
+              type="area"
+            />
+            <AnalyticsChart
+              title="Orders Trend"
+              data={data.ordersSeries}
+              valueLabel="Orders"
+              type="bar"
+              color="hsl(var(--chart-2, 200 80% 50%))"
+            />
           </div>
         </>
       ) : null}

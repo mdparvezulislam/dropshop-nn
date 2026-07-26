@@ -21,7 +21,11 @@ export class PricingProfileService {
     return this.repo.create({ ...data, createdBy: actorId, updatedBy: actorId } as any);
   }
 
-  async updateProfile(id: string, data: Partial<PricingProfile>, actorId?: string): Promise<PricingProfile> {
+  async updateProfile(
+    id: string,
+    data: Partial<PricingProfile>,
+    actorId?: string,
+  ): Promise<PricingProfile> {
     const existing = await this.repo.findById(id);
     if (!existing) throw new NotFoundError("Pricing profile not found");
     return this.repo.update(id, { ...data, updatedBy: actorId } as any);

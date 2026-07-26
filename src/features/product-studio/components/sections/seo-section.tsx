@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { FormField } from "@/components/forms/form-field";
 import { TagsInput } from "@/components/forms/tags-input";
 import { StudioSection } from "../studio-layout";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Globe, Search } from "lucide-react";
 
 export interface SEOSectionProps {
@@ -23,18 +23,29 @@ export interface SEOSectionProps {
 }
 
 export function SEOSection({
-  metaTitle, onMetaTitleChange,
-  metaDescription, onMetaDescriptionChange,
-  metaKeywords, onMetaKeywordsChange,
-  slug, onSlugChange,
-  ogImage, onOgImageChange,
+  metaTitle,
+  onMetaTitleChange,
+  metaDescription,
+  onMetaDescriptionChange,
+  metaKeywords,
+  onMetaKeywordsChange,
+  slug,
+  onSlugChange,
+  ogImage,
+  onOgImageChange,
 }: SEOSectionProps): React.ReactElement {
   const displayTitle = metaTitle || "Product Title | DropshopNN";
   const displaySlug = slug ? slug.toLowerCase().replace(/[^a-z0-9]+/g, "-") : "product-slug";
-  const displayDesc = metaDescription || "Buy authentic products with fast delivery across Bangladesh on DropshopNN. Premium quality and best market prices.";
+  const displayDesc =
+    metaDescription ||
+    "Buy authentic products with fast delivery across Bangladesh on DropshopNN. Premium quality and best market prices.";
 
   return (
-    <StudioSection id="seo" title="SEO & Search Engine Preview" description="Real-time Google search listing snippet and metadata controls">
+    <StudioSection
+      id="seo"
+      title="SEO & Search Engine Preview"
+      description="Real-time Google search listing snippet and metadata controls"
+    >
       {/* Live Google Search Preview Card */}
       <Card className="border border-border bg-card p-4 rounded-xl shadow-2xs">
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
@@ -55,7 +66,11 @@ export function SEOSection({
       </Card>
 
       <div className="grid gap-4 sm:grid-cols-2 pt-2">
-        <FormField label="Meta Title" hint={`${metaTitle.length}/70 chars`} className="sm:col-span-2">
+        <FormField
+          label="Meta Title"
+          hint={`${metaTitle.length}/70 chars`}
+          className="sm:col-span-2"
+        >
           <Input
             value={metaTitle}
             onChange={(e) => onMetaTitleChange(e.target.value)}
@@ -63,7 +78,11 @@ export function SEOSection({
             maxLength={70}
           />
         </FormField>
-        <FormField label="Meta Description" hint={`${metaDescription.length}/160 chars`} className="sm:col-span-2">
+        <FormField
+          label="Meta Description"
+          hint={`${metaDescription.length}/160 chars`}
+          className="sm:col-span-2"
+        >
           <Textarea
             value={metaDescription}
             onChange={(e) => onMetaDescriptionChange(e.target.value)}

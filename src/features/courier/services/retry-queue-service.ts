@@ -31,7 +31,10 @@ export class RetryQueueService {
     const queue: RetryQueueItem[] = [];
 
     // Failed Bookings
-    const { items: failedShipments } = await this.shipmentRepository.findWithFilters({ status: "failed", limit: 50 });
+    const { items: failedShipments } = await this.shipmentRepository.findWithFilters({
+      status: "failed",
+      limit: 50,
+    });
     for (const s of failedShipments) {
       queue.push({
         id: `RETRY-SHP-${s.id}`,
@@ -72,7 +75,10 @@ export class RetryQueueService {
       const webhook = await this.webhookEventRepository.findById(webhookId);
       if (webhook) {
         await this.trackingService.processWebhookEvent(webhook.provider, webhook.payload, actorId);
-        await this.webhookEventRepository.update(webhookId, { processed: true, processedAt: new Date() } as any);
+        await this.webhookEventRepository.update(webhookId, {
+          processed: true,
+          processedAt: new Date(),
+        } as any);
         return true;
       }
     }

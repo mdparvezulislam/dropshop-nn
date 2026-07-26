@@ -35,7 +35,8 @@ export default function WishlistPage() {
           </div>
           <h2 className="text-xl font-bold text-white mb-2">Your wishlist is ready</h2>
           <p className="text-xs text-slate-400 max-w-md mx-auto mb-6">
-            Log in to access synchronized wishlist items across your devices or explore our catalog to add products.
+            Log in to access synchronized wishlist items across your devices or explore our catalog
+            to add products.
           </p>
           <div className="flex items-center justify-center gap-4">
             <Link

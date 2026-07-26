@@ -1,6 +1,14 @@
 "use client";
 
-import { CheckCircle2, Clock, AlertCircle, HelpCircle, Edit3, ShieldCheck, XCircle } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  HelpCircle,
+  Edit3,
+  ShieldCheck,
+  XCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BusinessMembershipApplicationEntity } from "@/features/identity/domain/business-membership-entity";
 
@@ -9,7 +17,10 @@ interface MembershipStatusTimelineProps {
   onEditRequested?: () => void;
 }
 
-export function MembershipStatusTimeline({ application, onEditRequested }: MembershipStatusTimelineProps) {
+export function MembershipStatusTimeline({
+  application,
+  onEditRequested,
+}: MembershipStatusTimelineProps) {
   const isApproved = application.status === "approved";
   const isRejected = application.status === "rejected";
   const isNeedInfo = application.status === "need_info";
@@ -108,8 +119,8 @@ export function MembershipStatusTimeline({ application, onEditRequested }: Membe
               isNeedInfo
                 ? "bg-blue-50 border-blue-300 text-blue-950 font-black"
                 : isApproved
-                ? "bg-emerald-50 border-emerald-300"
-                : "bg-slate-100 border-slate-300 text-slate-600"
+                  ? "bg-emerald-50 border-emerald-300"
+                  : "bg-slate-100 border-slate-300 text-slate-600"
             }`}
           >
             <span className="text-[10px] font-black uppercase">ধাপ ৩</span>
@@ -122,8 +133,8 @@ export function MembershipStatusTimeline({ application, onEditRequested }: Membe
               isApproved
                 ? "bg-emerald-50 border-emerald-300 text-emerald-950 font-black"
                 : isRejected
-                ? "bg-red-50 border-red-300 text-red-950 font-black"
-                : "bg-slate-100 border-slate-300 text-slate-600"
+                  ? "bg-red-50 border-red-300 text-red-950 font-black"
+                  : "bg-slate-100 border-slate-300 text-slate-600"
             }`}
           >
             <span className="text-[10px] font-black uppercase">ধাপ ৪</span>
@@ -134,18 +145,41 @@ export function MembershipStatusTimeline({ application, onEditRequested }: Membe
 
       {/* Submitted Details Summary Box */}
       <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 text-xs">
-        <p className="font-black text-slate-900 border-b border-slate-200 pb-2">আবেদনের সারসংক্ষেপ:</p>
+        <p className="font-black text-slate-900 border-b border-slate-200 pb-2">
+          আবেদনের সারসংক্ষেপ:
+        </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-800 font-bold">
-          <p><span className="text-slate-500 font-semibold">নাম:</span> {application.commonFields.fullName}</p>
-          <p><span className="text-slate-500 font-semibold">মোবাইল:</span> {application.commonFields.phone}</p>
-          <p><span className="text-slate-500 font-semibold">বিকাশ:</span> {application.commonFields.bkashNumber}</p>
-          <p><span className="text-slate-500 font-semibold">জেলা:</span> {application.commonFields.district}, {application.commonFields.upazila}</p>
-          <p><span className="text-slate-500 font-semibold">বিক্রয়ের মাধ্যম:</span> {application.commonFields.salesChannel}</p>
+          <p>
+            <span className="text-slate-500 font-semibold">নাম:</span>{" "}
+            {application.commonFields.fullName}
+          </p>
+          <p>
+            <span className="text-slate-500 font-semibold">মোবাইল:</span>{" "}
+            {application.commonFields.phone}
+          </p>
+          <p>
+            <span className="text-slate-500 font-semibold">বিকাশ:</span>{" "}
+            {application.commonFields.bkashNumber}
+          </p>
+          <p>
+            <span className="text-slate-500 font-semibold">জেলা:</span>{" "}
+            {application.commonFields.district}, {application.commonFields.upazila}
+          </p>
+          <p>
+            <span className="text-slate-500 font-semibold">বিক্রয়ের মাধ্যম:</span>{" "}
+            {application.commonFields.salesChannel}
+          </p>
           {application.resellerFields && (
-            <p><span className="text-slate-500 font-semibold">মাসিক আনুমানিক অর্ডার:</span> {application.resellerFields.monthlyOrders}</p>
+            <p>
+              <span className="text-slate-500 font-semibold">মাসিক আনুমানিক অর্ডার:</span>{" "}
+              {application.resellerFields.monthlyOrders}
+            </p>
           )}
           {application.wholesalerFields && (
-            <p><span className="text-slate-500 font-semibold">প্রতিষ্ঠানের নাম:</span> {application.wholesalerFields.companyName}</p>
+            <p>
+              <span className="text-slate-500 font-semibold">প্রতিষ্ঠানের নাম:</span>{" "}
+              {application.wholesalerFields.companyName}
+            </p>
           )}
         </div>
       </div>

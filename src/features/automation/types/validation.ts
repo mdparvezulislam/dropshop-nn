@@ -1,15 +1,39 @@
 import { z } from "zod";
 
-export const conditionOperatorSchema = z.enum(["eq", "neq", "gt", "gte", "lt", "lte", "in", "nin", "contains", "startsWith", "endsWith", "exists", "regex"]);
+export const conditionOperatorSchema = z.enum([
+  "eq",
+  "neq",
+  "gt",
+  "gte",
+  "lt",
+  "lte",
+  "in",
+  "nin",
+  "contains",
+  "startsWith",
+  "endsWith",
+  "exists",
+  "regex",
+]);
 
 export const logicalOperatorSchema = z.enum(["and", "or", "not"]);
 
 export const actionTypeSchema = z.enum([
-  "send_notification", "send_email", "send_sms",
-  "create_shipment", "update_order", "update_inventory",
-  "create_wallet_transaction", "generate_invoice", "generate_report",
-  "trigger_analytics_event", "execute_webhook",
-  "delay", "wait", "branch", "stop_workflow",
+  "send_notification",
+  "send_email",
+  "send_sms",
+  "create_shipment",
+  "update_order",
+  "update_inventory",
+  "create_wallet_transaction",
+  "generate_invoice",
+  "generate_report",
+  "trigger_analytics_event",
+  "execute_webhook",
+  "delay",
+  "wait",
+  "branch",
+  "stop_workflow",
 ]);
 
 export const triggerTypeSchema = z.enum(["event", "schedule", "manual", "webhook", "api"]);
@@ -17,7 +41,14 @@ export const triggerTypeSchema = z.enum(["event", "schedule", "manual", "webhook
 export const workflowStatusSchema = z.enum(["draft", "active", "paused", "archived"]);
 
 export const executionStatusSchema = z.enum([
-  "pending", "running", "completed", "failed", "cancelled", "retrying", "paused", "timeout",
+  "pending",
+  "running",
+  "completed",
+  "failed",
+  "cancelled",
+  "retrying",
+  "paused",
+  "timeout",
 ]);
 
 export const ruleConditionSchema = z.object({
@@ -69,9 +100,24 @@ export const workflowSettingsSchema = z.object({
 
 export const createWorkflowSchema = z.object({
   name: z.string().min(1).max(200),
-  key: z.string().min(1).max(100).regex(/^[a-z0-9_\-\.]+$/),
+  key: z
+    .string()
+    .min(1)
+    .max(100)
+    .regex(/^[a-z0-9_\-\.]+$/),
   description: z.string().max(500).optional(),
-  category: z.enum(["notification", "logistics", "finance", "inventory", "order", "cms", "analytics", "communication", "webhook", "system"]),
+  category: z.enum([
+    "notification",
+    "logistics",
+    "finance",
+    "inventory",
+    "order",
+    "cms",
+    "analytics",
+    "communication",
+    "webhook",
+    "system",
+  ]),
   trigger: workflowTriggerSchema,
   rules: z.array(workflowRuleSchema).default([]),
   steps: z.array(z.any()).default([]),

@@ -1,7 +1,17 @@
 "use client";
 
 import * as React from "react";
-import { FileText, Upload, CheckCircle2, Clock, AlertTriangle, Building2, Shield, Award, File } from "lucide-react";
+import {
+  FileText,
+  Upload,
+  CheckCircle2,
+  Clock,
+  AlertTriangle,
+  Building2,
+  Shield,
+  Award,
+  File,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +28,12 @@ interface Document {
   icon: React.ElementType;
 }
 
-const DOCUMENT_TYPES: { type: string; label: string; required: boolean; icon: React.ElementType }[] = [
+const DOCUMENT_TYPES: {
+  type: string;
+  label: string;
+  required: boolean;
+  icon: React.ElementType;
+}[] = [
   { type: "trade_license", label: "Trade License", required: true, icon: Building2 },
   { type: "bin_vat", label: "BIN / VAT Certificate", required: true, icon: Shield },
   { type: "company_agreement", label: "Company Agreement", required: false, icon: FileText },
@@ -35,7 +50,10 @@ const initialDocs: Document[] = DOCUMENT_TYPES.map((t) => ({
   icon: t.icon,
 }));
 
-const statusConfig: Record<string, { label: string; variant: "default" | "secondary" | "success" | "warning" | "destructive" }> = {
+const statusConfig: Record<
+  string,
+  { label: string; variant: "default" | "secondary" | "success" | "warning" | "destructive" }
+> = {
   uploaded: { label: "Uploaded", variant: "success" },
   pending: { label: "Not uploaded", variant: "secondary" },
   rejected: { label: "Rejected", variant: "destructive" },
@@ -89,7 +107,9 @@ export default function SupplierDocumentsPage(): React.ReactElement {
               <CheckCircle2 className="h-4 w-4 text-success" />
             </div>
             <div>
-              <p className="text-2xl font-semibold tabular-nums">{requiredUploaded}/{required}</p>
+              <p className="text-2xl font-semibold tabular-nums">
+                {requiredUploaded}/{required}
+              </p>
               <p className="text-xs text-muted-foreground">Required Done</p>
             </div>
           </CardContent>
@@ -131,9 +151,7 @@ export default function SupplierDocumentsPage(): React.ReactElement {
                     </div>
                     <div>
                       <p className="text-sm font-medium">{dt.label}</p>
-                      {dt.required && (
-                        <p className="text-[11px] text-destructive">Required</p>
-                      )}
+                      {dt.required && <p className="text-[11px] text-destructive">Required</p>}
                     </div>
                   </div>
                   <Badge variant={cfg.variant}>{cfg.label}</Badge>

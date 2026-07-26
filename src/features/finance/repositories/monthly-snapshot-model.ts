@@ -28,6 +28,5 @@ const monthlySnapshotSchema = new Schema(
 monthlySnapshotSchema.index({ monthKey: -1 });
 
 export const MonthlySnapshotModel =
-  mongoose.models.MonthlySnapshot ||
-  mongoose.model("MonthlySnapshot", monthlySnapshotSchema);
+  mongoose.models.MonthlySnapshot || mongoose.model("MonthlySnapshot", monthlySnapshotSchema);
 export default MonthlySnapshotModel;

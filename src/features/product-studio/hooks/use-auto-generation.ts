@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { generateSlug } from "@/lib/utils/slug-utils";
 
@@ -16,7 +18,15 @@ export function useAutoGeneration(): {
 } {
   const generate = React.useCallback((name: string, existingSku?: string): GeneratedData => {
     if (!name.trim()) {
-      return { slug: "", sku: "", barcode: "", metaTitle: "", metaDescription: "", searchKeywords: [], searchTokens: [] };
+      return {
+        slug: "",
+        sku: "",
+        barcode: "",
+        metaTitle: "",
+        metaDescription: "",
+        searchKeywords: [],
+        searchTokens: [],
+      };
     }
 
     const slug = generateSlug(name);
@@ -49,5 +59,3 @@ export function useAutoGeneration(): {
 
   return { generate };
 }
-
-export default useAutoGeneration;

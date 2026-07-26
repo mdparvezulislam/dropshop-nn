@@ -16,7 +16,14 @@ export async function getIdentityCenterStatsAction(): Promise<{
     byStatus: Record<string, number>;
     pendingApprovals: number;
     activeSessions: number;
-    recentUsers: Array<{ id: string; fullName: string; email: string; role: string; status: string; createdAt: Date }>;
+    recentUsers: Array<{
+      id: string;
+      fullName: string;
+      email: string;
+      role: string;
+      status: string;
+      createdAt: Date;
+    }>;
     roleDistribution: Array<{ role: string; count: number }>;
   };
   error?: string;
@@ -28,7 +35,11 @@ export async function getIdentityCenterStatsAction(): Promise<{
     const userRepo = new UserRepository();
 
     const [allUsers, activeCount, pendingCount, suspendedCount] = await Promise.all([
-      userRepo.findPaginated({ isDeleted: { $ne: true } }, { page: 1, limit: 500 }, { sortBy: "createdAt", sortOrder: "desc" }),
+      userRepo.findPaginated(
+        { isDeleted: { $ne: true } },
+        { page: 1, limit: 500 },
+        { sortBy: "createdAt", sortOrder: "desc" },
+      ),
       userRepo.count({ status: "active", isDeleted: { $ne: true } }).catch(() => 0),
       userRepo.count({ status: "pending", isDeleted: { $ne: true } }).catch(() => 0),
       userRepo.count({ status: "suspended", isDeleted: { $ne: true } }).catch(() => 0),
@@ -47,7 +58,9 @@ export async function getIdentityCenterStatsAction(): Promise<{
     try {
       const { UserSessionModel } = await import("@/features/auth/repositories/user-session-model");
       activeSessions = await UserSessionModel.countDocuments({ expiresAt: { $gt: new Date() } });
-    } catch { activeSessions = 0; }
+    } catch {
+      activeSessions = 0;
+    }
 
     let pendingApprovals = 0;
     try {
@@ -55,7 +68,9 @@ export async function getIdentityCenterStatsAction(): Promise<{
       const profileService = new BusinessProfileService();
       const pending = await profileService.findPendingApprovals();
       pendingApprovals = Array.isArray(pending) ? pending.length : 0;
-    } catch { pendingApprovals = 0; }
+    } catch {
+      pendingApprovals = 0;
+    }
 
     const roleDistribution = Object.entries(byRole).map(([role, count]) => ({ role, count }));
 
@@ -135,7 +150,8 @@ export async function importUsersCsvAction(csvData: string): Promise<{
     checkPermission(session, "User.Create");
 
     const lines = csvData.split("\n").filter((l) => l.trim());
-    if (lines.length < 2) return { success: false, error: "CSV must have a header and at least one row" };
+    if (lines.length < 2)
+      return { success: false, error: "CSV must have a header and at least one row" };
 
     const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
     const nameIdx = headers.indexOf("name");
@@ -197,7 +213,11 @@ export async function importUsersCsvAction(csvData: string): Promise<{
   }
 }
 
-export async function createRoleAction(data: { name: string; description?: string; permissions: string[] }): Promise<{
+export async function createRoleAction(data: {
+  name: string;
+  description?: string;
+  permissions: string[];
+}): Promise<{
   success: boolean;
   error?: string;
 }> {
@@ -219,7 +239,10 @@ export async function createRoleAction(data: { name: string; description?: strin
   }
 }
 
-export async function updateRoleAction(id: string, data: { name?: string; description?: string; permissions?: string[] }): Promise<{
+export async function updateRoleAction(
+  id: string,
+  data: { name?: string; description?: string; permissions?: string[] },
+): Promise<{
   success: boolean;
   error?: string;
 }> {
@@ -255,7 +278,10 @@ export async function deleteRoleAction(id: string): Promise<{
   }
 }
 
-export async function bulkUpdateUserStatusAction(userIds: string[], status: "active" | "pending" | "suspended"): Promise<{
+export async function bulkUpdateUserStatusAction(
+  userIds: string[],
+  status: "active" | "pending" | "suspended",
+): Promise<{
   success: boolean;
   data?: { processed: number; failed: number };
   error?: string;
@@ -272,7 +298,9 @@ export async function bulkUpdateUserStatusAction(userIds: string[], status: "act
       try {
         await repo.update(userId, { status } as any);
         processed++;
-      } catch { failed++; }
+      } catch {
+        failed++;
+      }
     }
 
     revalidatePath("/dashboard/identity/users");

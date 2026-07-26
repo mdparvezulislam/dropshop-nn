@@ -71,10 +71,9 @@ export class FollowUpRepository extends BaseRepository<FollowUpDocument, FollowU
   }
 
   async findOverdue(): Promise<FollowUpReminder[]> {
-    return this.find(
-      { status: "pending", dueDate: { $lt: new Date() } },
-      { sort: { dueDate: 1 } } as any,
-    );
+    return this.find({ status: "pending", dueDate: { $lt: new Date() } }, {
+      sort: { dueDate: 1 },
+    } as any);
   }
 
   async findDueToday(): Promise<FollowUpReminder[]> {
@@ -82,17 +81,13 @@ export class FollowUpRepository extends BaseRepository<FollowUpDocument, FollowU
     start.setHours(0, 0, 0, 0);
     const end = new Date();
     end.setHours(23, 59, 59, 999);
-    return this.find(
-      { status: "pending", dueDate: { $gte: start, $lte: end } },
-      { sort: { dueDate: 1 } } as any,
-    );
+    return this.find({ status: "pending", dueDate: { $gte: start, $lte: end } }, {
+      sort: { dueDate: 1 },
+    } as any);
   }
 
   async findByDateRange(start: Date, end: Date): Promise<FollowUpReminder[]> {
-    return this.find(
-      { dueDate: { $gte: start, $lte: end } },
-      { sort: { dueDate: 1 } } as any,
-    );
+    return this.find({ dueDate: { $gte: start, $lte: end } }, { sort: { dueDate: 1 } } as any);
   }
 
   async countByStatus(): Promise<Record<string, number>> {

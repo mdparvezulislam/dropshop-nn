@@ -1,6 +1,6 @@
 import { SmartParserService } from "./smart-parser";
 
-export function runSmartParserVerification() {
+export function runSmartParserVerification(): boolean {
   const sampleSupplierHtml = `
     <h1>T900 Ultra Smart Watch 2.09" Display - Gold Edition</h1>
     <p>Get authentic smart watch at best price in Bangladesh from DropshopNN.</p>
@@ -22,14 +22,7 @@ export function runSmartParserVerification() {
     <p>✓ Wireless fast charging dock included in box</p>
   `;
 
-  console.log("=== RUNNING SMART PARSER VERIFICATION TEST ===");
   const parsed = SmartParserService.parse(sampleSupplierHtml);
-
-  console.log("Extracted Title:", parsed.title);
-  console.log("Extracted SEO Description:", parsed.seoDescription);
-  console.log("Extracted Specifications:", parsed.specifications);
-  console.log("Extracted Features:", parsed.features);
-  console.log("Extracted Keywords:", parsed.keywords);
 
   if (parsed.title !== 'T900 Ultra Smart Watch 2.09" Display - Gold Edition') {
     throw new Error(`Title extraction failed: ${parsed.title}`);
@@ -47,7 +40,5 @@ export function runSmartParserVerification() {
     throw new Error("Keyword extraction failed.");
   }
 
-  console.log("✅ SMART PARSER VERIFICATION PASSED PERFECTLY!");
+  return true;
 }
-
-runSmartParserVerification();

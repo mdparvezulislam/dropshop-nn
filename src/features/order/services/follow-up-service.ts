@@ -7,10 +7,7 @@ import { logger } from "@/lib/utils/logger";
 import { runInTransaction } from "@/lib/database/query-builder";
 import type { FollowUpReminder } from "../domain/follow-up-entity";
 import type { z } from "zod";
-import type {
-  createFollowUpSchema,
-  updateFollowUpStatusSchema,
-} from "../types/validation";
+import type { createFollowUpSchema, updateFollowUpStatusSchema } from "../types/validation";
 
 type CreateFollowUpInput = z.infer<typeof createFollowUpSchema>;
 type UpdateFollowUpStatusInput = z.infer<typeof updateFollowUpStatusSchema>;
@@ -68,14 +65,18 @@ export class FollowUpService {
         actor,
       });
 
-      await EventBus.publish("order.follow_up_created", {
-        followUpId: followUp.id,
-        orderId: input.orderId,
-        orderNumber: order.orderNumber,
-        type: input.type,
-        title: input.title,
-        dueDate: input.dueDate,
-      }, { source: "order" });
+      await EventBus.publish(
+        "order.follow_up_created",
+        {
+          followUpId: followUp.id,
+          orderId: input.orderId,
+          orderNumber: order.orderNumber,
+          type: input.type,
+          title: input.title,
+          dueDate: input.dueDate,
+        },
+        { source: "order" },
+      );
 
       return followUp;
     });
@@ -175,11 +176,9 @@ export class FollowUpService {
     if (assigneeId) filter.assignedTo = assigneeId;
     if (type) filter.type = type;
 
-    const result = await this.followUpRepository.findPaginated(
-      filter,
-      { page, limit },
-      { dueDate: 1 } as any,
-    );
+    const result = await this.followUpRepository.findPaginated(filter, { page, limit }, {
+      dueDate: 1,
+    } as any);
     return { items: result.items, total: result.totalCount };
   }
 
@@ -210,9 +209,15 @@ export class FollowUpService {
   private calculateNextDue(current: Date, interval: string): Date {
     const next = new Date(current);
     switch (interval) {
-      case "daily": next.setDate(next.getDate() + 1); break;
-      case "weekly": next.setDate(next.getDate() + 7); break;
-      case "monthly": next.setMonth(next.getMonth() + 1); break;
+      case "daily":
+        next.setDate(next.getDate() + 1);
+        break;
+      case "weekly":
+        next.setDate(next.getDate() + 7);
+        break;
+      case "monthly":
+        next.setMonth(next.getMonth() + 1);
+        break;
     }
     return next;
   }

@@ -101,12 +101,28 @@ export default function SupplierDeliveriesPage(): React.ReactElement {
       header={{ title: "Deliveries", description: "Track shipment and delivery status" }}
       stats={
         loading ? (
-          <div className="col-span-4 flex items-center gap-2 text-sm text-muted-foreground"><Spinner size="sm" /> Loading…</div>
+          <div className="col-span-4 flex items-center gap-2 text-sm text-muted-foreground">
+            <Spinner size="sm" /> Loading…
+          </div>
         ) : (
           <>
             <StatCard label="Total Items" value={rows.length} icon={Truck} />
-            <StatCard label="Delivered" value={rows.filter((r) => ["delivered", "completed"].includes(r.status)).length} icon={CheckCircle2} accent="success" />
-            <StatCard label="In Transit" value={rows.filter((r) => ["shipped", "out_for_delivery", "courier_assigned"].includes(r.status)).length} icon={Clock} accent="info" />
+            <StatCard
+              label="Delivered"
+              value={rows.filter((r) => ["delivered", "completed"].includes(r.status)).length}
+              icon={CheckCircle2}
+              accent="success"
+            />
+            <StatCard
+              label="In Transit"
+              value={
+                rows.filter((r) =>
+                  ["shipped", "out_for_delivery", "courier_assigned"].includes(r.status),
+                ).length
+              }
+              icon={Clock}
+              accent="info"
+            />
           </>
         )
       }

@@ -446,7 +446,20 @@ const MODULE_DEFINITIONS: ModulePermissionGroup[] = [
     module: "orders",
     description: "Order lifecycle management",
     permissions: buildModulePermissions("orders", ["order"], STANDARD_ACTIONS, [
-      { resource: "order", actions: ["cancel", "assign_courier", "update_tracking", "mark_packed", "ship", "process_return", "exchange", "refund", "approve"] },
+      {
+        resource: "order",
+        actions: [
+          "cancel",
+          "assign_courier",
+          "update_tracking",
+          "mark_packed",
+          "ship",
+          "process_return",
+          "exchange",
+          "refund",
+          "approve",
+        ],
+      },
     ]),
   },
   {
@@ -473,9 +486,23 @@ const MODULE_DEFINITIONS: ModulePermissionGroup[] = [
   {
     module: "wallet",
     description: "Wallet and balance management",
-    permissions: buildModulePermissions("wallet", ["wallet"], ["view"], [
-      { resource: "wallet", actions: ["manage", "approve_withdraw", "reject_withdraw", "manual_credit", "manual_debit"] },
-    ]),
+    permissions: buildModulePermissions(
+      "wallet",
+      ["wallet"],
+      ["view"],
+      [
+        {
+          resource: "wallet",
+          actions: [
+            "manage",
+            "approve_withdraw",
+            "reject_withdraw",
+            "manual_credit",
+            "manual_debit",
+          ],
+        },
+      ],
+    ),
   },
   {
     module: "finance",
@@ -494,23 +521,32 @@ const MODULE_DEFINITIONS: ModulePermissionGroup[] = [
   {
     module: "reports",
     description: "Reporting and analytics",
-    permissions: buildModulePermissions("reports", ["report"], ["view"], [
-      { resource: "report", actions: ["export", "generate", "download"] },
-    ]),
+    permissions: buildModulePermissions(
+      "reports",
+      ["report"],
+      ["view"],
+      [{ resource: "report", actions: ["export", "generate", "download"] }],
+    ),
   },
   {
     module: "analytics",
     description: "Platform analytics",
-    permissions: buildModulePermissions("analytics", ["analytics"], ["view"], [
-      { resource: "analytics", actions: ["manage"] },
-    ]),
+    permissions: buildModulePermissions(
+      "analytics",
+      ["analytics"],
+      ["view"],
+      [{ resource: "analytics", actions: ["manage"] }],
+    ),
   },
   {
     module: "settings",
     description: "Platform settings",
-    permissions: buildModulePermissions("settings", ["settings"], ["view"], [
-      { resource: "settings", actions: ["update", "manage"] },
-    ]),
+    permissions: buildModulePermissions(
+      "settings",
+      ["settings"],
+      ["view"],
+      [{ resource: "settings", actions: ["update", "manage"] }],
+    ),
   },
   {
     module: "notifications",
@@ -548,9 +584,12 @@ const MODULE_DEFINITIONS: ModulePermissionGroup[] = [
   {
     module: "marketing",
     description: "Marketing and promotions",
-    permissions: buildModulePermissions("marketing", ["marketing"], ["view"], [
-      { resource: "marketing", actions: ["manage"] },
-    ]),
+    permissions: buildModulePermissions(
+      "marketing",
+      ["marketing"],
+      ["view"],
+      [{ resource: "marketing", actions: ["manage"] }],
+    ),
   },
   {
     module: "templates",
@@ -560,9 +599,12 @@ const MODULE_DEFINITIONS: ModulePermissionGroup[] = [
   {
     module: "automation",
     description: "Automation rules",
-    permissions: buildModulePermissions("automation", ["automation"], ["view"], [
-      { resource: "automation", actions: ["manage"] },
-    ]),
+    permissions: buildModulePermissions(
+      "automation",
+      ["automation"],
+      ["view"],
+      [{ resource: "automation", actions: ["manage"] }],
+    ),
   },
 ];
 

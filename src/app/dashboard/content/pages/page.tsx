@@ -14,10 +14,7 @@ export default async function CmsPagesListPage() {
   let items: Awaited<ReturnType<ContentService["list"]>>["items"] = [];
   let totalCount = 0;
   try {
-    const result = await service.list(
-      { type: ["page", "landing"] },
-      { page: 1, limit: 50 },
-    );
+    const result = await service.list({ type: ["page", "landing"] }, { page: 1, limit: 50 });
     items = result.items;
     totalCount = result.totalCount;
   } catch {

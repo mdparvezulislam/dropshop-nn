@@ -1,5 +1,8 @@
 import { BaseRepository } from "@/lib/database/generic-repository";
-import { BusinessMembershipTypeModel, BusinessMembershipTypeDocument } from "./business-membership-type-model";
+import {
+  BusinessMembershipTypeModel,
+  BusinessMembershipTypeDocument,
+} from "./business-membership-type-model";
 import { BusinessMembershipTypeEntity } from "../domain/business-membership-entity";
 
 export class BusinessMembershipTypeRepository extends BaseRepository<

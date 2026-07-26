@@ -9,7 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { updateOrderStatusAction, listOrdersAction } from "@/features/order/actions/order-actions";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, ShoppingCart, RefreshCw } from "lucide-react";
-import { getHumanLabel, getAllowedTransitions, type OrderStatus } from "@/features/order/domain/state-machine";
+import {
+  getHumanLabel,
+  getAllowedTransitions,
+  type OrderStatus,
+} from "@/features/order/domain/state-machine";
 
 const BOARD_COLUMNS = [
   "pending",

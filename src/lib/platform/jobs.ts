@@ -111,7 +111,9 @@ export class BackgroundJobs {
       enabled: false,
     });
 
-    logger.info(`BackgroundJobs: registered ${JOB_REGISTRY.size} jobs (${BackgroundJobs.getScheduled().length} scheduled)`);
+    logger.info(
+      `BackgroundJobs: registered ${JOB_REGISTRY.size} jobs (${BackgroundJobs.getScheduled().length} scheduled)`,
+    );
   }
 
   static clear(): void {

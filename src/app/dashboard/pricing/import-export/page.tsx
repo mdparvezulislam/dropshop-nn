@@ -11,13 +11,23 @@ import { SectionHeader } from "@/components/workspace/section-header";
 export default function ImportExportPage(): React.ReactElement {
   return (
     <div className="space-y-6">
-      <SectionHeader title="Import / Export" description="মূল্য নির্ধারণ নিয়ম ইম্পোর্ট ও এক্সপোর্ট — CSV ও Excel ফরম্যাট" icon={FileText} />
+      <SectionHeader
+        title="Import / Export"
+        description="মূল্য নির্ধারণ নিয়ম ইম্পোর্ট ও এক্সপোর্ট — CSV ও Excel ফরম্যাট"
+        icon={FileText}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Card className="hover:border-primary/40 transition-all">
-          <CardHeader><CardTitle className="flex items-center gap-2"><Upload className="h-4 w-4 text-info" /> Import</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Upload className="h-4 w-4 text-info" /> Import
+            </CardTitle>
+          </CardHeader>
           <CardContent className="space-y-3">
-            <p className="text-xs text-muted-foreground">Import pricing rules from CSV or Excel files.</p>
+            <p className="text-xs text-muted-foreground">
+              Import pricing rules from CSV or Excel files.
+            </p>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" disabled>
                 <FileText className="h-3.5 w-3.5" /> CSV
@@ -35,21 +45,33 @@ export default function ImportExportPage(): React.ReactElement {
         </Card>
 
         <Card className="hover:border-primary/40 transition-all">
-          <CardHeader><CardTitle className="flex items-center gap-2"><Download className="h-4 w-4 text-success" /> Export</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Download className="h-4 w-4 text-success" /> Export
+            </CardTitle>
+          </CardHeader>
           <CardContent className="space-y-3">
-            <p className="text-xs text-muted-foreground">Export pricing rules, profiles, or history data.</p>
+            <p className="text-xs text-muted-foreground">
+              Export pricing rules, profiles, or history data.
+            </p>
             <div className="space-y-2">
               {[
                 { label: "Pricing Rules", desc: "All global, category, brand & supplier rules" },
                 { label: "Pricing Profiles", desc: "All reusable pricing profiles" },
                 { label: "Price History", desc: "Complete price change audit trail" },
               ].map((item) => (
-                <button key={item.label} className="w-full text-left flex items-center justify-between p-2.5 rounded-lg hover:bg-muted transition-colors" disabled>
+                <button
+                  key={item.label}
+                  className="w-full text-left flex items-center justify-between p-2.5 rounded-lg hover:bg-muted transition-colors"
+                  disabled
+                >
                   <div>
                     <div className="text-xs font-semibold">{item.label}</div>
                     <div className="text-[10px] text-muted-foreground">{item.desc}</div>
                   </div>
-                  <Badge variant="muted" size="xs">CSV</Badge>
+                  <Badge variant="muted" size="xs">
+                    CSV
+                  </Badge>
                 </button>
               ))}
             </div>

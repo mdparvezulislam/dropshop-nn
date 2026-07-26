@@ -23,8 +23,12 @@ export class CourierHealthService {
 
       const shipments = await this.shipmentRepository.findWithFilters({ provider: p, limit: 100 });
       const total = shipments.items.length;
-      const booked = shipments.items.filter((s) => s.status !== "failed" && s.status !== "draft").length;
-      const delivered = shipments.items.filter((s) => s.status === "delivered" || s.status === "partial_delivered").length;
+      const booked = shipments.items.filter(
+        (s) => s.status !== "failed" && s.status !== "draft",
+      ).length;
+      const delivered = shipments.items.filter(
+        (s) => s.status === "delivered" || s.status === "partial_delivered",
+      ).length;
       const failed = shipments.items.filter((s) => s.status === "failed").length;
 
       const bookingSuccessRate = total > 0 ? Math.round((booked / total) * 100) : 100;
@@ -41,7 +45,8 @@ export class CourierHealthService {
         displayName: p.charAt(0).toUpperCase() + p.slice(1),
         enabled: isEnabled,
         status,
-        latencyMs: config?.connectionStatus === "connected" ? Math.floor(80 + Math.random() * 70) : 0,
+        latencyMs:
+          config?.connectionStatus === "connected" ? Math.floor(80 + Math.random() * 70) : 0,
         apiAvailabilityPercent: isEnabled ? 99.8 : 0,
         bookingSuccessRatePercent: bookingSuccessRate,
         trackingSuccessRatePercent: trackingSuccessRate,

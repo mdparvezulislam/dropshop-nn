@@ -1,6 +1,7 @@
 import { BaseDBEntity } from "@/lib/database/types";
 
-export type TemplateSpecFieldType = "text" | "number" | "boolean" | "select" | "multiselect" | "color";
+export type TemplateSpecFieldType =
+  "text" | "number" | "boolean" | "select" | "multiselect" | "color";
 
 export interface TemplateSpecField {
   key: string;

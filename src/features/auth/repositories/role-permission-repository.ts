@@ -9,7 +9,10 @@ export interface RolePermissionEntity extends BaseDBEntity {
   grantedAt?: Date;
 }
 
-export class RolePermissionRepository extends BaseRepository<RolePermissionDocument, RolePermissionEntity> {
+export class RolePermissionRepository extends BaseRepository<
+  RolePermissionDocument,
+  RolePermissionEntity
+> {
   constructor() {
     super(RolePermissionModel, RolePermissionRepository.mapToDomain);
   }

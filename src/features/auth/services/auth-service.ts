@@ -5,6 +5,21 @@ import { hashPassword, comparePassword } from "@/lib/utils/hash";
 import { ValidationError, UnauthorizedError } from "@/lib/errors/app-error";
 import { logger } from "@/lib/utils/logger";
 
+const roleMembershipMap: Record<string, string[]> = {
+  "Super Admin": ["customer", "reseller", "wholesaler", "supplier"],
+  Admin: ["customer", "reseller", "wholesaler", "supplier"],
+  Reseller: ["reseller"],
+  Staff: ["customer"],
+  Customer: ["customer"],
+  "Wholesale Buyer": ["wholesaler", "customer"],
+  Supplier: ["supplier"],
+  Viewer: ["customer"],
+};
+
+function getMembershipsForRole(role: string): string[] {
+  return roleMembershipMap[role] ?? ["customer"];
+}
+
 export class AuthService {
   private readonly userRepository: UserRepository;
   private readonly roleRepository: RoleRepository;
@@ -49,16 +64,20 @@ export class AuthService {
 
     let roleDoc = await this.roleRepository.findByName(data.role);
     if (!roleDoc) {
-      logger.info("AuthService: auto-creating missing role during registration", { role: data.role });
+      logger.info("AuthService: auto-creating missing role during registration", {
+        role: data.role,
+      });
       roleDoc = await this.roleRepository.create({
         name: data.role,
         description: `Role for ${data.role}`,
-        permissions: data.role === "Super Admin" ? ["*"] : [`${data.role.replace(/\s+/g, "")}.Access`],
+        permissions:
+          data.role === "Super Admin" ? ["*"] : [`${data.role.replace(/\s+/g, "")}.Access`],
         status: "active",
       });
     }
 
     const passwordHash = await hashPassword(data.password);
+    const memberships = getMembershipsForRole(data.role);
     const user = await this.userRepository.create({
       username: cleanUsername,
       email: cleanEmail,
@@ -66,13 +85,18 @@ export class AuthService {
       fullName: data.fullName.trim(),
       passwordHash,
       role: data.role,
+      roles: [data.role],
+      memberships,
       status: "active",
       emailVerifiedAt: new Date(),
       phoneVerifiedAt: new Date(),
       loginHistory: [],
     });
 
-    logger.info("AuthService: registered user profile successfully", { userId: user.id, email: user.email });
+    logger.info("AuthService: registered user profile successfully", {
+      userId: user.id,
+      email: user.email,
+    });
     return user;
   }
 

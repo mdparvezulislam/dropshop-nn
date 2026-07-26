@@ -30,15 +30,22 @@ export function AnalyticsSearch(): React.ReactElement {
   }, []);
 
   useEffect(() => {
-    if (!query.trim()) { setResults([]); return; }
+    if (!query.trim()) {
+      setResults([]);
+      return;
+    }
     const timer = setTimeout(() => doSearch(query), 300);
     return () => clearTimeout(timer);
   }, [query, doSearch]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (panelRef.current && !panelRef.current.contains(e.target as Node) &&
-          inputRef.current && !inputRef.current.contains(e.target as Node)) {
+      if (
+        panelRef.current &&
+        !panelRef.current.contains(e.target as Node) &&
+        inputRef.current &&
+        !inputRef.current.contains(e.target as Node)
+      ) {
         setOpen(false);
       }
     };
@@ -61,11 +68,16 @@ export function AnalyticsSearch(): React.ReactElement {
           type="text"
           placeholder="Search analytics..."
           value={query}
-          onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setOpen(true);
+          }}
           onFocus={() => setOpen(true)}
           className="h-9 w-full rounded-lg border border-border/60 bg-card pl-8 pr-3 text-sm outline-none placeholder:text-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
         />
-        {loading && <Loader2 className="absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 animate-spin text-muted-foreground" />}
+        {loading && (
+          <Loader2 className="absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 animate-spin text-muted-foreground" />
+        )}
       </div>
 
       {open && results.length > 0 && (
@@ -82,7 +94,11 @@ export function AnalyticsSearch(): React.ReactElement {
                 className="flex w-full items-center gap-3 px-3 py-2 text-left text-sm hover:bg-muted/50"
               >
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-muted">
-                  {item.type === "report" ? <FileText className="h-3.5 w-3.5" /> : <BarChart3 className="h-3.5 w-3.5" />}
+                  {item.type === "report" ? (
+                    <FileText className="h-3.5 w-3.5" />
+                  ) : (
+                    <BarChart3 className="h-3.5 w-3.5" />
+                  )}
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{item.title}</p>

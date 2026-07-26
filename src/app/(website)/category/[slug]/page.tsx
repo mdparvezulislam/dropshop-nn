@@ -62,7 +62,8 @@ export default async function CategoryPage({ params, searchParams }: CategoryPag
     onSale: parsed.onSale === "1" ? true : undefined,
     minRating: parsed.minRating ? Number(parsed.minRating) : undefined,
     brand: parsed.brand || undefined,
-    sort: (parsed.sort as "newest" | "price_asc" | "price_desc" | "rating" | "featured") || undefined,
+    sort:
+      (parsed.sort as "newest" | "price_asc" | "price_desc" | "rating" | "featured") || undefined,
   };
 
   const result = await getPublicCategoryProductsAction(slug, {}, filters, filters.sort);

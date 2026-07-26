@@ -22,7 +22,11 @@ export class AccountingReportService {
     this.financialReportRepository = new FinancialReportRepository();
   }
 
-  private getPeriodDates(period: string, startDate?: Date, endDate?: Date): { start: Date; end: Date } {
+  private getPeriodDates(
+    period: string,
+    startDate?: Date,
+    endDate?: Date,
+  ): { start: Date; end: Date } {
     const now = new Date();
     let start = new Date();
     let end = new Date();
@@ -57,7 +61,11 @@ export class AccountingReportService {
     return { start, end };
   }
 
-  async getProfitAndLoss(period: string = "This Month", startDate?: Date, endDate?: Date): Promise<ProfitAndLossReport> {
+  async getProfitAndLoss(
+    period: string = "This Month",
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<ProfitAndLossReport> {
     const { start, end } = this.getPeriodDates(period, startDate, endDate);
 
     const allEntries = await this.ledgerRepository.find({});
@@ -88,7 +96,8 @@ export class AccountingReportService {
     }
 
     costOfGoodsSoldCents = Math.max(0, grossRevenueCents - grossProfitCents);
-    const netProfitCents = grossProfitCents - refundLossCents - operatingExpensesCents - payoutFeesCents;
+    const netProfitCents =
+      grossProfitCents - refundLossCents - operatingExpensesCents - payoutFeesCents;
 
     return {
       period,
@@ -104,7 +113,11 @@ export class AccountingReportService {
     };
   }
 
-  async getRevenueAnalysis(period: string = "This Month", startDate?: Date, endDate?: Date): Promise<RevenueAnalysisReport> {
+  async getRevenueAnalysis(
+    period: string = "This Month",
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<RevenueAnalysisReport> {
     const { start, end } = this.getPeriodDates(period, startDate, endDate);
 
     const allEntries = await this.ledgerRepository.find({});

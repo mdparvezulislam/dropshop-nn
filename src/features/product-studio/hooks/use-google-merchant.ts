@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import type { GoogleMerchantData } from "../types/studio-types";
 
@@ -20,7 +22,9 @@ export function useGoogleMerchant(
       mpn: sku || `MPN-${Date.now()}`,
       condition: "new",
       availability: stock > 0 ? "in_stock" : "out_of_stock",
-      googleCategory: categoryName ? `Electronics > ${categoryName}` : "Electronics > Communications",
+      googleCategory: categoryName
+        ? `Electronics > ${categoryName}`
+        : "Electronics > Communications",
       ageGroup: "adult",
       gender: "unisex",
       shippingWeight: "0.5 kg",

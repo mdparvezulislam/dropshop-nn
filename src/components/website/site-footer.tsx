@@ -36,25 +36,25 @@ function TiktokIcon(props: React.SVGProps<SVGSVGElement>) {
 }
 
 const FOOTER_COLUMNS = {
-  "প্রোডাক্ট": [
+  প্রোডাক্ট: [
     { label: "সব প্রোডাক্ট", href: "/products" },
     { label: "ফ্ল্যাশ সেল", href: "/offers" },
     { label: "নতুন আগমন", href: "/products?sort=newest" },
     { label: "জনপ্রিয় প্রোডাক্ট", href: "/products?sort=featured" },
   ],
-  "ক্যাটাগরি": [
+  ক্যাটাগরি: [
     { label: "মোবাইল অ্যাক্সেসরিজ", href: "/category/mobile-accessories" },
     { label: "স্মার্ট গ্যাজেট", href: "/category/smart-gadgets" },
     { label: "অডিও", href: "/category/audio-sound" },
     { label: "কম্পিউটার", href: "/category/computer-accessories" },
   ],
-  "সহায়তা": [
+  সহায়তা: [
     { label: "সাপোর্ট সেন্টার", href: "/support" },
     { label: "শর্তাবলী", href: "/terms" },
     { label: "রিটার্ন পলিসি", href: "/refund" },
     { label: "FAQ", href: "/faq" },
   ],
-  "কোম্পানি": [
+  কোম্পানি: [
     { label: "আমাদের সম্পর্কে", href: "/about" },
     { label: "যোগাযোগ", href: "/contact" },
     { label: "ব্লগ", href: "/blog" },
@@ -91,7 +91,8 @@ export function SiteFooter() {
             </Link>
 
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              বাংলাদেশের সবচেয়ে বিশ্বস্ত ড্রপশিপিং এবং হোলসেল প্ল্যাটফর্ম। আপনার ব্যবসায় সাফল্য আমাদের লক্ষ্য।
+              বাংলাদেশের সবচেয়ে বিশ্বস্ত ড্রপশিপিং এবং হোলসেল প্ল্যাটফর্ম। আপনার ব্যবসায় সাফল্য
+              আমাদের লক্ষ্য।
             </p>
 
             {/* Social Icons */}
@@ -114,9 +115,7 @@ export function SiteFooter() {
           {/* Links Columns */}
           {Object.entries(FOOTER_COLUMNS).map(([title, links]) => (
             <div key={title} className="space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-amber-400">
-                {title}
-              </h3>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-amber-400">{title}</h3>
               <ul className="space-y-2">
                 {links.map((link) => (
                   <li key={link.label}>
@@ -137,19 +136,37 @@ export function SiteFooter() {
         <div className="py-6 border-b border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400">
           <div className="flex flex-wrap items-center gap-3">
             <span className="font-bold text-slate-300">পেমেন্ট মেথড:</span>
-            <span className="px-2.5 py-1 rounded bg-white/10 text-amber-400 font-bold border border-white/10">bKash</span>
-            <span className="px-2.5 py-1 rounded bg-white/10 text-amber-400 font-bold border border-white/10">Nagad</span>
-            <span className="px-2.5 py-1 rounded bg-white/10 text-slate-200 font-bold border border-white/10">VISA</span>
-            <span className="px-2.5 py-1 rounded bg-white/10 text-slate-200 font-bold border border-white/10">Mastercard</span>
-            <span className="px-2.5 py-1 rounded bg-white/10 text-emerald-400 font-bold border border-white/10">Cash On Delivery</span>
+            <span className="px-2.5 py-1 rounded bg-white/10 text-amber-400 font-bold border border-white/10">
+              bKash
+            </span>
+            <span className="px-2.5 py-1 rounded bg-white/10 text-amber-400 font-bold border border-white/10">
+              Nagad
+            </span>
+            <span className="px-2.5 py-1 rounded bg-white/10 text-slate-200 font-bold border border-white/10">
+              VISA
+            </span>
+            <span className="px-2.5 py-1 rounded bg-white/10 text-slate-200 font-bold border border-white/10">
+              Mastercard
+            </span>
+            <span className="px-2.5 py-1 rounded bg-white/10 text-emerald-400 font-bold border border-white/10">
+              Cash On Delivery
+            </span>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <span className="font-bold text-slate-300">কুরিয়ার পার্টনার:</span>
-            <span className="px-2.5 py-1 rounded bg-white/10 text-slate-200 font-bold border border-white/10">Pathao</span>
-            <span className="px-2.5 py-1 rounded bg-white/10 text-slate-200 font-bold border border-white/10">Steadfast</span>
-            <span className="px-2.5 py-1 rounded bg-white/10 text-slate-200 font-bold border border-white/10">RedX</span>
-            <span className="px-2.5 py-1 rounded bg-white/10 text-slate-200 font-bold border border-white/10">Paperfly</span>
+            <span className="px-2.5 py-1 rounded bg-white/10 text-slate-200 font-bold border border-white/10">
+              Pathao
+            </span>
+            <span className="px-2.5 py-1 rounded bg-white/10 text-slate-200 font-bold border border-white/10">
+              Steadfast
+            </span>
+            <span className="px-2.5 py-1 rounded bg-white/10 text-slate-200 font-bold border border-white/10">
+              RedX
+            </span>
+            <span className="px-2.5 py-1 rounded bg-white/10 text-slate-200 font-bold border border-white/10">
+              Paperfly
+            </span>
           </div>
         </div>
 
@@ -157,11 +174,17 @@ export function SiteFooter() {
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
           <p>&copy; 2026 DropshopNN. সর্বস্বত্ব সংরক্ষিত।</p>
           <div className="flex items-center gap-4">
-            <Link href="/privacy" className="hover:text-amber-400 transition-colors">প্রাইভেসি পলিসি</Link>
+            <Link href="/privacy" className="hover:text-amber-400 transition-colors">
+              প্রাইভেসি পলিসি
+            </Link>
             <span>|</span>
-            <Link href="/terms" className="hover:text-amber-400 transition-colors">শর্তাবলী</Link>
+            <Link href="/terms" className="hover:text-amber-400 transition-colors">
+              শর্তাবলী
+            </Link>
             <span>|</span>
-            <Link href="/refund" className="hover:text-amber-400 transition-colors">রিটার্ন পলিসি</Link>
+            <Link href="/refund" className="hover:text-amber-400 transition-colors">
+              রিটার্ন পলিসি
+            </Link>
           </div>
         </div>
       </div>

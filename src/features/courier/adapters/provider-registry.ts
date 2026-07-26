@@ -8,7 +8,10 @@ import { SundarbanAdapter } from "./sundarban-adapter";
 import { CustomCourierAdapter } from "./custom-courier-adapter";
 
 export class CourierProviderRegistry {
-  private static readonly providers: Map<string, CourierProvider> = new Map<string, CourierProvider>([
+  private static readonly providers: Map<string, CourierProvider> = new Map<
+    string,
+    CourierProvider
+  >([
     ["steadfast", new SteadfastAdapter()],
     ["pathao", new PathaoAdapter()],
     ["redx", new RedxAdapter()],

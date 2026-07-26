@@ -103,9 +103,8 @@ export function registerAnalyticsModule(): void {
         eventType,
         priority: 50,
         handle: async (event) => {
-          const { AnalyticsIngestionService } = await import(
-            "./services/analytics-ingestion-service"
-          );
+          const { AnalyticsIngestionService } =
+            await import("./services/analytics-ingestion-service");
           await new AnalyticsIngestionService().ingestBusinessEvent(event);
         },
       });
@@ -129,9 +128,8 @@ export function registerAnalyticsModule(): void {
         ) {
           return;
         }
-        const { AnalyticsIngestionService } = await import(
-          "./services/analytics-ingestion-service"
-        );
+        const { AnalyticsIngestionService } =
+          await import("./services/analytics-ingestion-service");
         await new AnalyticsIngestionService().ingestBusinessEvent(event);
       },
     });

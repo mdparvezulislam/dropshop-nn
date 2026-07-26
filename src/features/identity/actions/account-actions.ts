@@ -16,7 +16,12 @@ import type { SortParams } from "@/types";
 import { UnauthorizedError } from "@/lib/errors/app-error";
 import { revalidatePath } from "next/cache";
 
-function getSessionUser(session: unknown): { id: string; name?: string; email?: string; role?: string } {
+function getSessionUser(session: unknown): {
+  id: string;
+  name?: string;
+  email?: string;
+  role?: string;
+} {
   const user = (session as { user?: SessionUser } | null)?.user;
   if (!user?.id) throw new UnauthorizedError("Session expired or invalid");
   return { id: user.id, name: user.email ?? undefined, email: user.email ?? undefined };
@@ -290,7 +295,10 @@ export async function deleteAddressAction(addressId: string): Promise<{
 
 // ─── Orders ────────────────────────────────────────────
 
-export async function getOrdersAction(page = 1, limit = 10): Promise<{
+export async function getOrdersAction(
+  page = 1,
+  limit = 10,
+): Promise<{
   success: boolean;
   data?: {
     items: any[];
@@ -365,7 +373,8 @@ export async function getWishlistAction(): Promise<{
           id: product.id,
           name: product.name,
           slug: product.slug,
-          image: product.media?.find((m: any) => m.isFeatured)?.url || product.media?.[0]?.url || "",
+          image:
+            product.media?.find((m: any) => m.isFeatured)?.url || product.media?.[0]?.url || "",
           retailPrice: pricing?.sellingPrice || 0,
           comparePrice: pricing?.comparePrice,
           rating: 0,

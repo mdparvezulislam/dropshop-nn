@@ -25,7 +25,9 @@ export function TrendingProductsSection({
               <div className="inline-flex items-center justify-center h-10 w-10 rounded-lg bg-primary/10 text-primary">
                 <Flame className="h-5 w-5" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-widest text-primary/60">Trending</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-primary/60">
+                Trending
+              </span>
             </div>
             <h2 className="text-5xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[hsl(222_47%_11%)]">
               {title}

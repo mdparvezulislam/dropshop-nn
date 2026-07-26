@@ -2,7 +2,8 @@ import { BaseDBEntity } from "@/lib/database/types";
 
 export type DepositStatus = "pending" | "approved" | "rejected" | "cancelled" | "completed";
 
-export type DepositMethod = "bkash" | "nagad" | "rocket" | "upay" | "bank" | "manual" | "admin_credit";
+export type DepositMethod =
+  "bkash" | "nagad" | "rocket" | "upay" | "bank" | "manual" | "admin_credit";
 
 export interface Deposit extends BaseDBEntity {
   referenceNumber: string; // e.g. DEP-2026-1001

@@ -1,7 +1,9 @@
 import { EventFactRepository } from "../repositories/event-fact-repository";
 import { AnalyticsCacheService } from "./analytics-cache-service";
 import {
-  type WholesaleAnalyticsData, type MetricCardData, ANALYTICS_EVENT_NAMES,
+  type WholesaleAnalyticsData,
+  type MetricCardData,
+  ANALYTICS_EVENT_NAMES,
 } from "../domain/analytics-entity";
 import { resolveDateRange } from "./analytics-query-service";
 
@@ -10,7 +12,9 @@ export class WholesaleAnalyticsService {
   private readonly cache = AnalyticsCacheService.getInstance();
 
   async getWholesaleAnalytics(rangeInput?: {
-    from?: Date; to?: Date; preset?: string;
+    from?: Date;
+    to?: Date;
+    preset?: string;
   }): Promise<WholesaleAnalyticsData> {
     const cacheKey = rangeInput?.preset ?? "30d";
     const cached = await this.cache.get<WholesaleAnalyticsData>("wholesale", cacheKey);
@@ -20,13 +24,20 @@ export class WholesaleAnalyticsService {
 
     const [revenue, orders, topBuyers] = await Promise.all([
       this.facts.sumValueInRange(range.from, range.to, [
-        ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID,
+        ANALYTICS_EVENT_NAMES.ORDER_CREATED,
+        ANALYTICS_EVENT_NAMES.ORDER_PAID,
       ]),
       this.facts.countInRange(range.from, range.to, {
         eventName: [ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID],
         module: "wholesale",
       }),
-      this.facts.topByField(range.from, range.to, ANALYTICS_EVENT_NAMES.ORDER_CREATED, "metadata.wholesaleId", 10),
+      this.facts.topByField(
+        range.from,
+        range.to,
+        ANALYTICS_EVENT_NAMES.ORDER_CREATED,
+        "metadata.wholesaleId",
+        10,
+      ),
     ]);
 
     const data: WholesaleAnalyticsData = {
@@ -36,16 +47,23 @@ export class WholesaleAnalyticsService {
       topWholesaleBuyers: topBuyers.map((r) => ({ id: r.key, label: r.key, value: r.count })),
       metrics: [
         {
-          key: "wholesale_revenue", label: "Wholesale Revenue",
-          value: revenue, format: "currency", currency: "BDT",
+          key: "wholesale_revenue",
+          label: "Wholesale Revenue",
+          value: revenue,
+          format: "currency",
+          currency: "BDT",
         },
         {
-          key: "wholesale_orders", label: "Wholesale Orders",
-          value: orders, format: "number",
+          key: "wholesale_orders",
+          label: "Wholesale Orders",
+          value: orders,
+          format: "number",
         },
         {
-          key: "top_buyers", label: "Top Buyers",
-          value: topBuyers.length, format: "number",
+          key: "top_buyers",
+          label: "Top Buyers",
+          value: topBuyers.length,
+          format: "number",
         },
       ],
     };

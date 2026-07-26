@@ -195,7 +195,12 @@ export class DeviceService {
 
     // Detect browser
     let browser: DeviceInfo["browser"] = "unknown";
-    if (ua.includes("chrome") && !ua.includes("edg") && !ua.includes("opr") && !ua.includes("brave")) {
+    if (
+      ua.includes("chrome") &&
+      !ua.includes("edg") &&
+      !ua.includes("opr") &&
+      !ua.includes("brave")
+    ) {
       browser = "chrome";
     } else if (ua.includes("firefox")) {
       browser = "firefox";
@@ -218,9 +223,7 @@ export class DeviceService {
   }
 
   private generateDeviceFingerprint(userId: string, userAgent: string, ipAddress: string): string {
-    return createHash("sha256")
-      .update(`${userId}:${userAgent}:${ipAddress}`)
-      .digest("hex");
+    return createHash("sha256").update(`${userId}:${userAgent}:${ipAddress}`).digest("hex");
   }
 }
 

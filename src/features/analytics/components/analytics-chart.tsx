@@ -1,9 +1,21 @@
 "use client";
 
 import {
-  Area, AreaChart, Bar, BarChart, CartesianGrid, Line, LineChart,
-  Pie, PieChart, Cell,
-  ResponsiveContainer, Tooltip, XAxis, YAxis, Legend,
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  Legend,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { TimeSeriesPoint, ChartType } from "../domain/analytics-entity";
@@ -39,7 +51,13 @@ const tooltipStyle = {
 const fmtValue = (v: any) => [Number(v).toLocaleString(), undefined] as [string, undefined];
 
 export function AnalyticsChart({
-  title, data, type = "area", valueLabel = "Value", color = CHART_COLORS[0], dataKey = "value", nameKey = "name",
+  title,
+  data,
+  type = "area",
+  valueLabel = "Value",
+  color = CHART_COLORS[0],
+  dataKey = "value",
+  nameKey = "name",
 }: AnalyticsChartProps): React.ReactElement {
   return (
     <Card className="h-full">
@@ -59,8 +77,10 @@ export function AnalyticsChart({
                   data={data as any[]}
                   dataKey={dataKey}
                   nameKey={nameKey}
-                  cx="50%" cy="50%"
-                  innerRadius={60} outerRadius={100}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={100}
                   paddingAngle={2}
                 >
                   {(data as any[]).map((_: any, i: number) => (
@@ -73,17 +93,35 @@ export function AnalyticsChart({
             ) : type === "line" ? (
               <LineChart data={data as any[]} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(v: string) => v.slice(5)} />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 10 }}
+                  tickFormatter={(v: string) => v.slice(5)}
+                />
                 <YAxis tick={{ fontSize: 10 }} width={48} />
                 <Tooltip contentStyle={tooltipStyle} formatter={fmtValue} />
-                <Line type="monotone" dataKey={dataKey} stroke={color} strokeWidth={2} dot={{ r: 3 }} />
+                <Line
+                  type="monotone"
+                  dataKey={dataKey}
+                  stroke={color}
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                />
               </LineChart>
             ) : type === "bar" ? (
               <BarChart data={data as any[]} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(v: string) => v.slice(5)} />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 10 }}
+                  tickFormatter={(v: string) => v.slice(5)}
+                />
                 <YAxis tick={{ fontSize: 10 }} width={40} />
-                <Tooltip contentStyle={tooltipStyle} formatter={fmtValue} labelFormatter={(l: any) => String(l)} />
+                <Tooltip
+                  contentStyle={tooltipStyle}
+                  formatter={fmtValue}
+                  labelFormatter={(l: any) => String(l)}
+                />
                 <Bar dataKey={dataKey} fill={color} radius={[4, 4, 0, 0]} />
               </BarChart>
             ) : (
@@ -95,10 +133,20 @@ export function AnalyticsChart({
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-border/40" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(v: string) => v.slice(5)} />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 10 }}
+                  tickFormatter={(v: string) => v.slice(5)}
+                />
                 <YAxis tick={{ fontSize: 10 }} width={48} />
                 <Tooltip contentStyle={tooltipStyle} formatter={fmtValue} />
-                <Area type="monotone" dataKey={dataKey} stroke={color} fill="url(#analyticsFill)" strokeWidth={2} />
+                <Area
+                  type="monotone"
+                  dataKey={dataKey}
+                  stroke={color}
+                  fill="url(#analyticsFill)"
+                  strokeWidth={2}
+                />
               </AreaChart>
             )}
           </ResponsiveContainer>

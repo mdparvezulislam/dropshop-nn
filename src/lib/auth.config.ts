@@ -1,7 +1,10 @@
 import type { NextAuthConfig } from "next-auth";
 
 function normalizeRole(role?: string | null): string {
-  return (role ?? "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+  return (role ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
 }
 
 function homeForRole(role?: string | null): string {

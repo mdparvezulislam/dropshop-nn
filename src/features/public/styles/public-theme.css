@@ -7,36 +7,36 @@
   color-scheme: light;
 
   /* ── Color System (DS-001 Warm Premium Amber Primary) ── */
-  --primary: 38 92% 50%;           /* #F59E0B Warm Amber */
+  --primary: 38 92% 50%; /* #F59E0B Warm Amber */
   --primary-foreground: 0 0% 100%;
 
-  --accent: 38 100% 96%;          /* #FFFBEB Warm Cream/Gold Tint */
+  --accent: 38 100% 96%; /* #FFFBEB Warm Cream/Gold Tint */
   --accent-foreground: 38 92% 40%; /* Dark Golden Amber */
 
-  --ring: 38 92% 50%;              /* Amber Focus Ring */
+  --ring: 38 92% 50%; /* Amber Focus Ring */
 
   /* ── Background & Cards (Pure Light Warm) ── */
-  --background: 0 0% 98%;         /* #FAFAFA Soft warm white */
-  --card: 0 0% 100%;              /* #FFFFFF Pure white cards */
-  --muted: 0 0% 96%;              /* #F4F4F5 Light warm gray */
-  --border: 0 0% 91%;             /* #E8E8E8 Soft borders */
+  --background: 0 0% 98%; /* #FAFAFA Soft warm white */
+  --card: 0 0% 100%; /* #FFFFFF Pure white cards */
+  --muted: 0 0% 96%; /* #F4F4F5 Light warm gray */
+  --border: 0 0% 91%; /* #E8E8E8 Soft borders */
 
   /* ── Secondary (Deep Neutral) ── */
-  --secondary: 222 47% 11%;       /* #111827 Deep slate */
+  --secondary: 222 47% 11%; /* #111827 Deep slate */
   --secondary-foreground: 0 0% 98%;
 
   /* ── Semantic Status ── */
-  --success: 142 71% 45%;         /* #22C55E */
+  --success: 142 71% 45%; /* #22C55E */
   --success-foreground: 0 0% 100%;
-  --warning: 38 92% 50%;          /* #F59E0B */
+  --warning: 38 92% 50%; /* #F59E0B */
   --warning-foreground: 222 47% 11%;
-  --destructive: 0 84% 60%;       /* #EF4444 */
+  --destructive: 0 84% 60%; /* #EF4444 */
   --destructive-foreground: 0 0% 100%;
-  --info: 217 91% 60%;            /* #3B82F6 */
+  --info: 217 91% 60%; /* #3B82F6 */
   --info-foreground: 0 0% 100%;
 
   /* ── Muted & Foreground (ALWAYS High Contrast Dark Text for Public) ── */
-  --foreground: 222 47% 11%;      /* #111827 High-contrast black text */
+  --foreground: 222 47% 11%; /* #111827 High-contrast black text */
   --muted-foreground: 215 16% 35%; /* #4B5563 Crisp dark gray text */
 
   /* ── Popover & Input ── */

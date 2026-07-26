@@ -98,7 +98,15 @@ export default function RolesPage(): React.ReactElement {
     if (!permSearch.trim()) return modules;
     const q = permSearch.toLowerCase();
     return modules
-      .map(([mod, perms]) => [mod, perms.filter((p) => p.fullPermission.includes(q) || p.action.includes(q) || p.resource.includes(q))] as const)
+      .map(
+        ([mod, perms]) =>
+          [
+            mod,
+            perms.filter(
+              (p) => p.fullPermission.includes(q) || p.action.includes(q) || p.resource.includes(q),
+            ),
+          ] as const,
+      )
       .filter(([, perms]) => perms.length > 0);
   }, [modules, permSearch]);
 
@@ -305,7 +313,8 @@ export default function RolesPage(): React.ReactElement {
                         <Users className="h-3 w-3" /> {role.userCount} users
                       </span>
                       <span className="flex items-center gap-1">
-                        <Key className="h-3 w-3" /> {role.permissions.includes("*") ? "All" : role.permissions.length} perms
+                        <Key className="h-3 w-3" />{" "}
+                        {role.permissions.includes("*") ? "All" : role.permissions.length} perms
                       </span>
                     </div>
                   </div>
@@ -387,7 +396,9 @@ export default function RolesPage(): React.ReactElement {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-semibold text-muted-foreground mb-1 block">রোলের নাম *</label>
+              <label className="text-xs font-semibold text-muted-foreground mb-1 block">
+                রোলের নাম *
+              </label>
               <Input
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
@@ -396,7 +407,9 @@ export default function RolesPage(): React.ReactElement {
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-muted-foreground mb-1 block">বর্ণনা</label>
+              <label className="text-xs font-semibold text-muted-foreground mb-1 block">
+                বর্ণনা
+              </label>
               <Input
                 value={newDesc}
                 onChange={(e) => setNewDesc(e.target.value)}
@@ -441,13 +454,17 @@ export default function RolesPage(): React.ReactElement {
                         <input
                           type="checkbox"
                           checked={allSelected}
-                          ref={(el) => { if (el) el.indeterminate = someSelected && !allSelected; }}
+                          ref={(el) => {
+                            if (el) el.indeterminate = someSelected && !allSelected;
+                          }}
                           onChange={() => selectModule(mod, perms)}
                           className="rounded border-border"
                           onClick={(e) => e.stopPropagation()}
                         />
                         <span className="text-xs font-semibold capitalize flex-1">{mod}</span>
-                        <Badge variant="secondary" className="text-[9px]">{perms.length}</Badge>
+                        <Badge variant="secondary" className="text-[9px]">
+                          {perms.length}
+                        </Badge>
                       </div>
                       {expanded && (
                         <div className="pl-8 pb-1">

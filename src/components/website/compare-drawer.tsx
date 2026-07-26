@@ -48,7 +48,10 @@ export function CompareDrawer({ products, onRemove, onClear }: CompareDrawerProp
               >
                 <div className="relative w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-white border">
                   <Image
-                    src={p.image || "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=100&q=80"}
+                    src={
+                      p.image ||
+                      "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=100&q=80"
+                    }
                     alt={p.name}
                     fill
                     className="object-cover"
@@ -56,7 +59,9 @@ export function CompareDrawer({ products, onRemove, onClear }: CompareDrawerProp
                 </div>
                 <div className="overflow-hidden flex-1">
                   <p className="text-xs font-bold text-foreground truncate">{p.name}</p>
-                  <p className="text-[10px] font-extrabold text-amber-600">৳{(p.retailPrice / 100).toFixed(0)}</p>
+                  <p className="text-[10px] font-extrabold text-amber-600">
+                    ৳{(p.retailPrice / 100).toFixed(0)}
+                  </p>
                 </div>
                 <button
                   type="button"
@@ -71,7 +76,10 @@ export function CompareDrawer({ products, onRemove, onClear }: CompareDrawerProp
 
           <div className="flex items-center gap-2 shrink-0">
             <Link href="/compare">
-              <Button size="sm" className="h-9 px-4 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs">
+              <Button
+                size="sm"
+                className="h-9 px-4 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs"
+              >
                 তুলনা দেখুন
               </Button>
             </Link>

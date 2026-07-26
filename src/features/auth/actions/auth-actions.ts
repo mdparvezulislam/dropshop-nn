@@ -53,7 +53,8 @@ export async function registerUserAction(input: RegistrationInput) {
 
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Registration failed. Please check your inputs.",
+      error:
+        error instanceof Error ? error.message : "Registration failed. Please check your inputs.",
     };
   }
 }

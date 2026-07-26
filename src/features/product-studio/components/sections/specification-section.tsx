@@ -7,8 +7,14 @@ import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/forms/form-field";
 import { Badge } from "@/components/ui/badge";
 import {
-  SlidersHorizontal, Plus, Trash2, Check, Sparkles,
-  ChevronDown, ChevronRight, Pencil, ArrowUp, ArrowDown,
+  Plus,
+  Trash2,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Pencil,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import type { SpecificationField } from "../../types/studio-types";
 import { useCategorySpecifications } from "../../hooks/use-category-specifications";
@@ -48,7 +54,7 @@ export function SpecificationSection({
   specs,
   onSpecsChange,
 }: SpecificationSectionProps): React.ReactElement {
-  const { template } = useCategorySpecifications(undefined, categoryName);
+  const { template } = useCategorySpecifications(categoryName);
   const currentSpecs = React.useMemo(() => {
     return specs && specs.length > 0 ? specs : template;
   }, [specs, template]);
@@ -60,7 +66,9 @@ export function SpecificationSection({
   const [addingAttribute, setAddingAttribute] = React.useState(false);
   const [newAttrGroup, setNewAttrGroup] = React.useState("General");
   const [newAttrLabel, setNewAttrLabel] = React.useState("");
-  const [newAttrType, setNewAttrType] = React.useState<"text" | "number" | "boolean" | "select">("text");
+  const [newAttrType, setNewAttrType] = React.useState<"text" | "number" | "boolean" | "select">(
+    "text",
+  );
 
   React.useEffect(() => {
     setLocalSpecs(
@@ -75,10 +83,13 @@ export function SpecificationSection({
     );
   }, [currentSpecs]);
 
-  const emitChange = React.useCallback((updated: SpecWithGroup[]) => {
-    setLocalSpecs(updated);
-    if (onSpecsChange) onSpecsChange(updated);
-  }, [onSpecsChange]);
+  const emitChange = React.useCallback(
+    (updated: SpecWithGroup[]) => {
+      setLocalSpecs(updated);
+      if (onSpecsChange) onSpecsChange(updated);
+    },
+    [onSpecsChange],
+  );
 
   const handleFieldValueChange = (key: string, val: string | number | boolean | string[]) => {
     const updated = localSpecs.map((s) => (s.key === key ? { ...s, value: val } : s));
@@ -120,9 +131,7 @@ export function SpecificationSection({
       setEditingLabel(null);
       return;
     }
-    const updated = localSpecs.map((s) =>
-      s.key === key ? { ...s, label: editValue.trim() } : s,
-    );
+    const updated = localSpecs.map((s) => (s.key === key ? { ...s, label: editValue.trim() } : s));
     emitChange(updated);
     setEditingLabel(null);
   };
@@ -157,7 +166,13 @@ export function SpecificationSection({
       description="Category-driven product specifications, technical attributes, and filters"
       defaultExpanded={true}
       action={
-        <Button type="button" variant="outline" size="sm" className="gap-1.5 text-xs font-semibold" onClick={handleAddCustomField}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="gap-1.5 text-xs font-semibold"
+          onClick={handleAddCustomField}
+        >
           <Plus className="h-3.5 w-3.5" /> Add Attribute
         </Button>
       }
@@ -197,13 +212,17 @@ export function SpecificationSection({
                   className="h-8.5 w-full rounded-lg border border-border bg-card px-2.5 text-xs font-medium text-foreground"
                 >
                   {GROUPS.map((g) => (
-                    <option key={g} value={g}>{g}</option>
+                    <option key={g} value={g}>
+                      {g}
+                    </option>
                   ))}
                 </select>
               </FormField>
             </div>
             <div className="flex justify-end gap-2 pt-1">
-              <Button size="sm" variant="ghost" onClick={() => setAddingAttribute(false)}>Cancel</Button>
+              <Button size="sm" variant="ghost" onClick={() => setAddingAttribute(false)}>
+                Cancel
+              </Button>
               <Button size="sm" className="gap-1" onClick={handleConfirmAdd}>
                 <Check className="h-3.5 w-3.5" /> Add
               </Button>
@@ -228,21 +247,31 @@ export function SpecificationSection({
                   ) : (
                     <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
                   )}
-                  <span className="text-xs font-extrabold uppercase tracking-wider text-foreground">{group}</span>
-                  <Badge variant="secondary" size="xs">{specsInGroup.length}</Badge>
+                  <span className="text-xs font-extrabold uppercase tracking-wider text-foreground">
+                    {group}
+                  </span>
+                  <Badge variant="secondary" size="xs">
+                    {specsInGroup.length}
+                  </Badge>
                 </div>
               </button>
               {!isCollapsed && (
                 <div className="grid gap-3 sm:grid-cols-2 p-4">
                   {specsInGroup.map((field, fieldIndex) => (
-                    <div key={field.key} className="space-y-1.5 p-3 rounded-xl border border-border bg-card shadow-2xs relative group">
+                    <div
+                      key={field.key}
+                      className="space-y-1.5 p-3 rounded-xl border border-border bg-card shadow-2xs relative group"
+                    >
                       <div className="flex items-center justify-between">
                         {editingLabel === field.key ? (
                           <div className="flex items-center gap-1 flex-1">
                             <Input
                               value={editValue}
                               onChange={(e) => setEditValue(e.target.value)}
-                              onKeyDown={(e) => { if (e.key === "Enter") handleFinishRename(field.key); if (e.key === "Escape") setEditingLabel(null); }}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") handleFinishRename(field.key);
+                                if (e.key === "Escape") setEditingLabel(null);
+                              }}
                               className="h-7 text-xs font-bold"
                               autoFocus
                             />
@@ -256,7 +285,9 @@ export function SpecificationSection({
                           </div>
                         ) : (
                           <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                            <label className="text-xs font-bold text-foreground truncate">{field.label || field.key}</label>
+                            <label className="text-xs font-bold text-foreground truncate">
+                              {field.label || field.key}
+                            </label>
                             <button
                               type="button"
                               onClick={() => handleStartRename(field.key, field.label)}
@@ -302,7 +333,9 @@ export function SpecificationSection({
                           className="h-8.5 w-full rounded-lg border border-border bg-card px-2.5 text-xs font-medium text-foreground focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
                         >
                           {field.options.map((opt) => (
-                            <option key={opt} value={opt}>{opt}</option>
+                            <option key={opt} value={opt}>
+                              {opt}
+                            </option>
                           ))}
                         </select>
                       ) : field.type === "boolean" ? (
@@ -311,7 +344,9 @@ export function SpecificationSection({
                             type="button"
                             onClick={() => handleFieldValueChange(field.key, !field.value)}
                             className={`h-7 px-3 rounded-lg text-xs font-bold transition-all border ${
-                              field.value ? "bg-primary text-primary-foreground border-primary" : "bg-muted text-muted-foreground border-border"
+                              field.value
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-muted text-muted-foreground border-border"
                             }`}
                           >
                             {field.value ? "Yes / Supported" : "No / N/A"}
@@ -321,7 +356,9 @@ export function SpecificationSection({
                         <Input
                           type="number"
                           value={String(field.value)}
-                          onChange={(e) => handleFieldValueChange(field.key, parseFloat(e.target.value) || 0)}
+                          onChange={(e) =>
+                            handleFieldValueChange(field.key, parseFloat(e.target.value) || 0)
+                          }
                           className="h-8.5 font-mono text-xs font-bold"
                         />
                       ) : (

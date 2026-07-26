@@ -7,10 +7,7 @@ import { logger } from "@/lib/utils/logger";
 import { runInTransaction } from "@/lib/database/query-builder";
 import type { FailedDelivery } from "../domain/failed-delivery-entity";
 import type { z } from "zod";
-import type {
-  createFailedDeliverySchema,
-  resolveFailedDeliverySchema,
-} from "../types/validation";
+import type { createFailedDeliverySchema, resolveFailedDeliverySchema } from "../types/validation";
 
 type CreateFailedDeliveryInput = z.infer<typeof createFailedDeliverySchema>;
 type ResolveFailedDeliveryInput = z.infer<typeof resolveFailedDeliverySchema>;
@@ -63,14 +60,18 @@ export class FailedDeliveryService {
         actor,
       });
 
-      await EventBus.publish("order.delivery_failed", {
-        failedDeliveryId: delivery.id,
-        orderId: input.orderId,
-        orderNumber: order.orderNumber,
-        reason: input.reason,
-        courierName: input.courierName,
-        nextAction: input.nextAction,
-      }, { source: "order" });
+      await EventBus.publish(
+        "order.delivery_failed",
+        {
+          failedDeliveryId: delivery.id,
+          orderId: input.orderId,
+          orderNumber: order.orderNumber,
+          reason: input.reason,
+          courierName: input.courierName,
+          nextAction: input.nextAction,
+        },
+        { source: "order" },
+      );
 
       return delivery;
     });

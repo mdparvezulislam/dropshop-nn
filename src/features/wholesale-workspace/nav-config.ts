@@ -12,25 +12,18 @@ import {
   ClipboardList,
   PlusCircle,
 } from "lucide-react";
-import {
-  getWorkspaceBreadcrumbs,
-  type NavSection,
-} from "@/components/workspace/nav-config";
+import { getWorkspaceBreadcrumbs, type NavSection } from "@/components/workspace/nav-config";
 
 export const WHOLESALE_NAV: NavSection[] = [
   {
     id: "overview",
     label: "Overview",
-    items: [
-      { label: "Dashboard", href: "/wholesale", icon: LayoutDashboard },
-    ],
+    items: [{ label: "Dashboard", href: "/wholesale", icon: LayoutDashboard }],
   },
   {
     id: "catalog",
     label: "Catalog",
-    items: [
-      { label: "Products", href: "/wholesale/products", icon: Package },
-    ],
+    items: [{ label: "Products", href: "/wholesale/products", icon: Package }],
   },
   {
     id: "orders",
@@ -44,16 +37,12 @@ export const WHOLESALE_NAV: NavSection[] = [
   {
     id: "billing",
     label: "Billing",
-    items: [
-      { label: "Invoices", href: "/wholesale/invoices", icon: Receipt },
-    ],
+    items: [{ label: "Invoices", href: "/wholesale/invoices", icon: Receipt }],
   },
   {
     id: "contacts",
     label: "Contacts",
-    items: [
-      { label: "Customers", href: "/wholesale/customers", icon: Users },
-    ],
+    items: [{ label: "Customers", href: "/wholesale/customers", icon: Users }],
   },
   {
     id: "account",

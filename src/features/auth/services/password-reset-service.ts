@@ -43,7 +43,9 @@ export class PasswordResetService {
 
     const token = this.generateSecureToken();
     const tokenHash = this.hashToken(token);
-    const expiresAt = new Date(Date.now() + env.PASSWORD_RESET_TOKEN_EXPIRATION_HOURS * 60 * 60 * 1000);
+    const expiresAt = new Date(
+      Date.now() + env.PASSWORD_RESET_TOKEN_EXPIRATION_HOURS * 60 * 60 * 1000,
+    );
 
     const recoveryToken = await this.recoveryTokenRepository.create({
       userId: user.id,
@@ -89,7 +91,9 @@ export class PasswordResetService {
     return { success: true, message: "Password reset instructions sent to your email." };
   }
 
-  async validateResetToken(token: string): Promise<{ valid: boolean; userId?: string; email?: string }> {
+  async validateResetToken(
+    token: string,
+  ): Promise<{ valid: boolean; userId?: string; email?: string }> {
     const validToken = await this.recoveryTokenRepository.findValidToken(token);
 
     if (!validToken) {
@@ -129,11 +133,7 @@ export class PasswordResetService {
       failedLoginCount: 0,
     } as never);
 
-    await this.recoveryTokenRepository.markAsUsed(
-      validToken.id,
-      ipAddress,
-      userAgent,
-    );
+    await this.recoveryTokenRepository.markAsUsed(validToken.id, ipAddress, userAgent);
 
     await this.securityEventService.logEvent({
       userId: user.id,
@@ -153,7 +153,11 @@ export class PasswordResetService {
       actor: { id: "system", role: "system" },
       changes: [
         { field: "passwordHash", oldValue: "[old_hash]", newValue: "[new_hash]" },
-        { field: "passwordLastChangedAt", oldValue: user.passwordLastChangedAt, newValue: new Date().toISOString() },
+        {
+          field: "passwordLastChangedAt",
+          oldValue: user.passwordLastChangedAt,
+          newValue: new Date().toISOString(),
+        },
       ],
     });
 
@@ -244,7 +248,11 @@ export class PasswordResetService {
       actor: { id: userId, role: "user" },
       changes: [
         { field: "passwordHash", oldValue: "[old_hash]", newValue: "[new_hash]" },
-        { field: "passwordLastChangedAt", oldValue: user.passwordLastChangedAt, newValue: new Date().toISOString() },
+        {
+          field: "passwordLastChangedAt",
+          oldValue: user.passwordLastChangedAt,
+          newValue: new Date().toISOString(),
+        },
       ],
     });
 

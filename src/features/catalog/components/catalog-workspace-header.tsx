@@ -61,7 +61,8 @@ export function CatalogWorkspaceHeader({
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-extrabold tracking-tight text-foreground">
-              পণ্য ক্যাটালগ <span className="text-muted-foreground font-semibold text-sm">(Product Catalog)</span>
+              পণ্য ক্যাটালগ{" "}
+              <span className="text-muted-foreground font-semibold text-sm">(Product Catalog)</span>
             </h1>
             <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
               <Sparkles className="h-3 w-3 mr-1" /> Enterprise OS
@@ -74,16 +75,31 @@ export function CatalogWorkspaceHeader({
 
         <div className="flex flex-wrap items-center gap-2">
           {selectedCount > 0 && (
-            <Button size="sm" variant="outline" className="gap-1.5 text-xs font-bold" onClick={onOpenBulk}>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5 text-xs font-bold"
+              onClick={onOpenBulk}
+            >
               <Layers className="h-3.5 w-3.5 text-primary" /> Bulk Actions ({selectedCount})
             </Button>
           )}
 
-          <Button size="sm" variant="outline" className="gap-1 text-xs font-semibold" onClick={onOpenImport}>
+          <Button
+            size="sm"
+            variant="outline"
+            className="gap-1 text-xs font-semibold"
+            onClick={onOpenImport}
+          >
             <Upload className="h-3.5 w-3.5" /> Import (CSV/Excel)
           </Button>
 
-          <Button size="sm" variant="outline" className="gap-1 text-xs font-semibold" onClick={onOpenExport}>
+          <Button
+            size="sm"
+            variant="outline"
+            className="gap-1 text-xs font-semibold"
+            onClick={onOpenExport}
+          >
             <Download className="h-3.5 w-3.5" /> Export
           </Button>
 
@@ -138,7 +154,9 @@ export function CatalogWorkspaceHeader({
               onClick={() => onViewModeChange("table")}
               className={cn(
                 "rounded-md p-1 text-xs transition-all",
-                viewMode === "table" ? "bg-primary text-primary-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground",
+                viewMode === "table"
+                  ? "bg-primary text-primary-foreground shadow-2xs"
+                  : "text-muted-foreground hover:text-foreground",
               )}
               title="Table View"
             >
@@ -149,7 +167,9 @@ export function CatalogWorkspaceHeader({
               onClick={() => onViewModeChange("compact")}
               className={cn(
                 "rounded-md p-1 text-xs transition-all",
-                viewMode === "compact" ? "bg-primary text-primary-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground",
+                viewMode === "compact"
+                  ? "bg-primary text-primary-foreground shadow-2xs"
+                  : "text-muted-foreground hover:text-foreground",
               )}
               title="Compact View"
             >
@@ -160,7 +180,9 @@ export function CatalogWorkspaceHeader({
               onClick={() => onViewModeChange("grid")}
               className={cn(
                 "rounded-md p-1 text-xs transition-all",
-                viewMode === "grid" ? "bg-primary text-primary-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground",
+                viewMode === "grid"
+                  ? "bg-primary text-primary-foreground shadow-2xs"
+                  : "text-muted-foreground hover:text-foreground",
               )}
               title="Grid View"
             >
@@ -171,7 +193,9 @@ export function CatalogWorkspaceHeader({
               onClick={() => onViewModeChange("analytics")}
               className={cn(
                 "rounded-md p-1 text-xs transition-all",
-                viewMode === "analytics" ? "bg-primary text-primary-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground",
+                viewMode === "analytics"
+                  ? "bg-primary text-primary-foreground shadow-2xs"
+                  : "text-muted-foreground hover:text-foreground",
               )}
               title="Analytics View"
             >

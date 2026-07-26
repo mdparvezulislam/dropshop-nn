@@ -13,8 +13,14 @@ import type { MetricCardData, TimeSeriesPoint, RankedItem } from "../domain/anal
 interface AnalyticsViewConfig {
   title: string;
   description: string;
-  loadAction: (query: { preset: string }) => Promise<{ success: boolean; data?: unknown; error?: string }>;
-  exportAction?: (input: any) => Promise<{ success: boolean; data?: { content: string; filename: string; mimeType: string }; error?: string }>;
+  loadAction: (query: {
+    preset: string;
+  }) => Promise<{ success: boolean; data?: unknown; error?: string }>;
+  exportAction?: (input: any) => Promise<{
+    success: boolean;
+    data?: { content: string; filename: string; mimeType: string };
+    error?: string;
+  }>;
   sections: AnalyticsViewSection[];
 }
 
@@ -26,7 +32,14 @@ interface AnalyticsViewSection {
   chartLabel?: string;
   title?: string;
   dataKey?: string;
-  items?: { title: string; key?: string; type?: "area" | "bar" | "line"; label?: string; color?: string; columns?: number }[];
+  items?: {
+    title: string;
+    key?: string;
+    type?: "area" | "bar" | "line";
+    label?: string;
+    color?: string;
+    columns?: number;
+  }[];
   render?: (data: any) => React.ReactNode;
 }
 
@@ -50,7 +63,9 @@ export function AnalyticsView({ config }: { config: AnalyticsViewConfig }): Reac
     setLoading(false);
   }, [preset, config.loadAction]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const handleExport = async () => {
     if (!config.exportAction) return;
@@ -62,7 +77,9 @@ export function AnalyticsView({ config }: { config: AnalyticsViewConfig }): Reac
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = filename; a.click();
+    a.href = url;
+    a.download = filename;
+    a.click();
     URL.revokeObjectURL(url);
   };
 
@@ -76,12 +93,26 @@ export function AnalyticsView({ config }: { config: AnalyticsViewConfig }): Reac
         <div className="flex flex-wrap items-center gap-2">
           <TimeRangeFilter value={preset} onChange={setPreset} />
           <Button variant="outline" size="sm" onClick={load} disabled={loading} className="gap-1.5">
-            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+            {loading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="h-3.5 w-3.5" />
+            )}
             Refresh
           </Button>
           {config.exportAction && (
-            <Button variant="outline" size="sm" onClick={handleExport} disabled={exporting} className="gap-1.5">
-              {exporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExport}
+              disabled={exporting}
+              className="gap-1.5"
+            >
+              {exporting ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Download className="h-3.5 w-3.5" />
+              )}
               Export
             </Button>
           )}
@@ -89,7 +120,9 @@ export function AnalyticsView({ config }: { config: AnalyticsViewConfig }): Reac
       </div>
 
       {error && (
-        <p className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-600">{error}</p>
+        <p className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-sm text-rose-600">
+          {error}
+        </p>
       )}
 
       {loading && !data ? (
@@ -101,7 +134,10 @@ export function AnalyticsView({ config }: { config: AnalyticsViewConfig }): Reac
           {config.sections.map((section, i) => {
             if (section.type === "metrics" && data.metrics) {
               return (
-                <div key={i} className={`grid grid-cols-2 gap-3 ${section.columns ? `lg:grid-cols-${section.columns}` : "lg:grid-cols-4"}`}>
+                <div
+                  key={i}
+                  className={`grid grid-cols-2 gap-3 ${section.columns ? `lg:grid-cols-${section.columns}` : "lg:grid-cols-4"}`}
+                >
                   {(data.metrics as MetricCardData[]).map((m: MetricCardData, mi: number) => (
                     <MetricCard key={m.key} metric={m} index={mi} />
                   ))}
@@ -124,7 +160,10 @@ export function AnalyticsView({ config }: { config: AnalyticsViewConfig }): Reac
 
             if (section.type === "charts" && section.items) {
               return (
-                <div key={i} className={`grid grid-cols-1 gap-4 ${section.columns === 1 ? "" : "lg:grid-cols-2"}`}>
+                <div
+                  key={i}
+                  className={`grid grid-cols-1 gap-4 ${section.columns === 1 ? "" : "lg:grid-cols-2"}`}
+                >
                   {section.items.map((item, ci) => {
                     const chartData = item.key ? data[item.key] : null;
                     if (!chartData) return null;
@@ -146,14 +185,20 @@ export function AnalyticsView({ config }: { config: AnalyticsViewConfig }): Reac
             if (section.type === "ranked" && section.dataKey && data[section.dataKey]) {
               return (
                 <div key={i} className="grid grid-cols-1 gap-4">
-                  <RankedTable title={section.title ?? ""} items={data[section.dataKey] as RankedItem[]} />
+                  <RankedTable
+                    title={section.title ?? ""}
+                    items={data[section.dataKey] as RankedItem[]}
+                  />
                 </div>
               );
             }
 
             if (section.type === "ranked-grid" && section.items) {
               return (
-                <div key={i} className={`grid grid-cols-1 gap-4 ${section.columns === 1 ? "" : "md:grid-cols-2 xl:grid-cols-4"}`}>
+                <div
+                  key={i}
+                  className={`grid grid-cols-1 gap-4 ${section.columns === 1 ? "" : "md:grid-cols-2 xl:grid-cols-4"}`}
+                >
                   {section.items.map((item, ri) => {
                     const rankedData = item.key ? data[item.key] : null;
                     if (!rankedData) return null;

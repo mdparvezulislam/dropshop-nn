@@ -46,19 +46,34 @@ export class CostVersionService {
     const packagingCost = data.packagingCost ?? 0;
     const handlingCost = data.handlingCost ?? 0;
     const otherExpenses = data.otherExpenses ?? 0;
-    const landedCost = costPrice + importCost + shippingCost + packagingCost + handlingCost + otherExpenses;
+    const landedCost =
+      costPrice + importCost + shippingCost + packagingCost + handlingCost + otherExpenses;
 
-    return { costPrice, importCost, shippingCost, packagingCost, handlingCost, otherExpenses, landedCost };
+    return {
+      costPrice,
+      importCost,
+      shippingCost,
+      packagingCost,
+      handlingCost,
+      otherExpenses,
+      landedCost,
+    };
   }
 
-  async createCostVersion(input: CreateCostVersionInput, actor?: { id: string; name?: string }): Promise<CostVersion> {
+  async createCostVersion(
+    input: CreateCostVersionInput,
+    actor?: { id: string; name?: string },
+  ): Promise<CostVersion> {
     logger.info("CostVersionService: creating cost version", {
       productId: input.productId,
       costPrice: input.costPrice,
       reason: input.reason,
     });
 
-    const currentVersion = await this.repository.findCurrentByProduct(input.productId, input.variantSku);
+    const currentVersion = await this.repository.findCurrentByProduct(
+      input.productId,
+      input.variantSku,
+    );
     const nextVersion = await this.repository.getNextVersionNumber(input.productId);
 
     const landed = this.calculateLandedCost(input);
@@ -109,16 +124,20 @@ export class CostVersionService {
       event: "Cost Changed",
     });
 
-    await EventBus.publish("cost.changed", {
-      productId: result.productId,
-      variantSku: result.variantSku,
-      versionNumber: result.versionNumber,
-      oldCost: currentVersion?.costPrice,
-      newCost: result.costPrice,
-      oldLandedCost: currentVersion?.landedCost,
-      newLandedCost: result.landedCost,
-      actorId: actor?.id,
-    }, { source: "cost-engine" });
+    await EventBus.publish(
+      "cost.changed",
+      {
+        productId: result.productId,
+        variantSku: result.variantSku,
+        versionNumber: result.versionNumber,
+        oldCost: currentVersion?.costPrice,
+        newCost: result.costPrice,
+        oldLandedCost: currentVersion?.landedCost,
+        newLandedCost: result.landedCost,
+        actorId: actor?.id,
+      },
+      { source: "cost-engine" },
+    );
 
     return result;
   }
@@ -145,12 +164,10 @@ export class CostVersionService {
 
     const costDiff = versionB.costPrice - versionA.costPrice;
     const landedDiff = versionB.landedCost - versionA.landedCost;
-    const costDiffPct = versionA.costPrice > 0
-      ? Math.round((costDiff / versionA.costPrice) * 10000) / 100
-      : 0;
-    const landedDiffPct = versionA.landedCost > 0
-      ? Math.round((landedDiff / versionA.landedCost) * 10000) / 100
-      : 0;
+    const costDiffPct =
+      versionA.costPrice > 0 ? Math.round((costDiff / versionA.costPrice) * 10000) / 100 : 0;
+    const landedDiffPct =
+      versionA.landedCost > 0 ? Math.round((landedDiff / versionA.landedCost) * 10000) / 100 : 0;
 
     return {
       versionA,
@@ -163,7 +180,11 @@ export class CostVersionService {
     };
   }
 
-  async approveVersion(id: string, approvedBy: string, approvedByName?: string): Promise<CostVersion> {
+  async approveVersion(
+    id: string,
+    approvedBy: string,
+    approvedByName?: string,
+  ): Promise<CostVersion> {
     const version = await this.getVersionById(id);
     const result = await this.repository.update(id, {
       approvalStatus: "approved",
@@ -209,8 +230,12 @@ export class CostVersionService {
 
     const costs = allCurrent.map((c) => c.costPrice);
     const landedCosts = allCurrent.map((c) => c.landedCost);
-    const avgCost = costs.length > 0 ? Math.round(costs.reduce((a, b) => a + b, 0) / costs.length) : 0;
-    const avgLanded = landedCosts.length > 0 ? Math.round(landedCosts.reduce((a, b) => a + b, 0) / landedCosts.length) : 0;
+    const avgCost =
+      costs.length > 0 ? Math.round(costs.reduce((a, b) => a + b, 0) / costs.length) : 0;
+    const avgLanded =
+      landedCosts.length > 0
+        ? Math.round(landedCosts.reduce((a, b) => a + b, 0) / landedCosts.length)
+        : 0;
 
     let highestInc = 0;
     let highestIncVersion: CostVersion | undefined;
@@ -219,8 +244,14 @@ export class CostVersionService {
 
     for (const v of allCurrent) {
       const diff = v.previousCostPrice ? v.costPrice - v.previousCostPrice : 0;
-      if (diff > highestInc) { highestInc = diff; highestIncVersion = v; }
-      if (diff < largestDrop) { largestDrop = diff; largestDropVersion = v; }
+      if (diff > highestInc) {
+        highestInc = diff;
+        highestIncVersion = v;
+      }
+      if (diff < largestDrop) {
+        largestDrop = diff;
+        largestDropVersion = v;
+      }
     }
 
     const uniqueProductsToday = new Set(todayChanges.map((c: any) => c.productId?.toString()));

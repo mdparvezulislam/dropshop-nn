@@ -4,7 +4,10 @@ import { ProductVersion } from "../domain/product-version-entity";
 import { logger } from "@/lib/utils/logger";
 import { DatabaseError } from "@/lib/errors/app-error";
 
-export class ProductVersionRepository extends BaseRepository<ProductVersionDocument, ProductVersion> {
+export class ProductVersionRepository extends BaseRepository<
+  ProductVersionDocument,
+  ProductVersion
+> {
   constructor() {
     super(ProductVersionModel, ProductVersionRepository.mapToDomain);
   }
@@ -44,8 +47,7 @@ export class ProductVersionRepository extends BaseRepository<ProductVersionDocum
   async getLatestVersion(productId: string): Promise<ProductVersion | null> {
     try {
       await this.ensureConnected();
-      const doc = await ProductVersionModel
-        .findOne({ productId })
+      const doc = await ProductVersionModel.findOne({ productId })
         .sort({ versionNumber: -1 })
         .exec();
       return doc ? ProductVersionRepository.mapToDomain(doc as ProductVersionDocument) : null;
@@ -58,12 +60,13 @@ export class ProductVersionRepository extends BaseRepository<ProductVersionDocum
   async getVersion(productId: string, versionNumber: number): Promise<ProductVersion | null> {
     try {
       await this.ensureConnected();
-      const doc = await ProductVersionModel
-        .findOne({ productId, versionNumber })
-        .exec();
+      const doc = await ProductVersionModel.findOne({ productId, versionNumber }).exec();
       return doc ? ProductVersionRepository.mapToDomain(doc as ProductVersionDocument) : null;
     } catch (error) {
-      logger.error("ProductVersionRepository getVersion failed", error, { productId, versionNumber });
+      logger.error("ProductVersionRepository getVersion failed", error, {
+        productId,
+        versionNumber,
+      });
       throw new DatabaseError("Database query error", error);
     }
   }
@@ -96,9 +99,7 @@ export class ProductVersionRepository extends BaseRepository<ProductVersionDocum
           added.push(key);
         } else if (inA && !inB) {
           removed.push(key);
-        } else if (
-          JSON.stringify(snapshotA[key]) !== JSON.stringify(snapshotB[key])
-        ) {
+        } else if (JSON.stringify(snapshotA[key]) !== JSON.stringify(snapshotB[key])) {
           changed.push(key);
         }
       }

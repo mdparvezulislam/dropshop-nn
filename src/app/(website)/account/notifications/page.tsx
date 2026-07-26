@@ -13,13 +13,13 @@ export default async function NotificationsPage() {
     <NotificationsPageContent
       initialPrefs={
         result.success
-          ? result.data ?? {
+          ? (result.data ?? {
               orderUpdates: true,
               marketingMessages: false,
               emailNotifications: true,
               smsNotifications: false,
               pushNotifications: true,
-            }
+            })
           : {
               orderUpdates: true,
               marketingMessages: false,

@@ -2,7 +2,18 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, ShieldCheck, Zap, Truck, RotateCcw, Award, Package, Users, Building2, Star } from "lucide-react";
+import {
+  ArrowRight,
+  ShieldCheck,
+  Zap,
+  Truck,
+  RotateCcw,
+  Award,
+  Package,
+  Users,
+  Building2,
+  Star,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
@@ -25,7 +36,8 @@ const HERO_SLIDES: HeroSlide[] = [
     cardSubtitle: "আপনার ব্যবসার জন্য সেরা প্যাক।",
     cardCtaText: "এখনই শপ করুন",
     cardCtaHref: "/products",
-    bannerImage: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80",
+    bannerImage:
+      "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80",
   },
   {
     id: 2,
@@ -34,7 +46,8 @@ const HERO_SLIDES: HeroSlide[] = [
     cardSubtitle: "সবচেয়ে বেশি সেল হওয়া গ্যাজেট আইটেম।",
     cardCtaText: "রিসেলিং শুরু করুন",
     cardCtaHref: "/become-reseller",
-    bannerImage: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
+    bannerImage:
+      "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
   },
   {
     id: 3,
@@ -43,7 +56,8 @@ const HERO_SLIDES: HeroSlide[] = [
     cardSubtitle: "ডাইরেক্ট ফ্যাক্টরি ও ইম্পোর্টার রেট।",
     cardCtaText: "পাইকারি দাম দেখুন",
     cardCtaHref: "/become-wholesale-partner",
-    bannerImage: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80",
+    bannerImage:
+      "https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80",
   },
 ];
 
@@ -62,7 +76,10 @@ export function HeroSection(): React.ReactElement {
   const slide = HERO_SLIDES[current];
 
   return (
-    <section className="w-full pt-4 pb-8 lg:pt-6 lg:pb-12 bg-white relative overflow-hidden" aria-label="Hero section">
+    <section
+      className="w-full pt-4 pb-8 lg:pt-6 lg:pb-12 bg-white relative overflow-hidden"
+      aria-label="Hero section"
+    >
       {/* Background Soft Grid */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-40 pointer-events-none" />
 
@@ -79,13 +96,13 @@ export function HeroSection(): React.ReactElement {
             {/* Main Headline (Pure Black text-slate-900) */}
             <h1 className="text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-slate-900 leading-[1.15]">
               সোর্স করুন, বিক্রি করুন, <br />
-              ব্যবসা বাড়ান{" "}
-              <span className="text-amber-500">DropshopNN</span> এর সাথে
+              ব্যবসা বাড়ান <span className="text-amber-500">DropshopNN</span> এর সাথে
             </h1>
 
             {/* Subtitle (Crisp Dark Gray text-slate-700) */}
             <p className="text-sm sm:text-base text-slate-700 font-semibold leading-relaxed max-w-xl">
-              বাংলাদেশের সবচেয়ে বিশ্বস্ত প্রোডাক্ট সাপ্লাই প্ল্যাটফর্ম। রিসেলার, হোলসেলার এবং ড্রপশিপারদের জন্য অল-ইন-ওয়ান সমাধান।
+              বাংলাদেশের সবচেয়ে বিশ্বস্ত প্রোডাক্ট সাপ্লাই প্ল্যাটফর্ম। রিসেলার, হোলসেলার এবং
+              ড্রপশিপারদের জন্য অল-ইন-ওয়ান সমাধান।
             </p>
 
             {/* 4 Micro Feature Pills matching reference */}
@@ -111,18 +128,28 @@ export function HeroSection(): React.ReactElement {
             {/* 3 CTA Buttons matching reference */}
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <Link href="/products">
-                <Button size="lg" className="h-11 px-6 text-sm font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-md active:scale-[0.98]">
+                <Button
+                  size="lg"
+                  className="h-11 px-6 text-sm font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-md active:scale-[0.98]"
+                >
                   প্রোডাক্ট দেখুন
                   <ArrowRight className="h-4 w-4 ml-1.5" />
                 </Button>
               </Link>
               <Link href="/become-reseller">
-                <Button size="lg" className="h-11 px-6 text-sm font-extrabold bg-slate-900 hover:bg-slate-800 text-white shadow-md">
+                <Button
+                  size="lg"
+                  className="h-11 px-6 text-sm font-extrabold bg-slate-900 hover:bg-slate-800 text-white shadow-md"
+                >
                   রিসেলার হন
                 </Button>
               </Link>
               <Link href="/become-wholesale-partner">
-                <Button size="lg" variant="outline" className="h-11 px-6 text-sm font-extrabold border-slate-300 text-slate-900 hover:bg-slate-100">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="h-11 px-6 text-sm font-extrabold border-slate-300 text-slate-900 hover:bg-slate-100"
+                >
                   হোলসেলার করুন
                 </Button>
               </Link>
@@ -195,7 +222,10 @@ export function HeroSection(): React.ReactElement {
                   </p>
                   <div className="pt-1">
                     <Link href={slide.cardCtaHref}>
-                      <Button size="sm" className="h-9 px-4 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs">
+                      <Button
+                        size="sm"
+                        className="h-9 px-4 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs"
+                      >
                         {slide.cardCtaText} →
                       </Button>
                     </Link>

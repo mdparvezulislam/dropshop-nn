@@ -21,11 +21,13 @@ export class TrustedDeviceRepository extends BaseRepository<TrustedDeviceDocumen
         browser: doc.deviceInfo.browser as any,
         userAgent: doc.deviceInfo.userAgent,
         ipAddress: doc.deviceInfo.ipAddress,
-        location: doc.deviceInfo.location ? {
-          country: doc.deviceInfo.location.country,
-          city: doc.deviceInfo.location.city,
-          timezone: doc.deviceInfo.location.timezone,
-        } : undefined,
+        location: doc.deviceInfo.location
+          ? {
+              country: doc.deviceInfo.location.country,
+              city: doc.deviceInfo.location.city,
+              timezone: doc.deviceInfo.location.timezone,
+            }
+          : undefined,
       },
       name: doc.name ?? undefined,
       isTrusted: doc.isTrusted,
@@ -57,7 +59,10 @@ export class TrustedDeviceRepository extends BaseRepository<TrustedDeviceDocumen
     }
   }
 
-  async findByDeviceId(deviceId: string, options?: DatabaseQueryOptions): Promise<TrustedDevice | null> {
+  async findByDeviceId(
+    deviceId: string,
+    options?: DatabaseQueryOptions,
+  ): Promise<TrustedDevice | null> {
     try {
       await this.ensureConnected();
       const query = TrustedDeviceModel.findOne({ deviceId }).session(options?.session || null);
@@ -71,10 +76,16 @@ export class TrustedDeviceRepository extends BaseRepository<TrustedDeviceDocumen
     }
   }
 
-  async findByUserIdAndDeviceId(userId: string, deviceId: string, options?: DatabaseQueryOptions): Promise<TrustedDevice | null> {
+  async findByUserIdAndDeviceId(
+    userId: string,
+    deviceId: string,
+    options?: DatabaseQueryOptions,
+  ): Promise<TrustedDevice | null> {
     try {
       await this.ensureConnected();
-      const query = TrustedDeviceModel.findOne({ userId, deviceId }).session(options?.session || null);
+      const query = TrustedDeviceModel.findOne({ userId, deviceId }).session(
+        options?.session || null,
+      );
       if (options?.lean) query.lean();
       if (options?.showDeleted) query.setOptions({ showDeleted: true });
       const doc = await query.exec();
@@ -88,7 +99,10 @@ export class TrustedDeviceRepository extends BaseRepository<TrustedDeviceDocumen
     }
   }
 
-  async updateLastUsed(deviceId: string, options?: DatabaseQueryOptions): Promise<TrustedDevice | null> {
+  async updateLastUsed(
+    deviceId: string,
+    options?: DatabaseQueryOptions,
+  ): Promise<TrustedDevice | null> {
     try {
       await this.ensureConnected();
       const doc = await TrustedDeviceModel.findByIdAndUpdate(
@@ -108,7 +122,12 @@ export class TrustedDeviceRepository extends BaseRepository<TrustedDeviceDocumen
     }
   }
 
-  async toggleTrust(userId: string, deviceId: string, isTrusted: boolean, options?: DatabaseQueryOptions): Promise<TrustedDevice> {
+  async toggleTrust(
+    userId: string,
+    deviceId: string,
+    isTrusted: boolean,
+    options?: DatabaseQueryOptions,
+  ): Promise<TrustedDevice> {
     try {
       await this.ensureConnected();
       const existing = await this.findByUserIdAndDeviceId(userId, deviceId, options);

@@ -24,9 +24,7 @@ export function WidgetGrid({
   className,
   columns = 4,
 }: WidgetGridProps): React.ReactElement {
-  return (
-    <div className={cn("grid gap-4 sm:gap-5", COL_CLASS[columns], className)}>{children}</div>
-  );
+  return <div className={cn("grid gap-4 sm:gap-5", COL_CLASS[columns], className)}>{children}</div>;
 }
 
 export interface WorkspaceWidgetProps {
@@ -43,13 +41,7 @@ export function WorkspaceWidget({
   delay = 0,
 }: WorkspaceWidgetProps): React.ReactElement {
   const spanClass =
-    span === 2
-      ? "sm:col-span-2"
-      : span === 3
-        ? "xl:col-span-3"
-        : span === 4
-          ? "lg:col-span-4"
-          : "";
+    span === 2 ? "sm:col-span-2" : span === 3 ? "xl:col-span-3" : span === 4 ? "lg:col-span-4" : "";
 
   return (
     <motion.div

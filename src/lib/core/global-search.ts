@@ -41,10 +41,16 @@ export class GlobalSearch {
       }
     }
 
-    return results.sort((a, b) => a.title.localeCompare(b.title)).slice(0, limit * SEARCH_PROVIDERS.size);
+    return results
+      .sort((a, b) => a.title.localeCompare(b.title))
+      .slice(0, limit * SEARCH_PROVIDERS.size);
   }
 
-  static async searchByType(entityType: string, query: string, limit: number = 10): Promise<SearchResultItem[]> {
+  static async searchByType(
+    entityType: string,
+    query: string,
+    limit: number = 10,
+  ): Promise<SearchResultItem[]> {
     const provider = SEARCH_PROVIDERS.get(entityType);
     if (!provider) return [];
     try {

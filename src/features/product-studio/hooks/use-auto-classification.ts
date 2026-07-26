@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 
 export interface ClassificationSuggestion {
@@ -124,7 +126,6 @@ const KEYWORD_TAG_MAP: Record<string, string> = {
 };
 
 export function useAutoClassification(): {
-  suggestions: ClassificationSuggestion;
   classifyFromName: (name: string) => ClassificationSuggestion;
 } {
   const classifyFromName = React.useCallback((name: string): ClassificationSuggestion => {
@@ -171,19 +172,5 @@ export function useAutoClassification(): {
     };
   }, []);
 
-  const [suggestions, setSuggestions] = React.useState<ClassificationSuggestion>({
-    suggestedTags: [],
-    suggestedCollections: [],
-    confidence: 0,
-  });
-
-  React.useEffect(() => {
-    if (suggestions.confidence > 0) {
-      setSuggestions(classifyFromName(""));
-    }
-  }, []);
-
-  return { suggestions, classifyFromName };
+  return { classifyFromName };
 }
-
-export default useAutoClassification;

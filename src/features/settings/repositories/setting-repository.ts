@@ -1,6 +1,11 @@
 import { BaseRepository } from "@/lib/database/generic-repository";
 import { PlatformSettingModel, FeatureFlagModel, SettingAuditLogModel } from "./setting-model";
-import type { SettingEntry, FeatureFlagEntry, SettingAuditLog, SettingCategory } from "../domain/setting-entity";
+import type {
+  SettingEntry,
+  FeatureFlagEntry,
+  SettingAuditLog,
+  SettingCategory,
+} from "../domain/setting-entity";
 import type { BaseDocument } from "@/lib/database/types";
 
 interface PlatformSettingDocument extends BaseDocument {
@@ -96,7 +101,9 @@ export class SettingRepository extends BaseRepository<PlatformSettingDocument, S
     return docs.map((d: any) => mapToSetting({ ...d, id: d._id.toString() }));
   }
 
-  async upsertSetting(data: Partial<SettingEntry> & { key: string; value: any }): Promise<SettingEntry> {
+  async upsertSetting(
+    data: Partial<SettingEntry> & { key: string; value: any },
+  ): Promise<SettingEntry> {
     await this.ensureConnected();
     const doc = await PlatformSettingModel.findOneAndUpdate(
       { key: data.key },
@@ -108,7 +115,9 @@ export class SettingRepository extends BaseRepository<PlatformSettingDocument, S
 
   async listAllSettings(): Promise<SettingEntry[]> {
     await this.ensureConnected();
-    const docs = await PlatformSettingModel.find({ isDeleted: { $ne: true } }).sort({ category: 1, key: 1 }).lean();
+    const docs = await PlatformSettingModel.find({ isDeleted: { $ne: true } })
+      .sort({ category: 1, key: 1 })
+      .lean();
     return docs.map((d: any) => mapToSetting({ ...d, id: d._id.toString() }));
   }
 
@@ -130,7 +139,9 @@ export class SettingRepository extends BaseRepository<PlatformSettingDocument, S
   }
 
   // Audit Logs
-  async createAuditLog(log: Omit<SettingAuditLog, "id" | "createdAt" | "updatedAt" | "isDeleted" | "status">): Promise<SettingAuditLog> {
+  async createAuditLog(
+    log: Omit<SettingAuditLog, "id" | "createdAt" | "updatedAt" | "isDeleted" | "status">,
+  ): Promise<SettingAuditLog> {
     await this.ensureConnected();
     const doc = await SettingAuditLogModel.create(log);
     return mapToAudit({ ...doc.toObject(), id: doc._id.toString() });

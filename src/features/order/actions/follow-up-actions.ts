@@ -59,7 +59,11 @@ export async function assignFollowUpAction(formData: unknown): Promise<{
   try {
     const validated = assignFollowUpSchema.parse(formData);
     const service = new FollowUpService();
-    const result = await service.assign(validated.followUpId, validated.staffId, validated.staffName);
+    const result = await service.assign(
+      validated.followUpId,
+      validated.staffId,
+      validated.staffName,
+    );
     revalidatePath("/dashboard/orders");
     return { success: true, data: result };
   } catch (error: any) {

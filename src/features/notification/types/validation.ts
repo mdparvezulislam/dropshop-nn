@@ -24,17 +24,13 @@ export const notifySchema = z.object({
     .optional(),
   title: z.string().optional(),
   body: z.string().optional(),
-  channels: z
-    .array(z.enum(["in_app", "email", "sms", "push", "whatsapp", "webhook"]))
-    .optional(),
+  channels: z.array(z.enum(["in_app", "email", "sms", "push", "whatsapp", "webhook"])).optional(),
   priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
   templateKey: z.string().optional(),
   variables: z
     .record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()]))
     .optional(),
-  data: z
-    .record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()]))
-    .optional(),
+  data: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])).optional(),
   href: z.string().optional(),
   entityType: z.string().optional(),
   entityId: z.string().optional(),

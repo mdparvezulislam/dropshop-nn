@@ -1,7 +1,13 @@
 import { ReturnRepository } from "../repositories/return-repository";
 import { OrderRepository } from "../repositories/order-repository";
 import { OrderTimelineService } from "./order-timeline-service";
-import { canTransitionReturn, getReturnHumanLabel, RETURN_TERMINAL_STATUSES, type ReturnStatus, type ReturnEntity } from "../domain/return-entity";
+import {
+  canTransitionReturn,
+  getReturnHumanLabel,
+  RETURN_TERMINAL_STATUSES,
+  type ReturnStatus,
+  type ReturnEntity,
+} from "../domain/return-entity";
 import { EventBus } from "@/lib/event-bus";
 import { NotFoundError, ValidationError } from "@/lib/errors/app-error";
 import { logger } from "@/lib/utils/logger";
@@ -20,7 +26,10 @@ export class ReturnService {
     this.timelineService = new OrderTimelineService();
   }
 
-  async create(input: CreateReturnInput, actor?: { id: string; name?: string; role?: string }): Promise<ReturnEntity> {
+  async create(
+    input: CreateReturnInput,
+    actor?: { id: string; name?: string; role?: string },
+  ): Promise<ReturnEntity> {
     return runInTransaction(async () => {
       const order = await this.orderRepository.findById(input.orderId);
       if (!order) throw new NotFoundError("Order not found");
@@ -57,13 +66,17 @@ export class ReturnService {
         actor,
       });
 
-      await EventBus.publish("order.return_requested", {
-        returnId: returnRecord.id,
-        returnNumber,
-        orderId: input.orderId,
-        orderNumber: order.orderNumber,
-        reason: input.reason,
-      }, { source: "order" });
+      await EventBus.publish(
+        "order.return_requested",
+        {
+          returnId: returnRecord.id,
+          returnNumber,
+          orderId: input.orderId,
+          orderNumber: order.orderNumber,
+          reason: input.reason,
+        },
+        { source: "order" },
+      );
 
       return returnRecord;
     });
@@ -96,8 +109,10 @@ export class ReturnService {
       updates.approvedBy = actor?.id;
     }
     if (toStatus === "received") updates.receivedAt = now;
-    if (toStatus === "inspecting" && input?.inspectionNotes) updates.inspectionNotes = input.inspectionNotes;
-    if (toStatus === "approved_for_refund" && input?.refundAmount !== undefined) updates.refundAmount = input.refundAmount;
+    if (toStatus === "inspecting" && input?.inspectionNotes)
+      updates.inspectionNotes = input.inspectionNotes;
+    if (toStatus === "approved_for_refund" && input?.refundAmount !== undefined)
+      updates.refundAmount = input.refundAmount;
     if (toStatus === "rejected") updates.rejectionReason = input?.rejectionReason;
     if (toStatus === "refunded") updates.refundedAt = now;
     if (toStatus === "completed") updates.completedAt = now;
@@ -125,8 +140,13 @@ export class ReturnService {
     return this.returnRepository.findByOrder(orderId);
   }
 
-  async listReturns(page: number = 1, limit: number = 20): Promise<{ items: ReturnEntity[]; total: number }> {
-    const result = await this.returnRepository.findPaginated({}, { page, limit }, { createdAt: -1 } as any);
+  async listReturns(
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<{ items: ReturnEntity[]; total: number }> {
+    const result = await this.returnRepository.findPaginated({}, { page, limit }, {
+      createdAt: -1,
+    } as any);
     return { items: result.items, total: result.totalCount };
   }
 

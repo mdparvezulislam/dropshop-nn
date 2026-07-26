@@ -24,13 +24,15 @@ const MOCK_BUNDLE_ITEMS: BundleItem[] = [
     id: "b-1",
     name: "GaN 65W টাইপ-সি ফার্স্ট চার্জিং ক্যাবল",
     price: 350,
-    image: "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=200&q=80",
   },
   {
     id: "b-2",
     name: "সিলিকন প্রটেক্টিভ কভার কেস",
     price: 150,
-    image: "https://images.unsplash.com/photo-1609592424109-dd9892f1b177?auto=format&fit=crop&w=200&q=80",
+    image:
+      "https://images.unsplash.com/photo-1609592424109-dd9892f1b177?auto=format&fit=crop&w=200&q=80",
   },
 ];
 
@@ -43,14 +45,13 @@ export function FrequentlyBoughtTogether({
 
   const toggleItem = (id: string) => {
     setSelectedBundleIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
     );
   };
 
-  const selectedBundleTotal = MOCK_BUNDLE_ITEMS.filter((i) => selectedBundleIds.includes(i.id)).reduce(
-    (acc, item) => acc + item.price,
-    0
-  );
+  const selectedBundleTotal = MOCK_BUNDLE_ITEMS.filter((i) =>
+    selectedBundleIds.includes(i.id),
+  ).reduce((acc, item) => acc + item.price, 0);
 
   const grandTotal = mainProductPrice + selectedBundleTotal;
 
@@ -71,7 +72,10 @@ export function FrequentlyBoughtTogether({
           <div className="flex items-center gap-2 p-2.5 rounded-2xl bg-amber-50/60 border border-amber-200 shrink-0 w-48">
             <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white border shrink-0">
               <Image
-                src={mainProductImage || "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=200&q=80"}
+                src={
+                  mainProductImage ||
+                  "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=200&q=80"
+                }
                 alt={mainProductName}
                 fill
                 className="object-cover"
@@ -79,7 +83,9 @@ export function FrequentlyBoughtTogether({
             </div>
             <div className="overflow-hidden">
               <p className="text-xs font-extrabold text-foreground truncate">{mainProductName}</p>
-              <p className="text-xs font-black text-amber-600">৳{(mainProductPrice / 100).toFixed(0)}</p>
+              <p className="text-xs font-black text-amber-600">
+                ৳{(mainProductPrice / 100).toFixed(0)}
+              </p>
             </div>
           </div>
 
@@ -93,7 +99,9 @@ export function FrequentlyBoughtTogether({
                 <div
                   onClick={() => toggleItem(item.id)}
                   className={`flex items-center gap-2 p-2.5 rounded-2xl border cursor-pointer transition-all w-48 ${
-                    isChecked ? "bg-amber-50/60 border-amber-300" : "bg-white border-border/80 opacity-60"
+                    isChecked
+                      ? "bg-amber-50/60 border-amber-300"
+                      : "bg-white border-border/80 opacity-60"
                   }`}
                 >
                   <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white border shrink-0">

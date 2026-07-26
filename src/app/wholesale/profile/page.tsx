@@ -2,16 +2,7 @@
 
 import * as React from "react";
 import { toast } from "sonner";
-import {
-  User,
-  Building2,
-  FileText,
-  Phone,
-  Mail,
-  MapPin,
-  Save,
-  Shield,
-} from "lucide-react";
+import { User, Building2, FileText, Phone, Mail, MapPin, Save, Shield } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,7 +24,10 @@ export default function WholesaleProfilePage(): React.ReactElement {
 
   return (
     <div className="space-y-6 animate-[fade-in_0.2s_ease-out]">
-      <PageHeader title="Business Profile" description="Manage your wholesale account information" />
+      <PageHeader
+        title="Business Profile"
+        description="Manage your wholesale account information"
+      />
 
       <form onSubmit={handleSave} className="grid gap-5 lg:grid-cols-2">
         <Card>
@@ -44,15 +38,21 @@ export default function WholesaleProfilePage(): React.ReactElement {
           </CardHeader>
           <CardContent className="p-4 space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="businessName" className="text-xs">Business Name</Label>
+              <Label htmlFor="businessName" className="text-xs">
+                Business Name
+              </Label>
               <Input id="businessName" placeholder="Your business name" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="businessType" className="text-xs">Business Type</Label>
+              <Label htmlFor="businessType" className="text-xs">
+                Business Type
+              </Label>
               <Input id="businessType" placeholder="e.g. Retailer, Distributor" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="website" className="text-xs">Website</Label>
+              <Label htmlFor="website" className="text-xs">
+                Website
+              </Label>
               <Input id="website" type="url" placeholder="https://example.com" />
             </div>
           </CardContent>
@@ -66,15 +66,21 @@ export default function WholesaleProfilePage(): React.ReactElement {
           </CardHeader>
           <CardContent className="p-4 space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="tradeLicense" className="text-xs">Trade License Number</Label>
+              <Label htmlFor="tradeLicense" className="text-xs">
+                Trade License Number
+              </Label>
               <Input id="tradeLicense" placeholder="Enter trade license" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="bin" className="text-xs">BIN / VAT Number</Label>
+              <Label htmlFor="bin" className="text-xs">
+                BIN / VAT Number
+              </Label>
               <Input id="bin" placeholder="Enter BIN or VAT number" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="tin" className="text-xs">TIN Number</Label>
+              <Label htmlFor="tin" className="text-xs">
+                TIN Number
+              </Label>
               <Input id="tin" placeholder="Enter TIN number" />
             </div>
           </CardContent>
@@ -88,15 +94,21 @@ export default function WholesaleProfilePage(): React.ReactElement {
           </CardHeader>
           <CardContent className="p-4 space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="contactPerson" className="text-xs">Contact Person</Label>
+              <Label htmlFor="contactPerson" className="text-xs">
+                Contact Person
+              </Label>
               <Input id="contactPerson" placeholder="Full name" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="contactPhone" className="text-xs">Phone</Label>
+              <Label htmlFor="contactPhone" className="text-xs">
+                Phone
+              </Label>
               <Input id="contactPhone" type="tel" placeholder="01XXXXXXXXX" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="contactEmail" className="text-xs">Email</Label>
+              <Label htmlFor="contactEmail" className="text-xs">
+                Email
+              </Label>
               <Input id="contactEmail" type="email" placeholder="email@example.com" />
             </div>
           </CardContent>
@@ -110,16 +122,22 @@ export default function WholesaleProfilePage(): React.ReactElement {
           </CardHeader>
           <CardContent className="p-4 space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="address" className="text-xs">Address</Label>
+              <Label htmlFor="address" className="text-xs">
+                Address
+              </Label>
               <Input id="address" placeholder="Street address" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="city" className="text-xs">City</Label>
+                <Label htmlFor="city" className="text-xs">
+                  City
+                </Label>
                 <Input id="city" placeholder="City" />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="district" className="text-xs">District</Label>
+                <Label htmlFor="district" className="text-xs">
+                  District
+                </Label>
                 <Input id="district" placeholder="District" />
               </div>
             </div>

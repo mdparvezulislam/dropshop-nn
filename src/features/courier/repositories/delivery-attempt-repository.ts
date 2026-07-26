@@ -39,7 +39,10 @@ function mapToDomain(doc: any): DeliveryAttempt {
   };
 }
 
-export class DeliveryAttemptRepository extends BaseRepository<DeliveryAttemptDocument, DeliveryAttempt> {
+export class DeliveryAttemptRepository extends BaseRepository<
+  DeliveryAttemptDocument,
+  DeliveryAttempt
+> {
   constructor() {
     super(DeliveryAttemptModel as any, mapToDomain);
   }

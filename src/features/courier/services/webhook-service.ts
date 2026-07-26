@@ -25,7 +25,7 @@ export class WebhookService {
 
     try {
       const adapter = CourierProviderRegistry.get(providerName);
-      
+
       // 1. Authenticate Signature
       const isValid = adapter.verifyWebhookSignature(signature, rawBody);
       if (!isValid) {
@@ -42,16 +42,21 @@ export class WebhookService {
       // 3. Retrieve Shipment
       const shipment = await this.shipmentRepository.findByTrackingCode(parsed.trackingCode);
       if (!shipment) {
-        logger.warn("WebhookService: shipment not found for tracking code", { trackingCode: parsed.trackingCode });
+        logger.warn("WebhookService: shipment not found for tracking code", {
+          trackingCode: parsed.trackingCode,
+        });
         return { success: false, error: "Shipment not found" };
       }
 
       // 4. Duplicate Check (State Idempotency Guard)
       if (shipment.status === parsed.status) {
-        logger.info("WebhookService: status already updated, skipping duplicate callback processing", {
-          shipmentId: shipment.id,
-          status: parsed.status,
-        });
+        logger.info(
+          "WebhookService: status already updated, skipping duplicate callback processing",
+          {
+            shipmentId: shipment.id,
+            status: parsed.status,
+          },
+        );
         return { success: true };
       }
 

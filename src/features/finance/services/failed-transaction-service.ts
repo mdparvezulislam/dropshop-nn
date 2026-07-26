@@ -39,7 +39,9 @@ export class FailedTransactionService {
     const failedItems: FailedTransactionItem[] = [];
 
     // 1. Rejected or Hold Withdrawals
-    const withdrawals = await this.withdrawalRepository.find({ status: { $in: ["rejected", "hold"] } });
+    const withdrawals = await this.withdrawalRepository.find({
+      status: { $in: ["rejected", "hold"] },
+    });
     for (const w of withdrawals) {
       failedItems.push({
         id: `FAIL-WTH-${w.id}`,
@@ -96,7 +98,11 @@ export class FailedTransactionService {
     return failedItems;
   }
 
-  async retryFailedTransaction(entityId: string, type: string, actorId: string = "system"): Promise<boolean> {
+  async retryFailedTransaction(
+    entityId: string,
+    type: string,
+    actorId: string = "system",
+  ): Promise<boolean> {
     try {
       if (type === "failed_settlement") {
         const { OrderRepository } = await import("@/features/order/repositories/order-repository");
@@ -109,10 +115,16 @@ export class FailedTransactionService {
         }
       } else if (type === "failed_withdrawal") {
         await this.withdrawalService.reviewWithdrawal(entityId, "approved", actorId);
-        logger.info("FailedTransactionService: retried withdrawal transition to approved", { withdrawalId: entityId });
+        logger.info("FailedTransactionService: retried withdrawal transition to approved", {
+          withdrawalId: entityId,
+        });
         return true;
       } else if (type === "failed_deposit") {
-        await this.depositService.approveDeposit(entityId, actorId, "Retried from Failed Transaction Center");
+        await this.depositService.approveDeposit(
+          entityId,
+          actorId,
+          "Retried from Failed Transaction Center",
+        );
         logger.info("FailedTransactionService: retried deposit approval", { depositId: entityId });
         return true;
       }

@@ -2,7 +2,14 @@
 
 import * as React from "react";
 import { z } from "zod";
-import { Calculator, TrendingUp, AlertCircle, ArrowUpRight, Percent, ShieldCheck } from "lucide-react";
+import {
+  Calculator,
+  TrendingUp,
+  AlertCircle,
+  ArrowUpRight,
+  Percent,
+  ShieldCheck,
+} from "lucide-react";
 
 interface ResellerProfitCalculatorProps {
   resellerPrice: number; // Base reseller cost (BDT)
@@ -19,12 +26,15 @@ export function ResellerProfitCalculator({
 }: ResellerProfitCalculatorProps) {
   // Floor and Ceiling limits
   const floorPrice = minResellerPrice || Math.round(resellerPrice * 1.15);
-  const ceilingPrice = comparePrice && comparePrice > suggestedRetailPrice
-    ? comparePrice
-    : Math.round(suggestedRetailPrice * 1.50);
+  const ceilingPrice =
+    comparePrice && comparePrice > suggestedRetailPrice
+      ? comparePrice
+      : Math.round(suggestedRetailPrice * 1.5);
 
   const [sellingPriceInput, setSellingPriceInput] = React.useState<string>(
-    suggestedRetailPrice > 0 ? String(suggestedRetailPrice) : String(Math.round(resellerPrice * 1.25))
+    suggestedRetailPrice > 0
+      ? String(suggestedRetailPrice)
+      : String(Math.round(resellerPrice * 1.25)),
   );
 
   const currentVal = parseFloat(sellingPriceInput) || 0;
@@ -58,7 +68,9 @@ export function ResellerProfitCalculator({
                 রিসেলার লাভ
               </span>
             </h3>
-            <p className="text-[11px] text-slate-400">Set your custom selling price within platform limits</p>
+            <p className="text-[11px] text-slate-400">
+              Set your custom selling price within platform limits
+            </p>
           </div>
         </div>
       </div>
@@ -113,7 +125,9 @@ export function ResellerProfitCalculator({
       {/* Live Calculated Stats Bar */}
       <div className="grid grid-cols-3 gap-3 pt-2">
         <div className="bg-emerald-500/10 border border-emerald-500/30 p-3 rounded-xl text-center">
-          <span className="text-[10px] font-bold text-emerald-400 uppercase block">নিট লাভ (Profit)</span>
+          <span className="text-[10px] font-bold text-emerald-400 uppercase block">
+            নিট লাভ (Profit)
+          </span>
           <span className="text-lg font-black text-emerald-400 flex items-center justify-center space-x-1 mt-0.5">
             <TrendingUp className="w-4 h-4" />
             <span>৳{isValid ? netProfit.toLocaleString("en-BD") : "0"}</span>
@@ -121,7 +135,9 @@ export function ResellerProfitCalculator({
         </div>
 
         <div className="bg-blue-500/10 border border-blue-500/30 p-3 rounded-xl text-center">
-          <span className="text-[10px] font-bold text-blue-400 uppercase block">মার্জিন (Margin)</span>
+          <span className="text-[10px] font-bold text-blue-400 uppercase block">
+            মার্জিন (Margin)
+          </span>
           <span className="text-lg font-black text-blue-400 flex items-center justify-center space-x-0.5 mt-0.5">
             <Percent className="w-4 h-4" />
             <span>{isValid ? profitMarginPercent : 0}%</span>

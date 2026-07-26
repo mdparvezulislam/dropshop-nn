@@ -33,14 +33,16 @@ export default function WholesaleBulkOrdersPage(): React.ReactElement {
       if (res.success && res.data) {
         const raw = res.data as any;
         const items = raw?.items ?? (Array.isArray(raw) ? raw : []);
-        setRows(items.map((o: any) => ({
-          id: o.id ?? o._id,
-          orderNumber: o.orderNumber ?? o._id?.slice(-6) ?? "—",
-          itemCount: o.items?.length ?? 0,
-          total: o.grandTotal ?? o.total ?? 0,
-          status: o.status ?? "pending",
-          createdAt: o.createdAt,
-        })));
+        setRows(
+          items.map((o: any) => ({
+            id: o.id ?? o._id,
+            orderNumber: o.orderNumber ?? o._id?.slice(-6) ?? "—",
+            itemCount: o.items?.length ?? 0,
+            total: o.grandTotal ?? o.total ?? 0,
+            status: o.status ?? "pending",
+            createdAt: o.createdAt,
+          })),
+        );
       }
     } catch {
       toast.error("Failed to load bulk orders");
@@ -49,7 +51,9 @@ export default function WholesaleBulkOrdersPage(): React.ReactElement {
     }
   }, []);
 
-  React.useEffect(() => { load(); }, [load]);
+  React.useEffect(() => {
+    load();
+  }, [load]);
 
   const formatCents = (cents: number): string =>
     `৳${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
@@ -65,7 +69,9 @@ export default function WholesaleBulkOrdersPage(): React.ReactElement {
       header: "Date",
       hideOnMobile: true,
       cell: (r) => (
-        <span className="text-muted-foreground">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}</span>
+        <span className="text-muted-foreground">
+          {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}
+        </span>
       ),
     },
     {
@@ -107,7 +113,9 @@ export default function WholesaleBulkOrdersPage(): React.ReactElement {
         description: "Place and manage bulk product orders",
         actions: (
           <Link href="/wholesale/bulk-orders/create">
-            <Button className="gap-1.5"><Plus className="h-4 w-4" /> New Bulk Order</Button>
+            <Button className="gap-1.5">
+              <Plus className="h-4 w-4" /> New Bulk Order
+            </Button>
           </Link>
         ),
       }}
@@ -119,8 +127,16 @@ export default function WholesaleBulkOrdersPage(): React.ReactElement {
         ) : (
           <>
             <StatCard label="Total Orders" value={rows.length} icon={ClipboardList} />
-            <StatCard label="Pending" value={rows.filter((r) => r.status === "pending").length} accent="warning" />
-            <StatCard label="Completed" value={rows.filter((r) => r.status === "completed").length} accent="success" />
+            <StatCard
+              label="Pending"
+              value={rows.filter((r) => r.status === "pending").length}
+              accent="warning"
+            />
+            <StatCard
+              label="Completed"
+              value={rows.filter((r) => r.status === "completed").length}
+              accent="success"
+            />
           </>
         )
       }
@@ -129,7 +145,7 @@ export default function WholesaleBulkOrdersPage(): React.ReactElement {
         columns={columns}
         data={rows}
         loading={loading}
-        onRowClick={(r) => window.location.href = `/wholesale/bulk-orders/${r.id}`}
+        onRowClick={(r) => (window.location.href = `/wholesale/bulk-orders/${r.id}`)}
         emptyTitle="No bulk orders yet"
         emptyDescription="Place your first bulk order to get started."
       />

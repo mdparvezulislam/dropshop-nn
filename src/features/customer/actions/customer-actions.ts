@@ -19,12 +19,12 @@ export async function createCustomerAction(formData: unknown): Promise<{
   data?: any;
   error?: string;
 }> {
-  const session = await auth() as any;
+  const session = (await auth()) as any;
   checkPermission(session, "Customer.Manage");
 
   try {
     const validated = createCustomerSchema.parse(formData);
-    
+
     // Reseller can only create customer inside their own workspace tenant
     if (session.user.role === "Reseller" && validated.workspaceId !== session.user.id) {
       throw new Error("Unauthorized workspace tenant insertion target");
@@ -45,7 +45,7 @@ export async function updateCustomerAction(formData: unknown): Promise<{
   data?: any;
   error?: string;
 }> {
-  const session = await auth() as any;
+  const session = (await auth()) as any;
   checkPermission(session, "Customer.Manage");
 
   try {
@@ -77,7 +77,7 @@ export async function addAddressAction(formData: unknown): Promise<{
   data?: any;
   error?: string;
 }> {
-  const session = await auth() as any;
+  const session = (await auth()) as any;
   checkPermission(session, "Customer.Manage");
 
   try {
@@ -108,7 +108,7 @@ export async function addNoteAction(formData: unknown): Promise<{
   data?: any;
   error?: string;
 }> {
-  const session = await auth() as any;
+  const session = (await auth()) as any;
   checkPermission(session, "Customer.Manage");
 
   try {
@@ -144,7 +144,7 @@ export async function updateTagsAction(formData: unknown): Promise<{
   data?: any;
   error?: string;
 }> {
-  const session = await auth() as any;
+  const session = (await auth()) as any;
   checkPermission(session, "Customer.Manage");
 
   try {
@@ -175,7 +175,7 @@ export async function getCustomerAction(customerId: string): Promise<{
   data?: any;
   error?: string;
 }> {
-  const session = await auth() as any;
+  const session = (await auth()) as any;
   checkPermission(session, "Customer.View");
 
   try {
@@ -202,7 +202,7 @@ export async function listCustomersAction(searchQuery?: string): Promise<{
   data?: any[];
   error?: string;
 }> {
-  const session = await auth() as any;
+  const session = (await auth()) as any;
   checkPermission(session, "Customer.View");
 
   try {
@@ -226,7 +226,9 @@ export async function listCustomersAction(searchQuery?: string): Promise<{
 
     const results = await repo.find(filter);
     // Sort in-memory by newest first
-    results.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+    results.sort(
+      (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime(),
+    );
     return { success: true, data: results };
   } catch (error: any) {
     logger.error("listCustomersAction failed", error);

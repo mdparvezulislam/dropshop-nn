@@ -3,18 +3,75 @@ import type { FeatureFlagEntry, FeatureFlagState } from "../domain/setting-entit
 import { logger } from "@/lib/utils/logger";
 import { EventBus } from "@/lib/event-bus/event-bus";
 
-export const DEFAULT_FEATURE_FLAGS_REGISTRY: Array<Omit<FeatureFlagEntry, "id" | "createdAt" | "updatedAt" | "isDeleted" | "status">> = [
-  { key: "customer-module", name: "Customer Commerce Module", description: "Customer registration, checkout profiles, cart sync", state: "on" },
-  { key: "order-management", name: "Order Engine Workflow", description: "16-state machine order lifecycle & status transitions", state: "on" },
-  { key: "courier-integration", name: "Courier & Delivery Ops Hub", description: "Multi-courier dispatch, live tracking, return management", state: "on" },
-  { key: "payment-gateway", name: "bKash & Nagad Payment Gateway", description: "MFS payment integration & instant verification", state: "on" },
-  { key: "wallet-system", name: "Digital Wallet & Payouts", description: "User digital wallet, payouts, and transaction ledger", state: "on" },
-  { key: "invoice-system", name: "Automated Invoicing System", description: "Automated PDF invoice generation & delivery", state: "on" },
-  { key: "multi-warehouse", name: "Multi-Warehouse Management", description: "Warehouse location transfers & inventory safety stock", state: "beta" },
-  { key: "analytics-engine", name: "Advanced Commerce Analytics", description: "Real-time analytics dashboards & BI reports", state: "on" },
-  { key: "reseller-portal", name: "Reseller Commerce Portal", description: "Self-service reseller shop management & payouts", state: "on" },
-  { key: "supplier-portal", name: "Supplier Workspace Portal", description: "Supplier product submissions & purchase orders", state: "on" },
-  { key: "ai-product-studio", name: "AI Product Studio Helper", description: "Experimental AI copy generation for products", state: "experimental" },
+export const DEFAULT_FEATURE_FLAGS_REGISTRY: Array<
+  Omit<FeatureFlagEntry, "id" | "createdAt" | "updatedAt" | "isDeleted" | "status">
+> = [
+  {
+    key: "customer-module",
+    name: "Customer Commerce Module",
+    description: "Customer registration, checkout profiles, cart sync",
+    state: "on",
+  },
+  {
+    key: "order-management",
+    name: "Order Engine Workflow",
+    description: "16-state machine order lifecycle & status transitions",
+    state: "on",
+  },
+  {
+    key: "courier-integration",
+    name: "Courier & Delivery Ops Hub",
+    description: "Multi-courier dispatch, live tracking, return management",
+    state: "on",
+  },
+  {
+    key: "payment-gateway",
+    name: "bKash & Nagad Payment Gateway",
+    description: "MFS payment integration & instant verification",
+    state: "on",
+  },
+  {
+    key: "wallet-system",
+    name: "Digital Wallet & Payouts",
+    description: "User digital wallet, payouts, and transaction ledger",
+    state: "on",
+  },
+  {
+    key: "invoice-system",
+    name: "Automated Invoicing System",
+    description: "Automated PDF invoice generation & delivery",
+    state: "on",
+  },
+  {
+    key: "multi-warehouse",
+    name: "Multi-Warehouse Management",
+    description: "Warehouse location transfers & inventory safety stock",
+    state: "beta",
+  },
+  {
+    key: "analytics-engine",
+    name: "Advanced Commerce Analytics",
+    description: "Real-time analytics dashboards & BI reports",
+    state: "on",
+  },
+  {
+    key: "reseller-portal",
+    name: "Reseller Commerce Portal",
+    description: "Self-service reseller shop management & payouts",
+    state: "on",
+  },
+  {
+    key: "supplier-portal",
+    name: "Supplier Workspace Portal",
+    description: "Supplier product submissions & purchase orders",
+    state: "on",
+  },
+  {
+    key: "ai-product-studio",
+    name: "AI Product Studio Helper",
+    description: "Experimental AI copy generation for products",
+    state: "experimental",
+  },
 ];
 
 export class FeatureFlagService {
@@ -39,7 +96,12 @@ export class FeatureFlagService {
     return flag.state === "beta" || flag.state === "internal";
   }
 
-  async updateFlagState(key: string, state: FeatureFlagState, allowedRoles?: string[], changedBy: string = "system"): Promise<FeatureFlagEntry> {
+  async updateFlagState(
+    key: string,
+    state: FeatureFlagState,
+    allowedRoles?: string[],
+    changedBy: string = "system",
+  ): Promise<FeatureFlagEntry> {
     const existing = (await this.listFlags()).find((f) => f.key === key);
     const name = existing?.name || key;
     const description = existing?.description || "";

@@ -9,5 +9,5 @@ export const metadata: Metadata = {
 
 export default async function AddressesPage() {
   const result = await getAddressesAction();
-  return <AddressBookContent initialAddresses={result.success ? result.data ?? [] : []} />;
+  return <AddressBookContent initialAddresses={result.success ? (result.data ?? []) : []} />;
 }

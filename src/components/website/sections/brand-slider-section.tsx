@@ -87,9 +87,7 @@ export function BrandSliderSection(): React.ReactElement {
           >
             Featured Brands
           </h2>
-          <p className="text-muted-foreground mt-2">
-            Shop from trusted global and local brands
-          </p>
+          <p className="text-muted-foreground mt-2">Shop from trusted global and local brands</p>
         </motion.div>
 
         <motion.div
@@ -107,9 +105,7 @@ export function BrandSliderSection(): React.ReactElement {
               >
                 <span className="text-4xl">{brand.logo}</span>
               </Link>
-              <p className="text-center text-xs font-medium text-foreground mt-2">
-                {brand.name}
-              </p>
+              <p className="text-center text-xs font-medium text-foreground mt-2">{brand.name}</p>
             </motion.div>
           ))}
         </motion.div>

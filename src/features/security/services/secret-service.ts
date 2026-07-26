@@ -55,15 +55,27 @@ export class SecretService {
 
     await EventBus.publish(
       "secret.saved",
-      { provider: input.provider, secretType: input.secretType, version: updated.version, performedBy },
+      {
+        provider: input.provider,
+        secretType: input.secretType,
+        version: updated.version,
+        performedBy,
+      },
       { source: "secret-service" },
     );
 
-    logger.info("SecretService: saved secret", { provider: input.provider, secretType: input.secretType });
+    logger.info("SecretService: saved secret", {
+      provider: input.provider,
+      secretType: input.secretType,
+    });
     return updated;
   }
 
-  async getDecryptedSecret(provider: SecretProvider, secretType: SecretType, performedBy: string = "system"): Promise<string | null> {
+  async getDecryptedSecret(
+    provider: SecretProvider,
+    secretType: SecretType,
+    performedBy: string = "system",
+  ): Promise<string | null> {
     const secret = await this.repository.findByProviderAndType(provider, secretType);
     if (!secret || secret.status === "revoked") {
       await this.repository.createFailedAccessLog({
@@ -115,7 +127,9 @@ export class SecretService {
     const existing = await this.repository.findByProviderAndType(input.provider, input.secretType);
 
     if (!existing) {
-      throw new Error(`Cannot rotate secret for ${input.provider}/${input.secretType}: Secret does not exist`);
+      throw new Error(
+        `Cannot rotate secret for ${input.provider}/${input.secretType}: Secret does not exist`,
+      );
     }
 
     const encrypted = EncryptionService.encrypt(input.newPlaintextValue);
@@ -150,13 +164,25 @@ export class SecretService {
       details: `Rotated secret to version ${nextVersion}`,
     });
 
-    logger.info("SecretService: rotated secret", { provider: input.provider, version: nextVersion });
+    logger.info("SecretService: rotated secret", {
+      provider: input.provider,
+      version: nextVersion,
+    });
     return rotated;
   }
 
-  async rollbackSecret(provider: SecretProvider, secretType: SecretType, performedBy: string = "system"): Promise<PlatformSecret> {
+  async rollbackSecret(
+    provider: SecretProvider,
+    secretType: SecretType,
+    performedBy: string = "system",
+  ): Promise<PlatformSecret> {
     const secret = await this.repository.findByProviderAndType(provider, secretType);
-    if (!secret || !secret.previousEncryptedValue || !secret.previousIv || !secret.previousAuthTag) {
+    if (
+      !secret ||
+      !secret.previousEncryptedValue ||
+      !secret.previousIv ||
+      !secret.previousAuthTag
+    ) {
       throw new Error("No previous secret version available for rollback");
     }
 
@@ -198,7 +224,11 @@ export class SecretService {
     return this.repository.listAllSecrets();
   }
 
-  async softDeleteSecret(provider: SecretProvider, secretType: SecretType, performedBy: string = "system"): Promise<void> {
+  async softDeleteSecret(
+    provider: SecretProvider,
+    secretType: SecretType,
+    performedBy: string = "system",
+  ): Promise<void> {
     const secret = await this.repository.findByProviderAndType(provider, secretType);
     if (secret) {
       await this.repository.upsertSecret({

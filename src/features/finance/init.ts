@@ -37,7 +37,9 @@ export function registerFinanceFeatureFlags(): void {
       defaultValue: 10,
     });
   } catch (err) {
-    logger.warn("Finance feature flags / settings already registered or encountered minor error", { error: err });
+    logger.warn("Finance feature flags / settings already registered or encountered minor error", {
+      error: err,
+    });
   }
 
   // 3. Event Subscriptions

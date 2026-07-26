@@ -77,10 +77,18 @@ export default function ResellerShipmentsPage() {
     <div className="min-h-screen bg-slate-950 p-4 sm:p-6 text-white space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Shipment Deliveries & Invoicing</h1>
-          <p className="text-sm text-slate-400">Track shipments statuses, transit timelines, and delivery fees</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            Shipment Deliveries & Invoicing
+          </h1>
+          <p className="text-sm text-slate-400">
+            Track shipments statuses, transit timelines, and delivery fees
+          </p>
         </div>
-        <Button onClick={loadData} disabled={loading} className="bg-slate-900 border-slate-800 text-xs">
+        <Button
+          onClick={loadData}
+          disabled={loading}
+          className="bg-slate-900 border-slate-800 text-xs"
+        >
           <RefreshCw className="mr-2 h-3.5 w-3.5" /> Refresh tracking
         </Button>
       </div>
@@ -92,7 +100,9 @@ export default function ResellerShipmentsPage() {
               <button
                 onClick={() => setActiveTab("list")}
                 className={`flex items-center gap-2 px-4 h-9 rounded-md text-xs font-medium transition-colors ${
-                  activeTab === "list" ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white"
+                  activeTab === "list"
+                    ? "bg-indigo-600 text-white"
+                    : "text-slate-400 hover:text-white"
                 }`}
               >
                 All Shipments ({shipments.length})
@@ -100,7 +110,9 @@ export default function ResellerShipmentsPage() {
               <button
                 onClick={() => setActiveTab("rates")}
                 className={`flex items-center gap-2 px-4 h-9 rounded-md text-xs font-medium transition-colors ${
-                  activeTab === "rates" ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white"
+                  activeTab === "rates"
+                    ? "bg-indigo-600 text-white"
+                    : "text-slate-400 hover:text-white"
                 }`}
               >
                 Logistics Charge Tables
@@ -134,11 +146,15 @@ export default function ResellerShipmentsPage() {
                         <TableRow key={s.id} className="border-slate-800">
                           <TableCell className="font-mono text-xs text-indigo-400">
                             {s.trackingCode}
-                            <span className="block text-[10px] text-slate-500 font-mono mt-0.5">Ref: {s.courierReference}</span>
+                            <span className="block text-[10px] text-slate-500 font-mono mt-0.5">
+                              Ref: {s.courierReference}
+                            </span>
                           </TableCell>
                           <TableCell className="text-xs text-slate-300">{s.orderNumber}</TableCell>
                           <TableCell className="capitalize text-slate-200">{s.provider}</TableCell>
-                          <TableCell className="font-semibold text-white">{formatCurrency(s.deliveryCharge)}</TableCell>
+                          <TableCell className="font-semibold text-white">
+                            {formatCurrency(s.deliveryCharge)}
+                          </TableCell>
                           <TableCell>
                             <Badge variant={getStatusVariant(s.status)}>{s.status}</Badge>
                           </TableCell>
@@ -176,9 +192,13 @@ export default function ResellerShipmentsPage() {
                       <TableRow key={idx} className="border-slate-800">
                         <TableCell className="font-semibold text-slate-200">{r.zone}</TableCell>
                         <TableCell className="text-xs text-slate-400">1000g (1kg)</TableCell>
-                        <TableCell className="font-mono text-emerald-400">{formatCurrency(r.rate)}</TableCell>
+                        <TableCell className="font-mono text-emerald-400">
+                          {formatCurrency(r.rate)}
+                        </TableCell>
                         <TableCell className="text-xs text-slate-300 font-mono">{r.cod}</TableCell>
-                        <TableCell className="text-xs text-slate-400">৳20.00 per extra 500g</TableCell>
+                        <TableCell className="text-xs text-slate-400">
+                          ৳20.00 per extra 500g
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -204,8 +224,12 @@ export default function ResellerShipmentsPage() {
               ) : (
                 <div className="space-y-4">
                   <div className="border-b border-slate-800 pb-3">
-                    <span className="text-xs text-slate-400 uppercase block font-mono">Consignment</span>
-                    <span className="text-sm font-bold text-indigo-400 font-mono">{selectedShipment.trackingCode}</span>
+                    <span className="text-xs text-slate-400 uppercase block font-mono">
+                      Consignment
+                    </span>
+                    <span className="text-sm font-bold text-indigo-400 font-mono">
+                      {selectedShipment.trackingCode}
+                    </span>
                     <Badge variant={getStatusVariant(selectedShipment.status)} className="mt-1">
                       {selectedShipment.status}
                     </Badge>
@@ -218,7 +242,9 @@ export default function ResellerShipmentsPage() {
                         <span className="text-[10px] text-slate-500 font-mono block">
                           {new Date(h.timestamp).toLocaleString()}
                         </span>
-                        <span className="text-xs font-semibold text-slate-200 block capitalize">{h.status.replace("_", " ")}</span>
+                        <span className="text-xs font-semibold text-slate-200 block capitalize">
+                          {h.status.replace("_", " ")}
+                        </span>
                         <p className="text-xs text-slate-400 mt-0.5">{h.message}</p>
                       </div>
                     ))}

@@ -34,61 +34,74 @@ export class WithdrawalService {
       // 1. Duplicate active withdrawal check
       const pendingRequests = await this.withdrawalRepository.findActivePendingByWallet(walletId);
       if (pendingRequests.length >= 5) {
-        throw new Error("Maximum pending withdrawal requests limit reached. Please wait for previous payouts to clear.");
+        throw new Error(
+          "Maximum pending withdrawal requests limit reached. Please wait for previous payouts to clear.",
+        );
       }
 
       // 2. Verify wallet balances
       const balances = await this.walletService.getBalances(walletId);
       if (balances.withdrawableBalance < amount) {
-        throw new Error(`Insufficient withdrawable balance. Requested: ${amount}, Available: ${balances.withdrawableBalance}`);
+        throw new Error(
+          `Insufficient withdrawable balance. Requested: ${amount}, Available: ${balances.withdrawableBalance}`,
+        );
       }
 
       const refNum = `WTH-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`;
 
       // 3. Create withdrawal request document
-      const withdrawal = await this.withdrawalRepository.create({
-        referenceNumber: refNum,
-        walletId,
-        amount,
-        currency: balances.currency ?? "BDT",
-        status: "pending",
-        method,
-        payoutDetails,
-        fee: 0,
-        createdBy: actorId,
-      }, { session });
+      const withdrawal = await this.withdrawalRepository.create(
+        {
+          referenceNumber: refNum,
+          walletId,
+          amount,
+          currency: balances.currency ?? "BDT",
+          status: "pending",
+          method,
+          payoutDetails,
+          fee: 0,
+          createdBy: actorId,
+        },
+        { session },
+      );
 
       const ledgerRef = `REF-LED-WTH-${Math.floor(100000 + Math.random() * 900000)}`;
 
       // 4. Create locked ledger debit entry
-      await this.ledgerRepository.create({
-        referenceNumber: ledgerRef,
-        walletId,
-        workspaceId: balances.workspaceId,
-        amount: -amount,
-        currency: balances.currency ?? "BDT",
-        type: "withdrawal_request",
-        status: "locked",
-        sourceModule: "withdrawal",
-        referenceType: "withdrawal",
-        referenceId: withdrawal.id,
-        description: `Locked debit for withdrawal request ${refNum} (${method})`,
-        createdBy: actorId,
-        metadata: { method, accountNumber: payoutDetails.accountNumber, referenceNumber: refNum },
-      }, { session });
+      await this.ledgerRepository.create(
+        {
+          referenceNumber: ledgerRef,
+          walletId,
+          workspaceId: balances.workspaceId,
+          amount: -amount,
+          currency: balances.currency ?? "BDT",
+          type: "withdrawal_request",
+          status: "locked",
+          sourceModule: "withdrawal",
+          referenceType: "withdrawal",
+          referenceId: withdrawal.id,
+          description: `Locked debit for withdrawal request ${refNum} (${method})`,
+          createdBy: actorId,
+          metadata: { method, accountNumber: payoutDetails.accountNumber, referenceNumber: refNum },
+        },
+        { session },
+      );
 
       // 5. Audit Log
-      await this.financeAuditRepository.create({
-        referenceNumber: refNum,
-        action: "withdrawal_requested",
-        walletId,
-        actorId,
-        amount: -amount,
-        oldBalance: balances.availableBalance,
-        newBalance: balances.availableBalance - amount,
-        currency: balances.currency ?? "BDT",
-        reason: `Requested payout of ৳${(amount / 100).toFixed(2)} via ${method}`,
-      }, { session });
+      await this.financeAuditRepository.create(
+        {
+          referenceNumber: refNum,
+          action: "withdrawal_requested",
+          walletId,
+          actorId,
+          amount: -amount,
+          oldBalance: balances.availableBalance,
+          newBalance: balances.availableBalance - amount,
+          currency: balances.currency ?? "BDT",
+          reason: `Requested payout of ৳${(amount / 100).toFixed(2)} via ${method}`,
+        },
+        { session },
+      );
 
       await EventBus.publish(
         "finance.withdrawal_requested",
@@ -124,16 +137,25 @@ export class WithdrawalService {
         throw new Error("Withdrawal request not found");
       }
 
-      const updated = await this.withdrawalRepository.update(withdrawalId, {
-        status: toStatus as WithdrawalStatus,
-        reviewedBy: reviewerId,
-        reviewedAt: new Date(),
-      }, { session });
+      const updated = await this.withdrawalRepository.update(
+        withdrawalId,
+        {
+          status: toStatus as WithdrawalStatus,
+          reviewedBy: reviewerId,
+          reviewedAt: new Date(),
+        },
+        { session },
+      );
 
       if (toStatus === "approved") {
         await EventBus.publish(
           "finance.withdrawal_approved",
-          { withdrawalId, referenceNumber: withdrawal.referenceNumber, walletId: withdrawal.walletId, amount: withdrawal.amount },
+          {
+            withdrawalId,
+            referenceNumber: withdrawal.referenceNumber,
+            walletId: withdrawal.walletId,
+            amount: withdrawal.amount,
+          },
           { source: "finance" },
         );
       }
@@ -159,46 +181,60 @@ export class WithdrawalService {
         throw new Error(`Cannot pay withdrawal in status: ${withdrawal.status}`);
       }
 
-      const updated = await this.withdrawalRepository.update(withdrawalId, {
-        status: "completed",
-        transactionId,
-        fee,
-        paidAt: new Date(),
-        reviewedBy: actorId,
-        reviewedAt: new Date(),
-      }, { session });
+      const updated = await this.withdrawalRepository.update(
+        withdrawalId,
+        {
+          status: "completed",
+          transactionId,
+          fee,
+          paidAt: new Date(),
+          reviewedBy: actorId,
+          reviewedAt: new Date(),
+        },
+        { session },
+      );
 
       const balances = await this.walletService.getBalances(withdrawal.walletId);
 
       // Find original locked ledger entry and transition to cleared (final debit)
-      const ledgerEntries = await this.ledgerRepository.find({
-        walletId: withdrawal.walletId,
-        referenceType: "withdrawal",
-        referenceId: withdrawalId,
-        status: "locked",
-      }, { session });
+      const ledgerEntries = await this.ledgerRepository.find(
+        {
+          walletId: withdrawal.walletId,
+          referenceType: "withdrawal",
+          referenceId: withdrawalId,
+          status: "locked",
+        },
+        { session },
+      );
 
       if (ledgerEntries.length > 0) {
         const entry = ledgerEntries[0];
-        await this.ledgerRepository.update(entry.id, {
-          status: "cleared",
-          type: "withdrawal_paid",
-          metadata: { ...entry.metadata, transactionId, fee },
-        }, { session });
+        await this.ledgerRepository.update(
+          entry.id,
+          {
+            status: "cleared",
+            type: "withdrawal_paid",
+            metadata: { ...entry.metadata, transactionId, fee },
+          },
+          { session },
+        );
       }
 
       // Audit Log
-      await this.financeAuditRepository.create({
-        referenceNumber: withdrawal.referenceNumber,
-        action: "withdrawal_paid",
-        walletId: withdrawal.walletId,
-        actorId,
-        amount: -withdrawal.amount,
-        oldBalance: balances.availableBalance,
-        newBalance: balances.availableBalance,
-        currency: withdrawal.currency ?? "BDT",
-        reason: `Payout completed for ${withdrawal.referenceNumber}. Trx ID: ${transactionId}`,
-      }, { session });
+      await this.financeAuditRepository.create(
+        {
+          referenceNumber: withdrawal.referenceNumber,
+          action: "withdrawal_paid",
+          walletId: withdrawal.walletId,
+          actorId,
+          amount: -withdrawal.amount,
+          oldBalance: balances.availableBalance,
+          newBalance: balances.availableBalance,
+          currency: withdrawal.currency ?? "BDT",
+          reason: `Payout completed for ${withdrawal.referenceNumber}. Trx ID: ${transactionId}`,
+        },
+        { session },
+      );
 
       await EventBus.publish(
         "finance.withdrawal_paid",
@@ -234,48 +270,68 @@ export class WithdrawalService {
         throw new Error("Withdrawal request not found");
       }
 
-      const updated = await this.withdrawalRepository.update(withdrawalId, {
-        status: "rejected",
-        reviewedBy: reviewerId,
-        reviewedAt: new Date(),
-        rejectReason: reason,
-      }, { session });
+      const updated = await this.withdrawalRepository.update(
+        withdrawalId,
+        {
+          status: "rejected",
+          reviewedBy: reviewerId,
+          reviewedAt: new Date(),
+          rejectReason: reason,
+        },
+        { session },
+      );
 
       // Unlock original ledger entry by cancelling it (released back to withdrawable balance)
-      const ledgerEntries = await this.ledgerRepository.find({
-        walletId: withdrawal.walletId,
-        referenceType: "withdrawal",
-        referenceId: withdrawalId,
-        status: "locked",
-      }, { session });
+      const ledgerEntries = await this.ledgerRepository.find(
+        {
+          walletId: withdrawal.walletId,
+          referenceType: "withdrawal",
+          referenceId: withdrawalId,
+          status: "locked",
+        },
+        { session },
+      );
 
       if (ledgerEntries.length > 0) {
         const entry = ledgerEntries[0];
-        await this.ledgerRepository.update(entry.id, {
-          status: "cancelled",
-          type: "withdrawal_rejected",
-          metadata: { ...entry.metadata, rejectReason: reason },
-        }, { session });
+        await this.ledgerRepository.update(
+          entry.id,
+          {
+            status: "cancelled",
+            type: "withdrawal_rejected",
+            metadata: { ...entry.metadata, rejectReason: reason },
+          },
+          { session },
+        );
       }
 
       const balances = await this.walletService.getBalances(withdrawal.walletId);
 
       // Audit Log
-      await this.financeAuditRepository.create({
-        referenceNumber: withdrawal.referenceNumber,
-        action: "withdrawal_rejected",
-        walletId: withdrawal.walletId,
-        actorId: reviewerId,
-        amount: withdrawal.amount,
-        oldBalance: balances.availableBalance,
-        newBalance: balances.availableBalance + withdrawal.amount,
-        currency: withdrawal.currency ?? "BDT",
-        reason: `Payout request ${withdrawal.referenceNumber} rejected. Reason: ${reason}`,
-      }, { session });
+      await this.financeAuditRepository.create(
+        {
+          referenceNumber: withdrawal.referenceNumber,
+          action: "withdrawal_rejected",
+          walletId: withdrawal.walletId,
+          actorId: reviewerId,
+          amount: withdrawal.amount,
+          oldBalance: balances.availableBalance,
+          newBalance: balances.availableBalance + withdrawal.amount,
+          currency: withdrawal.currency ?? "BDT",
+          reason: `Payout request ${withdrawal.referenceNumber} rejected. Reason: ${reason}`,
+        },
+        { session },
+      );
 
       await EventBus.publish(
         "finance.withdrawal_rejected",
-        { withdrawalId, referenceNumber: withdrawal.referenceNumber, walletId: withdrawal.walletId, amount: withdrawal.amount, reason },
+        {
+          withdrawalId,
+          referenceNumber: withdrawal.referenceNumber,
+          walletId: withdrawal.walletId,
+          amount: withdrawal.amount,
+          reason,
+        },
         { source: "finance" },
       );
 
@@ -300,23 +356,34 @@ export class WithdrawalService {
         throw new Error(`Cannot cancel withdrawal in status: ${withdrawal.status}`);
       }
 
-      const updated = await this.withdrawalRepository.update(withdrawalId, {
-        status: "cancelled",
-      }, { session });
+      const updated = await this.withdrawalRepository.update(
+        withdrawalId,
+        {
+          status: "cancelled",
+        },
+        { session },
+      );
 
       // Release locked ledger entry
-      const ledgerEntries = await this.ledgerRepository.find({
-        walletId: withdrawal.walletId,
-        referenceType: "withdrawal",
-        referenceId: withdrawalId,
-        status: "locked",
-      }, { session });
+      const ledgerEntries = await this.ledgerRepository.find(
+        {
+          walletId: withdrawal.walletId,
+          referenceType: "withdrawal",
+          referenceId: withdrawalId,
+          status: "locked",
+        },
+        { session },
+      );
 
       if (ledgerEntries.length > 0) {
         const entry = ledgerEntries[0];
-        await this.ledgerRepository.update(entry.id, {
-          status: "cancelled",
-        }, { session });
+        await this.ledgerRepository.update(
+          entry.id,
+          {
+            status: "cancelled",
+          },
+          { session },
+        );
       }
 
       logger.info("WithdrawalService: payout request cancelled", { withdrawalId });

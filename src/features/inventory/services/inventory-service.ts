@@ -128,9 +128,7 @@ export class InventoryService {
     const result = await this.inventoryRepository.update(id, {
       ...data,
       variantSku:
-        data.variantSku !== undefined
-          ? normalizeVariantSku(data.variantSku)
-          : existing.variantSku,
+        data.variantSku !== undefined ? normalizeVariantSku(data.variantSku) : existing.variantSku,
       warehouseId:
         data.warehouseId !== undefined
           ? data.warehouseId && data.warehouseId !== ""
@@ -540,9 +538,7 @@ export class InventoryService {
     const result = await this.supplierInventoryRepository.update(id, {
       ...data,
       variantSku:
-        data.variantSku !== undefined
-          ? normalizeVariantSku(data.variantSku)
-          : existing.variantSku,
+        data.variantSku !== undefined ? normalizeVariantSku(data.variantSku) : existing.variantSku,
       currency: data.currency ? data.currency.toUpperCase() : existing.currency,
       updatedBy: actorId,
     } as Parameters<SupplierInventoryRepository["update"]>[1]);

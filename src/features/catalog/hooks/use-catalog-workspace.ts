@@ -6,13 +6,7 @@ import type { CatalogSummaryStats } from "../actions/product-catalog-actions";
 export type CatalogViewMode = "table" | "compact" | "grid" | "analytics";
 
 export type CatalogTabId =
-  | "all"
-  | "active"
-  | "draft"
-  | "low_stock"
-  | "out_of_stock"
-  | "campaign"
-  | "archived";
+  "all" | "active" | "draft" | "low_stock" | "out_of_stock" | "campaign" | "archived";
 
 export interface CatalogFilterState {
   search: string;
@@ -53,9 +47,7 @@ export function useCatalogWorkspace() {
   }, []);
 
   const toggleSelect = React.useCallback((id: string) => {
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
-    );
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
   }, []);
 
   const clearSelection = React.useCallback(() => {

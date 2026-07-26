@@ -2,14 +2,17 @@
 
 import * as React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Keyboard, Command } from "lucide-react";
+import { Keyboard } from "lucide-react";
 
 export interface KeyboardShortcutsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export function KeyboardShortcutsModal({ open, onOpenChange }: KeyboardShortcutsModalProps): React.ReactElement {
+export function KeyboardShortcutsModal({
+  open,
+  onOpenChange,
+}: KeyboardShortcutsModalProps): React.ReactElement {
   const shortcuts = [
     { key: "CTRL + S / CMD + S", label: "Save Product Draft" },
     { key: "CTRL + P / CMD + P", label: "Publish Product" },
@@ -28,7 +31,10 @@ export function KeyboardShortcutsModal({ open, onOpenChange }: KeyboardShortcuts
         </DialogHeader>
         <div className="space-y-2.5 pt-3">
           {shortcuts.map((s) => (
-            <div key={s.key} className="flex items-center justify-between p-2.5 rounded-xl border border-border bg-muted/30">
+            <div
+              key={s.key}
+              className="flex items-center justify-between p-2.5 rounded-xl border border-border bg-muted/30"
+            >
               <span className="text-xs font-semibold text-foreground">{s.label}</span>
               <kbd className="inline-flex items-center gap-1 rounded border border-border bg-card px-2 py-1 font-mono text-[10px] font-bold text-muted-foreground shadow-2xs">
                 {s.key}

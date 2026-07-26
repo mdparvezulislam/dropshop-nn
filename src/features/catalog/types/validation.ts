@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+function magicString(maxLength: number) {
+  return z
+    .string()
+    .transform((val) => (val.length > maxLength ? val.slice(0, maxLength) : val))
+    .pipe(z.string().max(maxLength));
+}
+
 export const productVariantSchema = z.object({
   id: z.string().optional(),
   name: z.string().optional().or(z.literal("")),
@@ -49,8 +56,8 @@ export const productMediaSchema = z.object({
 });
 
 export const productSEOSchema = z.object({
-  metaTitle: z.string().max(100).optional().or(z.literal("")),
-  metaDescription: z.string().max(300).optional().or(z.literal("")),
+  metaTitle: magicString(100).optional().or(z.literal("")),
+  metaDescription: magicString(300).optional().or(z.literal("")),
   metaKeywords: z.array(z.string()).optional(),
   canonicalUrl: z.string().optional().or(z.literal("")),
   ogTitle: z.string().optional().or(z.literal("")),
@@ -102,7 +109,9 @@ export const createProductSchema = z.object({
   sku: z.string().optional().or(z.literal("")),
   barcode: z.string().optional().or(z.literal("")),
   gtin: z.string().optional().or(z.literal("")),
-  productType: z.enum(["simple", "variant", "bundle", "digital", "service", "gift_card"]).default("simple"),
+  productType: z
+    .enum(["simple", "variant", "bundle", "digital", "service", "gift_card"])
+    .default("simple"),
   shortDescription: z.string().optional().or(z.literal("")),
   description: z.string().optional().or(z.literal("")),
   notice: z.string().optional().or(z.literal("")),
@@ -111,10 +120,17 @@ export const createProductSchema = z.object({
   categoryId: z.string().optional().or(z.literal("")),
   supplierId: z.string().optional().or(z.literal("")),
   status: z.preprocess(
-    (val) => (typeof val === "string" ? (val.toLowerCase() === "published" ? "active" : val.toLowerCase()) : val),
-    z.enum(["draft", "pending_review", "active", "inactive", "archived"]).default("draft")
+    (val) =>
+      typeof val === "string"
+        ? val.toLowerCase() === "published"
+          ? "active"
+          : val.toLowerCase()
+        : val,
+    z.enum(["draft", "pending_review", "active", "inactive", "archived"]).default("draft"),
   ),
-  visibility: z.enum(["public", "private", "hidden", "supplier_only", "reseller_only", "wholesale_only"]).default("public"),
+  visibility: z
+    .enum(["public", "private", "hidden", "supplier_only", "reseller_only", "wholesale_only"])
+    .default("public"),
   badges: z.array(z.string()).default([]),
   featured: z.boolean().optional().default(false),
   trending: z.boolean().optional().default(false),
@@ -186,8 +202,8 @@ export const templateAttributeSchema = z.object({
 });
 
 export const templatePricingProfileSchema = z.object({
-  retailMultiplier: z.number().min(1).default(1.40),
-  wholesaleMultiplier: z.number().min(1).default(1.30),
+  retailMultiplier: z.number().min(1).default(1.4),
+  wholesaleMultiplier: z.number().min(1).default(1.3),
   resellerMultiplier: z.number().min(1).default(1.22),
   campaignMultiplier: z.number().min(1).default(1.15),
   minMarginPercent: z.number().min(0).max(100).default(15),
@@ -235,13 +251,41 @@ export const createProductTemplateSchema = z.object({
   attributes: z.array(templateAttributeSchema).default([]),
   suggestedTags: z.array(z.string()).default([]),
   suggestedCollections: z.array(z.string()).default([]),
-  pricingProfile: templatePricingProfileSchema.default({ retailMultiplier: 1.3, wholesaleMultiplier: 1.12, resellerMultiplier: 1.2, campaignMultiplier: 1.0, minMarginPercent: 10 }),
-  shippingProfile: templateShippingProfileSchema.default({ weight: 0.5, weightUnit: "kg", length: 10, width: 10, height: 5, dimensionUnit: "cm", shippingClass: "standard" }),
-  warrantyProfile: templateWarrantyProfileSchema.default({ period: "1 year", periodDays: 365, type: "manufacturer", description: "" }),
+  pricingProfile: templatePricingProfileSchema.default({
+    retailMultiplier: 1.3,
+    wholesaleMultiplier: 1.12,
+    resellerMultiplier: 1.2,
+    campaignMultiplier: 1.0,
+    minMarginPercent: 10,
+  }),
+  shippingProfile: templateShippingProfileSchema.default({
+    weight: 0.5,
+    weightUnit: "kg",
+    length: 10,
+    width: 10,
+    height: 5,
+    dimensionUnit: "cm",
+    shippingClass: "standard",
+  }),
+  warrantyProfile: templateWarrantyProfileSchema.default({
+    period: "1 year",
+    periodDays: 365,
+    type: "manufacturer",
+    description: "",
+  }),
   returnPolicy: z.string().default(""),
   packageIncludes: z.array(z.string()).default([]),
-  seoProfile: templateSEOProfileSchema.default({ metaTitleTemplate: "", metaDescriptionTemplate: "", focusKeywordSuggestions: [] }),
-  googleMerchant: templateGoogleMerchantSchema.default({ googleProductCategory: "", ageGroup: "adult", gender: "unisex", condition: "new" }),
+  seoProfile: templateSEOProfileSchema.default({
+    metaTitleTemplate: "",
+    metaDescriptionTemplate: "",
+    focusKeywordSuggestions: [],
+  }),
+  googleMerchant: templateGoogleMerchantSchema.default({
+    googleProductCategory: "",
+    ageGroup: "adult",
+    gender: "unisex",
+    condition: "new",
+  }),
   suggestedBulletFeatures: z.array(z.string()).default([]),
 });
 

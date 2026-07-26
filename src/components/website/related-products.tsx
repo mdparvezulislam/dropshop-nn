@@ -8,10 +8,7 @@ interface RelatedProductsProps {
   title?: string;
 }
 
-export function RelatedProducts({
-  products,
-  title = "Related Products",
-}: RelatedProductsProps) {
+export function RelatedProducts({ products, title = "Related Products" }: RelatedProductsProps) {
   if (products.length === 0) return null;
 
   return (

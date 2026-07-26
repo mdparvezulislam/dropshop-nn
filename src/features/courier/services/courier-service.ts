@@ -123,7 +123,11 @@ export class CourierService {
     return runInTransaction(execute);
   }
 
-  async requestPickup(shipmentId: string, details: any, options?: { session?: any }): Promise<Shipment> {
+  async requestPickup(
+    shipmentId: string,
+    details: any,
+    options?: { session?: any },
+  ): Promise<Shipment> {
     return runInTransaction(async (session) => {
       const shipment = await this.shipmentRepository.findById(shipmentId, { session });
       if (!shipment) {

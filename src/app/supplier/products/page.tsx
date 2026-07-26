@@ -73,7 +73,9 @@ export default function SupplierProductsPage(): React.ReactElement {
     {
       id: "price",
       header: "Price",
-      cell: (r) => <span className="tabular-nums text-muted-foreground">{formatCents(r.price)}</span>,
+      cell: (r) => (
+        <span className="tabular-nums text-muted-foreground">{formatCents(r.price)}</span>
+      ),
     },
     {
       id: "stock",

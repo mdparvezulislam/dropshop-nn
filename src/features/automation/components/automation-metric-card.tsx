@@ -44,9 +44,7 @@ export function AutomationMetricCard({
       <Card className="h-full">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-xs font-medium text-muted-foreground">
-              {label}
-            </CardTitle>
+            <CardTitle className="text-xs font-medium text-muted-foreground">{label}</CardTitle>
             {icon && <span className="text-muted-foreground">{icon}</span>}
           </div>
         </CardHeader>

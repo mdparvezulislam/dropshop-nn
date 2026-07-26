@@ -54,14 +54,16 @@ export function ProductCard({
     ? Math.round(((comparePrice - product.retailPrice) / comparePrice) * 100)
     : 0;
 
-  const resellerProfit = product.resellerPrice && product.retailPrice > product.resellerPrice
-    ? product.retailPrice - product.resellerPrice
-    : 0;
+  const resellerProfit =
+    product.resellerPrice && product.retailPrice > product.resellerPrice
+      ? product.retailPrice - product.resellerPrice
+      : 0;
 
   // Fallback image URL
-  const displayImage = imageError || !product.image || product.image === "Product Image"
-    ? "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=400&q=80"
-    : product.image;
+  const displayImage =
+    imageError || !product.image || product.image === "Product Image"
+      ? "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=400&q=80"
+      : product.image;
 
   if (viewMode === "list") {
     return (
@@ -71,7 +73,7 @@ export function ProductCard({
         viewport={{ once: true }}
         className={cn(
           "group relative rounded-2xl border border-slate-300 bg-white p-4 transition-all duration-200 hover:shadow-lg hover:border-amber-400 flex flex-col sm:flex-row gap-5 items-center",
-          className
+          className,
         )}
       >
         <div className="relative w-full sm:w-48 aspect-square rounded-xl bg-slate-100 overflow-hidden shrink-0">
@@ -136,14 +138,16 @@ export function ProductCard({
                       "h-3.5 w-3.5",
                       i < Math.round(product.rating!)
                         ? "text-amber-400 fill-amber-400"
-                        : "text-slate-300"
+                        : "text-slate-300",
                     )}
                   />
                 ))}
               </div>
               <span className="text-xs font-black text-slate-800">{product.rating}</span>
               {product.reviewCount != null && (
-                <span className="text-xs font-bold text-slate-600">({product.reviewCount} রিভিউ)</span>
+                <span className="text-xs font-bold text-slate-600">
+                  ({product.reviewCount} রিভিউ)
+                </span>
               )}
             </div>
           )}
@@ -158,7 +162,8 @@ export function ProductCard({
             />
             {resellerProfit > 0 && (
               <span className="text-xs font-extrabold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-md">
-                মুনাফা: ৳{(resellerProfit > 10000 ? resellerProfit / 100 : resellerProfit).toFixed(0)}
+                মুনাফা: ৳
+                {(resellerProfit > 10000 ? resellerProfit / 100 : resellerProfit).toFixed(0)}
               </span>
             )}
           </div>
@@ -198,7 +203,7 @@ export function ProductCard({
       className={cn(
         "group relative rounded-2xl border border-slate-300 bg-white overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-amber-400 flex flex-col justify-between",
         viewMode === "compact" ? "p-2.5" : "",
-        className
+        className,
       )}
     >
       <div>
@@ -241,7 +246,7 @@ export function ProductCard({
                 "flex h-8 w-8 items-center justify-center rounded-full border shadow-xs transition-all backdrop-blur-xs",
                 isWishlisted
                   ? "bg-red-50 border-red-200 text-red-600"
-                  : "bg-white/90 border-slate-300 text-slate-800 hover:text-red-600 hover:bg-white"
+                  : "bg-white/90 border-slate-300 text-slate-800 hover:text-red-600 hover:bg-white",
               )}
               aria-label="Add to wishlist"
             >
@@ -313,13 +318,15 @@ export function ProductCard({
                       "h-3 w-3",
                       i < Math.round(product.rating!)
                         ? "text-amber-400 fill-amber-400"
-                        : "text-slate-300"
+                        : "text-slate-300",
                     )}
                   />
                 ))}
               </div>
               {product.reviewCount != null && (
-                <span className="text-[10px] font-extrabold text-slate-600">({product.reviewCount})</span>
+                <span className="text-[10px] font-extrabold text-slate-600">
+                  ({product.reviewCount})
+                </span>
               )}
             </div>
           )}
@@ -336,7 +343,10 @@ export function ProductCard({
           {/* Reseller Profit Margin Badge */}
           {resellerProfit > 0 && (
             <div className="inline-flex items-center gap-1 text-[11px] font-black text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-              <span>প্রফিট মার্জিন: ৳{(resellerProfit > 10000 ? resellerProfit / 100 : resellerProfit).toFixed(0)}</span>
+              <span>
+                প্রফিট মার্জিন: ৳
+                {(resellerProfit > 10000 ? resellerProfit / 100 : resellerProfit).toFixed(0)}
+              </span>
             </div>
           )}
         </div>

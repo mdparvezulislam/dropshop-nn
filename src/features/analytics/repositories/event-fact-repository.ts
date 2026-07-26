@@ -30,7 +30,10 @@ function mapFact(doc: any): AnalyticsEventFact {
   };
 }
 
-export class EventFactRepository extends BaseRepository<EventFactMongoDocument, AnalyticsEventFact> {
+export class EventFactRepository extends BaseRepository<
+  EventFactMongoDocument,
+  AnalyticsEventFact
+> {
   constructor() {
     super(EventFactModel as any, mapFact);
   }

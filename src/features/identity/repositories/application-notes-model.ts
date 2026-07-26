@@ -25,7 +25,6 @@ const noteSchema = new Schema<NoteDocument>(
 );
 
 export const ApplicationNotesModel =
-  mongoose.models.ApplicationNotes ||
-  mongoose.model<NoteDocument>("ApplicationNotes", noteSchema);
+  mongoose.models.ApplicationNotes || mongoose.model<NoteDocument>("ApplicationNotes", noteSchema);
 
 export default ApplicationNotesModel;

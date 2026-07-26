@@ -68,7 +68,10 @@ export async function settleCodAction(formData: unknown): Promise<{
   }
 }
 
-export async function listCodAction(page: number = 1, limit: number = 20): Promise<{
+export async function listCodAction(
+  page: number = 1,
+  limit: number = 20,
+): Promise<{
   success: boolean;
   data?: Awaited<ReturnType<CodService["listAll"]>>;
   error?: string;

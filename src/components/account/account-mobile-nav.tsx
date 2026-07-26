@@ -16,8 +16,7 @@ export function AccountMobileNav() {
       <div className="flex gap-1 overflow-x-auto px-3 py-2 scrollbar-none">
         {ACCOUNT_NAV_ITEMS.map((item) => {
           const active =
-            pathname === item.href ||
-            (item.href !== "/account" && pathname.startsWith(item.href));
+            pathname === item.href || (item.href !== "/account" && pathname.startsWith(item.href));
           return (
             <Link
               key={item.href}

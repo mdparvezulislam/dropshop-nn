@@ -13,8 +13,15 @@ import { getWarrantyStatsAction } from "@/features/order/actions/warranty-action
 import { getExchangeStatsAction } from "@/features/order/actions/exchange-actions";
 import { toast } from "sonner";
 import {
-  RefreshCw, Phone, MessageSquare, AlertTriangle,
-  PackageX, ThumbsUp, ShieldCheck, Repeat, Clock,
+  RefreshCw,
+  Phone,
+  MessageSquare,
+  AlertTriangle,
+  PackageX,
+  ThumbsUp,
+  ShieldCheck,
+  Repeat,
+  Clock,
   Users,
 } from "lucide-react";
 
@@ -39,10 +46,16 @@ export default function CustomerOperationsPage(): React.ReactElement {
         pendingFollowUps: fu.success ? Object.values(fu.data ?? {}).reduce((a, b) => a + b, 0) : 0,
         todayCalls: cl.success ? Object.values(cl.data ?? {}).reduce((a, b) => a + b, 0) : 0,
         failedDeliveries: fd.success ? Object.values(fd.data ?? {}).reduce((a, b) => a + b, 0) : 0,
-        openComplaints: comp.success ? Object.values(comp.data ?? {}).reduce((a, b) => a + b, 0) : 0,
+        openComplaints: comp.success
+          ? Object.values(comp.data ?? {}).reduce((a, b) => a + b, 0)
+          : 0,
         resolvedCases: 0,
-        warrantyRequests: war.success ? Object.values(war.data ?? {}).reduce((a, b) => a + b, 0) : 0,
-        exchangeRequests: exc.success ? Object.values(exc.data ?? {}).reduce((a, b) => a + b, 0) : 0,
+        warrantyRequests: war.success
+          ? Object.values(war.data ?? {}).reduce((a, b) => a + b, 0)
+          : 0,
+        exchangeRequests: exc.success
+          ? Object.values(exc.data ?? {}).reduce((a, b) => a + b, 0)
+          : 0,
         pendingResponses: 0,
       });
     } catch {
@@ -52,24 +65,98 @@ export default function CustomerOperationsPage(): React.ReactElement {
     }
   }, []);
 
-  React.useEffect(() => { load(); }, [load]);
+  React.useEffect(() => {
+    load();
+  }, [load]);
 
   const STAT_CARDS = [
-    { key: "pendingFollowUps", label: "পেন্ডিং ফলো-আপ", labelEn: "Pending Follow-ups", color: "text-amber-400", icon: Clock },
-    { key: "todayCalls", label: "আজকের কল", labelEn: "Today's Calls", color: "text-blue-400", icon: Phone },
-    { key: "failedDeliveries", label: "ফেলড ডেলিভারি", labelEn: "Failed Deliveries", color: "text-rose-400", icon: PackageX },
-    { key: "openComplaints", label: "গ্রাহক কমপ্লেইন্ট", labelEn: "Customer Complaints", color: "text-red-400", icon: AlertTriangle },
-    { key: "resolvedCases", label: "রিজলভড কেস", labelEn: "Resolved Cases", color: "text-emerald-400", icon: ThumbsUp },
-    { key: "warrantyRequests", label: "ওয়ারেন্টি রিকোয়েস্ট", labelEn: "Warranty Requests", color: "text-violet-400", icon: ShieldCheck },
-    { key: "exchangeRequests", label: "এক্সচেঞ্জ রিকোয়েস্ট", labelEn: "Exchange Requests", color: "text-indigo-400", icon: Repeat },
-    { key: "pendingResponses", label: "পেন্ডিং রেসপন্স", labelEn: "Pending Responses", color: "text-orange-400", icon: MessageSquare },
+    {
+      key: "pendingFollowUps",
+      label: "পেন্ডিং ফলো-আপ",
+      labelEn: "Pending Follow-ups",
+      color: "text-amber-400",
+      icon: Clock,
+    },
+    {
+      key: "todayCalls",
+      label: "আজকের কল",
+      labelEn: "Today's Calls",
+      color: "text-blue-400",
+      icon: Phone,
+    },
+    {
+      key: "failedDeliveries",
+      label: "ফেলড ডেলিভারি",
+      labelEn: "Failed Deliveries",
+      color: "text-rose-400",
+      icon: PackageX,
+    },
+    {
+      key: "openComplaints",
+      label: "গ্রাহক কমপ্লেইন্ট",
+      labelEn: "Customer Complaints",
+      color: "text-red-400",
+      icon: AlertTriangle,
+    },
+    {
+      key: "resolvedCases",
+      label: "রিজলভড কেস",
+      labelEn: "Resolved Cases",
+      color: "text-emerald-400",
+      icon: ThumbsUp,
+    },
+    {
+      key: "warrantyRequests",
+      label: "ওয়ারেন্টি রিকোয়েস্ট",
+      labelEn: "Warranty Requests",
+      color: "text-violet-400",
+      icon: ShieldCheck,
+    },
+    {
+      key: "exchangeRequests",
+      label: "এক্সচেঞ্জ রিকোয়েস্ট",
+      labelEn: "Exchange Requests",
+      color: "text-indigo-400",
+      icon: Repeat,
+    },
+    {
+      key: "pendingResponses",
+      label: "পেন্ডিং রেসপন্স",
+      labelEn: "Pending Responses",
+      color: "text-orange-400",
+      icon: MessageSquare,
+    },
   ];
 
   const QUICK_LINKS = [
-    { href: "/dashboard/orders/follow-ups", label: "ফলো-আপস", labelEn: "Follow-ups", icon: Clock, color: "text-amber-400" },
-    { href: "/dashboard/orders/complaints", label: "কমপ্লেইন্টস", labelEn: "Complaints", icon: AlertTriangle, color: "text-red-400" },
-    { href: "/dashboard/orders/call-log", label: "কল লগ", labelEn: "Call Log", icon: Phone, color: "text-blue-400" },
-    { href: "/dashboard/orders/failed-deliveries", label: "ফেলড ডেলিভারি", labelEn: "Failed Deliveries", icon: PackageX, color: "text-rose-400" },
+    {
+      href: "/dashboard/orders/follow-ups",
+      label: "ফলো-আপস",
+      labelEn: "Follow-ups",
+      icon: Clock,
+      color: "text-amber-400",
+    },
+    {
+      href: "/dashboard/orders/complaints",
+      label: "কমপ্লেইন্টস",
+      labelEn: "Complaints",
+      icon: AlertTriangle,
+      color: "text-red-400",
+    },
+    {
+      href: "/dashboard/orders/call-log",
+      label: "কল লগ",
+      labelEn: "Call Log",
+      icon: Phone,
+      color: "text-blue-400",
+    },
+    {
+      href: "/dashboard/orders/failed-deliveries",
+      label: "ফেলড ডেলিভারি",
+      labelEn: "Failed Deliveries",
+      icon: PackageX,
+      color: "text-rose-400",
+    },
   ];
 
   return (
@@ -78,7 +165,8 @@ export default function CustomerOperationsPage(): React.ReactElement {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              গ্রাহক অপারেশনস <span className="text-muted-foreground text-lg font-normal">Customer Operations</span>
+              গ্রাহক অপারেশনস{" "}
+              <span className="text-muted-foreground text-lg font-normal">Customer Operations</span>
             </h1>
             <p className="text-sm text-muted-foreground">
               গ্রাহক সেবা, ফলো-আপ এবং কমপ্লেইন্ট ম্যানেজমেন্ট
@@ -131,13 +219,35 @@ export default function CustomerOperationsPage(): React.ReactElement {
       {/* Quick Actions */}
       <Card className="border-border/50 bg-card/50">
         <CardContent className="p-5">
-          <h3 className="text-sm font-semibold text-foreground mb-3">দ্রুত অপশন <span className="text-muted-foreground font-normal">Quick Actions</span></h3>
+          <h3 className="text-sm font-semibold text-foreground mb-3">
+            দ্রুত অপশন <span className="text-muted-foreground font-normal">Quick Actions</span>
+          </h3>
           <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
             {[
-              { href: "/dashboard/orders/customers", label: "গ্রাহক প্রোফাইল", labelEn: "Customer Profiles", icon: Users },
-              { href: "/dashboard/orders/follow-ups", label: "ফলো-আপ", labelEn: "Follow-ups", icon: Clock },
-              { href: "/dashboard/orders/complaints", label: "কমপ্লেইন্ট", labelEn: "Complaints", icon: AlertTriangle },
-              { href: "/dashboard/orders", label: "অর্ডার প্যানেল", labelEn: "Orders Panel", icon: RefreshCw },
+              {
+                href: "/dashboard/orders/customers",
+                label: "গ্রাহক প্রোফাইল",
+                labelEn: "Customer Profiles",
+                icon: Users,
+              },
+              {
+                href: "/dashboard/orders/follow-ups",
+                label: "ফলো-আপ",
+                labelEn: "Follow-ups",
+                icon: Clock,
+              },
+              {
+                href: "/dashboard/orders/complaints",
+                label: "কমপ্লেইন্ট",
+                labelEn: "Complaints",
+                icon: AlertTriangle,
+              },
+              {
+                href: "/dashboard/orders",
+                label: "অর্ডার প্যানেল",
+                labelEn: "Orders Panel",
+                icon: RefreshCw,
+              },
             ].map((item) => {
               const Icon = item.icon;
               return (

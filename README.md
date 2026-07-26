@@ -35,24 +35,24 @@
 
 ## ২. প্রধান বৈশিষ্ট্যসমূহ
 
-| বৈশিষ্ট্য | বর্ণনা |
-|-----------|--------|
-| **Catalog** | Product, variant, media, SEO, brand ও category management |
-| **Inventory** | Stock level, reservation, supplier stock map, movement history |
-| **Pricing** | Cost / sell / wholesale / reseller price tier, profit calculation, rules engine |
-| **Dropshipping** | Automated order routing, supplier dispatch, courier integration |
-| **Reseller** | Private catalog, reseller-only pricing, collection, product group |
-| **Wholesale** | Bulk ordering, tier pricing, MOQ management, quotation flow |
-| **Supplier** | Onboarding, contacts, documents, performance scoring, product mapping |
-| **Order** | 16-state state machine, timeline, courier assignment, profit preview |
-| **Courier** | Steadfast / Pathao / RedX / eCourier / Paperfly adapter সহ tracking |
-| **Finance** | Wallet, ledger, withdrawal, invoice, profit release jobs |
-| **Customer** | Profile, address, note, tag, search, relationship timeline |
-| **Analytics** | Sales report, top product, inventory summary, performance dashboard |
-| **Automation** | BullMQ-based background job, cache invalidation, event-driven flow |
-| **Report** | Sales summary, profit analysis, product ও order report |
-| **Notification** | Order status update, quotation response, invoice reminder |
-| **Marketplace Ready** | Multi-role, multi-tenant, REST API ও Server Action সমর্থন |
+| বৈশিষ্ট্য             | বর্ণনা                                                                          |
+| --------------------- | ------------------------------------------------------------------------------- |
+| **Catalog**           | Product, variant, media, SEO, brand ও category management                       |
+| **Inventory**         | Stock level, reservation, supplier stock map, movement history                  |
+| **Pricing**           | Cost / sell / wholesale / reseller price tier, profit calculation, rules engine |
+| **Dropshipping**      | Automated order routing, supplier dispatch, courier integration                 |
+| **Reseller**          | Private catalog, reseller-only pricing, collection, product group               |
+| **Wholesale**         | Bulk ordering, tier pricing, MOQ management, quotation flow                     |
+| **Supplier**          | Onboarding, contacts, documents, performance scoring, product mapping           |
+| **Order**             | 16-state state machine, timeline, courier assignment, profit preview            |
+| **Courier**           | Steadfast / Pathao / RedX / eCourier / Paperfly adapter সহ tracking             |
+| **Finance**           | Wallet, ledger, withdrawal, invoice, profit release jobs                        |
+| **Customer**          | Profile, address, note, tag, search, relationship timeline                      |
+| **Analytics**         | Sales report, top product, inventory summary, performance dashboard             |
+| **Automation**        | BullMQ-based background job, cache invalidation, event-driven flow              |
+| **Report**            | Sales summary, profit analysis, product ও order report                          |
+| **Notification**      | Order status update, quotation response, invoice reminder                       |
+| **Marketplace Ready** | Multi-role, multi-tenant, REST API ও Server Action সমর্থন                       |
 
 ---
 
@@ -86,24 +86,24 @@ Production-grade feature: audit log, soft delete, transactional safety, role-bas
 
 ## ৪. Technology Stack
 
-| স্তর | Technology |
-|-------|------------|
-| **Framework** | Next.js 16 (App Router) |
-| **Frontend** | React 19, TypeScript |
-| **Styling** | Tailwind CSS v4 |
-| **UI Component** | Sera UI, shadcn/ui |
-| **Animation** | Framer Motion |
-| **Database** | MongoDB, Mongoose |
-| **Cache** | Redis (ioredis) |
-| **Background Job** | BullMQ |
-| **Authentication** | NextAuth v5 (JWT) |
-| **Validation** | Zod |
-| **Media** | ImageKit CDN |
-| **Form** | React Hook Form |
-| **Package Manager** | pnpm |
-| **Cloud** | Vercel / Docker / MongoDB Atlas |
-| **CI/CD** | GitHub Actions |
-| **Hosting** | Vercel / Coolify |
+| স্তর                | Technology                      |
+| ------------------- | ------------------------------- |
+| **Framework**       | Next.js 16 (App Router)         |
+| **Frontend**        | React 19, TypeScript            |
+| **Styling**         | Tailwind CSS v4                 |
+| **UI Component**    | Sera UI, shadcn/ui              |
+| **Animation**       | Framer Motion                   |
+| **Database**        | MongoDB, Mongoose               |
+| **Cache**           | Redis (ioredis)                 |
+| **Background Job**  | BullMQ                          |
+| **Authentication**  | NextAuth v5 (JWT)               |
+| **Validation**      | Zod                             |
+| **Media**           | ImageKit CDN                    |
+| **Form**            | React Hook Form                 |
+| **Package Manager** | pnpm                            |
+| **Cloud**           | Vercel / Docker / MongoDB Atlas |
+| **CI/CD**           | GitHub Actions                  |
+| **Hosting**         | Vercel / Coolify                |
 
 ---
 
@@ -121,12 +121,12 @@ Client (Next.js) → Server Action → Service Layer → Domain → Repository �
 
 ### চার স্তরের Architecture
 
-| স্তর | অবস্থান | দায়িত্ব |
-|-------|----------|------------|
-| **Domain** | `domain/` | Entity, value object, business rules |
-| **Service** | `services/` | Business logic coordination, third-party call |
-| **Repository** | `repositories/` | Database access, domain entity conversion |
-| **Presentation** | `actions/`, `components/` | Input validation, UI rendering |
+| স্তর             | অবস্থান                   | দায়িত্ব                                      |
+| ---------------- | ------------------------- | --------------------------------------------- |
+| **Domain**       | `domain/`                 | Entity, value object, business rules          |
+| **Service**      | `services/`               | Business logic coordination, third-party call |
+| **Repository**   | `repositories/`           | Database access, domain entity conversion     |
+| **Presentation** | `actions/`, `components/` | Input validation, UI rendering                |
 
 ### Engine-based Architecture
 
@@ -214,39 +214,51 @@ features/<module-name>/
 ## ৭. Business Engines
 
 ### Identity (`identity`)
+
 User registration, authentication, business profile, role ও permission management। Session management ও third-party authorization সমর্থন করে।
 
 ### Catalog (`catalog`)
+
 Product creation, variant generation, media upload, SEO metadata, brand ও category classification। Price বা stock এখানে রাখা হয় না — শুধু catalog data।
 
 ### Pricing (`pricing`)
+
 সকল financial data এখানে: cost, selling price, wholesale ও reseller price, discount, tax, commission, margin। Rules engine fixed / percentage / supplier / category-based pricing সমর্থন করে।
 
 ### Inventory (`inventory`)
+
 Stock tracking, reservation, incoming, damage/return tracking, supplier stock mapping। Stock operation: adjustment, stock in/out, এবং release।
 
 ### Supplier (`supplier`)
+
 Onboarding, business profile, banking info, documents (trade license, BIN, TIN), performance scoring, product mapping।
 
 ### Product Studio (`product-studio`)
+
 Enterprise product creation UI। Catalog, Pricing ও Inventory engine-কে একীভূত interface-এ orchestrate করে। Tiptap rich text editor, variant generator, এবং profit preview অন্তর্ভুক্ত।
 
 ### Checkout (`checkout`)
+
 Cart management, checkout session, price resolution, inventory validation, order draft। Reseller / wholesale / customer type সমর্থন করে — একই pipeline, role অনুযায়ী behavior।
 
 ### Order (`order`)
+
 16-state state machine (`draft` → `pending` → `confirmed` → `packed` → `courier_assigned` → `shipped` → `delivered` → `completed` + return/refund states)। Timeline, courier assignment, profit preview, note support।
 
 ### Finance (`finance`)
+
 Wallet management (balance, pending profit), ledger entry (credit/debit), withdrawal request (bKash / Nagad / Rocket / bank), invoice generation, profit release jobs।
 
 ### Customer (`customer`)
+
 Customer profile, address, note, tag, timeline, search। Reseller workspace tenant isolation সহ।
 
 ### Courier (`courier`)
+
 Multi-provider support (Steadfast, Pathao, RedX, eCourier, Paperfly)। Tracking, webhook, business rules।
 
 ### Quotation (`quotation`)
+
 Wholesale buyer-দের জন্য quotation request, approval ও rejection flow।
 
 ---
@@ -254,54 +266,58 @@ Wholesale buyer-দের জন্য quotation request, approval ও rejection
 ## ৮. Workspaces
 
 ### Admin Workspace (`/dashboard/`)
+
 সম্পূর্ণ platform নিয়ন্ত্রণের জন্য enterprise OS shell। Collapsible sidebar, sticky topbar, breadcrumbs, command palette (`⌘K`) ও workspace switcher। সকল listing page shared `ListLayout` + `DataTable` / `ResourceListPage` pattern ব্যবহার করে।
 
 ### Reseller Workspace (`/reseller/`)
+
 Private catalog ও order management। Product browsing, marketing kit, order creation (checkout pipeline), এবং customer management।
 
 ### Wholesale Workspace (`/wholesale/`)
+
 Enterprise bulk buying portal। Wholesale price ও MOQ সহ product browsing, bulk order, quotation request, invoice view, order history।
 
 ### Supplier Workspace (`/supplier/`)
+
 Self-service supplier portal। Product management, inventory monitoring, purchase orders, delivery tracking, finance ও report।
 
 ---
 
 ## ৯. User Roles
 
-| Role | বিবরণ |
-|------|------------|
+| Role            | বিবরণ                                                          |
+| --------------- | -------------------------------------------------------------- |
 | **Super Admin** | পূর্ণ platform নিয়ন্ত্রণ, সকল engine ও workspace-এ permission |
-| **Admin** | Administrative কাজ, user management, operational control |
-| **Manager** | সীমিত admin access, নির্দিষ্ট engine-এ permission |
-| **Reseller** | নিজস্ব catalog, order ও customer management |
-| **Wholesaler** | Bulk purchase, quotation ও wholesale pricing |
-| **Supplier** | নিজস্ব product, inventory ও order management |
-| **Customer** | Personal profile ও order history |
-| **Guest** | Retail browse ও guest checkout (public storefront) |
+| **Admin**       | Administrative কাজ, user management, operational control       |
+| **Manager**     | সীমিত admin access, নির্দিষ্ট engine-এ permission              |
+| **Reseller**    | নিজস্ব catalog, order ও customer management                    |
+| **Wholesaler**  | Bulk purchase, quotation ও wholesale pricing                   |
+| **Supplier**    | নিজস্ব product, inventory ও order management                   |
+| **Customer**    | Personal profile ও order history                               |
+| **Guest**       | Retail browse ও guest checkout (public storefront)             |
 
 ---
 
 ## ১০. বর্তমান Implementation Status
 
-| পর্যায় | অবস্থা |
-|--------|--------|
-| Project foundation | ✅ সম্পন্ন |
-| Core infrastructure | ✅ সম্পন্ন |
-| Identity & authentication | ✅ সম্পন্ন |
-| Enterprise supplier management | ✅ সম্পন্ন |
-| Product catalog foundation | ✅ সম্পন্ন |
-| Enterprise pricing & inventory | ✅ সম্পন্ন |
-| Enterprise reseller management | ✅ সম্পন্ন |
+| পর্যায়                              | অবস্থা     |
+| ------------------------------------ | ---------- |
+| Project foundation                   | ✅ সম্পন্ন |
+| Core infrastructure                  | ✅ সম্পন্ন |
+| Identity & authentication            | ✅ সম্পন্ন |
+| Enterprise supplier management       | ✅ সম্পন্ন |
+| Product catalog foundation           | ✅ সম্পন্ন |
+| Enterprise pricing & inventory       | ✅ সম্পন্ন |
+| Enterprise reseller management       | ✅ সম্পন্ন |
 | Enterprise workspace & design system | ✅ সম্পন্ন |
-| Reseller workspace | ✅ সম্পন্ন |
-| Wholesale workspace | ✅ সম্পন্ন |
-| Supplier workspace | ✅ সম্পন্ন |
+| Reseller workspace                   | ✅ সম্পন্ন |
+| Wholesale workspace                  | ✅ সম্পন্ন |
+| Supplier workspace                   | ✅ সম্পন্ন |
 | Architecture alignment (role-driven) | ✅ সম্পন্ন |
-| Courier integration | 🔄 চলমান |
-| Checkout & order pipeline | 🔄 চলমান |
-| Finance engine | 🔄 চলমান |
-| Public website / Customer workspace | ⏳ পরবর্তী |
+| Courier integration                  | 🔄 চলমান   |
+| Checkout & order pipeline            | 🔄 চলমান   |
+| Finance engine                       | 🔄 চলমান   |
+| Public website / Customer workspace  | ⏳ পরবর্তী |
 
 ---
 
@@ -379,12 +395,12 @@ IMAGEKIT_URL_ENDPOINT= # ImageKit URL endpoint
 
 ### Folder ও Naming Rules
 
-| Type | Convention | Example |
-|------|------------|---------|
-| Folder | kebab-case | `shared-components` |
-| Component | PascalCase | `Button.tsx` |
-| Hook | camelCase + `use` | `useDebounce.ts` |
-| Function | camelCase | `formatCurrency.ts` |
+| Type      | Convention        | Example             |
+| --------- | ----------------- | ------------------- |
+| Folder    | kebab-case        | `shared-components` |
+| Component | PascalCase        | `Button.tsx`        |
+| Hook      | camelCase + `use` | `useDebounce.ts`    |
+| Function  | camelCase         | `formatCurrency.ts` |
 
 ### Documentation Rules
 

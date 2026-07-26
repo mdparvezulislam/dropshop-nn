@@ -26,7 +26,8 @@ export interface ReassignCourierInput {
 
 export interface ManualInterventionInput {
   shipmentId: string;
-  actionType: "force_status" | "manual_tracking" | "manual_delivery_confirm" | "manual_return_confirm";
+  actionType:
+    "force_status" | "manual_tracking" | "manual_delivery_confirm" | "manual_return_confirm";
   targetStatus?: string;
   manualTrackingCode?: string;
   notes: string;
@@ -84,7 +85,12 @@ export class DeliveryOpsService {
 
       await EventBus.publish(
         "courier.attempt_failed",
-        { shipmentId: shipment.id, orderId: shipment.orderId, attemptNumber, reason: input.failureReason },
+        {
+          shipmentId: shipment.id,
+          orderId: shipment.orderId,
+          attemptNumber,
+          reason: input.failureReason,
+        },
         { source: "delivery-ops-service" },
       );
     } else if (input.status === "delivered") {
@@ -148,7 +154,12 @@ export class DeliveryOpsService {
     return updated;
   }
 
-  async recordPartialDelivery(shipmentId: string, partialCodCents: number, notes?: string, actorId: string = "system"): Promise<Shipment> {
+  async recordPartialDelivery(
+    shipmentId: string,
+    partialCodCents: number,
+    notes?: string,
+    actorId: string = "system",
+  ): Promise<Shipment> {
     const shipment = await this.shipmentRepository.findById(shipmentId);
     if (!shipment) {
       throw new Error(`Shipment not found: ${shipmentId}`);
@@ -238,27 +249,47 @@ export class DeliveryOpsService {
     const lostParcels = all.filter((s) => s.status === "lost");
     const damagedShipments = all.filter((s) => s.status === "damage_reported");
     const delayedShipments = all.filter(
-      (s) => (s.status === "in_transit" || s.status === "out_for_delivery") && s.lastSyncedAt && now - new Date(s.lastSyncedAt).getTime() > 48 * 3600 * 1000,
+      (s) =>
+        (s.status === "in_transit" || s.status === "out_for_delivery") &&
+        s.lastSyncedAt &&
+        now - new Date(s.lastSyncedAt).getTime() > 48 * 3600 * 1000,
     );
 
     return { failedDeliveries, lostParcels, delayedShipments, damagedShipments };
   }
 
-  async getSLAWarnings(): Promise<Array<{ shipmentId: string; shipmentNumber: string; warningType: string; delayHours: number }>> {
+  async getSLAWarnings(): Promise<
+    Array<{ shipmentId: string; shipmentNumber: string; warningType: string; delayHours: number }>
+  > {
     const { items: all } = await this.shipmentRepository.findWithFilters({ limit: 500 });
     const now = Date.now();
-    const warnings: Array<{ shipmentId: string; shipmentNumber: string; warningType: string; delayHours: number }> = [];
+    const warnings: Array<{
+      shipmentId: string;
+      shipmentNumber: string;
+      warningType: string;
+      delayHours: number;
+    }> = [];
 
     for (const s of all) {
       if (s.status === "booked" && s.createdAt) {
         const hours = (now - new Date(s.createdAt).getTime()) / (1000 * 3600);
         if (hours > 24) {
-          warnings.push({ shipmentId: s.id, shipmentNumber: s.shipmentNumber, warningType: "Pickup Delay (>24h)", delayHours: Math.round(hours) });
+          warnings.push({
+            shipmentId: s.id,
+            shipmentNumber: s.shipmentNumber,
+            warningType: "Pickup Delay (>24h)",
+            delayHours: Math.round(hours),
+          });
         }
       } else if (s.status === "in_transit" && s.createdAt) {
         const hours = (now - new Date(s.createdAt).getTime()) / (1000 * 3600);
         if (hours > 72) {
-          warnings.push({ shipmentId: s.id, shipmentNumber: s.shipmentNumber, warningType: "Transit SLA Exceeded (>72h)", delayHours: Math.round(hours) });
+          warnings.push({
+            shipmentId: s.id,
+            shipmentNumber: s.shipmentNumber,
+            warningType: "Transit SLA Exceeded (>72h)",
+            delayHours: Math.round(hours),
+          });
         }
       }
     }

@@ -1,7 +1,10 @@
 import { EventFactRepository } from "../repositories/event-fact-repository";
 import { AnalyticsCacheService } from "./analytics-cache-service";
 import {
-  type ProductAnalyticsData, type MetricCardData, type RankedItem, ANALYTICS_EVENT_NAMES,
+  type ProductAnalyticsData,
+  type MetricCardData,
+  type RankedItem,
+  ANALYTICS_EVENT_NAMES,
 } from "../domain/analytics-entity";
 import { resolveDateRange } from "./analytics-query-service";
 
@@ -10,7 +13,9 @@ export class ProductAnalyticsService {
   private readonly cache = AnalyticsCacheService.getInstance();
 
   async getProductAnalytics(rangeInput?: {
-    from?: Date; to?: Date; preset?: string;
+    from?: Date;
+    to?: Date;
+    preset?: string;
   }): Promise<ProductAnalyticsData> {
     const cacheKey = rangeInput?.preset ?? "30d";
     const cached = await this.cache.get<ProductAnalyticsData>("product", cacheKey);
@@ -18,19 +23,41 @@ export class ProductAnalyticsService {
 
     const range = resolveDateRange(rangeInput);
 
-    const [
-      productViews, topSelling, mostViewed,
-      topRevenue, categoryPerf, brandPerf,
-    ] = await Promise.all([
-      this.facts.countInRange(range.from, range.to, {
-        eventName: ANALYTICS_EVENT_NAMES.PRODUCT_VIEWED,
-      }),
-      this.facts.topByField(range.from, range.to, [ANALYTICS_EVENT_NAMES.ORDER_CREATED], "metadata.productId", 10),
-      this.facts.topByField(range.from, range.to, ANALYTICS_EVENT_NAMES.PRODUCT_VIEWED, "entityId", 10),
-      this.getTopRevenueProducts(range),
-      this.facts.topByField(range.from, range.to, ANALYTICS_EVENT_NAMES.CATEGORY_VIEWED, "entityId", 10),
-      this.facts.topByField(range.from, range.to, ANALYTICS_EVENT_NAMES.PRODUCT_VIEWED, "metadata.brand", 10),
-    ]);
+    const [productViews, topSelling, mostViewed, topRevenue, categoryPerf, brandPerf] =
+      await Promise.all([
+        this.facts.countInRange(range.from, range.to, {
+          eventName: ANALYTICS_EVENT_NAMES.PRODUCT_VIEWED,
+        }),
+        this.facts.topByField(
+          range.from,
+          range.to,
+          [ANALYTICS_EVENT_NAMES.ORDER_CREATED],
+          "metadata.productId",
+          10,
+        ),
+        this.facts.topByField(
+          range.from,
+          range.to,
+          ANALYTICS_EVENT_NAMES.PRODUCT_VIEWED,
+          "entityId",
+          10,
+        ),
+        this.getTopRevenueProducts(range),
+        this.facts.topByField(
+          range.from,
+          range.to,
+          ANALYTICS_EVENT_NAMES.CATEGORY_VIEWED,
+          "entityId",
+          10,
+        ),
+        this.facts.topByField(
+          range.from,
+          range.to,
+          ANALYTICS_EVENT_NAMES.PRODUCT_VIEWED,
+          "metadata.brand",
+          10,
+        ),
+      ]);
 
     const data: ProductAnalyticsData = {
       range: { from: range.from.toISOString(), to: range.to.toISOString() },
@@ -46,20 +73,28 @@ export class ProductAnalyticsService {
       activeProducts: 0,
       metrics: [
         {
-          key: "product_views", label: "Product Views",
-          value: productViews, format: "number",
+          key: "product_views",
+          label: "Product Views",
+          value: productViews,
+          format: "number",
         },
         {
-          key: "active_products", label: "Active Products",
-          value: 0, format: "number",
+          key: "active_products",
+          label: "Active Products",
+          value: 0,
+          format: "number",
         },
         {
-          key: "top_selling", label: "Top Selling Products",
-          value: topSelling.length, format: "number",
+          key: "top_selling",
+          label: "Top Selling Products",
+          value: topSelling.length,
+          format: "number",
         },
         {
-          key: "low_stock", label: "Low Stock Items",
-          value: 0, format: "number",
+          key: "low_stock",
+          label: "Low Stock Items",
+          value: 0,
+          format: "number",
         },
       ],
     };
@@ -68,11 +103,16 @@ export class ProductAnalyticsService {
     return data;
   }
 
-  private async getTopRevenueProducts(range: { from: Date; to: Date }): Promise<{ key: string; count: number; sum: number }[]> {
+  private async getTopRevenueProducts(range: {
+    from: Date;
+    to: Date;
+  }): Promise<{ key: string; count: number; sum: number }[]> {
     return this.facts.topByField(
-      range.from, range.to,
+      range.from,
+      range.to,
       [ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID],
-      "metadata.productId", 10,
+      "metadata.productId",
+      10,
     );
   }
 }

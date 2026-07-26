@@ -90,7 +90,11 @@ export class SecurityEventService {
     return this.securityEventRepository.findUnresolved();
   }
 
-  async resolveEvent(id: string, resolvedBy: string, resolvedNotes?: string): Promise<SecurityEvent> {
+  async resolveEvent(
+    id: string,
+    resolvedBy: string,
+    resolvedNotes?: string,
+  ): Promise<SecurityEvent> {
     return this.securityEventRepository.resolveEvent(id, resolvedBy, resolvedNotes);
   }
 
@@ -134,7 +138,9 @@ export class SecurityEventService {
     // Check for new device logins
     const recentEvents = await this.securityEventRepository.findByUserId(userId);
     const newDeviceEvents = recentEvents.filter(
-      (e) => e.eventType === "new_device_detected" && e.createdAt > new Date(Date.now() - 24 * 60 * 60 * 1000),
+      (e) =>
+        e.eventType === "new_device_detected" &&
+        e.createdAt > new Date(Date.now() - 24 * 60 * 60 * 1000),
     );
     if (newDeviceEvents.length > 2) {
       reasons.push(`Multiple new device detections (${newDeviceEvents.length} in 24h)`);

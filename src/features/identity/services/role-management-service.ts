@@ -81,7 +81,12 @@ export class RoleManagementService {
     const systemRole = SYSTEM_ROLES.find(
       (r) => r.name.toLowerCase() === existing.name.toLowerCase(),
     );
-    if (systemRole && data.permissions && actor.role !== "Super Admin" && actor.role !== "super_admin") {
+    if (
+      systemRole &&
+      data.permissions &&
+      actor.role !== "Super Admin" &&
+      actor.role !== "super_admin"
+    ) {
       throw new ForbiddenError("Cannot modify system role permissions");
     }
 
@@ -111,8 +116,18 @@ export class RoleManagementService {
 
     const changes: { field: string; oldValue: unknown; newValue: unknown }[] = [];
     if (data.name) changes.push({ field: "name", oldValue: existing.name, newValue: data.name });
-    if (data.description !== undefined) changes.push({ field: "description", oldValue: existing.description, newValue: data.description });
-    if (data.permissions) changes.push({ field: "permissions", oldValue: oldPermissions.join(", "), newValue: data.permissions.join(", ") });
+    if (data.description !== undefined)
+      changes.push({
+        field: "description",
+        oldValue: existing.description,
+        newValue: data.description,
+      });
+    if (data.permissions)
+      changes.push({
+        field: "permissions",
+        oldValue: oldPermissions.join(", "),
+        newValue: data.permissions.join(", "),
+      });
 
     await AuditLogger.record({
       action: "role.updated",
@@ -191,23 +206,16 @@ export class RoleManagementService {
     return cloned;
   }
 
-  async grantAllPermissions(
-    roleId: string,
-    actor: { id: string; role?: string },
-  ): Promise<Role> {
+  async grantAllPermissions(roleId: string, actor: { id: string; role?: string }): Promise<Role> {
     const role = await this.roleRepository.findById(roleId);
     if (!role) throw new NotFoundError("Role not found");
 
-    const systemRole = SYSTEM_ROLES.find(
-      (r) => r.name.toLowerCase() === role.name.toLowerCase(),
-    );
+    const systemRole = SYSTEM_ROLES.find((r) => r.name.toLowerCase() === role.name.toLowerCase());
     if (systemRole) {
       throw new ForbiddenError("Cannot modify system role permissions");
     }
 
-    const allPermissions = getAllPermissions().map(
-      (p) => `${p.module}.${p.resource}.${p.action}`,
-    );
+    const allPermissions = getAllPermissions().map((p) => `${p.module}.${p.resource}.${p.action}`);
 
     const updated = await this.roleRepository.update(roleId, {
       permissions: allPermissions,
@@ -226,16 +234,11 @@ export class RoleManagementService {
     return updated;
   }
 
-  async removeAllPermissions(
-    roleId: string,
-    actor: { id: string; role?: string },
-  ): Promise<Role> {
+  async removeAllPermissions(roleId: string, actor: { id: string; role?: string }): Promise<Role> {
     const role = await this.roleRepository.findById(roleId);
     if (!role) throw new NotFoundError("Role not found");
 
-    const systemRole = SYSTEM_ROLES.find(
-      (r) => r.name.toLowerCase() === role.name.toLowerCase(),
-    );
+    const systemRole = SYSTEM_ROLES.find((r) => r.name.toLowerCase() === role.name.toLowerCase());
     if (systemRole) {
       throw new ForbiddenError("Cannot modify system role permissions");
     }
@@ -292,23 +295,22 @@ export class RoleManagementService {
       actor: { id: actor.id, role: actor.role },
       changes: [
         { field: "sourceRole", oldValue: undefined, newValue: source.name },
-        { field: "permissions", oldValue: target.permissions.join(", "), newValue: source.permissions.join(", ") },
+        {
+          field: "permissions",
+          oldValue: target.permissions.join(", "),
+          newValue: source.permissions.join(", "),
+        },
       ],
     });
 
     return updated;
   }
 
-  async resetRoleToDefault(
-    roleId: string,
-    actor: { id: string; role?: string },
-  ): Promise<Role> {
+  async resetRoleToDefault(roleId: string, actor: { id: string; role?: string }): Promise<Role> {
     const role = await this.roleRepository.findById(roleId);
     if (!role) throw new NotFoundError("Role not found");
 
-    const systemDef = SYSTEM_ROLES.find(
-      (r) => r.name.toLowerCase() === role.name.toLowerCase(),
-    );
+    const systemDef = SYSTEM_ROLES.find((r) => r.name.toLowerCase() === role.name.toLowerCase());
     if (!systemDef) {
       throw new ForbiddenError("Can only reset system roles to defaults");
     }
@@ -325,7 +327,11 @@ export class RoleManagementService {
       entityId: roleId,
       actor: { id: actor.id, role: actor.role },
       changes: [
-        { field: "permissions", oldValue: role.permissions.join(", "), newValue: systemDef.permissions.join(", ") },
+        {
+          field: "permissions",
+          oldValue: role.permissions.join(", "),
+          newValue: systemDef.permissions.join(", "),
+        },
       ],
     });
 
@@ -335,7 +341,13 @@ export class RoleManagementService {
   async getPermissionMatrix(roleIds?: string[]): Promise<{
     modules: string[];
     actions: string[];
-    roles: Array<{ id: string; name: string; description: string; permissions: string[]; isSystem: boolean }>;
+    roles: Array<{
+      id: string;
+      name: string;
+      description: string;
+      permissions: string[];
+      isSystem: boolean;
+    }>;
     matrix: Record<string, Record<string, boolean>>;
   }> {
     const groups = getPermissionGroups();
@@ -377,8 +389,7 @@ export class RoleManagementService {
       for (const mod of allModules) {
         for (const action of sortedActions) {
           const perm = `${mod}.${action}`;
-          matrix[role.id][perm] =
-            role.permissions.includes("*") || role.permissions.includes(perm);
+          matrix[role.id][perm] = role.permissions.includes("*") || role.permissions.includes(perm);
         }
       }
     }
@@ -393,7 +404,13 @@ export class RoleManagementService {
 
   async getAllPermissions(): Promise<{
     modules: string[];
-    permissions: Array<{ module: string; resource: string; action: string; description: string; fullPermission: string }>;
+    permissions: Array<{
+      module: string;
+      resource: string;
+      action: string;
+      description: string;
+      fullPermission: string;
+    }>;
     totalCount: number;
   }> {
     const allPermissions = getAllPermissions();
@@ -413,7 +430,14 @@ export class RoleManagementService {
   }
 
   async getRolesWithUserCounts(): Promise<
-    Array<{ id: string; name: string; description: string; permissions: string[]; isSystem: boolean; userCount: number }>
+    Array<{
+      id: string;
+      name: string;
+      description: string;
+      permissions: string[];
+      isSystem: boolean;
+      userCount: number;
+    }>
   > {
     const dbRoles = await this.roleRepository.find({ isDeleted: { $ne: true } } as never);
 
@@ -426,7 +450,15 @@ export class RoleManagementService {
       userCount: number;
     }> = [];
 
-    for (const role of [...SYSTEM_ROLES, ...dbRoles.map((r) => ({ name: r.name, description: r.description, permissions: r.permissions, isSystem: false }))]) {
+    for (const role of [
+      ...SYSTEM_ROLES,
+      ...dbRoles.map((r) => ({
+        name: r.name,
+        description: r.description,
+        permissions: r.permissions,
+        isSystem: false,
+      })),
+    ]) {
       let userCount = 0;
       try {
         const { UserRepository } = await import("@/features/auth/repositories/user-repository");
@@ -437,7 +469,9 @@ export class RoleManagementService {
       }
 
       rolesWithCounts.push({
-        id: role.isSystem ? `system:${role.name}` : dbRoles.find((r) => r.name === role.name)?.id ?? "",
+        id: role.isSystem
+          ? `system:${role.name}`
+          : (dbRoles.find((r) => r.name === role.name)?.id ?? ""),
         name: role.name,
         description: role.description,
         permissions: role.permissions,

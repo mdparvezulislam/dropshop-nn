@@ -2,7 +2,16 @@
 
 import { TrendingUp } from "lucide-react";
 
-const TRENDING = ["wireless headphones", "smart watch", "phone case", "men t-shirt", "women bag", "led light", "sneakers", "bluetooth speaker"];
+const TRENDING = [
+  "wireless headphones",
+  "smart watch",
+  "phone case",
+  "men t-shirt",
+  "women bag",
+  "led light",
+  "sneakers",
+  "bluetooth speaker",
+];
 
 interface TrendingSearchesProps {
   onSelect: (query: string) => void;

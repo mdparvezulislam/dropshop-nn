@@ -72,7 +72,12 @@ export interface SecretAuditLog extends BaseDBEntity {
 export interface SecretFailedAccessLog extends BaseDBEntity {
   secretId?: string;
   provider?: string;
-  failureReason: "unauthorized" | "invalid_permission" | "decryption_failed" | "missing_master_key" | "tamper_detected";
+  failureReason:
+    | "unauthorized"
+    | "invalid_permission"
+    | "decryption_failed"
+    | "missing_master_key"
+    | "tamper_detected";
   attemptedBy: string;
   timestamp: Date;
   ipAddress?: string;

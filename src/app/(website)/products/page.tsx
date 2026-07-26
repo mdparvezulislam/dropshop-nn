@@ -11,7 +11,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "সব প্রোডাক্ট - DropshopNN Enterprise Commerce",
-  description: "বাংলাদেশের সবচেয়ে বড় প্রোডাক্ট ক্যাটালগ। গ্যাজেট, চার্জার, অডিও গিয়ার এবং টেক অ্যাক্সেসরিজ সেরা পাইকারি ও রিসেলিং দামে।",
+  description:
+    "বাংলাদেশের সবচেয়ে বড় প্রোডাক্ট ক্যাটালগ। গ্যাজেট, চার্জার, অডিও গিয়ার এবং টেক অ্যাক্সেসরিজ সেরা পাইকারি ও রিসেলিং দামে।",
   openGraph: {
     title: "সব প্রোডাক্ট - DropshopNN",
     description: "সোর্স করুন, বিক্রি করুন, ব্যবসা বাড়ান DropshopNN এর সাথে।",
@@ -83,19 +84,19 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": "DropshopNN Catalog",
-    "itemListElement": mappedProducts.map((p, idx) => ({
+    name: "DropshopNN Catalog",
+    itemListElement: mappedProducts.map((p, idx) => ({
       "@type": "ListItem",
-      "position": idx + 1,
-      "item": {
+      position: idx + 1,
+      item: {
         "@type": "Product",
-        "name": p.name,
-        "url": `https://dropshop.com.bd/product/${p.slug}`,
-        "offers": {
+        name: p.name,
+        url: `https://dropshop.com.bd/product/${p.slug}`,
+        offers: {
           "@type": "Offer",
-          "priceCurrency": "BDT",
-          "price": (p.retailPrice / 100).toFixed(2),
-          "availability": "https://schema.org/InStock",
+          priceCurrency: "BDT",
+          price: (p.retailPrice / 100).toFixed(2),
+          availability: "https://schema.org/InStock",
         },
       },
     })),
@@ -111,7 +112,9 @@ export default async function ProductsPage({ searchParams }: PageProps) {
         {/* Header Breadcrumbs */}
         <div className="mb-6 space-y-1">
           <nav className="text-xs font-bold text-slate-600 flex items-center gap-2">
-            <Link href="/" className="hover:text-amber-600 transition-colors">হোম</Link>
+            <Link href="/" className="hover:text-amber-600 transition-colors">
+              হোম
+            </Link>
             <span>/</span>
             <span className="text-slate-900 font-black">ক্যাটালগ</span>
           </nav>

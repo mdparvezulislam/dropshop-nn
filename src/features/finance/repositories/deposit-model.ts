@@ -37,6 +37,5 @@ const depositSchema = new Schema(
 
 depositSchema.index({ walletId: 1, status: 1, createdAt: -1 });
 
-export const DepositModel =
-  mongoose.models.Deposit || mongoose.model("Deposit", depositSchema);
+export const DepositModel = mongoose.models.Deposit || mongoose.model("Deposit", depositSchema);
 export default DepositModel;

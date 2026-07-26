@@ -40,7 +40,11 @@ export async function updateComplaintStatusAction(formData: unknown): Promise<{
   try {
     const validated = updateComplaintStatusSchema.parse(formData);
     const service = new ComplaintService();
-    const result = await service.updateStatus(validated.complaintId, validated.status, validated.resolution);
+    const result = await service.updateStatus(
+      validated.complaintId,
+      validated.status,
+      validated.resolution,
+    );
     revalidatePath("/dashboard/orders");
     return { success: true, data: result };
   } catch (error: any) {
@@ -59,7 +63,11 @@ export async function assignComplaintAction(formData: unknown): Promise<{
   try {
     const validated = assignComplaintSchema.parse(formData);
     const service = new ComplaintService();
-    const result = await service.assign(validated.complaintId, validated.staffId, validated.staffName);
+    const result = await service.assign(
+      validated.complaintId,
+      validated.staffId,
+      validated.staffName,
+    );
     revalidatePath("/dashboard/orders");
     return { success: true, data: result };
   } catch (error: any) {

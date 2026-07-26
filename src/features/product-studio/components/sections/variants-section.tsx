@@ -4,7 +4,6 @@ import * as React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/forms/form-field";
-import { Badge } from "@/components/ui/badge";
 import { StudioSection } from "../studio-layout";
 import { Plus, Trash2, Dice5 } from "lucide-react";
 
@@ -29,7 +28,18 @@ export interface VariantsSectionProps {
 }
 
 const GENERATOR_OPTIONS = {
-  colors: ["Black", "White", "Red", "Blue", "Green", "Gold", "Silver", "Purple", "Pink", "Graphite"],
+  colors: [
+    "Black",
+    "White",
+    "Red",
+    "Blue",
+    "Green",
+    "Gold",
+    "Silver",
+    "Purple",
+    "Pink",
+    "Graphite",
+  ],
   sizes: ["S", "M", "L", "XL", "XXL"],
   storages: ["64GB", "128GB", "256GB", "512GB", "1TB"],
   rams: ["4GB", "6GB", "8GB", "12GB", "16GB", "32GB"],
@@ -37,7 +47,11 @@ const GENERATOR_OPTIONS = {
   materials: ["Leather", "Fabric", "Plastic", "Metal", "Wood", "Glass", "Carbon Fiber"],
 };
 
-export function VariantsSection({ variants, onChange, baseSku }: VariantsSectionProps): React.ReactElement {
+export function VariantsSection({
+  variants,
+  onChange,
+  baseSku,
+}: VariantsSectionProps): React.ReactElement {
   const generateId = () => `v${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 
   const addVariant = () => {
@@ -45,7 +59,12 @@ export function VariantsSection({ variants, onChange, baseSku }: VariantsSection
       ...variants,
       {
         id: generateId(),
-        color: "", size: "", storage: "", ram: "", capacity: "", material: "",
+        color: "",
+        size: "",
+        storage: "",
+        ram: "",
+        capacity: "",
+        material: "",
         sku: baseSku ? `${baseSku}-${variants.length + 1}` : "",
       },
     ]);
@@ -61,14 +80,22 @@ export function VariantsSection({ variants, onChange, baseSku }: VariantsSection
   };
 
   const openGenerator = () => {
-    const color = GENERATOR_OPTIONS.colors[Math.floor(Math.random() * GENERATOR_OPTIONS.colors.length)];
-    const size = GENERATOR_OPTIONS.sizes[Math.floor(Math.random() * GENERATOR_OPTIONS.sizes.length)];
-    const storage = GENERATOR_OPTIONS.storages[Math.floor(Math.random() * GENERATOR_OPTIONS.storages.length)];
+    const color =
+      GENERATOR_OPTIONS.colors[Math.floor(Math.random() * GENERATOR_OPTIONS.colors.length)];
+    const size =
+      GENERATOR_OPTIONS.sizes[Math.floor(Math.random() * GENERATOR_OPTIONS.sizes.length)];
+    const storage =
+      GENERATOR_OPTIONS.storages[Math.floor(Math.random() * GENERATOR_OPTIONS.storages.length)];
     const ram = GENERATOR_OPTIONS.rams[Math.floor(Math.random() * GENERATOR_OPTIONS.rams.length)];
 
     const newVariant: VariantRow = {
       id: generateId(),
-      color, size, storage, ram, capacity: "", material: "",
+      color,
+      size,
+      storage,
+      ram,
+      capacity: "",
+      material: "",
       sku: baseSku ? `${baseSku}-${variants.length + 1}` : `VAR-${variants.length + 1}`,
     };
     onChange([...variants, newVariant]);

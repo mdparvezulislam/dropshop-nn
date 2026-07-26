@@ -16,10 +16,7 @@ export interface SearchResultsContentProps {
   initialTotal: number;
 }
 
-export function SearchResultsContent({
-  initialQuery,
-  initialProducts,
-}: SearchResultsContentProps) {
+export function SearchResultsContent({ initialQuery, initialProducts }: SearchResultsContentProps) {
   const router = useRouter();
   const [inputValue, setInputValue] = useState(initialQuery);
 
@@ -52,7 +49,12 @@ export function SearchResultsContent({
         {/* Search Header */}
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={() => router.back()} className="-ml-2 text-xs font-black text-slate-700 hover:text-amber-600">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.back()}
+              className="-ml-2 text-xs font-black text-slate-700 hover:text-amber-600"
+            >
               <ArrowLeft className="h-4 w-4 mr-1" /> ফিরে যান
             </Button>
           </div>
@@ -80,11 +82,7 @@ export function SearchResultsContent({
         {!initialQuery || mappedProducts.length === 0 ? (
           <EmptySearch query={initialQuery} />
         ) : (
-          <ProductsCatalogClient
-            initialProducts={mappedProducts}
-            categories={[]}
-            brands={[]}
-          />
+          <ProductsCatalogClient initialProducts={mappedProducts} categories={[]} brands={[]} />
         )}
       </div>
     </div>

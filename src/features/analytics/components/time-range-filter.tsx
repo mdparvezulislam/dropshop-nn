@@ -19,7 +19,11 @@ interface TimeRangeFilterProps {
 
 export function TimeRangeFilter({ value, onChange }: TimeRangeFilterProps): React.ReactElement {
   return (
-    <div className="inline-flex rounded-lg border border-border/60 bg-card p-0.5" role="group" aria-label="Date range">
+    <div
+      className="inline-flex rounded-lg border border-border/60 bg-card p-0.5"
+      role="group"
+      aria-label="Date range"
+    >
       {PRESETS.map((p) => (
         <button
           key={p.value}

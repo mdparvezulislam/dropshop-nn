@@ -52,7 +52,8 @@ export function SmartPricingPanel({
   const resellerCostBdt = Math.round(resellerPrice / 100);
   const minSellingPriceBdt = Math.round(minResellerPrice / 100);
 
-  const [customSellingPriceBdt, setCustomSellingPriceBdt] = useState<number>(defaultSellingPriceBdt);
+  const [customSellingPriceBdt, setCustomSellingPriceBdt] =
+    useState<number>(defaultSellingPriceBdt);
 
   // Handle Quick Price Adder (+50, +100, +200, Recommended)
   const handleQuickAdd = (bonus: number) => {
@@ -71,32 +72,58 @@ export function SmartPricingPanel({
   // Calculations for Reseller
   const profitBdt = customSellingPriceBdt - resellerCostBdt;
   const isBelowMin = customSellingPriceBdt < minSellingPriceBdt;
-  const marginPercent = customSellingPriceBdt > 0 ? Math.round((profitBdt / customSellingPriceBdt) * 100) : 0;
+  const marginPercent =
+    customSellingPriceBdt > 0 ? Math.round((profitBdt / customSellingPriceBdt) * 100) : 0;
   const totalRevenueBdt = customSellingPriceBdt * quantity;
   const totalProfitBdt = profitBdt * quantity;
 
   // Price Status Chip Logic
   const priceStatus = useMemo(() => {
     if (isBelowMin) return { label: "অমান্য মূল্য", color: "bg-red-500 text-white border-red-600" };
-    if (marginPercent < 15) return { label: "Low Profit", color: "bg-amber-100 text-amber-900 border-amber-300" };
-    if (marginPercent >= 15 && marginPercent < 25) return { label: "Recommended", color: "bg-emerald-100 text-emerald-900 border-emerald-300" };
-    if (marginPercent >= 25 && marginPercent < 35) return { label: "High Conversion", color: "bg-blue-100 text-blue-900 border-blue-300" };
+    if (marginPercent < 15)
+      return { label: "Low Profit", color: "bg-amber-100 text-amber-900 border-amber-300" };
+    if (marginPercent >= 15 && marginPercent < 25)
+      return { label: "Recommended", color: "bg-emerald-100 text-emerald-900 border-emerald-300" };
+    if (marginPercent >= 25 && marginPercent < 35)
+      return { label: "High Conversion", color: "bg-blue-100 text-blue-900 border-blue-300" };
     return { label: "Premium Profit", color: "bg-purple-100 text-purple-900 border-purple-300" };
   }, [isBelowMin, marginPercent]);
 
   // Wholesale Tiers Matrix Data
   const wholesaleUnitBdt = Math.round(wholesalePrice / 100);
   const wholesaleTiers = [
-    { minQty: 12, maxQty: 23, priceBdt: Math.round(wholesaleUnitBdt * 0.95), discount: "৫% অতিরিক্ত ছাড়" },
-    { minQty: 24, maxQty: 49, priceBdt: Math.round(wholesaleUnitBdt * 0.9), discount: "১০% অতিরিক্ত ছাড়" },
-    { minQty: 50, maxQty: 99, priceBdt: Math.round(wholesaleUnitBdt * 0.85), discount: "১৫% অতিরিক্ত ছাড়" },
-    { minQty: 100, maxQty: "+", priceBdt: Math.round(wholesaleUnitBdt * 0.8), discount: "২০% মেগা ডিসকাউন্ট" },
+    {
+      minQty: 12,
+      maxQty: 23,
+      priceBdt: Math.round(wholesaleUnitBdt * 0.95),
+      discount: "৫% অতিরিক্ত ছাড়",
+    },
+    {
+      minQty: 24,
+      maxQty: 49,
+      priceBdt: Math.round(wholesaleUnitBdt * 0.9),
+      discount: "১০% অতিরিক্ত ছাড়",
+    },
+    {
+      minQty: 50,
+      maxQty: 99,
+      priceBdt: Math.round(wholesaleUnitBdt * 0.85),
+      discount: "১৫% অতিরিক্ত ছাড়",
+    },
+    {
+      minQty: 100,
+      maxQty: "+",
+      priceBdt: Math.round(wholesaleUnitBdt * 0.8),
+      discount: "২০% মেগা ডিসকাউন্ট",
+    },
   ];
 
   // 1. PUBLIC GUEST USER VIEW
   if (!isReseller && !isWholesaler) {
     const hasDiscount = comparePrice && comparePrice > retailPrice;
-    const discountPercent = hasDiscount ? Math.round(((comparePrice - retailPrice) / comparePrice) * 100) : 0;
+    const discountPercent = hasDiscount
+      ? Math.round(((comparePrice - retailPrice) / comparePrice) * 100)
+      : 0;
 
     return (
       <div className="space-y-4">
@@ -121,7 +148,9 @@ export function SmartPricingPanel({
               <span className="bg-red-100 text-red-700 px-2 py-0.5 rounded-md">
                 -{discountPercent}% ছাড়
               </span>
-              <span>আপনি সাশ্রয় করছেন ৳{((comparePrice - retailPrice) / 100).toLocaleString("en-BD")}</span>
+              <span>
+                আপনি সাশ্রয় করছেন ৳{((comparePrice - retailPrice) / 100).toLocaleString("en-BD")}
+              </span>
             </div>
           )}
         </div>
@@ -138,16 +167,24 @@ export function SmartPricingPanel({
             </span>
           </div>
           <p className="text-xs text-slate-300">
-            বিশেষ পাইকারি রেট ও মিনিমাম অর্ডার কোয়ান্টিটি (MOQ) ফিচার আনলক করতে বি২বি হোলসেলার অ্যাকাউন্ট খুলুন।
+            বিশেষ পাইকারি রেট ও মিনিমাম অর্ডার কোয়ান্টিটি (MOQ) ফিচার আনলক করতে বি২বি হোলসেলার
+            অ্যাকাউন্ট খুলুন।
           </p>
           <div className="flex items-center gap-2 pt-1">
             <Link href="/become-wholesale-partner" className="flex-1">
-              <Button size="sm" className="w-full h-8.5 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs">
+              <Button
+                size="sm"
+                className="w-full h-8.5 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs"
+              >
                 হোলসেলার অ্যাকাউন্ট করুন
               </Button>
             </Link>
             <Link href="/auth/login" className="shrink-0">
-              <Button size="sm" variant="outline" className="h-8.5 px-3 text-xs font-bold border-white/30 text-white hover:bg-white/10">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8.5 px-3 text-xs font-bold border-white/30 text-white hover:bg-white/10"
+              >
                 লগইন
               </Button>
             </Link>
@@ -164,7 +201,11 @@ export function SmartPricingPanel({
             নিজের দামে বিক্রি করুন এবং প্রতিটি অর্ডারে আকর্ষণীয় প্রফিট ইনকাম করুন।
           </p>
           <Link href="/become-reseller" className="inline-block pt-1">
-            <Button size="sm" variant="outline" className="h-8 text-xs font-extrabold border-amber-500 text-amber-800 hover:bg-amber-100">
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 text-xs font-extrabold border-amber-500 text-amber-800 hover:bg-amber-100"
+            >
               রিসেলার মেম্বারশিপ নিন →
             </Button>
           </Link>
@@ -183,7 +224,12 @@ export function SmartPricingPanel({
             <Store className="h-4 w-4" />
             <span>রিসেলার স্মার্ট প্রাইসিং ও লাইভ প্রফিট ক্যালকুলেটর</span>
           </div>
-          <span className={cn("text-[10px] font-black px-2.5 py-0.5 rounded-full border", priceStatus.color)}>
+          <span
+            className={cn(
+              "text-[10px] font-black px-2.5 py-0.5 rounded-full border",
+              priceStatus.color,
+            )}
+          >
             {priceStatus.label}
           </span>
         </div>
@@ -191,12 +237,18 @@ export function SmartPricingPanel({
         {/* Reseller Cost & Recommended Price Cards */}
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3 rounded-2xl bg-slate-800/80 border border-slate-700">
-            <span className="text-[10px] font-bold text-slate-400 block">আপনার কেনা রেট (Cost)</span>
-            <span className="text-lg font-black text-amber-400">৳{resellerCostBdt.toLocaleString("en-BD")}</span>
+            <span className="text-[10px] font-bold text-slate-400 block">
+              আপনার কেনা রেট (Cost)
+            </span>
+            <span className="text-lg font-black text-amber-400">
+              ৳{resellerCostBdt.toLocaleString("en-BD")}
+            </span>
           </div>
           <div className="p-3 rounded-2xl bg-slate-800/80 border border-slate-700">
             <span className="text-[10px] font-bold text-slate-400 block">সুপারিশকৃত রেট (MRP)</span>
-            <span className="text-lg font-black text-white">৳{defaultSellingPriceBdt.toLocaleString("en-BD")}</span>
+            <span className="text-lg font-black text-white">
+              ৳{defaultSellingPriceBdt.toLocaleString("en-BD")}
+            </span>
           </div>
         </div>
 
@@ -219,7 +271,9 @@ export function SmartPricingPanel({
               onChange={(e) => handlePriceInput(e.target.value)}
               className={cn(
                 "w-full h-11 pl-8 pr-4 text-base font-black rounded-xl bg-slate-950 border text-white outline-none transition-all",
-                isBelowMin ? "border-red-500 focus:border-red-600 ring-2 ring-red-500/20" : "border-amber-500/60 focus:border-amber-400"
+                isBelowMin
+                  ? "border-red-500 focus:border-red-600 ring-2 ring-red-500/20"
+                  : "border-amber-500/60 focus:border-amber-400",
               )}
             />
           </div>
@@ -274,7 +328,12 @@ export function SmartPricingPanel({
         <div className="p-4 rounded-2xl bg-emerald-950/60 border border-emerald-500/40 space-y-2">
           <div className="flex items-center justify-between text-xs">
             <span className="font-bold text-emerald-200">আনুমানিক নিট লাভ (Profit / Pcs):</span>
-            <span className={cn("text-lg font-black tabular-nums", profitBdt > 0 ? "text-emerald-400" : "text-red-400")}>
+            <span
+              className={cn(
+                "text-lg font-black tabular-nums",
+                profitBdt > 0 ? "text-emerald-400" : "text-red-400",
+              )}
+            >
               ৳{profitBdt.toLocaleString("en-BD")} ({marginPercent}%)
             </span>
           </div>
@@ -282,7 +341,9 @@ export function SmartPricingPanel({
           {quantity > 1 && (
             <div className="flex items-center justify-between text-xs pt-1 border-t border-emerald-800/60">
               <span className="font-bold text-slate-300">{quantity} টি পণ্যে মোট লাভ:</span>
-              <span className="font-black text-amber-300">৳{totalProfitBdt.toLocaleString("en-BD")}</span>
+              <span className="font-black text-amber-300">
+                ৳{totalProfitBdt.toLocaleString("en-BD")}
+              </span>
             </div>
           )}
         </div>
@@ -308,11 +369,14 @@ export function SmartPricingPanel({
         {/* Base Wholesale Unit Price */}
         <div className="p-4 rounded-2xl bg-slate-800/90 border border-slate-700 flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-slate-400 block">বেস পাইকারি মূল্য (Base Rate)</span>
+            <span className="text-xs font-bold text-slate-400 block">
+              বেস পাইকারি মূল্য (Base Rate)
+            </span>
             <span className="text-xs text-slate-400 font-medium">মিনিমাম {moq} পিস অর্ডারে</span>
           </div>
           <span className="text-2xl font-black text-amber-400">
-            ৳{wholesaleUnitBdt.toLocaleString("en-BD")} <span className="text-xs font-normal text-slate-400">/ Pcs</span>
+            ৳{wholesaleUnitBdt.toLocaleString("en-BD")}{" "}
+            <span className="text-xs font-normal text-slate-400">/ Pcs</span>
           </span>
         </div>
 
@@ -324,7 +388,10 @@ export function SmartPricingPanel({
 
           <div className="rounded-2xl border border-slate-800 overflow-hidden divide-y divide-slate-800 text-xs">
             {wholesaleTiers.map((tier, i) => (
-              <div key={i} className="grid grid-cols-3 p-3 items-center bg-slate-950/60 hover:bg-slate-800/50 transition-colors">
+              <div
+                key={i}
+                className="grid grid-cols-3 p-3 items-center bg-slate-950/60 hover:bg-slate-800/50 transition-colors"
+              >
                 <span className="font-extrabold text-slate-200">
                   {tier.minQty} - {tier.maxQty} Pcs
                 </span>

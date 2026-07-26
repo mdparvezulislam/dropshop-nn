@@ -57,15 +57,15 @@ export function CatalogFilterSidebar({ categories = [], brands = [] }: CatalogFi
 
         {/* Categories Filter */}
         <div className="space-y-2.5">
-          <h4 className="text-xs font-black uppercase tracking-wider text-slate-600">
-            ক্যাটাগরি
-          </h4>
+          <h4 className="text-xs font-black uppercase tracking-wider text-slate-600">ক্যাটাগরি</h4>
           <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
             <button
               type="button"
               onClick={() => updateParam("category", null)}
               className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-bold text-left transition-colors ${
-                !selectedCategory ? "bg-amber-50 text-amber-900 border border-amber-200 font-black" : "text-slate-800 hover:bg-slate-100"
+                !selectedCategory
+                  ? "bg-amber-50 text-amber-900 border border-amber-200 font-black"
+                  : "text-slate-800 hover:bg-slate-100"
               }`}
             >
               <span>সকল ক্যাটাগরি</span>
@@ -77,11 +77,15 @@ export function CatalogFilterSidebar({ categories = [], brands = [] }: CatalogFi
                 type="button"
                 onClick={() => updateParam("category", cat.id)}
                 className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-bold text-left transition-colors ${
-                  selectedCategory === cat.id ? "bg-amber-50 text-amber-900 border border-amber-200 font-black" : "text-slate-800 hover:bg-slate-100"
+                  selectedCategory === cat.id
+                    ? "bg-amber-50 text-amber-900 border border-amber-200 font-black"
+                    : "text-slate-800 hover:bg-slate-100"
                 }`}
               >
                 <span className="truncate">{cat.name}</span>
-                {selectedCategory === cat.id && <Check className="h-3.5 w-3.5 text-amber-600 shrink-0" />}
+                {selectedCategory === cat.id && (
+                  <Check className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+                )}
               </button>
             ))}
           </div>
@@ -121,7 +125,9 @@ export function CatalogFilterSidebar({ categories = [], brands = [] }: CatalogFi
                 type="button"
                 onClick={() => updateParam("brand", null)}
                 className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-bold text-left transition-colors ${
-                  !selectedBrand ? "bg-amber-50 text-amber-900 border border-amber-200 font-black" : "text-slate-800 hover:bg-slate-100"
+                  !selectedBrand
+                    ? "bg-amber-50 text-amber-900 border border-amber-200 font-black"
+                    : "text-slate-800 hover:bg-slate-100"
                 }`}
               >
                 <span>সকল ব্র্যান্ড</span>
@@ -133,11 +139,15 @@ export function CatalogFilterSidebar({ categories = [], brands = [] }: CatalogFi
                   type="button"
                   onClick={() => updateParam("brand", b.id)}
                   className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-bold text-left transition-colors ${
-                    selectedBrand === b.id ? "bg-amber-50 text-amber-900 border border-amber-200 font-black" : "text-slate-800 hover:bg-slate-100"
+                    selectedBrand === b.id
+                      ? "bg-amber-50 text-amber-900 border border-amber-200 font-black"
+                      : "text-slate-800 hover:bg-slate-100"
                   }`}
                 >
                   <span className="truncate">{b.name}</span>
-                  {selectedBrand === b.id && <Check className="h-3.5 w-3.5 text-amber-600 shrink-0" />}
+                  {selectedBrand === b.id && (
+                    <Check className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+                  )}
                 </button>
               ))}
             </div>

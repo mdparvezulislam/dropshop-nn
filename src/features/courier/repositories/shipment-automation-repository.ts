@@ -1,6 +1,9 @@
 import { BaseRepository } from "@/lib/database/generic-repository";
 import { ShipmentAutomationModel } from "./shipment-automation-model";
-import type { ShipmentAutomationState, AutomationDashboardMetrics } from "../domain/delivery-automation-entity";
+import type {
+  ShipmentAutomationState,
+  AutomationDashboardMetrics,
+} from "../domain/delivery-automation-entity";
 import type { BaseDocument } from "@/lib/database/types";
 
 interface ShipmentAutomationDocument extends BaseDocument {
@@ -58,20 +61,29 @@ function mapToDomain(doc: any): ShipmentAutomationState {
   };
 }
 
-export class ShipmentAutomationRepository extends BaseRepository<ShipmentAutomationDocument, ShipmentAutomationState> {
+export class ShipmentAutomationRepository extends BaseRepository<
+  ShipmentAutomationDocument,
+  ShipmentAutomationState
+> {
   constructor() {
     super(ShipmentAutomationModel as any, mapToDomain);
   }
 
   async findByShipmentId(shipmentId: string): Promise<ShipmentAutomationState | null> {
     await this.ensureConnected();
-    const doc = await ShipmentAutomationModel.findOne({ shipmentId, isDeleted: { $ne: true } }).lean();
+    const doc = await ShipmentAutomationModel.findOne({
+      shipmentId,
+      isDeleted: { $ne: true },
+    }).lean();
     return doc ? mapToDomain({ ...doc, id: doc._id.toString() }) : null;
   }
 
   async findByTrackingCode(trackingCode: string): Promise<ShipmentAutomationState | null> {
     await this.ensureConnected();
-    const doc = await ShipmentAutomationModel.findOne({ trackingCode, isDeleted: { $ne: true } }).lean();
+    const doc = await ShipmentAutomationModel.findOne({
+      trackingCode,
+      isDeleted: { $ne: true },
+    }).lean();
     return doc ? mapToDomain({ ...doc, id: doc._id.toString() }) : null;
   }
 
@@ -88,7 +100,10 @@ export class ShipmentAutomationRepository extends BaseRepository<ShipmentAutomat
     return docs.map((d: any) => mapToDomain({ ...d, id: d._id.toString() }));
   }
 
-  async upsertAutomationState(shipmentId: string, data: Partial<ShipmentAutomationState>): Promise<ShipmentAutomationState> {
+  async upsertAutomationState(
+    shipmentId: string,
+    data: Partial<ShipmentAutomationState>,
+  ): Promise<ShipmentAutomationState> {
     await this.ensureConnected();
     const doc = await ShipmentAutomationModel.findOneAndUpdate(
       { shipmentId },

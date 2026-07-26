@@ -4,10 +4,7 @@ import { auth } from "@/lib/auth";
 import { checkPermission } from "@/lib/check-permission";
 import { DeliveryAutomationService } from "../services/delivery-automation-service";
 import { TrackingService } from "../services/tracking-service";
-import {
-  triggerManualAutomationSyncSchema,
-  restartAutomationSchema,
-} from "../types/validation";
+import { triggerManualAutomationSyncSchema, restartAutomationSchema } from "../types/validation";
 import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 

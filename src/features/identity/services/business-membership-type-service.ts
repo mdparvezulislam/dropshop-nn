@@ -1,5 +1,8 @@
 import { BusinessMembershipTypeRepository } from "../repositories/business-membership-type-repository";
-import { BusinessMembershipTypeEntity, MembershipBenefits } from "../domain/business-membership-entity";
+import {
+  BusinessMembershipTypeEntity,
+  MembershipBenefits,
+} from "../domain/business-membership-entity";
 import { logger } from "@/lib/utils/logger";
 
 const DEFAULT_MEMBERSHIP_TYPES: Array<Partial<BusinessMembershipTypeEntity>> = [
@@ -28,7 +31,8 @@ const DEFAULT_MEMBERSHIP_TYPES: Array<Partial<BusinessMembershipTypeEntity>> = [
     slug: "reseller",
     name: "Reseller Partner",
     banglaName: "রিসেলার পার্টনার",
-    description: "Dropshipping and online reseller membership with wholesale margins and reseller tools.",
+    description:
+      "Dropshipping and online reseller membership with wholesale margins and reseller tools.",
     icon: "Store",
     color: "amber",
     priority: 10,
@@ -36,7 +40,12 @@ const DEFAULT_MEMBERSHIP_TYPES: Array<Partial<BusinessMembershipTypeEntity>> = [
     isActive: true,
     isArchived: false,
     benefits: {
-      features: ["Reseller Wholesale Prices", "Profit Margin Calculator", "Customer Order Dispatch", "Direct Delivery to End Customer"],
+      features: [
+        "Reseller Wholesale Prices",
+        "Profit Margin Calculator",
+        "Customer Order Dispatch",
+        "Direct Delivery to End Customer",
+      ],
       pricingRules: { ruleType: "reseller", discountPercent: 15, marginPercent: 25 },
       minimumOrderAmount: 500,
       discountRules: { minQty: 1, discountPercent: 15 },
@@ -57,7 +66,12 @@ const DEFAULT_MEMBERSHIP_TYPES: Array<Partial<BusinessMembershipTypeEntity>> = [
     isActive: true,
     isArchived: false,
     benefits: {
-      features: ["Bulk Tier Pricing", "Credit Invoicing", "Dedicated Account Manager", "Custom Freight Options"],
+      features: [
+        "Bulk Tier Pricing",
+        "Credit Invoicing",
+        "Dedicated Account Manager",
+        "Custom Freight Options",
+      ],
       pricingRules: { ruleType: "wholesale", discountPercent: 30, marginPercent: 35 },
       minimumOrderAmount: 5000,
       discountRules: { minQty: 10, discountPercent: 30 },
@@ -78,7 +92,11 @@ const DEFAULT_MEMBERSHIP_TYPES: Array<Partial<BusinessMembershipTypeEntity>> = [
     isActive: true,
     isArchived: false,
     benefits: {
-      features: ["Regional Territory Access", "Priority Stock Reserve", "Custom Branding Collateral"],
+      features: [
+        "Regional Territory Access",
+        "Priority Stock Reserve",
+        "Custom Branding Collateral",
+      ],
       pricingRules: { ruleType: "dealer", discountPercent: 35, marginPercent: 40 },
       minimumOrderAmount: 15000,
       discountRules: { minQty: 25, discountPercent: 35 },

@@ -6,7 +6,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Become a Wholesale Partner - DropshopNN Bangladesh",
-  description: "বি২বি পাইকারি ও বাল্ক অর্ডারের জন্য হোলসেলার মেম্বারশিপ আবেদন করুন। সরাসরি ইম্পোর্টার রেট ও টিয়ার ডিসকাউন্ট।",
+  description:
+    "বি২বি পাইকারি ও বাল্ক অর্ডারের জন্য হোলসেলার মেম্বারশিপ আবেদন করুন। সরাসরি ইম্পোর্টার রেট ও টিয়ার ডিসকাউন্ট।",
 };
 
 export default async function BecomeWholesalePartnerPage() {

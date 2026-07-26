@@ -38,7 +38,9 @@ export default function CatalogAnalyticsPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-bold tracking-tight sm:text-2xl">Catalog Analytics</h1>
-          <p className="text-sm text-muted-foreground">Product views, search demand, and discovery.</p>
+          <p className="text-sm text-muted-foreground">
+            Product views, search demand, and discovery.
+          </p>
         </div>
         <TimeRangeFilter value={preset} onChange={setPreset} />
       </div>

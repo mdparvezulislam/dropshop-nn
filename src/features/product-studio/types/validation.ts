@@ -17,8 +17,13 @@ export const studioVariantRowSchema = z.object({
   stock: z.number().int().nonnegative().optional().default(0),
   image: z.string().optional().or(z.literal("")),
   status: z.preprocess(
-    (val) => (typeof val === "string" ? (val.toLowerCase() === "published" ? "active" : val.toLowerCase()) : val),
-    z.enum(["active", "inactive"]).default("active")
+    (val) =>
+      typeof val === "string"
+        ? val.toLowerCase() === "published"
+          ? "active"
+          : val.toLowerCase()
+        : val,
+    z.enum(["active", "inactive"]).default("active"),
   ),
   isActive: z.boolean().optional().default(true),
 });
@@ -45,11 +50,15 @@ export const studioSEOSchema = z.object({
 });
 
 export const studioPricingSchema = z.object({
-  costPrice: z.number().nonnegative().optional(),
+  costPrice: z.preprocess(
+    (val) => (val === "" || val === undefined || val === null ? undefined : Number(val)),
+    z.number().nonnegative().optional(),
+  ),
   sellingPrice: z.number().nonnegative().optional(),
   wholesalePrice: z.number().nonnegative().optional(),
   resellerPrice: z.number().nonnegative().optional(),
   comparePrice: z.number().nonnegative().optional(),
+  campaignPrice: z.number().nonnegative().optional(),
   margin: z.number().optional(),
   profit: z.number().optional(),
   manualPriceOverrides: z.record(z.string(), z.boolean()).optional(),
@@ -58,14 +67,22 @@ export const studioPricingSchema = z.object({
 export const studioInventorySchema = z.object({
   sku: z.string().optional(),
   barcode: z.string().optional().or(z.literal("")),
-  stock: z.number().int().nonnegative().default(0),
-  reserved: z.number().int().nonnegative().default(0),
+  stock: z.preprocess(
+    (val) => (val === "" || val === undefined || val === null ? 0 : Number(val)),
+    z.number().int().nonnegative().default(0),
+  ),
+  reservedStock: z.number().int().nonnegative().default(0),
+  incomingStock: z.number().int().nonnegative().default(0),
   lowStockThreshold: z.number().int().nonnegative().default(5),
+  warehouseLocation: z.string().optional().or(z.literal("")),
+  weight: z.number().nonnegative().optional(),
 });
 
 export const createStudioProductSchema = z.object({
   name: z.string().min(2, "Product name is required").max(255).trim(),
-  productType: z.enum(["simple", "variant", "bundle", "digital", "service", "gift_card"]).default("simple"),
+  productType: z
+    .enum(["simple", "variant", "bundle", "digital", "service", "gift_card"])
+    .default("simple"),
   templateId: z.string().optional().or(z.literal("")),
   sku: z.string().min(2, "SKU is required").max(100).trim(),
   shortDescription: z.string().max(500).optional().or(z.literal("")),
@@ -82,8 +99,13 @@ export const createStudioProductSchema = z.object({
   tags: z.array(z.string()).default([]),
   visibility: z.enum(["public", "private", "hidden", "supplier_only"]).default("public"),
   status: z.preprocess(
-    (val) => (typeof val === "string" ? (val.toLowerCase() === "published" ? "active" : val.toLowerCase()) : val),
-    z.enum(["draft", "pending_review", "active", "inactive", "archived"]).default("draft")
+    (val) =>
+      typeof val === "string"
+        ? val.toLowerCase() === "published"
+          ? "active"
+          : val.toLowerCase()
+        : val,
+    z.enum(["draft", "pending_review", "active", "inactive", "archived"]).default("draft"),
   ),
   featured: z.boolean().default(false),
   trending: z.boolean().default(false),

@@ -54,7 +54,7 @@ export function ProductGallery({
       const y = ((e.clientY - rect.top) / rect.height) * 100;
       setZoomPos({ x, y });
     },
-    [zoomed]
+    [zoomed],
   );
 
   const handlePrev = () => {
@@ -160,7 +160,7 @@ export function ProductGallery({
                 onClick={() => setSelected(idx)}
                 className={cn(
                   "h-2 rounded-full transition-all min-w-[20px] min-h-[20px] flex items-center justify-center",
-                  selected === idx ? "bg-red-600 w-6" : "bg-slate-300 w-2"
+                  selected === idx ? "bg-red-600 w-6" : "bg-slate-300 w-2",
                 )}
                 aria-label={`Go to slide ${idx + 1}`}
               />
@@ -180,7 +180,7 @@ export function ProductGallery({
                   "relative min-w-[64px] min-h-[64px] rounded-2xl overflow-hidden border-2 transition-all shrink-0",
                   selected === i
                     ? "border-red-600 ring-2 ring-red-600/30"
-                    : "border-slate-200 hover:border-slate-400"
+                    : "border-slate-200 hover:border-slate-400",
                 )}
                 aria-label={`View image ${i + 1}`}
               >

@@ -1,6 +1,16 @@
 import { BaseRepository } from "@/lib/database/generic-repository";
-import { PlatformSecretModel, SecretAuditLogModel, SecretFailedAccessLogModel } from "./secret-model";
-import type { PlatformSecret, SecretAuditLog, SecretFailedAccessLog, SecretProvider, SecretType } from "../domain/secret-entity";
+import {
+  PlatformSecretModel,
+  SecretAuditLogModel,
+  SecretFailedAccessLogModel,
+} from "./secret-model";
+import type {
+  PlatformSecret,
+  SecretAuditLog,
+  SecretFailedAccessLog,
+  SecretProvider,
+  SecretType,
+} from "../domain/secret-entity";
 import type { BaseDocument } from "@/lib/database/types";
 
 interface PlatformSecretDocument extends BaseDocument {
@@ -95,7 +105,10 @@ export class SecretRepository extends BaseRepository<PlatformSecretDocument, Pla
     super(PlatformSecretModel as any, mapToSecret);
   }
 
-  async findByProviderAndType(provider: SecretProvider, secretType: SecretType): Promise<PlatformSecret | null> {
+  async findByProviderAndType(
+    provider: SecretProvider,
+    secretType: SecretType,
+  ): Promise<PlatformSecret | null> {
     await this.ensureConnected();
     const doc = await PlatformSecretModel.findOne({
       provider,
@@ -113,7 +126,9 @@ export class SecretRepository extends BaseRepository<PlatformSecretDocument, Pla
     return docs.map((d: any) => mapToSecret({ ...d, id: d._id.toString() }));
   }
 
-  async upsertSecret(data: Partial<PlatformSecret> & { provider: SecretProvider; secretType: SecretType }): Promise<PlatformSecret> {
+  async upsertSecret(
+    data: Partial<PlatformSecret> & { provider: SecretProvider; secretType: SecretType },
+  ): Promise<PlatformSecret> {
     await this.ensureConnected();
     const doc = await PlatformSecretModel.findOneAndUpdate(
       { provider: data.provider, secretType: data.secretType },
@@ -124,7 +139,9 @@ export class SecretRepository extends BaseRepository<PlatformSecretDocument, Pla
   }
 
   // Audit Logging
-  async createAuditLog(log: Omit<SecretAuditLog, "id" | "createdAt" | "updatedAt" | "isDeleted" | "status">): Promise<SecretAuditLog> {
+  async createAuditLog(
+    log: Omit<SecretAuditLog, "id" | "createdAt" | "updatedAt" | "isDeleted" | "status">,
+  ): Promise<SecretAuditLog> {
     await this.ensureConnected();
     const doc = await SecretAuditLogModel.create(log);
     return mapToAudit({ ...doc.toObject(), id: doc._id.toString() });
@@ -140,7 +157,9 @@ export class SecretRepository extends BaseRepository<PlatformSecretDocument, Pla
   }
 
   // Failed Access Logging
-  async createFailedAccessLog(log: Omit<SecretFailedAccessLog, "id" | "createdAt" | "updatedAt" | "isDeleted" | "status">): Promise<SecretFailedAccessLog> {
+  async createFailedAccessLog(
+    log: Omit<SecretFailedAccessLog, "id" | "createdAt" | "updatedAt" | "isDeleted" | "status">,
+  ): Promise<SecretFailedAccessLog> {
     await this.ensureConnected();
     const doc = await SecretFailedAccessLogModel.create(log);
     return mapToFailedAccess({ ...doc.toObject(), id: doc._id.toString() });

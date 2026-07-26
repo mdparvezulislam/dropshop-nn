@@ -5,7 +5,12 @@ import { checkPermission } from "@/lib/check-permission";
 import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 import { CostVersionService } from "../services/cost-version-service";
-import { createCostVersionSchema, costListQuerySchema, costSearchQuerySchema, costCompareQuerySchema } from "../types/validation";
+import {
+  createCostVersionSchema,
+  costListQuerySchema,
+  costSearchQuerySchema,
+  costCompareQuerySchema,
+} from "../types/validation";
 import { NotFoundError } from "@/lib/errors/app-error";
 
 const service = new CostVersionService();
@@ -24,28 +29,56 @@ export async function createCostVersionAction(data: unknown) {
     const validated = createCostVersionSchema.parse(data);
     const result = await service.createCostVersion(validated, actor);
 
-  try {
-    const PricingEngineService = (await import("@/features/pricing/services/pricing-engine-service")).PricingEngineService;
-    const PricingService = (await import("@/features/pricing/services/pricing-service")).PricingService;
-    const engine = new PricingEngineService();
-    const pricingService = new PricingService();
-    const pricing = await pricingService.getPricingByProduct(validated.productId, validated.variantSku);
-    if (pricing) {
-      const [retail, wholesale, reseller] = await Promise.all([
-        engine.calculatePrice({ productId: validated.productId, costPrice: result.landedCost, quantity: 1, role: "customer", variantSku: validated.variantSku }),
-        engine.calculatePrice({ productId: validated.productId, costPrice: result.landedCost, quantity: 1, role: "wholesaler", variantSku: validated.variantSku }),
-        engine.calculatePrice({ productId: validated.productId, costPrice: result.landedCost, quantity: 1, role: "reseller", variantSku: validated.variantSku }),
-      ]);
-      await pricingService.updatePricing(pricing.id, {
-        baseCostPrice: result.landedCost,
-        sellingPrice: retail.unitPrice,
-        wholesalePrice: wholesale.unitPrice,
-        resellerPrice: reseller.unitPrice,
-      }, actor.id);
+    try {
+      const PricingEngineService = (
+        await import("@/features/pricing/services/pricing-engine-service")
+      ).PricingEngineService;
+      const PricingService = (await import("@/features/pricing/services/pricing-service"))
+        .PricingService;
+      const engine = new PricingEngineService();
+      const pricingService = new PricingService();
+      const pricing = await pricingService.getPricingByProduct(
+        validated.productId,
+        validated.variantSku,
+      );
+      if (pricing) {
+        const [retail, wholesale, reseller] = await Promise.all([
+          engine.calculatePrice({
+            productId: validated.productId,
+            costPrice: result.landedCost,
+            quantity: 1,
+            role: "customer",
+            variantSku: validated.variantSku,
+          }),
+          engine.calculatePrice({
+            productId: validated.productId,
+            costPrice: result.landedCost,
+            quantity: 1,
+            role: "wholesaler",
+            variantSku: validated.variantSku,
+          }),
+          engine.calculatePrice({
+            productId: validated.productId,
+            costPrice: result.landedCost,
+            quantity: 1,
+            role: "reseller",
+            variantSku: validated.variantSku,
+          }),
+        ]);
+        await pricingService.updatePricing(
+          pricing.id,
+          {
+            baseCostPrice: result.landedCost,
+            sellingPrice: retail.unitPrice,
+            wholesalePrice: wholesale.unitPrice,
+            resellerPrice: reseller.unitPrice,
+          },
+          actor.id,
+        );
+      }
+    } catch (err) {
+      logger.warn("CostAction: pricing recalculation failed", err as Record<string, any>);
     }
-  } catch (err) {
-    logger.warn("CostAction: pricing recalculation failed", err as Record<string, any>);
-  }
 
     revalidatePath("/dashboard/costs");
     revalidatePath("/dashboard/products");
@@ -62,7 +95,11 @@ export async function getCurrentCostAction(productId: string, variantSku?: strin
   return { success: true, data: result };
 }
 
-export async function getCostTimelineAction(productId: string, variantSku?: string, limit?: number) {
+export async function getCostTimelineAction(
+  productId: string,
+  variantSku?: string,
+  limit?: number,
+) {
   const session = await auth();
   checkPermission(session, "Pricing.View");
   const result = await service.getTimeline(productId, variantSku, limit);
@@ -113,7 +150,8 @@ export async function searchProductCostAction(query: string) {
   const session = await auth();
   checkPermission(session, "Pricing.View");
   try {
-    const ProductService = (await import("@/features/catalog/services/product-service")).ProductService;
+    const ProductService = (await import("@/features/catalog/services/product-service"))
+      .ProductService;
     const productService = new ProductService();
     const q = query.trim();
     if (!q) return { success: true, data: [] };
@@ -129,25 +167,29 @@ export async function searchProductCostAction(query: string) {
 
     if (!products.items.length) return { success: true, data: [] };
 
-    const results = await Promise.all(products.items.slice(0, 20).map(async (product) => {
-      try {
-        const cost = await service.getCurrentCost(product.id);
-        const featuredMedia = product.media?.find((m) => m.isFeatured);
-        return {
-          productId: product.id,
-          name: product.name,
-          sku: product.sku,
-          barcode: product.barcode,
-          image: featuredMedia?.url ?? product.media?.[0]?.url ?? "",
-          currentCost: cost?.costPrice ?? 0,
-          currentLandedCost: cost?.landedCost ?? 0,
-          currentVersion: cost?.versionNumber ?? 0,
-          supplierName: cost?.supplier?.supplierName,
-          lastUpdated: cost?.createdAt?.toString(),
-          currency: cost?.currency ?? "BDT",
-        };
-      } catch { return null; }
-    }));
+    const results = await Promise.all(
+      products.items.slice(0, 20).map(async (product) => {
+        try {
+          const cost = await service.getCurrentCost(product.id);
+          const featuredMedia = product.media?.find((m) => m.isFeatured);
+          return {
+            productId: product.id,
+            name: product.name,
+            sku: product.sku,
+            barcode: product.barcode,
+            image: featuredMedia?.url ?? product.media?.[0]?.url ?? "",
+            currentCost: cost?.costPrice ?? 0,
+            currentLandedCost: cost?.landedCost ?? 0,
+            currentVersion: cost?.versionNumber ?? 0,
+            supplierName: cost?.supplier?.supplierName,
+            lastUpdated: cost?.createdAt?.toString(),
+            currency: cost?.currency ?? "BDT",
+          };
+        } catch {
+          return null;
+        }
+      }),
+    );
 
     return { success: true, data: results.filter(Boolean) };
   } catch (err: unknown) {

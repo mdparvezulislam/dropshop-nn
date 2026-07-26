@@ -46,7 +46,9 @@ export function ProductQuickView({ product, open, onOpenChange }: ProductQuickVi
               sizes="(max-width: 768px) 100vw, 50vw"
             />
             {product.isNew && (
-              <Badge className="absolute top-2 left-2 bg-emerald-500 hover:bg-emerald-500">NEW</Badge>
+              <Badge className="absolute top-2 left-2 bg-emerald-500 hover:bg-emerald-500">
+                NEW
+              </Badge>
             )}
             {discount > 0 && (
               <Badge className="absolute top-2 right-2 bg-rose-500 hover:bg-rose-500">
@@ -63,10 +65,7 @@ export function ProductQuickView({ product, open, onOpenChange }: ProductQuickVi
               )}
             </div>
 
-            <PriceDisplay
-              retailPrice={product.retailPrice}
-              comparePrice={product.comparePrice}
-            />
+            <PriceDisplay retailPrice={product.retailPrice} comparePrice={product.comparePrice} />
 
             {product.rating !== undefined && (
               <div className="flex items-center gap-1.5">
@@ -108,12 +107,18 @@ export function ProductQuickView({ product, open, onOpenChange }: ProductQuickVi
             </div>
 
             <div className="flex items-center gap-2 mt-auto pt-2">
-              <Button size="sm" disabled={product.stockStatus === "out_of_stock"} className="gap-1.5">
+              <Button
+                size="sm"
+                disabled={product.stockStatus === "out_of_stock"}
+                className="gap-1.5"
+              >
                 <ShoppingCart className="h-3.5 w-3.5" />
                 Add to Cart
               </Button>
               <Link href={`/product/${product.slug}`}>
-                <Button variant="outline" size="sm">View Details</Button>
+                <Button variant="outline" size="sm">
+                  View Details
+                </Button>
               </Link>
             </div>
           </div>

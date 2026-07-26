@@ -48,76 +48,62 @@ export function MembershipApplicationForm({
   const [loading, setLoading] = useState(false);
 
   // Common Fields State
-  const [fullName, setFullName] = useState(
-    existingApplication?.commonFields?.fullName || ""
-  );
-  const [phone, setPhone] = useState(
-    existingApplication?.commonFields?.phone || ""
-  );
-  const [altPhone, setAltPhone] = useState(
-    existingApplication?.commonFields?.altPhone || ""
-  );
+  const [fullName, setFullName] = useState(existingApplication?.commonFields?.fullName || "");
+  const [phone, setPhone] = useState(existingApplication?.commonFields?.phone || "");
+  const [altPhone, setAltPhone] = useState(existingApplication?.commonFields?.altPhone || "");
   const [bkashNumber, setBkashNumber] = useState(
-    existingApplication?.commonFields?.bkashNumber || ""
+    existingApplication?.commonFields?.bkashNumber || "",
   );
-  const [district, setDistrict] = useState(
-    existingApplication?.commonFields?.district || "Dhaka"
-  );
-  const [upazila, setUpazila] = useState(
-    existingApplication?.commonFields?.upazila || ""
-  );
+  const [district, setDistrict] = useState(existingApplication?.commonFields?.district || "Dhaka");
+  const [upazila, setUpazila] = useState(existingApplication?.commonFields?.upazila || "");
   const [fullAddress, setFullAddress] = useState(
-    existingApplication?.commonFields?.fullAddress || ""
+    existingApplication?.commonFields?.fullAddress || "",
   );
   const [facebookProfile, setFacebookProfile] = useState(
-    existingApplication?.commonFields?.facebookProfile || ""
+    existingApplication?.commonFields?.facebookProfile || "",
   );
   const [facebookPage, setFacebookPage] = useState(
-    existingApplication?.commonFields?.facebookPage || ""
+    existingApplication?.commonFields?.facebookPage || "",
   );
-  const [website, setWebsite] = useState(
-    existingApplication?.commonFields?.website || ""
-  );
+  const [website, setWebsite] = useState(existingApplication?.commonFields?.website || "");
   const [salesChannel, setSalesChannel] = useState(
-    existingApplication?.commonFields?.salesChannel || "Facebook Page"
+    existingApplication?.commonFields?.salesChannel || "Facebook Page",
   );
 
   // Reseller Fields State
   const [monthlyOrders, setMonthlyOrders] = useState<"0-20" | "20-50" | "50-100" | "100+">(
-    existingApplication?.resellerFields?.monthlyOrders || "0-20"
+    existingApplication?.resellerFields?.monthlyOrders || "0-20",
   );
   const [productCategories, setProductCategories] = useState<string[]>(
-    existingApplication?.resellerFields?.productCategories || ["গ্যাজেট ও ইলেকট্রনিক্স"]
+    existingApplication?.resellerFields?.productCategories || ["গ্যাজেট ও ইলেকট্রনিক্স"],
   );
 
   // Wholesaler Fields State
   const [companyName, setCompanyName] = useState(
-    existingApplication?.wholesalerFields?.companyName || ""
+    existingApplication?.wholesalerFields?.companyName || "",
   );
-  const [businessType, setBusinessType] = useState<"Retail Shop" | "Online Shop" | "Distributor" | "Dealer" | "Importer" | "Other">(
-    existingApplication?.wholesalerFields?.businessType || "Retail Shop"
-  );
-  const [estimatedMonthlyPurchase, setEstimatedMonthlyPurchase] = useState<"২০,০০০+" | "৫০,০০০+" | "১,০০,০০০+" | "৫,০০,০০০+">(
-    existingApplication?.wholesalerFields?.estimatedMonthlyPurchase || "২০,০০০+"
-  );
+  const [businessType, setBusinessType] = useState<
+    "Retail Shop" | "Online Shop" | "Distributor" | "Dealer" | "Importer" | "Other"
+  >(existingApplication?.wholesalerFields?.businessType || "Retail Shop");
+  const [estimatedMonthlyPurchase, setEstimatedMonthlyPurchase] = useState<
+    "২০,০০০+" | "৫০,০০০+" | "১,০০,০০০+" | "৫,০০,০০০+"
+  >(existingApplication?.wholesalerFields?.estimatedMonthlyPurchase || "২০,০০০+");
   const [tradeLicense, setTradeLicense] = useState(
-    existingApplication?.wholesalerFields?.tradeLicense || ""
+    existingApplication?.wholesalerFields?.tradeLicense || "",
   );
   const [binNumber, setBinNumber] = useState(
-    existingApplication?.wholesalerFields?.binNumber || ""
+    existingApplication?.wholesalerFields?.binNumber || "",
   );
   const [tinNumber, setTinNumber] = useState(
-    existingApplication?.wholesalerFields?.tinNumber || ""
+    existingApplication?.wholesalerFields?.tinNumber || "",
   );
-  const [userAnswer, setUserAnswer] = useState(
-    existingApplication?.userAnswer || ""
-  );
+  const [userAnswer, setUserAnswer] = useState(existingApplication?.userAnswer || "");
 
   const isReseller = membershipType === "reseller";
 
   const handleCategoryToggle = (cat: string) => {
     setProductCategories((prev) =>
-      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat],
     );
   };
 
@@ -212,7 +198,9 @@ export function MembershipApplicationForm({
           {isReseller ? "রিসেলার আবেদন ফরম" : "হোলসেলার আবেদন ফরম"}
         </span>
         <h2 className="text-2xl sm:text-3xl font-black text-slate-900 mt-2">
-          {isReseller ? "জিরো ইনভেস্টমেন্টে ড্রপশিপিং শুরু করুন" : "বি২বি পাইকারি মেম্বারশিপের জন্য আবেদন করুন"}
+          {isReseller
+            ? "জিরো ইনভেস্টমেন্টে ড্রপশিপিং শুরু করুন"
+            : "বি২বি পাইকারি মেম্বারশিপের জন্য আবেদন করুন"}
         </h2>
         <p className="text-xs sm:text-sm text-slate-600 font-bold mt-1">
           অনুগ্রহ করে আপনার সঠিক তথ্য প্রদান করুন। এডমিন টিম ১-২ ঘণ্টার মধ্যে আবেদনটি রিভিউ করবে।
@@ -245,7 +233,8 @@ export function MembershipApplicationForm({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-              <User className="w-3.5 h-3.5 text-amber-600" /> পূর্ণ নাম <span className="text-red-500">*</span>
+              <User className="w-3.5 h-3.5 text-amber-600" /> পূর্ণ নাম{" "}
+              <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -259,7 +248,8 @@ export function MembershipApplicationForm({
 
           <div className="space-y-1.5">
             <label className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-              <Phone className="w-3.5 h-3.5 text-amber-600" /> মোবাইল নম্বর <span className="text-red-500">*</span>
+              <Phone className="w-3.5 h-3.5 text-amber-600" /> মোবাইল নম্বর{" "}
+              <span className="text-red-500">*</span>
             </label>
             <input
               type="tel"
@@ -286,7 +276,8 @@ export function MembershipApplicationForm({
 
           <div className="space-y-1.5">
             <label className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-              <CreditCard className="w-3.5 h-3.5 text-amber-600" /> বিকাশ নম্বর (প্রফিট ক্যাশআউটের জন্য) <span className="text-red-500">*</span>
+              <CreditCard className="w-3.5 h-3.5 text-amber-600" /> বিকাশ নম্বর (প্রফিট ক্যাশআউটের
+              জন্য) <span className="text-red-500">*</span>
             </label>
             <input
               type="tel"
@@ -309,7 +300,8 @@ export function MembershipApplicationForm({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-amber-600" /> জেলা <span className="text-red-500">*</span>
+              <MapPin className="w-3.5 h-3.5 text-amber-600" /> জেলা{" "}
+              <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -323,7 +315,8 @@ export function MembershipApplicationForm({
 
           <div className="space-y-1.5">
             <label className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-amber-600" /> উপজেলা / থানা <span className="text-red-500">*</span>
+              <MapPin className="w-3.5 h-3.5 text-amber-600" /> উপজেলা / থানা{" "}
+              <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -337,7 +330,8 @@ export function MembershipApplicationForm({
 
           <div className="sm:col-span-2 space-y-1.5">
             <label className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-amber-600" /> সম্পূর্ণ ঠিকানা <span className="text-red-500">*</span>
+              <MapPin className="w-3.5 h-3.5 text-amber-600" /> সম্পূর্ণ ঠিকানা{" "}
+              <span className="text-red-500">*</span>
             </label>
             <textarea
               required
@@ -360,7 +354,8 @@ export function MembershipApplicationForm({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <label className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-              <Store className="w-3.5 h-3.5 text-amber-600" /> আপনি কীভাবে পণ্য বিক্রি করেন? <span className="text-red-500">*</span>
+              <Store className="w-3.5 h-3.5 text-amber-600" /> আপনি কীভাবে পণ্য বিক্রি করেন?{" "}
+              <span className="text-red-500">*</span>
             </label>
             <select
               value={salesChannel}
@@ -423,11 +418,14 @@ export function MembershipApplicationForm({
           <div className="space-y-4 pt-2">
             <div className="space-y-1.5">
               <label className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                <Package className="w-3.5 h-3.5 text-amber-600" /> বর্তমানে মাসে আনুমানিক কতটি অর্ডার পান?
+                <Package className="w-3.5 h-3.5 text-amber-600" /> বর্তমানে মাসে আনুমানিক কতটি
+                অর্ডার পান?
               </label>
               <select
                 value={monthlyOrders}
-                onChange={(e) => setMonthlyOrders(e.target.value as "0-20" | "20-50" | "50-100" | "100+")}
+                onChange={(e) =>
+                  setMonthlyOrders(e.target.value as "0-20" | "20-50" | "50-100" | "100+")
+                }
                 className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-slate-50 text-xs font-black text-slate-900 outline-none focus:border-amber-500"
               >
                 <option value="0-20">0-20 টি (নতুন শুরু করছি)</option>
@@ -455,7 +453,9 @@ export function MembershipApplicationForm({
                           : "bg-slate-50 border-slate-300 text-slate-700 hover:border-amber-300"
                       }`}
                     >
-                      <span className={`w-3.5 h-3.5 rounded-md border flex items-center justify-center shrink-0 ${selected ? "bg-amber-500 border-amber-600 text-white" : "border-slate-300"}`}>
+                      <span
+                        className={`w-3.5 h-3.5 rounded-md border flex items-center justify-center shrink-0 ${selected ? "bg-amber-500 border-amber-600 text-white" : "border-slate-300"}`}
+                      >
                         {selected && <CheckCircle2 className="w-3 h-3" />}
                       </span>
                       {cat}
@@ -473,7 +473,8 @@ export function MembershipApplicationForm({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                  <Building2 className="w-3.5 h-3.5 text-amber-600" /> প্রতিষ্ঠানের নাম <span className="text-red-500">*</span>
+                  <Building2 className="w-3.5 h-3.5 text-amber-600" /> প্রতিষ্ঠানের নাম{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -487,11 +488,22 @@ export function MembershipApplicationForm({
 
               <div className="space-y-1.5">
                 <label className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                  <Store className="w-3.5 h-3.5 text-amber-600" /> ব্যবসার ধরন <span className="text-red-500">*</span>
+                  <Store className="w-3.5 h-3.5 text-amber-600" /> ব্যবসার ধরন{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={businessType}
-                  onChange={(e) => setBusinessType(e.target.value as "Retail Shop" | "Online Shop" | "Distributor" | "Dealer" | "Importer" | "Other")}
+                  onChange={(e) =>
+                    setBusinessType(
+                      e.target.value as
+                        | "Retail Shop"
+                        | "Online Shop"
+                        | "Distributor"
+                        | "Dealer"
+                        | "Importer"
+                        | "Other",
+                    )
+                  }
                   className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-slate-50 text-xs font-black text-slate-900 outline-none focus:border-amber-500"
                 >
                   <option value="Retail Shop">Retail Shop (খুচরা দোকান)</option>
@@ -505,11 +517,16 @@ export function MembershipApplicationForm({
 
               <div className="space-y-1.5">
                 <label className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                  <Package className="w-3.5 h-3.5 text-amber-600" /> মাসিক আনুমানিক ক্রয় পরিমাণ <span className="text-red-500">*</span>
+                  <Package className="w-3.5 h-3.5 text-amber-600" /> মাসিক আনুমানিক ক্রয় পরিমাণ{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={estimatedMonthlyPurchase}
-                  onChange={(e) => setEstimatedMonthlyPurchase(e.target.value as "২০,০০০+" | "৫০,০০০+" | "১,০০,০০০+" | "৫,০০,০০০+")}
+                  onChange={(e) =>
+                    setEstimatedMonthlyPurchase(
+                      e.target.value as "২০,০০০+" | "৫০,০০০+" | "১,০০,০০০+" | "৫,০০,০০০+",
+                    )
+                  }
                   className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-slate-50 text-xs font-black text-slate-900 outline-none focus:border-amber-500"
                 >
                   <option value="২০,০০০+">২০,০০০+ টাকা</option>
@@ -573,8 +590,8 @@ export function MembershipApplicationForm({
           {loading
             ? "প্রসেসিং হচ্ছে..."
             : existingApplication
-            ? "সংশোধিত আবেদন জমা দিন"
-            : "আবেদন জমা দিন"}
+              ? "সংশোধিত আবেদন জমা দিন"
+              : "আবেদন জমা দিন"}
         </Button>
       </div>
     </form>

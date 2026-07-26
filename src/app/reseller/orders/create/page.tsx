@@ -45,17 +45,27 @@ interface CustomerInfo {
   district: string;
 }
 
-const DELIVERY_ZONES = ["Inside Dhaka", "Outside Dhaka", "Chattogram", "Sylhet", "Khulna", "Rajshahi", "Barishal", "Rangpur", "Mymensingh"];
+const DELIVERY_ZONES = [
+  "Inside Dhaka",
+  "Outside Dhaka",
+  "Chattogram",
+  "Sylhet",
+  "Khulna",
+  "Rajshahi",
+  "Barishal",
+  "Rangpur",
+  "Mymensingh",
+];
 const COURIER_RATES: Record<string, number> = {
   "Inside Dhaka": 6000,
   "Outside Dhaka": 13000,
-  "Chattogram": 10000,
-  "Sylhet": 12000,
-  "Khulna": 13000,
-  "Rajshahi": 13000,
-  "Barishal": 14000,
-  "Rangpur": 15000,
-  "Mymensingh": 13000,
+  Chattogram: 10000,
+  Sylhet: 12000,
+  Khulna: 13000,
+  Rajshahi: 13000,
+  Barishal: 14000,
+  Rangpur: 15000,
+  Mymensingh: 13000,
 };
 
 function CreateOrderPageContent(): React.ReactElement {
@@ -78,9 +88,8 @@ function CreateOrderPageContent(): React.ReactElement {
   React.useEffect(() => {
     async function resolveReseller() {
       try {
-        const { resolveCurrentResellerAction } = await import(
-          "@/features/reseller/actions/reseller-actions"
-        );
+        const { resolveCurrentResellerAction } =
+          await import("@/features/reseller/actions/reseller-actions");
         const res = await resolveCurrentResellerAction();
         if (res.success && res.data) setResellerId(res.data.id);
         else toast.error(res.error ?? "Reseller profile not linked");
@@ -104,9 +113,8 @@ function CreateOrderPageContent(): React.ReactElement {
     }
     setSearching(true);
     try {
-      const { searchResellerProductsAction } = await import(
-        "@/features/reseller/actions/reseller-actions"
-      );
+      const { searchResellerProductsAction } =
+        await import("@/features/reseller/actions/reseller-actions");
       const res = await searchResellerProductsAction({
         resellerId: "me",
         search: q,
@@ -203,9 +211,8 @@ function CreateOrderPageContent(): React.ReactElement {
 
     setSubmitting(true);
     try {
-      const { completeRoleCheckoutAction } = await import(
-        "@/features/checkout/actions/checkout-actions"
-      );
+      const { completeRoleCheckoutAction } =
+        await import("@/features/checkout/actions/checkout-actions");
       if (!resellerId) {
         toast.error("Reseller profile not ready. Refresh and try again.");
         setSubmitting(false);
@@ -233,8 +240,9 @@ function CreateOrderPageContent(): React.ReactElement {
 
       if (res.success) {
         toast.success("Order created via checkout pipeline");
-        const orderId = (res.data as { orderId?: string; id?: string } | undefined)?.orderId
-          ?? (res.data as { id?: string } | undefined)?.id;
+        const orderId =
+          (res.data as { orderId?: string; id?: string } | undefined)?.orderId ??
+          (res.data as { id?: string } | undefined)?.id;
         router.push(orderId ? `/reseller/orders/${orderId}` : "/reseller/orders");
       } else {
         toast.error(res.error ?? "Failed to create order");
@@ -251,10 +259,7 @@ function CreateOrderPageContent(): React.ReactElement {
 
   return (
     <div className="space-y-6 animate-[fade-in_0.2s_ease-out]">
-      <PageHeader
-        title="Create Order"
-        description="Place a new order for your customer"
-      />
+      <PageHeader title="Create Order" description="Place a new order for your customer" />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         {/* Left Column */}
@@ -306,7 +311,9 @@ function CreateOrderPageContent(): React.ReactElement {
                   className="h-10 w-full rounded-md border border-input bg-card px-3 text-sm"
                 >
                   {DELIVERY_ZONES.map((z) => (
-                    <option key={z} value={z}>{z}</option>
+                    <option key={z} value={z}>
+                      {z}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -354,7 +361,8 @@ function CreateOrderPageContent(): React.ReactElement {
                                 {p.customTitle ?? p.productId?.title ?? "Product"}
                               </div>
                               <div className="text-[11px] text-muted-foreground">
-                                {formatCents(pricing.sellingPrice ?? 0)} · {pricing.profitMargin ?? 0}% margin
+                                {formatCents(pricing.sellingPrice ?? 0)} ·{" "}
+                                {pricing.profitMargin ?? 0}% margin
                               </div>
                             </div>
                             <Plus className="h-4 w-4 shrink-0 text-muted-foreground" />
@@ -373,7 +381,9 @@ function CreateOrderPageContent(): React.ReactElement {
                       <div className="min-w-0 flex-1 space-y-1">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium truncate">{item.productName}</span>
-                          <span className="text-[10px] font-mono text-muted-foreground shrink-0">{item.variantSku}</span>
+                          <span className="text-[10px] font-mono text-muted-foreground shrink-0">
+                            {item.variantSku}
+                          </span>
                         </div>
                         <div className="flex items-center gap-2 flex-wrap">
                           <div className="flex items-center gap-1">
@@ -384,7 +394,9 @@ function CreateOrderPageContent(): React.ReactElement {
                             >
                               <Minus className="h-3 w-3" />
                             </button>
-                            <span className="w-8 text-center text-sm font-medium tabular-nums">{item.quantity}</span>
+                            <span className="w-8 text-center text-sm font-medium tabular-nums">
+                              {item.quantity}
+                            </span>
                             <button
                               type="button"
                               onClick={() => updateQuantity(item.id, 1)}
@@ -402,8 +414,23 @@ function CreateOrderPageContent(): React.ReactElement {
                           />
                         </div>
                         <div className="flex gap-3 text-xs text-muted-foreground">
-                          <span>Line total: <span className="font-medium text-foreground">{formatCents(item.totalPrice)}</span></span>
-                          <span>Profit: <span className={cn("font-medium", item.profitAmount > 0 ? "text-success" : "text-destructive")}>{formatCents(item.profitAmount * item.quantity)}</span></span>
+                          <span>
+                            Line total:{" "}
+                            <span className="font-medium text-foreground">
+                              {formatCents(item.totalPrice)}
+                            </span>
+                          </span>
+                          <span>
+                            Profit:{" "}
+                            <span
+                              className={cn(
+                                "font-medium",
+                                item.profitAmount > 0 ? "text-success" : "text-destructive",
+                              )}
+                            >
+                              {formatCents(item.profitAmount * item.quantity)}
+                            </span>
+                          </span>
                         </div>
                       </div>
                       <button
@@ -489,7 +516,9 @@ function CreateOrderPageContent(): React.ReactElement {
                 <Separator />
                 <div className="flex justify-between text-base">
                   <span className="font-semibold">Grand Total</span>
-                  <span className="font-bold tabular-nums text-primary">{formatCents(grandTotal)}</span>
+                  <span className="font-bold tabular-nums text-primary">
+                    {formatCents(grandTotal)}
+                  </span>
                 </div>
               </div>
 
@@ -497,13 +526,17 @@ function CreateOrderPageContent(): React.ReactElement {
 
               {/* Live Profit Preview */}
               <div className="space-y-1">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Profit Preview</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Profit Preview
+                </p>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Total Profit</span>
-                  <span className={cn(
-                    "font-semibold tabular-nums",
-                    totalProfit > 0 ? "text-success" : "text-destructive",
-                  )}>
+                  <span
+                    className={cn(
+                      "font-semibold tabular-nums",
+                      totalProfit > 0 ? "text-success" : "text-destructive",
+                    )}
+                  >
                     {formatCents(totalProfit)}
                   </span>
                 </div>
@@ -515,7 +548,9 @@ function CreateOrderPageContent(): React.ReactElement {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Net Receivable</span>
-                  <span className="font-semibold tabular-nums">{formatCents(grandTotal - deliveryCharge)}</span>
+                  <span className="font-semibold tabular-nums">
+                    {formatCents(grandTotal - deliveryCharge)}
+                  </span>
                 </div>
               </div>
 

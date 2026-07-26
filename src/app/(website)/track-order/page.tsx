@@ -6,7 +6,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Track Order Status - DropshopNN Bangladesh",
-  description: "Track your shipment status in real-time with Pathao Courier & Steadfast integration.",
+  description:
+    "Track your shipment status in real-time with Pathao Courier & Steadfast integration.",
 };
 
 interface PageProps {
@@ -55,7 +56,8 @@ export default async function TrackOrderPage({ searchParams }: PageProps) {
             Track Your Order
           </h1>
           <p className="text-xs text-slate-400">
-            Enter your Order Number (e.g. ORD-2026-00001), Phone Number, or Email address to view courier status.
+            Enter your Order Number (e.g. ORD-2026-00001), Phone Number, or Email address to view
+            courier status.
           </p>
         </div>
 
@@ -87,7 +89,8 @@ export default async function TrackOrderPage({ searchParams }: PageProps) {
                 <AlertCircle className="w-10 h-10 text-amber-400 mx-auto mb-3" />
                 <h3 className="text-lg font-bold text-white mb-1">No order found</h3>
                 <p className="text-xs text-slate-400">
-                  We could not locate any order matching &quot;{query}&quot;. Please verify your order ID or phone number.
+                  We could not locate any order matching &quot;{query}&quot;. Please verify your
+                  order ID or phone number.
                 </p>
               </div>
             ) : (
@@ -95,15 +98,23 @@ export default async function TrackOrderPage({ searchParams }: PageProps) {
                 {/* Summary Header */}
                 <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-6">
                   <div>
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold">Consignment</span>
-                    <h2 className="text-2xl font-extrabold text-white font-mono">{order.orderNumber}</h2>
-                    <p className="text-xs text-slate-400 mt-1">Recipient: {order.shipping?.receiverName} ({order.shipping?.district})</p>
+                    <span className="text-[10px] text-slate-400 uppercase font-semibold">
+                      Consignment
+                    </span>
+                    <h2 className="text-2xl font-extrabold text-white font-mono">
+                      {order.orderNumber}
+                    </h2>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Recipient: {order.shipping?.receiverName} ({order.shipping?.district})
+                    </p>
                   </div>
                   <div className="text-right">
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold uppercase">
                       <CheckCircle2 className="w-3.5 h-3.5" /> {order.status}
                     </span>
-                    <p className="text-xs text-slate-400 mt-1 font-mono">Total: ৳{(order.pricing.grandTotal / 100).toLocaleString("en-BD")} BDT</p>
+                    <p className="text-xs text-slate-400 mt-1 font-mono">
+                      Total: ৳{(order.pricing.grandTotal / 100).toLocaleString("en-BD")} BDT
+                    </p>
                   </div>
                 </div>
 
@@ -117,7 +128,9 @@ export default async function TrackOrderPage({ searchParams }: PageProps) {
                     {order.shippingInfo.trackingNumber && (
                       <div>
                         <span className="text-slate-400">Tracking Code:</span>{" "}
-                        <strong className="text-slate-200 font-mono">{order.shippingInfo.trackingNumber}</strong>
+                        <strong className="text-slate-200 font-mono">
+                          {order.shippingInfo.trackingNumber}
+                        </strong>
                       </div>
                     )}
                   </div>
@@ -128,17 +141,27 @@ export default async function TrackOrderPage({ searchParams }: PageProps) {
                   <h3 className="text-sm font-bold text-slate-300 mb-6">Delivery Progress</h3>
                   <div className="relative flex items-center justify-between border-t border-slate-800 pt-6">
                     {steps.map((s, idx) => {
-                      const isComplete = idx <= steps.findIndex((st) => st.key === order.status) || order.status === "delivered" || order.status === "completed";
+                      const isComplete =
+                        idx <= steps.findIndex((st) => st.key === order.status) ||
+                        order.status === "delivered" ||
+                        order.status === "completed";
                       return (
-                        <div key={s.key} className="flex flex-col items-center relative z-10 text-center">
+                        <div
+                          key={s.key}
+                          className="flex flex-col items-center relative z-10 text-center"
+                        >
                           <div
                             className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-                              isComplete ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20" : "bg-slate-950 border border-slate-800 text-slate-500"
+                              isComplete
+                                ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
+                                : "bg-slate-950 border border-slate-800 text-slate-500"
                             }`}
                           >
                             {idx + 1}
                           </div>
-                          <span className={`text-[11px] mt-2 font-medium ${isComplete ? "text-slate-200" : "text-slate-500"}`}>
+                          <span
+                            className={`text-[11px] mt-2 font-medium ${isComplete ? "text-slate-200" : "text-slate-500"}`}
+                          >
                             {s.label}
                           </span>
                         </div>

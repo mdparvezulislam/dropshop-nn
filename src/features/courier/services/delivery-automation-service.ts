@@ -2,7 +2,14 @@ import { ShipmentAutomationRepository } from "../repositories/shipment-automatio
 import { ShipmentRepository } from "../repositories/shipment-repository";
 import { LogisticsAuditRepository } from "../repositories/logistics-audit-repository";
 import { CourierProviderRegistry } from "../adapters/provider-registry";
-import type { ShipmentAutomationState, RiderInfo, HubTransfer, TrackingTimelineEntry, ImmutableLocationEntry, AutomationDashboardMetrics } from "../domain/delivery-automation-entity";
+import type {
+  ShipmentAutomationState,
+  RiderInfo,
+  HubTransfer,
+  TrackingTimelineEntry,
+  ImmutableLocationEntry,
+  AutomationDashboardMetrics,
+} from "../domain/delivery-automation-entity";
 import type { ShipmentStatus } from "../domain/shipment-entity";
 import { logger } from "@/lib/utils/logger";
 import { EventBus } from "@/lib/event-bus/event-bus";
@@ -55,7 +62,9 @@ export class DeliveryAutomationService {
       });
     }
 
-    const isTerminal = ["delivered", "returned", "cancelled", "failed", "lost", "damaged"].includes(input.newStatus);
+    const isTerminal = ["delivered", "returned", "cancelled", "failed", "lost", "damaged"].includes(
+      input.newStatus,
+    );
     const oldStatus = shipment.status;
 
     // 1. Update Shipment record
@@ -159,20 +168,23 @@ export class DeliveryAutomationService {
     }
 
     // 6. Update Automation Document
-    const updatedAutomation = await this.automationRepository.upsertAutomationState(input.shipmentId, {
-      currentStatus: input.newStatus,
-      nativeStatus: input.nativeStatus,
-      rider: input.rider || automation.rider,
-      currentHub: input.hub || automation.currentHub,
-      hubHistory,
-      locationHistory,
-      timeline,
-      isLocked: isTerminal,
-      codSettlementPrepared: codPrepared,
-      deliveryFeeRecorded: feeRecorded,
-      pollingStatus: isTerminal ? "completed" : "active",
-      lastPolledAt: new Date(),
-    });
+    const updatedAutomation = await this.automationRepository.upsertAutomationState(
+      input.shipmentId,
+      {
+        currentStatus: input.newStatus,
+        nativeStatus: input.nativeStatus,
+        rider: input.rider || automation.rider,
+        currentHub: input.hub || automation.currentHub,
+        hubHistory,
+        locationHistory,
+        timeline,
+        isLocked: isTerminal,
+        codSettlementPrepared: codPrepared,
+        deliveryFeeRecorded: feeRecorded,
+        pollingStatus: isTerminal ? "completed" : "active",
+        lastPolledAt: new Date(),
+      },
+    );
 
     // 7. Create Audit Log
     if (oldStatus !== input.newStatus) {
@@ -219,7 +231,10 @@ export class DeliveryAutomationService {
 
         processedCount++;
       } catch (err: any) {
-        logger.error(`DeliveryAutomationService: polling sync failed for shipment ${auto.shipmentId}`, err);
+        logger.error(
+          `DeliveryAutomationService: polling sync failed for shipment ${auto.shipmentId}`,
+          err,
+        );
         await this.automationRepository.upsertAutomationState(auto.shipmentId, {
           pollCount: (auto.pollCount || 0) + 1,
           lastErrorMessage: err.message,

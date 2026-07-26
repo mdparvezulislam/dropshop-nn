@@ -37,8 +37,20 @@ export default function SupplierProductDetailPage(): React.ReactElement {
     load();
   }, [params.id]);
 
-  if (loading) return <div className="flex items-center justify-center py-20"><Spinner size="lg" /></div>;
-  if (!product) return <Card><CardContent className="p-8 text-center text-sm text-muted-foreground">Product not found.</CardContent></Card>;
+  if (loading)
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Spinner size="lg" />
+      </div>
+    );
+  if (!product)
+    return (
+      <Card>
+        <CardContent className="p-8 text-center text-sm text-muted-foreground">
+          Product not found.
+        </CardContent>
+      </Card>
+    );
 
   const p = product;
   const formatCents = (cents: number): string =>
@@ -59,13 +71,17 @@ export default function SupplierProductDetailPage(): React.ReactElement {
       <div className="grid gap-5 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-5">
           <Card>
-            <CardHeader className="p-4 pb-2"><CardTitle className="text-sm">Description</CardTitle></CardHeader>
+            <CardHeader className="p-4 pb-2">
+              <CardTitle className="text-sm">Description</CardTitle>
+            </CardHeader>
             <CardContent className="p-4 text-sm text-muted-foreground leading-relaxed">
               {p.description ?? "—"}
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="p-4 pb-2"><CardTitle className="text-sm">Variants</CardTitle></CardHeader>
+            <CardHeader className="p-4 pb-2">
+              <CardTitle className="text-sm">Variants</CardTitle>
+            </CardHeader>
             <CardContent className="p-4">
               {p.variants?.length ? (
                 <div className="divide-y divide-border text-sm">
@@ -85,16 +101,36 @@ export default function SupplierProductDetailPage(): React.ReactElement {
 
         <div className="space-y-4">
           <Card>
-            <CardHeader className="p-4 pb-2"><CardTitle className="text-sm">Details</CardTitle></CardHeader>
+            <CardHeader className="p-4 pb-2">
+              <CardTitle className="text-sm">Details</CardTitle>
+            </CardHeader>
             <CardContent className="p-4 space-y-3 text-sm">
-              <div className="flex justify-between"><span className="text-muted-foreground">Status</span><StatusChip label={p.status} tone={statusToneFromValue(p.status)} /></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Price</span><span className="font-semibold">{formatCents(p.retailPrice ?? p.pricing?.retail ?? 0)}</span></div>
-              <div className="flex justify-between"><span className="text-muted-foreground">Stock</span><span>{p.stock ?? p.inventory?.available ?? 0}</span></div>
-              {p.brand ? <div className="flex justify-between"><span className="text-muted-foreground">Brand</span><span>{p.brandName ?? p.brand}</span></div> : null}
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Status</span>
+                <StatusChip label={p.status} tone={statusToneFromValue(p.status)} />
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Price</span>
+                <span className="font-semibold">
+                  {formatCents(p.retailPrice ?? p.pricing?.retail ?? 0)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Stock</span>
+                <span>{p.stock ?? p.inventory?.available ?? 0}</span>
+              </div>
+              {p.brand ? (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Brand</span>
+                  <span>{p.brandName ?? p.brand}</span>
+                </div>
+              ) : null}
             </CardContent>
           </Card>
           <Link href={`/supplier/products/${params.id}/edit`}>
-            <Button className="w-full gap-1.5"><Edit3 className="h-4 w-4" /> Edit Product</Button>
+            <Button className="w-full gap-1.5">
+              <Edit3 className="h-4 w-4" /> Edit Product
+            </Button>
           </Link>
         </div>
       </div>

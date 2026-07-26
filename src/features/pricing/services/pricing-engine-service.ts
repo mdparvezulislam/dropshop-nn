@@ -1,14 +1,27 @@
 import { PricingService } from "./pricing-service";
 import { ProfitCalculationService } from "./profit-calculation-service";
-import { GlobalPricingRuleRepository, CategoryPricingOverrideRepository, BrandPricingOverrideRepository, SupplierPricingRuleRepository } from "../repositories/global-pricing-repository";
+import {
+  GlobalPricingRuleRepository,
+  CategoryPricingOverrideRepository,
+  BrandPricingOverrideRepository,
+  SupplierPricingRuleRepository,
+} from "../repositories/global-pricing-repository";
 import { PricingProfileRepository } from "../repositories/profile-repository";
 import { MoqTierRepository } from "../repositories/moq-repository";
-import { CampaignPricingRepository, ScheduledPricingRepository } from "../repositories/campaign-repository";
+import {
+  CampaignPricingRepository,
+  ScheduledPricingRepository,
+} from "../repositories/campaign-repository";
 import { AdditionalCostRepository } from "../repositories/additional-cost-repository";
 import { PriceHistoryRepository } from "../repositories/approval-repository";
 import { RoundingService } from "./rounding-service";
 import { AdditionalCostService } from "./additional-cost-service";
-import { GlobalPricingRule, CategoryPricingOverride, BrandPricingOverride, SupplierPricingRule } from "../domain/global-pricing-entity";
+import {
+  GlobalPricingRule,
+  CategoryPricingOverride,
+  BrandPricingOverride,
+  SupplierPricingRule,
+} from "../domain/global-pricing-entity";
 import { PricingProfile } from "../domain/pricing-profile-entity";
 import { MoqTier, MoqTierEntry } from "../domain/moq-entity";
 import { CampaignPricing, ScheduledPricing } from "../domain/campaign-entity";
@@ -86,7 +99,10 @@ export class PricingEngineService {
     const appliedRules: string[] = [];
     const warnings: string[] = [];
 
-    const pricing = await this.pricingService.getPricingByProduct(request.productId, request.variantSku);
+    const pricing = await this.pricingService.getPricingByProduct(
+      request.productId,
+      request.variantSku,
+    );
 
     const costBasis = resolveCostBasis({
       baseCostPrice: request.costPrice ?? pricing?.baseCostPrice ?? 0,
@@ -95,7 +111,9 @@ export class PricingEngineService {
     });
 
     const additionalCosts = await this.additionalCostService.getTotalAdditionalCosts(
-      request.productId, request.variantSku, costBasis,
+      request.productId,
+      request.variantSku,
+      costBasis,
     );
     const totalCostBasis = costBasis + additionalCosts;
 
@@ -124,7 +142,13 @@ export class PricingEngineService {
       appliedRules.push(`rule:${rule.name}`);
       let unitPrice = this.applyMarkup(totalCostBasis, rule.markupType, rule.markupValue);
       unitPrice = this.applyMinMargin(unitPrice, totalCostBasis, rule.minMarginPercent);
-      const result = this.buildResult({ unitPrice, costBasis: totalCostBasis, quantity: request.quantity, appliedRules, source: "global" });
+      const result = this.buildResult({
+        unitPrice,
+        costBasis: totalCostBasis,
+        quantity: request.quantity,
+        appliedRules,
+        source: "global",
+      });
       if (profileRule) appliedRules.push(`profile:${profileRule.name}`);
       return this.roundingService.roundPrices(result);
     }
@@ -133,9 +157,19 @@ export class PricingEngineService {
       const supplierRule = await this.supplierRepo.findBySupplierId(request.supplierId);
       if (supplierRule) {
         appliedRules.push(`supplier:${supplierRule.supplierName}`);
-        let unitPrice = this.applyMarkup(totalCostBasis, supplierRule.markupType, supplierRule.markupValue);
+        let unitPrice = this.applyMarkup(
+          totalCostBasis,
+          supplierRule.markupType,
+          supplierRule.markupValue,
+        );
         unitPrice = this.applyMinMargin(unitPrice, totalCostBasis, supplierRule.minMarginPercent);
-        const result = this.buildResult({ unitPrice, costBasis: totalCostBasis, quantity: request.quantity, appliedRules, source: "supplier" });
+        const result = this.buildResult({
+          unitPrice,
+          costBasis: totalCostBasis,
+          quantity: request.quantity,
+          appliedRules,
+          source: "supplier",
+        });
         return this.roundingService.roundPrices(result);
       }
     }
@@ -144,9 +178,19 @@ export class PricingEngineService {
       const brandRule = await this.brandRepo.findByBrandId(request.brandId);
       if (brandRule) {
         appliedRules.push(`brand:${brandRule.brandName}`);
-        let unitPrice = this.applyMarkup(totalCostBasis, brandRule.markupType, brandRule.markupValue);
+        let unitPrice = this.applyMarkup(
+          totalCostBasis,
+          brandRule.markupType,
+          brandRule.markupValue,
+        );
         unitPrice = this.applyMinMargin(unitPrice, totalCostBasis, brandRule.minProfitPercent);
-        const result = this.buildResult({ unitPrice, costBasis: totalCostBasis, quantity: request.quantity, appliedRules, source: "brand" });
+        const result = this.buildResult({
+          unitPrice,
+          costBasis: totalCostBasis,
+          quantity: request.quantity,
+          appliedRules,
+          source: "brand",
+        });
         return this.roundingService.roundPrices(result);
       }
     }
@@ -155,9 +199,19 @@ export class PricingEngineService {
       const categoryRule = await this.categoryRepo.findByCategoryId(request.categoryId);
       if (categoryRule) {
         appliedRules.push(`category:${categoryRule.categoryName}`);
-        let unitPrice = this.applyMarkup(totalCostBasis, categoryRule.markupType, categoryRule.markupValue);
+        let unitPrice = this.applyMarkup(
+          totalCostBasis,
+          categoryRule.markupType,
+          categoryRule.markupValue,
+        );
         unitPrice = this.applyMinMargin(unitPrice, totalCostBasis, categoryRule.minMarginPercent);
-        const result = this.buildResult({ unitPrice, costBasis: totalCostBasis, quantity: request.quantity, appliedRules, source: "category" });
+        const result = this.buildResult({
+          unitPrice,
+          costBasis: totalCostBasis,
+          quantity: request.quantity,
+          appliedRules,
+          source: "category",
+        });
         return this.roundingService.roundPrices(result);
       }
     }
@@ -166,9 +220,19 @@ export class PricingEngineService {
       appliedRules.push(`profile:${profileRule.name}`);
       const channelRule = profileRule.markupRules.find((r) => r.channel === channel);
       if (channelRule) {
-        let unitPrice = this.applyMarkup(totalCostBasis, channelRule.markupType, channelRule.markupValue);
+        let unitPrice = this.applyMarkup(
+          totalCostBasis,
+          channelRule.markupType,
+          channelRule.markupValue,
+        );
         unitPrice = this.applyMinMargin(unitPrice, totalCostBasis, profileRule.minMarginPercent);
-        const result = this.buildResult({ unitPrice, costBasis: totalCostBasis, quantity: request.quantity, appliedRules, source: "profile" });
+        const result = this.buildResult({
+          unitPrice,
+          costBasis: totalCostBasis,
+          quantity: request.quantity,
+          appliedRules,
+          source: "profile",
+        });
         return this.roundingService.roundPrices(result);
       }
     }
@@ -176,21 +240,39 @@ export class PricingEngineService {
     if (pricing) {
       appliedRules.push("manual:pricing_record");
       const unitPrice = this.getPriceByRole(pricing, request.role);
-      const result = this.buildResult({ unitPrice, costBasis: totalCostBasis, quantity: request.quantity, appliedRules, source: "manual" });
+      const result = this.buildResult({
+        unitPrice,
+        costBasis: totalCostBasis,
+        quantity: request.quantity,
+        appliedRules,
+        source: "manual",
+      });
       return this.roundingService.roundPrices(result);
     }
 
     if (totalCostBasis > 0) {
       appliedRules.push("default:cost_plus_20");
       const unitPrice = Math.round(totalCostBasis * 1.2);
-      const result = this.buildResult({ unitPrice, costBasis: totalCostBasis, quantity: request.quantity, appliedRules, source: "manual" });
+      const result = this.buildResult({
+        unitPrice,
+        costBasis: totalCostBasis,
+        quantity: request.quantity,
+        appliedRules,
+        source: "manual",
+      });
       return this.roundingService.roundPrices(result);
     }
 
     return {
-      unitPrice: 0, totalPrice: 0, costBasis: 0,
-      profitAmount: 0, profitMargin: 0, roundedPrice: 0,
-      appliedRules: [], source: "manual", warnings: ["No pricing data available"],
+      unitPrice: 0,
+      totalPrice: 0,
+      costBasis: 0,
+      profitAmount: 0,
+      profitMargin: 0,
+      roundedPrice: 0,
+      appliedRules: [],
+      source: "manual",
+      warnings: ["No pricing data available"],
     };
   }
 
@@ -240,7 +322,11 @@ export class PricingEngineService {
     return { allowed: blocks.length === 0, minimumPrice, maximumDiscount: 100, warnings, blocks };
   }
 
-  async resolveMoqPrice(productId: string, quantity: number, variantSku?: string): Promise<{ price: number; tier: MoqTierEntry | null }> {
+  async resolveMoqPrice(
+    productId: string,
+    quantity: number,
+    variantSku?: string,
+  ): Promise<{ price: number; tier: MoqTierEntry | null }> {
     const moqTier = await this.moqRepo.findByProduct(productId, variantSku);
     if (!moqTier || !moqTier.isActive) return { price: 0, tier: null };
 
@@ -310,23 +396,39 @@ export class PricingEngineService {
     };
   }
 
-  private async findActiveCampaign(productId: string, campaignCode?: string): Promise<CampaignPricing | null> {
+  private async findActiveCampaign(
+    productId: string,
+    campaignCode?: string,
+  ): Promise<CampaignPricing | null> {
     if (productId === "simulation" && campaignCode) return null;
     const campaigns = await this.campaignRepo.findActiveByProduct(productId);
     if (campaignCode) {
-      return campaigns.find((c) => c.name === campaignCode || c.id === campaignCode) ?? campaigns[0] ?? null;
+      return (
+        campaigns.find((c) => c.name === campaignCode || c.id === campaignCode) ??
+        campaigns[0] ??
+        null
+      );
     }
     return campaigns[0] ?? null;
   }
 
   private buildResult(data: {
-    unitPrice: number; costBasis: number; quantity: number;
-    appliedRules: string[]; source: CalculatedPrice["source"];
+    unitPrice: number;
+    costBasis: number;
+    quantity: number;
+    appliedRules: string[];
+    source: CalculatedPrice["source"];
     campaign?: CampaignPricing;
   }): CalculatedPrice {
     const totalPrice = data.unitPrice * data.quantity;
-    const profitAmount = this.profitCalculation.calculateProfitAmount(data.unitPrice, data.costBasis);
-    const profitMargin = this.profitCalculation.calculateProfitMargin(data.unitPrice, data.costBasis);
+    const profitAmount = this.profitCalculation.calculateProfitAmount(
+      data.unitPrice,
+      data.costBasis,
+    );
+    const profitMargin = this.profitCalculation.calculateProfitMargin(
+      data.unitPrice,
+      data.costBasis,
+    );
 
     return {
       unitPrice: data.unitPrice,
@@ -355,15 +457,24 @@ export class PricingEngineService {
 
   private getPriceByRole(pricing: ProductPricing, role: string): number {
     switch (role) {
-      case "wholesaler": return pricing.wholesalePrice || pricing.sellingPrice;
-      case "reseller": return pricing.resellerPrice || pricing.sellingPrice;
-      case "distributor": return pricing.wholesalePrice || pricing.sellingPrice;
-      default: return pricing.sellingPrice;
+      case "wholesaler":
+        return pricing.wholesalePrice || pricing.sellingPrice;
+      case "reseller":
+        return pricing.resellerPrice || pricing.sellingPrice;
+      case "distributor":
+        return pricing.wholesalePrice || pricing.sellingPrice;
+      default:
+        return pricing.sellingPrice;
     }
   }
 
-  private roleToChannel(role: string): "retail" | "wholesale" | "reseller" | "distributor" | "vip_reseller" | "marketplace" {
-    const map: Record<string, "retail" | "wholesale" | "reseller" | "distributor" | "vip_reseller" | "marketplace"> = {
+  private roleToChannel(
+    role: string,
+  ): "retail" | "wholesale" | "reseller" | "distributor" | "vip_reseller" | "marketplace" {
+    const map: Record<
+      string,
+      "retail" | "wholesale" | "reseller" | "distributor" | "vip_reseller" | "marketplace"
+    > = {
       customer: "retail",
       wholesaler: "wholesale",
       reseller: "reseller",

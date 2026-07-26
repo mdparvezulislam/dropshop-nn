@@ -23,7 +23,18 @@ import {
   updateTagsAction,
 } from "@/features/customer/actions/customer-actions";
 import { toast } from "sonner";
-import { Users, Search, Plus, MapPin, ClipboardList, Tag, FileText, BarChart3, UserCheck, Shield } from "lucide-react";
+import {
+  Users,
+  Search,
+  Plus,
+  MapPin,
+  ClipboardList,
+  Tag,
+  FileText,
+  BarChart3,
+  UserCheck,
+  Shield,
+} from "lucide-react";
 
 export default function UnifiedCustomersPage() {
   const { data: session } = useSession() as any;
@@ -48,7 +59,9 @@ export default function UnifiedCustomersPage() {
   const [gender, setGender] = React.useState<"male" | "female" | "other" | "">("");
   const [birthDate, setBirthDate] = React.useState("");
 
-  const [addressType, setAddressType] = React.useState<"home" | "office" | "warehouse" | "custom" | "store">("home");
+  const [addressType, setAddressType] = React.useState<
+    "home" | "office" | "warehouse" | "custom" | "store"
+  >("home");
   const [division, setDivision] = React.useState("");
   const [district, setDistrict] = React.useState("");
   const [upazila, setUpazila] = React.useState("");
@@ -228,10 +241,17 @@ export default function UnifiedCustomersPage() {
     <div className="min-h-screen bg-slate-950 p-4 sm:p-6 text-white space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Customer Relationship Workspace</h1>
-          <p className="text-sm text-slate-400">Track profiles, address books, stats, segment tags, and timeline events</p>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            Customer Relationship Workspace
+          </h1>
+          <p className="text-sm text-slate-400">
+            Track profiles, address books, stats, segment tags, and timeline events
+          </p>
         </div>
-        <Button onClick={() => setShowCreateModal(true)} className="bg-indigo-600 hover:bg-indigo-500 text-xs">
+        <Button
+          onClick={() => setShowCreateModal(true)}
+          className="bg-indigo-600 hover:bg-indigo-500 text-xs"
+        >
           <Plus className="mr-2 h-4 w-4" /> Add Customer
         </Button>
       </div>
@@ -277,18 +297,27 @@ export default function UnifiedCustomersPage() {
                           key={c.id}
                           onClick={() => setSelectedCustomer(c)}
                           className={`border-slate-850 cursor-pointer transition-colors ${
-                            selectedCustomer?.id === c.id ? "bg-slate-900/80" : "hover:bg-slate-900/30"
+                            selectedCustomer?.id === c.id
+                              ? "bg-slate-900/80"
+                              : "hover:bg-slate-900/30"
                           }`}
                         >
                           <TableCell className="font-semibold text-slate-200">{c.name}</TableCell>
-                          <TableCell className="font-mono text-xs text-slate-300">{c.phone}</TableCell>
+                          <TableCell className="font-mono text-xs text-slate-300">
+                            {c.phone}
+                          </TableCell>
                           <TableCell>
-                            <Badge variant={c.status === "active" ? "success" : "destructive"}>{c.status}</Badge>
+                            <Badge variant={c.status === "active" ? "success" : "destructive"}>
+                              {c.status}
+                            </Badge>
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-1 flex-wrap">
                               {c.tags?.map((t: string) => (
-                                <Badge key={t} className="bg-indigo-950 text-indigo-300 text-[9px] hover:bg-indigo-900">
+                                <Badge
+                                  key={t}
+                                  className="bg-indigo-950 text-indigo-300 text-[9px] hover:bg-indigo-900"
+                                >
                                   {t}
                                 </Badge>
                               ))}
@@ -312,14 +341,19 @@ export default function UnifiedCustomersPage() {
             {!selectedCustomer ? (
               <div className="h-96 flex flex-col items-center justify-center text-center text-slate-500 p-6">
                 <Users className="h-10 w-10 mb-2 opacity-50 text-indigo-400" />
-                <span className="text-xs">Select a customer from the registry to view details, timeline updates, notes, and metrics</span>
+                <span className="text-xs">
+                  Select a customer from the registry to view details, timeline updates, notes, and
+                  metrics
+                </span>
               </div>
             ) : (
               <div className="p-5 space-y-6">
                 <div className="flex justify-between items-start border-b border-slate-800 pb-4">
                   <div>
                     <h3 className="text-base font-bold text-slate-100">{selectedCustomer.name}</h3>
-                    <span className="text-[10px] text-slate-500 font-mono mt-0.5 block">ID: {selectedCustomer.id}</span>
+                    <span className="text-[10px] text-slate-500 font-mono mt-0.5 block">
+                      ID: {selectedCustomer.id}
+                    </span>
                   </div>
                   <Badge variant={selectedCustomer.status === "active" ? "success" : "destructive"}>
                     {selectedCustomer.status}
@@ -328,19 +362,33 @@ export default function UnifiedCustomersPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <span className="text-[10px] text-slate-500 uppercase block font-mono">Mobile Phone</span>
-                    <span className="text-xs text-slate-200 font-mono font-semibold">{selectedCustomer.phone}</span>
+                    <span className="text-[10px] text-slate-500 uppercase block font-mono">
+                      Mobile Phone
+                    </span>
+                    <span className="text-xs text-slate-200 font-mono font-semibold">
+                      {selectedCustomer.phone}
+                    </span>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[10px] text-slate-500 uppercase block font-mono">Email Address</span>
-                    <span className="text-xs text-slate-200 font-semibold">{selectedCustomer.email || "N/A"}</span>
+                    <span className="text-[10px] text-slate-500 uppercase block font-mono">
+                      Email Address
+                    </span>
+                    <span className="text-xs text-slate-200 font-semibold">
+                      {selectedCustomer.email || "N/A"}
+                    </span>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[10px] text-slate-500 uppercase block font-mono">Gender</span>
-                    <span className="text-xs text-slate-200 capitalize">{selectedCustomer.gender || "N/A"}</span>
+                    <span className="text-[10px] text-slate-500 uppercase block font-mono">
+                      Gender
+                    </span>
+                    <span className="text-xs text-slate-200 capitalize">
+                      {selectedCustomer.gender || "N/A"}
+                    </span>
                   </div>
                   <div className="space-y-1">
-                    <span className="text-[10px] text-slate-500 uppercase block font-mono">Total Spend</span>
+                    <span className="text-[10px] text-slate-500 uppercase block font-mono">
+                      Total Spend
+                    </span>
                     <span className="text-xs text-emerald-400 font-mono font-semibold">
                       {formatCurrency(selectedCustomer.statistics?.totalSpend || 0)}
                     </span>
@@ -350,18 +398,30 @@ export default function UnifiedCustomersPage() {
                 <div className="space-y-3 pt-3 border-t border-slate-800">
                   <div className="flex justify-between items-center">
                     <h4 className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
-                      <MapPin className="h-3.5 w-3.5" /> Address Book ({selectedCustomer.addresses?.length || 0})
+                      <MapPin className="h-3.5 w-3.5" /> Address Book (
+                      {selectedCustomer.addresses?.length || 0})
                     </h4>
-                    <Button onClick={() => setShowAddressModal(true)} size="sm" className="bg-indigo-650 hover:bg-indigo-600 h-6 text-[10px]">
+                    <Button
+                      onClick={() => setShowAddressModal(true)}
+                      size="sm"
+                      className="bg-indigo-650 hover:bg-indigo-600 h-6 text-[10px]"
+                    >
                       Add
                     </Button>
                   </div>
                   <div className="space-y-2 max-h-32 overflow-y-auto">
                     {selectedCustomer.addresses?.map((a: any) => (
-                      <div key={a.id} className="p-2 rounded bg-slate-950/60 border border-slate-900 text-[10px]">
+                      <div
+                        key={a.id}
+                        className="p-2 rounded bg-slate-950/60 border border-slate-900 text-[10px]"
+                      >
                         <div className="flex justify-between items-center mb-1">
                           <span className="font-semibold text-indigo-300 capitalize">{a.type}</span>
-                          {a.isDefault && <Badge className="text-[8px] h-4 bg-emerald-950 text-emerald-300">Default</Badge>}
+                          {a.isDefault && (
+                            <Badge className="text-[8px] h-4 bg-emerald-950 text-emerald-300">
+                              Default
+                            </Badge>
+                          )}
                         </div>
                         <p className="text-slate-400">
                           {a.area}, {a.upazila}, {a.district}, {a.division}
@@ -374,21 +434,33 @@ export default function UnifiedCustomersPage() {
                 <div className="space-y-3 pt-3 border-t border-slate-800">
                   <div className="flex justify-between items-center">
                     <h4 className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
-                      <FileText className="h-3.5 w-3.5" /> Notes Remark ({getVisibleNotes(selectedCustomer.notes).length})
+                      <FileText className="h-3.5 w-3.5" /> Notes Remark (
+                      {getVisibleNotes(selectedCustomer.notes).length})
                     </h4>
-                    <Button onClick={() => setShowNoteModal(true)} size="sm" className="bg-indigo-650 hover:bg-indigo-600 h-6 text-[10px]">
+                    <Button
+                      onClick={() => setShowNoteModal(true)}
+                      size="sm"
+                      className="bg-indigo-650 hover:bg-indigo-600 h-6 text-[10px]"
+                    >
                       Add Note
                     </Button>
                   </div>
                   <div className="space-y-2 max-h-36 overflow-y-auto">
                     {getVisibleNotes(selectedCustomer.notes).map((n: any) => (
-                      <div key={n.id} className="p-2 rounded bg-slate-950/60 border border-slate-900 text-[10px] space-y-1">
+                      <div
+                        key={n.id}
+                        className="p-2 rounded bg-slate-950/60 border border-slate-900 text-[10px] space-y-1"
+                      >
                         <div className="flex justify-between text-slate-500">
                           <span>By {n.authorId.slice(-6)}</span>
                           <span>{new Date(n.createdAt).toLocaleDateString()}</span>
                         </div>
                         <p className="text-slate-300">{n.note}</p>
-                        {n.isPrivate && <Badge className="text-[8px] h-4 bg-rose-950 text-rose-300">Private Admin Only</Badge>}
+                        {n.isPrivate && (
+                          <Badge className="text-[8px] h-4 bg-rose-950 text-rose-300">
+                            Private Admin Only
+                          </Badge>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -467,10 +539,18 @@ export default function UnifiedCustomersPage() {
                   />
                 </div>
                 <div className="flex gap-2">
-                  <Button type="submit" className="flex-1 text-xs font-semibold bg-indigo-600 hover:bg-indigo-500">
+                  <Button
+                    type="submit"
+                    className="flex-1 text-xs font-semibold bg-indigo-600 hover:bg-indigo-500"
+                  >
                     Create Profile
                   </Button>
-                  <Button type="button" onClick={() => setShowCreateModal(false)} variant="secondary" className="text-xs h-9">
+                  <Button
+                    type="button"
+                    onClick={() => setShowCreateModal(false)}
+                    variant="secondary"
+                    className="text-xs h-9"
+                  >
                     Cancel
                   </Button>
                 </div>
@@ -549,7 +629,9 @@ export default function UnifiedCustomersPage() {
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[10px] uppercase text-slate-400">Area details / Road / Address</label>
+                  <label className="text-[10px] uppercase text-slate-400">
+                    Area details / Road / Address
+                  </label>
                   <Input
                     required
                     placeholder="House 12, Road 4, Sector 6"
@@ -566,13 +648,23 @@ export default function UnifiedCustomersPage() {
                     id="isDefaultCheck"
                     className="h-4 w-4 rounded border-slate-800 bg-slate-950 text-indigo-600 focus:ring-0"
                   />
-                  <label htmlFor="isDefaultCheck" className="text-xs text-slate-300">Set as default shipping address</label>
+                  <label htmlFor="isDefaultCheck" className="text-xs text-slate-300">
+                    Set as default shipping address
+                  </label>
                 </div>
                 <div className="flex gap-2">
-                  <Button type="submit" className="flex-1 text-xs font-semibold bg-indigo-600 hover:bg-indigo-500">
+                  <Button
+                    type="submit"
+                    className="flex-1 text-xs font-semibold bg-indigo-600 hover:bg-indigo-500"
+                  >
                     Add Address
                   </Button>
-                  <Button type="button" onClick={() => setShowAddressModal(false)} variant="secondary" className="text-xs h-9">
+                  <Button
+                    type="button"
+                    onClick={() => setShowAddressModal(false)}
+                    variant="secondary"
+                    className="text-xs h-9"
+                  >
                     Cancel
                   </Button>
                 </div>
@@ -613,14 +705,24 @@ export default function UnifiedCustomersPage() {
                       id="isPrivateCheck"
                       className="h-4 w-4 rounded border-slate-800 bg-slate-950 text-indigo-600 focus:ring-0"
                     />
-                    <label htmlFor="isPrivateCheck" className="text-xs text-slate-300">Set as Private Admin-only Note</label>
+                    <label htmlFor="isPrivateCheck" className="text-xs text-slate-300">
+                      Set as Private Admin-only Note
+                    </label>
                   </div>
                 )}
                 <div className="flex gap-2">
-                  <Button type="submit" className="flex-1 text-xs font-semibold bg-indigo-600 hover:bg-indigo-500">
+                  <Button
+                    type="submit"
+                    className="flex-1 text-xs font-semibold bg-indigo-600 hover:bg-indigo-500"
+                  >
                     Add Note
                   </Button>
-                  <Button type="button" onClick={() => setShowNoteModal(false)} variant="secondary" className="text-xs h-9">
+                  <Button
+                    type="button"
+                    onClick={() => setShowNoteModal(false)}
+                    variant="secondary"
+                    className="text-xs h-9"
+                  >
                     Cancel
                   </Button>
                 </div>

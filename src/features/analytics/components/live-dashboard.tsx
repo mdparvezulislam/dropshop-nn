@@ -7,7 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getLiveDashboardAction } from "../actions/analytics-actions";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { ExecutiveDashboardData } from "../domain/analytics-entity";
 
 export function LiveDashboard(): React.ReactElement {
@@ -28,7 +34,9 @@ export function LiveDashboard(): React.ReactElement {
 
   useEffect(() => {
     load();
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, [load]);
 
   useEffect(() => {
@@ -36,7 +44,9 @@ export function LiveDashboard(): React.ReactElement {
     if (interval > 0) {
       intervalRef.current = setInterval(load, interval * 1000);
     }
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, [interval, load]);
 
   return (
@@ -67,7 +77,11 @@ export function LiveDashboard(): React.ReactElement {
             </SelectContent>
           </Select>
           <Button variant="outline" size="sm" onClick={load} disabled={loading} className="gap-1.5">
-            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+            {loading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="h-3.5 w-3.5" />
+            )}
             Refresh
           </Button>
         </div>
@@ -86,37 +100,69 @@ export function LiveDashboard(): React.ReactElement {
         <>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-xs font-medium text-muted-foreground">Live Orders</CardTitle></CardHeader>
-              <CardContent><p className="text-2xl font-bold">{data.todayOrders.toLocaleString()}</p></CardContent>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-medium text-muted-foreground">
+                  Live Orders
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{data.todayOrders.toLocaleString()}</p>
+              </CardContent>
             </Card>
             <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-xs font-medium text-muted-foreground">Live Deliveries</CardTitle></CardHeader>
-              <CardContent><p className="text-2xl font-bold">{data.todayDeliveries.toLocaleString()}</p></CardContent>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-medium text-muted-foreground">
+                  Live Deliveries
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{data.todayDeliveries.toLocaleString()}</p>
+              </CardContent>
             </Card>
             <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-xs font-medium text-muted-foreground">Live Shipments</CardTitle></CardHeader>
-              <CardContent><p className="text-2xl font-bold">{data.todayShipments.toLocaleString()}</p></CardContent>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-medium text-muted-foreground">
+                  Live Shipments
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{data.todayShipments.toLocaleString()}</p>
+              </CardContent>
             </Card>
             <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-xs font-medium text-muted-foreground">Live Revenue</CardTitle></CardHeader>
-              <CardContent><p className="text-2xl font-bold">৳{data.todayRevenue.toLocaleString("en-BD")}</p></CardContent>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-medium text-muted-foreground">
+                  Live Revenue
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">৳{data.todayRevenue.toLocaleString("en-BD")}</p>
+              </CardContent>
             </Card>
             <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-xs font-medium text-muted-foreground">Returns</CardTitle></CardHeader>
-              <CardContent><p className="text-2xl font-bold">{data.todayReturns.toLocaleString()}</p></CardContent>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-xs font-medium text-muted-foreground">Returns</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{data.todayReturns.toLocaleString()}</p>
+              </CardContent>
             </Card>
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <Card>
-              <CardHeader><CardTitle className="text-sm font-semibold">Recent Orders</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle className="text-sm font-semibold">Recent Orders</CardTitle>
+              </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">{data.todayOrders}</p>
                 <p className="text-sm text-muted-foreground mt-1">orders today</p>
               </CardContent>
             </Card>
             <Card>
-              <CardHeader><CardTitle className="text-sm font-semibold">Revenue Today</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle className="text-sm font-semibold">Revenue Today</CardTitle>
+              </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">৳{data.todayRevenue.toLocaleString("en-BD")}</p>
                 <p className="text-sm text-muted-foreground mt-1">gross revenue today</p>

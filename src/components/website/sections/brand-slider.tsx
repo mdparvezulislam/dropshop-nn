@@ -10,10 +10,7 @@ interface BrandSliderProps {
   title?: string;
 }
 
-export function BrandSlider({
-  brands,
-  title = "Trusted Brands",
-}: BrandSliderProps) {
+export function BrandSlider({ brands, title = "Trusted Brands" }: BrandSliderProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
 

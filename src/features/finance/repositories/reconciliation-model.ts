@@ -42,6 +42,5 @@ const reconciliationLogSchema = new Schema(
 reconciliationLogSchema.index({ status: 1, createdAt: -1 });
 
 export const ReconciliationLogModel =
-  mongoose.models.ReconciliationLog ||
-  mongoose.model("ReconciliationLog", reconciliationLogSchema);
+  mongoose.models.ReconciliationLog || mongoose.model("ReconciliationLog", reconciliationLogSchema);
 export default ReconciliationLogModel;

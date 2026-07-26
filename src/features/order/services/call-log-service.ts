@@ -79,11 +79,9 @@ export class CallLogService {
       if (dateTo) (filter.callTime as any).$lte = new Date(dateTo);
     }
 
-    const result = await this.callLogRepository.findPaginated(
-      filter,
-      { page, limit },
-      { callTime: -1 } as any,
-    );
+    const result = await this.callLogRepository.findPaginated(filter, { page, limit }, {
+      callTime: -1,
+    } as any);
     return { items: result.items, total: result.totalCount };
   }
 

@@ -68,7 +68,7 @@ export function ProductPagePanel({
   retailPrice,
   resellerPrice = Math.round(retailPrice * 0.75),
   wholesalePrice = Math.round(retailPrice * 0.65),
-  costPrice = Math.round(retailPrice * 0.60),
+  costPrice = Math.round(retailPrice * 0.6),
   comparePrice,
   minResellerPrice,
   currency = "BDT",
@@ -109,7 +109,8 @@ export function ProductPagePanel({
     : retailPrice;
 
   // Clean SKU display (never print raw ObjectId)
-  const displaySku = selectedVariant?.sku || (sku && !sku.match(/^[0-9a-fA-F]{24}$/) ? sku : "DS-PROD-001");
+  const displaySku =
+    selectedVariant?.sku || (sku && !sku.match(/^[0-9a-fA-F]{24}$/) ? sku : "DS-PROD-001");
 
   return (
     <>
@@ -132,9 +133,7 @@ export function ProductPagePanel({
             </span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">
-            {name}
-          </h1>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">{name}</h1>
 
           <div className="flex flex-wrap items-center justify-between gap-3 text-xs pt-1 border-b border-slate-200 pb-3">
             <div className="flex items-center gap-2">
@@ -189,19 +188,12 @@ export function ProductPagePanel({
 
         {/* Wholesale Quotation Section Widget */}
         {isWholesaler && (
-          <WholesaleQuotationSection
-            productName={name}
-            wholesalePrice={wholesalePrice}
-            moq={moq}
-          />
+          <WholesaleQuotationSection productName={name} wholesalePrice={wholesalePrice} moq={moq} />
         )}
 
         {/* Dynamic 5-Field Variant Selector */}
         {variants && variants.length > 0 && (
-          <VariantSelector
-            variants={variants}
-            onVariantChange={handleVariantChange}
-          />
+          <VariantSelector variants={variants} onVariantChange={handleVariantChange} />
         )}
 
         {/* Delivery & Notice Component */}
@@ -285,7 +277,9 @@ export function ProductPagePanel({
             onClick={() => setIsWishlisted(!isWishlisted)}
             className={cn(
               "min-w-[48px] min-h-[48px] flex items-center justify-center rounded-xl border transition-colors shrink-0",
-              isWishlisted ? "bg-red-50 border-red-200 text-red-600" : "border-slate-300 text-slate-800 hover:bg-slate-100"
+              isWishlisted
+                ? "bg-red-50 border-red-200 text-red-600"
+                : "border-slate-300 text-slate-800 hover:bg-slate-100",
             )}
             title="Wishlist"
           >

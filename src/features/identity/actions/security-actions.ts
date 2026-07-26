@@ -60,7 +60,10 @@ export async function getActiveSessionsAction(): Promise<{
   error?: string;
 }> {
   try {
-    const { actor } = await requireAnyPermission(["identity.identity.view", "identity.identity.sessions"]);
+    const { actor } = await requireAnyPermission([
+      "identity.identity.view",
+      "identity.identity.sessions",
+    ]);
     const sessions = await sessionService.getActiveSessions(actor.id);
     return { success: true, data: sessions };
   } catch (err) {
@@ -129,7 +132,10 @@ export async function getLockoutStatusAction(userId: string): Promise<{
   }
 }
 
-export async function unlockAccountAction(userId: string, notes?: string): Promise<{
+export async function unlockAccountAction(
+  userId: string,
+  notes?: string,
+): Promise<{
   success: boolean;
   error?: string;
 }> {
@@ -159,16 +165,18 @@ export async function lockAccountAction(
     const user = await userRepo.findById(userId);
     if (!user) throw new Error("User not found");
 
-    const lockoutUntil = type === "temporary" && durationMinutes
-      ? new Date(Date.now() + durationMinutes * 60 * 1000)
-      : null;
+    const lockoutUntil =
+      type === "temporary" && durationMinutes
+        ? new Date(Date.now() + durationMinutes * 60 * 1000)
+        : null;
 
     await userRepo.update(userId, {
       lockedUntil: lockoutUntil,
       status: type === "permanent" ? "blocked" : "blocked",
     } as never);
 
-    const { AccountLockoutRepository } = await import("@/features/auth/repositories/account-lockout-repository");
+    const { AccountLockoutRepository } =
+      await import("@/features/auth/repositories/account-lockout-repository");
     const lockoutRepo = new AccountLockoutRepository();
     await lockoutRepo.create({
       userId,
@@ -253,11 +261,7 @@ export async function requestPasswordResetAction(email: string): Promise<{
   error?: string;
 }> {
   try {
-    const result = await passwordResetService.requestPasswordReset(
-      email,
-      "127.0.0.1",
-      "server",
-    );
+    const result = await passwordResetService.requestPasswordReset(email, "127.0.0.1", "server");
     return { success: result.success, message: result.message };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Failed" };
@@ -316,7 +320,10 @@ export async function getTrustedDevicesAction(userId: string): Promise<{
   }
 }
 
-export async function trustDeviceAction(userId: string, deviceId: string): Promise<{
+export async function trustDeviceAction(
+  userId: string,
+  deviceId: string,
+): Promise<{
   success: boolean;
   error?: string;
 }> {
@@ -330,7 +337,10 @@ export async function trustDeviceAction(userId: string, deviceId: string): Promi
   }
 }
 
-export async function untrustDeviceAction(userId: string, deviceId: string): Promise<{
+export async function untrustDeviceAction(
+  userId: string,
+  deviceId: string,
+): Promise<{
   success: boolean;
   error?: string;
 }> {
@@ -344,7 +354,10 @@ export async function untrustDeviceAction(userId: string, deviceId: string): Pro
   }
 }
 
-export async function removeTrustedDeviceAction(userId: string, deviceId: string): Promise<{
+export async function removeTrustedDeviceAction(
+  userId: string,
+  deviceId: string,
+): Promise<{
   success: boolean;
   error?: string;
 }> {
@@ -373,7 +386,11 @@ export async function removeAllTrustedDevicesAction(userId: string): Promise<{
   }
 }
 
-export async function renameDeviceAction(userId: string, deviceId: string, name: string): Promise<{
+export async function renameDeviceAction(
+  userId: string,
+  deviceId: string,
+  name: string,
+): Promise<{
   success: boolean;
   error?: string;
 }> {
@@ -438,7 +455,9 @@ export async function getRecentFailedLoginsAction(limit = 50): Promise<{
 }> {
   try {
     await requirePermission("identity.identity.view");
-    const failedLogins = await new (await import("@/features/auth/repositories/failed-login-repository")).FailedLoginRepository().getRecentAttempts(limit);
+    const failedLogins = await new (
+      await import("@/features/auth/repositories/failed-login-repository")
+    ).FailedLoginRepository().getRecentAttempts(limit);
     return { success: true, data: failedLogins };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : "Failed" };
@@ -454,7 +473,8 @@ export async function resolveFailedLoginAction(
 }> {
   try {
     const { actor } = await requirePermission("identity.identity.manage");
-    const { FailedLoginRepository } = await import("@/features/auth/repositories/failed-login-repository");
+    const { FailedLoginRepository } =
+      await import("@/features/auth/repositories/failed-login-repository");
     const repo = new FailedLoginRepository();
     await repo.resolveAttempt(failedLoginId, actor.id);
     revalidatePath("/dashboard/identity/security");
@@ -468,7 +488,10 @@ export async function resolveFailedLoginAction(
 // Account Status Actions
 // ============================================================================
 
-export async function suspendAccountAction(userId: string, reason?: string): Promise<{
+export async function suspendAccountAction(
+  userId: string,
+  reason?: string,
+): Promise<{
   success: boolean;
   error?: string;
 }> {
@@ -494,7 +517,10 @@ export async function suspendAccountAction(userId: string, reason?: string): Pro
   }
 }
 
-export async function blockAccountAction(userId: string, reason?: string): Promise<{
+export async function blockAccountAction(
+  userId: string,
+  reason?: string,
+): Promise<{
   success: boolean;
   error?: string;
 }> {

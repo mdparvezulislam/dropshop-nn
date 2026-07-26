@@ -4,10 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Download, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  exportAnalyticsAction,
-  getAnalyticsOverviewAction,
-} from "../actions/analytics-actions";
+import { exportAnalyticsAction, getAnalyticsOverviewAction } from "../actions/analytics-actions";
 import type { AnalyticsOverview } from "../domain/analytics-entity";
 import { MetricCard } from "./metric-card";
 import { AnalyticsChart } from "./analytics-chart";
@@ -64,11 +61,25 @@ export function AnalyticsDashboard(): React.ReactElement {
         <div className="flex flex-wrap items-center gap-2">
           <TimeRangeFilter value={preset} onChange={setPreset} />
           <Button variant="outline" size="sm" onClick={load} disabled={loading} className="gap-1.5">
-            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+            {loading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="h-3.5 w-3.5" />
+            )}
             Refresh
           </Button>
-          <Button variant="outline" size="sm" onClick={handleExport} disabled={exporting} className="gap-1.5">
-            {exporting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExport}
+            disabled={exporting}
+            className="gap-1.5"
+          >
+            {exporting ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Download className="h-3.5 w-3.5" />
+            )}
             CSV
           </Button>
         </div>
@@ -82,7 +93,10 @@ export function AnalyticsDashboard(): React.ReactElement {
 
       {loading && !data ? (
         <div className="flex min-h-[40vh] items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" aria-label="Loading analytics" />
+          <Loader2
+            className="h-6 w-6 animate-spin text-muted-foreground"
+            aria-label="Loading analytics"
+          />
         </div>
       ) : data ? (
         <>

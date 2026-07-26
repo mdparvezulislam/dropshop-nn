@@ -51,10 +51,15 @@ export class AnalyticsSearchService {
   }
 
   private async searchSnapshots(query: string, limit: number): Promise<any[]> {
-    const allSnapshots = await (this.snapshotRepo as any).find({}, { limit: 50, sort: { snapshotDate: -1 } });
-    return allSnapshots.filter(
-      (s: any) => s.type.includes(query) || Object.keys(s.metrics).some((k) => k.includes(query)),
-    ).slice(0, limit);
+    const allSnapshots = await (this.snapshotRepo as any).find(
+      {},
+      { limit: 50, sort: { snapshotDate: -1 } },
+    );
+    return allSnapshots
+      .filter(
+        (s: any) => s.type.includes(query) || Object.keys(s.metrics).some((k) => k.includes(query)),
+      )
+      .slice(0, limit);
   }
 
   private matchTypes(query: string): SearchResultItem[] {
@@ -73,7 +78,11 @@ export class AnalyticsSearchService {
       { key: "live", label: "Live Dashboard", href: "/dashboard/analytics/live" },
     ];
     return types
-      .filter((t) => t.key.includes(query.toLowerCase()) || t.label.toLowerCase().includes(query.toLowerCase()))
+      .filter(
+        (t) =>
+          t.key.includes(query.toLowerCase()) ||
+          t.label.toLowerCase().includes(query.toLowerCase()),
+      )
       .map((t) => ({
         id: t.key,
         type: "page",

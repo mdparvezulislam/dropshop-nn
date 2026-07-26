@@ -33,7 +33,8 @@ export function ResellerApplicationPageClient({ initialData }: ResellerClientPro
           ড্রপশিপিং রিসেলার পার্টনার হন
         </h1>
         <p className="text-xs sm:text-sm text-slate-600 font-bold max-w-2xl mx-auto leading-relaxed">
-          পণ্য কেনা বা ইনভেন্টরির ঝুঁকি ছাড়াই আপনার ফেসবুক পেজ বা ওয়েবসাইটে বিক্রি শুরু করুন। আমরা সরাসরি আপনার কাস্টমারের নিকট ডেলিভারি পাঠাব।
+          পণ্য কেনা বা ইনভেন্টরির ঝুঁকি ছাড়াই আপনার ফেসবুক পেজ বা ওয়েবসাইটে বিক্রি শুরু করুন। আমরা
+          সরাসরি আপনার কাস্টমারের নিকট ডেলিভারি পাঠাব।
         </p>
       </div>
 
@@ -50,7 +51,8 @@ export function ResellerApplicationPageClient({ initialData }: ResellerClientPro
           <PackageCheck className="w-7 h-7 text-amber-600 mb-2" />
           <h3 className="text-sm font-black text-slate-900 mb-1">জিরো ইনভেন্টরি ঝুঁকি</h3>
           <p className="text-xs text-slate-600 font-bold leading-relaxed">
-            কোনো প্রোডাক্ট স্টক বা গুদাম রাখার প্রয়োজন নেই। আমরা ফুলফিলমেন্ট ও ডেলিভারি পরিচালনা করি।
+            কোনো প্রোডাক্ট স্টক বা গুদাম রাখার প্রয়োজন নেই। আমরা ফুলফিলমেন্ট ও ডেলিভারি পরিচালনা
+            করি।
           </p>
         </div>
         <div className="bg-white border border-slate-300 rounded-2xl p-5 shadow-2xs">
@@ -70,7 +72,8 @@ export function ResellerApplicationPageClient({ initialData }: ResellerClientPro
             রিসেলার আবেদনের জন্য লগইন করুন
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 font-bold max-w-md mx-auto">
-            আপনার যদি পূর্বে কোনো অ্যাকাউন্ট থেকে থাকে তবে লগইন করুন, অথবা একটি নতুন অ্যাকাউন্ট তৈরি করুন।
+            আপনার যদি পূর্বে কোনো অ্যাকাউন্ট থেকে থাকে তবে লগইন করুন, অথবা একটি নতুন অ্যাকাউন্ট তৈরি
+            করুন।
           </p>
           <div className="flex flex-wrap justify-center gap-3 pt-2">
             <Link
@@ -94,7 +97,8 @@ export function ResellerApplicationPageClient({ initialData }: ResellerClientPro
             আপনি ইতোমধ্যে একজন অনুমোদিত রিসেলার!
           </h2>
           <p className="text-xs sm:text-sm text-emerald-900 font-bold max-w-md mx-auto">
-            আপনার রিসেলার ড্যাশবোর্ডে প্রবেশ করে প্রফিট কাস্টমাইজেশন, ক্যাটাগরি প্রাইসিং ও মার্কেটিং কিট উপভোগ করুন।
+            আপনার রিসেলার ড্যাশবোর্ডে প্রবেশ করে প্রফিট কাস্টমাইজেশন, ক্যাটাগরি প্রাইসিং ও মার্কেটিং
+            কিট উপভোগ করুন।
           </p>
           <Link
             href="/reseller"

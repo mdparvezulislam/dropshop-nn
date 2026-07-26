@@ -25,7 +25,11 @@ export async function POST(
   const webhookService = new WebhookService();
   const result = await webhookService.processProviderWebhook(provider, signature, rawBody, payload);
 
-  logger.info("Courier webhook processed", { provider, success: result.success, error: result.error });
+  logger.info("Courier webhook processed", {
+    provider,
+    success: result.success,
+    error: result.error,
+  });
 
   if (result.success) {
     return NextResponse.json({ success: true });

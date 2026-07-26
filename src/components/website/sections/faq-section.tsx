@@ -80,15 +80,14 @@ const itemVariants = {
 
 export function FAQSection(): React.ReactElement {
   const [activeId, setActiveId] = useState<string>("1");
-  const [activeCategory, setActiveCategory] = useState<"general" | "business" | "technical">("general");
+  const [activeCategory, setActiveCategory] = useState<"general" | "business" | "technical">(
+    "general",
+  );
 
   const filteredFaqs = faqs.filter((faq) => faq.category === activeCategory);
 
   return (
-    <section
-      className="w-full py-16 lg:py-24 bg-[hsl(0_0%_96%)]"
-      aria-labelledby="faq-heading"
-    >
+    <section className="w-full py-16 lg:py-24 bg-[hsl(0_0%_96%)]" aria-labelledby="faq-heading">
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -141,14 +140,10 @@ export function FAQSection(): React.ReactElement {
               className="border border-[hsl(0_0%_91%)] rounded-lg bg-white overflow-hidden"
             >
               <button
-                onClick={() =>
-                  setActiveId(activeId === faq.id ? "" : faq.id)
-                }
+                onClick={() => setActiveId(activeId === faq.id ? "" : faq.id)}
                 className="w-full text-left px-6 py-4 hover:bg-[hsl(0_0%_96%)] transition-colors flex items-center justify-between"
               >
-                <span className="font-medium text-foreground">
-                  {faq.question}
-                </span>
+                <span className="font-medium text-foreground">{faq.question}</span>
                 <ChevronDown
                   className={`h-5 w-5 text-muted-foreground transition-transform ${
                     activeId === faq.id ? "rotate-180" : ""
@@ -164,9 +159,7 @@ export function FAQSection(): React.ReactElement {
                   transition={{ duration: 0.2 }}
                   className="px-6 py-4 border-t border-[hsl(0_0%_91%)] bg-white"
                 >
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {faq.answer}
-                  </p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{faq.answer}</p>
                 </motion.div>
               )}
             </motion.div>

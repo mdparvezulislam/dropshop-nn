@@ -1,18 +1,28 @@
 import { BaseRepository } from "@/lib/database/generic-repository";
 import {
-  GlobalPricingRuleModel, GlobalPricingRuleDocument,
-  CategoryPricingOverrideModel, CategoryPricingOverrideDocument,
-  BrandPricingOverrideModel, BrandPricingOverrideDocument,
-  SupplierPricingRuleModel, SupplierPricingRuleDocument,
+  GlobalPricingRuleModel,
+  GlobalPricingRuleDocument,
+  CategoryPricingOverrideModel,
+  CategoryPricingOverrideDocument,
+  BrandPricingOverrideModel,
+  BrandPricingOverrideDocument,
+  SupplierPricingRuleModel,
+  SupplierPricingRuleDocument,
 } from "./global-pricing-model";
 import {
-  GlobalPricingRule, CategoryPricingOverride,
-  BrandPricingOverride, SupplierPricingRule, RoundPriceTo,
+  GlobalPricingRule,
+  CategoryPricingOverride,
+  BrandPricingOverride,
+  SupplierPricingRule,
+  RoundPriceTo,
 } from "../domain/global-pricing-entity";
 import { logger } from "@/lib/utils/logger";
 import { DatabaseError } from "@/lib/errors/app-error";
 
-export class GlobalPricingRuleRepository extends BaseRepository<GlobalPricingRuleDocument, GlobalPricingRule> {
+export class GlobalPricingRuleRepository extends BaseRepository<
+  GlobalPricingRuleDocument,
+  GlobalPricingRule
+> {
   constructor() {
     super(GlobalPricingRuleModel, GlobalPricingRuleRepository.mapToDomain);
   }
@@ -61,7 +71,10 @@ export class GlobalPricingRuleRepository extends BaseRepository<GlobalPricingRul
   }
 }
 
-export class CategoryPricingOverrideRepository extends BaseRepository<CategoryPricingOverrideDocument, CategoryPricingOverride> {
+export class CategoryPricingOverrideRepository extends BaseRepository<
+  CategoryPricingOverrideDocument,
+  CategoryPricingOverride
+> {
   constructor() {
     super(CategoryPricingOverrideModel, CategoryPricingOverrideRepository.mapToDomain);
   }
@@ -91,7 +104,9 @@ export class CategoryPricingOverrideRepository extends BaseRepository<CategoryPr
     try {
       return this.findOne({ categoryId, isActive: true });
     } catch (error) {
-      logger.error("CategoryPricingOverrideRepository findByCategoryId failed", error, { categoryId });
+      logger.error("CategoryPricingOverrideRepository findByCategoryId failed", error, {
+        categoryId,
+      });
       throw new DatabaseError("Database search error", error);
     }
   }
@@ -107,7 +122,10 @@ export class CategoryPricingOverrideRepository extends BaseRepository<CategoryPr
   }
 }
 
-export class BrandPricingOverrideRepository extends BaseRepository<BrandPricingOverrideDocument, BrandPricingOverride> {
+export class BrandPricingOverrideRepository extends BaseRepository<
+  BrandPricingOverrideDocument,
+  BrandPricingOverride
+> {
   constructor() {
     super(BrandPricingOverrideModel, BrandPricingOverrideRepository.mapToDomain);
   }
@@ -154,7 +172,10 @@ export class BrandPricingOverrideRepository extends BaseRepository<BrandPricingO
   }
 }
 
-export class SupplierPricingRuleRepository extends BaseRepository<SupplierPricingRuleDocument, SupplierPricingRule> {
+export class SupplierPricingRuleRepository extends BaseRepository<
+  SupplierPricingRuleDocument,
+  SupplierPricingRule
+> {
   constructor() {
     super(SupplierPricingRuleModel, SupplierPricingRuleRepository.mapToDomain);
   }

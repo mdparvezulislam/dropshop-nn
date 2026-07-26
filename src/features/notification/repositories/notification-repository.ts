@@ -15,9 +15,7 @@ function mapAttempt(a: any): DeliveryAttempt {
   };
 }
 
-function mapScalarRecord(
-  input: any,
-): Record<string, string | number | boolean | null> {
+function mapScalarRecord(input: any): Record<string, string | number | boolean | null> {
   if (!input || typeof input !== "object") return {};
   const out: Record<string, string | number | boolean | null> = {};
   for (const [k, v] of Object.entries(input)) {
@@ -121,7 +119,8 @@ export class NotificationRepository extends BaseRepository<
     return this.update(id, {
       isRead: true,
       readAt: new Date(),
-      status: current.status === "delivered" || current.status === "queued" ? "read" : current.status,
+      status:
+        current.status === "delivered" || current.status === "queued" ? "read" : current.status,
     } as any);
   }
 
@@ -139,12 +138,14 @@ export class NotificationRepository extends BaseRepository<
     return this.update(id, { isArchived: true, status: "archived" } as any);
   }
 
-  async listDeliveryLogs(options: {
-    status?: string;
-    channel?: string;
-    page?: number;
-    limit?: number;
-  } = {}): Promise<{ items: NotificationMessage[]; totalCount: number }> {
+  async listDeliveryLogs(
+    options: {
+      status?: string;
+      channel?: string;
+      page?: number;
+      limit?: number;
+    } = {},
+  ): Promise<{ items: NotificationMessage[]; totalCount: number }> {
     const filter: Record<string, unknown> = { isDeleted: { $ne: true } };
     if (options.status) filter.status = options.status;
     if (options.channel) filter.channels = options.channel;

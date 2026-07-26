@@ -59,7 +59,8 @@ export function ShopToolbar({
           )}
 
           <span className="text-xs font-bold text-slate-600">
-            মোট <span className="text-slate-900 font-black">{totalItems}</span> টি প্রোডাক্ট পাওয়া গেছে
+            মোট <span className="text-slate-900 font-black">{totalItems}</span> টি প্রোডাক্ট পাওয়া
+            গেছে
           </span>
         </div>
 
@@ -101,7 +102,9 @@ export function ShopToolbar({
               onClick={() => onViewChange("grid")}
               className={cn(
                 "p-1.5 rounded-lg transition-colors",
-                viewMode === "grid" ? "bg-white text-amber-600 shadow-2xs font-bold" : "text-slate-600 hover:text-slate-900"
+                viewMode === "grid"
+                  ? "bg-white text-amber-600 shadow-2xs font-bold"
+                  : "text-slate-600 hover:text-slate-900",
               )}
               title="Grid View"
             >
@@ -112,7 +115,9 @@ export function ShopToolbar({
               onClick={() => onViewChange("compact")}
               className={cn(
                 "p-1.5 rounded-lg transition-colors",
-                viewMode === "compact" ? "bg-white text-amber-600 shadow-2xs font-bold" : "text-slate-600 hover:text-slate-900"
+                viewMode === "compact"
+                  ? "bg-white text-amber-600 shadow-2xs font-bold"
+                  : "text-slate-600 hover:text-slate-900",
               )}
               title="Compact Grid"
             >
@@ -123,7 +128,9 @@ export function ShopToolbar({
               onClick={() => onViewChange("list")}
               className={cn(
                 "p-1.5 rounded-lg transition-colors",
-                viewMode === "list" ? "bg-white text-amber-600 shadow-2xs font-bold" : "text-slate-600 hover:text-slate-900"
+                viewMode === "list"
+                  ? "bg-white text-amber-600 shadow-2xs font-bold"
+                  : "text-slate-600 hover:text-slate-900",
               )}
               title="List View"
             >

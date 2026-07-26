@@ -160,18 +160,12 @@ export function ProductListingContent({
       <Separator />
 
       <div className="flex gap-6">
-        <ProductFilterSidebar
-          filters={filters}
-          onFilterChange={handleFilterChange}
-        />
+        <ProductFilterSidebar filters={filters} onFilterChange={handleFilterChange} />
 
         <div className="flex-1 min-w-0 space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <ProductFilterSidebar
-                filters={filters}
-                onFilterChange={handleFilterChange}
-              />
+              <ProductFilterSidebar filters={filters} onFilterChange={handleFilterChange} />
             </div>
 
             <div className="flex items-center gap-2">
@@ -199,10 +193,7 @@ export function ProductListingContent({
                   <List className="h-3.5 w-3.5" />
                 </button>
               </div>
-              <ProductSortSelect
-                value={filters.sort ?? "newest"}
-                onChange={handleSortChange}
-              />
+              <ProductSortSelect value={filters.sort ?? "newest"} onChange={handleSortChange} />
             </div>
           </div>
 

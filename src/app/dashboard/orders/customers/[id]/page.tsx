@@ -17,10 +17,22 @@ import { getOrderRisksAction } from "@/features/order/actions/risk-actions";
 import { updateTagsAction } from "@/features/customer/actions/customer-actions";
 import { toast } from "sonner";
 import {
-  ArrowLeft, RefreshCw, Phone, MapPin, Shield,
-  ShoppingBag, CheckCircle, XCircle, Undo2,
-  Tag, Clock, User, Mail, AlertTriangle,
-  Plus, X,
+  ArrowLeft,
+  RefreshCw,
+  Phone,
+  MapPin,
+  Shield,
+  ShoppingBag,
+  CheckCircle,
+  XCircle,
+  Undo2,
+  Tag,
+  Clock,
+  User,
+  Mail,
+  AlertTriangle,
+  Plus,
+  X,
 } from "lucide-react";
 
 export default function CustomerProfilePage(): React.ReactElement {
@@ -49,9 +61,7 @@ export default function CustomerProfilePage(): React.ReactElement {
 
         const phone = cRes.data.phone;
         if (oRes.success && oRes.data?.items) {
-          const customerOrders = oRes.data.items.filter(
-            (o: any) => o.customer?.phone === phone,
-          );
+          const customerOrders = oRes.data.items.filter((o: any) => o.customer?.phone === phone);
           setOrders(customerOrders);
         }
       } else {
@@ -73,7 +83,9 @@ export default function CustomerProfilePage(): React.ReactElement {
     }
   }, [customerId]);
 
-  React.useEffect(() => { load(); }, [load]);
+  React.useEffect(() => {
+    load();
+  }, [load]);
 
   const handleAddTag = async () => {
     if (!newTag.trim()) return;
@@ -104,19 +116,30 @@ export default function CustomerProfilePage(): React.ReactElement {
 
   const getStatusVariant = (status: string) => {
     switch (status) {
-      case "completed": case "delivered": return "success" as const;
-      case "pending": case "draft": return "warning" as const;
-      case "cancelled": case "failed": return "destructive" as const;
-      default: return "default" as const;
+      case "completed":
+      case "delivered":
+        return "success" as const;
+      case "pending":
+      case "draft":
+        return "warning" as const;
+      case "cancelled":
+      case "failed":
+        return "destructive" as const;
+      default:
+        return "default" as const;
     }
   };
 
   const getRiskBadgeVariant = (level: string) => {
     switch (level) {
-      case "critical": return "destructive" as const;
-      case "high": return "destructive" as const;
-      case "medium": return "warning" as const;
-      default: return "default" as const;
+      case "critical":
+        return "destructive" as const;
+      case "high":
+        return "destructive" as const;
+      case "medium":
+        return "warning" as const;
+      default:
+        return "default" as const;
     }
   };
 
@@ -158,7 +181,10 @@ export default function CustomerProfilePage(): React.ReactElement {
   if (!loading && !customer) {
     return (
       <div className="min-h-screen bg-background p-4 sm:p-6">
-        <Link href="/dashboard/orders/customers" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4">
+        <Link
+          href="/dashboard/orders/customers"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4"
+        >
           <ArrowLeft className="h-4 w-4" /> গ্রাহক অপারেশনস
         </Link>
         <Card className="border-border/50 bg-card/50">
@@ -177,7 +203,10 @@ export default function CustomerProfilePage(): React.ReactElement {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/orders/customers" className="p-2 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground">
+          <Link
+            href="/dashboard/orders/customers"
+            className="p-2 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
@@ -205,8 +234,20 @@ export default function CustomerProfilePage(): React.ReactElement {
                     </div>
                     <div>
                       <h2 className="text-lg font-semibold text-foreground">{customer.name}</h2>
-                      <Badge variant={customer.status === "active" ? "success" : customer.status === "blacklisted" ? "destructive" : "default"}>
-                        {customer.status === "active" ? "সক্রিয়" : customer.status === "inactive" ? "নিষ্ক্রিয়" : "ব্ল্যাকলিস্টেড"}
+                      <Badge
+                        variant={
+                          customer.status === "active"
+                            ? "success"
+                            : customer.status === "blacklisted"
+                              ? "destructive"
+                              : "default"
+                        }
+                      >
+                        {customer.status === "active"
+                          ? "সক্রিয়"
+                          : customer.status === "inactive"
+                            ? "নিষ্ক্রিয়"
+                            : "ব্ল্যাকলিস্টেড"}
                       </Badge>
                     </div>
                   </div>
@@ -233,22 +274,37 @@ export default function CustomerProfilePage(): React.ReactElement {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   <div className="p-3 rounded-lg bg-blue-500/10 text-center">
                     <ShoppingBag className="h-4 w-4 mx-auto mb-1 text-blue-400" />
-                    <p className="text-lg font-bold text-blue-400">{customer.statistics?.totalOrders ?? 0}</p>
+                    <p className="text-lg font-bold text-blue-400">
+                      {customer.statistics?.totalOrders ?? 0}
+                    </p>
                     <p className="text-[10px] text-muted-foreground">মোট অর্ডার</p>
                   </div>
                   <div className="p-3 rounded-lg bg-emerald-500/10 text-center">
                     <CheckCircle className="h-4 w-4 mx-auto mb-1 text-emerald-400" />
-                    <p className="text-lg font-bold text-emerald-400">{customer.statistics?.completedOrders ?? 0}</p>
+                    <p className="text-lg font-bold text-emerald-400">
+                      {customer.statistics?.completedOrders ?? 0}
+                    </p>
                     <p className="text-[10px] text-muted-foreground">সফল</p>
                   </div>
                   <div className="p-3 rounded-lg bg-rose-500/10 text-center">
                     <XCircle className="h-4 w-4 mx-auto mb-1 text-rose-400" />
-                    <p className="text-lg font-bold text-rose-400">{customer.statistics?.cancelledOrders ?? 0}</p>
+                    <p className="text-lg font-bold text-rose-400">
+                      {customer.statistics?.cancelledOrders ?? 0}
+                    </p>
                     <p className="text-[10px] text-muted-foreground">বাতিল</p>
                   </div>
                   <div className="p-3 rounded-lg bg-amber-500/10 text-center">
                     <Undo2 className="h-4 w-4 mx-auto mb-1 text-amber-400" />
-                    <p className="text-lg font-bold text-amber-400">{customer.statistics?.totalOrders ? (customer.statistics.cancelledOrders / customer.statistics.totalOrders * 100).toFixed(0) : 0}%</p>
+                    <p className="text-lg font-bold text-amber-400">
+                      {customer.statistics?.totalOrders
+                        ? (
+                            (customer.statistics.cancelledOrders /
+                              customer.statistics.totalOrders) *
+                            100
+                          ).toFixed(0)
+                        : 0}
+                      %
+                    </p>
                     <p className="text-[10px] text-muted-foreground">ক্যান্সেল রেট</p>
                   </div>
                 </div>
@@ -260,7 +316,8 @@ export default function CustomerProfilePage(): React.ReactElement {
           <Card className="border-border/50 bg-card">
             <CardHeader>
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <Tag className="h-4 w-4" /> ট্যাগসমূহ <span className="text-muted-foreground font-normal">Tags</span>
+                <Tag className="h-4 w-4" /> ট্যাগসমূহ{" "}
+                <span className="text-muted-foreground font-normal">Tags</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -280,7 +337,9 @@ export default function CustomerProfilePage(): React.ReactElement {
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
                   className="h-8 text-sm max-w-[200px]"
-                  onKeyDown={(e) => { if (e.key === "Enter") handleAddTag(); }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleAddTag();
+                  }}
                 />
                 <Button size="sm" variant="outline" onClick={handleAddTag}>
                   <Plus className="h-3.5 w-3.5" />
@@ -294,12 +353,16 @@ export default function CustomerProfilePage(): React.ReactElement {
             <Card className="border-border/50 bg-card border-rose-500/20">
               <CardHeader>
                 <CardTitle className="text-sm font-semibold flex items-center gap-2 text-rose-400">
-                  <Shield className="h-4 w-4" /> রিস্ক ফ্ল্যাগ <span className="text-muted-foreground font-normal">Risk Flags</span>
+                  <Shield className="h-4 w-4" /> রিস্ক ফ্ল্যাগ{" "}
+                  <span className="text-muted-foreground font-normal">Risk Flags</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 {risks.map((risk: any) => (
-                  <div key={risk.id} className="flex items-center justify-between p-2 rounded-lg bg-rose-500/5">
+                  <div
+                    key={risk.id}
+                    className="flex items-center justify-between p-2 rounded-lg bg-rose-500/5"
+                  >
                     <div className="flex items-center gap-2">
                       <Badge variant={getRiskBadgeVariant(risk.riskLevel)}>{risk.riskLevel}</Badge>
                       <span className="text-sm text-muted-foreground">{risk.category}</span>
@@ -340,40 +403,61 @@ export default function CustomerProfilePage(): React.ReactElement {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-border/50 bg-muted/30">
-                      <th className="p-3 text-left text-xs font-semibold text-muted-foreground">অর্ডার</th>
-                      <th className="p-3 text-left text-xs font-semibold text-muted-foreground">পণ্য</th>
-                      <th className="p-3 text-right text-xs font-semibold text-muted-foreground">মোট</th>
-                      <th className="p-3 text-left text-xs font-semibold text-muted-foreground">স্ট্যাটাস</th>
-                      <th className="p-3 text-right text-xs font-semibold text-muted-foreground">তারিখ</th>
+                      <th className="p-3 text-left text-xs font-semibold text-muted-foreground">
+                        অর্ডার
+                      </th>
+                      <th className="p-3 text-left text-xs font-semibold text-muted-foreground">
+                        পণ্য
+                      </th>
+                      <th className="p-3 text-right text-xs font-semibold text-muted-foreground">
+                        মোট
+                      </th>
+                      <th className="p-3 text-left text-xs font-semibold text-muted-foreground">
+                        স্ট্যাটাস
+                      </th>
+                      <th className="p-3 text-right text-xs font-semibold text-muted-foreground">
+                        তারিখ
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {orders.length === 0 ? (
-                      <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">
-                        <ShoppingBag className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                        কোনো অর্ডার পাওয়া যায়নি
-                      </td></tr>
-                    ) : orders.map((order: any) => (
-                      <tr key={order.id} className="border-b border-border/30 hover:bg-muted/20">
-                        <td className="p-3">
-                          <Link href={`/dashboard/orders/${order.id}`} className="font-semibold text-foreground hover:text-primary text-sm">
-                            {order.orderNumber}
-                          </Link>
-                        </td>
-                        <td className="p-3 max-w-[180px] truncate text-sm text-muted-foreground">
-                          {order.items?.map((i: any) => i.productName).join(", ") || "—"}
-                        </td>
-                        <td className="p-3 text-right text-sm font-semibold text-foreground">
-                          {formatCurrency(order.pricing?.grandTotal ?? 0)}
-                        </td>
-                        <td className="p-3">
-                          <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
-                        </td>
-                        <td className="p-3 text-right text-xs text-muted-foreground">
-                          {new Date(order.createdAt).toLocaleDateString("bn-BD", { day: "numeric", month: "short", year: "numeric" })}
+                      <tr>
+                        <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                          <ShoppingBag className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                          কোনো অর্ডার পাওয়া যায়নি
                         </td>
                       </tr>
-                    ))}
+                    ) : (
+                      orders.map((order: any) => (
+                        <tr key={order.id} className="border-b border-border/30 hover:bg-muted/20">
+                          <td className="p-3">
+                            <Link
+                              href={`/dashboard/orders/${order.id}`}
+                              className="font-semibold text-foreground hover:text-primary text-sm"
+                            >
+                              {order.orderNumber}
+                            </Link>
+                          </td>
+                          <td className="p-3 max-w-[180px] truncate text-sm text-muted-foreground">
+                            {order.items?.map((i: any) => i.productName).join(", ") || "—"}
+                          </td>
+                          <td className="p-3 text-right text-sm font-semibold text-foreground">
+                            {formatCurrency(order.pricing?.grandTotal ?? 0)}
+                          </td>
+                          <td className="p-3">
+                            <Badge variant={getStatusVariant(order.status)}>{order.status}</Badge>
+                          </td>
+                          <td className="p-3 text-right text-xs text-muted-foreground">
+                            {new Date(order.createdAt).toLocaleDateString("bn-BD", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            })}
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -392,19 +476,31 @@ export default function CustomerProfilePage(): React.ReactElement {
                 ) : (
                   <div className="space-y-0">
                     {unifiedTimeline.map((entry, idx) => (
-                      <div key={idx} className="relative pl-6 pb-5 border-l border-border/50 last:pb-0">
+                      <div
+                        key={idx}
+                        className="relative pl-6 pb-5 border-l border-border/50 last:pb-0"
+                      >
                         <div className="absolute left-[-4.5px] top-1 h-2 w-2 rounded-full bg-primary/50" />
                         <div className="flex items-start justify-between">
                           <div>
                             <p className="text-sm text-foreground">{entry.message}</p>
                             {entry.status && (
-                              <Badge variant={getStatusVariant(entry.status)} className="mt-1 text-[10px]">
+                              <Badge
+                                variant={getStatusVariant(entry.status)}
+                                className="mt-1 text-[10px]"
+                              >
                                 {entry.status}
                               </Badge>
                             )}
                           </div>
                           <span className="text-[10px] text-muted-foreground whitespace-nowrap ml-2">
-                            {entry.date.toLocaleDateString("bn-BD", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                            {entry.date.toLocaleDateString("bn-BD", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
                           </span>
                         </div>
                       </div>
@@ -446,7 +542,9 @@ export default function CustomerProfilePage(): React.ReactElement {
                           {risk.resolvedAt && (
                             <>
                               <span>•</span>
-                              <span>রিজলভড: {new Date(risk.resolvedAt).toLocaleDateString("bn-BD")}</span>
+                              <span>
+                                রিজলভড: {new Date(risk.resolvedAt).toLocaleDateString("bn-BD")}
+                              </span>
                             </>
                           )}
                         </div>

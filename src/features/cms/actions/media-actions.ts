@@ -92,13 +92,15 @@ export async function deleteMediaAssetAction(id: string): Promise<{
   }
 }
 
-export async function listMediaAction(filters: {
-  type?: string;
-  folder?: string;
-  search?: string;
-  page?: number;
-  limit?: number;
-} = {}): Promise<{ success: boolean; data?: unknown; error?: string }> {
+export async function listMediaAction(
+  filters: {
+    type?: string;
+    folder?: string;
+    search?: string;
+    page?: number;
+    limit?: number;
+  } = {},
+): Promise<{ success: boolean; data?: unknown; error?: string }> {
   try {
     const session = await auth();
     checkPermission(session, "Content.View");

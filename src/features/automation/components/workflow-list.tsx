@@ -53,13 +53,15 @@ export function WorkflowList({ onSelect, onNew }: WorkflowListProps): React.Reac
     setLoading(false);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const filtered = search
     ? workflows.filter(
         (w) =>
           w.name.toLowerCase().includes(search.toLowerCase()) ||
-          w.key.toLowerCase().includes(search.toLowerCase())
+          w.key.toLowerCase().includes(search.toLowerCase()),
       )
     : workflows;
 
@@ -139,10 +141,16 @@ export function WorkflowList({ onSelect, onNew }: WorkflowListProps): React.Reac
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold">{w.name}</span>
-                      <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${statusColors[w.status] ?? ""}`}>
+                      <Badge
+                        variant="outline"
+                        className={`text-[10px] px-1.5 py-0 ${statusColors[w.status] ?? ""}`}
+                      >
                         {w.status}
                       </Badge>
-                      <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${categoryColors[w.category] ?? ""}`}>
+                      <Badge
+                        variant="outline"
+                        className={`text-[10px] px-1.5 py-0 ${categoryColors[w.category] ?? ""}`}
+                      >
                         {w.category}
                       </Badge>
                     </div>
@@ -152,13 +160,44 @@ export function WorkflowList({ onSelect, onNew }: WorkflowListProps): React.Reac
                     </p>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); handleToggle(w); }} title={w.status === "active" ? "Disable" : "Enable"}>
-                      {w.status === "active" ? <ToggleRight className="h-4 w-4 text-emerald-500" /> : <ToggleLeft className="h-4 w-4" />}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggle(w);
+                      }}
+                      title={w.status === "active" ? "Disable" : "Enable"}
+                    >
+                      {w.status === "active" ? (
+                        <ToggleRight className="h-4 w-4 text-emerald-500" />
+                      ) : (
+                        <ToggleLeft className="h-4 w-4" />
+                      )}
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); handleDuplicate(w.id); }} title="Duplicate">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDuplicate(w.id);
+                      }}
+                      title="Duplicate"
+                    >
                       <Copy className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-500" onClick={(e) => { e.stopPropagation(); handleDelete(w.id); }} title="Delete">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-rose-500"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDelete(w.id);
+                      }}
+                      title="Delete"
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>

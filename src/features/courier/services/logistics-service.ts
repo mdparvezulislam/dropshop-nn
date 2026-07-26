@@ -96,8 +96,14 @@ export class LogisticsService {
       throw new Error(`Shipment not found: ${shipmentId}`);
     }
 
-    if (shipment.status !== "draft" && shipment.status !== "pending_booking" && shipment.status !== "failed") {
-      throw new Error(`Shipment ${shipment.shipmentNumber} cannot be booked in status ${shipment.status}`);
+    if (
+      shipment.status !== "draft" &&
+      shipment.status !== "pending_booking" &&
+      shipment.status !== "failed"
+    ) {
+      throw new Error(
+        `Shipment ${shipment.shipmentNumber} cannot be booked in status ${shipment.status}`,
+      );
     }
 
     const adapter = CourierProviderRegistry.get(shipment.provider);
@@ -169,7 +175,10 @@ export class LogisticsService {
       const { OrderRepository } = await import("@/features/order/repositories/order-repository");
       const orderRepo = new OrderRepository();
       const order = await orderRepo.findById(shipment.orderId);
-      if (order && ["confirmed", "ready_for_dispatch", "packed", "shipped"].includes(order.status as string)) {
+      if (
+        order &&
+        ["confirmed", "ready_for_dispatch", "packed", "shipped"].includes(order.status as string)
+      ) {
         await orderRepo.update(shipment.orderId, {
           shippingInfo: {
             ...order.shippingInfo,
@@ -180,7 +189,9 @@ export class LogisticsService {
         } as any);
       }
     } catch (e) {
-      logger.warn("LogisticsService: failed to sync order status update", { orderId: shipment.orderId });
+      logger.warn("LogisticsService: failed to sync order status update", {
+        orderId: shipment.orderId,
+      });
     }
 
     await EventBus.publish(
@@ -192,7 +203,11 @@ export class LogisticsService {
     return updated;
   }
 
-  async cancelShipment(shipmentId: string, reason: string = "Cancelled by merchant", actorId: string = "system"): Promise<Shipment> {
+  async cancelShipment(
+    shipmentId: string,
+    reason: string = "Cancelled by merchant",
+    actorId: string = "system",
+  ): Promise<Shipment> {
     const shipment = await this.shipmentRepository.findById(shipmentId);
     if (!shipment) {
       throw new Error(`Shipment not found: ${shipmentId}`);
@@ -229,7 +244,10 @@ export class LogisticsService {
     return updated;
   }
 
-  async bulkBookShipments(shipmentIds: string[], actorId: string = "system"): Promise<{ booked: number; failed: number; errors: string[] }> {
+  async bulkBookShipments(
+    shipmentIds: string[],
+    actorId: string = "system",
+  ): Promise<{ booked: number; failed: number; errors: string[] }> {
     let booked = 0;
     let failed = 0;
     const errors: string[] = [];

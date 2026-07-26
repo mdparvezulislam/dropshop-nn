@@ -3,41 +3,57 @@ import { baseFieldsDefinition, baseSchemaOptions } from "@/lib/database/base-sch
 
 const { status: baseStatus, ...otherBaseFields } = baseFieldsDefinition;
 
-const customerAddressSchema = new Schema({
-  id: { type: String, required: true },
-  type: { type: String, enum: ["home", "office", "warehouse", "custom", "store"], required: true },
-  division: { type: String, required: true },
-  district: { type: String, required: true },
-  upazila: { type: String, required: true },
-  area: { type: String, required: true },
-  postalCode: { type: String, default: null },
-  landmark: { type: String, default: null },
-  isDefault: { type: Boolean, required: true, default: false },
-}, { _id: false });
+const customerAddressSchema = new Schema(
+  {
+    id: { type: String, required: true },
+    type: {
+      type: String,
+      enum: ["home", "office", "warehouse", "custom", "store"],
+      required: true,
+    },
+    division: { type: String, required: true },
+    district: { type: String, required: true },
+    upazila: { type: String, required: true },
+    area: { type: String, required: true },
+    postalCode: { type: String, default: null },
+    landmark: { type: String, default: null },
+    isDefault: { type: Boolean, required: true, default: false },
+  },
+  { _id: false },
+);
 
-const customerNoteSchema = new Schema({
-  id: { type: String, required: true },
-  note: { type: String, required: true },
-  authorId: { type: String, required: true },
-  createdAt: { type: Date, required: true, default: Date.now },
-  isPrivate: { type: Boolean, required: true, default: false },
-}, { _id: false });
+const customerNoteSchema = new Schema(
+  {
+    id: { type: String, required: true },
+    note: { type: String, required: true },
+    authorId: { type: String, required: true },
+    createdAt: { type: Date, required: true, default: Date.now },
+    isPrivate: { type: Boolean, required: true, default: false },
+  },
+  { _id: false },
+);
 
-const customerTimelineSchema = new Schema({
-  eventType: { type: String, required: true },
-  timestamp: { type: Date, required: true, default: Date.now },
-  message: { type: String, required: true },
-  actorId: { type: String, default: null },
-}, { _id: false });
+const customerTimelineSchema = new Schema(
+  {
+    eventType: { type: String, required: true },
+    timestamp: { type: Date, required: true, default: Date.now },
+    message: { type: String, required: true },
+    actorId: { type: String, default: null },
+  },
+  { _id: false },
+);
 
-const customerStatisticsSchema = new Schema({
-  totalOrders: { type: Number, required: true, default: 0 },
-  completedOrders: { type: Number, required: true, default: 0 },
-  cancelledOrders: { type: Number, required: true, default: 0 },
-  totalSpend: { type: Number, required: true, default: 0 },
-  averageOrderValue: { type: Number, required: true, default: 0 },
-  lastOrderDate: { type: Date, default: null },
-}, { _id: false });
+const customerStatisticsSchema = new Schema(
+  {
+    totalOrders: { type: Number, required: true, default: 0 },
+    completedOrders: { type: Number, required: true, default: 0 },
+    cancelledOrders: { type: Number, required: true, default: 0 },
+    totalSpend: { type: Number, required: true, default: 0 },
+    averageOrderValue: { type: Number, required: true, default: 0 },
+    lastOrderDate: { type: Date, default: null },
+  },
+  { _id: false },
+);
 
 const customerSchema = new Schema(
   {
@@ -70,6 +86,5 @@ const customerSchema = new Schema(
 // Enforce unique phone number inside the same workspace
 customerSchema.index({ phone: 1, workspaceId: 1 }, { unique: true });
 
-export const CustomerModel =
-  mongoose.models.Customer || mongoose.model("Customer", customerSchema);
+export const CustomerModel = mongoose.models.Customer || mongoose.model("Customer", customerSchema);
 export default CustomerModel;

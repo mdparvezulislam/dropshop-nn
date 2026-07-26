@@ -43,7 +43,10 @@ export function RequestQuoteForm({ onBack, onSuccess }: Props): React.ReactEleme
   };
 
   const addItem = () => {
-    setItems([...items, { productId: "", productName: "", sku: "", quantity: 1, unitPrice: 0, totalPrice: 0 }]);
+    setItems([
+      ...items,
+      { productId: "", productName: "", sku: "", quantity: 1, unitPrice: 0, totalPrice: 0 },
+    ]);
   };
 
   const removeItem = (index: number) => {
@@ -64,7 +67,8 @@ export function RequestQuoteForm({ onBack, onSuccess }: Props): React.ReactEleme
 
     setSubmitting(true);
     try {
-      const { createQuotationAction } = await import("@/features/quotation/actions/quotation-actions");
+      const { createQuotationAction } =
+        await import("@/features/quotation/actions/quotation-actions");
       const res = await createQuotationAction({
         items: items.map((i) => ({
           productId: i.productId || `temp_${Date.now()}`,
@@ -116,7 +120,10 @@ export function RequestQuoteForm({ onBack, onSuccess }: Props): React.ReactEleme
           </CardHeader>
           <CardContent className="p-4 space-y-3">
             {items.map((item, i) => (
-              <div key={i} className="grid grid-cols-12 gap-2 items-end rounded-lg border border-border p-3">
+              <div
+                key={i}
+                className="grid grid-cols-12 gap-2 items-end rounded-lg border border-border p-3"
+              >
                 <div className="col-span-4 space-y-1">
                   <Label className="text-[10px]">Product Name</Label>
                   <Input
@@ -152,7 +159,13 @@ export function RequestQuoteForm({ onBack, onSuccess }: Props): React.ReactEleme
                     min="0"
                     step="0.01"
                     value={item.unitPrice / 100}
-                    onChange={(e) => updateItem(i, "unitPrice", Math.round(parseFloat(e.target.value || "0") * 100))}
+                    onChange={(e) =>
+                      updateItem(
+                        i,
+                        "unitPrice",
+                        Math.round(parseFloat(e.target.value || "0") * 100),
+                      )
+                    }
                     className="h-8 text-sm"
                   />
                 </div>
@@ -184,10 +197,19 @@ export function RequestQuoteForm({ onBack, onSuccess }: Props): React.ReactEleme
             <CardTitle className="text-sm">Summary</CardTitle>
           </CardHeader>
           <CardContent className="p-4 space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatCents(subtotal)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Tax (5%)</span><span>{formatCents(tax)}</span></div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Subtotal</span>
+              <span>{formatCents(subtotal)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Tax (5%)</span>
+              <span>{formatCents(tax)}</span>
+            </div>
             <Separator />
-            <div className="flex justify-between text-base font-semibold"><span>Total</span><span>{formatCents(grandTotal)}</span></div>
+            <div className="flex justify-between text-base font-semibold">
+              <span>Total</span>
+              <span>{formatCents(grandTotal)}</span>
+            </div>
           </CardContent>
         </Card>
 
@@ -206,7 +228,9 @@ export function RequestQuoteForm({ onBack, onSuccess }: Props): React.ReactEleme
         </Card>
 
         <div className="flex justify-end gap-3">
-          <Button type="button" variant="outline" onClick={onBack}>Cancel</Button>
+          <Button type="button" variant="outline" onClick={onBack}>
+            Cancel
+          </Button>
           <Button type="submit" className="gap-1.5" disabled={submitting}>
             {submitting ? <Spinner size="sm" /> : <Send className="h-4 w-4" />}
             {submitting ? "Submitting…" : "Submit Quote Request"}

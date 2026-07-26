@@ -25,9 +25,10 @@ export function QuickViewDrawer({ product, onClose }: QuickViewDrawerProps) {
     onClose();
   };
 
-  const displayImage = !product.image || product.image === "Product Image"
-    ? "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80"
-    : product.image;
+  const displayImage =
+    !product.image || product.image === "Product Image"
+      ? "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80"
+      : product.image;
 
   return (
     <AnimatePresence>
@@ -75,9 +76,7 @@ export function QuickViewDrawer({ product, onClose }: QuickViewDrawerProps) {
                   </span>
                 )}
 
-                <h2 className="text-lg font-black text-foreground leading-snug">
-                  {product.name}
-                </h2>
+                <h2 className="text-lg font-black text-foreground leading-snug">{product.name}</h2>
 
                 {product.rating != null && (
                   <div className="flex items-center gap-1.5">
@@ -86,7 +85,9 @@ export function QuickViewDrawer({ product, onClose }: QuickViewDrawerProps) {
                         <Star
                           key={i}
                           className={`h-3.5 w-3.5 ${
-                            i < Math.round(product.rating!) ? "text-amber-400 fill-amber-400" : "text-muted-foreground/20"
+                            i < Math.round(product.rating!)
+                              ? "text-amber-400 fill-amber-400"
+                              : "text-muted-foreground/20"
                           }`}
                         />
                       ))}
@@ -105,7 +106,8 @@ export function QuickViewDrawer({ product, onClose }: QuickViewDrawerProps) {
                 />
 
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  ১০০% অরিজিনাল প্রোডাক্ট, অফিসিয়াল ওয়ারেন্টি এবং দ্রুত সারা বাংলাদেশে ডেলিভারি সুবিধা।
+                  ১০০% অরিজিনাল প্রোডাক্ট, অফিসিয়াল ওয়ারেন্টি এবং দ্রুত সারা বাংলাদেশে ডেলিভারি
+                  সুবিধা।
                 </p>
 
                 {/* Quantity Control */}
@@ -160,7 +162,11 @@ export function QuickViewDrawer({ product, onClose }: QuickViewDrawerProps) {
               কার্টে যোগ করুন (৳{((product.retailPrice * quantity) / 100).toFixed(0)})
             </Button>
             <Link href={`/product/${product.slug}`} className="shrink-0">
-              <Button size="lg" variant="outline" className="h-11 px-4 text-xs font-bold border-border/80">
+              <Button
+                size="lg"
+                variant="outline"
+                className="h-11 px-4 text-xs font-bold border-border/80"
+              >
                 সম্পূর্ণ তথ্য
               </Button>
             </Link>

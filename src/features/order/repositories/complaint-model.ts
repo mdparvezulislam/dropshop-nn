@@ -1,14 +1,17 @@
 import mongoose, { Schema } from "mongoose";
 import { baseFieldsDefinition, baseSchemaOptions } from "@/lib/database/base-schema";
 
-const complaintTimelineEntrySchema = new Schema({
-  id: { type: String, required: true },
-  eventType: { type: String, required: true },
-  summary: { type: String, required: true },
-  actorId: { type: String, default: null },
-  actorName: { type: String, default: null },
-  timestamp: { type: Date, required: true },
-}, { _id: false });
+const complaintTimelineEntrySchema = new Schema(
+  {
+    id: { type: String, required: true },
+    eventType: { type: String, required: true },
+    summary: { type: String, required: true },
+    actorId: { type: String, default: null },
+    actorName: { type: String, default: null },
+    timestamp: { type: Date, required: true },
+  },
+  { _id: false },
+);
 
 const { status: _baseStatus, ...baseRest } = baseFieldsDefinition;
 
@@ -23,9 +26,15 @@ const complaintSchema = new Schema(
     type: {
       type: String,
       enum: [
-        "wrong_product", "damaged_product", "missing_item",
-        "courier_delay", "late_delivery", "refund_issue",
-        "warranty_issue", "exchange_issue", "payment_issue",
+        "wrong_product",
+        "damaged_product",
+        "missing_item",
+        "courier_delay",
+        "late_delivery",
+        "refund_issue",
+        "warranty_issue",
+        "exchange_issue",
+        "payment_issue",
         "other",
       ],
       required: true,

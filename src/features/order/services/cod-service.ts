@@ -6,7 +6,11 @@ import { EventBus } from "@/lib/event-bus";
 import { NotFoundError } from "@/lib/errors/app-error";
 import { logger } from "@/lib/utils/logger";
 import { runInTransaction } from "@/lib/database/query-builder";
-import type { CreateCodReconciliationInput, ReconcileCodInput, SettleCodInput } from "../types/validation";
+import type {
+  CreateCodReconciliationInput,
+  ReconcileCodInput,
+  SettleCodInput,
+} from "../types/validation";
 
 export class CodService {
   private readonly codRepository: CodRepository;
@@ -19,7 +23,10 @@ export class CodService {
     this.timelineService = new OrderTimelineService();
   }
 
-  async createOrUpdate(input: CreateCodReconciliationInput, actor?: { id: string; name?: string; role?: string }): Promise<CodReconciliation> {
+  async createOrUpdate(
+    input: CreateCodReconciliationInput,
+    actor?: { id: string; name?: string; role?: string },
+  ): Promise<CodReconciliation> {
     return runInTransaction(async () => {
       const order = await this.orderRepository.findById(input.orderId);
       if (!order) throw new NotFoundError("Order not found");
@@ -46,7 +53,9 @@ export class CodService {
           action: "order.system_action",
           summary: `COD record updated: expected ${input.expectedAmount}, received ${receivedAmount}`,
           actor,
-          changes: [{ field: "codDifference", oldValue: existing.difference, newValue: difference }],
+          changes: [
+            { field: "codDifference", oldValue: existing.difference, newValue: difference },
+          ],
         });
       } else {
         record = await this.codRepository.create({
@@ -70,20 +79,28 @@ export class CodService {
         });
       }
 
-      await EventBus.publish("order.cod_reconciliation_updated", {
-        codId: record.id,
-        orderId: input.orderId,
-        orderNumber: input.orderNumber,
-        expectedAmount: input.expectedAmount,
-        receivedAmount,
-        difference,
-      }, { source: "order" });
+      await EventBus.publish(
+        "order.cod_reconciliation_updated",
+        {
+          codId: record.id,
+          orderId: input.orderId,
+          orderNumber: input.orderNumber,
+          expectedAmount: input.expectedAmount,
+          receivedAmount,
+          difference,
+        },
+        { source: "order" },
+      );
 
       return record;
     });
   }
 
-  async reconcile(codId: string, input: ReconcileCodInput, actor?: { id: string; name?: string; role?: string }): Promise<CodReconciliation> {
+  async reconcile(
+    codId: string,
+    input: ReconcileCodInput,
+    actor?: { id: string; name?: string; role?: string },
+  ): Promise<CodReconciliation> {
     return runInTransaction(async () => {
       const record = await this.codRepository.findById(codId);
       if (!record) throw new NotFoundError("COD reconciliation not found");
@@ -108,26 +125,42 @@ export class CodService {
         summary: `COD reconciled: expected ${record.expectedAmount}, received ${input.receivedAmount} (difference ${difference})`,
         actor,
         changes: [
-          { field: "receivedAmount", oldValue: record.receivedAmount, newValue: input.receivedAmount },
-          { field: "settlementStatus", oldValue: record.settlementStatus, newValue: settlementStatus },
+          {
+            field: "receivedAmount",
+            oldValue: record.receivedAmount,
+            newValue: input.receivedAmount,
+          },
+          {
+            field: "settlementStatus",
+            oldValue: record.settlementStatus,
+            newValue: settlementStatus,
+          },
         ],
       });
 
-      await EventBus.publish("order.cod_reconciled", {
-        codId,
-        orderId: record.orderId,
-        orderNumber: record.orderNumber,
-        expectedAmount: record.expectedAmount,
-        receivedAmount: input.receivedAmount,
-        difference,
-        settlementStatus,
-      }, { source: "order" });
+      await EventBus.publish(
+        "order.cod_reconciled",
+        {
+          codId,
+          orderId: record.orderId,
+          orderNumber: record.orderNumber,
+          expectedAmount: record.expectedAmount,
+          receivedAmount: input.receivedAmount,
+          difference,
+          settlementStatus,
+        },
+        { source: "order" },
+      );
 
       return updated;
     });
   }
 
-  async settle(codId: string, input: SettleCodInput, actor?: { id: string; name?: string; role?: string }): Promise<CodReconciliation> {
+  async settle(
+    codId: string,
+    input: SettleCodInput,
+    actor?: { id: string; name?: string; role?: string },
+  ): Promise<CodReconciliation> {
     return runInTransaction(async () => {
       const record = await this.codRepository.findById(codId);
       if (!record) throw new NotFoundError("COD reconciliation not found");
@@ -147,15 +180,21 @@ export class CodService {
         action: "order.system_action",
         summary: `COD settled on ${settlementDate.toISOString().split("T")[0]}${input.notes ? `: ${input.notes}` : ""}`,
         actor,
-        changes: [{ field: "settlementStatus", oldValue: record.settlementStatus, newValue: "settled" }],
+        changes: [
+          { field: "settlementStatus", oldValue: record.settlementStatus, newValue: "settled" },
+        ],
       });
 
-      await EventBus.publish("order.cod_settled", {
-        codId,
-        orderId: record.orderId,
-        orderNumber: record.orderNumber,
-        settlementDate,
-      }, { source: "order" });
+      await EventBus.publish(
+        "order.cod_settled",
+        {
+          codId,
+          orderId: record.orderId,
+          orderNumber: record.orderNumber,
+          settlementDate,
+        },
+        { source: "order" },
+      );
 
       return updated;
     });
@@ -165,12 +204,21 @@ export class CodService {
     return this.codRepository.findByOrder(orderId);
   }
 
-  async listAll(page: number = 1, limit: number = 20): Promise<{ items: CodReconciliation[]; total: number }> {
-    const result = await this.codRepository.findPaginated({}, { page, limit }, { createdAt: -1 } as any);
+  async listAll(
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<{ items: CodReconciliation[]; total: number }> {
+    const result = await this.codRepository.findPaginated({}, { page, limit }, {
+      createdAt: -1,
+    } as any);
     return { items: result.items, total: result.totalCount };
   }
 
-  async getStats(): Promise<{ byStatus: Record<string, number>; totalMismatched: number; totalPending: number }> {
+  async getStats(): Promise<{
+    byStatus: Record<string, number>;
+    totalMismatched: number;
+    totalPending: number;
+  }> {
     const byStatus = await this.codRepository.countByStatus();
     const mismatched = await this.codRepository.findMismatched();
     const pending = await this.codRepository.findPending();

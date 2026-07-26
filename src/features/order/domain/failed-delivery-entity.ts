@@ -1,14 +1,24 @@
 import { BaseDBEntity } from "@/lib/database/types";
 
 export const FAILED_DELIVERY_REASONS = [
-  "customer_not_home", "wrong_address", "wrong_phone",
-  "refused_to_accept", "delayed_by_courier", "damaged",
-  "lost_in_transit", "other",
+  "customer_not_home",
+  "wrong_address",
+  "wrong_phone",
+  "refused_to_accept",
+  "delayed_by_courier",
+  "damaged",
+  "lost_in_transit",
+  "other",
 ] as const;
 
 export const FAILED_DELIVERY_ACTIONS = [
-  "redelivery", "cancel", "change_address", "change_phone",
-  "assign_courier", "customer_confirmation", "return_to_warehouse",
+  "redelivery",
+  "cancel",
+  "change_address",
+  "change_phone",
+  "assign_courier",
+  "customer_confirmation",
+  "return_to_warehouse",
 ] as const;
 
 export type FailedDeliveryReason = (typeof FAILED_DELIVERY_REASONS)[number];

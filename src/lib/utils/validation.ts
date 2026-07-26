@@ -10,7 +10,10 @@ export const emailSchema = z.string().email("Invalid email address format").trim
 export const phoneSchema = z
   .string()
   .trim()
-  .regex(/^(\+?\d{10,15}|01[3-9]\d{8})$/, "Invalid phone number format (e.g. 01712345678 or +8801712345678)");
+  .regex(
+    /^(\+?\d{10,15}|01[3-9]\d{8})$/,
+    "Invalid phone number format (e.g. 01712345678 or +8801712345678)",
+  );
 
 export const paginationQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),

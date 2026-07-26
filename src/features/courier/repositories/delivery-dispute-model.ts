@@ -43,4 +43,5 @@ export const DeliveryDisputeModel =
   mongoose.models.DeliveryDispute || mongoose.model("DeliveryDispute", deliveryDisputeSchema);
 
 export const LogisticsEscalationModel =
-  mongoose.models.LogisticsEscalation || mongoose.model("LogisticsEscalation", logisticsEscalationSchema);
+  mongoose.models.LogisticsEscalation ||
+  mongoose.model("LogisticsEscalation", logisticsEscalationSchema);

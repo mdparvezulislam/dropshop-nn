@@ -5,9 +5,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormField } from "@/components/forms/form-field";
-import { Layers, DollarSign, Warehouse, CheckCircle2 } from "lucide-react";
+import { Layers, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
-import type { ExtendedVariantRow } from "../../types/studio-types";
 
 export interface VariantBulkEditModalProps {
   open: boolean;
@@ -50,7 +49,8 @@ export function VariantBulkEditModal({
       <DialogContent className="max-w-md border border-border bg-card shadow-2xl rounded-2xl p-6">
         <DialogHeader>
           <DialogTitle className="text-base font-bold flex items-center gap-2 text-foreground">
-            <Layers className="h-4 w-4 text-primary" /> Bulk Variant Operations ({selectedCount} Selected)
+            <Layers className="h-4 w-4 text-primary" /> Bulk Variant Operations ({selectedCount}{" "}
+            Selected)
           </DialogTitle>
         </DialogHeader>
 
@@ -79,7 +79,7 @@ export function VariantBulkEditModal({
             <select
               value={bulkStatus}
               onChange={(e) => setBulkStatus(e.target.value as any)}
-              className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs font-semibold text-foreground focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+              className="h-9 w-full rounded-lg border border-border bg-card px-3 text-xs font-semibold text-foreground focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
             >
               <option value="">Do not change status</option>
               <option value="active">Active (Available)</option>

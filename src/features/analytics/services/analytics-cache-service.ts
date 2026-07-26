@@ -99,12 +99,7 @@ export class AnalyticsCacheService {
     return null;
   }
 
-  async set<T>(
-    key: CacheKey,
-    data: T,
-    suffix?: string,
-    ttl?: number,
-  ): Promise<void> {
+  async set<T>(key: CacheKey, data: T, suffix?: string, ttl?: number): Promise<void> {
     const cacheKey = buildKey(key, suffix);
     const expiresIn = (ttl ?? CACHE_TTL[key.toUpperCase() as keyof typeof CACHE_TTL] ?? 300) * 1000;
     this.cache.set(cacheKey, { data, expiresAt: Date.now() + expiresIn });
@@ -133,7 +128,7 @@ export class AnalyticsCacheService {
   }
 
   async invalidateAll(types?: CacheKey[]): Promise<void> {
-    const keys = types ?? Object.keys(CACHE_TTL) as CacheKey[];
+    const keys = types ?? (Object.keys(CACHE_TTL) as CacheKey[]);
     const cacheKeys = keys.map((k) => buildKey(k));
     for (const key of cacheKeys) {
       this.cache.delete(key);

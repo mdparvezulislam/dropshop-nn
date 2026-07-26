@@ -3,9 +3,18 @@
 import { useState, useEffect } from "react";
 import { usePermissions } from "@/hooks/use-permissions";
 import { CheckoutStepIndicator } from "@/components/website/checkout-step-indicator";
-import { CheckoutCustomerForm, type CustomerFormData } from "@/components/website/checkout-customer-form";
-import { CheckoutShippingForm, type ShippingFormData } from "@/components/website/checkout-shipping-form";
-import { CheckoutPaymentForm, type PaymentMethod } from "@/components/website/checkout-payment-form";
+import {
+  CheckoutCustomerForm,
+  type CustomerFormData,
+} from "@/components/website/checkout-customer-form";
+import {
+  CheckoutShippingForm,
+  type ShippingFormData,
+} from "@/components/website/checkout-shipping-form";
+import {
+  CheckoutPaymentForm,
+  type PaymentMethod,
+} from "@/components/website/checkout-payment-form";
 import { CheckoutReview } from "@/components/website/checkout-review";
 import { CheckoutSummary } from "@/components/website/checkout-summary";
 
@@ -66,8 +75,7 @@ export function CheckoutPageContent({
   const [shippingCost] = useState(120);
 
   const cartType =
-    userRole === "wholesaler" ? "wholesaler" :
-    userRole === "reseller" ? "reseller" : "guest";
+    userRole === "wholesaler" ? "wholesaler" : userRole === "reseller" ? "reseller" : "guest";
 
   useEffect(() => {
     const saved = sessionStorage.getItem(`checkout_${checkoutId}`);
@@ -94,9 +102,8 @@ export function CheckoutPageContent({
     setError("");
 
     try {
-      const { completeRoleCheckoutAction } = await import(
-        "@/features/checkout/actions/checkout-actions"
-      );
+      const { completeRoleCheckoutAction } =
+        await import("@/features/checkout/actions/checkout-actions");
 
       const result = await completeRoleCheckoutAction({
         type: cartType,

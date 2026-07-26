@@ -66,7 +66,10 @@ function mapToDomainEscalation(doc: any): LogisticsEscalation {
   };
 }
 
-export class DeliveryDisputeRepository extends BaseRepository<DeliveryDisputeDocument, DeliveryDispute> {
+export class DeliveryDisputeRepository extends BaseRepository<
+  DeliveryDisputeDocument,
+  DeliveryDispute
+> {
   constructor() {
     super(DeliveryDisputeModel as any, mapToDomainDispute);
   }

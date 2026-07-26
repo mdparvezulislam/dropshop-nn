@@ -1,7 +1,12 @@
 import { ExchangeRepository } from "../repositories/exchange-repository";
 import { OrderRepository } from "../repositories/order-repository";
 import { OrderTimelineService } from "./order-timeline-service";
-import { canTransitionExchange, getExchangeHumanLabel, type ExchangeStatus, type ExchangeEntity } from "../domain/exchange-entity";
+import {
+  canTransitionExchange,
+  getExchangeHumanLabel,
+  type ExchangeStatus,
+  type ExchangeEntity,
+} from "../domain/exchange-entity";
 import { EventBus } from "@/lib/event-bus";
 import { NotFoundError, ValidationError } from "@/lib/errors/app-error";
 import { logger } from "@/lib/utils/logger";
@@ -19,7 +24,10 @@ export class ExchangeService {
     this.timelineService = new OrderTimelineService();
   }
 
-  async create(input: CreateExchangeInput, actor?: { id: string; name?: string; role?: string }): Promise<ExchangeEntity> {
+  async create(
+    input: CreateExchangeInput,
+    actor?: { id: string; name?: string; role?: string },
+  ): Promise<ExchangeEntity> {
     return runInTransaction(async () => {
       const order = await this.orderRepository.findById(input.orderId);
       if (!order) throw new NotFoundError("Order not found");
@@ -51,12 +59,16 @@ export class ExchangeService {
         actor,
       });
 
-      await EventBus.publish("order.system_action", {
-        exchangeId: exchange.id,
-        exchangeNumber,
-        orderId: input.orderId,
-        orderNumber: order.orderNumber,
-      }, { source: "order" });
+      await EventBus.publish(
+        "order.system_action",
+        {
+          exchangeId: exchange.id,
+          exchangeNumber,
+          orderId: input.orderId,
+          orderNumber: order.orderNumber,
+        },
+        { source: "order" },
+      );
 
       return exchange;
     });
@@ -124,8 +136,13 @@ export class ExchangeService {
     return this.exchangeRepository.findByOrder(orderId);
   }
 
-  async listExchanges(page: number = 1, limit: number = 20): Promise<{ items: ExchangeEntity[]; total: number }> {
-    const result = await this.exchangeRepository.findPaginated({}, { page, limit }, { createdAt: -1 } as any);
+  async listExchanges(
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<{ items: ExchangeEntity[]; total: number }> {
+    const result = await this.exchangeRepository.findPaginated({}, { page, limit }, {
+      createdAt: -1,
+    } as any);
     return { items: result.items, total: result.totalCount };
   }
 

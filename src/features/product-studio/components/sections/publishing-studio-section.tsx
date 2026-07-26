@@ -5,7 +5,7 @@ import { StudioCollapsibleSection } from "../studio-collapsible-section";
 import { Input } from "@/components/ui/input";
 import { FormField } from "@/components/forms/form-field";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, CheckCircle2, AlertTriangle, ShieldCheck } from "lucide-react";
+import { CheckCircle2, AlertTriangle, ShieldCheck } from "lucide-react";
 import type { HealthScoreResult } from "../../types/studio-types";
 
 export interface PublishingStudioSectionProps {
@@ -81,7 +81,7 @@ export function PublishingStudioSection({
             <select
               value={status}
               onChange={(e) => onStatusChange && onStatusChange(e.target.value)}
-              className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs font-bold text-foreground focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+              className="h-9 w-full rounded-lg border border-border bg-card px-3 text-xs font-bold text-foreground focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
             >
               <option value="draft">Draft (Saved locally)</option>
               <option value="scheduled">Scheduled Auto-Publish</option>
@@ -95,10 +95,12 @@ export function PublishingStudioSection({
             <select
               value={timezone}
               onChange={(e) => onTimezoneChange && onTimezoneChange(e.target.value)}
-              className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs font-mono font-bold text-foreground focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+              className="h-9 w-full rounded-lg border border-border bg-card px-3 text-xs font-mono font-bold text-foreground focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
             >
               {COMMON_TIMEZONES.map((tz) => (
-                <option key={tz} value={tz}>{tz}</option>
+                <option key={tz} value={tz}>
+                  {tz}
+                </option>
               ))}
             </select>
           </FormField>
@@ -125,7 +127,9 @@ export function PublishingStudioSection({
             <Input
               type="date"
               value={scheduledUnpublishDate}
-              onChange={(e) => onScheduledUnpublishDateChange && onScheduledUnpublishDateChange(e.target.value)}
+              onChange={(e) =>
+                onScheduledUnpublishDateChange && onScheduledUnpublishDateChange(e.target.value)
+              }
               className="font-mono text-xs font-bold"
             />
           </FormField>
@@ -146,25 +150,33 @@ export function PublishingStudioSection({
             <div className="p-2 rounded-lg border border-border bg-muted/30 text-center">
               <p className="text-[10px] font-bold text-muted-foreground uppercase">Images</p>
               <p className="text-xs font-extrabold text-foreground">
-                {(healthResult?.items.find((i) => i.id === "primaryImage")?.completed) ? "✓ Uploaded" : "❌ Missing"}
+                {healthResult?.items.find((i) => i.id === "primaryImage")?.completed
+                  ? "✓ Uploaded"
+                  : "❌ Missing"}
               </p>
             </div>
             <div className="p-2 rounded-lg border border-border bg-muted/30 text-center">
               <p className="text-[10px] font-bold text-muted-foreground uppercase">Pricing</p>
               <p className="text-xs font-extrabold text-foreground">
-                {(healthResult?.items.find((i) => i.id === "sellingPrice")?.completed) ? "✓ Valid" : "❌ Missing"}
+                {healthResult?.items.find((i) => i.id === "sellingPrice")?.completed
+                  ? "✓ Valid"
+                  : "❌ Missing"}
               </p>
             </div>
             <div className="p-2 rounded-lg border border-border bg-muted/30 text-center">
               <p className="text-[10px] font-bold text-muted-foreground uppercase">Stock</p>
               <p className="text-xs font-extrabold text-foreground">
-                {(healthResult?.items.find((i) => i.id === "inventory")?.completed) ? "✓ Defined" : "❌ Missing"}
+                {healthResult?.items.find((i) => i.id === "inventory")?.completed
+                  ? "✓ Defined"
+                  : "❌ Missing"}
               </p>
             </div>
             <div className="p-2 rounded-lg border border-border bg-muted/30 text-center">
               <p className="text-[10px] font-bold text-muted-foreground uppercase">SEO</p>
               <p className="text-xs font-extrabold text-foreground">
-                {(healthResult?.items.find((i) => i.id === "seo")?.completed) ? "✓ Ready" : "❌ Incomplete"}
+                {healthResult?.items.find((i) => i.id === "seo")?.completed
+                  ? "✓ Ready"
+                  : "❌ Incomplete"}
               </p>
             </div>
           </div>

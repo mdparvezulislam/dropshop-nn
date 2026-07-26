@@ -1,4 +1,11 @@
-import { Product, ProductVariant, ProductSpecification, ProductMedia, ProductStatus, ProductVisibility } from "./product-entity";
+import {
+  Product,
+  ProductVariant,
+  ProductSpecification,
+  ProductMedia,
+  ProductStatus,
+  ProductVisibility,
+} from "./product-entity";
 
 export type FinalCleanProductEntity = Product;
 export type ProductVariantEntity = ProductVariant;

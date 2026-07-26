@@ -153,7 +153,9 @@ export function AccountOverviewContent({ data }: { data: OverviewData }) {
               <ShoppingBag className="h-8 w-8 text-muted-foreground/40 mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">No orders yet</p>
               <Link href="/">
-                <Button variant="outline" size="sm" className="mt-3">Start Shopping</Button>
+                <Button variant="outline" size="sm" className="mt-3">
+                  Start Shopping
+                </Button>
               </Link>
             </div>
           ) : (
@@ -172,7 +174,9 @@ export function AccountOverviewContent({ data }: { data: OverviewData }) {
                     <div className="flex items-center gap-3">
                       <div>
                         <p className="text-sm font-medium">{order.orderNumber}</p>
-                        <p className="text-xs text-muted-foreground">{formatDate(order.createdAt)}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDate(order.createdAt)}
+                        </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-3">

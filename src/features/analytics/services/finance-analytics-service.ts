@@ -1,7 +1,10 @@
 import { EventFactRepository } from "../repositories/event-fact-repository";
 import { AnalyticsCacheService } from "./analytics-cache-service";
 import {
-  type FinanceAnalyticsData, type MetricCardData, type TimeSeriesPoint, ANALYTICS_EVENT_NAMES,
+  type FinanceAnalyticsData,
+  type MetricCardData,
+  type TimeSeriesPoint,
+  ANALYTICS_EVENT_NAMES,
 } from "../domain/analytics-entity";
 import { resolveDateRange } from "./analytics-query-service";
 
@@ -15,7 +18,9 @@ export class FinanceAnalyticsService {
   private readonly cache = AnalyticsCacheService.getInstance();
 
   async getFinanceAnalytics(rangeInput?: {
-    from?: Date; to?: Date; preset?: string;
+    from?: Date;
+    to?: Date;
+    preset?: string;
   }): Promise<FinanceAnalyticsData> {
     const cacheKey = rangeInput?.preset ?? "30d";
     const cached = await this.cache.get<FinanceAnalyticsData>("finance", cacheKey);
@@ -25,10 +30,12 @@ export class FinanceAnalyticsService {
 
     const [revenue, refunds, revenueSeries, profitSeries] = await Promise.all([
       this.facts.sumValueInRange(range.from, range.to, [
-        ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID,
+        ANALYTICS_EVENT_NAMES.ORDER_CREATED,
+        ANALYTICS_EVENT_NAMES.ORDER_PAID,
       ]),
       this.facts.sumValueInRange(range.from, range.to, [
-        ANALYTICS_EVENT_NAMES.REFUND_COMPLETED, "order.refunded",
+        ANALYTICS_EVENT_NAMES.REFUND_COMPLETED,
+        "order.refunded",
       ]),
       this.getTimeSeries(range, "sum"),
       this.getProfitSeries(range),
@@ -47,20 +54,32 @@ export class FinanceAnalyticsService {
       profitSeries,
       metrics: [
         {
-          key: "revenue", label: "Revenue",
-          value: revenue, format: "currency", currency: "BDT",
+          key: "revenue",
+          label: "Revenue",
+          value: revenue,
+          format: "currency",
+          currency: "BDT",
         },
         {
-          key: "profit", label: "Profit",
-          value: revenue - refunds, format: "currency", currency: "BDT",
+          key: "profit",
+          label: "Profit",
+          value: revenue - refunds,
+          format: "currency",
+          currency: "BDT",
         },
         {
-          key: "refunds", label: "Refunds",
-          value: refunds, format: "currency", currency: "BDT",
+          key: "refunds",
+          label: "Refunds",
+          value: refunds,
+          format: "currency",
+          currency: "BDT",
         },
         {
-          key: "expenses", label: "Expenses",
-          value: refunds, format: "currency", currency: "BDT",
+          key: "expenses",
+          label: "Expenses",
+          value: refunds,
+          format: "currency",
+          currency: "BDT",
         },
       ],
     };
@@ -69,18 +88,27 @@ export class FinanceAnalyticsService {
     return data;
   }
 
-  private async getTimeSeries(range: { from: Date; to: Date }, mode: "count" | "sum"): Promise<TimeSeriesPoint[]> {
+  private async getTimeSeries(
+    range: { from: Date; to: Date },
+    mode: "count" | "sum",
+  ): Promise<TimeSeriesPoint[]> {
     const events = [ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID];
     return this.facts.seriesByDay(range.from, range.to, events, mode) as Promise<TimeSeriesPoint[]>;
   }
 
   private async getProfitSeries(range: { from: Date; to: Date }): Promise<TimeSeriesPoint[]> {
-    const revenueData = await this.facts.seriesByDay(range.from, range.to, [
-      ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID,
-    ], "sum") as { date: string; value: number }[];
-    const refundData = await this.facts.seriesByDay(range.from, range.to, [
-      ANALYTICS_EVENT_NAMES.REFUND_COMPLETED, "order.refunded",
-    ], "sum") as { date: string; value: number }[];
+    const revenueData = (await this.facts.seriesByDay(
+      range.from,
+      range.to,
+      [ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID],
+      "sum",
+    )) as { date: string; value: number }[];
+    const refundData = (await this.facts.seriesByDay(
+      range.from,
+      range.to,
+      [ANALYTICS_EVENT_NAMES.REFUND_COMPLETED, "order.refunded"],
+      "sum",
+    )) as { date: string; value: number }[];
 
     const refundMap = new Map(refundData.map((r) => [r.date, r.value]));
     return revenueData.map((r) => ({

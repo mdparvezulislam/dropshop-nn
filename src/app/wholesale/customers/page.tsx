@@ -32,15 +32,17 @@ export default function WholesaleCustomersPage(): React.ReactElement {
       const res = await listCustomersAction(search || undefined);
       if (res.success && res.data) {
         const items = Array.isArray(res.data) ? res.data : [];
-        setRows(items.map((c: any) => ({
-          id: c.id ?? c._id,
-          name: c.name ?? "—",
-          phone: c.phone ?? "—",
-          email: c.email ?? "—",
-          address: c.addresses?.[0]?.fullAddress ?? c.addresses?.[0]?.address ?? "—",
-          notesCount: c.notes?.length ?? 0,
-          createdAt: c.createdAt,
-        })));
+        setRows(
+          items.map((c: any) => ({
+            id: c.id ?? c._id,
+            name: c.name ?? "—",
+            phone: c.phone ?? "—",
+            email: c.email ?? "—",
+            address: c.addresses?.[0]?.fullAddress ?? c.addresses?.[0]?.address ?? "—",
+            notesCount: c.notes?.length ?? 0,
+            createdAt: c.createdAt,
+          })),
+        );
       }
     } catch {
       toast.error("Failed to load customers");
@@ -49,7 +51,9 @@ export default function WholesaleCustomersPage(): React.ReactElement {
     }
   }, [search]);
 
-  React.useEffect(() => { load(); }, [load]);
+  React.useEffect(() => {
+    load();
+  }, [load]);
 
   const columns: DataTableColumn<Row>[] = [
     {
@@ -89,7 +93,9 @@ export default function WholesaleCustomersPage(): React.ReactElement {
       header: "Since",
       hideOnMobile: true,
       cell: (r) => (
-        <span className="text-muted-foreground">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}</span>
+        <span className="text-muted-foreground">
+          {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}
+        </span>
       ),
     },
   ];
@@ -108,8 +114,17 @@ export default function WholesaleCustomersPage(): React.ReactElement {
         ) : (
           <>
             <StatCard label="Total Contacts" value={rows.length} icon={Users} />
-            <StatCard label="With Addresses" value={rows.filter((r) => r.address !== "—").length} icon={MapPin} accent="info" />
-            <StatCard label="With Notes" value={rows.filter((r) => r.notesCount > 0).length} accent="default" />
+            <StatCard
+              label="With Addresses"
+              value={rows.filter((r) => r.address !== "—").length}
+              icon={MapPin}
+              accent="info"
+            />
+            <StatCard
+              label="With Notes"
+              value={rows.filter((r) => r.notesCount > 0).length}
+              accent="default"
+            />
           </>
         )
       }
@@ -118,7 +133,9 @@ export default function WholesaleCustomersPage(): React.ReactElement {
           left={
             <SearchBox
               value={search}
-              onChange={(v) => { setSearch(v); }}
+              onChange={(v) => {
+                setSearch(v);
+              }}
               placeholder="Search customers…"
               className="w-full sm:w-72"
             />

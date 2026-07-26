@@ -5,7 +5,7 @@ import { StudioCollapsibleSection } from "../studio-collapsible-section";
 import { listCollectionsAction } from "@/features/catalog/actions/classification-actions";
 import { Badge } from "@/components/ui/badge";
 import { FormField } from "@/components/forms/form-field";
-import { Search, Layers, Globe, Shield, Pin, Check, Store } from "lucide-react";
+import { Search, Layers, Globe, Check, Store } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 export interface CollectionsChannelsSectionProps {
@@ -107,7 +107,7 @@ export function CollectionsChannelsSection({
                   type="button"
                   onClick={() => toggleChannel(ch.id)}
                   className={cn(
-                    "flex items-center justify-between p-3 rounded-xl border text-left transition-all",
+                    "flex items-center justify-between p-3.5 sm:p-3 rounded-xl border text-left transition-all",
                     active
                       ? "border-primary bg-accent text-foreground font-bold shadow-2xs"
                       : "border-border bg-card text-muted-foreground hover:border-border/80 hover:bg-muted/40",
@@ -129,7 +129,7 @@ export function CollectionsChannelsSection({
           <select
             value={visibility}
             onChange={(e) => onVisibilityChange && onVisibilityChange(e.target.value)}
-            className="h-9.5 w-full rounded-lg border border-border bg-card px-3 text-xs font-semibold text-foreground focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+            className="h-9 w-full rounded-lg border border-border bg-card px-3 text-xs font-semibold text-foreground focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
           >
             {VISIBILITY_OPTIONS.map((opt) => (
               <option key={opt.id} value={opt.id}>
@@ -159,9 +159,13 @@ export function CollectionsChannelsSection({
 
           <div className="ws-scroll max-h-40 overflow-y-auto rounded-xl border border-border bg-muted/20 p-2 grid grid-cols-2 sm:grid-cols-3 gap-1.5">
             {loading ? (
-              <p className="col-span-full text-xs text-muted-foreground text-center py-4">Loading collections…</p>
+              <p className="col-span-full text-xs text-muted-foreground text-center py-4">
+                Loading collections…
+              </p>
             ) : filteredCollections.length === 0 ? (
-              <p className="col-span-full text-xs text-muted-foreground text-center py-4">No collections found</p>
+              <p className="col-span-full text-xs text-muted-foreground text-center py-4">
+                No collections found
+              </p>
             ) : (
               filteredCollections.map((col) => {
                 const isSelected = selectedCollectionIds.includes(col.id);
@@ -171,7 +175,7 @@ export function CollectionsChannelsSection({
                     type="button"
                     onClick={() => toggleCollection(col.id)}
                     className={cn(
-                      "flex items-center justify-between p-2 rounded-lg text-xs font-semibold transition-all border",
+                      "flex items-center justify-between p-3 sm:p-2 rounded-xl sm:rounded-lg text-xs font-semibold transition-all border",
                       isSelected
                         ? "border-primary bg-primary text-primary-foreground font-bold shadow-2xs"
                         : "border-border/60 bg-card text-foreground hover:bg-muted/60",

@@ -56,11 +56,7 @@ function StarRatingFilter({
   );
 }
 
-function FilterPanel({
-  filters,
-  onFilterChange,
-  brands,
-}: ProductFilterSidebarProps) {
+function FilterPanel({ filters, onFilterChange, brands }: ProductFilterSidebarProps) {
   return (
     <div className="space-y-5">
       <div>

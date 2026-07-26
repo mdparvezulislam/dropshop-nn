@@ -76,11 +76,18 @@ async function resolvePricingByRole(
 ): Promise<ProductPricingData> {
   const pAny = (product || {}) as any;
   const rawCost = pAny.costPrice ? parseFloat(String(pAny.costPrice)) : undefined;
-  const rawSelling = pAny.sellingPrice || pAny.retailPrice || pAny.price ? parseFloat(String(pAny.sellingPrice || pAny.retailPrice || pAny.price)) : undefined;
+  const rawSelling =
+    pAny.sellingPrice || pAny.retailPrice || pAny.price
+      ? parseFloat(String(pAny.sellingPrice || pAny.retailPrice || pAny.price))
+      : undefined;
 
-  let retailPrice = pricing?.sellingPrice || rawSelling || (rawCost ? Math.round(rawCost * 1.30) : 1200);
-  let resellerPrice = pricing?.resellerPrice || (rawCost ? Math.round(rawCost * 1.20) : Math.round(retailPrice * 0.80));
-  let wholesalePrice = pricing?.wholesalePrice || (rawCost ? Math.round(rawCost * 1.12) : Math.round(retailPrice * 0.70));
+  let retailPrice =
+    pricing?.sellingPrice || rawSelling || (rawCost ? Math.round(rawCost * 1.3) : 1200);
+  let resellerPrice =
+    pricing?.resellerPrice || (rawCost ? Math.round(rawCost * 1.2) : Math.round(retailPrice * 0.8));
+  let wholesalePrice =
+    pricing?.wholesalePrice ||
+    (rawCost ? Math.round(rawCost * 1.12) : Math.round(retailPrice * 0.7));
   let costPrice = pricing?.baseCostPrice || rawCost || Math.round(retailPrice * 0.65);
   let comparePrice = pricing?.comparePrice || Math.round(retailPrice * 1.25);
 
@@ -104,9 +111,24 @@ async function resolvePricingByRole(
 
     if (isAdmin || (isReseller && isWholesaler)) {
       const [retail, reseller, wholesale] = await Promise.all([
-        engine.calculatePrice({ productId, costPrice: effectiveCost, quantity: 1, role: "customer" }),
-        engine.calculatePrice({ productId, costPrice: effectiveCost, quantity: 1, role: "reseller" }),
-        engine.calculatePrice({ productId, costPrice: effectiveCost, quantity: 1, role: "wholesaler" }),
+        engine.calculatePrice({
+          productId,
+          costPrice: effectiveCost,
+          quantity: 1,
+          role: "customer",
+        }),
+        engine.calculatePrice({
+          productId,
+          costPrice: effectiveCost,
+          quantity: 1,
+          role: "reseller",
+        }),
+        engine.calculatePrice({
+          productId,
+          costPrice: effectiveCost,
+          quantity: 1,
+          role: "wholesaler",
+        }),
       ]);
       return {
         retailPrice: retail.unitPrice || retailPrice,
@@ -120,7 +142,12 @@ async function resolvePricingByRole(
     }
 
     if (isReseller) {
-      const result = await engine.calculatePrice({ productId, costPrice: effectiveCost, quantity: 1, role: "reseller" });
+      const result = await engine.calculatePrice({
+        productId,
+        costPrice: effectiveCost,
+        quantity: 1,
+        role: "reseller",
+      });
       return {
         ...base,
         retailPrice,
@@ -129,7 +156,12 @@ async function resolvePricingByRole(
     }
 
     if (isWholesaler) {
-      const result = await engine.calculatePrice({ productId, costPrice: effectiveCost, quantity: 1, role: "wholesaler" });
+      const result = await engine.calculatePrice({
+        productId,
+        costPrice: effectiveCost,
+        quantity: 1,
+        role: "wholesaler",
+      });
       return {
         ...base,
         retailPrice,
@@ -138,16 +170,19 @@ async function resolvePricingByRole(
       };
     }
 
-    const result = await engine.calculatePrice({ productId, costPrice: effectiveCost, quantity: 1, role: "customer" });
+    const result = await engine.calculatePrice({
+      productId,
+      costPrice: effectiveCost,
+      quantity: 1,
+      role: "customer",
+    });
     return { ...base, retailPrice: result.unitPrice || retailPrice };
   } catch {
     return base;
   }
 }
 
-export async function getPublicFeaturedProductsAction(
-  limit = 8,
-): Promise<PublicProductsResult> {
+export async function getPublicFeaturedProductsAction(limit = 8): Promise<PublicProductsResult> {
   try {
     const service = new ProductService();
     const result = await service.list(
@@ -163,9 +198,7 @@ export async function getPublicFeaturedProductsAction(
   }
 }
 
-export async function getPublicTrendingProductsAction(
-  limit = 8,
-): Promise<PublicProductsResult> {
+export async function getPublicTrendingProductsAction(limit = 8): Promise<PublicProductsResult> {
   try {
     const service = new ProductService();
     const result = await service.list(
@@ -181,9 +214,7 @@ export async function getPublicTrendingProductsAction(
   }
 }
 
-export async function getPublicNewArrivalsAction(
-  limit = 8,
-): Promise<PublicProductsResult> {
+export async function getPublicNewArrivalsAction(limit = 8): Promise<PublicProductsResult> {
   try {
     const service = new ProductService();
     const result = await service.list(
@@ -199,9 +230,7 @@ export async function getPublicNewArrivalsAction(
   }
 }
 
-export async function getPublicFlashDealsAction(
-  limit = 6,
-): Promise<PublicProductsResult> {
+export async function getPublicFlashDealsAction(limit = 6): Promise<PublicProductsResult> {
   try {
     const service = new ProductService();
     const result = await service.list(
@@ -237,9 +266,7 @@ export async function getPublicCategoriesAction(): Promise<PublicCategoriesResul
   }
 }
 
-export async function getPublicProductBySlugAction(
-  slug: string,
-): Promise<ProductDetailResult> {
+export async function getPublicProductBySlugAction(slug: string): Promise<ProductDetailResult> {
   try {
     const session = await auth();
     const user = session?.user as { role?: string; memberships?: string[] } | undefined;
@@ -366,12 +393,12 @@ export async function getPublicCategoryProductsAction(
 
     return {
       success: true,
-        data: {
-          items: filtered,
-          totalCount: filtered.length,
-          cursor: result.cursor ?? null,
-          hasMore: (result.hasMore ?? false) && filtered.length >= (pagination.limit || 20),
-        },
+      data: {
+        items: filtered,
+        totalCount: filtered.length,
+        cursor: result.cursor ?? null,
+        hasMore: (result.hasMore ?? false) && filtered.length >= (pagination.limit || 20),
+      },
     };
   } catch {
     return { success: true, data: null };
@@ -425,7 +452,9 @@ export async function searchProductsAction(
       return { success: true, data: null };
     }
 
-    const searchService = new (await import("../services/catalog-search-service")).CatalogSearchService();
+    const searchService = new (
+      await import("../services/catalog-search-service")
+    ).CatalogSearchService();
 
     const dbFilters: Record<string, unknown> = {
       status: "active",
@@ -446,11 +475,15 @@ export async function searchProductsAction(
     };
     const sortParams = sortMap[filters.sort ?? "newest"] ?? sortMap.newest;
 
-    const result = await searchService.search(query.trim(), {
-      cursor: pagination.cursor,
-      limit: pagination.limit || 20,
-      ...sortParams,
-    }, dbFilters);
+    const result = await searchService.search(
+      query.trim(),
+      {
+        cursor: pagination.cursor,
+        limit: pagination.limit || 20,
+        ...sortParams,
+      },
+      dbFilters,
+    );
 
     const pricingService = new PricingService();
     const items = await Promise.all(
@@ -460,7 +493,8 @@ export async function searchProductsAction(
 
         if (filters.minPrice !== undefined && card.retailPrice < filters.minPrice) return null;
         if (filters.maxPrice !== undefined && card.retailPrice > filters.maxPrice) return null;
-        if (filters.onSale && (!card.comparePrice || card.comparePrice <= card.retailPrice)) return null;
+        if (filters.onSale && (!card.comparePrice || card.comparePrice <= card.retailPrice))
+          return null;
         if (filters.minRating !== undefined && (card.rating ?? 0) < filters.minRating) return null;
 
         return card;
@@ -501,7 +535,9 @@ export async function searchAutocompleteAction(query: string): Promise<Autocompl
       return { success: true, data: { products: [], categories: [], brands: [], suggestions: [] } };
     }
 
-    const searchService = new (await import("../services/catalog-search-service")).CatalogSearchService();
+    const searchService = new (
+      await import("../services/catalog-search-service")
+    ).CatalogSearchService();
     const pricingService = new PricingService();
     const categoryRepo = new CategoryRepository();
     const brandRepo = new BrandRepository();
@@ -640,9 +676,7 @@ export async function getPublicProductsCatalogAction(
   }
 }
 
-export async function getPublicBrandProductsAction(
-  slug: string,
-): Promise<{
+export async function getPublicBrandProductsAction(slug: string): Promise<{
   success: boolean;
   data: { brand: Brand; products: ProductCardData[] } | null;
 }> {

@@ -58,7 +58,11 @@ export default function WholesaleProductDetailPage(): React.ReactElement {
     return (
       <div className="space-y-6">
         <PageHeader title="Product Not Found" />
-        <Card><CardContent className="p-8 text-center text-sm text-muted-foreground">Product not found.</CardContent></Card>
+        <Card>
+          <CardContent className="p-8 text-center text-sm text-muted-foreground">
+            Product not found.
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -81,7 +85,10 @@ export default function WholesaleProductDetailPage(): React.ReactElement {
         <Button variant="ghost" size="icon-sm" onClick={() => router.push("/wholesale/products")}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <PageHeader title={p.title ?? p.name} description={`SKU: ${p.sku ?? "—"} · ${p.categoryName ?? p.category ?? "Uncategorized"}`} />
+        <PageHeader
+          title={p.title ?? p.name}
+          description={`SKU: ${p.sku ?? "—"} · ${p.categoryName ?? p.category ?? "Uncategorized"}`}
+        />
       </div>
 
       <div className="grid gap-5 lg:grid-cols-3">
@@ -108,8 +115,12 @@ export default function WholesaleProductDetailPage(): React.ReactElement {
                 <div className="divide-y divide-border">
                   {tierPricing.map((tier: any, i: number) => (
                     <div key={i} className="flex items-center justify-between py-2.5 text-sm">
-                      <span className="text-muted-foreground">{tier.label ?? `Qty ${tier.minQty ?? "—"}`}</span>
-                      <span className="font-semibold tabular-nums">{formatCents(tier.price ?? 0)}</span>
+                      <span className="text-muted-foreground">
+                        {tier.label ?? `Qty ${tier.minQty ?? "—"}`}
+                      </span>
+                      <span className="font-semibold tabular-nums">
+                        {formatCents(tier.price ?? 0)}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -126,7 +137,9 @@ export default function WholesaleProductDetailPage(): React.ReactElement {
             <CardContent className="p-4 space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Wholesale</span>
-                <span className="font-bold text-lg text-success">{formatCents(wholesalePrice)}</span>
+                <span className="font-bold text-lg text-success">
+                  {formatCents(wholesalePrice)}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Retail</span>
@@ -146,16 +159,25 @@ export default function WholesaleProductDetailPage(): React.ReactElement {
             <CardContent className="p-4 space-y-3 text-sm">
               <div className="flex items-center gap-2">
                 <Boxes className="h-4 w-4 text-muted-foreground" />
-                <span>MOQ: <strong>{moq}</strong></span>
+                <span>
+                  MOQ: <strong>{moq}</strong>
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <Tag className="h-4 w-4 text-muted-foreground" />
-                <span>Stock: <strong className={stock <= 0 ? "text-destructive" : "text-success"}>{stock}</strong></span>
+                <span>
+                  Stock:{" "}
+                  <strong className={stock <= 0 ? "text-destructive" : "text-success"}>
+                    {stock}
+                  </strong>
+                </span>
               </div>
               {p.brand ? (
                 <div className="flex items-center gap-2">
                   <Package className="h-4 w-4 text-muted-foreground" />
-                  <span>Brand: <strong>{p.brandName ?? p.brand}</strong></span>
+                  <span>
+                    Brand: <strong>{p.brandName ?? p.brand}</strong>
+                  </span>
                 </div>
               ) : null}
             </CardContent>

@@ -8,7 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { upsertNavigationAction } from "@/features/cms/actions/navigation-actions";
-import type { NavigationItem, NavigationLocation, NavigationMenu } from "@/features/cms/domain/navigation-entity";
+import type {
+  NavigationItem,
+  NavigationLocation,
+  NavigationMenu,
+} from "@/features/cms/domain/navigation-entity";
 
 interface NavigationManagerClientProps {
   initialMenus: NavigationMenu[];
@@ -18,7 +22,10 @@ const LOCATIONS: NavigationLocation[] = ["header", "footer", "sidebar", "mega_me
 
 function createItem(): NavigationItem {
   return {
-    id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `nav-${Date.now()}`,
+    id:
+      typeof crypto !== "undefined" && crypto.randomUUID
+        ? crypto.randomUUID()
+        : `nav-${Date.now()}`,
     label: "New link",
     href: "/",
     sortOrder: 0,
@@ -55,7 +62,7 @@ export function NavigationManagerClient({
       isActive: true,
     });
     setLoading(false);
-    setMessage(res.success ? "Navigation saved." : res.error ?? "Save failed");
+    setMessage(res.success ? "Navigation saved." : (res.error ?? "Save failed"));
   };
 
   return (
@@ -68,7 +75,11 @@ export function NavigationManagerClient({
           </p>
         </div>
         <Button size="sm" onClick={save} disabled={loading} className="gap-1.5">
-          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+          {loading ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Save className="h-3.5 w-3.5" />
+          )}
           Save menu
         </Button>
       </div>

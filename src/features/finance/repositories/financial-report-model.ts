@@ -35,6 +35,5 @@ const financialReportSchema = new Schema(
 financialReportSchema.index({ type: 1, createdAt: -1 });
 
 export const FinancialReportModel =
-  mongoose.models.FinancialReport ||
-  mongoose.model("FinancialReport", financialReportSchema);
+  mongoose.models.FinancialReport || mongoose.model("FinancialReport", financialReportSchema);
 export default FinancialReportModel;

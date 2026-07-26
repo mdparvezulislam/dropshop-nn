@@ -85,7 +85,9 @@ export class WithdrawalRepository extends BaseRepository<WithdrawalDocument, Wit
     });
   }
 
-  async searchAndFilter(filter: WithdrawalQueryFilter): Promise<{ items: Withdrawal[]; total: number }> {
+  async searchAndFilter(
+    filter: WithdrawalQueryFilter,
+  ): Promise<{ items: Withdrawal[]; total: number }> {
     const query: Record<string, unknown> = {};
 
     if (filter.walletId) query.walletId = filter.walletId;

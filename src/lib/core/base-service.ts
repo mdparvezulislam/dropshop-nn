@@ -74,9 +74,8 @@ export abstract class BaseService<
     actor?: ActorInfo,
   ): Promise<void> {
     try {
-      const { AnalyticsPublisher } = await import(
-        "@/features/analytics/services/analytics-publisher"
-      );
+      const { AnalyticsPublisher } =
+        await import("@/features/analytics/services/analytics-publisher");
       await new AnalyticsPublisher().track({
         eventName: event,
         module: (data.module as any) || "system",
@@ -114,17 +113,13 @@ export abstract class BaseService<
     data: Record<string, unknown>,
   ): Promise<void> {
     try {
-      const { NotificationPublisher } = await import(
-        "@/features/notification/services/notification-publisher"
-      );
+      const { NotificationPublisher } =
+        await import("@/features/notification/services/notification-publisher");
       const publisher = new NotificationPublisher();
       const payload = Object.fromEntries(
         Object.entries(data).map(([k, v]) => [
           k,
-          v === null ||
-          typeof v === "string" ||
-          typeof v === "number" ||
-          typeof v === "boolean"
+          v === null || typeof v === "string" || typeof v === "number" || typeof v === "boolean"
             ? v
             : String(v),
         ]),

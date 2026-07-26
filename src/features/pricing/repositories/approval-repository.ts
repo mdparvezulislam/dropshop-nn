@@ -1,5 +1,10 @@
 import { BaseRepository } from "@/lib/database/generic-repository";
-import { PriceApprovalModel, PriceApprovalDocument, PriceHistoryEntryModel, PriceHistoryEntryDocument } from "./approval-model";
+import {
+  PriceApprovalModel,
+  PriceApprovalDocument,
+  PriceHistoryEntryModel,
+  PriceHistoryEntryDocument,
+} from "./approval-model";
 import { PriceApproval, PriceChange } from "../domain/price-approval-entity";
 import { PriceHistoryEntry } from "../domain/price-history-entity";
 import { logger } from "@/lib/utils/logger";
@@ -53,7 +58,10 @@ export class PriceApprovalRepository extends BaseRepository<PriceApprovalDocumen
   }
 }
 
-export class PriceHistoryRepository extends BaseRepository<PriceHistoryEntryDocument, PriceHistoryEntry> {
+export class PriceHistoryRepository extends BaseRepository<
+  PriceHistoryEntryDocument,
+  PriceHistoryEntry
+> {
   constructor() {
     super(PriceHistoryEntryModel, PriceHistoryRepository.mapToDomain);
   }

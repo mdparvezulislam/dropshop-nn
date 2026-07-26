@@ -94,7 +94,11 @@ export async function importProductsCsvAction(csvData: string): Promise<{
     const pricingService = new PricingService();
     const productRepo = new ProductRepository();
     const userObj = session?.user as any;
-    const actor = { id: userObj?.id || "admin", name: userObj?.name || "Admin", role: userObj?.role || "ADMIN" };
+    const actor = {
+      id: userObj?.id || "admin",
+      name: userObj?.name || "Admin",
+      role: userObj?.role || "ADMIN",
+    };
 
     let imported = 0;
     let skipped = 0;
@@ -121,7 +125,10 @@ export async function importProductsCsvAction(csvData: string): Promise<{
           }
 
           const tags = row.tags
-            ? row.tags.split(";").map((t: string) => t.trim()).filter(Boolean)
+            ? row.tags
+                .split(";")
+                .map((t: string) => t.trim())
+                .filter(Boolean)
             : [];
 
           const productData: any = {

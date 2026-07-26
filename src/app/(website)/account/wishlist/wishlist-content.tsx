@@ -53,7 +53,9 @@ export function WishlistPageContent({ initialItems }: { initialItems: WishlistIt
             <Heart className="h-8 w-8 text-muted-foreground/40 mb-3" />
             <p className="text-sm text-muted-foreground">No items in your wishlist yet.</p>
             <Link href="/">
-              <Button variant="outline" size="sm" className="mt-3">Browse Products</Button>
+              <Button variant="outline" size="sm" className="mt-3">
+                Browse Products
+              </Button>
             </Link>
           </CardContent>
         </Card>

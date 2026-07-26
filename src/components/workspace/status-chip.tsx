@@ -34,7 +34,9 @@ export function StatusChip({
       className={cn(
         "inline-flex items-center border font-semibold capitalize tracking-wide transition-colors",
         toneStyles[tone],
-        size === "sm" ? "gap-1 rounded-md px-1.5 py-0.5 text-[10px]" : "gap-1.5 rounded-full px-2.5 py-0.5 text-[11px]",
+        size === "sm"
+          ? "gap-1 rounded-md px-1.5 py-0.5 text-[10px]"
+          : "gap-1.5 rounded-full px-2.5 py-0.5 text-[11px]",
         className,
       )}
     >
@@ -58,10 +60,23 @@ export function StatusChip({
 
 export function statusToneFromValue(status: string): StatusTone {
   const s = (status || "").toLowerCase();
-  if (["active", "completed", "verified", "delivered", "success", "in_stock", "paid", "published"].includes(s)) {
+  if (
+    [
+      "active",
+      "completed",
+      "verified",
+      "delivered",
+      "success",
+      "in_stock",
+      "paid",
+      "published",
+    ].includes(s)
+  ) {
     return "success";
   }
-  if (["pending", "draft", "low_stock", "warning", "scheduled", "review", "processing"].includes(s)) {
+  if (
+    ["pending", "draft", "low_stock", "warning", "scheduled", "review", "processing"].includes(s)
+  ) {
     return "warning";
   }
   if (

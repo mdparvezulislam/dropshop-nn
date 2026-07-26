@@ -40,7 +40,12 @@ export class QuotationService {
     return quote;
   }
 
-  async updateStatus(quotationId: string, wholesalerId: string, status: QuotationStatus, notes?: string) {
+  async updateStatus(
+    quotationId: string,
+    wholesalerId: string,
+    status: QuotationStatus,
+    notes?: string,
+  ) {
     const quote = await this.repo.findById(quotationId);
     if (!quote || quote.wholesalerId !== wholesalerId) {
       throw new Error("Quotation not found");

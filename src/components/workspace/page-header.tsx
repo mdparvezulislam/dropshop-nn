@@ -47,7 +47,9 @@ export function PageHeader({
             {meta}
           </div>
         </div>
-        {actions ? <div className="flex flex-wrap items-center gap-2 shrink-0">{actions}</div> : null}
+        {actions ? (
+          <div className="flex flex-wrap items-center gap-2 shrink-0">{actions}</div>
+        ) : null}
       </div>
       {separator ? <div className="h-px w-full bg-border/80" /> : null}
     </div>

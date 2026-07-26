@@ -2,7 +2,14 @@
 
 import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, DollarSign, Warehouse, BarChart2, ShieldCheck, AlertTriangle } from "lucide-react";
+import {
+  TrendingUp,
+  DollarSign,
+  Warehouse,
+  BarChart2,
+  ShieldCheck,
+  AlertTriangle,
+} from "lucide-react";
 import type { ProductCatalogItem } from "./catalog-table-view";
 
 export interface CatalogAnalyticsViewProps {
@@ -62,9 +69,7 @@ export function CatalogAnalyticsView({ items }: CatalogAnalyticsViewProps): Reac
             <span>স্টক টার্নওভার স্বাস্থ্য (Stock Health)</span>
             <Warehouse className="h-4 w-4 text-warning" />
           </div>
-          <p className="text-xl font-extrabold font-mono text-success mt-2">
-            94.2%
-          </p>
+          <p className="text-xl font-extrabold font-mono text-success mt-2">94.2%</p>
           <p className="text-[11px] font-medium text-muted-foreground mt-1">
             In-stock ratio across active sales channels.
           </p>
@@ -84,7 +89,9 @@ export function CatalogAnalyticsView({ items }: CatalogAnalyticsViewProps): Reac
               <div key={cat} className="space-y-1">
                 <div className="flex justify-between text-xs font-bold text-foreground">
                   <span>{cat}</span>
-                  <span className="font-mono text-muted-foreground">{count} items ({pct.toFixed(1)}%)</span>
+                  <span className="font-mono text-muted-foreground">
+                    {count} items ({pct.toFixed(1)}%)
+                  </span>
                 </div>
                 <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
                   <div style={{ width: `${pct}%` }} className="h-full bg-primary" />

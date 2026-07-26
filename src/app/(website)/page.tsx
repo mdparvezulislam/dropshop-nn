@@ -26,19 +26,14 @@ export const metadata = {
     "বাংলাদেশের সবচেয়ে বিশ্বস্ত প্রোডাক্ট সাপ্লাই প্ল্যাটফর্ম। রিসেলার, হোলসেলার এবং ড্রপশিপারদের জন্য অল-ইন-ওয়ান সমাধান।",
   openGraph: {
     title: "DropshopNN - Enterprise Commerce OS",
-    description:
-      "সোর্স করুন, বিক্রি করুন, ব্যবসা বাড়ান DropshopNN এর সাথে।",
+    description: "সোর্স করুন, বিক্রি করুন, ব্যবসা বাড়ান DropshopNN এর সাথে।",
     type: "website",
     locale: "en_BD",
   },
 };
 
 export default async function HomePage() {
-  const [
-    flashDealsRes,
-    newArrivalsRes,
-    categoriesRes,
-  ] = await Promise.all([
+  const [flashDealsRes, newArrivalsRes, categoriesRes] = await Promise.all([
     getPublicFlashDealsAction(5),
     getPublicNewArrivalsAction(6),
     getPublicCategoriesAction(),

@@ -4,7 +4,8 @@ const benefits = [
   {
     icon: Shield,
     title: "Verified Suppliers",
-    description: "All suppliers are verified for authenticity and quality. Your trust is our priority.",
+    description:
+      "All suppliers are verified for authenticity and quality. Your trust is our priority.",
   },
   {
     icon: Zap,
@@ -56,7 +57,9 @@ export function WhyChooseUs() {
                 <benefit.icon className="h-6 w-6 text-primary" />
               </div>
               <h3 className="text-lg font-bold text-[hsl(222_47%_11%)] mb-2">{benefit.title}</h3>
-              <p className="text-sm text-[hsl(215_16%_47%)] leading-relaxed">{benefit.description}</p>
+              <p className="text-sm text-[hsl(215_16%_47%)] leading-relaxed">
+                {benefit.description}
+              </p>
             </div>
           ))}
         </div>

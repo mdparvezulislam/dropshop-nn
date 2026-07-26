@@ -27,9 +27,8 @@ export default function ResellerSettingsPage(): React.ReactElement {
   React.useEffect(() => {
     async function load() {
       try {
-        const { getMyResellerProfileAction } = await import(
-          "@/features/reseller/actions/reseller-actions"
-        );
+        const { getMyResellerProfileAction } =
+          await import("@/features/reseller/actions/reseller-actions");
         const res = await getMyResellerProfileAction();
         if (res.success && res.data) {
           const r = res.data as any;
@@ -56,9 +55,8 @@ export default function ResellerSettingsPage(): React.ReactElement {
     e.preventDefault();
     setSaving(true);
     try {
-      const { updateMyResellerProfileAction } = await import(
-        "@/features/reseller/actions/reseller-actions"
-      );
+      const { updateMyResellerProfileAction } =
+        await import("@/features/reseller/actions/reseller-actions");
       const res = await updateMyResellerProfileAction({
         businessName,
         ownerName,

@@ -16,11 +16,13 @@ export class FailedLoginRepository extends BaseRepository<FailedLoginDocument, F
       identifier: doc.identifier,
       ipAddress: doc.ipAddress,
       userAgent: doc.userAgent,
-      deviceInfo: doc.deviceInfo ? {
-        type: doc.deviceInfo.type as any,
-        os: doc.deviceInfo.os as any,
-        browser: doc.deviceInfo.browser as any,
-      } : undefined,
+      deviceInfo: doc.deviceInfo
+        ? {
+            type: doc.deviceInfo.type as any,
+            os: doc.deviceInfo.os as any,
+            browser: doc.deviceInfo.browser as any,
+          }
+        : undefined,
       reason: doc.reason as any,
       attemptCount: doc.attemptCount,
       lastAttemptAt: doc.lastAttemptAt,
@@ -37,10 +39,15 @@ export class FailedLoginRepository extends BaseRepository<FailedLoginDocument, F
     };
   }
 
-  async findByIdentifier(identifier: string, options?: DatabaseQueryOptions): Promise<FailedLoginAttempt[]> {
+  async findByIdentifier(
+    identifier: string,
+    options?: DatabaseQueryOptions,
+  ): Promise<FailedLoginAttempt[]> {
     try {
       await this.ensureConnected();
-      const query = FailedLoginModel.find({ identifier: identifier.trim() }).session(options?.session || null);
+      const query = FailedLoginModel.find({ identifier: identifier.trim() }).session(
+        options?.session || null,
+      );
       if (options?.lean) query.lean();
       if (options?.showDeleted) query.setOptions({ showDeleted: true });
       const docs = await query.sort({ lastAttemptAt: -1 }).exec();
@@ -51,7 +58,10 @@ export class FailedLoginRepository extends BaseRepository<FailedLoginDocument, F
     }
   }
 
-  async findByIpAddress(ipAddress: string, options?: DatabaseQueryOptions): Promise<FailedLoginAttempt[]> {
+  async findByIpAddress(
+    ipAddress: string,
+    options?: DatabaseQueryOptions,
+  ): Promise<FailedLoginAttempt[]> {
     try {
       await this.ensureConnected();
       const query = FailedLoginModel.find({ ipAddress }).session(options?.session || null);
@@ -101,15 +111,20 @@ export class FailedLoginRepository extends BaseRepository<FailedLoginDocument, F
         return this.toDomainEntity(doc as FailedLoginDocument);
       }
 
-      const newAttempt = await FailedLoginModel.create([{
-        identifier: identifier.trim(),
-        ipAddress,
-        userAgent,
-        deviceInfo,
-        reason,
-        attemptCount: 1,
-        lastAttemptAt: new Date(),
-      }], { session });
+      const newAttempt = await FailedLoginModel.create(
+        [
+          {
+            identifier: identifier.trim(),
+            ipAddress,
+            userAgent,
+            deviceInfo,
+            reason,
+            attemptCount: 1,
+            lastAttemptAt: new Date(),
+          },
+        ],
+        { session },
+      );
 
       if (!newAttempt[0]) throw new DatabaseError("Failed to create failed login attempt");
       return this.toDomainEntity(newAttempt[0] as FailedLoginDocument);
@@ -122,7 +137,11 @@ export class FailedLoginRepository extends BaseRepository<FailedLoginDocument, F
     }
   }
 
-  async resolveAttempt(id: string, resolvedBy: string, options?: DatabaseQueryOptions): Promise<FailedLoginAttempt> {
+  async resolveAttempt(
+    id: string,
+    resolvedBy: string,
+    options?: DatabaseQueryOptions,
+  ): Promise<FailedLoginAttempt> {
     try {
       await this.ensureConnected();
       const doc = await FailedLoginModel.findByIdAndUpdate(
@@ -143,7 +162,10 @@ export class FailedLoginRepository extends BaseRepository<FailedLoginDocument, F
     }
   }
 
-  async getRecentAttempts(limit = 100, options?: DatabaseQueryOptions): Promise<FailedLoginAttempt[]> {
+  async getRecentAttempts(
+    limit = 100,
+    options?: DatabaseQueryOptions,
+  ): Promise<FailedLoginAttempt[]> {
     try {
       await this.ensureConnected();
       const query = FailedLoginModel.find({ resolvedAt: null })

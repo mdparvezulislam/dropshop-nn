@@ -20,7 +20,10 @@ export class FinancialClosingService {
     this.financeAuditRepository = new FinanceAuditRepository();
   }
 
-  async performDailyClosing(targetDate?: string, actorId: string = "system"): Promise<DailySnapshot> {
+  async performDailyClosing(
+    targetDate?: string,
+    actorId: string = "system",
+  ): Promise<DailySnapshot> {
     const snapshotDate = targetDate ?? new Date().toISOString().slice(0, 10);
 
     const existing = await this.snapshotRepository.findDailyByDate(snapshotDate);
@@ -58,13 +61,15 @@ export class FinancialClosingService {
           if (["profit_credit", "commission"].includes(e.type)) profitCents += e.amount;
           if (e.type === "deposit") depositsCents += e.amount;
         } else {
-          if (["withdrawal_paid", "withdrawal"].includes(e.type)) withdrawalsCents += Math.abs(e.amount);
+          if (["withdrawal_paid", "withdrawal"].includes(e.type))
+            withdrawalsCents += Math.abs(e.amount);
           if (e.type === "refund") refundsCents += Math.abs(e.amount);
         }
       }
     }
 
-    const closingBalanceCents = openingBalanceCents + revenueCents - withdrawalsCents - refundsCents;
+    const closingBalanceCents =
+      openingBalanceCents + revenueCents - withdrawalsCents - refundsCents;
 
     const snapshot = await this.snapshotRepository.createDaily({
       snapshotDate,
@@ -102,11 +107,17 @@ export class FinancialClosingService {
       { source: "closing-service" },
     );
 
-    logger.info("FinancialClosingService: daily closing completed", { snapshotDate, closingBalanceCents });
+    logger.info("FinancialClosingService: daily closing completed", {
+      snapshotDate,
+      closingBalanceCents,
+    });
     return snapshot;
   }
 
-  async performMonthlyClosing(targetMonthKey?: string, actorId: string = "system"): Promise<MonthlySnapshot> {
+  async performMonthlyClosing(
+    targetMonthKey?: string,
+    actorId: string = "system",
+  ): Promise<MonthlySnapshot> {
     const monthKey = targetMonthKey ?? new Date().toISOString().slice(0, 7); // YYYY-MM
 
     const existing = await this.snapshotRepository.findMonthlyByKey(monthKey);
@@ -147,7 +158,8 @@ export class FinancialClosingService {
           if (e.type === "commission") commissionCents += e.amount;
           if (e.type === "deposit") depositsCents += e.amount;
         } else {
-          if (["withdrawal_paid", "withdrawal"].includes(e.type)) withdrawalsCents += Math.abs(e.amount);
+          if (["withdrawal_paid", "withdrawal"].includes(e.type))
+            withdrawalsCents += Math.abs(e.amount);
           if (e.type === "refund") refundLossCents += Math.abs(e.amount);
         }
       }

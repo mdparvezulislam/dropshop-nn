@@ -28,7 +28,9 @@ export default function SupplierReportsPage(): React.ReactElement {
     async function load() {
       try {
         const [orderRes] = await Promise.allSettled([
-          import("@/features/order/actions/order-actions").then((m) => m.listOrdersAction({ limit: 100 })),
+          import("@/features/order/actions/order-actions").then((m) =>
+            m.listOrdersAction({ limit: 100 }),
+          ),
         ]);
 
         const s = { orders: 0, revenue: 0, products: 0 };
@@ -37,7 +39,10 @@ export default function SupplierReportsPage(): React.ReactElement {
           const raw = orderRes.value.data as any;
           const items = raw?.items ?? (Array.isArray(raw) ? raw : []);
           s.orders = items.length;
-          s.revenue = items.reduce((acc: number, o: any) => acc + (o.grandTotal ?? o.total ?? 0), 0);
+          s.revenue = items.reduce(
+            (acc: number, o: any) => acc + (o.grandTotal ?? o.total ?? 0),
+            0,
+          );
           const productMap = new Map<string, ProductRow>();
           items.forEach((o: any) => {
             (o.items ?? []).forEach((item: any) => {
@@ -52,12 +57,16 @@ export default function SupplierReportsPage(): React.ReactElement {
                 stock: 0,
               };
               existing.orders++;
-              existing.revenue += (item.totalPrice ?? item.price ?? 0);
+              existing.revenue += item.totalPrice ?? item.price ?? 0;
               productMap.set(key, existing);
             });
           });
           s.products = productMap.size;
-          setTopProducts(Array.from(productMap.values()).sort((a, b) => b.revenue - a.revenue).slice(0, 10));
+          setTopProducts(
+            Array.from(productMap.values())
+              .sort((a, b) => b.revenue - a.revenue)
+              .slice(0, 10),
+          );
         }
 
         setSummary(s);
@@ -92,7 +101,9 @@ export default function SupplierReportsPage(): React.ReactElement {
     {
       id: "revenue",
       header: "Revenue",
-      cell: (r) => <span className="tabular-nums font-semibold text-success">{formatCents(r.revenue)}</span>,
+      cell: (r) => (
+        <span className="tabular-nums font-semibold text-success">{formatCents(r.revenue)}</span>
+      ),
     },
     {
       id: "stock",
@@ -106,14 +117,37 @@ export default function SupplierReportsPage(): React.ReactElement {
       <PageHeader title="Reports" description="Your sales performance and product insights" />
 
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total Orders" value={loading ? "—" : summary.orders.toString()} icon={ShoppingCart} />
-        <StatCard label="Total Revenue" value={loading ? "—" : formatCents(summary.revenue)} icon={DollarSign} />
-        <StatCard label="Products Sold" value={loading ? "—" : summary.products.toString()} icon={Package} />
-        <StatCard label="Avg Order Value" value={loading || summary.orders === 0 ? "—" : formatCents(Math.round(summary.revenue / summary.orders))} icon={TrendingUp} accent="info" />
+        <StatCard
+          label="Total Orders"
+          value={loading ? "—" : summary.orders.toString()}
+          icon={ShoppingCart}
+        />
+        <StatCard
+          label="Total Revenue"
+          value={loading ? "—" : formatCents(summary.revenue)}
+          icon={DollarSign}
+        />
+        <StatCard
+          label="Products Sold"
+          value={loading ? "—" : summary.products.toString()}
+          icon={Package}
+        />
+        <StatCard
+          label="Avg Order Value"
+          value={
+            loading || summary.orders === 0
+              ? "—"
+              : formatCents(Math.round(summary.revenue / summary.orders))
+          }
+          icon={TrendingUp}
+          accent="info"
+        />
       </div>
 
       <Card>
-        <CardHeader className="p-4 pb-2"><CardTitle className="text-sm">Top Products</CardTitle></CardHeader>
+        <CardHeader className="p-4 pb-2">
+          <CardTitle className="text-sm">Top Products</CardTitle>
+        </CardHeader>
         <CardContent className="p-0">
           <DataTable
             columns={columns}

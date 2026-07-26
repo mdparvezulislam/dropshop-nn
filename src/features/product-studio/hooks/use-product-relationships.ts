@@ -1,10 +1,9 @@
+"use client";
+
 import * as React from "react";
 import type { ProductRelationship } from "../types/studio-types";
 
-export function useProductRelationships(
-  categoryName?: string,
-  brandName?: string,
-): {
+export function useProductRelationships(): {
   suggestedItems: ProductRelationship[];
 } {
   const suggestedItems: ProductRelationship[] = React.useMemo(() => {
@@ -34,7 +33,7 @@ export function useProductRelationships(
         type: "upsell",
       },
     ];
-  }, [categoryName, brandName]);
+  }, []);
 
   return { suggestedItems };
 }

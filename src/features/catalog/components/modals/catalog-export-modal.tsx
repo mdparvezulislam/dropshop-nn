@@ -70,7 +70,12 @@ export function CatalogExportModal({
             <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button size="sm" className="gap-1 font-bold shadow-xs" onClick={handleExport} disabled={exporting}>
+            <Button
+              size="sm"
+              className="gap-1 font-bold shadow-xs"
+              onClick={handleExport}
+              disabled={exporting}
+            >
               <Download className="h-3.5 w-3.5" /> Download CSV Spreadsheet
             </Button>
           </div>

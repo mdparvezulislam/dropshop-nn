@@ -19,7 +19,12 @@ export function checkPermission(session: Session, permission: string): void {
   }
   const userRole = session.user?.role ? normalize(session.user.role) : "";
   const permissions = session.user?.permissions || [];
-  if (userRole === "super_admin" || userRole === "admin" || permissions.includes("*") || permissions.includes(permission)) {
+  if (
+    userRole === "super_admin" ||
+    userRole === "admin" ||
+    permissions.includes("*") ||
+    permissions.includes(permission)
+  ) {
     return;
   }
   throw new ForbiddenError(`Missing required permission: ${permission}`);
@@ -69,7 +74,11 @@ export function checkRole(session: Session, role: string): void {
     throw new ForbiddenError("No role assigned");
   }
   const normalizedUserRole = normalize(userRole);
-  if (normalizedUserRole === "super_admin" || normalizedUserRole === "admin" || normalizedUserRole === normalize(role)) {
+  if (
+    normalizedUserRole === "super_admin" ||
+    normalizedUserRole === "admin" ||
+    normalizedUserRole === normalize(role)
+  ) {
     return;
   }
   throw new ForbiddenError(`Missing required role: ${role}`);
@@ -125,5 +134,8 @@ export function sessionActor(session: Session): { id: string; name?: string; rol
 }
 
 function normalize(role: string): string {
-  return role.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  return role
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
 }

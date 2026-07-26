@@ -1,6 +1,12 @@
 import { ShipmentRepository } from "../repositories/shipment-repository";
 import { DeliveryDisputeRepository } from "../repositories/delivery-dispute-repository";
-import type { DeliveryDispute, DisputeType, DisputeStatus, LogisticsEscalation, EscalationLevel } from "../domain/delivery-dispute-entity";
+import type {
+  DeliveryDispute,
+  DisputeType,
+  DisputeStatus,
+  LogisticsEscalation,
+  EscalationLevel,
+} from "../domain/delivery-dispute-entity";
 import { EventBus } from "@/lib/event-bus/event-bus";
 
 export class DeliveryDisputeService {
@@ -39,20 +45,31 @@ export class DeliveryDisputeService {
       disputeType: input.disputeType,
       status: "created",
       evidenceUrls: input.evidenceUrls || [],
-      internalNotes: input.initialNote ? [`[Opened] ${input.initialNote}`] : [`Dispute initialized for ${input.disputeType}`],
+      internalNotes: input.initialNote
+        ? [`[Opened] ${input.initialNote}`]
+        : [`Dispute initialized for ${input.disputeType}`],
       codDiscrepancyCents: input.codDiscrepancyCents || 0,
     } as any);
 
     await EventBus.publish(
       "courier.dispute_created",
-      { disputeId: dispute.id, shipmentId: shipment.id, orderId: shipment.orderId, disputeType: input.disputeType },
+      {
+        disputeId: dispute.id,
+        shipmentId: shipment.id,
+        orderId: shipment.orderId,
+        disputeType: input.disputeType,
+      },
       { source: "delivery-dispute-service" },
     );
 
     return dispute;
   }
 
-  async assignStaff(disputeId: string, staffId: string, staffName: string): Promise<DeliveryDispute> {
+  async assignStaff(
+    disputeId: string,
+    staffId: string,
+    staffName: string,
+  ): Promise<DeliveryDispute> {
     return this.disputeRepository.update(disputeId, {
       assignedStaffId: staffId,
       assignedStaffName: staffName,
@@ -60,7 +77,11 @@ export class DeliveryDisputeService {
     } as any);
   }
 
-  async resolveDispute(disputeId: string, summary: string, actorId: string = "system"): Promise<DeliveryDispute> {
+  async resolveDispute(
+    disputeId: string,
+    summary: string,
+    actorId: string = "system",
+  ): Promise<DeliveryDispute> {
     const dispute = await this.disputeRepository.findById(disputeId);
     if (!dispute) {
       throw new Error(`Dispute not found: ${disputeId}`);

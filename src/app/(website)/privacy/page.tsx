@@ -5,7 +5,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Privacy Policy - DropshopNN Bangladesh",
-  description: "DropshopNN privacy policy regarding customer data protection, order processing, and payment security.",
+  description:
+    "DropshopNN privacy policy regarding customer data protection, order processing, and payment security.",
 };
 
 export default async function PrivacyPage() {
@@ -29,9 +30,16 @@ export default async function PrivacyPage() {
           ) : (
             <div>
               <h2>1. Information We Collect</h2>
-              <p>DropshopNN collects user account details, shipping addresses, phone numbers, and transactional records to process e-commerce orders and courier delivery across Bangladesh.</p>
+              <p>
+                DropshopNN collects user account details, shipping addresses, phone numbers, and
+                transactional records to process e-commerce orders and courier delivery across
+                Bangladesh.
+              </p>
               <h2>2. How We Protect Your Data</h2>
-              <p>All sensitive information is encrypted using SSL/TLS protocols and stored securely in MongoDB database clusters with strict role-based access control.</p>
+              <p>
+                All sensitive information is encrypted using SSL/TLS protocols and stored securely
+                in MongoDB database clusters with strict role-based access control.
+              </p>
             </div>
           )}
         </div>

@@ -77,7 +77,10 @@ export async function migrateLegacyProductsToEnterpriseModel(): Promise<Migratio
           isModified = true;
         }
 
-        if ((!doc.specifications || doc.specifications.length === 0) && doc.content?.specifications) {
+        if (
+          (!doc.specifications || doc.specifications.length === 0) &&
+          doc.content?.specifications
+        ) {
           doc.specifications = doc.content.specifications;
           isModified = true;
         }

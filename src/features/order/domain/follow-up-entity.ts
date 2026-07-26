@@ -1,7 +1,10 @@
 import { BaseDBEntity } from "@/lib/database/types";
 
 export const FOLLOW_UP_TYPES = [
-  "call", "message", "delivery_reminder", "payment_reminder",
+  "call",
+  "message",
+  "delivery_reminder",
+  "payment_reminder",
   "custom",
 ] as const;
 

@@ -3,23 +3,12 @@ import { BaseDBEntity } from "@/lib/database/types";
 export type ProductStatus = "draft" | "pending_review" | "active" | "inactive" | "archived";
 
 export type ProductVisibility =
-  | "public"
-  | "private"
-  | "hidden"
-  | "supplier_only"
-  | "reseller_only"
-  | "wholesale_only";
+  "public" | "private" | "hidden" | "supplier_only" | "reseller_only" | "wholesale_only";
 
 export type ProductType = "simple" | "variant" | "bundle" | "digital" | "service" | "gift_card";
 
 export type ProductBadge =
-  | "featured"
-  | "trending"
-  | "flash_sale"
-  | "new_arrival"
-  | "best_seller"
-  | "limited"
-  | string;
+  "featured" | "trending" | "flash_sale" | "new_arrival" | "best_seller" | "limited" | string;
 
 export interface ProductVariant {
   id?: string;

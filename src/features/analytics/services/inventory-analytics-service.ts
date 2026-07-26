@@ -8,7 +8,9 @@ export class InventoryAnalyticsService {
   private readonly cache = AnalyticsCacheService.getInstance();
 
   async getInventoryAnalytics(rangeInput?: {
-    from?: Date; to?: Date; preset?: string;
+    from?: Date;
+    to?: Date;
+    preset?: string;
   }): Promise<InventoryAnalyticsData> {
     const cacheKey = rangeInput?.preset ?? "30d";
     const cached = await this.cache.get<InventoryAnalyticsData>("inventory", cacheKey);
@@ -31,16 +33,22 @@ export class InventoryAnalyticsService {
       deadStock: [],
       metrics: [
         {
-          key: "stock_adjustments", label: "Stock Adjustments",
-          value: stockAdjustments, format: "number",
+          key: "stock_adjustments",
+          label: "Stock Adjustments",
+          value: stockAdjustments,
+          format: "number",
         },
         {
-          key: "low_stock", label: "Low Stock Events",
-          value: lowStockEvents, format: "number",
+          key: "low_stock",
+          label: "Low Stock Events",
+          value: lowStockEvents,
+          format: "number",
         },
         {
-          key: "out_of_stock", label: "Out of Stock Events",
-          value: outOfStockEvents, format: "number",
+          key: "out_of_stock",
+          label: "Out of Stock Events",
+          value: outOfStockEvents,
+          format: "number",
         },
       ],
     };

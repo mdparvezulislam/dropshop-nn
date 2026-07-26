@@ -40,7 +40,10 @@ export default function SupplierPODetailPage(): React.ReactElement {
     setActing(true);
     try {
       const { updateOrderStatusAction } = await import("@/features/order/actions/order-actions");
-      const res = await updateOrderStatusAction({ orderId: params.id as string, toStatus: newStatus });
+      const res = await updateOrderStatusAction({
+        orderId: params.id as string,
+        toStatus: newStatus,
+      });
       if (res.success) {
         toast.success(`Order updated to ${newStatus.replace(/_/g, " ")}`);
         setOrder((prev: any) => ({ ...prev, status: newStatus }));
@@ -77,13 +80,20 @@ export default function SupplierPODetailPage(): React.ReactElement {
     `৳${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
 
   const items = o.items ?? [];
-  const subtotal = items.reduce((sum: number, item: any) => sum + (item.unitPrice ?? 0) * (item.quantity ?? 0), 0);
+  const subtotal = items.reduce(
+    (sum: number, item: any) => sum + (item.unitPrice ?? 0) * (item.quantity ?? 0),
+    0,
+  );
   const grandTotal = o.grandTotal ?? o.total ?? subtotal;
 
   return (
     <div className="space-y-6 animate-[fade-in_0.2s_ease-out]">
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon-sm" onClick={() => router.push("/supplier/purchase-orders")}>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => router.push("/supplier/purchase-orders")}
+        >
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <PageHeader
@@ -103,7 +113,12 @@ export default function SupplierPODetailPage(): React.ReactElement {
               <span>This purchase order is awaiting your confirmation.</span>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" disabled={acting} onClick={() => transitionOrder("cancelled")}>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={acting}
+                onClick={() => transitionOrder("cancelled")}
+              >
                 <XCircle className="h-3.5 w-3.5 mr-1" /> Decline
               </Button>
               <Button size="sm" disabled={acting} onClick={() => transitionOrder("confirmed")}>
@@ -122,13 +137,17 @@ export default function SupplierPODetailPage(): React.ReactElement {
             </CardHeader>
             <CardContent className="p-0">
               {items.length === 0 ? (
-                <div className="px-6 py-8 text-center text-sm text-muted-foreground">No items in this order.</div>
+                <div className="px-6 py-8 text-center text-sm text-muted-foreground">
+                  No items in this order.
+                </div>
               ) : (
                 <div className="divide-y divide-border">
                   {items.map((item: any, idx: number) => (
                     <div key={idx} className="flex items-center justify-between gap-4 px-4 py-3">
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-medium">{item.productName ?? item.name ?? `Item ${idx + 1}`}</p>
+                        <p className="truncate text-sm font-medium">
+                          {item.productName ?? item.name ?? `Item ${idx + 1}`}
+                        </p>
                         <p className="text-xs text-muted-foreground">
                           SKU: {item.sku ?? "—"} · Qty: {item.quantity ?? 0}
                         </p>
@@ -154,7 +173,9 @@ export default function SupplierPODetailPage(): React.ReactElement {
                     <div key={idx} className="relative">
                       <div className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full border-2 border-border bg-muted" />
                       <p className="text-sm font-medium">{event.type ?? event.action ?? "Event"}</p>
-                      <p className="text-xs text-muted-foreground">{event.summary ?? event.description ?? ""}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {event.summary ?? event.description ?? ""}
+                      </p>
                       <p className="text-[11px] text-muted-foreground mt-0.5">
                         {event.timestamp ? new Date(event.timestamp).toLocaleString() : ""}
                         {event.actor ? ` · ${event.actor}` : ""}

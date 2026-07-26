@@ -96,8 +96,8 @@ export function ProductsCatalogClient({
                 viewMode === "grid"
                   ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
                   : viewMode === "compact"
-                  ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5"
-                  : "space-y-4"
+                    ? "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5"
+                    : "space-y-4"
               }
             >
               {initialProducts.map((p) => (
@@ -115,10 +115,7 @@ export function ProductsCatalogClient({
       </div>
 
       {/* Quick View Drawer */}
-      <QuickViewDrawer
-        product={quickViewProduct}
-        onClose={() => setQuickViewProduct(null)}
-      />
+      <QuickViewDrawer product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
 
       {/* Compare Floating Bar */}
       <CompareDrawer

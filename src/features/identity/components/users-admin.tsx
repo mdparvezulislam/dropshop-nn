@@ -2,7 +2,16 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Loader2, RefreshCw, Search, Shield, Store, Building2, User as UserIcon, Check } from "lucide-react";
+import {
+  Loader2,
+  RefreshCw,
+  Search,
+  Shield,
+  Store,
+  Building2,
+  User as UserIcon,
+  Check,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,7 +46,9 @@ export function UsersAdmin(): React.ReactElement {
 
   // Edit Membership Modal State
   const [editingUser, setEditingUser] = useState<SafeUser | null>(null);
-  const [selectedMemberships, setSelectedMemberships] = useState<("customer" | "reseller" | "wholesaler")[]>(["customer"]);
+  const [selectedMemberships, setSelectedMemberships] = useState<
+    ("customer" | "reseller" | "wholesaler")[]
+  >(["customer"]);
   const [savingMemberships, setSavingMemberships] = useState(false);
 
   const load = useCallback(async () => {
@@ -128,13 +139,19 @@ export function UsersAdmin(): React.ReactElement {
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight sm:text-2xl">User & Membership Management</h1>
+          <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
+            User & Membership Management
+          </h1>
           <p className="text-sm text-muted-foreground">
             System Roles vs Business Memberships · {total} total accounts
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={load} disabled={loading} className="gap-1.5">
-          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+          {loading ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <RefreshCw className="h-3.5 w-3.5" />
+          )}
           Refresh
         </Button>
       </div>
@@ -159,7 +176,8 @@ export function UsersAdmin(): React.ReactElement {
             <p className="py-16 text-center text-sm text-muted-foreground">No users found.</p>
           ) : (
             items.map((u) => {
-              const memberships = u.memberships && u.memberships.length > 0 ? u.memberships : ["customer"];
+              const memberships =
+                u.memberships && u.memberships.length > 0 ? u.memberships : ["customer"];
               return (
                 <div
                   key={u.id}
@@ -178,7 +196,9 @@ export function UsersAdmin(): React.ReactElement {
 
                     {/* Business Membership Badges */}
                     <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                      <span className="text-[11px] font-bold text-muted-foreground">Memberships:</span>
+                      <span className="text-[11px] font-bold text-muted-foreground">
+                        Memberships:
+                      </span>
                       {memberships.map((m) => (
                         <span
                           key={m}
@@ -186,8 +206,8 @@ export function UsersAdmin(): React.ReactElement {
                             m === "reseller"
                               ? "bg-amber-100 text-amber-900 border-amber-300"
                               : m === "wholesaler"
-                              ? "bg-purple-100 text-purple-900 border-purple-300"
-                              : "bg-slate-100 text-slate-800 border-slate-300"
+                                ? "bg-purple-100 text-purple-900 border-purple-300"
+                                : "bg-slate-100 text-slate-800 border-slate-300"
                           }`}
                         >
                           {m}
@@ -258,9 +278,21 @@ export function UsersAdmin(): React.ReactElement {
             {/* Checkbox Selector */}
             <div className="space-y-3">
               {[
-                { type: "customer" as const, label: "Customer (খুচরা ক্রেতা)", desc: "সাধারণ ক্রেতা মেম্বারশিপ" },
-                { type: "reseller" as const, label: "Reseller Partner (ড্রপশিপার)", desc: "রিসেলিং প্রাইসিং ও হাবে প্রবেশাধিকার" },
-                { type: "wholesaler" as const, label: "Wholesaler (পাইকারি বিক্রেতা)", desc: "বি২বি বাল্ক ও টিয়ার প্রাইসিং" },
+                {
+                  type: "customer" as const,
+                  label: "Customer (খুচরা ক্রেতা)",
+                  desc: "সাধারণ ক্রেতা মেম্বারশিপ",
+                },
+                {
+                  type: "reseller" as const,
+                  label: "Reseller Partner (ড্রপশিপার)",
+                  desc: "রিসেলিং প্রাইসিং ও হাবে প্রবেশাধিকার",
+                },
+                {
+                  type: "wholesaler" as const,
+                  label: "Wholesaler (পাইকারি বিক্রেতা)",
+                  desc: "বি২বি বাল্ক ও টিয়ার প্রাইসিং",
+                },
               ].map((item) => {
                 const checked = selectedMemberships.includes(item.type);
                 return (
@@ -276,7 +308,9 @@ export function UsersAdmin(): React.ReactElement {
                   >
                     <div
                       className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 ${
-                        checked ? "bg-amber-500 border-amber-600 text-white" : "border-muted-foreground"
+                        checked
+                          ? "bg-amber-500 border-amber-600 text-white"
+                          : "border-muted-foreground"
                       }`}
                     >
                       {checked && <Check className="w-3.5 h-3.5 stroke-[3]" />}

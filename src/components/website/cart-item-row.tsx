@@ -63,9 +63,7 @@ export function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowPro
             >
               {item.name}
             </a>
-            {item.variant && (
-              <p className="text-xs text-foreground/40 mt-0.5">{item.variant}</p>
-            )}
+            {item.variant && <p className="text-xs text-foreground/40 mt-0.5">{item.variant}</p>}
             {item.sku && (
               <p className="text-[11px] text-foreground/30 font-mono mt-0.5">SKU: {item.sku}</p>
             )}

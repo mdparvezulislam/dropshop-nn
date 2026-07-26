@@ -1,8 +1,13 @@
 import { BaseDBEntity } from "@/lib/database/types";
 
 export const CALL_OUTCOMES = [
-  "reached", "not_reached", "busy", "switched_off",
-  "wrong_number", "call_back_later", "completed",
+  "reached",
+  "not_reached",
+  "busy",
+  "switched_off",
+  "wrong_number",
+  "call_back_later",
+  "completed",
 ] as const;
 
 export type CallOutcome = (typeof CALL_OUTCOMES)[number];

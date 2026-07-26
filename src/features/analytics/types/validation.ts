@@ -12,7 +12,9 @@ export const trackEventSchema = z.object({
   entityId: z.string().optional(),
   value: z.number().optional(),
   currency: z.string().max(8).optional(),
-  metadata: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])).optional(),
+  metadata: z
+    .record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()]))
+    .optional(),
   timestamp: z.union([z.string(), z.coerce.date()]).optional(),
   idempotencyKey: z.string().max(200).optional(),
 });

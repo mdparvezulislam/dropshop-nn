@@ -30,19 +30,22 @@ export default function WholesaleQuotationsPage(): React.ReactElement {
   const load = React.useCallback(async () => {
     setLoading(true);
     try {
-      const { listQuotationsAction } = await import("@/features/quotation/actions/quotation-actions");
+      const { listQuotationsAction } =
+        await import("@/features/quotation/actions/quotation-actions");
       const res = await listQuotationsAction();
       if (res.success && res.data) {
         const items = Array.isArray(res.data) ? res.data : [];
-        setRows(items.map((q: any) => ({
-          id: q.id,
-          quoteNumber: q.quoteNumber,
-          itemCount: q.items?.length ?? 0,
-          grandTotal: q.grandTotal ?? 0,
-          status: q.status ?? "draft",
-          validUntil: q.validUntil ?? "",
-          createdAt: q.createdAt,
-        })));
+        setRows(
+          items.map((q: any) => ({
+            id: q.id,
+            quoteNumber: q.quoteNumber,
+            itemCount: q.items?.length ?? 0,
+            grandTotal: q.grandTotal ?? 0,
+            status: q.status ?? "draft",
+            validUntil: q.validUntil ?? "",
+            createdAt: q.createdAt,
+          })),
+        );
       }
     } catch {
       toast.error("Failed to load quotations");
@@ -51,7 +54,9 @@ export default function WholesaleQuotationsPage(): React.ReactElement {
     }
   }, []);
 
-  React.useEffect(() => { load(); }, [load]);
+  React.useEffect(() => {
+    load();
+  }, [load]);
 
   const formatCents = (cents: number): string =>
     `৳${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
@@ -67,7 +72,9 @@ export default function WholesaleQuotationsPage(): React.ReactElement {
       header: "Date",
       hideOnMobile: true,
       cell: (r) => (
-        <span className="text-muted-foreground">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}</span>
+        <span className="text-muted-foreground">
+          {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}
+        </span>
       ),
     },
     {
@@ -101,7 +108,10 @@ export default function WholesaleQuotationsPage(): React.ReactElement {
     return (
       <RequestQuoteForm
         onBack={() => setShowForm(false)}
-        onSuccess={() => { setShowForm(false); load(); }}
+        onSuccess={() => {
+          setShowForm(false);
+          load();
+        }}
       />
     );
   }
@@ -125,9 +135,24 @@ export default function WholesaleQuotationsPage(): React.ReactElement {
         ) : (
           <>
             <StatCard label="Total Requests" value={rows.length} icon={FileText} />
-            <StatCard label="Pending Review" value={rows.filter((r) => r.status === "draft" || r.status === "submitted").length} icon={Clock} accent="warning" />
-            <StatCard label="Approved" value={rows.filter((r) => r.status === "approved").length} icon={CheckCircle2} accent="success" />
-            <StatCard label="Rejected" value={rows.filter((r) => r.status === "rejected").length} icon={XCircle} accent="danger" />
+            <StatCard
+              label="Pending Review"
+              value={rows.filter((r) => r.status === "draft" || r.status === "submitted").length}
+              icon={Clock}
+              accent="warning"
+            />
+            <StatCard
+              label="Approved"
+              value={rows.filter((r) => r.status === "approved").length}
+              icon={CheckCircle2}
+              accent="success"
+            />
+            <StatCard
+              label="Rejected"
+              value={rows.filter((r) => r.status === "rejected").length}
+              icon={XCircle}
+              accent="danger"
+            />
           </>
         )
       }

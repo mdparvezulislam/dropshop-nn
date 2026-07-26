@@ -74,8 +74,10 @@ export function StatCard({
                   <span
                     className={cn(
                       "inline-flex items-center gap-0.5 font-bold px-1.5 py-0.5 rounded text-[11px]",
-                      trend.positive === true && "text-success bg-success/15 border border-success/30",
-                      trend.positive === false && "text-destructive bg-destructive/15 border border-destructive/30",
+                      trend.positive === true &&
+                        "text-success bg-success/15 border border-success/30",
+                      trend.positive === false &&
+                        "text-destructive bg-destructive/15 border border-destructive/30",
                       trend.positive === undefined && "text-muted-foreground bg-muted",
                     )}
                   >
@@ -89,7 +91,11 @@ export function StatCard({
                     {trend.value}
                   </span>
                 ) : null}
-                {hint ? <span className="text-muted-foreground font-medium text-[11px] truncate">{hint}</span> : null}
+                {hint ? (
+                  <span className="text-muted-foreground font-medium text-[11px] truncate">
+                    {hint}
+                  </span>
+                ) : null}
               </div>
             )}
           </div>

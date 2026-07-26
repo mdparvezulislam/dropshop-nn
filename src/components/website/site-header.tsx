@@ -53,9 +53,7 @@ export function SiteHeader() {
       <header
         className={cn(
           "sticky top-0 z-50 w-full transition-all duration-200 bg-white",
-          scrolled
-            ? "border-b border-slate-200 shadow-xs"
-            : "border-b border-slate-200/70"
+          scrolled ? "border-b border-slate-200 shadow-xs" : "border-b border-slate-200/70",
         )}
       >
         <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
@@ -86,7 +84,11 @@ export function SiteHeader() {
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden xl:flex items-center gap-6 ml-6" role="navigation" aria-label="Main navigation">
+            <nav
+              className="hidden xl:flex items-center gap-6 ml-6"
+              role="navigation"
+              aria-label="Main navigation"
+            >
               {BANGLA_NAV_ITEMS.map((item) => (
                 <div
                   key={item.label}
@@ -97,7 +99,7 @@ export function SiteHeader() {
                   <Link
                     href={item.href}
                     className={cn(
-                      "flex items-center gap-1 py-2 text-xs sm:text-sm font-black text-slate-800 hover:text-amber-600 transition-colors"
+                      "flex items-center gap-1 py-2 text-xs sm:text-sm font-black text-slate-800 hover:text-amber-600 transition-colors",
                     )}
                   >
                     {item.label}
@@ -105,12 +107,17 @@ export function SiteHeader() {
                       <ChevronDown
                         className={cn(
                           "h-3.5 w-3.5 text-slate-500 transition-transform duration-200",
-                          activeMega === item.label && "rotate-180 text-amber-600"
+                          activeMega === item.label && "rotate-180 text-amber-600",
                         )}
                       />
                     )}
                   </Link>
-                  {item.hasMega && <MegaMenu isOpen={activeMega === item.label} onClose={() => setActiveMega(null)} />}
+                  {item.hasMega && (
+                    <MegaMenu
+                      isOpen={activeMega === item.label}
+                      onClose={() => setActiveMega(null)}
+                    />
+                  )}
                 </div>
               ))}
             </nav>
@@ -134,7 +141,10 @@ export function SiteHeader() {
 
               {/* Reseller Become CTA (Golden Amber Button) */}
               <Link href="/become-reseller" className="hidden sm:inline-flex">
-                <Button size="sm" className="h-9 px-4 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs">
+                <Button
+                  size="sm"
+                  className="h-9 px-4 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs"
+                >
                   <Store className="h-3.5 w-3.5 mr-1.5" />
                   রিসেলার হন
                 </Button>
@@ -159,9 +169,7 @@ export function SiteHeader() {
       </header>
 
       <AnimatePresence>
-        {mobileOpen && (
-          <MobileNav isOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
-        )}
+        {mobileOpen && <MobileNav isOpen={mobileOpen} onClose={() => setMobileOpen(false)} />}
       </AnimatePresence>
 
       <AnimatePresence>

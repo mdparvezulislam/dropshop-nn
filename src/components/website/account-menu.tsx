@@ -73,14 +73,18 @@ export function AccountMenu() {
               {isLoggedIn && (
                 <div className="px-3.5 py-3 border-b border-slate-200 bg-slate-50">
                   <div className="flex items-center justify-between gap-1">
-                    <p className="text-xs font-black text-slate-900 truncate">{session?.user?.name}</p>
+                    <p className="text-xs font-black text-slate-900 truncate">
+                      {session?.user?.name}
+                    </p>
                     {isSuperAdmin && (
                       <span className="inline-flex items-center gap-1 text-[10px] font-black text-amber-900 bg-amber-100 border border-amber-300 px-2 py-0.5 rounded-md shrink-0">
                         <Crown className="h-3 w-3 text-amber-600 fill-amber-500" /> Super Admin
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] font-bold text-slate-500 truncate mt-0.5">{session?.user?.email}</p>
+                  <p className="text-[11px] font-bold text-slate-500 truncate mt-0.5">
+                    {session?.user?.email}
+                  </p>
                 </div>
               )}
 

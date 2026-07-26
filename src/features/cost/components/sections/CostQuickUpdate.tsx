@@ -54,9 +54,17 @@ interface Props {
 }
 
 export default function CostQuickUpdate({
-  productId, productName, currentCost, currentLandedCost, currency,
-  currentSellingPrice, currentProfit, currentMargin,
-  onSaved, onCancel, className,
+  productId,
+  productName,
+  currentCost,
+  currentLandedCost,
+  currency,
+  currentSellingPrice,
+  currentProfit,
+  currentMargin,
+  onSaved,
+  onCancel,
+  className,
 }: Props): React.ReactElement {
   const [saving, setSaving] = React.useState(false);
   const [newCost, setNewCost] = React.useState(currentCost);
@@ -65,13 +73,16 @@ export default function CostQuickUpdate({
   const [supplierName, setSupplierName] = React.useState("");
   const [supplierSku, setSupplierSku] = React.useState("");
   const [expenses, setExpenses] = React.useState<Record<string, number>>({
-    importCost: 0, shippingCost: 0, packagingCost: 0, handlingCost: 0, otherExpenses: 0,
+    importCost: 0,
+    shippingCost: 0,
+    packagingCost: 0,
+    handlingCost: 0,
+    otherExpenses: 0,
   });
   const [priceImpact, setPriceImpact] = React.useState<PriceImpact | null>(null);
   const [calculating, setCalculating] = React.useState(false);
 
-  const landedCost = newCost +
-    Object.values(expenses).reduce((a, b) => a + b, 0);
+  const landedCost = newCost + Object.values(expenses).reduce((a, b) => a + b, 0);
 
   const diff = newCost - currentCost;
   const diffPct = currentCost > 0 ? Math.round((diff / currentCost) * 10000) / 100 : 0;
@@ -81,11 +92,19 @@ export default function CostQuickUpdate({
       setCalculating(true);
       const timer = setTimeout(async () => {
         try {
-          const { simulatePricingAction } = await import("@/features/pricing/actions/pricing-engine-actions");
-          const res = await simulatePricingAction({ costPrice: landedCost, quantity: 1, role: "customer" });
+          const { simulatePricingAction } =
+            await import("@/features/pricing/actions/pricing-engine-actions");
+          const res = await simulatePricingAction({
+            costPrice: landedCost,
+            quantity: 1,
+            role: "customer",
+          });
           if (res.success && res.data) setPriceImpact(res.data);
-        } catch { /* silent */ }
-        finally { setCalculating(false); }
+        } catch {
+          /* silent */
+        } finally {
+          setCalculating(false);
+        }
       }, 500);
       return () => clearTimeout(timer);
     } else {
@@ -94,8 +113,14 @@ export default function CostQuickUpdate({
   }, [newCost, landedCost, currentCost, calculating]);
 
   const handleSave = async () => {
-    if (!newCost || newCost <= 0) { toast.error("Cost price is required"); return; }
-    if (!reason) { toast.error("কারণ নির্বাচন করুন (Reason is required)"); return; }
+    if (!newCost || newCost <= 0) {
+      toast.error("Cost price is required");
+      return;
+    }
+    if (!reason) {
+      toast.error("কারণ নির্বাচন করুন (Reason is required)");
+      return;
+    }
 
     setSaving(true);
     try {
@@ -122,8 +147,11 @@ export default function CostQuickUpdate({
       } else {
         toast.error(res.error ?? "Save failed");
       }
-    } catch (err: any) { toast.error(err.message); }
-    finally { setSaving(false); }
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -134,7 +162,10 @@ export default function CostQuickUpdate({
           Update Cost — {productName}
         </CardTitle>
         {onCancel && (
-          <button onClick={onCancel} className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:bg-muted">
+          <button
+            onClick={onCancel}
+            className="h-8 w-8 flex items-center justify-center rounded-md text-muted-foreground hover:bg-muted"
+          >
             <X className="h-4 w-4" />
           </button>
         )}
@@ -154,23 +185,43 @@ export default function CostQuickUpdate({
         </div>
 
         <FormField label="নতুন খরচ (New Cost) *" required>
-          <Input type="number" min={0} value={newCost} onChange={(e) => setNewCost(Number(e.target.value))} placeholder="Enter new cost price" />
+          <Input
+            type="number"
+            min={0}
+            value={newCost}
+            onChange={(e) => setNewCost(Number(e.target.value))}
+            placeholder="Enter new cost price"
+          />
         </FormField>
 
         {diff !== 0 && (
-          <div className={cn("rounded-lg px-3 py-2 text-xs font-semibold flex items-center gap-2",
-            diff > 0 ? "bg-rose-50 dark:bg-rose-900/20 text-rose-600" : "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600"
-          )}>
-            {diff > 0 ? "↑" : "↓"} {formatCentsToCurrency(Math.abs(diff), currency)} ({diffPct > 0 ? "+" : ""}{diffPct}%) from current
+          <div
+            className={cn(
+              "rounded-lg px-3 py-2 text-xs font-semibold flex items-center gap-2",
+              diff > 0
+                ? "bg-rose-50 dark:bg-rose-900/20 text-rose-600"
+                : "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600",
+            )}
+          >
+            {diff > 0 ? "↑" : "↓"} {formatCentsToCurrency(Math.abs(diff), currency)} (
+            {diffPct > 0 ? "+" : ""}
+            {diffPct}%) from current
           </div>
         )}
 
         <div>
-          <div className="text-xs font-semibold text-muted-foreground mb-2">Additional Expenses</div>
+          <div className="text-xs font-semibold text-muted-foreground mb-2">
+            Additional Expenses
+          </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {EXPENSE_FIELDS.map((f) => (
               <FormField key={f.key} label={f.label}>
-                <Input type="number" min={0} value={expenses[f.key]} onChange={(e) => setExpenses({ ...expenses, [f.key]: Number(e.target.value) })} />
+                <Input
+                  type="number"
+                  min={0}
+                  value={expenses[f.key]}
+                  onChange={(e) => setExpenses({ ...expenses, [f.key]: Number(e.target.value) })}
+                />
               </FormField>
             ))}
           </div>
@@ -182,45 +233,97 @@ export default function CostQuickUpdate({
         </div>
 
         <FormField label="কারণ (Reason) *" required>
-          <select value={reason} onChange={(e) => setReason(e.target.value)}
-            className="h-9.5 w-full rounded-lg border border-input bg-card px-3 text-sm">
+          <select
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="h-9.5 w-full rounded-lg border border-input bg-card px-3 text-sm"
+          >
             <option value="">Select reason...</option>
-            {REASONS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
+            {REASONS.map((r) => (
+              <option key={r.value} value={r.value}>
+                {r.label}
+              </option>
+            ))}
           </select>
         </FormField>
 
         <FormField label="Reason Details (optional)">
-          <Input value={reasonText} onChange={(e) => setReasonText(e.target.value)} placeholder="Additional details..." />
+          <Input
+            value={reasonText}
+            onChange={(e) => setReasonText(e.target.value)}
+            placeholder="Additional details..."
+          />
         </FormField>
 
         <div className="grid grid-cols-2 gap-3">
-          <FormField label="Supplier Name"><Input value={supplierName} onChange={(e) => setSupplierName(e.target.value)} placeholder="Optional" /></FormField>
-          <FormField label="Supplier SKU"><Input value={supplierSku} onChange={(e) => setSupplierSku(e.target.value)} placeholder="Optional" /></FormField>
+          <FormField label="Supplier Name">
+            <Input
+              value={supplierName}
+              onChange={(e) => setSupplierName(e.target.value)}
+              placeholder="Optional"
+            />
+          </FormField>
+          <FormField label="Supplier SKU">
+            <Input
+              value={supplierSku}
+              onChange={(e) => setSupplierSku(e.target.value)}
+              placeholder="Optional"
+            />
+          </FormField>
         </div>
 
         {priceImpact && (
           <Card className="border-info/20 bg-info/5">
             <CardContent className="p-3 space-y-1.5">
               <div className="text-[11px] font-semibold text-info flex items-center gap-1">
-                {calculating ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
+                {calculating ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <Plus className="h-3 w-3" />
+                )}
                 Price Impact Preview
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs">
-                <div><span className="text-muted-foreground">Suggested Retail:</span> <span className="font-semibold">{formatCentsToCurrency(priceImpact.retailPrice, currency)}</span></div>
-                <div><span className="text-muted-foreground">Suggested Wholesale:</span> <span className="font-semibold">{formatCentsToCurrency(priceImpact.wholesalePrice, currency)}</span></div>
-                <div><span className="text-muted-foreground">Suggested Profit:</span> <span className="font-semibold">{formatCentsToCurrency(priceImpact.profit, currency)}</span></div>
-                <div><span className="text-muted-foreground">Suggested Margin:</span> <span className="font-semibold">{priceImpact.margin.toFixed(1)}%</span></div>
+                <div>
+                  <span className="text-muted-foreground">Suggested Retail:</span>{" "}
+                  <span className="font-semibold">
+                    {formatCentsToCurrency(priceImpact.retailPrice, currency)}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Suggested Wholesale:</span>{" "}
+                  <span className="font-semibold">
+                    {formatCentsToCurrency(priceImpact.wholesalePrice, currency)}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Suggested Profit:</span>{" "}
+                  <span className="font-semibold">
+                    {formatCentsToCurrency(priceImpact.profit, currency)}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Suggested Margin:</span>{" "}
+                  <span className="font-semibold">{priceImpact.margin.toFixed(1)}%</span>
+                </div>
               </div>
             </CardContent>
           </Card>
         )}
 
         <div className="flex gap-2 pt-2">
-          <Button onClick={handleSave} loading={saving} disabled={!newCost || !reason} className="flex-1 gap-2">
+          <Button
+            onClick={handleSave}
+            loading={saving}
+            disabled={!newCost || !reason}
+            className="flex-1 gap-2"
+          >
             <DollarSign className="h-4 w-4" /> সংরক্ষণ করুন
           </Button>
           {onCancel && (
-            <Button variant="outline" onClick={onCancel}>Cancel</Button>
+            <Button variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
           )}
         </div>
       </CardContent>

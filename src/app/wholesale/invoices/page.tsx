@@ -30,14 +30,16 @@ export default function WholesaleInvoicesPage(): React.ReactElement {
         const res = await listInvoicesAction();
         if (res.success && res.data) {
           const items = Array.isArray(res.data) ? res.data : [];
-          setRows(items.map((inv: any) => ({
-            id: inv.id ?? inv._id,
-            invoiceNumber: inv.invoiceNumber ?? inv._id?.slice(-8) ?? "—",
-            amount: inv.amount ?? inv.grandTotal ?? 0,
-            status: inv.status ?? "pending",
-            dueDate: inv.dueDate ?? "",
-            createdAt: inv.createdAt,
-          })));
+          setRows(
+            items.map((inv: any) => ({
+              id: inv.id ?? inv._id,
+              invoiceNumber: inv.invoiceNumber ?? inv._id?.slice(-8) ?? "—",
+              amount: inv.amount ?? inv.grandTotal ?? 0,
+              status: inv.status ?? "pending",
+              dueDate: inv.dueDate ?? "",
+              createdAt: inv.createdAt,
+            })),
+          );
         }
       } catch {
         toast.error("Failed to load invoices");
@@ -62,7 +64,9 @@ export default function WholesaleInvoicesPage(): React.ReactElement {
       header: "Date",
       hideOnMobile: true,
       cell: (r) => (
-        <span className="text-muted-foreground">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}</span>
+        <span className="text-muted-foreground">
+          {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}
+        </span>
       ),
     },
     {
@@ -124,8 +128,16 @@ export default function WholesaleInvoicesPage(): React.ReactElement {
         ) : (
           <>
             <StatCard label="Total Invoices" value={rows.length} icon={Receipt} />
-            <StatCard label="Paid" value={rows.filter((r) => r.status === "paid" || r.status === "completed").length} accent="success" />
-            <StatCard label="Pending" value={rows.filter((r) => r.status === "pending" || r.status === "due").length} accent="warning" />
+            <StatCard
+              label="Paid"
+              value={rows.filter((r) => r.status === "paid" || r.status === "completed").length}
+              accent="success"
+            />
+            <StatCard
+              label="Pending"
+              value={rows.filter((r) => r.status === "pending" || r.status === "due").length}
+              accent="warning"
+            />
           </>
         )
       }

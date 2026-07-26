@@ -3,10 +3,7 @@
 import { auth } from "@/lib/auth";
 import { checkPermission } from "@/lib/check-permission";
 import { ReturnService } from "../services/return-service";
-import {
-  createReturnSchema,
-  updateReturnStatusSchema,
-} from "../types/validation";
+import { createReturnSchema, updateReturnStatusSchema } from "../types/validation";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/utils/logger";
 
@@ -39,7 +36,11 @@ export async function updateReturnStatusAction(formData: unknown): Promise<{
   try {
     const validated = updateReturnStatusSchema.parse(formData);
     const service = new ReturnService();
-    const result = await service.transitionStatus(validated.returnId, validated.toStatus, validated);
+    const result = await service.transitionStatus(
+      validated.returnId,
+      validated.toStatus,
+      validated,
+    );
     revalidatePath("/dashboard/orders/returns");
     return { success: true, data: result };
   } catch (error: any) {
@@ -62,7 +63,10 @@ export async function getReturnAction(returnId: string): Promise<{
   }
 }
 
-export async function listReturnsAction(page: number = 1, limit: number = 20): Promise<{
+export async function listReturnsAction(
+  page: number = 1,
+  limit: number = 20,
+): Promise<{
   success: boolean;
   data?: Awaited<ReturnType<ReturnService["listReturns"]>>;
   error?: string;

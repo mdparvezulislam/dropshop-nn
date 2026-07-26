@@ -32,8 +32,8 @@ export function CookieBanner() {
               <div className="space-y-1.5">
                 <p className="text-sm font-medium text-foreground">🍪 Cookies</p>
                 <p className="text-xs text-foreground/50 leading-relaxed">
-                  We use cookies to enhance your experience. By continuing, you agree to our
-                  cookie policy.
+                  We use cookies to enhance your experience. By continuing, you agree to our cookie
+                  policy.
                 </p>
               </div>
               <button

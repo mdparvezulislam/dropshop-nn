@@ -3,15 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import {
-  Building2,
-  Loader2,
-  RefreshCw,
-  Shield,
-  UserCheck,
-  Users,
-  Monitor,
-} from "lucide-react";
+import { Building2, Loader2, RefreshCw, Shield, UserCheck, Users, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -98,7 +90,11 @@ export function IdentityOverview(): React.ReactElement {
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={load} disabled={loading} className="gap-1.5">
-            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+            {loading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="h-3.5 w-3.5" />
+            )}
             Refresh
           </Button>
           <Link href="/dashboard/identity/approvals">
@@ -147,7 +143,10 @@ export function IdentityOverview(): React.ReactElement {
         <Card className="lg:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-sm">Pending business applications</CardTitle>
-            <Link href="/dashboard/identity/approvals" className="text-xs text-primary hover:underline">
+            <Link
+              href="/dashboard/identity/approvals"
+              className="text-xs text-primary hover:underline"
+            >
               View all
             </Link>
           </CardHeader>

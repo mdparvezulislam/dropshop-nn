@@ -79,14 +79,18 @@ export class ComplaintService {
         actor,
       });
 
-      await EventBus.publish("order.complaint_created", {
-        complaintId: complaint.id,
-        complaintNumber,
-        orderId: input.orderId,
-        orderNumber: order.orderNumber,
-        type: input.type,
-        priority: input.priority,
-      }, { source: "order" });
+      await EventBus.publish(
+        "order.complaint_created",
+        {
+          complaintId: complaint.id,
+          complaintNumber,
+          orderId: input.orderId,
+          orderNumber: order.orderNumber,
+          type: input.type,
+          priority: input.priority,
+        },
+        { source: "order" },
+      );
 
       return complaint;
     });
@@ -205,11 +209,9 @@ export class ComplaintService {
     if (type) filter.type = type;
     if (assigneeId) filter.assignedTo = assigneeId;
 
-    const result = await this.complaintRepository.findPaginated(
-      filter,
-      { page, limit },
-      { createdAt: -1 } as any,
-    );
+    const result = await this.complaintRepository.findPaginated(filter, { page, limit }, {
+      createdAt: -1,
+    } as any);
     return { items: result.items, total: result.totalCount };
   }
 

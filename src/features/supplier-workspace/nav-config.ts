@@ -12,25 +12,18 @@ import {
   User,
   Settings,
 } from "lucide-react";
-import {
-  getWorkspaceBreadcrumbs,
-  type NavSection,
-} from "@/components/workspace/nav-config";
+import { getWorkspaceBreadcrumbs, type NavSection } from "@/components/workspace/nav-config";
 
 export const SUPPLIER_NAV: NavSection[] = [
   {
     id: "overview",
     label: "Overview",
-    items: [
-      { label: "Dashboard", href: "/supplier", icon: LayoutDashboard },
-    ],
+    items: [{ label: "Dashboard", href: "/supplier", icon: LayoutDashboard }],
   },
   {
     id: "catalog",
     label: "Catalog",
-    items: [
-      { label: "Products", href: "/supplier/products", icon: Package },
-    ],
+    items: [{ label: "Products", href: "/supplier/products", icon: Package }],
   },
   {
     id: "operations",
@@ -53,9 +46,7 @@ export const SUPPLIER_NAV: NavSection[] = [
   {
     id: "compliance",
     label: "Compliance",
-    items: [
-      { label: "Documents", href: "/supplier/documents", icon: FileText },
-    ],
+    items: [{ label: "Documents", href: "/supplier/documents", icon: FileText }],
   },
   {
     id: "account",

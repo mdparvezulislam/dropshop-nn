@@ -35,7 +35,10 @@ function mapToDomain(doc: any): FinancialReport {
   };
 }
 
-export class FinancialReportRepository extends BaseRepository<FinancialReportDocument, FinancialReport> {
+export class FinancialReportRepository extends BaseRepository<
+  FinancialReportDocument,
+  FinancialReport
+> {
   constructor() {
     super(FinancialReportModel as any, mapToDomain);
   }

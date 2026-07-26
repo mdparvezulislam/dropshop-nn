@@ -1,6 +1,7 @@
 # PUBLIC-WEBSITE-001: Enterprise Storefront Redesign
 
 ## Status: Spec (Draft)
+
 ## Date: 2026-07-23
 
 ---
@@ -37,15 +38,15 @@ The root layout (`src/app/layout.tsx`) imports `public-theme.css` globally. The 
 
 ```css
 [data-layout="public"] {
-  --primary: 0 84% 60%;           /* #EF4444 Soft Red */
+  --primary: 0 84% 60%; /* #EF4444 Soft Red */
   --primary-foreground: 0 0% 100%;
-  --accent: 0 85% 96%;            /* #FFF0F0 Light red tint */
+  --accent: 0 85% 96%; /* #FFF0F0 Light red tint */
   --accent-foreground: 0 74% 42%; /* #C62828 */
-  --ring: 0 84% 60%;              /* Red focus ring */
-  --background: 0 0% 98%;         /* #FAFAFA Soft white */
-  --card: 0 0% 100%;              /* Pure white cards */
-  --muted: 0 0% 96%;              /* Light warm gray */
-  --border: 0 0% 91%;             /* Soft borders */
+  --ring: 0 84% 60%; /* Red focus ring */
+  --background: 0 0% 98%; /* #FAFAFA Soft white */
+  --card: 0 0% 100%; /* Pure white cards */
+  --muted: 0 0% 96%; /* Light warm gray */
+  --border: 0 0% 91%; /* Soft borders */
 
   --shadow-xs: 0 1px 2px hsl(0 0% 0% / 0.04);
   --shadow-sm: 0 1px 3px hsl(0 0% 0% / 0.05);
@@ -61,6 +62,7 @@ Background pattern: subtle grid (`repeating-linear-gradient` or `background-imag
 All existing components in `src/components/website/sections/` are refactored in place:
 
 ### 5.1 Hero Section
+
 - Split layout: left column (headline, description, CTA, trust bar), right column (banner slider with auto-rotation and dots)
 - Background: soft white, subtle grid pattern overlay
 - Headline: "Source, Sell & Scale Across Bangladesh" — large display text
@@ -68,6 +70,7 @@ All existing components in `src/components/website/sections/` are refactored in 
 - Trust bar: horizontal row of 3 items (icons + label + subtext)
 
 ### 5.2 Category Showcase
+
 - Grid of 8 large rounded cards (aspect ratio ~4/3 or 3/2)
 - Card: pure white, soft shadow, hover elevation + border/ring accent
 - Category image or letter avatar fallback
@@ -75,60 +78,72 @@ All existing components in `src/components/website/sections/` are refactored in 
 - "View All" link
 
 ### 5.3 Featured Products Section
+
 - Section header with Sparkles icon, title, subtitle
 - ProductGrid (reuses existing `ProductCard` component)
 - Alternating section backgrounds (white → very light warm gray)
 
 ### 5.4 Trending / New Arrivals / Flash Deals
+
 - Same pattern as featured products
 - Flash deals cards have red "SALE" countdown badge on image
 
 ### 5.5 Brand Slider
+
 - Auto-scroll horizontal row of brand logos
 - Grayscale by default, full color on hover
 - Pause on hover
 
 ### 5.6 Why Choose Us
+
 - 3-column or 3x2 grid of premium icon cards
 - Card: icon (red tint), title, short description
 - Soft card bg, shadow-sm
 
 ### 5.7 How It Works
+
 - Numbered steps (1-2-3 or 1-4)
 - Horizontal desktop, vertical mobile
 - Connector line between steps
 - Each step: number badge (red), icon, title, description
 
 ### 5.8 Role Highlights
+
 - Three role cards: Reseller, Wholesaler, Supplier
 - Benefit list + red CTA button per card
 - Different icon per role
 
 ### 5.9 Testimonials
+
 - Clean quote cards with avatar, name, role, star rating
 - Horizontal scroll or 3-column grid
 - Soft card bg, subtle red quote mark accent
 
 ### 5.10 Latest Blog Preview
+
 - 3 blog cards: image, category badge, title, excerpt, date
 - Link to blog page
 
 ### 5.11 Newsletter
+
 - Minimal: "Stay Updated" heading, short description
 - Email input + red submit button
 - Card-style container with soft border
 
 ### 5.12 Footer CTA
+
 - Large section with red accent gradient background
 - Two CTAs: "Start Selling" (reseller) and "Browse Products"
 - Visible at bottom before footer
 
 ### 5.13 Site Header
+
 - Sticky, white bg, subtle bottom border
 - Logo (left) → nav links → search button → cart → account menu (right)
 - Red "Become a Reseller" CTA in desktop nav
 
 ### 5.14 Site Footer
+
 - White bg, thin red top accent bar
 - Columns: Company info, Shop, Support, Company (legal)
 - Contact info (phone, email, address)
@@ -138,6 +153,7 @@ All existing components in `src/components/website/sections/` are refactored in 
 ## 6. Data Flow
 
 No changes to data fetching. All existing server actions, repositories, and services are reused:
+
 - `getPublicFeaturedProductsAction`
 - `getPublicTrendingProductsAction`
 - `getPublicNewArrivalsAction`

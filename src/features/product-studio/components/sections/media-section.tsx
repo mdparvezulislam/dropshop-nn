@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
-import { ImagePlus, X, Star, Maximize2, ArrowLeft, ArrowRight, UploadCloud, Clipboard, Sparkles } from "lucide-react";
+import { ImagePlus, X, Star, Maximize2, ArrowLeft, ArrowRight, UploadCloud } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useImageKitUpload } from "../../hooks/use-imagekit-upload";
 import { ImageZoomModal } from "../modals/image-zoom-modal";
@@ -148,7 +148,9 @@ export function MediaSection({ items, onChange }: MediaSectionProps): React.Reac
               <UploadCloud className="h-6 w-6" />
             </div>
             <p className="text-xs font-bold text-foreground text-center">
-              {uploading ? "Uploading to ImageKit…" : "Drag & drop images here, paste from clipboard (CTRL+V), or browse"}
+              {uploading
+                ? "Uploading to ImageKit…"
+                : "Drag & drop images here, paste from clipboard (CTRL+V), or browse"}
             </p>
             <p className="text-[11px] font-medium text-muted-foreground text-center mt-1">
               Supports JPEG, PNG, WebP, GIF, SVG up to 10MB • Automatic ImageKit compression
@@ -163,10 +165,16 @@ export function MediaSection({ items, onChange }: MediaSectionProps): React.Reac
                   key={m.id}
                   className={cn(
                     "group relative aspect-square overflow-hidden rounded-2xl border bg-card shadow-2xs transition-all",
-                    m.isFeatured ? "border-primary ring-2 ring-primary/40 shadow-xs" : "border-border/80",
+                    m.isFeatured
+                      ? "border-primary ring-2 ring-primary/40 shadow-xs"
+                      : "border-border/80",
                   )}
                 >
-                  <img src={m.url} alt={m.altText || "Product media"} className="h-full w-full object-cover" />
+                  <img
+                    src={m.url}
+                    alt={m.altText || "Product media"}
+                    className="h-full w-full object-cover"
+                  />
 
                   {/* Primary Badge */}
                   {m.isFeatured ? (
@@ -176,24 +184,24 @@ export function MediaSection({ items, onChange }: MediaSectionProps): React.Reac
                   ) : null}
 
                   {/* Overlay Action Buttons */}
-                  <div className="absolute inset-0 flex flex-col justify-between p-2.5 bg-black/50 backdrop-blur-2xs opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute inset-0 flex flex-col justify-between p-2 sm:p-2.5 bg-black/50 backdrop-blur-2xs opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="flex items-center justify-between">
                       <button
                         type="button"
                         onClick={() => setZoomUrl(m.url)}
-                        className="flex h-7 w-7 items-center justify-center rounded-lg bg-black/60 text-white hover:bg-black"
+                        className="flex h-10 sm:h-7 w-10 sm:w-7 items-center justify-center rounded-xl sm:rounded-lg bg-black/60 text-white hover:bg-black"
                         title="Zoom / Inspect"
                       >
-                        <Maximize2 className="h-3.5 w-3.5" />
+                        <Maximize2 className="h-4 sm:h-3.5 w-4 sm:w-3.5" />
                       </button>
 
                       <button
                         type="button"
                         onClick={() => removeMedia(m.id)}
-                        className="flex h-7 w-7 items-center justify-center rounded-lg bg-destructive text-white hover:bg-destructive/80"
+                        className="flex h-10 sm:h-7 w-10 sm:w-7 items-center justify-center rounded-xl sm:rounded-lg bg-destructive text-white hover:bg-destructive/80"
                         title="Delete asset"
                       >
-                        <X className="h-3.5 w-3.5" />
+                        <X className="h-4 sm:h-3.5 w-4 sm:w-3.5" />
                       </button>
                     </div>
 
@@ -203,20 +211,20 @@ export function MediaSection({ items, onChange }: MediaSectionProps): React.Reac
                           <button
                             type="button"
                             onClick={() => moveMedia(idx, idx - 1)}
-                            className="flex h-6 w-6 items-center justify-center rounded bg-black/60 text-white hover:bg-black"
+                            className="flex h-9 sm:h-6 w-9 sm:w-6 items-center justify-center rounded-xl sm:rounded bg-black/60 text-white hover:bg-black"
                             title="Move left"
                           >
-                            <ArrowLeft className="h-3 w-3" />
+                            <ArrowLeft className="h-4 sm:h-3 w-4 sm:w-3" />
                           </button>
                         )}
                         {idx < items.length - 1 && (
                           <button
                             type="button"
                             onClick={() => moveMedia(idx, idx + 1)}
-                            className="flex h-6 w-6 items-center justify-center rounded bg-black/60 text-white hover:bg-black"
+                            className="flex h-9 sm:h-6 w-9 sm:w-6 items-center justify-center rounded-xl sm:rounded bg-black/60 text-white hover:bg-black"
                             title="Move right"
                           >
-                            <ArrowRight className="h-3 w-3" />
+                            <ArrowRight className="h-4 sm:h-3 w-4 sm:w-3" />
                           </button>
                         )}
                       </div>
@@ -225,7 +233,7 @@ export function MediaSection({ items, onChange }: MediaSectionProps): React.Reac
                         <button
                           type="button"
                           onClick={() => setPrimary(m.id)}
-                          className="rounded-md bg-primary px-2 py-1 text-[10px] font-bold text-primary-foreground hover:bg-primary/90"
+                          className="rounded-lg sm:rounded-md bg-primary px-3 sm:px-2 py-1.5 sm:py-1 text-xs sm:text-[10px] font-bold text-primary-foreground hover:bg-primary/90"
                         >
                           Make Cover
                         </button>
@@ -246,7 +254,13 @@ export function MediaSection({ items, onChange }: MediaSectionProps): React.Reac
               placeholder="Or paste external ImageKit / CDN image URL..."
               className="flex-1 text-xs font-mono"
             />
-            <Button type="button" variant="outline" size="sm" onClick={addUrlMedia} disabled={!urlInput.trim()}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addUrlMedia}
+              disabled={!urlInput.trim()}
+            >
               Add URL
             </Button>
           </div>

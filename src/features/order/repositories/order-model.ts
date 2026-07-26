@@ -157,7 +157,12 @@ const orderSchema = new Schema(
       index: true,
     },
     previousStatuses: [{ type: String }],
-    priority: { type: String, enum: ["low", "normal", "high", "urgent", "vip"], default: "normal", index: true },
+    priority: {
+      type: String,
+      enum: ["low", "normal", "high", "urgent", "vip"],
+      default: "normal",
+      index: true,
+    },
     checkoutDraftId: { type: String, required: true, index: true },
     checkoutId: { type: String, required: true, index: true },
     cartId: { type: String, required: true, index: true },
@@ -200,6 +205,5 @@ orderSchema.index({ "customer.phone": 1 });
 orderSchema.index({ "shipping.division": 1, "shipping.district": 1 });
 orderSchema.index({ tags: 1 });
 
-export const OrderModel =
-  mongoose.models.Order || mongoose.model("Order", orderSchema);
+export const OrderModel = mongoose.models.Order || mongoose.model("Order", orderSchema);
 export default OrderModel;

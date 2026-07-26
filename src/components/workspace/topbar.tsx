@@ -96,7 +96,10 @@ export function Topbar({
         </button>
 
         {/* Desktop Breadcrumbs */}
-        <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden">
+        <nav
+          aria-label="Breadcrumb"
+          className="hidden sm:flex items-center gap-1.5 min-w-0 flex-1 overflow-hidden"
+        >
           {crumbs.map((crumb, i) => (
             <React.Fragment key={`${crumb.label}-${i}`}>
               {i > 0 ? (
@@ -180,7 +183,11 @@ export function Topbar({
           aria-label="Toggle theme"
           className="h-8 w-8 text-muted-foreground hover:text-foreground transition-transform hover:scale-105"
         >
-          {dark ? <Sun className="h-4 w-4 text-amber-500" /> : <Moon className="h-4 w-4 text-slate-700" />}
+          {dark ? (
+            <Sun className="h-4 w-4 text-amber-500" />
+          ) : (
+            <Moon className="h-4 w-4 text-slate-700" />
+          )}
         </Button>
 
         <NotificationBell />
@@ -201,7 +208,9 @@ export function Topbar({
             <DropdownMenuLabel className="p-3">
               <div className="flex flex-col space-y-0.5">
                 <span className="text-xs font-bold text-foreground">{userLabel}</span>
-                <span className="text-[11px] font-normal text-muted-foreground truncate">{userEmail}</span>
+                <span className="text-[11px] font-normal text-muted-foreground truncate">
+                  {userEmail}
+                </span>
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

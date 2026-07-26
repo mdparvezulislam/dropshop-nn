@@ -61,8 +61,8 @@ export class ProductTemplateService {
       suggestedTags: input.suggestedTags ?? [],
       suggestedCollections: input.suggestedCollections ?? [],
       pricingProfile: input.pricingProfile ?? {
-        retailMultiplier: 1.40,
-        wholesaleMultiplier: 1.30,
+        retailMultiplier: 1.4,
+        wholesaleMultiplier: 1.3,
         resellerMultiplier: 1.22,
         campaignMultiplier: 1.15,
         minMarginPercent: 15,
@@ -100,7 +100,10 @@ export class ProductTemplateService {
       updatedBy: actor?.id,
     } as Parameters<ProductTemplateRepository["create"]>[0]);
 
-    logger.info("ProductTemplateService: template created", { id: template.id, name: template.name });
+    logger.info("ProductTemplateService: template created", {
+      id: template.id,
+      name: template.name,
+    });
     return template;
   }
 
@@ -130,7 +133,11 @@ export class ProductTemplateService {
     return this.repository.find({ isActive: true } as any);
   }
 
-  async update(id: string, data: Partial<CreateTemplateInput>, actor?: ActorInfo): Promise<ProductTemplate> {
+  async update(
+    id: string,
+    data: Partial<CreateTemplateInput>,
+    actor?: ActorInfo,
+  ): Promise<ProductTemplate> {
     logger.info("ProductTemplateService: updating template", { id });
 
     const existing = await this.repository.findById(id);
@@ -140,16 +147,31 @@ export class ProductTemplateService {
 
     if (data.name && data.name !== existing.name) {
       const dup = await this.repository.findByName(data.name);
-      if (dup) throw new ValidationError("Template name already exists", { name: ["Name is taken"] });
+      if (dup)
+        throw new ValidationError("Template name already exists", { name: ["Name is taken"] });
       updateData.name = data.name;
       updateData.slug = await this.generateUniqueSlug(data.name);
     }
 
     const allowedFields = [
-      "nameBangla", "description", "iconName", "categoryId", "categoryName",
-      "isActive", "sortOrder", "specs", "attributes", "suggestedTags",
-      "suggestedCollections", "pricingProfile", "shippingProfile", "warrantyProfile",
-      "returnPolicy", "packageIncludes", "seoProfile", "googleMerchant",
+      "nameBangla",
+      "description",
+      "iconName",
+      "categoryId",
+      "categoryName",
+      "isActive",
+      "sortOrder",
+      "specs",
+      "attributes",
+      "suggestedTags",
+      "suggestedCollections",
+      "pricingProfile",
+      "shippingProfile",
+      "warrantyProfile",
+      "returnPolicy",
+      "packageIncludes",
+      "seoProfile",
+      "googleMerchant",
       "suggestedBulletFeatures",
     ];
 
@@ -159,7 +181,10 @@ export class ProductTemplateService {
       }
     }
 
-    return this.repository.update(id, updateData as Parameters<ProductTemplateRepository["update"]>[1]);
+    return this.repository.update(
+      id,
+      updateData as Parameters<ProductTemplateRepository["update"]>[1],
+    );
   }
 
   async delete(id: string): Promise<boolean> {

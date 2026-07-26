@@ -87,7 +87,9 @@ export class FinanceAnalyticsService {
       }
     }
 
-    const pendingWithdrawals = allWithdrawals.filter((w) => w.status === "pending" || w.status === "under_review" || w.status === "approved");
+    const pendingWithdrawals = allWithdrawals.filter(
+      (w) => w.status === "pending" || w.status === "under_review" || w.status === "approved",
+    );
     const pendingWithdrawalsSum = pendingWithdrawals.reduce((sum, w) => sum + w.amount, 0);
 
     const pendingDeposits = allDeposits.filter((d) => d.status === "pending");
@@ -96,8 +98,26 @@ export class FinanceAnalyticsService {
     const netProfit = monthlyProfit - pendingWithdrawalsSum;
 
     // Monthly Chart Breakdown (Last 6 Months)
-    const monthlyChartData: Array<{ month: string; credits: number; debits: number; profit: number }> = [];
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthlyChartData: Array<{
+      month: string;
+      credits: number;
+      debits: number;
+      profit: number;
+    }> = [];
+    const monthNames = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
 
     for (let i = 5; i >= 0; i--) {
       const d = new Date();

@@ -12,7 +12,13 @@ export default function InventoryAnalyticsPage() {
         loadAction: getInventoryAnalyticsAction,
         sections: [
           { type: "metrics", columns: 3 },
-          { type: "chart", dataKey: "stockMovement", title: "Stock Movement", chartLabel: "Movements", chartType: "area" },
+          {
+            type: "chart",
+            dataKey: "stockMovement",
+            title: "Stock Movement",
+            chartLabel: "Movements",
+            chartType: "area",
+          },
         ],
       }}
     />

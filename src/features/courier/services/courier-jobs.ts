@@ -18,14 +18,25 @@ export class CourierJobs {
   async syncTrackingStatuses(): Promise<number> {
     // Find all shipments currently in active delivery states
     const activeShipments = await this.shipmentRepository.find({
-      status: { $in: ["created", "pickup_requested", "picked_up", "in_transit", "hub_received", "out_for_delivery"] },
+      status: {
+        $in: [
+          "created",
+          "pickup_requested",
+          "picked_up",
+          "in_transit",
+          "hub_received",
+          "out_for_delivery",
+        ],
+      },
     });
 
     if (activeShipments.length === 0) {
       return 0;
     }
 
-    logger.info(`CourierJobs: checking tracking logs for ${activeShipments.length} active shipments`);
+    logger.info(
+      `CourierJobs: checking tracking logs for ${activeShipments.length} active shipments`,
+    );
 
     let syncCount = 0;
     for (const shipment of activeShipments) {

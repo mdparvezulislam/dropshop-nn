@@ -136,9 +136,7 @@ export class NotificationPublisher {
     }
   }
 
-  private toVars(
-    input: Record<string, unknown>,
-  ): Record<string, string | number | boolean | null> {
+  private toVars(input: Record<string, unknown>): Record<string, string | number | boolean | null> {
     const out: Record<string, string | number | boolean | null> = {};
     for (const [k, v] of Object.entries(input)) {
       if (v === null || typeof v === "string" || typeof v === "number" || typeof v === "boolean") {

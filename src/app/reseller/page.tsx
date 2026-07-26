@@ -59,11 +59,36 @@ const DEFAULT: DashboardData = {
 };
 
 const QUICK_ACTIONS = [
-  { label: "New Order", href: "/reseller/orders/create", icon: Plus, description: "Place customer order" },
-  { label: "My Products", href: "/reseller/products", icon: Package, description: "Manage reseller catalog" },
-  { label: "Customers", href: "/reseller/customers", icon: Users, description: "View customer database" },
-  { label: "Wallet", href: "/reseller/wallet", icon: Wallet, description: "Earnings & withdrawals" },
-  { label: "Marketing Kit", href: "/reseller/marketing-kit", icon: ImageIcon, description: "Banners & promos" },
+  {
+    label: "New Order",
+    href: "/reseller/orders/create",
+    icon: Plus,
+    description: "Place customer order",
+  },
+  {
+    label: "My Products",
+    href: "/reseller/products",
+    icon: Package,
+    description: "Manage reseller catalog",
+  },
+  {
+    label: "Customers",
+    href: "/reseller/customers",
+    icon: Users,
+    description: "View customer database",
+  },
+  {
+    label: "Wallet",
+    href: "/reseller/wallet",
+    icon: Wallet,
+    description: "Earnings & withdrawals",
+  },
+  {
+    label: "Marketing Kit",
+    href: "/reseller/marketing-kit",
+    icon: ImageIcon,
+    description: "Banners & promos",
+  },
 ];
 
 function greeting(): string {
@@ -86,13 +111,7 @@ export default function ResellerDashboardPage(): React.ReactElement {
   React.useEffect(() => {
     async function load() {
       try {
-        const [
-          profileMod,
-          dashMod,
-          ordersMod,
-          walletMod,
-          customersMod,
-        ] = await Promise.all([
+        const [profileMod, dashMod, ordersMod, walletMod, customersMod] = await Promise.all([
           import("@/features/reseller/actions/reseller-actions"),
           import("@/features/reseller/actions/reseller-actions"),
           import("@/features/order/actions/order-actions"),
@@ -100,19 +119,22 @@ export default function ResellerDashboardPage(): React.ReactElement {
           import("@/features/customer/actions/customer-actions"),
         ]);
 
-        const [profileRes, dashRes, ordersRes, walletRes, customersRes] =
-          await Promise.allSettled([
-            profileMod.resolveCurrentResellerAction(),
-            dashMod.getResellerDashboardAction(),
-            ordersMod.listOrdersAction({ type: "reseller", page: 1, limit: 50 }),
-            walletMod.getOrCreateUserWalletAction(),
-            customersMod.listCustomersAction(""),
-          ]);
+        const [profileRes, dashRes, ordersRes, walletRes, customersRes] = await Promise.allSettled([
+          profileMod.resolveCurrentResellerAction(),
+          dashMod.getResellerDashboardAction(),
+          ordersMod.listOrdersAction({ type: "reseller", page: 1, limit: 50 }),
+          walletMod.getOrCreateUserWalletAction(),
+          customersMod.listCustomersAction(""),
+        ]);
 
         const d = { ...DEFAULT };
         const today = new Date().toDateString();
 
-        if (profileRes.status === "fulfilled" && profileRes.value.success && profileRes.value.data) {
+        if (
+          profileRes.status === "fulfilled" &&
+          profileRes.value.success &&
+          profileRes.value.data
+        ) {
           d.shopName = profileRes.value.data.businessName || "My Shop";
           setProfileError(null);
         } else if (profileRes.status === "fulfilled" && !profileRes.value.success) {
@@ -168,7 +190,7 @@ export default function ResellerDashboardPage(): React.ReactElement {
 
         if (customersRes.status === "fulfilled" && customersRes.value.success) {
           const cd = customersRes.value.data;
-          d.customersTotal = Array.isArray(cd) ? cd.length : (cd as any)?.totalCount ?? 0;
+          d.customersTotal = Array.isArray(cd) ? cd.length : ((cd as any)?.totalCount ?? 0);
         }
 
         setData(d);
@@ -295,7 +317,10 @@ export default function ResellerDashboardPage(): React.ReactElement {
           title="Recent Orders"
           description="Latest customer transactions"
           action={
-            <Link href="/reseller/orders" className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1">
+            <Link
+              href="/reseller/orders"
+              className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
+            >
               View all <ArrowRight className="h-3 w-3" />
             </Link>
           }
@@ -305,7 +330,10 @@ export default function ResellerDashboardPage(): React.ReactElement {
             {recentOrders.length === 0 ? (
               <div className="px-6 py-10 text-center text-sm text-muted-foreground">
                 No customer orders yet.{" "}
-                <Link href="/reseller/orders/create" className="text-primary font-semibold hover:underline">
+                <Link
+                  href="/reseller/orders/create"
+                  className="text-primary font-semibold hover:underline"
+                >
                   Create your first order
                 </Link>
               </div>
@@ -327,7 +355,9 @@ export default function ResellerDashboardPage(): React.ReactElement {
                     </div>
                     <div className="flex shrink-0 items-center gap-4">
                       <div className="text-right">
-                        <p className="text-xs sm:text-sm font-bold text-foreground tabular-nums">{formatCents(o.total)}</p>
+                        <p className="text-xs sm:text-sm font-bold text-foreground tabular-nums">
+                          {formatCents(o.total)}
+                        </p>
                         <p className="text-[11px] font-semibold text-success tabular-nums">
                           +{formatCents(o.profit)} profit
                         </p>

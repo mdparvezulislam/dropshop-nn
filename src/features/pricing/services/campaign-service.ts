@@ -1,4 +1,7 @@
-import { CampaignPricingRepository, ScheduledPricingRepository } from "../repositories/campaign-repository";
+import {
+  CampaignPricingRepository,
+  ScheduledPricingRepository,
+} from "../repositories/campaign-repository";
 import { CampaignPricing, ScheduledPricing } from "../domain/campaign-entity";
 import { NotFoundError } from "@/lib/errors/app-error";
 import { logger } from "@/lib/utils/logger";
@@ -12,11 +15,18 @@ export class CampaignPricingService {
   }
 
   async createCampaign(data: Partial<CampaignPricing>, actorId?: string): Promise<CampaignPricing> {
-    logger.info("CampaignService: creating campaign", { name: data.name, campaignType: data.campaignType });
+    logger.info("CampaignService: creating campaign", {
+      name: data.name,
+      campaignType: data.campaignType,
+    });
     return this.campaignRepo.create({ ...data, createdBy: actorId, updatedBy: actorId } as any);
   }
 
-  async updateCampaign(id: string, data: Partial<CampaignPricing>, actorId?: string): Promise<CampaignPricing> {
+  async updateCampaign(
+    id: string,
+    data: Partial<CampaignPricing>,
+    actorId?: string,
+  ): Promise<CampaignPricing> {
     const existing = await this.campaignRepo.findById(id);
     if (!existing) throw new NotFoundError("Campaign pricing not found");
     return this.campaignRepo.update(id, { ...data, updatedBy: actorId } as any);
@@ -30,11 +40,18 @@ export class CampaignPricingService {
     return this.scheduleRepo.find({ isActive: true });
   }
 
-  async createScheduled(data: Partial<ScheduledPricing>, actorId?: string): Promise<ScheduledPricing> {
+  async createScheduled(
+    data: Partial<ScheduledPricing>,
+    actorId?: string,
+  ): Promise<ScheduledPricing> {
     return this.scheduleRepo.create({ ...data, createdBy: actorId, updatedBy: actorId } as any);
   }
 
-  async updateScheduled(id: string, data: Partial<ScheduledPricing>, actorId?: string): Promise<ScheduledPricing> {
+  async updateScheduled(
+    id: string,
+    data: Partial<ScheduledPricing>,
+    actorId?: string,
+  ): Promise<ScheduledPricing> {
     const existing = await this.scheduleRepo.findById(id);
     if (!existing) throw new NotFoundError("Scheduled pricing not found");
     return this.scheduleRepo.update(id, { ...data, updatedBy: actorId } as any);

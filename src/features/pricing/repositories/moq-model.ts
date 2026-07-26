@@ -1,5 +1,9 @@
 import mongoose, { Schema } from "mongoose";
-import { baseFieldsDefinition, baseSchemaOptions, softDeletePlugin } from "@/lib/database/base-schema";
+import {
+  baseFieldsDefinition,
+  baseSchemaOptions,
+  softDeletePlugin,
+} from "@/lib/database/base-schema";
 import { BaseDocument } from "@/lib/database/types";
 
 export interface MoqTierEntryDB {
@@ -36,7 +40,11 @@ const moqTierSchema = new Schema<MoqTierDocument>(
   {
     productId: { type: Schema.Types.ObjectId, ref: "Product", required: true, index: true },
     variantSku: { type: String, required: false, index: true },
-    tiers: { type: [moqTierEntrySchema], required: true, validate: [(arr: unknown[]) => arr.length > 0, "At least one tier required"] },
+    tiers: {
+      type: [moqTierEntrySchema],
+      required: true,
+      validate: [(arr: unknown[]) => arr.length > 0, "At least one tier required"],
+    },
     isActive: { type: Boolean, default: true, index: true },
     ...baseFields,
   },
@@ -47,5 +55,4 @@ moqTierSchema.index({ productId: 1, variantSku: 1 }, { unique: true, sparse: tru
 moqTierSchema.plugin(softDeletePlugin);
 
 export const MoqTierModel =
-  mongoose.models.MoqTier ||
-  mongoose.model<MoqTierDocument>("MoqTier", moqTierSchema);
+  mongoose.models.MoqTier || mongoose.model<MoqTierDocument>("MoqTier", moqTierSchema);

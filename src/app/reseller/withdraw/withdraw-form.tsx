@@ -81,7 +81,9 @@ export function WithdrawForm({ balance, walletId, onSuccess }: Props): React.Rea
       <CardContent className="p-4">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="amount" className="text-xs">Amount (BDT)</Label>
+            <Label htmlFor="amount" className="text-xs">
+              Amount (BDT)
+            </Label>
             <Input
               id="amount"
               type="number"
@@ -94,7 +96,9 @@ export function WithdrawForm({ balance, walletId, onSuccess }: Props): React.Rea
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="method" className="text-xs">Method</Label>
+            <Label htmlFor="method" className="text-xs">
+              Method
+            </Label>
             <Select value={method} onValueChange={setMethod}>
               <SelectTrigger id="method">
                 <SelectValue placeholder="Select method" />
@@ -109,7 +113,9 @@ export function WithdrawForm({ balance, walletId, onSuccess }: Props): React.Rea
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="account" className="text-xs">Account Number / Details</Label>
+            <Label htmlFor="account" className="text-xs">
+              Account Number / Details
+            </Label>
             <Input
               id="account"
               placeholder="e.g. 01XXXXXXXXX"

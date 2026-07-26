@@ -48,8 +48,8 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const posts = data?.items ?? [];
   const totalCount = data?.totalCount ?? 0;
   const totalPages = data?.totalPages ?? 1;
-  const categories = taxRes.success ? taxRes.data?.categories ?? [] : [];
-  const tags = taxRes.success ? taxRes.data?.tags ?? [] : [];
+  const categories = taxRes.success ? (taxRes.data?.categories ?? []) : [];
+  const tags = taxRes.success ? (taxRes.data?.tags ?? []) : [];
 
   return (
     <Suspense

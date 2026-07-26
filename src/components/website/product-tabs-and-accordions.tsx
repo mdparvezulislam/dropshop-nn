@@ -23,7 +23,9 @@ export function ProductTabsAndAccordions({
   notice,
   highlights = [],
 }: ProductTabsAndAccordionsProps) {
-  const [activeTab, setActiveTab] = React.useState<"description" | "specs" | "notice">("description");
+  const [activeTab, setActiveTab] = React.useState<"description" | "specs" | "notice">(
+    "description",
+  );
   const [openAccordions, setOpenAccordions] = React.useState<Record<string, boolean>>({
     description: true,
     specs: true,
@@ -49,7 +51,7 @@ export function ProductTabsAndAccordions({
               "text-sm font-extrabold pb-3 transition-colors border-b-2 flex items-center space-x-2 min-h-[44px]",
               activeTab === "description"
                 ? "border-red-600 text-red-600"
-                : "border-transparent text-slate-500 hover:text-slate-900"
+                : "border-transparent text-slate-500 hover:text-slate-900",
             )}
           >
             <FileText className="w-4 h-4" />
@@ -63,7 +65,7 @@ export function ProductTabsAndAccordions({
               "text-sm font-extrabold pb-3 transition-colors border-b-2 flex items-center space-x-2 min-h-[44px]",
               activeTab === "specs"
                 ? "border-red-600 text-red-600"
-                : "border-transparent text-slate-500 hover:text-slate-900"
+                : "border-transparent text-slate-500 hover:text-slate-900",
             )}
           >
             <ListFilter className="w-4 h-4" />
@@ -78,7 +80,7 @@ export function ProductTabsAndAccordions({
                 "text-sm font-extrabold pb-3 transition-colors border-b-2 flex items-center space-x-2 min-h-[44px]",
                 activeTab === "notice"
                   ? "border-red-600 text-red-600"
-                  : "border-transparent text-slate-500 hover:text-slate-900"
+                  : "border-transparent text-slate-500 hover:text-slate-900",
               )}
             >
               <Sparkles className="w-4 h-4 text-red-500" />
@@ -126,16 +128,16 @@ export function ProductTabsAndAccordions({
                           <td className="py-3 px-4 font-bold text-slate-500 w-1/3 border-r border-slate-200">
                             {spec.key}
                           </td>
-                          <td className="py-3 px-4 font-extrabold text-slate-900">
-                            {spec.value}
-                          </td>
+                          <td className="py-3 px-4 font-extrabold text-slate-900">{spec.value}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
               ) : (
-                <p className="text-xs text-slate-400 font-medium py-4">কোন স্পেসিফিকেশন তথ্য যোগ করা হয়নি।</p>
+                <p className="text-xs text-slate-400 font-medium py-4">
+                  কোন স্পেসিফিকেশন তথ্য যোগ করা হয়নি।
+                </p>
               )}
             </div>
           )}
@@ -166,7 +168,10 @@ export function ProductTabsAndAccordions({
               <span>বিবরণ (Product Details)</span>
             </span>
             <ChevronDown
-              className={cn("w-4 h-4 transition-transform", openAccordions.description && "rotate-180")}
+              className={cn(
+                "w-4 h-4 transition-transform",
+                openAccordions.description && "rotate-180",
+              )}
             />
           </button>
           {openAccordions.description && (
@@ -237,7 +242,10 @@ export function ProductTabsAndAccordions({
                 <span>গুরুত্বপূর্ণ নোটিশ</span>
               </span>
               <ChevronDown
-                className={cn("w-4 h-4 transition-transform", openAccordions.notice && "rotate-180")}
+                className={cn(
+                  "w-4 h-4 transition-transform",
+                  openAccordions.notice && "rotate-180",
+                )}
               />
             </button>
             {openAccordions.notice && (

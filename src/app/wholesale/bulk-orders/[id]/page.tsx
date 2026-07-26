@@ -79,7 +79,10 @@ export default function WholesaleBulkOrderDetailPage(): React.ReactElement {
 
   const shipping = o.shipping ?? {};
   const items = o.items ?? [];
-  const subtotal = items.reduce((s: number, i: any) => s + (i.resolvedPrice ?? i.unitPrice ?? 0) * (i.quantity ?? 0), 0);
+  const subtotal = items.reduce(
+    (s: number, i: any) => s + (i.resolvedPrice ?? i.unitPrice ?? 0) * (i.quantity ?? 0),
+    0,
+  );
   const deliveryCharge = o.deliveryCharge ?? 0;
   const grandTotal = o.grandTotal ?? o.total ?? subtotal + deliveryCharge;
 
@@ -93,7 +96,11 @@ export default function WholesaleBulkOrderDetailPage(): React.ReactElement {
   return (
     <div className="space-y-6 animate-[fade-in_0.2s_ease-out]">
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon-sm" onClick={() => router.push("/wholesale/bulk-orders")}>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => router.push("/wholesale/bulk-orders")}
+        >
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div className="flex-1">
@@ -129,7 +136,9 @@ export default function WholesaleBulkOrderDetailPage(): React.ReactElement {
                       <Clock className="h-4 w-4" />
                     )}
                   </div>
-                  <span className="text-[10px] text-muted-foreground text-center">{step.label}</span>
+                  <span className="text-[10px] text-muted-foreground text-center">
+                    {step.label}
+                  </span>
                   {step.date && (
                     <span className="text-[9px] text-muted-foreground">
                       {new Date(step.date).toLocaleDateString()}
@@ -138,10 +147,7 @@ export default function WholesaleBulkOrderDetailPage(): React.ReactElement {
                 </div>
                 {i < timeline.length - 1 && (
                   <div
-                    className={cn(
-                      "flex-1 h-0.5 mx-1",
-                      step.done ? "bg-success" : "bg-border",
-                    )}
+                    className={cn("flex-1 h-0.5 mx-1", step.done ? "bg-success" : "bg-border")}
                   />
                 )}
               </React.Fragment>
@@ -173,7 +179,9 @@ export default function WholesaleBulkOrderDetailPage(): React.ReactElement {
                     </div>
                     <div className="text-right shrink-0">
                       <p className="text-sm font-semibold tabular-nums">
-                        {formatCents((item.resolvedPrice ?? item.unitPrice ?? 0) * (item.quantity ?? 0))}
+                        {formatCents(
+                          (item.resolvedPrice ?? item.unitPrice ?? 0) * (item.quantity ?? 0),
+                        )}
                       </p>
                       <p className="text-[11px] text-muted-foreground tabular-nums">
                         {formatCents(item.resolvedPrice ?? item.unitPrice ?? 0)} each
@@ -204,7 +212,9 @@ export default function WholesaleBulkOrderDetailPage(): React.ReactElement {
               {shipping.area && (
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <MapPin className="h-4 w-4" />
-                  <span>{shipping.area}, {shipping.district ?? "—"}</span>
+                  <span>
+                    {shipping.area}, {shipping.district ?? "—"}
+                  </span>
                 </div>
               )}
             </CardContent>
@@ -241,10 +251,15 @@ export default function WholesaleBulkOrderDetailPage(): React.ReactElement {
             <CardContent className="p-4 space-y-2 text-sm">
               <div className="flex items-center gap-2">
                 <CreditCard className="h-4 w-4 text-muted-foreground" />
-                <span>{o.paymentMethod === "cod" ? "Cash on Delivery" : "Prepaid / Bank Transfer"}</span>
+                <span>
+                  {o.paymentMethod === "cod" ? "Cash on Delivery" : "Prepaid / Bank Transfer"}
+                </span>
               </div>
               <div className="flex items-center gap-2">
-                <StatusChip label={o.paymentStatus ?? "pending"} tone={statusToneFromValue(o.paymentStatus)} />
+                <StatusChip
+                  label={o.paymentStatus ?? "pending"}
+                  tone={statusToneFromValue(o.paymentStatus)}
+                />
               </div>
             </CardContent>
           </Card>

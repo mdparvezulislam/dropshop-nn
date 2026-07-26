@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useDebounce } from "@/hooks/use-debounce";
 
-export type SaveState = "idle" | "saving" | "saved" | "error" | "unsaved";
+export type SaveState = "idle" | "saving" | "saved" | "error";
 
 export interface AutosaveOptions {
   delay?: number;

@@ -14,18 +14,14 @@ export class ExportService {
   private readonly facts = new EventFactRepository();
   private readonly reportRepo = new AnalyticsReportRepository();
 
-  async exportAnalytics(
-    input: {
-      format: ExportFormat;
-      filters?: AnalyticsFilter;
-      type?: "executive" | "orders" | "products" | "finance" | "logistics";
-    },
-  ): Promise<ExportResult> {
+  async exportAnalytics(input: {
+    format: ExportFormat;
+    filters?: AnalyticsFilter;
+    type?: "executive" | "orders" | "products" | "finance" | "logistics";
+  }): Promise<ExportResult> {
     const range = resolveDateRange(input.filters);
     const events = await this.facts.listRecent(1000);
-    const filtered = events.filter(
-      (e) => e.timestamp >= range.from && e.timestamp <= range.to,
-    );
+    const filtered = events.filter((e) => e.timestamp >= range.from && e.timestamp <= range.to);
 
     switch (input.format) {
       case "csv":
@@ -56,7 +52,9 @@ export class ExportService {
   ): Promise<ExportResult> {
     const headers = ["metric", "value"];
     const rows = Object.entries(metrics).map(([key, value]) => `${key},${value}`);
-    const csv = [headers.join(","), ...rows, "", "# Snapshot Data", JSON.stringify(data)].join("\n");
+    const csv = [headers.join(","), ...rows, "", "# Snapshot Data", JSON.stringify(data)].join(
+      "\n",
+    );
     return {
       content: csv,
       filename: `${title.replace(/\s+/g, "-").toLowerCase()}-snapshot.csv`,
@@ -65,12 +63,32 @@ export class ExportService {
   }
 
   private async toCsv(events: any[], type: string): Promise<ExportResult> {
-    const headers = ["eventId", "eventName", "timestamp", "actorRole", "module", "entityType", "entityId", "value", "currency"];
-    const rows = events.map((e) => [
-      e.eventId, e.eventName, new Date(e.timestamp).toISOString(),
-      e.actorRole ?? "", e.module, e.entityType ?? "", e.entityId ?? "",
-      e.value ?? "", e.currency ?? "",
-    ].map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","));
+    const headers = [
+      "eventId",
+      "eventName",
+      "timestamp",
+      "actorRole",
+      "module",
+      "entityType",
+      "entityId",
+      "value",
+      "currency",
+    ];
+    const rows = events.map((e) =>
+      [
+        e.eventId,
+        e.eventName,
+        new Date(e.timestamp).toISOString(),
+        e.actorRole ?? "",
+        e.module,
+        e.entityType ?? "",
+        e.entityId ?? "",
+        e.value ?? "",
+        e.currency ?? "",
+      ]
+        .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+        .join(","),
+    );
     const content = [headers.join(","), ...rows].join("\n");
     return {
       content,
@@ -98,7 +116,12 @@ export class ExportService {
   }
 
   private convertReportToCsv(report: any): string {
-    const lines: string[] = [`Report: ${report.title}`, `Generated: ${new Date(report.generatedAt).toISOString()}`, `Type: ${report.type}`, ""];
+    const lines: string[] = [
+      `Report: ${report.title}`,
+      `Generated: ${new Date(report.generatedAt).toISOString()}`,
+      `Type: ${report.type}`,
+      "",
+    ];
     if (report.metrics?.length > 0) {
       lines.push("Metrics", "key,label,value");
       for (const m of report.metrics) {

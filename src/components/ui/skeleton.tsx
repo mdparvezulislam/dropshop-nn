@@ -6,12 +6,7 @@ export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
   shimmer?: boolean;
 }
 
-function Skeleton({
-  className,
-  variant = "rectangular",
-  shimmer = true,
-  ...props
-}: SkeletonProps) {
+function Skeleton({ className, variant = "rectangular", shimmer = true, ...props }: SkeletonProps) {
   return (
     <div
       className={cn(

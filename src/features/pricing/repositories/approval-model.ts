@@ -1,5 +1,9 @@
 import mongoose, { Schema } from "mongoose";
-import { baseFieldsDefinition, baseSchemaOptions, softDeletePlugin } from "@/lib/database/base-schema";
+import {
+  baseFieldsDefinition,
+  baseSchemaOptions,
+  softDeletePlugin,
+} from "@/lib/database/base-schema";
 import { BaseDocument } from "@/lib/database/types";
 
 export interface PriceChangeDB {
@@ -38,13 +42,23 @@ const priceChangeSchema = new Schema(
 
 const priceApprovalSchema = new Schema<PriceApprovalDocument>(
   {
-    entityType: { type: String, enum: ["product_pricing", "global_rule", "profile", "campaign", "bulk_update"], required: true, index: true },
+    entityType: {
+      type: String,
+      enum: ["product_pricing", "global_rule", "profile", "campaign", "bulk_update"],
+      required: true,
+      index: true,
+    },
     entityId: { type: String, required: true, index: true },
     requestedBy: { type: String, required: true, index: true },
     requestedByName: { type: String, required: false },
     reviewedBy: { type: String, required: false },
     reviewedByName: { type: String, required: false },
-    status: { type: String, enum: ["pending", "approved", "rejected", "cancelled"], default: "pending", index: true },
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected", "cancelled"],
+      default: "pending",
+      index: true,
+    },
     changes: { type: [priceChangeSchema], default: [] },
     reason: { type: String, required: true, maxlength: 1000 },
     reviewNote: { type: String, required: false, maxlength: 1000 },
@@ -87,7 +101,12 @@ const priceHistorySchema = new Schema<PriceHistoryEntryDocument>(
     changedBy: { type: String, required: true, index: true },
     changedByName: { type: String, required: false },
     reason: { type: String, required: false, maxlength: 500 },
-    source: { type: String, enum: ["manual", "rule", "bulk", "import", "automation", "approval", "campaign"], required: true, index: true },
+    source: {
+      type: String,
+      enum: ["manual", "rule", "bulk", "import", "automation", "approval", "campaign"],
+      required: true,
+      index: true,
+    },
     affectedProducts: { type: Number, required: false },
     ...baseFields,
   },

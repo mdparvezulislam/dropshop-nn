@@ -47,7 +47,11 @@ export function RolesAdmin(): React.ReactElement {
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={load} disabled={loading} className="gap-1.5">
-          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+          {loading ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <RefreshCw className="h-3.5 w-3.5" />
+          )}
           Refresh
         </Button>
       </div>
@@ -64,9 +68,7 @@ export function RolesAdmin(): React.ReactElement {
                 type="button"
                 onClick={() => setSelected(r)}
                 className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors ${
-                  selected?.name === r.name
-                    ? "bg-primary/10 text-primary"
-                    : "hover:bg-muted/60"
+                  selected?.name === r.name ? "bg-primary/10 text-primary" : "hover:bg-muted/60"
                 }`}
               >
                 <span className="flex items-center gap-2 font-medium">
@@ -105,9 +107,7 @@ export function RolesAdmin(): React.ReactElement {
         <Card>
           <CardHeader>
             <CardTitle className="text-sm">{selected?.name ?? "Select a role"}</CardTitle>
-            {selected && (
-              <p className="text-xs text-muted-foreground">{selected.description}</p>
-            )}
+            {selected && <p className="text-xs text-muted-foreground">{selected.description}</p>}
           </CardHeader>
           <CardContent>
             {!selected ? (

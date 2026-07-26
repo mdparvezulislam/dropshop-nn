@@ -17,7 +17,10 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ success: true, data });
   } catch (err) {
     return NextResponse.json(
-      { success: false, error: err instanceof Error ? err.message : "Failed to load inventory analytics" },
+      {
+        success: false,
+        error: err instanceof Error ? err.message : "Failed to load inventory analytics",
+      },
       { status: 500 },
     );
   }

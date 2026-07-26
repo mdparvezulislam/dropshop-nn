@@ -75,9 +75,7 @@ export class NotificationService {
     }
 
     const requestedChannels: NotificationChannelType[] =
-      input.channels ??
-      template?.channels ??
-      (["in_app"] as NotificationChannelType[]);
+      input.channels ?? template?.channels ?? (["in_app"] as NotificationChannelType[]);
 
     const resolved = await this.preferences.resolveChannels(
       input.userId,
@@ -165,12 +163,10 @@ export class NotificationService {
 
     // Analytics mirror (best-effort)
     try {
-      const { AnalyticsPublisher } = await import(
-        "@/features/analytics/services/analytics-publisher"
-      );
+      const { AnalyticsPublisher } =
+        await import("@/features/analytics/services/analytics-publisher");
       await new AnalyticsPublisher().track({
-        eventName:
-          delivered.status === "failed" ? "notification.failed" : "notification.delivered",
+        eventName: delivered.status === "failed" ? "notification.failed" : "notification.delivered",
         module: "notification",
         source: "notification-service",
         actorId: delivered.userId,
@@ -236,7 +232,12 @@ export class NotificationService {
   }
 
   async upsertTemplate(
-    data: Partial<NotificationTemplate> & { key: string; name: string; inAppTitle: string; inAppBody: string },
+    data: Partial<NotificationTemplate> & {
+      key: string;
+      name: string;
+      inAppTitle: string;
+      inAppBody: string;
+    },
   ): Promise<NotificationTemplate> {
     const existing = await this.templates.findByKey(data.key);
     if (existing) {

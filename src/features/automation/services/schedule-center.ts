@@ -50,7 +50,7 @@ export class ScheduleCenter {
         await workflowEngine.execute(
           job.workflowId,
           { scheduled: true, jobName: job.name },
-          "schedule"
+          "schedule",
         );
 
         const nextRun = this.calculateNextRun(job.cron);
@@ -84,7 +84,10 @@ export class ScheduleCenter {
     });
   }
 
-  async update(jobId: string, data: Partial<Omit<ScheduledJob, "id" | "createdAt" | "updatedAt">>): Promise<ScheduledJob | null> {
+  async update(
+    jobId: string,
+    data: Partial<Omit<ScheduledJob, "id" | "createdAt" | "updatedAt">>,
+  ): Promise<ScheduledJob | null> {
     const updateData: Record<string, unknown> = { ...data };
     if (data.cron) {
       updateData.nextRunAt = this.calculateNextRun(data.cron);

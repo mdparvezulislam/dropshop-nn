@@ -257,14 +257,10 @@ type AuthSession = {
   user?: { id?: string; email?: string | null; role?: string; name?: string | null };
 } | null;
 
-async function resolvePortalResellerId(
-  session: AuthSession,
-  resellerId?: string,
-): Promise<string> {
+async function resolvePortalResellerId(session: AuthSession, resellerId?: string): Promise<string> {
   const user = session?.user;
   const role = (user?.role ?? "").toLowerCase();
-  const isStaff =
-    role.includes("admin") || role === "manager" || role === "super_admin";
+  const isStaff = role.includes("admin") || role === "manager" || role === "super_admin";
 
   if (resellerId && resellerId !== "me" && resellerId !== "current") {
     if (!isStaff && user?.id) {
@@ -290,7 +286,14 @@ async function resolvePortalResellerId(
 
 export async function resolveCurrentResellerAction(): Promise<{
   success: boolean;
-  data?: { id: string; businessName: string; ownerName: string; email: string; status: string; code: string };
+  data?: {
+    id: string;
+    businessName: string;
+    ownerName: string;
+    email: string;
+    status: string;
+    code: string;
+  };
   error?: string;
 }> {
   try {
@@ -299,9 +302,7 @@ export async function resolveCurrentResellerAction(): Promise<{
     checkPermission(session as never, "Reseller.View");
     const user = session.user;
     const service = new ResellerService();
-    const reseller = user?.id
-      ? await service.resolveForUser(user.id, user.email)
-      : null;
+    const reseller = user?.id ? await service.resolveForUser(user.id, user.email) : null;
     if (!reseller) {
       return {
         success: false,

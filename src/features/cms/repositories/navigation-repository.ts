@@ -1,6 +1,10 @@
 import { BaseRepository } from "@/lib/database/generic-repository";
 import { NavigationMenuModel, type NavigationMongoDocument } from "./navigation-model";
-import type { NavigationItem, NavigationLocation, NavigationMenu } from "../domain/navigation-entity";
+import type {
+  NavigationItem,
+  NavigationLocation,
+  NavigationMenu,
+} from "../domain/navigation-entity";
 
 function mapItem(item: any): NavigationItem {
   return {

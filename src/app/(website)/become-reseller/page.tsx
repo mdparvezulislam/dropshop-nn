@@ -6,7 +6,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Become a Reseller Partner - DropshopNN Bangladesh",
-  description: "জিরো ইনভেস্টমেন্টে ড্রপশিপিং রিসেলিং শুরু করুন। ক্যাটালগ অ্যাক্সেস, ফাস্ট ডেলিভারি ও প্রফিট উইথড্র সুবিধা।",
+  description:
+    "জিরো ইনভেস্টমেন্টে ড্রপশিপিং রিসেলিং শুরু করুন। ক্যাটালগ অ্যাক্সেস, ফাস্ট ডেলিভারি ও প্রফিট উইথড্র সুবিধা।",
 };
 
 export default async function BecomeResellerPage() {

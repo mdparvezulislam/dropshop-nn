@@ -4,7 +4,16 @@ import * as React from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Package, FileEdit, Copy, Trash2, Eye, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
+import {
+  Package,
+  FileEdit,
+  Copy,
+  Trash2,
+  Eye,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+} from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 export interface ProductCatalogItem {
@@ -74,7 +83,9 @@ export function CatalogTableView({
           <Package className="h-6 w-6" />
         </div>
         <p className="text-sm font-extrabold text-foreground">এখনও কোনো পণ্য যোগ করা হয়নি</p>
-        <p className="text-xs text-muted-foreground max-w-sm">No products matched your search or filters. Create a new product in Product Studio.</p>
+        <p className="text-xs text-muted-foreground max-w-sm">
+          No products matched your search or filters. Create a new product in Product Studio.
+        </p>
         <Link href="/dashboard/products/new">
           <button className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90">
             নতুন পণ্য যোগ করুন (Add Product)
@@ -134,7 +145,11 @@ export function CatalogTableView({
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-muted/40 overflow-hidden shadow-2xs">
                       {item.image ? (
-                        <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="h-full w-full object-cover"
+                        />
                       ) : (
                         <Package className="h-5 w-5 text-primary" />
                       )}
@@ -143,7 +158,9 @@ export function CatalogTableView({
                       <p className="font-extrabold text-foreground truncate group-hover:text-primary transition-colors">
                         {item.name}
                       </p>
-                      <p className="text-[11px] font-mono text-muted-foreground font-semibold">{item.sku}</p>
+                      <p className="text-[11px] font-mono text-muted-foreground font-semibold">
+                        {item.sku}
+                      </p>
                     </div>
                   </div>
                 </td>
@@ -211,7 +228,11 @@ export function CatalogTableView({
                       onClick={() => startInlineEdit(item.id, "stock", item.stock)}
                       className={cn(
                         "font-mono font-extrabold hover:bg-muted/80 px-2 py-0.5 rounded transition-colors",
-                        item.stock <= 0 ? "text-destructive" : item.stock <= 10 ? "text-warning" : "text-foreground",
+                        item.stock <= 0
+                          ? "text-destructive"
+                          : item.stock <= 10
+                            ? "text-warning"
+                            : "text-foreground",
                       )}
                       title="Click to inline edit stock"
                     >

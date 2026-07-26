@@ -7,7 +7,11 @@ import { EXCHANGE_STATUSES } from "../domain/exchange-entity";
 import { COD_SETTLEMENT_STATUSES } from "../domain/cod-entity";
 import { COMPLAINT_TYPES, COMPLAINT_STATUSES } from "../domain/complaint-entity";
 import { CALL_OUTCOMES } from "../domain/call-log-entity";
-import { FOLLOW_UP_TYPES, FOLLOW_UP_STATUSES, FOLLOW_UP_PRIORITIES } from "../domain/follow-up-entity";
+import {
+  FOLLOW_UP_TYPES,
+  FOLLOW_UP_STATUSES,
+  FOLLOW_UP_PRIORITIES,
+} from "../domain/follow-up-entity";
 import { FAILED_DELIVERY_REASONS, FAILED_DELIVERY_ACTIONS } from "../domain/failed-delivery-entity";
 
 const orderTypeSchema = z.enum(["guest", "customer", "reseller", "wholesaler"]);
@@ -41,35 +45,41 @@ export const createOrderFromDraftSchema = z.object({
     deliveryNote: z.string().max(500).optional().or(z.literal("")),
   }),
   pricing: z.object({
-    items: z.array(z.object({
-      productId: z.string().min(1),
-      variantSku: z.string().optional(),
-      productName: z.string().min(1),
-      quantity: z.number().int().positive(),
-      unitSellingPrice: z.number().int().nonnegative(),
-      unitWholesalePrice: z.number().int().nonnegative().optional(),
-      unitCostBasis: z.number().int().nonnegative(),
-      totalSellingPrice: z.number().int().nonnegative(),
-      totalCostBasis: z.number().int().nonnegative(),
-      totalProfit: z.number().int(),
-      marginPercent: z.number(),
-      currency: z.string().min(1),
-      pricingSource: z.enum(["retail", "reseller", "wholesale", "campaign", "flash_sale"]),
-      campaignId: z.string().optional(),
-      appliedRules: z.array(z.string()).optional(),
-    })).min(1),
+    items: z
+      .array(
+        z.object({
+          productId: z.string().min(1),
+          variantSku: z.string().optional(),
+          productName: z.string().min(1),
+          quantity: z.number().int().positive(),
+          unitSellingPrice: z.number().int().nonnegative(),
+          unitWholesalePrice: z.number().int().nonnegative().optional(),
+          unitCostBasis: z.number().int().nonnegative(),
+          totalSellingPrice: z.number().int().nonnegative(),
+          totalCostBasis: z.number().int().nonnegative(),
+          totalProfit: z.number().int(),
+          marginPercent: z.number(),
+          currency: z.string().min(1),
+          pricingSource: z.enum(["retail", "reseller", "wholesale", "campaign", "flash_sale"]),
+          campaignId: z.string().optional(),
+          appliedRules: z.array(z.string()).optional(),
+        }),
+      )
+      .min(1),
     subtotal: z.number().int().nonnegative(),
     discountTotal: z.number().int().nonnegative(),
     taxTotal: z.number().int().nonnegative(),
     grandTotal: z.number().int().nonnegative(),
     currency: z.string().min(1),
   }),
-  profitPreview: z.object({
-    totalCostBasis: z.number().int().nonnegative(),
-    totalRevenue: z.number().int().nonnegative(),
-    totalProfit: z.number().int(),
-    averageMargin: z.number(),
-  }).optional(),
+  profitPreview: z
+    .object({
+      totalCostBasis: z.number().int().nonnegative(),
+      totalRevenue: z.number().int().nonnegative(),
+      totalProfit: z.number().int(),
+      averageMargin: z.number(),
+    })
+    .optional(),
   source: z.string().max(50).optional(),
   resellerId: z.string().optional(),
   wholesaleId: z.string().optional(),
@@ -188,16 +198,22 @@ export const createManualOrderSchema = z.object({
     address: z.string().min(1).max(500).trim(),
     deliveryNote: z.string().max(500).optional().or(z.literal("")),
   }),
-  items: z.array(z.object({
-    productId: z.string().min(1),
-    variantSku: z.string().optional(),
-    productName: z.string().min(1),
-    quantity: z.number().int().positive(),
-    unitSellingPrice: z.number().int().nonnegative(),
-    unitCostBasis: z.number().int().nonnegative(),
-    currency: z.string().min(1).default("BDT"),
-    pricingSource: z.enum(["retail", "reseller", "wholesale", "campaign", "flash_sale"]).default("retail"),
-  })).min(1),
+  items: z
+    .array(
+      z.object({
+        productId: z.string().min(1),
+        variantSku: z.string().optional(),
+        productName: z.string().min(1),
+        quantity: z.number().int().positive(),
+        unitSellingPrice: z.number().int().nonnegative(),
+        unitCostBasis: z.number().int().nonnegative(),
+        currency: z.string().min(1).default("BDT"),
+        pricingSource: z
+          .enum(["retail", "reseller", "wholesale", "campaign", "flash_sale"])
+          .default("retail"),
+      }),
+    )
+    .min(1),
   discountTotal: z.number().int().nonnegative().default(0),
   taxTotal: z.number().int().nonnegative().default(0),
   shippingCost: z.number().int().nonnegative().default(0),
@@ -208,7 +224,15 @@ export type CreateManualOrderInput = z.infer<typeof createManualOrderSchema>;
 
 export const bulkOrderActionSchema = z.object({
   orderIds: z.array(objectIdSchema).min(1).max(50),
-  action: z.enum(["confirm", "pack", "cancel", "print_invoice", "print_packing_slip", "book_courier", "export"]),
+  action: z.enum([
+    "confirm",
+    "pack",
+    "cancel",
+    "print_invoice",
+    "print_packing_slip",
+    "book_courier",
+    "export",
+  ]),
 });
 
 export type BulkOrderActionInput = z.infer<typeof bulkOrderActionSchema>;
@@ -217,14 +241,18 @@ export type BulkOrderActionInput = z.infer<typeof bulkOrderActionSchema>;
 export const createReturnSchema = z.object({
   orderId: objectIdSchema,
   reason: z.string().min(1).max(1000).trim(),
-  items: z.array(z.object({
-    productId: z.string().min(1),
-    variantSku: z.string().optional(),
-    productName: z.string().min(1),
-    quantity: z.number().int().positive(),
-    unitPrice: z.number().int().nonnegative(),
-    totalPrice: z.number().int().nonnegative(),
-  })).min(1),
+  items: z
+    .array(
+      z.object({
+        productId: z.string().min(1),
+        variantSku: z.string().optional(),
+        productName: z.string().min(1),
+        quantity: z.number().int().positive(),
+        unitPrice: z.number().int().nonnegative(),
+        totalPrice: z.number().int().nonnegative(),
+      }),
+    )
+    .min(1),
   customerNote: z.string().max(1000).optional(),
 });
 
@@ -269,14 +297,18 @@ export type UpdateWarrantyStatusInput = z.infer<typeof updateWarrantyStatusSchem
 export const createExchangeSchema = z.object({
   orderId: objectIdSchema,
   reason: z.string().min(1).max(1000).trim(),
-  items: z.array(z.object({
-    productId: z.string().min(1),
-    variantSku: z.string().optional(),
-    productName: z.string().min(1),
-    quantity: z.number().int().positive(),
-    unitPrice: z.number().int().nonnegative(),
-    totalPrice: z.number().int().nonnegative(),
-  })).min(1),
+  items: z
+    .array(
+      z.object({
+        productId: z.string().min(1),
+        variantSku: z.string().optional(),
+        productName: z.string().min(1),
+        quantity: z.number().int().positive(),
+        unitPrice: z.number().int().nonnegative(),
+        totalPrice: z.number().int().nonnegative(),
+      }),
+    )
+    .min(1),
   customerNote: z.string().max(1000).optional(),
 });
 
@@ -311,7 +343,14 @@ export type CreateOrderNoteInput = z.infer<typeof createOrderNoteSchema>;
 export const createRiskFlagSchema = z.object({
   orderId: objectIdSchema,
   riskLevel: z.enum(["low", "medium", "high", "critical"]),
-  category: z.enum(["frequent_returns", "cod_refusal", "fake_order", "multiple_cancellations", "duplicate_order", "suspicious_activity"]),
+  category: z.enum([
+    "frequent_returns",
+    "cod_refusal",
+    "fake_order",
+    "multiple_cancellations",
+    "duplicate_order",
+    "suspicious_activity",
+  ]),
   reason: z.string().min(1).max(1000),
   confidence: z.number().min(0).max(100),
 });

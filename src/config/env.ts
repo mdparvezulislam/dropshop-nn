@@ -23,7 +23,10 @@ const envSchema = z.object({
 
   AUTH_SECRET: z.string().min(8, "AUTH_SECRET must be at least 8 characters"),
   AUTH_URL: z.string().url().optional(),
-  ENCRYPTION_MASTER_KEY: z.string().optional().default("4f8a9b2c7e1d5a6b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b"),
+  ENCRYPTION_MASTER_KEY: z
+    .string()
+    .optional()
+    .default("4f8a9b2c7e1d5a6b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b"),
 
   ENABLE_FAKE_LOGIN: z
     .enum(["true", "false", "1", "0"])

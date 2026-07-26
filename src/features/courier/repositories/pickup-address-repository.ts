@@ -46,17 +46,25 @@ export class PickupAddressRepository extends BaseRepository<PickupAddressDocumen
   }
 
   async findDefaultAddress(): Promise<PickupAddress | null> {
-    const doc = await PickupAddressModel.findOne({ isDefault: true, isDeleted: { $ne: true } }).lean();
+    const doc = await PickupAddressModel.findOne({
+      isDefault: true,
+      isDeleted: { $ne: true },
+    }).lean();
     return doc ? mapToDomain({ ...doc, id: doc._id.toString() }) : null;
   }
 
   async listAddresses(): Promise<PickupAddress[]> {
-    const docs = await PickupAddressModel.find({ isDeleted: { $ne: true } }).sort({ isDefault: -1, createdAt: -1 }).lean();
+    const docs = await PickupAddressModel.find({ isDeleted: { $ne: true } })
+      .sort({ isDefault: -1, createdAt: -1 })
+      .lean();
     return docs.map((d: any) => mapToDomain({ ...d, id: d._id.toString() }));
   }
 
   async setDefaultAddress(id: string): Promise<void> {
-    await PickupAddressModel.updateMany({ isDeleted: { $ne: true } }, { $set: { isDefault: false } });
+    await PickupAddressModel.updateMany(
+      { isDeleted: { $ne: true } },
+      { $set: { isDefault: false } },
+    );
     await PickupAddressModel.findByIdAndUpdate(id, { $set: { isDefault: true } });
   }
 }

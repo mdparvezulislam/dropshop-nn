@@ -64,8 +64,7 @@ export function createDatabaseHealthChecker(): HealthChecker {
   return async () => {
     const start = Date.now();
     try {
-      const { DatabaseConnectionManager } =
-        await import("@/lib/database/connection-manager");
+      const { DatabaseConnectionManager } = await import("@/lib/database/connection-manager");
       const healthStatus = DatabaseConnectionManager.getHealthStatus();
       const connectionState = typeof healthStatus === "string" ? healthStatus : healthStatus.status;
       return {

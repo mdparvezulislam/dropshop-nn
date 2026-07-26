@@ -126,9 +126,7 @@ export function NotificationBell(): React.ReactElement {
                   )}
                 </div>
                 <span className="line-clamp-2 text-xs text-muted-foreground">{n.body}</span>
-                <span className="text-[10px] text-muted-foreground/80">
-                  {timeAgo(n.createdAt)}
-                </span>
+                <span className="text-[10px] text-muted-foreground/80">{timeAgo(n.createdAt)}</span>
               </DropdownMenuItem>
             ))}
           </div>

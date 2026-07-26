@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { QrCode, Download, Printer, Copy, Check } from "lucide-react";
+import { QrCode, Printer, Copy, Check } from "lucide-react";
 import { toast } from "sonner";
 
 export interface QRCodeModalProps {
@@ -45,7 +45,7 @@ export function QRCodeModal({
         </DialogHeader>
 
         <div className="space-y-4 pt-3">
-          <div className="p-5 rounded-2xl border border-border bg-white flex flex-col items-center justify-center space-y-3 shadow-2xs">
+          <div className="p-5 rounded-2xl border border-border bg-card dark:bg-card flex flex-col items-center justify-center space-y-3 shadow-2xs">
             {/* SVG Representation of Barcode */}
             <div className="w-full h-16 flex items-center justify-center gap-1 overflow-hidden">
               {codeValue.split("").map((char, i) => {
@@ -59,19 +59,26 @@ export function QRCodeModal({
                 );
               })}
             </div>
-            <p className="font-mono text-xs font-bold text-black tracking-widest uppercase">
+            <p className="font-mono text-xs font-bold text-foreground tracking-widest uppercase">
               *{codeValue}*
             </p>
           </div>
 
           <div className="space-y-1">
-            <p className="text-xs font-bold text-foreground truncate">{productName || "Product Name"}</p>
+            <p className="text-xs font-bold text-foreground truncate">
+              {productName || "Product Name"}
+            </p>
             <p className="text-[11px] font-mono text-muted-foreground">SKU: {sku || "N/A"}</p>
           </div>
 
           <div className="flex items-center justify-center gap-2 pt-2">
             <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={handleCopy}>
-              {copied ? <Check className="h-3.5 w-3.5 text-success" /> : <Copy className="h-3.5 w-3.5" />} Copy Code
+              {copied ? (
+                <Check className="h-3.5 w-3.5 text-success" />
+              ) : (
+                <Copy className="h-3.5 w-3.5" />
+              )}{" "}
+              Copy Code
             </Button>
             <Button size="sm" variant="outline" className="gap-1 text-xs" onClick={handlePrint}>
               <Printer className="h-3.5 w-3.5 text-primary" /> Print Label

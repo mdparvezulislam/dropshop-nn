@@ -43,7 +43,12 @@ export function EmptyState({
           </div>
         </div>
         {actionLabel && onAction ? (
-          <Button onClick={onAction} variant="outline" size="sm" className="shrink-0 text-xs h-7 px-2.5">
+          <Button
+            onClick={onAction}
+            variant="outline"
+            size="sm"
+            className="shrink-0 text-xs h-7 px-2.5"
+          >
             {actionLabel}
           </Button>
         ) : null}

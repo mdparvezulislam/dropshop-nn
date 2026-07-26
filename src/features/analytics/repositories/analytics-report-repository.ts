@@ -1,9 +1,10 @@
 import { BaseRepository } from "@/lib/database/generic-repository";
-import {
-  AnalyticsReportModel,
-  type AnalyticsReportDocument,
-} from "./analytics-report-model";
-import type { AnalyticsReport, AnalyticsReportChart, ReportFrequency } from "../domain/analytics-entity";
+import { AnalyticsReportModel, type AnalyticsReportDocument } from "./analytics-report-model";
+import type {
+  AnalyticsReport,
+  AnalyticsReportChart,
+  ReportFrequency,
+} from "../domain/analytics-entity";
 
 function mapReport(doc: any): AnalyticsReport {
   return {
@@ -54,10 +55,7 @@ export class AnalyticsReportRepository extends BaseRepository<
     super(AnalyticsReportModel as any, mapReport);
   }
 
-  async findByType(
-    type: ReportFrequency,
-    limit = 20,
-  ): Promise<AnalyticsReport[]> {
+  async findByType(type: ReportFrequency, limit = 20): Promise<AnalyticsReport[]> {
     const docs = await AnalyticsReportModel.find({ type, isDeleted: { $ne: true } })
       .sort({ generatedAt: -1 })
       .limit(limit)

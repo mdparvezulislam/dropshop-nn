@@ -65,7 +65,9 @@ export class SnapshotRepository {
     return doc ? mapDailyToDomain({ ...doc, id: doc._id.toString() }) : null;
   }
 
-  async createDaily(data: Omit<DailySnapshot, "id" | "createdAt" | "updatedAt" | "isDeleted">): Promise<DailySnapshot> {
+  async createDaily(
+    data: Omit<DailySnapshot, "id" | "createdAt" | "updatedAt" | "isDeleted">,
+  ): Promise<DailySnapshot> {
     const doc = await DailySnapshotModel.create(data);
     return mapDailyToDomain(doc.toObject());
   }
@@ -83,7 +85,9 @@ export class SnapshotRepository {
     return doc ? mapMonthlyToDomain({ ...doc, id: doc._id.toString() }) : null;
   }
 
-  async createMonthly(data: Omit<MonthlySnapshot, "id" | "createdAt" | "updatedAt" | "isDeleted">): Promise<MonthlySnapshot> {
+  async createMonthly(
+    data: Omit<MonthlySnapshot, "id" | "createdAt" | "updatedAt" | "isDeleted">,
+  ): Promise<MonthlySnapshot> {
     const doc = await MonthlySnapshotModel.create(data);
     return mapMonthlyToDomain(doc.toObject());
   }

@@ -1,15 +1,15 @@
 export interface PricingSettings {
-  retailMultiplier: number;    // e.g. 1.40 (+40%)
+  retailMultiplier: number; // e.g. 1.40 (+40%)
   wholesaleMultiplier: number; // e.g. 1.30 (+30%)
-  resellerMultiplier: number;  // e.g. 1.22 (+22%)
-  campaignMultiplier: number;  // e.g. 1.15 (+15%)
+  resellerMultiplier: number; // e.g. 1.22 (+22%)
+  campaignMultiplier: number; // e.g. 1.15 (+15%)
 }
 
 export const DEFAULT_PRICING_SETTINGS: PricingSettings = {
-  retailMultiplier: 1.30,   // Cost + 30%
+  retailMultiplier: 1.3, // Cost + 30%
   wholesaleMultiplier: 1.12, // Cost + 12%
-  resellerMultiplier: 1.20,  // Cost + 20%
-  campaignMultiplier: 1.00,  // Manual only
+  resellerMultiplier: 1.2, // Cost + 20%
+  campaignMultiplier: 1.0, // Manual only
 };
 
 export interface HealthScoreItem {
@@ -55,7 +55,7 @@ export interface ExtendedVariantRow {
   material?: string;
   customAttribute?: string;
   image?: string;
-  price: number;            // Retail
+  price: number; // Retail
   wholesalePrice?: number;
   resellerPrice?: number;
   campaignPrice?: number;
@@ -89,6 +89,7 @@ export interface SpecificationField {
   value: string | number | boolean | string[];
   options?: string[];
   required?: boolean;
+  group?: string;
 }
 
 export interface CategorySpecTemplate {
@@ -115,7 +116,13 @@ export interface ProductRelationship {
   targetProductSku: string;
   targetProductPrice: number;
   targetProductImage?: string;
-  type: "related" | "cross_sell" | "upsell" | "accessory" | "replacement" | "frequently_bought_together";
+  type:
+    | "related"
+    | "cross_sell"
+    | "upsell"
+    | "accessory"
+    | "replacement"
+    | "frequently_bought_together";
 }
 
 export interface ScheduledPublishConfig {

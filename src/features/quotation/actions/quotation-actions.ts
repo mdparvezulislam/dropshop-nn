@@ -5,14 +5,16 @@ import { auth } from "@/lib/auth";
 import { QuotationService } from "@/features/quotation/services/quotation-service";
 
 const createQuotationSchema = z.object({
-  items: z.array(z.object({
-    productId: z.string(),
-    productName: z.string(),
-    sku: z.string().optional(),
-    quantity: z.number().min(1),
-    unitPrice: z.number().min(0),
-    totalPrice: z.number().min(0),
-  })),
+  items: z.array(
+    z.object({
+      productId: z.string(),
+      productName: z.string(),
+      sku: z.string().optional(),
+      quantity: z.number().min(1),
+      unitPrice: z.number().min(0),
+      totalPrice: z.number().min(0),
+    }),
+  ),
   subtotal: z.number().min(0),
   tax: z.number().min(0).default(0),
   grandTotal: z.number().min(0),
@@ -49,7 +51,8 @@ export async function createQuotationAction(formData: unknown): Promise<{
 
     return { success: true, data };
   } catch (err: any) {
-    if (err instanceof z.ZodError) return { success: false, error: err.issues[0]?.message ?? "Validation error" };
+    if (err instanceof z.ZodError)
+      return { success: false, error: err.issues[0]?.message ?? "Validation error" };
     return { success: false, error: err.message ?? "Failed to create quotation" };
   }
 }
@@ -99,10 +102,16 @@ export async function updateQuotationStatusAction(formData: unknown): Promise<{
 
     const parsed = updateQuotationStatusSchema.parse(formData);
     const service = new QuotationService();
-    const data = await service.updateStatus(parsed.quotationId, session.user.id, parsed.status, parsed.notes);
+    const data = await service.updateStatus(
+      parsed.quotationId,
+      session.user.id,
+      parsed.status,
+      parsed.notes,
+    );
     return { success: true, data };
   } catch (err: any) {
-    if (err instanceof z.ZodError) return { success: false, error: err.issues[0]?.message ?? "Validation error" };
+    if (err instanceof z.ZodError)
+      return { success: false, error: err.issues[0]?.message ?? "Validation error" };
     return { success: false, error: err.message ?? "Failed to update quotation" };
   }
 }

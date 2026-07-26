@@ -140,12 +140,19 @@ export function CommandPalette({
                               : "text-foreground hover:bg-muted/60",
                           )}
                         >
-                          <Icon className={cn("h-4 w-4 shrink-0", isSelected ? "text-primary-foreground" : "text-primary")} />
+                          <Icon
+                            className={cn(
+                              "h-4 w-4 shrink-0",
+                              isSelected ? "text-primary-foreground" : "text-primary",
+                            )}
+                          />
                           <span className="flex-1 text-left truncate">{cmd.label}</span>
                           <span
                             className={cn(
                               "hidden max-w-[140px] truncate text-[10px] font-mono sm:inline",
-                              isSelected ? "text-primary-foreground/90" : "text-muted-foreground/60",
+                              isSelected
+                                ? "text-primary-foreground/90"
+                                : "text-muted-foreground/60",
                             )}
                           >
                             {cmd.href}
@@ -164,10 +171,17 @@ export function CommandPalette({
         <div className="flex items-center justify-between border-t border-border/80 bg-muted/30 px-4 py-2 text-[11px] text-muted-foreground">
           <div className="flex items-center gap-4">
             <span className="inline-flex items-center gap-1 font-medium">
-              <kbd className="rounded bg-muted border border-border px-1 py-0.5 text-[10px]"><ArrowUp className="h-2.5 w-2.5 inline" /><ArrowDown className="h-2.5 w-2.5 inline" /></kbd> Navigate
+              <kbd className="rounded bg-muted border border-border px-1 py-0.5 text-[10px]">
+                <ArrowUp className="h-2.5 w-2.5 inline" />
+                <ArrowDown className="h-2.5 w-2.5 inline" />
+              </kbd>{" "}
+              Navigate
             </span>
             <span className="inline-flex items-center gap-1 font-medium">
-              <kbd className="rounded bg-muted border border-border px-1 py-0.5 text-[10px]"><CornerDownLeft className="h-2.5 w-2.5 inline" /></kbd> Select
+              <kbd className="rounded bg-muted border border-border px-1 py-0.5 text-[10px]">
+                <CornerDownLeft className="h-2.5 w-2.5 inline" />
+              </kbd>{" "}
+              Select
             </span>
           </div>
           <span className="font-mono text-[10px] text-primary font-bold">Raycast Quick Search</span>

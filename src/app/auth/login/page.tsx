@@ -4,13 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormField } from "@/components/forms/form-field";
@@ -110,7 +104,9 @@ function LoginForm() {
         {/* Real Production Login Form */}
         <Card className="border-border/80 bg-card/95 backdrop-blur-md shadow-xl rounded-2xl">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-xl font-bold tracking-tight text-foreground">Sign In</CardTitle>
+            <CardTitle className="text-xl font-bold tracking-tight text-foreground">
+              Sign In
+            </CardTitle>
             <CardDescription className="text-xs text-muted-foreground">
               Enter your credentials to access your workspace
             </CardDescription>
@@ -158,11 +154,7 @@ function LoginForm() {
                 </div>
               </FormField>
 
-              <Button
-                type="submit"
-                loading={loading}
-                className="w-full font-semibold shadow-sm"
-              >
+              <Button type="submit" loading={loading} className="w-full font-semibold shadow-sm">
                 Sign In
                 <ArrowRight className="h-4 w-4 ml-1.5" />
               </Button>

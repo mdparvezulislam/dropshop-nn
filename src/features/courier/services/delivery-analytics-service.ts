@@ -32,9 +32,16 @@ export class DeliveryAnalyticsService {
       (s) => s.createdAt && new Date(s.createdAt).toISOString().slice(0, 10) === todayStr,
     ).length;
 
-    const pendingBooking = all.filter((s) => s.status === "pending_booking" || s.status === "draft").length;
-    const booked = all.filter((s) => s.status === "booked" || s.status === "pickup_requested" || s.status === "picked_up").length;
-    const inTransit = all.filter((s) => s.status === "in_transit" || s.status === "hub_received" || s.status === "out_for_delivery").length;
+    const pendingBooking = all.filter(
+      (s) => s.status === "pending_booking" || s.status === "draft",
+    ).length;
+    const booked = all.filter(
+      (s) => s.status === "booked" || s.status === "pickup_requested" || s.status === "picked_up",
+    ).length;
+    const inTransit = all.filter(
+      (s) =>
+        s.status === "in_transit" || s.status === "hub_received" || s.status === "out_for_delivery",
+    ).length;
     const delivered = all.filter((s) => s.status === "delivered").length;
     const partialDelivered = all.filter((s) => s.status === "partial_delivered").length;
     const cancelled = all.filter((s) => s.status === "cancelled").length;
@@ -42,7 +49,8 @@ export class DeliveryAnalyticsService {
     const failedBooking = all.filter((s) => s.status === "failed").length;
 
     const total = all.length;
-    const successRatePercent = total > 0 ? Math.round(((delivered + partialDelivered) / total) * 100) : 100;
+    const successRatePercent =
+      total > 0 ? Math.round(((delivered + partialDelivered) / total) * 100) : 100;
     const returnRatePercent = total > 0 ? Math.round((returned / total) * 100) : 0;
 
     let codCollectedCents = 0;

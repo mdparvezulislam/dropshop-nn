@@ -21,11 +21,13 @@ export class SecurityEventRepository extends BaseRepository<SecurityEventDocumen
       metadata: doc.metadata ? Object.fromEntries(doc.metadata as any) : {},
       ipAddress: doc.ipAddress ?? undefined,
       userAgent: doc.userAgent ?? undefined,
-      deviceInfo: doc.deviceInfo ? {
-        type: doc.deviceInfo.type as any,
-        os: doc.deviceInfo.os as any,
-        browser: doc.deviceInfo.browser as any,
-      } : undefined,
+      deviceInfo: doc.deviceInfo
+        ? {
+            type: doc.deviceInfo.type as any,
+            os: doc.deviceInfo.os as any,
+            browser: doc.deviceInfo.browser as any,
+          }
+        : undefined,
       resolved: doc.resolved,
       resolvedAt: doc.resolvedAt ?? undefined,
       resolvedBy: doc.resolvedBy ?? undefined,
@@ -54,7 +56,10 @@ export class SecurityEventRepository extends BaseRepository<SecurityEventDocumen
     }
   }
 
-  async findByEventType(eventType: string, options?: DatabaseQueryOptions): Promise<SecurityEvent[]> {
+  async findByEventType(
+    eventType: string,
+    options?: DatabaseQueryOptions,
+  ): Promise<SecurityEvent[]> {
     try {
       await this.ensureConnected();
       const query = SecurityEventModel.find({ eventType }).session(options?.session || null);

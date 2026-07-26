@@ -20,10 +20,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
   }, [status, router]);
 
   useEffect(() => {
-    document.documentElement.style.setProperty(
-      "--account-sidebar-w",
-      collapsed ? "4rem" : "15rem",
-    );
+    document.documentElement.style.setProperty("--account-sidebar-w", collapsed ? "4rem" : "15rem");
   }, [collapsed]);
 
   if (status === "loading") {
@@ -48,9 +45,7 @@ export default function AccountLayout({ children }: { children: React.ReactNode 
           "md:pl-[var(--account-sidebar-w)]",
         )}
       >
-        <div className="mx-auto w-full max-w-(--content-max) px-4 sm:px-6 lg:px-8">
-          {children}
-        </div>
+        <div className="mx-auto w-full max-w-(--content-max) px-4 sm:px-6 lg:px-8">{children}</div>
       </main>
     </div>
   );

@@ -38,14 +38,18 @@ export class WorkflowRepository extends BaseRepository<WorkflowDocument, Workflo
     const regex = new RegExp(query, "i");
     const all = await this.find({});
     return all
-      .filter((w) => regex.test(w.name) || regex.test(w.key) || (w.description && regex.test(w.description)) || w.tags.some((t) => regex.test(t)))
+      .filter(
+        (w) =>
+          regex.test(w.name) ||
+          regex.test(w.key) ||
+          (w.description && regex.test(w.description)) ||
+          w.tags.some((t) => regex.test(t)),
+      )
       .slice(0, limit);
   }
 
   async countByStatus(): Promise<Record<string, number>> {
-    const counts = await this.model.aggregate([
-      { $group: { _id: "$status", count: { $sum: 1 } } },
-    ]);
+    const counts = await this.model.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]);
     const result: Record<string, number> = { draft: 0, active: 0, paused: 0, archived: 0 };
     for (const c of counts) {
       result[c._id] = c.count;

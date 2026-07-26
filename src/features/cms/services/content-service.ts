@@ -171,10 +171,7 @@ export class ContentService {
     } as any);
   }
 
-  async listRelatedBlog(
-    post: CmsContent,
-    limit = 4,
-  ): Promise<CmsContent[]> {
+  async listRelatedBlog(post: CmsContent, limit = 4): Promise<CmsContent[]> {
     const byCategory = post.category
       ? await this.repo.list(
           { type: "blog", status: "published", category: post.category },

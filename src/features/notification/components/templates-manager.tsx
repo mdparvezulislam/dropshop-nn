@@ -59,7 +59,7 @@ export function TemplatesManager(): React.ReactElement {
       locale: selected.locale,
     });
     setSaving(false);
-    setMessage(res.success ? "Template saved." : res.error ?? "Save failed");
+    setMessage(res.success ? "Template saved." : (res.error ?? "Save failed"));
     if (res.success) load();
   };
 
@@ -81,7 +81,11 @@ export function TemplatesManager(): React.ReactElement {
           </p>
         </div>
         <Button size="sm" onClick={save} disabled={saving || !selected} className="gap-1.5">
-          {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+          {saving ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Save className="h-3.5 w-3.5" />
+          )}
           Save template
         </Button>
       </div>

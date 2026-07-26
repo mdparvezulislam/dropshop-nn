@@ -15,7 +15,10 @@ function toVersionDomain(doc: WorkflowVersionDocument): WorkflowVersion {
   };
 }
 
-export class WorkflowVersionRepository extends BaseRepository<WorkflowVersionDocument, WorkflowVersion> {
+export class WorkflowVersionRepository extends BaseRepository<
+  WorkflowVersionDocument,
+  WorkflowVersion
+> {
   constructor() {
     super(WorkflowVersionModel, toVersionDomain);
   }
@@ -26,7 +29,7 @@ export class WorkflowVersionRepository extends BaseRepository<WorkflowVersionDoc
 
   async findLatest(workflowId: string): Promise<WorkflowVersion | null> {
     const all = await this.find({ workflowId });
-    return all.length > 0 ? all.reduce((a, b) => a.version > b.version ? a : b) : null;
+    return all.length > 0 ? all.reduce((a, b) => (a.version > b.version ? a : b)) : null;
   }
 
   async findVersion(workflowId: string, version: number): Promise<WorkflowVersion | null> {

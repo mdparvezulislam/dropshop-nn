@@ -1,10 +1,17 @@
 import { BaseRepository } from "@/lib/database/generic-repository";
 import { PricingProfileModel, PricingProfileDocument } from "./profile-model";
-import { PricingProfile, ProfileMarkupRule, ProfileDiscountRule } from "../domain/pricing-profile-entity";
+import {
+  PricingProfile,
+  ProfileMarkupRule,
+  ProfileDiscountRule,
+} from "../domain/pricing-profile-entity";
 import { logger } from "@/lib/utils/logger";
 import { DatabaseError } from "@/lib/errors/app-error";
 
-export class PricingProfileRepository extends BaseRepository<PricingProfileDocument, PricingProfile> {
+export class PricingProfileRepository extends BaseRepository<
+  PricingProfileDocument,
+  PricingProfile
+> {
   constructor() {
     super(PricingProfileModel, PricingProfileRepository.mapToDomain);
   }

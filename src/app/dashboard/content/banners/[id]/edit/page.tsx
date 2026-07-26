@@ -18,10 +18,7 @@ export default async function EditBannerPage({ params }: PageProps) {
   const { id } = await params;
   const service = new ContentService();
   const content = await service.getById(id);
-  if (
-    !content ||
-    !["banner", "announcement", "campaign", "flash_sale"].includes(content.type)
-  ) {
+  if (!content || !["banner", "announcement", "campaign", "flash_sale"].includes(content.type)) {
     notFound();
   }
   return (

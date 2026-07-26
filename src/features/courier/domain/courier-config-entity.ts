@@ -1,13 +1,7 @@
 import { BaseDBEntity } from "@/lib/database/types";
 
 export type CourierProviderName =
-  | "steadfast"
-  | "pathao"
-  | "redx"
-  | "ecourier"
-  | "paperfly"
-  | "sundarban"
-  | "custom";
+  "steadfast" | "pathao" | "redx" | "ecourier" | "paperfly" | "sundarban" | "custom";
 
 export interface PathaoCredentials {
   clientId: string;

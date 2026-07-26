@@ -2,12 +2,7 @@ import { BaseRepository } from "@/lib/database/generic-repository";
 import { StaffAssignmentModel } from "./staff-model";
 import type { BaseDocument } from "@/lib/database/types";
 
-export type StaffRole =
-  | "picker"
-  | "packer"
-  | "courier_manager"
-  | "customer_support"
-  | "manager";
+export type StaffRole = "picker" | "packer" | "courier_manager" | "customer_support" | "manager";
 
 export interface StaffAssignmentDocument extends BaseDocument {
   orderId: string;
@@ -75,10 +70,7 @@ export class StaffRepository extends BaseRepository<
     return this.find({ orderId }, { sort: { createdAt: -1 } } as any);
   }
 
-  async findByStaff(
-    staffId: string,
-    role?: StaffRole,
-  ): Promise<StaffAssignmentEntity[]> {
+  async findByStaff(staffId: string, role?: StaffRole): Promise<StaffAssignmentEntity[]> {
     const filter: Record<string, unknown> = { staffId };
     if (role) filter.role = role;
     return this.find(filter, { sort: { createdAt: -1 } } as any);

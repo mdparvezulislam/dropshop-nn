@@ -1,8 +1,5 @@
 import { BaseRepository } from "@/lib/database/generic-repository";
-import {
-  AnalyticsSnapshotModel,
-  type AnalyticsSnapshotDocument,
-} from "./analytics-snapshot-model";
+import { AnalyticsSnapshotModel, type AnalyticsSnapshotDocument } from "./analytics-snapshot-model";
 import type { AnalyticsSnapshot } from "../domain/analytics-entity";
 
 function mapSnapshot(doc: any): AnalyticsSnapshot {

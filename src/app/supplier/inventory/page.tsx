@@ -26,20 +26,23 @@ export default function SupplierInventoryPage(): React.ReactElement {
   React.useEffect(() => {
     async function load() {
       try {
-        const { listInventoryAction } = await import("@/features/inventory/actions/inventory-actions");
+        const { listInventoryAction } =
+          await import("@/features/inventory/actions/inventory-actions");
         const res = await listInventoryAction({ limit: 100 });
         if (res.success && res.data) {
           const raw = res.data as any;
           const items = raw?.items ?? (Array.isArray(raw) ? raw : []);
-          setRows(items.map((inv: any) => ({
-            id: inv.id ?? inv._id,
-            productName: inv.productName ?? inv.product?.name ?? "—",
-            sku: inv.sku ?? inv.variantSku ?? "—",
-            available: inv.available ?? inv.onHand ?? 0,
-            reserved: inv.reserved ?? 0,
-            incoming: inv.incoming ?? 0,
-            status: inv.status ?? "active",
-          })));
+          setRows(
+            items.map((inv: any) => ({
+              id: inv.id ?? inv._id,
+              productName: inv.productName ?? inv.product?.name ?? "—",
+              sku: inv.sku ?? inv.variantSku ?? "—",
+              available: inv.available ?? inv.onHand ?? 0,
+              reserved: inv.reserved ?? 0,
+              incoming: inv.incoming ?? 0,
+              status: inv.status ?? "active",
+            })),
+          );
         }
       } catch {
         toast.error("Failed to load inventory");
@@ -65,7 +68,11 @@ export default function SupplierInventoryPage(): React.ReactElement {
       id: "available",
       header: "Available",
       cell: (r) => (
-        <span className={r.available <= 0 ? "text-destructive font-medium tabular-nums" : "tabular-nums"}>
+        <span
+          className={
+            r.available <= 0 ? "text-destructive font-medium tabular-nums" : "tabular-nums"
+          }
+        >
           {r.available}
         </span>
       ),
@@ -99,9 +106,23 @@ export default function SupplierInventoryPage(): React.ReactElement {
         ) : (
           <>
             <StatCard label="Total SKUs" value={rows.length} icon={Boxes} />
-            <StatCard label="In Stock" value={rows.filter((r) => r.available > 0).length} accent="success" />
-            <StatCard label="Low Stock" value={rows.filter((r) => r.available > 0 && r.available < 10).length} icon={AlertTriangle} accent="warning" />
-            <StatCard label="Out of Stock" value={rows.filter((r) => r.available <= 0).length} icon={AlertTriangle} accent="danger" />
+            <StatCard
+              label="In Stock"
+              value={rows.filter((r) => r.available > 0).length}
+              accent="success"
+            />
+            <StatCard
+              label="Low Stock"
+              value={rows.filter((r) => r.available > 0 && r.available < 10).length}
+              icon={AlertTriangle}
+              accent="warning"
+            />
+            <StatCard
+              label="Out of Stock"
+              value={rows.filter((r) => r.available <= 0).length}
+              icon={AlertTriangle}
+              accent="danger"
+            />
           </>
         )
       }

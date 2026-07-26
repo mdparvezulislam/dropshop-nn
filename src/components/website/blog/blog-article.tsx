@@ -29,10 +29,7 @@ interface BlogArticleProps {
 export function BlogArticle({ post, related }: BlogArticleProps): React.ReactElement {
   const { track } = useAnalytics();
   const toc = useMemo(() => extractTableOfContents(post.bodyHtml), [post.bodyHtml]);
-  const bodyHtml = useMemo(
-    () => injectHeadingIds(post.bodyHtml, toc),
-    [post.bodyHtml, toc],
-  );
+  const bodyHtml = useMemo(() => injectHeadingIds(post.bodyHtml, toc), [post.bodyHtml, toc]);
   const [activeId, setActiveId] = useState<string | undefined>(toc[0]?.id);
   const readTime = formatReadingTime(estimateReadingTime(post.bodyHtml));
   const date = formatBlogDate(post.publishedAt ?? post.createdAt);
@@ -75,12 +72,7 @@ export function BlogArticle({ post, related }: BlogArticleProps): React.ReactEle
         transition={{ duration: 0.35 }}
         className="mx-auto max-w-(--content-max) px-4 py-8 sm:px-6 lg:px-8 lg:py-12"
       >
-        <Breadcrumb
-          items={[
-            { label: "Blog", href: "/blog" },
-            { label: post.title },
-          ]}
-        />
+        <Breadcrumb items={[{ label: "Blog", href: "/blog" }, { label: post.title }]} />
 
         <header className="mx-auto mt-6 max-w-3xl space-y-4 text-center">
           {post.category && (

@@ -131,11 +131,7 @@ export function ContentEditor({ type, initial, backHref }: ContentEditorProps) {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
-    >
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-bold tracking-tight sm:text-2xl">
@@ -151,7 +147,11 @@ export function ContentEditor({ type, initial, backHref }: ContentEditorProps) {
             </Button>
           )}
           <Button variant="outline" size="sm" onClick={() => handleSave(false)} disabled={loading}>
-            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+            {loading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Save className="h-3.5 w-3.5" />
+            )}
             Save draft
           </Button>
           <Button size="sm" onClick={() => handleSave(true)} disabled={loading}>
@@ -176,7 +176,12 @@ export function ContentEditor({ type, initial, backHref }: ContentEditorProps) {
             <CardContent className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="title">Title</Label>
-                <Input id="title" value={title} onChange={(e) => syncSlug(e.target.value)} required />
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => syncSlug(e.target.value)}
+                  required
+                />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="slug">Slug</Label>
@@ -258,8 +263,8 @@ export function ContentEditor({ type, initial, backHref }: ContentEditorProps) {
               </div>
               <Separator />
               <p className="text-[11px] text-muted-foreground">
-                Canonical, robots, Twitter cards, and JSON-LD are stored on publish and ready for public
-                pages.
+                Canonical, robots, Twitter cards, and JSON-LD are stored on publish and ready for
+                public pages.
               </p>
             </CardContent>
           </Card>

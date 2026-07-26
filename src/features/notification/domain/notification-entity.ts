@@ -109,10 +109,7 @@ export interface NotifyInput {
   forceChannels?: boolean;
 }
 
-export const DEFAULT_TEMPLATES: Omit<
-  NotificationTemplate,
-  keyof BaseDBEntity | "id"
->[] = [
+export const DEFAULT_TEMPLATES: Omit<NotificationTemplate, keyof BaseDBEntity | "id">[] = [
   {
     key: "order.created",
     name: "Order Created",

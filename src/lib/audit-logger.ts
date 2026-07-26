@@ -26,13 +26,17 @@ export class AuditLogger {
     });
 
     try {
-      await EventBus.publish("audit.entry_created", {
-        ...entry,
-        timestamp: new Date().toISOString(),
-      }, {
-        actor: { id: entry.actor.id, name: entry.actor.name, role: entry.actor.role },
-        source: "audit-logger",
-      });
+      await EventBus.publish(
+        "audit.entry_created",
+        {
+          ...entry,
+          timestamp: new Date().toISOString(),
+        },
+        {
+          actor: { id: entry.actor.id, name: entry.actor.name, role: entry.actor.role },
+          source: "audit-logger",
+        },
+      );
     } catch {
       // fire-and-forget: audit logging must never fail the main operation
     }

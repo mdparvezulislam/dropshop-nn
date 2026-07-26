@@ -1,5 +1,9 @@
 import mongoose, { Schema } from "mongoose";
-import { baseFieldsDefinition, baseSchemaOptions, softDeletePlugin } from "@/lib/database/base-schema";
+import {
+  baseFieldsDefinition,
+  baseSchemaOptions,
+  softDeletePlugin,
+} from "@/lib/database/base-schema";
 import type { BaseDocument } from "@/lib/database/types";
 import type { UserDBAddressFields } from "../domain/user-address-entity";
 
@@ -34,5 +38,6 @@ userAddressSchema.index({ userId: 1, isDefault: 1 });
 userAddressSchema.plugin(softDeletePlugin);
 
 export const UserAddressModel =
-  mongoose.models.UserAddress || mongoose.model<UserAddressDocument>("UserAddress", userAddressSchema);
+  mongoose.models.UserAddress ||
+  mongoose.model<UserAddressDocument>("UserAddress", userAddressSchema);
 export default UserAddressModel;

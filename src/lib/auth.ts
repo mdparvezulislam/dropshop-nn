@@ -23,13 +23,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return null;
           }
 
-          const { DatabaseConnectionManager } =
-            await import("@/lib/database/connection-manager");
+          const { DatabaseConnectionManager } = await import("@/lib/database/connection-manager");
           await DatabaseConnectionManager.connect();
 
           try {
-            const { ensureDemoAdminSeeded } =
-              await import("@/lib/database/seeds/demo-admin-seed");
+            const { ensureDemoAdminSeeded } = await import("@/lib/database/seeds/demo-admin-seed");
             await ensureDemoAdminSeeded();
           } catch (seedError) {
             logger.warn("Admin seed skipped", {

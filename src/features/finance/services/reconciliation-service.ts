@@ -56,7 +56,10 @@ export class ReconciliationService {
         walletBalanceCents: balances.availableBalance,
         computedLedgerBalanceCents: computedCleared,
         differenceCents: diff,
-        notes: status === "matched" ? "Wallet available balance equals cleared ledger sum" : `Mismatch detected: diff ${diff} cents`,
+        notes:
+          status === "matched"
+            ? "Wallet available balance equals cleared ledger sum"
+            : `Mismatch detected: diff ${diff} cents`,
         reconciledBy: "system",
         reconciledAt: new Date(),
       });
@@ -160,8 +163,11 @@ export class ReconciliationService {
 
     const walletMismatchCount = walletLogs.filter((l) => l.status === "mismatch").length;
     const isWalletIntegrity = walletMismatchCount === 0;
-    const isLedgerIntegrity = ledgerResult.brokenReferences.length === 0 && ledgerResult.duplicateLedgerEntries === 0;
-    const isSettlementIntegrity = settlementResult.missingSettlementOrders.length === 0 && settlementResult.duplicateSettlementsCount === 0;
+    const isLedgerIntegrity =
+      ledgerResult.brokenReferences.length === 0 && ledgerResult.duplicateLedgerEntries === 0;
+    const isSettlementIntegrity =
+      settlementResult.missingSettlementOrders.length === 0 &&
+      settlementResult.duplicateSettlementsCount === 0;
 
     let score = 100;
     score -= walletMismatchCount * 15;
@@ -181,10 +187,17 @@ export class ReconciliationService {
     else checkSummary.push(`⚠ ${walletMismatchCount} wallet balance mismatches detected`);
 
     if (isLedgerIntegrity) checkSummary.push("✓ Ledger entries structure and references intact");
-    else checkSummary.push(`⚠ ${ledgerResult.brokenReferences.length} broken references found in ledger`);
+    else
+      checkSummary.push(
+        `⚠ ${ledgerResult.brokenReferences.length} broken references found in ledger`,
+      );
 
-    if (isSettlementIntegrity) checkSummary.push("✓ All completed order profit settlements reconciled");
-    else checkSummary.push(`⚠ ${settlementResult.missingSettlementOrders.length} completed orders pending settlement`);
+    if (isSettlementIntegrity)
+      checkSummary.push("✓ All completed order profit settlements reconciled");
+    else
+      checkSummary.push(
+        `⚠ ${settlementResult.missingSettlementOrders.length} completed orders pending settlement`,
+      );
 
     if (score < 75) {
       await EventBus.publish(
@@ -200,7 +213,8 @@ export class ReconciliationService {
       ledgerIntegrity: isLedgerIntegrity,
       walletIntegrity: isWalletIntegrity,
       settlementIntegrity: isSettlementIntegrity,
-      duplicateTransactionsCount: ledgerResult.duplicateLedgerEntries + settlementResult.duplicateSettlementsCount,
+      duplicateTransactionsCount:
+        ledgerResult.duplicateLedgerEntries + settlementResult.duplicateSettlementsCount,
       pendingErrorCount: walletMismatchCount + ledgerResult.brokenReferences.length,
       unreconciledCount: walletMismatchCount + settlementResult.missingSettlementOrders.length,
       lastCheckedAt: new Date(),

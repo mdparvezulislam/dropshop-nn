@@ -2,14 +2,7 @@
 
 import * as React from "react";
 import { toast } from "sonner";
-import {
-  Bell,
-  Globe,
-  Palette,
-  Save,
-  DollarSign,
-  Package,
-} from "lucide-react";
+import { Bell, Globe, Palette, Save, DollarSign, Package } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,8 +54,15 @@ export default function WholesaleSettingsPage(): React.ReactElement {
               </Select>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="defaultMoq" className="text-xs">Default MOQ Override</Label>
-              <Input id="defaultMoq" type="number" min="1" placeholder="Leave empty to use product MOQ" />
+              <Label htmlFor="defaultMoq" className="text-xs">
+                Default MOQ Override
+              </Label>
+              <Input
+                id="defaultMoq"
+                type="number"
+                min="1"
+                placeholder="Leave empty to use product MOQ"
+              />
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm">Auto-submit quotations</span>

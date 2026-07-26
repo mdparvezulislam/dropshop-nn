@@ -43,38 +43,45 @@ export class CommissionService {
       const balancesBefore = await this.walletService.getBalances(params.walletId);
       const refNum = `REF-LED-COMM-${Math.floor(100000 + Math.random() * 900000)}`;
 
-      const entry = await this.ledgerRepository.create({
-        referenceNumber: refNum,
-        walletId: params.walletId,
-        workspaceId: wallet.workspaceId,
-        amount: params.amount,
-        currency: wallet.currency ?? "BDT",
-        type: "commission",
-        status: "cleared",
-        sourceModule: "commission",
-        referenceType: params.orderId ? "order" : "manual",
-        referenceId: params.orderId,
-        orderId: params.orderId,
-        description: params.description ?? `${params.commissionType.toUpperCase()} Commission payout`,
-        createdBy: params.actorId ?? "system",
-        metadata: {
-          commissionType: params.commissionType,
+      const entry = await this.ledgerRepository.create(
+        {
+          referenceNumber: refNum,
+          walletId: params.walletId,
+          workspaceId: wallet.workspaceId,
+          amount: params.amount,
+          currency: wallet.currency ?? "BDT",
+          type: "commission",
+          status: "cleared",
+          sourceModule: "commission",
+          referenceType: params.orderId ? "order" : "manual",
+          referenceId: params.orderId,
           orderId: params.orderId,
+          description:
+            params.description ?? `${params.commissionType.toUpperCase()} Commission payout`,
+          createdBy: params.actorId ?? "system",
+          metadata: {
+            commissionType: params.commissionType,
+            orderId: params.orderId,
+          },
         },
-      }, { session });
+        { session },
+      );
 
       // Audit Log
-      await this.financeAuditRepository.create({
-        referenceNumber: refNum,
-        action: "commission_paid",
-        walletId: params.walletId,
-        actorId: params.actorId ?? "system",
-        amount: params.amount,
-        oldBalance: balancesBefore.availableBalance,
-        newBalance: balancesBefore.availableBalance + params.amount,
-        currency: wallet.currency ?? "BDT",
-        reason: `${params.commissionType.toUpperCase()} commission credit of ৳${(params.amount / 100).toFixed(2)}`,
-      }, { session });
+      await this.financeAuditRepository.create(
+        {
+          referenceNumber: refNum,
+          action: "commission_paid",
+          walletId: params.walletId,
+          actorId: params.actorId ?? "system",
+          amount: params.amount,
+          oldBalance: balancesBefore.availableBalance,
+          newBalance: balancesBefore.availableBalance + params.amount,
+          currency: wallet.currency ?? "BDT",
+          reason: `${params.commissionType.toUpperCase()} commission credit of ৳${(params.amount / 100).toFixed(2)}`,
+        },
+        { session },
+      );
 
       await EventBus.publish(
         "finance.commission_paid",

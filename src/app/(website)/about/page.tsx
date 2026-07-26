@@ -6,7 +6,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "About Us - DropshopNN Bangladesh",
-  description: "Learn about DropshopNN, Bangladesh's enterprise commerce operating system connecting official importers, resellers, and wholesale traders.",
+  description:
+    "Learn about DropshopNN, Bangladesh's enterprise commerce operating system connecting official importers, resellers, and wholesale traders.",
 };
 
 export default async function AboutPage() {
@@ -24,7 +25,8 @@ export default async function AboutPage() {
             Enterprise Commerce OS for Bangladesh
           </h1>
           <p className="text-sm text-slate-400 leading-relaxed">
-            Unifying supply chain logistics, wholesale pricing, and automated dropshipping fulfillment for Bangladesh e-commerce.
+            Unifying supply chain logistics, wholesale pricing, and automated dropshipping
+            fulfillment for Bangladesh e-commerce.
           </p>
         </div>
 
@@ -34,21 +36,24 @@ export default async function AboutPage() {
             <ShieldCheck className="w-8 h-8 text-amber-400 mb-3" />
             <h3 className="text-base font-bold text-white mb-1">Official Importers Only</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Direct sourcing from verified Bangladesh brand distributors with guaranteed 1 Year Warranty.
+              Direct sourcing from verified Bangladesh brand distributors with guaranteed 1 Year
+              Warranty.
             </p>
           </div>
           <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 backdrop-blur-md">
             <Truck className="w-8 h-8 text-amber-400 mb-3" />
             <h3 className="text-base font-bold text-white mb-1">Automated Delivery</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Seamless API integration with Pathao & Steadfast for 24h Dhaka and 48h nationwide delivery.
+              Seamless API integration with Pathao & Steadfast for 24h Dhaka and 48h nationwide
+              delivery.
             </p>
           </div>
           <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 backdrop-blur-md">
             <Users className="w-8 h-8 text-amber-400 mb-3" />
             <h3 className="text-base font-bold text-white mb-1">Multi-Tier Ecosystem</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Empowering retail buyers, reseller entrepreneurs, and wholesale traders on a single platform.
+              Empowering retail buyers, reseller entrepreneurs, and wholesale traders on a single
+              platform.
             </p>
           </div>
         </div>

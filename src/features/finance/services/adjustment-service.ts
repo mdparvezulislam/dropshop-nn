@@ -48,41 +48,47 @@ export class AdjustmentService {
       const refNum = `REF-LED-ADJ-${Math.floor(100000 + Math.random() * 900000)}`;
 
       // 1. Create cleared ledger credit entry
-      const entry = await this.ledgerRepository.create({
-        referenceNumber: refNum,
-        walletId: params.walletId,
-        workspaceId: wallet.workspaceId,
-        amount: params.amount,
-        currency: wallet.currency ?? "BDT",
-        type: "manual_credit",
-        status: "cleared",
-        sourceModule: "manual_adjustment",
-        referenceType: "manual",
-        description: `Admin manual credit: ${params.reason}`,
-        createdBy: params.actorId,
-        metadata: {
-          reason: params.reason,
-          internalNote: params.internalNote,
-          actorRole: params.actorRole,
+      const entry = await this.ledgerRepository.create(
+        {
+          referenceNumber: refNum,
+          walletId: params.walletId,
+          workspaceId: wallet.workspaceId,
+          amount: params.amount,
+          currency: wallet.currency ?? "BDT",
+          type: "manual_credit",
+          status: "cleared",
+          sourceModule: "manual_adjustment",
+          referenceType: "manual",
+          description: `Admin manual credit: ${params.reason}`,
+          createdBy: params.actorId,
+          metadata: {
+            reason: params.reason,
+            internalNote: params.internalNote,
+            actorRole: params.actorRole,
+          },
         },
-      }, { session });
+        { session },
+      );
 
       const newBalance = balancesBefore.availableBalance + params.amount;
 
       // 2. Audit Log Entry
-      await this.financeAuditRepository.create({
-        referenceNumber: refNum,
-        action: "manual_adjustment",
-        walletId: params.walletId,
-        actorId: params.actorId,
-        actorRole: params.actorRole,
-        amount: params.amount,
-        oldBalance: balancesBefore.availableBalance,
-        newBalance,
-        currency: wallet.currency ?? "BDT",
-        reason: `Manual Credit: ${params.reason}`,
-        internalNotes: params.internalNote,
-      }, { session });
+      await this.financeAuditRepository.create(
+        {
+          referenceNumber: refNum,
+          action: "manual_adjustment",
+          walletId: params.walletId,
+          actorId: params.actorId,
+          actorRole: params.actorRole,
+          amount: params.amount,
+          oldBalance: balancesBefore.availableBalance,
+          newBalance,
+          currency: wallet.currency ?? "BDT",
+          reason: `Manual Credit: ${params.reason}`,
+          internalNotes: params.internalNote,
+        },
+        { session },
+      );
 
       // 3. EventBus publication
       await EventBus.publish(
@@ -135,41 +141,47 @@ export class AdjustmentService {
       const refNum = `REF-LED-ADJ-${Math.floor(100000 + Math.random() * 900000)}`;
 
       // 1. Create cleared ledger debit entry
-      const entry = await this.ledgerRepository.create({
-        referenceNumber: refNum,
-        walletId: params.walletId,
-        workspaceId: wallet.workspaceId,
-        amount: debitAmount,
-        currency: wallet.currency ?? "BDT",
-        type: "manual_debit",
-        status: "cleared",
-        sourceModule: "manual_adjustment",
-        referenceType: "manual",
-        description: `Admin manual debit: ${params.reason}`,
-        createdBy: params.actorId,
-        metadata: {
-          reason: params.reason,
-          internalNote: params.internalNote,
-          actorRole: params.actorRole,
+      const entry = await this.ledgerRepository.create(
+        {
+          referenceNumber: refNum,
+          walletId: params.walletId,
+          workspaceId: wallet.workspaceId,
+          amount: debitAmount,
+          currency: wallet.currency ?? "BDT",
+          type: "manual_debit",
+          status: "cleared",
+          sourceModule: "manual_adjustment",
+          referenceType: "manual",
+          description: `Admin manual debit: ${params.reason}`,
+          createdBy: params.actorId,
+          metadata: {
+            reason: params.reason,
+            internalNote: params.internalNote,
+            actorRole: params.actorRole,
+          },
         },
-      }, { session });
+        { session },
+      );
 
       const newBalance = balancesBefore.availableBalance - params.amount;
 
       // 2. Audit Log Entry
-      await this.financeAuditRepository.create({
-        referenceNumber: refNum,
-        action: "manual_adjustment",
-        walletId: params.walletId,
-        actorId: params.actorId,
-        actorRole: params.actorRole,
-        amount: debitAmount,
-        oldBalance: balancesBefore.availableBalance,
-        newBalance,
-        currency: wallet.currency ?? "BDT",
-        reason: `Manual Debit: ${params.reason}`,
-        internalNotes: params.internalNote,
-      }, { session });
+      await this.financeAuditRepository.create(
+        {
+          referenceNumber: refNum,
+          action: "manual_adjustment",
+          walletId: params.walletId,
+          actorId: params.actorId,
+          actorRole: params.actorRole,
+          amount: debitAmount,
+          oldBalance: balancesBefore.availableBalance,
+          newBalance,
+          currency: wallet.currency ?? "BDT",
+          reason: `Manual Debit: ${params.reason}`,
+          internalNotes: params.internalNote,
+        },
+        { session },
+      );
 
       // 3. EventBus publication
       await EventBus.publish(

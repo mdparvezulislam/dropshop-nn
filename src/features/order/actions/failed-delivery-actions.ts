@@ -3,10 +3,7 @@
 import { auth } from "@/lib/auth";
 import { checkPermission } from "@/lib/check-permission";
 import { FailedDeliveryService } from "../services/failed-delivery-service";
-import {
-  createFailedDeliverySchema,
-  resolveFailedDeliverySchema,
-} from "../types/validation";
+import { createFailedDeliverySchema, resolveFailedDeliverySchema } from "../types/validation";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/utils/logger";
 
@@ -39,7 +36,11 @@ export async function resolveFailedDeliveryAction(formData: unknown): Promise<{
   try {
     const validated = resolveFailedDeliverySchema.parse(formData);
     const service = new FailedDeliveryService();
-    const result = await service.resolve(validated.failedDeliveryId, validated.nextAction, validated.notes);
+    const result = await service.resolve(
+      validated.failedDeliveryId,
+      validated.nextAction,
+      validated.notes,
+    );
     revalidatePath("/dashboard/orders");
     return { success: true, data: result };
   } catch (error: any) {

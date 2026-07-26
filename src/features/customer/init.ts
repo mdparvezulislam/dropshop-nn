@@ -14,11 +14,14 @@ export function registerCustomerFeatureFlags(): void {
     FeatureFlags.register({
       key: "customer-management",
       name: "Customer Relationship Engine",
-      description: "Enterprise Customer Profiles, Timeline auditing, Segment tagging, and Statistics",
+      description:
+        "Enterprise Customer Profiles, Timeline auditing, Segment tagging, and Statistics",
       defaultState: "on",
     });
   } catch (err) {
-    logger.warn("Customer feature flags already registered or minor bootstrapping error occurred", { error: err });
+    logger.warn("Customer feature flags already registered or minor bootstrapping error occurred", {
+      error: err,
+    });
   }
 
   // Event Subscriptions

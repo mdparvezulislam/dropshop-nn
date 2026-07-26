@@ -56,7 +56,9 @@ export function BlogListing({
       className="mx-auto max-w-(--content-max) px-4 py-10 sm:px-6 lg:px-8 lg:py-14 bg-[hsl(0_0%_98%)] text-slate-900 min-h-screen"
     >
       <div className="mx-auto max-w-2xl text-center space-y-2">
-        <h1 className="text-3xl font-black tracking-tight sm:text-4xl text-slate-900">DropshopNN ব্লগ ও আর্টিক্যালের ক্যাটালগ</h1>
+        <h1 className="text-3xl font-black tracking-tight sm:text-4xl text-slate-900">
+          DropshopNN ব্লগ ও আর্টিক্যালের ক্যাটালগ
+        </h1>
         <p className="mt-2 text-xs sm:text-sm font-bold text-slate-600">
           বাংলাদেশে ড্রপশিপিং, ই-কমার্স ব্যবসা বৃদ্ধি ও পাইকারি কেনাকাটার জন্য সেরা গাইডলাইন।
         </p>
@@ -149,7 +151,10 @@ export function BlogListing({
       {posts.length === 0 ? (
         <div className="mt-12 rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center shadow-xs">
           <p className="text-xs font-bold text-slate-600">কোনো আর্টিক্যাল পাওয়া যায়নি।</p>
-          <Link href="/blog" className="mt-3 inline-block text-xs font-extrabold text-amber-600 hover:underline">
+          <Link
+            href="/blog"
+            className="mt-3 inline-block text-xs font-extrabold text-amber-600 hover:underline"
+          >
             ফিল্টার রিমুভ করুন
           </Link>
         </div>

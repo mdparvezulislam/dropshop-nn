@@ -66,7 +66,11 @@ export class WorkflowEngine {
     return doc;
   }
 
-  async update(id: string, input: UpdateWorkflowInput, userId?: string): Promise<WorkflowDefinition | null> {
+  async update(
+    id: string,
+    input: UpdateWorkflowInput,
+    userId?: string,
+  ): Promise<WorkflowDefinition | null> {
     const existing = await workflowRepository.findById(id);
     if (!existing) return null;
 
@@ -125,7 +129,7 @@ export class WorkflowEngine {
     input: Record<string, unknown>,
     trigger: TriggerType,
     initiatedBy?: string,
-    correlationId?: string
+    correlationId?: string,
   ): Promise<WorkflowExecution> {
     const workflow = await workflowRepository.findById(workflowId);
     if (!workflow || workflow.status !== "active") {
@@ -160,8 +164,12 @@ export class WorkflowEngine {
       return await this.processWorkflow(workflow, execution, input);
     } catch (error) {
       const err = error as Error;
-      await this.handleFailure(execution, { code: "EXECUTION_ERROR", message: err.message, timestamp: new Date() }, workflow);
-    EventBus.publish(AUTOMATION_DOMAIN_EVENTS.WORKFLOW_EXECUTION_FAILED, {
+      await this.handleFailure(
+        execution,
+        { code: "EXECUTION_ERROR", message: err.message, timestamp: new Date() },
+        workflow,
+      );
+      EventBus.publish(AUTOMATION_DOMAIN_EVENTS.WORKFLOW_EXECUTION_FAILED, {
         executionId: execution.id,
         workflowId,
         error: err.message,
@@ -173,7 +181,7 @@ export class WorkflowEngine {
   private async processWorkflow(
     workflow: WorkflowDefinition,
     execution: WorkflowExecution,
-    input: Record<string, unknown>
+    input: Record<string, unknown>,
   ): Promise<WorkflowExecution> {
     const ctx: ConditionContext = {
       event: input,
@@ -220,9 +228,10 @@ export class WorkflowEngine {
       // execution already saved
     }
 
-    const avgDuration = workflow.totalRuns > 0
-      ? (workflow.averageDuration * workflow.totalRuns + duration) / (workflow.totalRuns + 1)
-      : duration;
+    const avgDuration =
+      workflow.totalRuns > 0
+        ? (workflow.averageDuration * workflow.totalRuns + duration) / (workflow.totalRuns + 1)
+        : duration;
 
     await workflowRepository.update(workflow.id, {
       lastRunAt: now,
@@ -249,7 +258,7 @@ export class WorkflowEngine {
   private async executeAction(
     action: WorkflowAction,
     ctx: ConditionContext,
-    execution: WorkflowExecution
+    execution: WorkflowExecution,
   ): Promise<ExecutionStep> {
     const step: ExecutionStep = {
       id: `step-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -281,9 +290,7 @@ export class WorkflowEngine {
 
       step.status = "completed";
       step.completedAt = new Date();
-      step.duration = step.startedAt
-        ? step.completedAt.getTime() - step.startedAt.getTime()
-        : 0;
+      step.duration = step.startedAt ? step.completedAt.getTime() - step.startedAt.getTime() : 0;
       step.output = result;
 
       execution.output = { ...execution.output, [action.id]: result };
@@ -296,9 +303,7 @@ export class WorkflowEngine {
         timestamp: new Date(),
       };
       step.completedAt = new Date();
-      step.duration = step.startedAt
-        ? step.completedAt.getTime() - step.startedAt.getTime()
-        : 0;
+      step.duration = step.startedAt ? step.completedAt.getTime() - step.startedAt.getTime() : 0;
 
       EventBus.publish(AUTOMATION_DOMAIN_EVENTS.WORKFLOW_STEP_FAILED, {
         executionId: execution.id,
@@ -327,7 +332,7 @@ export class WorkflowEngine {
   private async executeStep(
     step: WorkflowStep,
     ctx: ConditionContext,
-    execution: WorkflowExecution
+    execution: WorkflowExecution,
   ): Promise<ExecutionStep> {
     const execStep: ExecutionStep = {
       id: `step-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -385,16 +390,20 @@ export class WorkflowEngine {
     }
 
     try {
-      return await this.processWorkflow(workflow, {
-        ...execution,
-        status: "retrying",
-        retryCount: execution.retryCount + 1,
-      }, execution.input);
+      return await this.processWorkflow(
+        workflow,
+        {
+          ...execution,
+          status: "retrying",
+          retryCount: execution.retryCount + 1,
+        },
+        execution.input,
+      );
     } catch (error) {
       await this.handleFailure(
         { ...execution, retryCount: execution.retryCount + 1 },
         { code: "RETRY_FAILED", message: (error as Error).message, timestamp: new Date() },
-        workflow
+        workflow,
       );
       return null;
     }
@@ -419,7 +428,7 @@ export class WorkflowEngine {
   private async handleFailure(
     execution: WorkflowExecution,
     error: ExecutionError,
-    workflow: WorkflowDefinition
+    workflow: WorkflowDefinition,
   ): Promise<void> {
     const newRetryCount = execution.retryCount + 1;
     const shouldRetry = newRetryCount <= execution.maxRetries;

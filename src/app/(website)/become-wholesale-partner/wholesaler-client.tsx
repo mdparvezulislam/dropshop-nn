@@ -33,7 +33,8 @@ export function WholesalerApplicationPageClient({ initialData }: WholesalerClien
           হোলসেল ও বি২বি পার্টনারশিপ
         </h1>
         <p className="text-xs sm:text-sm text-slate-600 font-bold max-w-2xl mx-auto leading-relaxed">
-          আপনার খুচরা দোকান, অনলাইন শপ বা ডিস্ট্রিবিউশন বিজনেসের জন্য সরাসরি ডাইরেক্ট ইম্পোর্টার রেটে ইলেকট্রনিক্স ও গ্যাজেট বাল্ক ক্রয় করুন।
+          আপনার খুচরা দোকান, অনলাইন শপ বা ডিস্ট্রিবিউশন বিজনেসের জন্য সরাসরি ডাইরেক্ট ইম্পোর্টার
+          রেটে ইলেকট্রনিক্স ও গ্যাজেট বাল্ক ক্রয় করুন।
         </p>
       </div>
 
@@ -70,7 +71,8 @@ export function WholesalerApplicationPageClient({ initialData }: WholesalerClien
             হোলসেল আবেদনের জন্য লগইন করুন
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 font-bold max-w-md mx-auto">
-            আপনার যদি পূর্বে কোনো অ্যাকাউন্ট থেকে থাকে তবে লগইন করুন, অথবা একটি নতুন অ্যাকাউন্ট তৈরি করুন।
+            আপনার যদি পূর্বে কোনো অ্যাকাউন্ট থেকে থাকে তবে লগইন করুন, অথবা একটি নতুন অ্যাকাউন্ট তৈরি
+            করুন।
           </p>
           <div className="flex flex-wrap justify-center gap-3 pt-2">
             <Link
@@ -94,7 +96,8 @@ export function WholesalerApplicationPageClient({ initialData }: WholesalerClien
             আপনি ইতোমধ্যে একজন অনুমোদিত হোলসেলার!
           </h2>
           <p className="text-xs sm:text-sm text-emerald-900 font-bold max-w-md mx-auto">
-            আপনার হোলসেল পোর্টালে প্রবেশ করে বাল্ক অর্ডার টিয়ার প্রাইসিং ও অফিসিয়াল ইনভয়েসিং সুবিধা ব্যবহার করুন।
+            আপনার হোলসেল পোর্টালে প্রবেশ করে বাল্ক অর্ডার টিয়ার প্রাইসিং ও অফিসিয়াল ইনভয়েসিং
+            সুবিধা ব্যবহার করুন।
           </p>
           <Link
             href="/wholesale"

@@ -18,7 +18,10 @@ export class NoteService {
     this.timelineService = new OrderTimelineService();
   }
 
-  async addNote(input: CreateOrderNoteInput, actor?: { id: string; name?: string; role?: string }): Promise<OrderNote> {
+  async addNote(
+    input: CreateOrderNoteInput,
+    actor?: { id: string; name?: string; role?: string },
+  ): Promise<OrderNote> {
     const order = await this.orderRepository.findById(input.orderId);
     if (!order) throw new NotFoundError("Order not found");
 

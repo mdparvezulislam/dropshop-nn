@@ -22,14 +22,19 @@ export class RateLimiter {
 
   static register(name: string, config: RateLimiterConfig): void {
     this.configs.set(name, config);
-    logger.info(`RateLimiter: registered "${name}" (${config.maxRequests} req / ${config.windowMs}ms)`);
+    logger.info(
+      `RateLimiter: registered "${name}" (${config.maxRequests} req / ${config.windowMs}ms)`,
+    );
   }
 
   static getConfig(name: string): RateLimiterConfig {
     return this.configs.get(name) ?? DEFAULT_RATE_LIMIT;
   }
 
-  static async check(key: string, limiterName: string = "default"): Promise<{ allowed: boolean; remaining: number; resetAt: number }> {
+  static async check(
+    key: string,
+    limiterName: string = "default",
+  ): Promise<{ allowed: boolean; remaining: number; resetAt: number }> {
     const config = this.getConfig(limiterName);
     const now = Date.now();
     const entry = STORE.get(key);

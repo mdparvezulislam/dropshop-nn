@@ -31,7 +31,8 @@ export class ProductRepository extends BaseRepository<ProductDocument, Product> 
     if (doc.featured && !inferredBadges.includes("featured")) inferredBadges.push("featured");
     if (doc.trending && !inferredBadges.includes("trending")) inferredBadges.push("trending");
     if (doc.flashSale && !inferredBadges.includes("flash_sale")) inferredBadges.push("flash_sale");
-    if (doc.newArrival && !inferredBadges.includes("new_arrival")) inferredBadges.push("new_arrival");
+    if (doc.newArrival && !inferredBadges.includes("new_arrival"))
+      inferredBadges.push("new_arrival");
 
     const description =
       doc.description ||
@@ -39,7 +40,8 @@ export class ProductRepository extends BaseRepository<ProductDocument, Product> 
       (typeof doc.content?.richDescription === "string" ? doc.content.richDescription : undefined);
 
     const metaTitle = doc.metaTitle || doc.seo?.metaTitle || doc.name;
-    const metaDescription = doc.metaDescription || doc.seo?.metaDescription || doc.shortDescription || "";
+    const metaDescription =
+      doc.metaDescription || doc.seo?.metaDescription || doc.shortDescription || "";
 
     const specifications =
       Array.isArray(doc.specifications) && doc.specifications.length > 0
@@ -49,12 +51,12 @@ export class ProductRepository extends BaseRepository<ProductDocument, Product> 
             group: s.group || "general",
           }))
         : doc.content?.specifications
-        ? doc.content.specifications.map((s: any) => ({
-            key: s.key,
-            value: s.value,
-            group: s.group || "general",
-          }))
-        : [];
+          ? doc.content.specifications.map((s: any) => ({
+              key: s.key,
+              value: s.value,
+              group: s.group || "general",
+            }))
+          : [];
 
     return {
       id: doc._id.toString(),

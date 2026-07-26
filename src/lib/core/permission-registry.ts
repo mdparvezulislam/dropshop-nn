@@ -88,7 +88,9 @@ export function buildPermission(module: string, resource: string, action: string
   return `${module.toLowerCase()}.${resource.toLowerCase()}.${action.toLowerCase()}`;
 }
 
-export function parsePermission(permission: string): { module: string; resource: string; action: string } | null {
+export function parsePermission(
+  permission: string,
+): { module: string; resource: string; action: string } | null {
   if (permission === "*") return { module: "*", resource: "*", action: "*" };
   const parts = permission.split(".");
   if (parts.length !== 3) {

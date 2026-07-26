@@ -45,7 +45,11 @@ export class CourierApiLogRepository extends BaseRepository<CourierApiLogDocumen
     super(CourierApiLogModel as any, mapToDomain);
   }
 
-  async listLogs(provider?: string, logType?: string, limit: number = 100): Promise<CourierApiLog[]> {
+  async listLogs(
+    provider?: string,
+    logType?: string,
+    limit: number = 100,
+  ): Promise<CourierApiLog[]> {
     await this.ensureConnected();
     const query: any = { isDeleted: { $ne: true } };
     if (provider && provider !== "all") query.provider = provider.toLowerCase();
@@ -87,10 +91,16 @@ export class CourierApiLogRepository extends BaseRepository<CourierApiLogDocumen
 
     const avgResponseTimeMs = timedCount > 0 ? Math.round(totalTime / timedCount) : 0;
 
-    const lastSuccess = await CourierApiLogModel.findOne({ provider: provider.toLowerCase(), success: true })
+    const lastSuccess = await CourierApiLogModel.findOne({
+      provider: provider.toLowerCase(),
+      success: true,
+    })
       .sort({ timestamp: -1 })
       .lean();
-    const lastErr = await CourierApiLogModel.findOne({ provider: provider.toLowerCase(), success: false })
+    const lastErr = await CourierApiLogModel.findOne({
+      provider: provider.toLowerCase(),
+      success: false,
+    })
       .sort({ timestamp: -1 })
       .lean();
 

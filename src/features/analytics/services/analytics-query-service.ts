@@ -25,11 +25,7 @@ function previousRange(range: DateRange): DateRange {
   };
 }
 
-export function resolveDateRange(input?: {
-  from?: Date;
-  to?: Date;
-  preset?: string;
-}): DateRange {
+export function resolveDateRange(input?: { from?: Date; to?: Date; preset?: string }): DateRange {
   const to = input?.to ? new Date(input.to) : new Date();
   to.setHours(23, 59, 59, 999);
 
@@ -152,17 +148,10 @@ export class AnalyticsQueryService {
         "metadata.query",
         8,
       ),
-      this.facts.topByField(
-        range.from,
-        range.to,
-        ANALYTICS_EVENT_NAMES.BLOG_VIEWED,
-        "entityId",
-        8,
-      ),
+      this.facts.topByField(range.from, range.to, ANALYTICS_EVENT_NAMES.BLOG_VIEWED, "entityId", 8),
     ]);
 
-    const conversionRate =
-      sessions > 0 ? Math.round((orders / sessions) * 1000) / 10 : 0;
+    const conversionRate = sessions > 0 ? Math.round((orders / sessions) * 1000) / 10 : 0;
     const cartAbandonmentRate =
       checkoutsStarted > 0
         ? Math.round(((checkoutsStarted - checkoutsCompleted) / checkoutsStarted) * 1000) / 10
@@ -247,11 +236,7 @@ export class AnalyticsQueryService {
     };
   }
 
-  async getSalesReport(rangeInput?: {
-    from?: Date;
-    to?: Date;
-    preset?: string;
-  }): Promise<{
+  async getSalesReport(rangeInput?: { from?: Date; to?: Date; preset?: string }): Promise<{
     range: { from: string; to: string };
     revenue: number;
     orders: number;
@@ -283,11 +268,7 @@ export class AnalyticsQueryService {
     };
   }
 
-  async getOrdersFunnel(rangeInput?: {
-    from?: Date;
-    to?: Date;
-    preset?: string;
-  }): Promise<{
+  async getOrdersFunnel(rangeInput?: { from?: Date; to?: Date; preset?: string }): Promise<{
     range: { from: string; to: string };
     steps: { key: string; label: string; value: number }[];
   }> {
@@ -301,9 +282,7 @@ export class AnalyticsQueryService {
       { key: ANALYTICS_EVENT_NAMES.ORDER_CANCELLED, label: "Cancelled" },
     ];
     const values = await Promise.all(
-      names.map((n) =>
-        this.facts.countInRange(range.from, range.to, { eventName: n.key }),
-      ),
+      names.map((n) => this.facts.countInRange(range.from, range.to, { eventName: n.key })),
     );
     return {
       range: { from: range.from.toISOString(), to: range.to.toISOString() },
@@ -311,11 +290,7 @@ export class AnalyticsQueryService {
     };
   }
 
-  async getCatalogInsights(rangeInput?: {
-    from?: Date;
-    to?: Date;
-    preset?: string;
-  }): Promise<{
+  async getCatalogInsights(rangeInput?: { from?: Date; to?: Date; preset?: string }): Promise<{
     productViews: number;
     searches: number;
     topProducts: RankedItem[];
@@ -360,11 +335,7 @@ export class AnalyticsQueryService {
     };
   }
 
-  async getContentInsights(rangeInput?: {
-    from?: Date;
-    to?: Date;
-    preset?: string;
-  }): Promise<{
+  async getContentInsights(rangeInput?: { from?: Date; to?: Date; preset?: string }): Promise<{
     blogViews: number;
     blogShares: number;
     cmsPublishes: number;
@@ -401,16 +372,10 @@ export class AnalyticsQueryService {
     };
   }
 
-  async exportEventsCsv(rangeInput?: {
-    from?: Date;
-    to?: Date;
-    preset?: string;
-  }): Promise<string> {
+  async exportEventsCsv(rangeInput?: { from?: Date; to?: Date; preset?: string }): Promise<string> {
     const range = resolveDateRange(rangeInput);
     const events = await this.facts.listRecent(500);
-    const filtered = events.filter(
-      (e) => e.timestamp >= range.from && e.timestamp <= range.to,
-    );
+    const filtered = events.filter((e) => e.timestamp >= range.from && e.timestamp <= range.to);
     const header = [
       "eventId",
       "eventName",

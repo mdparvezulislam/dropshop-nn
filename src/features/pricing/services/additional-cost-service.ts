@@ -8,7 +8,11 @@ export class AdditionalCostService {
     this.repo = new AdditionalCostRepository();
   }
 
-  async getTotalAdditionalCosts(productId: string, variantSku?: string, costBasis?: number): Promise<number> {
+  async getTotalAdditionalCosts(
+    productId: string,
+    variantSku?: string,
+    costBasis?: number,
+  ): Promise<number> {
     const costs = await this.repo.findByProduct(productId, variantSku);
     if (costs.length === 0) return 0;
 

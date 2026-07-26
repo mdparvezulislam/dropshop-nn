@@ -12,7 +12,13 @@ export default function CustomerAnalyticsPage() {
         loadAction: getCustomerAnalyticsAction,
         sections: [
           { type: "metrics", columns: 5 },
-          { type: "chart", dataKey: "customerAcquisitionSeries", title: "Customer Acquisition", chartLabel: "Customers", chartType: "area" },
+          {
+            type: "chart",
+            dataKey: "customerAcquisitionSeries",
+            title: "Customer Acquisition",
+            chartLabel: "Customers",
+            chartType: "area",
+          },
         ],
       }}
     />

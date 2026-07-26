@@ -15,7 +15,8 @@ const MOCK_CART_ITEMS: CartItemData[] = [
     productId: "p-1",
     name: "বোরো i12 TWS এয়ারবাডস",
     slug: "i12-tws-earbuds",
-    image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=400&q=80",
     variant: "Color: White",
     sku: "TWS-I12-WHT",
     quantity: 2,
@@ -28,7 +29,8 @@ const MOCK_CART_ITEMS: CartItemData[] = [
     productId: "p-2",
     name: "রেমি ৩০০০০mAh পাওয়ার ব্যাংক",
     slug: "remi-30000mah-powerbank",
-    image: "https://images.unsplash.com/photo-1609592424109-dd9892f1b177?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1609592424109-dd9892f1b177?auto=format&fit=crop&w=400&q=80",
     variant: "Color: Black",
     sku: "PB-REMI-30K",
     quantity: 1,
@@ -49,9 +51,7 @@ export default function CartPage() {
       handleRemove(index);
       return;
     }
-    setItems((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, quantity } : item))
-    );
+    setItems((prev) => prev.map((item, i) => (i === index ? { ...item, quantity } : item)));
   };
 
   const handleRemove = (index: number) => {

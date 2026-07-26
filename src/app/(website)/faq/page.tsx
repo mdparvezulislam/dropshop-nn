@@ -5,7 +5,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Frequently Asked Questions (FAQ) - DropshopNN",
-  description: "Find answers to common questions about ordering, dropshipping, Pathao delivery, warranties, and wholesale MOQ.",
+  description:
+    "Find answers to common questions about ordering, dropshipping, Pathao delivery, warranties, and wholesale MOQ.",
 };
 
 const FAQS = [
@@ -58,19 +59,26 @@ export default function FaqPage() {
             Frequently Asked Questions
           </h1>
           <p className="text-xs text-slate-400">
-            Everything you need to know about our commerce platform, courier shipping, and reseller program.
+            Everything you need to know about our commerce platform, courier shipping, and reseller
+            program.
           </p>
         </div>
 
         <div className="space-y-8">
           {FAQS.map((group, idx) => (
-            <div key={idx} className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 sm:p-8 backdrop-blur-md">
+            <div
+              key={idx}
+              className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 sm:p-8 backdrop-blur-md"
+            >
               <h2 className="text-lg font-bold text-amber-400 font-heading mb-4 border-b border-slate-800 pb-3">
                 {group.category}
               </h2>
               <div className="space-y-4">
                 {group.questions.map((item, qIdx) => (
-                  <div key={qIdx} className="bg-slate-950 border border-slate-800/80 rounded-2xl p-4">
+                  <div
+                    key={qIdx}
+                    className="bg-slate-950 border border-slate-800/80 rounded-2xl p-4"
+                  >
                     <h3 className="text-sm font-bold text-white mb-2">{item.q}</h3>
                     <p className="text-xs text-slate-400 leading-relaxed">{item.a}</p>
                   </div>

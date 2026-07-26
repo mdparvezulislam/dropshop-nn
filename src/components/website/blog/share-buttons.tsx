@@ -102,7 +102,11 @@ export function ShareButtons({
         aria-label="Copy link"
         onClick={copyLink}
       >
-        {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Link2 className="h-3.5 w-3.5" />}
+        {copied ? (
+          <Check className="h-3.5 w-3.5 text-emerald-500" />
+        ) : (
+          <Link2 className="h-3.5 w-3.5" />
+        )}
       </Button>
     </div>
   );

@@ -46,10 +46,18 @@ function startOfHour(d: Date): Date {
 
 function inferModule(eventName: string, explicit?: AnalyticsModule): AnalyticsModule {
   if (explicit) return explicit;
-  if (eventName.startsWith("order.") || eventName.startsWith("checkout.") || eventName.startsWith("cart.")) {
+  if (
+    eventName.startsWith("order.") ||
+    eventName.startsWith("checkout.") ||
+    eventName.startsWith("cart.")
+  ) {
     return "order";
   }
-  if (eventName.startsWith("product.") || eventName.startsWith("catalog.") || eventName.startsWith("category.")) {
+  if (
+    eventName.startsWith("product.") ||
+    eventName.startsWith("catalog.") ||
+    eventName.startsWith("category.")
+  ) {
     return "catalog";
   }
   if (eventName.startsWith("blog.")) return "blog";

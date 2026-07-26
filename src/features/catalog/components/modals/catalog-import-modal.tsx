@@ -67,7 +67,12 @@ export function CatalogImportModal({
             <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button size="sm" className="gap-1 font-bold shadow-xs" onClick={handleImport} disabled={!file || importing}>
+            <Button
+              size="sm"
+              className="gap-1 font-bold shadow-xs"
+              onClick={handleImport}
+              disabled={!file || importing}
+            >
               <CheckCircle2 className="h-3.5 w-3.5" /> Start Import
             </Button>
           </div>

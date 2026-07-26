@@ -201,7 +201,11 @@ export async function inspectRTSAction(formData: unknown): Promise<{
   try {
     const validated = inspectRTSSchema.parse(formData);
     const service = new DeliveryReturnService();
-    const result = await service.inspectRTSPackage(validated.rtsId, validated.condition, validated.notes);
+    const result = await service.inspectRTSPackage(
+      validated.rtsId,
+      validated.condition,
+      validated.notes,
+    );
     revalidatePath("/dashboard/courier");
     return { success: true, data: result };
   } catch (error: any) {
@@ -282,19 +286,29 @@ export async function listDeliveryOpsDataAction(): Promise<{
     const opsService = new DeliveryOpsService();
     const codService = new CODReconciliationService();
 
-    const [returns, rtsList, disputes, escalations, zones, rules, costRules, exceptions, slaWarnings, codSummary] =
-      await Promise.all([
-        returnService.listReturns(),
-        returnService.listRTS(),
-        disputeService.listDisputes(),
-        disputeService.listEscalations(),
-        ruleService.listZones(),
-        ruleService.listShippingRules(),
-        ruleService.listCostRules(),
-        opsService.getExceptionQueue(),
-        opsService.getSLAWarnings(),
-        codService.getCODMetrics(),
-      ]);
+    const [
+      returns,
+      rtsList,
+      disputes,
+      escalations,
+      zones,
+      rules,
+      costRules,
+      exceptions,
+      slaWarnings,
+      codSummary,
+    ] = await Promise.all([
+      returnService.listReturns(),
+      returnService.listRTS(),
+      disputeService.listDisputes(),
+      disputeService.listEscalations(),
+      ruleService.listZones(),
+      ruleService.listShippingRules(),
+      ruleService.listCostRules(),
+      opsService.getExceptionQueue(),
+      opsService.getSLAWarnings(),
+      codService.getCODMetrics(),
+    ]);
 
     return {
       success: true,

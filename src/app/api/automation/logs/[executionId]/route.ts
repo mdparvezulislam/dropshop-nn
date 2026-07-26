@@ -3,7 +3,7 @@ import { getExecutionLogsAction } from "@/features/automation/actions/automation
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ executionId: string }> }
+  { params }: { params: Promise<{ executionId: string }> },
 ): Promise<NextResponse> {
   const { executionId } = await params;
   const result = await getExecutionLogsAction(executionId);

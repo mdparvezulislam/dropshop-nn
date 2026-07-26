@@ -1,7 +1,12 @@
 import { WarrantyRepository } from "../repositories/warranty-repository";
 import { OrderRepository } from "../repositories/order-repository";
 import { OrderTimelineService } from "./order-timeline-service";
-import { canTransitionWarranty, getWarrantyHumanLabel, type WarrantyStatus, type WarrantyEntity } from "../domain/warranty-entity";
+import {
+  canTransitionWarranty,
+  getWarrantyHumanLabel,
+  type WarrantyStatus,
+  type WarrantyEntity,
+} from "../domain/warranty-entity";
 import { EventBus } from "@/lib/event-bus";
 import { NotFoundError, ValidationError } from "@/lib/errors/app-error";
 import { logger } from "@/lib/utils/logger";
@@ -19,7 +24,10 @@ export class WarrantyService {
     this.timelineService = new OrderTimelineService();
   }
 
-  async create(input: CreateWarrantyInput, actor?: { id: string; name?: string; role?: string }): Promise<WarrantyEntity> {
+  async create(
+    input: CreateWarrantyInput,
+    actor?: { id: string; name?: string; role?: string },
+  ): Promise<WarrantyEntity> {
     return runInTransaction(async () => {
       const order = await this.orderRepository.findById(input.orderId);
       if (!order) throw new NotFoundError("Order not found");
@@ -53,12 +61,16 @@ export class WarrantyService {
         actor,
       });
 
-      await EventBus.publish("order.system_action", {
-        warrantyId: warranty.id,
-        warrantyNumber,
-        orderId: input.orderId,
-        orderNumber: order.orderNumber,
-      }, { source: "order" });
+      await EventBus.publish(
+        "order.system_action",
+        {
+          warrantyId: warranty.id,
+          warrantyNumber,
+          orderId: input.orderId,
+          orderNumber: order.orderNumber,
+        },
+        { source: "order" },
+      );
 
       return warranty;
     });
@@ -122,8 +134,13 @@ export class WarrantyService {
     return this.warrantyRepository.findByOrder(orderId);
   }
 
-  async listWarranties(page: number = 1, limit: number = 20): Promise<{ items: WarrantyEntity[]; total: number }> {
-    const result = await this.warrantyRepository.findPaginated({}, { page, limit }, { createdAt: -1 } as any);
+  async listWarranties(
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<{ items: WarrantyEntity[]; total: number }> {
+    const result = await this.warrantyRepository.findPaginated({}, { page, limit }, {
+      createdAt: -1,
+    } as any);
     return { items: result.items, total: result.totalCount };
   }
 

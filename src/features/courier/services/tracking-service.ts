@@ -86,7 +86,11 @@ export class TrackingService {
     return updated;
   }
 
-  async processWebhookEvent(provider: string, rawPayload: any, actorId: string = "system"): Promise<boolean> {
+  async processWebhookEvent(
+    provider: string,
+    rawPayload: any,
+    actorId: string = "system",
+  ): Promise<boolean> {
     const adapter = CourierProviderRegistry.get(provider);
     const parsed = adapter.parseWebhookPayload(rawPayload);
 
@@ -100,7 +104,9 @@ export class TrackingService {
 
     const shipment = await this.shipmentRepository.findByTrackingCode(parsed.trackingCode);
     if (!shipment) {
-      logger.warn("TrackingService: webhook received for unknown tracking code", { trackingCode: parsed.trackingCode });
+      logger.warn("TrackingService: webhook received for unknown tracking code", {
+        trackingCode: parsed.trackingCode,
+      });
       return false;
     }
 

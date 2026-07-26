@@ -251,7 +251,10 @@ export const WORKSPACE_SHELLS: Record<WorkspaceId, WorkspaceShellConfig> = {
 };
 
 export function normalizeRole(role?: string | null): string {
-  return (role ?? "").trim().toLowerCase().replace(/[\s-]+/g, "_");
+  return (role ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s-]+/g, "_");
 }
 
 export function resolveWorkspaceIdForRole(role?: string | null): WorkspaceId {
@@ -274,7 +277,10 @@ export function getWorkspaceForPath(pathname: string): WorkspaceShellConfig | nu
   return null;
 }
 
-export function roleCanAccessWorkspace(role: string | null | undefined, workspaceId: WorkspaceId): boolean {
+export function roleCanAccessWorkspace(
+  role: string | null | undefined,
+  workspaceId: WorkspaceId,
+): boolean {
   const r = normalizeRole(role);
   if (!r) return false;
   // Staff can access admin

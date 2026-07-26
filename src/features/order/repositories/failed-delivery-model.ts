@@ -10,9 +10,14 @@ const failedDeliverySchema = new Schema(
     reason: {
       type: String,
       enum: [
-        "customer_not_home", "wrong_address", "wrong_phone",
-        "refused_to_accept", "delayed_by_courier", "damaged",
-        "lost_in_transit", "other",
+        "customer_not_home",
+        "wrong_address",
+        "wrong_phone",
+        "refused_to_accept",
+        "delayed_by_courier",
+        "damaged",
+        "lost_in_transit",
+        "other",
       ],
       required: true,
     },
@@ -21,8 +26,13 @@ const failedDeliverySchema = new Schema(
     nextAction: {
       type: String,
       enum: [
-        "redelivery", "cancel", "change_address", "change_phone",
-        "assign_courier", "customer_confirmation", "return_to_warehouse",
+        "redelivery",
+        "cancel",
+        "change_address",
+        "change_phone",
+        "assign_courier",
+        "customer_confirmation",
+        "return_to_warehouse",
       ],
       required: true,
     },

@@ -78,7 +78,8 @@ export default function WholesaleInvoiceDetailPage(): React.ReactElement {
 
   const amount = inv.amount ?? inv.grandTotal ?? 0;
   const dueDate = inv.dueDate ? new Date(inv.dueDate) : null;
-  const isOverdue = dueDate && dueDate < new Date() && inv.status !== "paid" && inv.status !== "completed";
+  const isOverdue =
+    dueDate && dueDate < new Date() && inv.status !== "paid" && inv.status !== "completed";
 
   return (
     <div className="space-y-6 animate-[fade-in_0.2s_ease-out]">
@@ -111,18 +112,28 @@ export default function WholesaleInvoiceDetailPage(): React.ReactElement {
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">Status</p>
-                  <StatusChip label={inv.status ?? "pending"} tone={statusToneFromValue(inv.status)} />
+                  <StatusChip
+                    label={inv.status ?? "pending"}
+                    tone={statusToneFromValue(inv.status)}
+                  />
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">Issue Date</p>
                   <div className="flex items-center gap-1.5 text-sm">
                     <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span>{inv.createdAt ? new Date(inv.createdAt).toLocaleDateString() : "—"}</span>
+                    <span>
+                      {inv.createdAt ? new Date(inv.createdAt).toLocaleDateString() : "—"}
+                    </span>
                   </div>
                 </div>
                 <div className="space-y-1">
                   <p className="text-xs text-muted-foreground">Due Date</p>
-                  <div className={cn("flex items-center gap-1.5 text-sm", isOverdue && "text-destructive")}>
+                  <div
+                    className={cn(
+                      "flex items-center gap-1.5 text-sm",
+                      isOverdue && "text-destructive",
+                    )}
+                  >
                     <Clock className="h-3.5 w-3.5" />
                     <span>{dueDate ? dueDate.toLocaleDateString() : "—"}</span>
                     {isOverdue && <span className="text-xs font-medium">(Overdue)</span>}

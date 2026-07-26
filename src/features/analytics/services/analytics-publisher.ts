@@ -26,9 +26,7 @@ export class AnalyticsPublisher {
         },
         {
           source: "analytics-publisher",
-          actor: input.actorId
-            ? { id: input.actorId, role: input.actorRole }
-            : undefined,
+          actor: input.actorId ? { id: input.actorId, role: input.actorRole } : undefined,
         },
       );
     } catch (err) {

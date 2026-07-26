@@ -183,7 +183,10 @@ export async function resetCategoryToDefaultAction(category: string): Promise<{
 
   try {
     const service = new SettingsService();
-    await service.resetCategoryToDefault(category as any, session?.user?.name || session?.user?.id || "admin");
+    await service.resetCategoryToDefault(
+      category as any,
+      session?.user?.name || session?.user?.id || "admin",
+    );
     revalidatePath("/dashboard/settings");
     return { success: true };
   } catch (error: any) {

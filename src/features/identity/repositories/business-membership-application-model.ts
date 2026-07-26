@@ -1,5 +1,9 @@
 import mongoose, { Schema } from "mongoose";
-import { baseFieldsDefinition, baseSchemaOptions, softDeletePlugin } from "@/lib/database/base-schema";
+import {
+  baseFieldsDefinition,
+  baseSchemaOptions,
+  softDeletePlugin,
+} from "@/lib/database/base-schema";
 import { BaseDocument } from "@/lib/database/types";
 
 export interface ApplicationDBFields {
@@ -8,7 +12,8 @@ export interface ApplicationDBFields {
   userPhone: string;
   userEmail: string;
   membershipType: string;
-  status: "pending" | "under_review" | "need_info" | "approved" | "rejected" | "suspended" | "expired";
+  status:
+    "pending" | "under_review" | "need_info" | "approved" | "rejected" | "suspended" | "expired";
   commonFields: {
     fullName: string;
     phone: string;
@@ -55,7 +60,15 @@ const applicationSchema = new Schema<ApplicationDocument>(
     membershipType: { type: String, required: true, index: true },
     status: {
       type: String,
-      enum: ["pending", "under_review", "need_info", "approved", "rejected", "suspended", "expired"],
+      enum: [
+        "pending",
+        "under_review",
+        "need_info",
+        "approved",
+        "rejected",
+        "suspended",
+        "expired",
+      ],
       default: "pending",
       index: true,
     },

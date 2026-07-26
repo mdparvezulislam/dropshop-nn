@@ -4,26 +4,12 @@ import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { updateProductStatusAction } from "@/features/catalog/actions/product-actions";
 import { toast } from "sonner";
-import {
-  Settings as SettingsIcon,
-  FileText,
-  User,
-  CreditCard,
-  ArrowLeft,
-  Layers,
-  Award,
-} from "lucide-react";
+import { Settings as SettingsIcon, FileText, User, ArrowLeft, Layers } from "lucide-react";
 
 export default function ProductDetailsPage() {
   const params = useParams();
@@ -44,7 +30,7 @@ export default function ProductDetailsPage() {
           setProduct(res.data);
         }
       } catch {
-        // null handles empty/loading
+        toast.error("Failed to load product details");
       } finally {
         setLoading(false);
       }
@@ -92,11 +78,11 @@ export default function ProductDetailsPage() {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-slate-950 p-6 text-white space-y-6">
+      <div className="min-h-screen bg-background p-6 text-foreground space-y-6">
         <div className="flex items-center gap-4">
           <Link
             href="/dashboard/products"
-            className="p-2 rounded-full border border-slate-800 bg-slate-900/50 text-slate-400 hover:text-white transition-colors"
+            className="p-2 rounded-full border border-border bg-card/50 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
@@ -107,11 +93,11 @@ export default function ProductDetailsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 p-6 text-white space-y-6">
+    <div className="min-h-screen bg-background p-6 text-foreground space-y-6">
       <div className="flex items-center gap-4">
         <Link
           href="/dashboard/products"
-          className="p-2 rounded-full border border-slate-800 bg-slate-900/50 text-slate-400 hover:text-white transition-colors"
+          className="p-2 rounded-full border border-border bg-card/50 text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-5 w-5" />
         </Link>
@@ -120,11 +106,11 @@ export default function ProductDetailsPage() {
             <h1 className="text-3xl font-bold tracking-tight">{product.name}</h1>
             <Badge variant={getStatusVariant(product.status)}>{product.status}</Badge>
           </div>
-          <p className="text-sm text-slate-400">Base SKU: {product.sku}</p>
+          <p className="text-sm text-muted-foreground">Base SKU: {product.sku}</p>
         </div>
       </div>
 
-      <Card className="border-slate-800 bg-slate-900/30 backdrop-blur-md">
+      <Card className="border-border bg-card/30 backdrop-blur-md">
         <CardContent className="p-4 flex flex-wrap gap-2 items-center justify-between">
           <div className="flex gap-2">
             <button
@@ -132,7 +118,7 @@ export default function ProductDetailsPage() {
               className={`flex items-center gap-2 px-4 h-10 rounded-md text-sm font-medium transition-colors ${
                 activeTab === "info"
                   ? "bg-indigo-600 text-white"
-                  : "text-slate-400 hover:text-white hover:bg-slate-900"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               }`}
             >
               <User className="h-4 w-4" /> Info
@@ -142,7 +128,7 @@ export default function ProductDetailsPage() {
               className={`flex items-center gap-2 px-4 h-10 rounded-md text-sm font-medium transition-colors ${
                 activeTab === "variants"
                   ? "bg-indigo-600 text-white"
-                  : "text-slate-400 hover:text-white hover:bg-slate-900"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               }`}
             >
               <Layers className="h-4 w-4" /> Variants Config
@@ -152,7 +138,7 @@ export default function ProductDetailsPage() {
               className={`flex items-center gap-2 px-4 h-10 rounded-md text-sm font-medium transition-colors ${
                 activeTab === "specs"
                   ? "bg-indigo-600 text-white"
-                  : "text-slate-400 hover:text-white hover:bg-slate-900"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               }`}
             >
               <SettingsIcon className="h-4 w-4" /> Specifications
@@ -162,7 +148,7 @@ export default function ProductDetailsPage() {
               className={`flex items-center gap-2 px-4 h-10 rounded-md text-sm font-medium transition-colors ${
                 activeTab === "seo"
                   ? "bg-indigo-600 text-white"
-                  : "text-slate-400 hover:text-white hover:bg-slate-900"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
               }`}
             >
               <FileText className="h-4 w-4" /> SEO Tags
@@ -197,49 +183,51 @@ export default function ProductDetailsPage() {
       {activeTab === "info" && (
         <div className="grid gap-6 md:grid-cols-3">
           <div className="md:col-span-2 space-y-6">
-            <Card className="border-slate-800 bg-slate-900/50">
+            <Card className="border-border bg-card/50">
               <CardHeader>
                 <CardTitle className="text-xl font-semibold">General Summary</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <span className="text-xs text-slate-400">Short Summary Description</span>
-                  <p className="text-sm text-slate-200">{product.shortDescription}</p>
+                  <span className="text-xs text-muted-foreground">Short Summary Description</span>
+                  <p className="text-sm text-foreground/90">{product.shortDescription}</p>
                 </div>
                 <div>
-                  <span className="text-xs text-slate-400">Full Description Description</span>
-                  <p className="text-sm text-slate-200">{product.fullDescription}</p>
+                  <span className="text-xs text-muted-foreground">Full Description</span>
+                  <p className="text-sm text-foreground/90">{product.description}</p>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border-slate-800 bg-slate-900/50">
+            <Card className="border-border bg-card/50">
               <CardHeader>
                 <CardTitle className="text-xl font-semibold">Product Properties</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
-                    <span className="text-xs text-slate-400">Model Number</span>
-                    <p className="text-sm font-medium text-slate-200">
+                    <span className="text-xs text-muted-foreground">Model Number</span>
+                    <p className="text-sm font-medium text-foreground/90">
                       {product.productModel || "N/A"}
                     </p>
                   </div>
                   <div>
-                    <span className="text-xs text-slate-400">Brand / Manufacturer</span>
-                    <p className="text-sm font-medium text-slate-200">{product.brand}</p>
+                    <span className="text-xs text-muted-foreground">Brand / Manufacturer</span>
+                    <p className="text-sm font-medium text-foreground/90">
+                      {product.brandId || "N/A"}
+                    </p>
                   </div>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
-                    <span className="text-xs text-slate-400">Barcode</span>
-                    <p className="text-sm font-medium text-slate-200 font-mono">
+                    <span className="text-xs text-muted-foreground">Barcode</span>
+                    <p className="text-sm font-medium text-foreground/90 font-mono">
                       {product.barcode || "N/A"}
                     </p>
                   </div>
                   <div>
-                    <span className="text-xs text-slate-400">GTIN Code</span>
-                    <p className="text-sm font-medium text-slate-200 font-mono">
+                    <span className="text-xs text-muted-foreground">GTIN Code</span>
+                    <p className="text-sm font-medium text-foreground/90 font-mono">
                       {product.gtin || "N/A"}
                     </p>
                   </div>
@@ -249,14 +237,14 @@ export default function ProductDetailsPage() {
           </div>
 
           <div className="space-y-6">
-            <Card className="border-slate-800 bg-slate-900/50">
+            <Card className="border-border bg-card/50">
               <CardHeader>
                 <CardTitle className="text-xl font-semibold">Taxonomy</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <span className="text-xs text-slate-400">Category Category</span>
-                  <p className="text-sm font-semibold text-white">{product.category}</p>
+                  <span className="text-xs text-muted-foreground">Category</span>
+                  <p className="text-sm font-semibold text-foreground">{product.category}</p>
                 </div>
               </CardContent>
             </Card>
@@ -265,23 +253,23 @@ export default function ProductDetailsPage() {
       )}
 
       {activeTab === "variants" && (
-        <Card className="border-slate-800 bg-slate-900/50 max-w-3xl">
+        <Card className="border-border bg-card/50 max-w-3xl">
           <CardHeader>
             <CardTitle className="text-xl font-semibold">Variant List</CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-muted-foreground">
               Different configs, colors and memory storage
             </CardDescription>
           </CardHeader>
           <CardContent className="p-0">
-            <div className="border border-slate-800 rounded-lg overflow-hidden">
+            <div className="border border-border rounded-lg overflow-hidden">
               {product.variants.map((variant: any, idx: number) => (
                 <div
                   key={idx}
-                  className="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-950/20 last:border-b-0"
+                  className="flex items-center justify-between p-4 border-b border-border dark:border-slate-800 bg-muted/20 dark:bg-slate-950/20 last:border-b-0"
                 >
                   <div>
                     <p className="text-sm font-mono text-indigo-400">{variant.sku}</p>
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-muted-foreground">
                       Color: {variant.color || "Default"} / Size: {variant.size || "N/A"}
                     </span>
                   </div>
@@ -294,19 +282,19 @@ export default function ProductDetailsPage() {
       )}
 
       {activeTab === "specs" && (
-        <Card className="border-slate-800 bg-slate-900/50 max-w-2xl">
+        <Card className="border-border bg-card/50 max-w-2xl">
           <CardHeader>
             <CardTitle className="text-xl font-semibold">Specifications Matrix</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="border border-slate-800 rounded-lg overflow-hidden">
-              {product.attributes.map((attr: any, idx: number) => (
+            <div className="border border-border rounded-lg overflow-hidden">
+              {product.specifications.map((attr: any, idx: number) => (
                 <div
                   key={idx}
-                  className="grid grid-cols-2 p-3 border-b border-slate-800 bg-slate-950/20 last:border-b-0 text-sm"
+                  className="grid grid-cols-2 p-3 border-b border-border dark:border-slate-800 bg-muted/20 dark:bg-slate-950/20 last:border-b-0 text-sm"
                 >
-                  <span className="text-slate-400 font-medium">{attr.key}</span>
-                  <span className="text-white font-semibold">{attr.value}</span>
+                  <span className="text-muted-foreground font-medium">{attr.key}</span>
+                  <span className="text-foreground font-semibold">{attr.value}</span>
                 </div>
               ))}
             </div>
@@ -315,18 +303,18 @@ export default function ProductDetailsPage() {
       )}
 
       {activeTab === "seo" && (
-        <Card className="border-slate-800 bg-slate-900/50 max-w-2xl">
+        <Card className="border-border bg-card/50 max-w-2xl">
           <CardHeader>
             <CardTitle className="text-xl font-semibold">SEO Meta Tags</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <span className="text-xs text-slate-400">Meta Title Title</span>
-              <p className="text-sm font-semibold text-slate-200">{product.seo.metaTitle}</p>
+              <span className="text-xs text-muted-foreground">Meta Title</span>
+              <p className="text-sm font-semibold text-foreground/90">{product.seo.metaTitle}</p>
             </div>
             <div>
-              <span className="text-xs text-slate-400">Meta Description Description</span>
-              <p className="text-sm text-slate-200">{product.seo.metaDescription}</p>
+              <span className="text-xs text-muted-foreground">Meta Description</span>
+              <p className="text-sm text-foreground/90">{product.seo.metaDescription}</p>
             </div>
           </CardContent>
         </Card>

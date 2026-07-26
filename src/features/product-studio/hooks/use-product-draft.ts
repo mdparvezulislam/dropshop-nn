@@ -3,10 +3,9 @@
 import * as React from "react";
 import { toast } from "sonner";
 import type { StudioFormState } from "./use-product-studio";
-
 const DRAFT_STORAGE_KEY_PREFIX = "dropshop_product_studio_draft_";
 
-export function useProductDraft(productId?: string, initialForm?: StudioFormState) {
+export function useProductDraft(productId?: string) {
   const storageKey = React.useMemo(() => {
     return `${DRAFT_STORAGE_KEY_PREFIX}${productId || "new"}`;
   }, [productId]);

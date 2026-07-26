@@ -24,7 +24,13 @@ export class PathaoAuthService {
     username: string;
     password: string;
     apiBaseUrl?: string;
-  }): Promise<{ success: boolean; accessToken?: string; refreshToken?: string; expiresAt?: Date; error?: string }> {
+  }): Promise<{
+    success: boolean;
+    accessToken?: string;
+    refreshToken?: string;
+    expiresAt?: Date;
+    error?: string;
+  }> {
     const startTime = Date.now();
     const baseUrl = credentials.apiBaseUrl || "https://api-hermes.pathao.com";
     const endpoint = `${baseUrl}/aladdin/api/v1/issue-token`;
@@ -46,12 +52,17 @@ export class PathaoAuthService {
       const data = await response.json();
 
       if (!response.ok || !data.access_token) {
-        const errorMsg = data.message || data.error || `HTTP ${response.status}: Failed to issue Pathao token`;
+        const errorMsg =
+          data.message || data.error || `HTTP ${response.status}: Failed to issue Pathao token`;
         await this.logRepository.create({
           provider: "pathao",
           logType: "auth",
           endpoint,
-          requestPayload: { clientId: credentials.clientId, username: credentials.username, grant_type: "password" },
+          requestPayload: {
+            clientId: credentials.clientId,
+            username: credentials.username,
+            grant_type: "password",
+          },
           responsePayload: data,
           statusCode: response.status,
           responseTimeMs,
@@ -85,7 +96,11 @@ export class PathaoAuthService {
         provider: "pathao",
         logType: "auth",
         endpoint,
-        requestPayload: { clientId: credentials.clientId, username: credentials.username, grant_type: "password" },
+        requestPayload: {
+          clientId: credentials.clientId,
+          username: credentials.username,
+          grant_type: "password",
+        },
         responsePayload: { token_type: data.token_type, expires_in: data.expires_in },
         statusCode: response.status,
         responseTimeMs,
@@ -105,10 +120,15 @@ export class PathaoAuthService {
     }
   }
 
-  async refreshToken(configId?: string): Promise<{ success: boolean; accessToken?: string; error?: string }> {
+  async refreshToken(
+    configId?: string,
+  ): Promise<{ success: boolean; accessToken?: string; error?: string }> {
     const config = await this.configRepository.findByProvider("pathao");
     if (!config || !config.pathaoConfig?.refreshToken) {
-      return { success: false, error: "No active Pathao refresh token available. Please generate a new token." };
+      return {
+        success: false,
+        error: "No active Pathao refresh token available. Please generate a new token.",
+      };
     }
 
     const { clientId, clientSecret, refreshToken } = config.pathaoConfig;
@@ -158,7 +178,10 @@ export class PathaoAuthService {
   async fetchPathaoStores(): Promise<{ success: boolean; stores?: any[]; error?: string }> {
     const config = await this.configRepository.findByProvider("pathao");
     if (!config || !config.pathaoConfig?.accessToken) {
-      return { success: false, error: "Pathao Access Token missing. Please generate a token first." };
+      return {
+        success: false,
+        error: "Pathao Access Token missing. Please generate a token first.",
+      };
     }
 
     const baseUrl = config.apiBaseUrl || "https://api-hermes.pathao.com";

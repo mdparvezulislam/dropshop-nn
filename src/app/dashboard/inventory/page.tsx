@@ -4,7 +4,10 @@ import * as React from "react";
 import Link from "next/link";
 import { Plus, Warehouse, AlertTriangle, History, SlidersHorizontal, Package } from "lucide-react";
 import { toast } from "sonner";
-import { listInventoryAction, getInventoryDashboardAction } from "@/features/inventory/actions/inventory-actions";
+import {
+  listInventoryAction,
+  getInventoryDashboardAction,
+} from "@/features/inventory/actions/inventory-actions";
 import { ListLayout } from "@/components/workspace/list-layout";
 import { Toolbar } from "@/components/workspace/toolbar";
 import { SearchBox } from "@/components/workspace/search-box";
@@ -32,7 +35,12 @@ export default function InventoryPage(): React.ReactElement {
   const [loading, setLoading] = React.useState(true);
   const [allRows, setAllRows] = React.useState<Row[]>([]);
   const [totalCount, setTotalCount] = React.useState(0);
-  const [dashboard, setDashboard] = React.useState({ totalSkus: 0, inStock: 0, lowStock: 0, outOfStock: 0 });
+  const [dashboard, setDashboard] = React.useState({
+    totalSkus: 0,
+    inStock: 0,
+    lowStock: 0,
+    outOfStock: 0,
+  });
   const pageSize = 10;
 
   const load = React.useCallback(async () => {
@@ -87,8 +95,7 @@ export default function InventoryPage(): React.ReactElement {
     if (!search.trim()) return allRows;
     const q = search.toLowerCase();
     return allRows.filter(
-      (r) =>
-        r.productName.toLowerCase().includes(q) || r.variantSku.toLowerCase().includes(q),
+      (r) => r.productName.toLowerCase().includes(q) || r.variantSku.toLowerCase().includes(q),
     );
   }, [allRows, search]);
 
@@ -187,7 +194,12 @@ export default function InventoryPage(): React.ReactElement {
         ) : (
           <>
             <StatCard label="SKUs" value={dashboard.totalSkus} icon={Package} />
-            <StatCard label="In stock" value={dashboard.inStock} accent="success" icon={Warehouse} />
+            <StatCard
+              label="In stock"
+              value={dashboard.inStock}
+              accent="success"
+              icon={Warehouse}
+            />
             <StatCard label="Low stock" value={dashboard.lowStock} accent="warning" />
             <StatCard label="Out of stock" value={dashboard.outOfStock} accent="danger" />
           </>
@@ -199,13 +211,19 @@ export default function InventoryPage(): React.ReactElement {
             <>
               <SearchBox
                 value={search}
-                onChange={(v) => { setSearch(v); setPage(1); }}
+                onChange={(v) => {
+                  setSearch(v);
+                  setPage(1);
+                }}
                 placeholder="Search product or SKU…"
                 className="w-full sm:w-72"
               />
               <select
                 value={availability}
-                onChange={(e) => { setAvailability(e.target.value); setPage(1); }}
+                onChange={(e) => {
+                  setAvailability(e.target.value);
+                  setPage(1);
+                }}
                 className="h-9 rounded-md border border-input bg-card px-3 text-sm"
               >
                 <option value="all">All availability</option>

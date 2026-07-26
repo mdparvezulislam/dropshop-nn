@@ -31,8 +31,7 @@ const badgeVariants = cva(
 );
 
 export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {
+  extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {
   dot?: boolean;
   dotColor?: string;
 }
@@ -49,9 +48,7 @@ function Badge({
   return (
     <div className={cn(badgeVariants({ variant, size }), dot && "gap-1.5", className)} {...props}>
       {dot ? (
-        <span
-          className={cn("h-1.5 w-1.5 rounded-full shrink-0", dotColor || "bg-current")}
-        />
+        <span className={cn("h-1.5 w-1.5 rounded-full shrink-0", dotColor || "bg-current")} />
       ) : null}
       {children}
     </div>

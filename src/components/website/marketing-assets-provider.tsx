@@ -67,7 +67,9 @@ export function MarketingAssetsProvider({
                 HD Assets
               </span>
             </h3>
-            <p className="text-[11px] text-slate-400">Download banners and copy ready-to-post Facebook captions</p>
+            <p className="text-[11px] text-slate-400">
+              Download banners and copy ready-to-post Facebook captions
+            </p>
           </div>
         </div>
       </div>

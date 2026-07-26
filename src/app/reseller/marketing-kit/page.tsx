@@ -95,9 +95,8 @@ function MarketingKitPageContent(): React.ReactElement {
         setAssets(list);
 
         if (productId) {
-          const { searchResellerProductsAction } = await import(
-            "@/features/reseller/actions/reseller-actions"
-          );
+          const { searchResellerProductsAction } =
+            await import("@/features/reseller/actions/reseller-actions");
           const prodRes = await searchResellerProductsAction({
             resellerId: "me",
             page: 1,
@@ -105,9 +104,7 @@ function MarketingKitPageContent(): React.ReactElement {
           });
           if (prodRes.success && prodRes.data) {
             const items = (prodRes.data as any).items ?? [];
-            const match = items.find(
-              (p: any) => p.id === productId || p.productId === productId,
-            );
+            const match = items.find((p: any) => p.id === productId || p.productId === productId);
             if (match) {
               setProduct({
                 productId: match.productId ?? match.id,

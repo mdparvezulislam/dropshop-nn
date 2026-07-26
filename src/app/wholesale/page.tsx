@@ -68,12 +68,37 @@ const DEFAULT: DashboardData = {
 };
 
 const QUICK_ACTIONS = [
-  { label: "Browse Products", href: "/wholesale/products", icon: Package, description: "Wholesale catalog & MOQs" },
-  { label: "Bulk Order", href: "/wholesale/bulk-orders/create", icon: ClipboardList, description: "Quick bulk order creation" },
-  { label: "Request Quote", href: "/wholesale/quotations", icon: FileText, description: "Custom pricing quotes" },
-  { label: "View Invoices", href: "/wholesale/invoices", icon: Receipt, description: "Invoice statements" },
+  {
+    label: "Browse Products",
+    href: "/wholesale/products",
+    icon: Package,
+    description: "Wholesale catalog & MOQs",
+  },
+  {
+    label: "Bulk Order",
+    href: "/wholesale/bulk-orders/create",
+    icon: ClipboardList,
+    description: "Quick bulk order creation",
+  },
+  {
+    label: "Request Quote",
+    href: "/wholesale/quotations",
+    icon: FileText,
+    description: "Custom pricing quotes",
+  },
+  {
+    label: "View Invoices",
+    href: "/wholesale/invoices",
+    icon: Receipt,
+    description: "Invoice statements",
+  },
   { label: "Customers", href: "/wholesale/customers", icon: Users, description: "B2B client list" },
-  { label: "Order History", href: "/wholesale/orders", icon: Clock, description: "Past order archive" },
+  {
+    label: "Order History",
+    href: "/wholesale/orders",
+    icon: Clock,
+    description: "Past order archive",
+  },
 ];
 
 function greeting(): string {
@@ -103,9 +128,7 @@ export default function WholesaleDashboardPage(): React.ReactElement {
           import("@/features/quotation/actions/quotation-actions").then((m) =>
             m.listQuotationsAction(),
           ),
-          import("@/features/finance/actions/finance-actions").then((m) =>
-            m.listInvoicesAction(),
-          ),
+          import("@/features/finance/actions/finance-actions").then((m) => m.listInvoicesAction()),
           import("@/features/catalog/actions/product-actions").then((m) =>
             m.listProductsAction({}, { limit: 1 }),
           ),
@@ -115,10 +138,11 @@ export default function WholesaleDashboardPage(): React.ReactElement {
 
         if (orderRes.status === "fulfilled" && orderRes.value.success) {
           const od = orderRes.value.data as any;
-          const items = Array.isArray(od) ? od : od?.items ?? [];
+          const items = Array.isArray(od) ? od : (od?.items ?? []);
           d.totalOrders = items.length;
           d.pendingOrders = items.filter(
-            (o: any) => !["completed", "cancelled", "delivered", "failed", "refunded"].includes(o.status),
+            (o: any) =>
+              !["completed", "cancelled", "delivered", "failed", "refunded"].includes(o.status),
           ).length;
           d.completedOrders = items.filter((o: any) => o.status === "completed").length;
           d.totalSpent = items.reduce((s: number, o: any) => s + (o.grandTotal ?? o.total ?? 0), 0);
@@ -201,7 +225,8 @@ export default function WholesaleDashboardPage(): React.ReactElement {
               {greeting()}, Wholesaler
             </h1>
             <p className="max-w-xl text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              Enterprise purchasing at volume rates — bulk orders, custom quotations, and credit invoices.
+              Enterprise purchasing at volume rates — bulk orders, custom quotations, and credit
+              invoices.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
@@ -217,17 +242,65 @@ export default function WholesaleDashboardPage(): React.ReactElement {
 
       {/* KPI Cards */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total Orders" value={data.totalOrders} icon={ShoppingCart} accent="primary" loading={loading} />
-        <StatCard label="Pending Orders" value={data.pendingOrders} icon={Clock} accent="warning" loading={loading} />
-        <StatCard label="Completed" value={data.completedOrders} icon={CheckCircle2} accent="success" loading={loading} />
-        <StatCard label="Total Spent" value={formatCents(data.totalSpent)} icon={DollarSign} accent="info" loading={loading} />
+        <StatCard
+          label="Total Orders"
+          value={data.totalOrders}
+          icon={ShoppingCart}
+          accent="primary"
+          loading={loading}
+        />
+        <StatCard
+          label="Pending Orders"
+          value={data.pendingOrders}
+          icon={Clock}
+          accent="warning"
+          loading={loading}
+        />
+        <StatCard
+          label="Completed"
+          value={data.completedOrders}
+          icon={CheckCircle2}
+          accent="success"
+          loading={loading}
+        />
+        <StatCard
+          label="Total Spent"
+          value={formatCents(data.totalSpent)}
+          icon={DollarSign}
+          accent="info"
+          loading={loading}
+        />
       </div>
 
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Outstanding Balance" value={formatCents(data.outstandingBalance)} icon={AlertTriangle} accent={data.outstandingBalance > 0 ? "danger" : "success"} loading={loading} />
-        <StatCard label="Products Available" value={data.productsAvailable} icon={Warehouse} accent="primary" loading={loading} />
-        <StatCard label="Pending Quotations" value={data.quotationsPending} icon={FileText} accent="warning" loading={loading} />
-        <StatCard label="Invoices Due" value={data.invoicesDue} icon={Receipt} accent={data.invoicesDue > 0 ? "danger" : "success"} loading={loading} />
+        <StatCard
+          label="Outstanding Balance"
+          value={formatCents(data.outstandingBalance)}
+          icon={AlertTriangle}
+          accent={data.outstandingBalance > 0 ? "danger" : "success"}
+          loading={loading}
+        />
+        <StatCard
+          label="Products Available"
+          value={data.productsAvailable}
+          icon={Warehouse}
+          accent="primary"
+          loading={loading}
+        />
+        <StatCard
+          label="Pending Quotations"
+          value={data.quotationsPending}
+          icon={FileText}
+          accent="warning"
+          loading={loading}
+        />
+        <StatCard
+          label="Invoices Due"
+          value={data.invoicesDue}
+          icon={Receipt}
+          accent={data.invoicesDue > 0 ? "danger" : "success"}
+          loading={loading}
+        />
       </div>
 
       {/* Quick Actions */}
@@ -241,7 +314,10 @@ export default function WholesaleDashboardPage(): React.ReactElement {
             <CardHeader className="p-4 pb-2 border-b border-border/60">
               <CardTitle className="text-xs font-bold uppercase tracking-wider flex items-center justify-between">
                 <span>Recent Bulk Orders</span>
-                <Link href="/wholesale/orders" className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1">
+                <Link
+                  href="/wholesale/orders"
+                  className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
+                >
                   View all <ArrowRight className="h-3 w-3" />
                 </Link>
               </CardTitle>
@@ -250,7 +326,10 @@ export default function WholesaleDashboardPage(): React.ReactElement {
               {recentOrders.length === 0 ? (
                 <div className="px-6 py-10 text-center text-sm text-muted-foreground">
                   No orders yet.{" "}
-                  <Link href="/wholesale/bulk-orders/create" className="text-primary font-semibold hover:underline">
+                  <Link
+                    href="/wholesale/bulk-orders/create"
+                    className="text-primary font-semibold hover:underline"
+                  >
                     Place your first bulk order
                   </Link>
                 </div>
@@ -263,14 +342,23 @@ export default function WholesaleDashboardPage(): React.ReactElement {
                       className="flex items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-muted/50 group"
                     >
                       <div className="min-w-0">
-                        <p className="truncate text-xs sm:text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{o.orderNumber}</p>
+                        <p className="truncate text-xs sm:text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                          {o.orderNumber}
+                        </p>
                         <p className="text-[11px] text-muted-foreground mt-0.5">
-                          {o.itemCount} items · {o.createdAt ? new Date(o.createdAt).toLocaleDateString() : "—"}
+                          {o.itemCount} items ·{" "}
+                          {o.createdAt ? new Date(o.createdAt).toLocaleDateString() : "—"}
                         </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-3">
-                        <span className="text-xs sm:text-sm font-bold text-foreground tabular-nums">{formatCents(o.total)}</span>
-                        <StatusChip label={o.status} tone={statusToneFromValue(o.status)} size="sm" />
+                        <span className="text-xs sm:text-sm font-bold text-foreground tabular-nums">
+                          {formatCents(o.total)}
+                        </span>
+                        <StatusChip
+                          label={o.status}
+                          tone={statusToneFromValue(o.status)}
+                          size="sm"
+                        />
                       </div>
                     </Link>
                   ))}
@@ -284,7 +372,10 @@ export default function WholesaleDashboardPage(): React.ReactElement {
             <CardHeader className="p-4 pb-2 border-b border-border/60">
               <CardTitle className="text-xs font-bold uppercase tracking-wider flex items-center justify-between">
                 <span>Pending Quotations</span>
-                <Link href="/wholesale/quotations" className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1">
+                <Link
+                  href="/wholesale/quotations"
+                  className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
+                >
                   View all <ArrowRight className="h-3 w-3" />
                 </Link>
               </CardTitle>
@@ -293,26 +384,35 @@ export default function WholesaleDashboardPage(): React.ReactElement {
               {recentQuotations.length === 0 ? (
                 <div className="px-6 py-10 text-center text-sm text-muted-foreground">
                   No pending quotations.{" "}
-                  <Link href="/wholesale/quotations" className="text-primary font-semibold hover:underline">
+                  <Link
+                    href="/wholesale/quotations"
+                    className="text-primary font-semibold hover:underline"
+                  >
                     Request a quote
                   </Link>
                 </div>
               ) : (
                 <div className="divide-y divide-border/60">
                   {recentQuotations.map((q) => (
-                    <div
-                      key={q.id}
-                      className="flex items-center justify-between gap-3 px-4 py-3.5"
-                    >
+                    <div key={q.id} className="flex items-center justify-between gap-3 px-4 py-3.5">
                       <div className="min-w-0">
-                        <p className="truncate text-xs sm:text-sm font-semibold text-foreground">{q.quoteNumber}</p>
+                        <p className="truncate text-xs sm:text-sm font-semibold text-foreground">
+                          {q.quoteNumber}
+                        </p>
                         <p className="text-[11px] text-muted-foreground mt-0.5">
-                          {q.itemCount} items · {q.createdAt ? new Date(q.createdAt).toLocaleDateString() : "—"}
+                          {q.itemCount} items ·{" "}
+                          {q.createdAt ? new Date(q.createdAt).toLocaleDateString() : "—"}
                         </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-3">
-                        <span className="text-xs sm:text-sm font-bold text-foreground tabular-nums">{formatCents(q.grandTotal)}</span>
-                        <StatusChip label={q.status} tone={statusToneFromValue(q.status)} size="sm" />
+                        <span className="text-xs sm:text-sm font-bold text-foreground tabular-nums">
+                          {formatCents(q.grandTotal)}
+                        </span>
+                        <StatusChip
+                          label={q.status}
+                          tone={statusToneFromValue(q.status)}
+                          size="sm"
+                        />
                       </div>
                     </div>
                   ))}

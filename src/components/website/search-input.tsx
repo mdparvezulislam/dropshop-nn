@@ -9,7 +9,16 @@ import { cn } from "@/lib/utils/cn";
 
 const RECENT_STORAGE_KEY = "dropshopnn_recent_searches";
 const MAX_RECENT = 5;
-const TRENDING_SEARCHES = ["wireless headphones", "smart watch", "phone case", "men t-shirt", "women bag", "led light", "sneakers", "bluetooth speaker"];
+const TRENDING_SEARCHES = [
+  "wireless headphones",
+  "smart watch",
+  "phone case",
+  "men t-shirt",
+  "women bag",
+  "led light",
+  "sneakers",
+  "bluetooth speaker",
+];
 
 interface AutocompleteSuggestion {
   type: "product" | "category" | "brand" | "suggestion";
@@ -86,13 +95,19 @@ export function SearchInput({ open, onClose }: SearchInputProps) {
 
     setLoading(true);
     try {
-      const { searchAutocompleteAction } = await import("@/features/catalog/actions/public-actions");
+      const { searchAutocompleteAction } =
+        await import("@/features/catalog/actions/public-actions");
       const res = await searchAutocompleteAction(q);
       if (res.success && res.data) {
         const items: AutocompleteSuggestion[] = [];
 
         for (const p of res.data.products) {
-          items.push({ type: "product", label: p.name, href: `/product/${p.slug}`, image: p.image });
+          items.push({
+            type: "product",
+            label: p.name,
+            href: `/product/${p.slug}`,
+            image: p.image,
+          });
         }
 
         for (const c of res.data.categories) {
@@ -305,9 +320,7 @@ export function SearchInput({ open, onClose }: SearchInputProps) {
                         data-index={i}
                         className={cn(
                           "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors group",
-                          selectedIndex === i
-                            ? "bg-primary/10 text-primary"
-                            : "hover:bg-muted/60",
+                          selectedIndex === i ? "bg-primary/10 text-primary" : "hover:bg-muted/60",
                         )}
                       >
                         <Package className="h-3.5 w-3.5 shrink-0 text-foreground/30" />
@@ -330,9 +343,7 @@ export function SearchInput({ open, onClose }: SearchInputProps) {
                         onClick={() => handleSubmit(item.label)}
                         className={cn(
                           "flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors group",
-                          selectedIndex === i
-                            ? "bg-primary/10 text-primary"
-                            : "hover:bg-muted/60",
+                          selectedIndex === i ? "bg-primary/10 text-primary" : "hover:bg-muted/60",
                         )}
                       >
                         <Search className="h-3.5 w-3.5 shrink-0 text-foreground/30" />

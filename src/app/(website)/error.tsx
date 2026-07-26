@@ -23,12 +23,20 @@ export default function WebsiteError({
         {error.message || "একটি অনাকাঙ্ক্ষিত ত্রুটি ঘটেছে। অনুগ্রহ করে পুনরায় চেষ্টা করুন।"}
       </p>
       <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
-        <Button onClick={reset} size="lg" className="h-11 px-6 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs">
+        <Button
+          onClick={reset}
+          size="lg"
+          className="h-11 px-6 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs"
+        >
           <RefreshCcw className="h-4 w-4 mr-2" />
           পুনরায় চেষ্টা করুন
         </Button>
         <Link href="/">
-          <Button variant="outline" size="lg" className="h-11 px-6 text-xs font-extrabold border-border/80 text-foreground hover:bg-muted">
+          <Button
+            variant="outline"
+            size="lg"
+            className="h-11 px-6 text-xs font-extrabold border-border/80 text-foreground hover:bg-muted"
+          >
             <Home className="h-4 w-4 mr-2" />
             হোম পেজে ফিরে যান
           </Button>

@@ -4,8 +4,13 @@ import { AnalyticsCacheService } from "./analytics-cache-service";
 import { EventFactRepository } from "../repositories/event-fact-repository";
 import { resolveDateRange, type DateRange } from "./analytics-query-service";
 import {
-  type AnalyticsReport, type AnalyticsReportChart, type ReportFrequency,
-  type AnalyticsFilter, type MetricCardData, type TimeSeriesPoint, ANALYTICS_EVENT_NAMES,
+  type AnalyticsReport,
+  type AnalyticsReportChart,
+  type ReportFrequency,
+  type AnalyticsFilter,
+  type MetricCardData,
+  type TimeSeriesPoint,
+  ANALYTICS_EVENT_NAMES,
 } from "../domain/analytics-entity";
 import { EventBus } from "@/lib/event-bus";
 import { ANALYTICS_DOMAIN_EVENTS } from "../domain/analytics-events";
@@ -47,11 +52,15 @@ export class ReportService {
 
     const saved = await this.reportRepo.create(report as any);
 
-    await EventBus.publish(ANALYTICS_DOMAIN_EVENTS.REPORT_GENERATED, {
-      reportId: saved.id,
-      title: saved.title,
-      type: saved.type,
-    }, { source: "report-service" });
+    await EventBus.publish(
+      ANALYTICS_DOMAIN_EVENTS.REPORT_GENERATED,
+      {
+        reportId: saved.id,
+        title: saved.title,
+        type: saved.type,
+      },
+      { source: "report-service" },
+    );
 
     return saved;
   }
@@ -79,25 +88,37 @@ export class ReportService {
 
   private getDefaultPreset(type: ReportFrequency): string {
     switch (type) {
-      case "daily": return "today";
-      case "weekly": return "7d";
-      case "monthly": return "30d";
-      case "quarterly": return "90d";
-      case "yearly": return "12m";
-      default: return "30d";
+      case "daily":
+        return "today";
+      case "weekly":
+        return "7d";
+      case "monthly":
+        return "30d";
+      case "quarterly":
+        return "90d";
+      case "yearly":
+        return "12m";
+      default:
+        return "30d";
     }
   }
 
-  private async collectReportData(range: DateRange, type: ReportFrequency): Promise<Record<string, unknown>> {
+  private async collectReportData(
+    range: DateRange,
+    type: ReportFrequency,
+  ): Promise<Record<string, unknown>> {
     const [revenue, orders, sessions, productViews] = await Promise.all([
       this.facts.sumValueInRange(range.from, range.to, [
-        ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID,
+        ANALYTICS_EVENT_NAMES.ORDER_CREATED,
+        ANALYTICS_EVENT_NAMES.ORDER_PAID,
       ]),
       this.facts.countInRange(range.from, range.to, {
         eventName: [ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID],
       }),
       this.facts.distinctSessions(range.from, range.to),
-      this.facts.countInRange(range.from, range.to, { eventName: ANALYTICS_EVENT_NAMES.PRODUCT_VIEWED }),
+      this.facts.countInRange(range.from, range.to, {
+        eventName: ANALYTICS_EVENT_NAMES.PRODUCT_VIEWED,
+      }),
     ]);
 
     return { revenue, orders, sessions, productViews, type, generatedAt: new Date().toISOString() };
@@ -106,7 +127,8 @@ export class ReportService {
   private async buildMetrics(range: DateRange): Promise<MetricCardData[]> {
     const [revenue, orders, sessions] = await Promise.all([
       this.facts.sumValueInRange(range.from, range.to, [
-        ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID,
+        ANALYTICS_EVENT_NAMES.ORDER_CREATED,
+        ANALYTICS_EVENT_NAMES.ORDER_PAID,
       ]),
       this.facts.countInRange(range.from, range.to, {
         eventName: [ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID],
@@ -119,20 +141,29 @@ export class ReportService {
       { key: "orders", label: "Orders", value: orders, format: "number" },
       { key: "sessions", label: "Sessions", value: sessions, format: "number" },
       {
-        key: "aov", label: "Avg Order Value",
-        value: orders > 0 ? Math.round(revenue / orders) : 0, format: "currency", currency: "BDT",
+        key: "aov",
+        label: "Avg Order Value",
+        value: orders > 0 ? Math.round(revenue / orders) : 0,
+        format: "currency",
+        currency: "BDT",
       },
     ];
   }
 
   private async buildCharts(range: DateRange): Promise<AnalyticsReportChart[]> {
-    const revenueSeries = await this.facts.seriesByDay(range.from, range.to, [
-      ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID,
-    ], "sum") as TimeSeriesPoint[];
+    const revenueSeries = (await this.facts.seriesByDay(
+      range.from,
+      range.to,
+      [ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID],
+      "sum",
+    )) as TimeSeriesPoint[];
 
-    const ordersSeries = await this.facts.seriesByDay(range.from, range.to, [
-      ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID,
-    ], "count") as TimeSeriesPoint[];
+    const ordersSeries = (await this.facts.seriesByDay(
+      range.from,
+      range.to,
+      [ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID],
+      "count",
+    )) as TimeSeriesPoint[];
 
     return [
       { id: "revenue", title: "Revenue Trend", type: "area", data: revenueSeries },

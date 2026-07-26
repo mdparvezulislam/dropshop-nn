@@ -16,7 +16,10 @@ import {
 import { useCatalogWorkspace } from "@/features/catalog/hooks/use-catalog-workspace";
 import { CatalogWorkspaceHeader } from "@/features/catalog/components/catalog-workspace-header";
 import { CatalogSummaryCards } from "@/features/catalog/components/catalog-summary-cards";
-import { CatalogTableView, type ProductCatalogItem } from "@/features/catalog/components/catalog-table-view";
+import {
+  CatalogTableView,
+  type ProductCatalogItem,
+} from "@/features/catalog/components/catalog-table-view";
 import { CatalogGridView } from "@/features/catalog/components/catalog-grid-view";
 import { CatalogAnalyticsView } from "@/features/catalog/components/catalog-analytics-view";
 import { CatalogPreviewDrawer } from "@/features/catalog/components/catalog-preview-drawer";
@@ -27,19 +30,34 @@ import { CatalogExportModal } from "@/features/catalog/components/modals/catalog
 export default function ProductsMasterWorkspacePage(): React.ReactElement {
   const router = useRouter();
   const {
-    activeTab, setActiveTab,
-    viewMode, setViewMode,
-    filters, updateFilter,
-    selectedIds, setSelectedIds, toggleSelect, clearSelection,
-    previewProductId, setPreviewProductId,
-    bulkModalOpen, setBulkModalOpen,
-    importModalOpen, setImportModalOpen,
-    exportModalOpen, setExportModalOpen,
+    activeTab,
+    setActiveTab,
+    viewMode,
+    setViewMode,
+    filters,
+    updateFilter,
+    selectedIds,
+    setSelectedIds,
+    toggleSelect,
+    clearSelection,
+    previewProductId,
+    setPreviewProductId,
+    bulkModalOpen,
+    setBulkModalOpen,
+    importModalOpen,
+    setImportModalOpen,
+    exportModalOpen,
+    setExportModalOpen,
   } = useCatalogWorkspace();
 
   const [items, setItems] = React.useState<ProductCatalogItem[]>([]);
   const [stats, setStats] = React.useState<CatalogSummaryStats>({
-    total: 0, active: 0, draft: 0, outOfStock: 0, lowStock: 0, campaign: 0,
+    total: 0,
+    active: 0,
+    draft: 0,
+    outOfStock: 0,
+    lowStock: 0,
+    campaign: 0,
   });
   const [loading, setLoading] = React.useState(true);
 
@@ -71,7 +89,11 @@ export default function ProductsMasterWorkspacePage(): React.ReactElement {
           costPrice: p.costPrice ?? 800,
           stock: p.stockQuantity ?? p.stock ?? 25,
           status: p.status ?? "draft",
-          image: p.images?.[0]?.url || (typeof p.images?.[0] === "string" ? p.images[0] : "") || p.image || "",
+          image:
+            p.images?.[0]?.url ||
+            (typeof p.images?.[0] === "string" ? p.images[0] : "") ||
+            p.image ||
+            "",
           updatedAt: p.updatedAt,
         }));
 

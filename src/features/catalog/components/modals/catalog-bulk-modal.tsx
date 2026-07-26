@@ -23,7 +23,9 @@ export function CatalogBulkModal({
   onComplete,
 }: CatalogBulkModalProps): React.ReactElement {
   const [status, setStatus] = React.useState<"" | "active" | "draft" | "archived">("");
-  const [priceType, setPriceType] = React.useState<"none" | "percent_add" | "percent_sub" | "fixed">("none");
+  const [priceType, setPriceType] = React.useState<
+    "none" | "percent_add" | "percent_sub" | "fixed"
+  >("none");
   const [priceValue, setPriceValue] = React.useState("");
   const [stockType, setStockType] = React.useState<"none" | "set" | "add" | "sub">("none");
   const [stockValue, setStockValue] = React.useState("");
@@ -37,8 +39,14 @@ export function CatalogBulkModal({
 
       const res = await bulkUpdateProductsAction(selectedIds, {
         status: status || undefined,
-        priceAdjustment: priceType !== "none" && !isNaN(priceValNum) ? { type: priceType as any, value: priceValNum } : undefined,
-        stockAdjustment: stockType !== "none" && !isNaN(stockValNum) ? { type: stockType as any, value: stockValNum } : undefined,
+        priceAdjustment:
+          priceType !== "none" && !isNaN(priceValNum)
+            ? { type: priceType as any, value: priceValNum }
+            : undefined,
+        stockAdjustment:
+          stockType !== "none" && !isNaN(stockValNum)
+            ? { type: stockType as any, value: stockValNum }
+            : undefined,
       });
 
       if (res.success) {
@@ -60,7 +68,8 @@ export function CatalogBulkModal({
       <DialogContent className="max-w-md border border-border bg-card shadow-2xl rounded-2xl p-6">
         <DialogHeader>
           <DialogTitle className="text-base font-bold flex items-center gap-2 text-foreground">
-            <Layers className="h-4 w-4 text-primary" /> বাল্ক আপডেট (Bulk Operations: {selectedIds.length} Items)
+            <Layers className="h-4 w-4 text-primary" /> বাল্ক আপডেট (Bulk Operations:{" "}
+            {selectedIds.length} Items)
           </DialogTitle>
         </DialogHeader>
 
@@ -81,7 +90,9 @@ export function CatalogBulkModal({
 
           {/* Bulk Price Adjustment */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-foreground">Bulk Price Modification Engine</label>
+            <label className="text-xs font-bold text-foreground">
+              Bulk Price Modification Engine
+            </label>
             <div className="grid grid-cols-2 gap-2">
               <select
                 value={priceType}
@@ -133,7 +144,12 @@ export function CatalogBulkModal({
             <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button size="sm" className="gap-1 font-bold shadow-xs" onClick={handleApply} disabled={submitting}>
+            <Button
+              size="sm"
+              className="gap-1 font-bold shadow-xs"
+              onClick={handleApply}
+              disabled={submitting}
+            >
               <CheckCircle2 className="h-3.5 w-3.5" /> Apply to {selectedIds.length} Products
             </Button>
           </div>

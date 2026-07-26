@@ -70,9 +70,7 @@ export default function ResellerCustomersPage(): React.ReactElement {
     {
       id: "phone",
       header: "Phone",
-      cell: (r) => (
-        <span className="font-mono text-sm text-muted-foreground">{r.phone}</span>
-      ),
+      cell: (r) => <span className="font-mono text-sm text-muted-foreground">{r.phone}</span>,
     },
     {
       id: "notes",
@@ -121,7 +119,11 @@ export default function ResellerCustomersPage(): React.ReactElement {
         ) : (
           <>
             <StatCard label="Total Customers" value={rows.length} icon={Users} />
-            <StatCard label="With Notes" value={rows.filter((r) => r.notesCount > 0).length} accent="info" />
+            <StatCard
+              label="With Notes"
+              value={rows.filter((r) => r.notesCount > 0).length}
+              accent="info"
+            />
           </>
         )
       }
@@ -130,7 +132,9 @@ export default function ResellerCustomersPage(): React.ReactElement {
           left={
             <SearchBox
               value={search}
-              onChange={(v) => { setSearch(v); }}
+              onChange={(v) => {
+                setSearch(v);
+              }}
               placeholder="Search customers…"
               className="w-full sm:w-72"
             />

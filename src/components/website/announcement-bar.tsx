@@ -41,4 +41,3 @@ export function AnnouncementBar() {
 }
 
 export default AnnouncementBar;
-

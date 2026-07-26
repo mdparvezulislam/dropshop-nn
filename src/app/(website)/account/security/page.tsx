@@ -10,8 +10,6 @@ export const metadata: Metadata = {
 export default async function SecurityPage() {
   const sessionsResult = await getActiveSessionsAction();
   return (
-    <SecurityPageContent
-      sessions={sessionsResult.success ? sessionsResult.data ?? [] : []}
-    />
+    <SecurityPageContent sessions={sessionsResult.success ? (sessionsResult.data ?? []) : []} />
   );
 }

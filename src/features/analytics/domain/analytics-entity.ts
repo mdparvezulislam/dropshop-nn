@@ -69,8 +69,7 @@ export const ANALYTICS_EVENT_NAMES = {
 } as const;
 
 export type AnalyticsEventName =
-  | (typeof ANALYTICS_EVENT_NAMES)[keyof typeof ANALYTICS_EVENT_NAMES]
-  | string;
+  (typeof ANALYTICS_EVENT_NAMES)[keyof typeof ANALYTICS_EVENT_NAMES] | string;
 
 export interface AnalyticsEventFact extends Omit<BaseDBEntity, "metadata"> {
   eventId: string;

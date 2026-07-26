@@ -25,7 +25,8 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
   return {
     title: `${product.name} - DropshopNN Bangladesh`,
-    description: product.shortDescription ?? `বাংলাদেশে কিনুন ${product.name} সেরা পাইকারি ও রিসেলিং রেটে।`,
+    description:
+      product.shortDescription ?? `বাংলাদেশে কিনুন ${product.name} সেরা পাইকারি ও রিসেলিং রেটে।`,
     openGraph: {
       title: product.name,
       description: product.shortDescription ?? undefined,
@@ -79,7 +80,10 @@ export default async function PublicProductDetailsPage({ params }: ProductPagePr
   const jsonLd = generateProductJsonLd(product, pricing.retailPrice, pricing.currency);
 
   return (
-    <div data-layout="public" className="min-h-screen bg-slate-50 text-slate-900 py-6 pb-24 md:pb-12">
+    <div
+      data-layout="public"
+      className="min-h-screen bg-slate-50 text-slate-900 py-6 pb-24 md:pb-12"
+    >
       {/* Google SEO Schema.org JSON-LD */}
       <script
         type="application/ld+json"
@@ -89,9 +93,13 @@ export default async function PublicProductDetailsPage({ params }: ProductPagePr
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
         {/* Breadcrumbs */}
         <nav className="text-xs font-bold text-slate-500 mb-6 flex items-center gap-2">
-          <Link href="/" className="hover:text-red-600 transition-colors">হোম</Link>
+          <Link href="/" className="hover:text-red-600 transition-colors">
+            হোম
+          </Link>
           <span>/</span>
-          <Link href="/products" className="hover:text-red-600 transition-colors">ক্যাটালগ</Link>
+          <Link href="/products" className="hover:text-red-600 transition-colors">
+            ক্যাটালগ
+          </Link>
           <span>/</span>
           <span className="text-slate-900 font-black truncate">{product.name}</span>
         </nav>
@@ -99,10 +107,7 @@ export default async function PublicProductDetailsPage({ params }: ProductPagePr
         {/* Hero Section: Gallery (Left) & Details Panel (Right) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
           <div>
-            <ProductGallery
-              images={galleryImages}
-              title={product.name}
-            />
+            <ProductGallery images={galleryImages} title={product.name} />
           </div>
           <div>
             <ProductPagePanel

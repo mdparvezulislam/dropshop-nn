@@ -78,7 +78,10 @@ export function CourierSettingsUI(): React.ReactElement {
   const tabSliderRef = React.useRef<HTMLDivElement>(null);
   const scrollTabs = (direction: "left" | "right") => {
     if (tabSliderRef.current) {
-      tabSliderRef.current.scrollBy({ left: direction === "left" ? -280 : 280, behavior: "smooth" });
+      tabSliderRef.current.scrollBy({
+        left: direction === "left" ? -280 : 280,
+        behavior: "smooth",
+      });
     }
   };
 
@@ -232,7 +235,9 @@ export function CourierSettingsUI(): React.ReactElement {
 
   const handleGeneratePathaoToken = async () => {
     if (!paClientId || !paClientSecret || !paUsername || !paPassword) {
-      toast.error("Credentials missing. Please save Client ID, Client Secret, Username & Password first.");
+      toast.error(
+        "Credentials missing. Please save Client ID, Client Secret, Username & Password first.",
+      );
       return;
     }
     setSubmittingAction(true);
@@ -360,18 +365,30 @@ export function CourierSettingsUI(): React.ReactElement {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-slate-800 pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Courier Integration Settings Center</h1>
-            <Badge variant="outline" className="border-indigo-500/30 text-indigo-400 bg-indigo-950/40 text-[10px]">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+              Courier Integration Settings Center
+            </h1>
+            <Badge
+              variant="outline"
+              className="border-indigo-500/30 text-indigo-400 bg-indigo-950/40 text-[10px]"
+            >
               STEADFAST & PATHAO
             </Badge>
           </div>
           <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Dedicated Courier Integration Center: OAuth2 Tokens, Status Mapping, Webhooks, Pickup Locations & API Logs
+            Dedicated Courier Integration Center: OAuth2 Tokens, Status Mapping, Webhooks, Pickup
+            Locations & API Logs
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Button onClick={loadAllData} size="sm" variant="ghost" disabled={loading} className="text-slate-400 hover:text-white">
+          <Button
+            onClick={loadAllData}
+            size="sm"
+            variant="ghost"
+            disabled={loading}
+            className="text-slate-400 hover:text-white"
+          >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </Button>
         </div>
@@ -395,7 +412,9 @@ export function CourierSettingsUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("dashboard")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "dashboard" ? "bg-indigo-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "dashboard"
+                ? "bg-indigo-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <Activity className="h-3.5 w-3.5" /> Courier Dashboard
@@ -403,7 +422,9 @@ export function CourierSettingsUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("steadfast_config")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "steadfast_config" ? "bg-indigo-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "steadfast_config"
+                ? "bg-indigo-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <Truck className="h-3.5 w-3.5 text-cyan-400" /> Steadfast Configuration
@@ -411,7 +432,9 @@ export function CourierSettingsUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("pathao_config")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "pathao_config" ? "bg-indigo-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "pathao_config"
+                ? "bg-indigo-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <Truck className="h-3.5 w-3.5 text-rose-400" /> Pathao Configuration
@@ -419,7 +442,9 @@ export function CourierSettingsUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("pathao_tokens")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "pathao_tokens" ? "bg-indigo-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "pathao_tokens"
+                ? "bg-indigo-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <Key className="h-3.5 w-3.5 text-yellow-400" /> Pathao Token Manager
@@ -427,7 +452,9 @@ export function CourierSettingsUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("pickup_locations")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "pickup_locations" ? "bg-indigo-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "pickup_locations"
+                ? "bg-indigo-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <Building className="h-3.5 w-3.5 text-emerald-400" /> Shared Pickup Locations
@@ -435,7 +462,9 @@ export function CourierSettingsUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("global_rules")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "global_rules" ? "bg-indigo-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "global_rules"
+                ? "bg-indigo-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <Sliders className="h-3.5 w-3.5 text-sky-400" /> Auto-Booking & Rules
@@ -443,7 +472,9 @@ export function CourierSettingsUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("api_logs")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "api_logs" ? "bg-indigo-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "api_logs"
+                ? "bg-indigo-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <History className="h-3.5 w-3.5 text-slate-300" /> API Health & Logs
@@ -468,7 +499,9 @@ export function CourierSettingsUI(): React.ReactElement {
             <Card className="bg-slate-900/80 border-slate-800">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <div className="flex items-center gap-2">
-                  <CardTitle className="text-base font-bold text-white">Steadfast Courier</CardTitle>
+                  <CardTitle className="text-base font-bold text-white">
+                    Steadfast Courier
+                  </CardTitle>
                   <Badge variant={stEnabled ? "success" : "outline"} className="text-[10px]">
                     {stEnabled ? "ENABLED" : "DISABLED"}
                   </Badge>
@@ -476,26 +509,39 @@ export function CourierSettingsUI(): React.ReactElement {
                     {stSandbox ? "SANDBOX" : "PRODUCTION"}
                   </Badge>
                 </div>
-                <Button onClick={handleTestSteadfastConnection} disabled={testingSteadfast} size="sm" variant="outline" className="text-xs h-7">
+                <Button
+                  onClick={handleTestSteadfastConnection}
+                  disabled={testingSteadfast}
+                  size="sm"
+                  variant="outline"
+                  className="text-xs h-7"
+                >
                   {testingSteadfast ? "Testing..." : "Test Connection"}
                 </Button>
               </CardHeader>
               <CardContent className="space-y-3 text-xs">
                 <div className="flex items-center justify-between p-2 rounded bg-slate-950 border border-slate-800">
                   <span className="text-slate-400">Connection Status:</span>
-                  <Badge variant={data?.steadfast?.connectionStatus === "connected" ? "success" : "destructive"}>
+                  <Badge
+                    variant={
+                      data?.steadfast?.connectionStatus === "connected" ? "success" : "destructive"
+                    }
+                  >
                     {data?.steadfast?.connectionStatus || "untested"}
                   </Badge>
                 </div>
                 <div className="flex items-center justify-between p-2 rounded bg-slate-950 border border-slate-800">
                   <span className="text-slate-400">Today's Requests / Errors:</span>
                   <span className="font-semibold text-white">
-                    {data?.steadfastHealth?.totalRequests || 0} / <span className="text-rose-400">{data?.steadfastHealth?.errorCount || 0}</span>
+                    {data?.steadfastHealth?.totalRequests || 0} /{" "}
+                    <span className="text-rose-400">{data?.steadfastHealth?.errorCount || 0}</span>
                   </span>
                 </div>
                 <div className="flex items-center justify-between p-2 rounded bg-slate-950 border border-slate-800">
                   <span className="text-slate-400">Avg API Response Time:</span>
-                  <span className="font-semibold text-emerald-400">{data?.steadfastHealth?.avgResponseTimeMs || 0} ms</span>
+                  <span className="font-semibold text-emerald-400">
+                    {data?.steadfastHealth?.avgResponseTimeMs || 0} ms
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -512,7 +558,13 @@ export function CourierSettingsUI(): React.ReactElement {
                     {paSandbox ? "SANDBOX" : "PRODUCTION"}
                   </Badge>
                 </div>
-                <Button onClick={handleTestPathaoConnection} disabled={testingPathao} size="sm" variant="outline" className="text-xs h-7">
+                <Button
+                  onClick={handleTestPathaoConnection}
+                  disabled={testingPathao}
+                  size="sm"
+                  variant="outline"
+                  className="text-xs h-7"
+                >
                   {testingPathao ? "Testing..." : "Test Connection"}
                 </Button>
               </CardHeader>
@@ -526,12 +578,15 @@ export function CourierSettingsUI(): React.ReactElement {
                 <div className="flex items-center justify-between p-2 rounded bg-slate-950 border border-slate-800">
                   <span className="text-slate-400">Today's Requests / Errors:</span>
                   <span className="font-semibold text-white">
-                    {data?.pathaoHealth?.totalRequests || 0} / <span className="text-rose-400">{data?.pathaoHealth?.errorCount || 0}</span>
+                    {data?.pathaoHealth?.totalRequests || 0} /{" "}
+                    <span className="text-rose-400">{data?.pathaoHealth?.errorCount || 0}</span>
                   </span>
                 </div>
                 <div className="flex items-center justify-between p-2 rounded bg-slate-950 border border-slate-800">
                   <span className="text-slate-400">Avg API Response Time:</span>
-                  <span className="font-semibold text-emerald-400">{data?.pathaoHealth?.avgResponseTimeMs || 0} ms</span>
+                  <span className="font-semibold text-emerald-400">
+                    {data?.pathaoHealth?.avgResponseTimeMs || 0} ms
+                  </span>
                 </div>
               </CardContent>
             </Card>
@@ -552,7 +607,9 @@ export function CourierSettingsUI(): React.ReactElement {
               <div className="flex items-center justify-between p-3 rounded bg-slate-950 border border-slate-800">
                 <div>
                   <p className="text-xs font-semibold text-white">Enable Steadfast Integration</p>
-                  <p className="text-[11px] text-slate-400">Allow booking and tracking via Steadfast Courier API</p>
+                  <p className="text-[11px] text-slate-400">
+                    Allow booking and tracking via Steadfast Courier API
+                  </p>
                 </div>
                 <Switch checked={stEnabled} onCheckedChange={setStEnabled} />
               </div>
@@ -560,7 +617,9 @@ export function CourierSettingsUI(): React.ReactElement {
               <div className="flex items-center justify-between p-3 rounded bg-slate-950 border border-slate-800">
                 <div>
                   <p className="text-xs font-semibold text-white">Sandbox / Staging Mode</p>
-                  <p className="text-[11px] text-slate-400">Use Steadfast sandbox environment for testing</p>
+                  <p className="text-[11px] text-slate-400">
+                    Use Steadfast sandbox environment for testing
+                  </p>
                 </div>
                 <Switch checked={stSandbox} onCheckedChange={setStSandbox} />
               </div>
@@ -599,7 +658,9 @@ export function CourierSettingsUI(): React.ReactElement {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-300">Default Pickup Location</label>
+                  <label className="text-xs font-medium text-slate-300">
+                    Default Pickup Location
+                  </label>
                   <select
                     value={stPickupId}
                     onChange={(e) => setStPickupId(e.target.value)}
@@ -614,7 +675,9 @@ export function CourierSettingsUI(): React.ReactElement {
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-300">Default Package Weight (grams)</label>
+                  <label className="text-xs font-medium text-slate-300">
+                    Default Package Weight (grams)
+                  </label>
                   <Input
                     type="number"
                     value={stWeight}
@@ -625,7 +688,12 @@ export function CourierSettingsUI(): React.ReactElement {
               </div>
 
               <div className="pt-2">
-                <Button type="submit" disabled={submittingAction} size="sm" className="bg-indigo-600 hover:bg-indigo-500">
+                <Button
+                  type="submit"
+                  disabled={submittingAction}
+                  size="sm"
+                  className="bg-indigo-600 hover:bg-indigo-500"
+                >
                   Save Steadfast Configuration
                 </Button>
               </div>
@@ -647,7 +715,9 @@ export function CourierSettingsUI(): React.ReactElement {
               <div className="flex items-center justify-between p-3 rounded bg-slate-950 border border-slate-800">
                 <div>
                   <p className="text-xs font-semibold text-white">Enable Pathao Integration</p>
-                  <p className="text-[11px] text-slate-400">Allow booking and tracking via Pathao Courier API</p>
+                  <p className="text-[11px] text-slate-400">
+                    Allow booking and tracking via Pathao Courier API
+                  </p>
                 </div>
                 <Switch checked={paEnabled} onCheckedChange={setPaEnabled} />
               </div>
@@ -655,7 +725,9 @@ export function CourierSettingsUI(): React.ReactElement {
               <div className="flex items-center justify-between p-3 rounded bg-slate-950 border border-slate-800">
                 <div>
                   <p className="text-xs font-semibold text-white">Sandbox / Staging Mode</p>
-                  <p className="text-[11px] text-slate-400">Use Pathao staging endpoint (`https://api-hermes.pathao.com`)</p>
+                  <p className="text-[11px] text-slate-400">
+                    Use Pathao staging endpoint (`https://api-hermes.pathao.com`)
+                  </p>
                 </div>
                 <Switch checked={paSandbox} onCheckedChange={setPaSandbox} />
               </div>
@@ -692,7 +764,9 @@ export function CourierSettingsUI(): React.ReactElement {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-medium text-slate-300">Pathao Username / Email *</label>
+                  <label className="text-xs font-medium text-slate-300">
+                    Pathao Username / Email *
+                  </label>
                   <Input
                     value={paUsername}
                     onChange={(e) => setPaUsername(e.target.value)}
@@ -700,7 +774,9 @@ export function CourierSettingsUI(): React.ReactElement {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-slate-300">Pathao Account Password *</label>
+                  <label className="text-xs font-medium text-slate-300">
+                    Pathao Account Password *
+                  </label>
                   <Input
                     type="password"
                     value={paPassword}
@@ -712,7 +788,9 @@ export function CourierSettingsUI(): React.ReactElement {
 
               <div className="flex items-center gap-2 pt-2">
                 <div className="flex-1">
-                  <label className="text-xs font-medium text-slate-300">Pathao Store ID (Pickup Location)</label>
+                  <label className="text-xs font-medium text-slate-300">
+                    Pathao Store ID (Pickup Location)
+                  </label>
                   <Input
                     value={paStoreId}
                     onChange={(e) => setPaStoreId(e.target.value)}
@@ -720,13 +798,25 @@ export function CourierSettingsUI(): React.ReactElement {
                     className="bg-slate-950 border-slate-800 text-xs mt-1"
                   />
                 </div>
-                <Button onClick={handleFetchPathaoStores} disabled={fetchingStores} type="button" size="sm" variant="outline" className="mt-5 text-xs">
+                <Button
+                  onClick={handleFetchPathaoStores}
+                  disabled={fetchingStores}
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className="mt-5 text-xs"
+                >
                   {fetchingStores ? "Fetching..." : "Fetch Stores"}
                 </Button>
               </div>
 
               <div className="pt-2">
-                <Button type="submit" disabled={submittingAction} size="sm" className="bg-indigo-600 hover:bg-indigo-500">
+                <Button
+                  type="submit"
+                  disabled={submittingAction}
+                  size="sm"
+                  className="bg-indigo-600 hover:bg-indigo-500"
+                >
                   Save Pathao Configuration
                 </Button>
               </div>
@@ -746,23 +836,39 @@ export function CourierSettingsUI(): React.ReactElement {
           <CardContent className="space-y-4">
             <div className="p-4 rounded-lg bg-slate-950 border border-slate-800 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-300 font-semibold">Active Access Token Status:</span>
+                <span className="text-xs text-slate-300 font-semibold">
+                  Active Access Token Status:
+                </span>
                 <Badge variant={pathaoToken ? "success" : "destructive"}>
                   {pathaoToken ? "ACTIVE OAUTH TOKEN" : "NO ACTIVE TOKEN"}
                 </Badge>
               </div>
               {pathaoTokenExpires && (
                 <p className="text-xs text-slate-400">
-                  Token Expiration: <span className="text-amber-300">{new Date(pathaoTokenExpires).toLocaleString()}</span>
+                  Token Expiration:{" "}
+                  <span className="text-amber-300">
+                    {new Date(pathaoTokenExpires).toLocaleString()}
+                  </span>
                 </p>
               )}
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <Button onClick={handleGeneratePathaoToken} disabled={submittingAction} size="sm" className="bg-emerald-600 hover:bg-emerald-500 text-xs">
+              <Button
+                onClick={handleGeneratePathaoToken}
+                disabled={submittingAction}
+                size="sm"
+                className="bg-emerald-600 hover:bg-emerald-500 text-xs"
+              >
                 Generate Pathao OAuth2 Token
               </Button>
-              <Button onClick={handleRefreshPathaoToken} disabled={submittingAction} size="sm" variant="outline" className="text-xs border-amber-500/40 text-amber-300">
+              <Button
+                onClick={handleRefreshPathaoToken}
+                disabled={submittingAction}
+                size="sm"
+                variant="outline"
+                className="text-xs border-amber-500/40 text-amber-300"
+              >
                 Refresh OAuth Token
               </Button>
             </div>
@@ -778,7 +884,9 @@ export function CourierSettingsUI(): React.ReactElement {
               <CardTitle className="text-base font-bold text-white flex items-center gap-2">
                 <Building className="h-4 w-4 text-emerald-400" /> Shared Pickup Locations Registry
               </CardTitle>
-              <p className="text-xs text-slate-400 mt-1">Shared warehouse & store pickup locations used across Steadfast & Pathao.</p>
+              <p className="text-xs text-slate-400 mt-1">
+                Shared warehouse & store pickup locations used across Steadfast & Pathao.
+              </p>
             </div>
           </CardHeader>
           <CardContent>
@@ -799,10 +907,16 @@ export function CourierSettingsUI(): React.ReactElement {
                     <TableCell className="text-xs font-semibold text-white">{a.name}</TableCell>
                     <TableCell className="text-xs text-slate-300">{a.contactPerson}</TableCell>
                     <TableCell className="text-xs font-mono text-slate-300">{a.phone}</TableCell>
-                    <TableCell className="text-xs text-slate-300">{a.district}, {a.area}</TableCell>
+                    <TableCell className="text-xs text-slate-300">
+                      {a.district}, {a.area}
+                    </TableCell>
                     <TableCell className="text-xs text-slate-400">{a.address}</TableCell>
                     <TableCell className="text-xs">
-                      {a.isDefault ? <Badge variant="success">DEFAULT</Badge> : <Badge variant="outline">STANDARD</Badge>}
+                      {a.isDefault ? (
+                        <Badge variant="success">DEFAULT</Badge>
+                      ) : (
+                        <Badge variant="outline">STANDARD</Badge>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -835,22 +949,35 @@ export function CourierSettingsUI(): React.ReactElement {
 
             <div className="flex items-center justify-between p-3 rounded bg-slate-950 border border-slate-800">
               <div>
-                <p className="text-xs font-semibold text-white">Auto Book After Order Confirmation</p>
-                <p className="text-[11px] text-slate-400">Automatically book courier consignment when order is confirmed</p>
+                <p className="text-xs font-semibold text-white">
+                  Auto Book After Order Confirmation
+                </p>
+                <p className="text-[11px] text-slate-400">
+                  Automatically book courier consignment when order is confirmed
+                </p>
               </div>
               <Switch checked={autoBookConfirm} onCheckedChange={setAutoBookConfirm} />
             </div>
 
             <div className="flex items-center justify-between p-3 rounded bg-slate-950 border border-slate-800">
               <div>
-                <p className="text-xs font-semibold text-white">Auto Book After Payment Verification</p>
-                <p className="text-[11px] text-slate-400">Automatically dispatch order after payment is captured</p>
+                <p className="text-xs font-semibold text-white">
+                  Auto Book After Payment Verification
+                </p>
+                <p className="text-[11px] text-slate-400">
+                  Automatically dispatch order after payment is captured
+                </p>
               </div>
               <Switch checked={autoBookPayment} onCheckedChange={setAutoBookPayment} />
             </div>
 
             <div className="pt-2">
-              <Button onClick={handleSaveGlobalRules} disabled={submittingAction} size="sm" className="bg-indigo-600 hover:bg-indigo-500">
+              <Button
+                onClick={handleSaveGlobalRules}
+                disabled={submittingAction}
+                size="sm"
+                className="bg-indigo-600 hover:bg-indigo-500"
+              >
                 Save Shipping Rules
               </Button>
             </div>
@@ -888,13 +1015,25 @@ export function CourierSettingsUI(): React.ReactElement {
                 ) : (
                   apiLogs.map((l) => (
                     <TableRow key={l.id} className="border-slate-800 hover:bg-slate-800/40">
-                      <TableCell className="text-xs text-slate-400">{new Date(l.timestamp).toLocaleString()}</TableCell>
-                      <TableCell className="text-xs uppercase font-semibold text-indigo-400">{l.provider}</TableCell>
-                      <TableCell className="text-xs capitalize text-slate-300">{l.logType}</TableCell>
-                      <TableCell className="text-xs font-mono text-slate-400">{l.endpoint}</TableCell>
-                      <TableCell className="text-xs font-semibold text-emerald-400">{l.responseTimeMs} ms</TableCell>
+                      <TableCell className="text-xs text-slate-400">
+                        {new Date(l.timestamp).toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-xs uppercase font-semibold text-indigo-400">
+                        {l.provider}
+                      </TableCell>
+                      <TableCell className="text-xs capitalize text-slate-300">
+                        {l.logType}
+                      </TableCell>
+                      <TableCell className="text-xs font-mono text-slate-400">
+                        {l.endpoint}
+                      </TableCell>
+                      <TableCell className="text-xs font-semibold text-emerald-400">
+                        {l.responseTimeMs} ms
+                      </TableCell>
                       <TableCell className="text-xs">
-                        <Badge variant={l.success ? "success" : "destructive"}>{l.success ? "SUCCESS" : "ERROR"}</Badge>
+                        <Badge variant={l.success ? "success" : "destructive"}>
+                          {l.success ? "SUCCESS" : "ERROR"}
+                        </Badge>
                       </TableCell>
                     </TableRow>
                   ))

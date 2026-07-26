@@ -3,17 +3,34 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { checkSkuUniquenessAction, checkSlugUniquenessAction } from "@/features/catalog/actions/product-actions";
+import { useSmartParse } from "./use-smart-parse";
 import { saveStudioProductAction, publishStudioProductAction } from "../actions/studio-actions";
-import { SmartParserService } from "../utils/smart-parser";
 import { useAutosave, type SaveState } from "./use-autosave";
 import { useHealthScore } from "./use-health-score";
 import { useAutoClassification } from "./use-auto-classification";
 import { useAutoGeneration } from "./use-auto-generation";
-import type { HealthScoreResult } from "../types/studio-types";
+import type { HealthScoreResult, SpecificationField } from "../types/studio-types";
 import type { VariantRow } from "../components/sections/variants-section";
 import type { MediaItem } from "../components/sections/media-section";
 import type { ProductType } from "@/features/catalog/domain/product-entity";
+
+export const STUDIO_SECTIONS: { id: string; label: string }[] = [
+  { id: "general", label: "General" },
+  { id: "description", label: "Description" },
+  { id: "category", label: "Category" },
+  { id: "brand", label: "Brand" },
+  { id: "variants", label: "Variant Studio" },
+  { id: "specifications", label: "Specifications" },
+  { id: "media", label: "Media Studio" },
+  { id: "pricing", label: "Pricing Engine" },
+  { id: "inventory", label: "Inventory" },
+  { id: "collections", label: "Collections & Channels" },
+  { id: "seo", label: "SEO & Google Feed" },
+  { id: "marketing", label: "Marketing Intelligence" },
+  { id: "relationships", label: "Recommendations" },
+  { id: "supplier", label: "Supplier Sourcing" },
+  { id: "publishing", label: "Publishing Schedule" },
+];
 
 export interface StudioFormState {
   name: string;
@@ -40,7 +57,7 @@ export interface StudioFormState {
   returnPolicy: string;
   notice?: string;
   badges?: string[];
-  specifications?: Array<{ key: string; value: string }>;
+  specifications?: SpecificationField[];
 
   /* Pricing */
   costPrice: string;
@@ -87,18 +104,55 @@ export interface StudioFormState {
 }
 
 const INITIAL_STATE: StudioFormState = {
-  name: "", productType: "simple" as ProductType, templateId: "",
-  sku: "", shortDescription: "", richDescription: "",
-  productModel: "", barcode: "", brandId: "", brandName: "", categoryId: "", categoryName: "", supplierId: "",
-  tags: [], visibility: "public", status: "draft",
-  featured: false, trending: false, flashSale: false, newArrival: true,
-  warranty: "", returnPolicy: "", notice: "", badges: [], specifications: [],
-  costPrice: "", sellingPrice: "", wholesalePrice: "", resellerPrice: "", comparePrice: "", campaignPrice: "", manualPriceOverrides: {},
-  inventorySku: "", inventoryBarcode: "", stock: "0", reservedStock: "0", incomingStock: "0", lowStockThreshold: "5",
-  warehouseLocation: "DHAKA-CENTRAL-WH1", weight: "0.5",
-  variants: [{ id: "v1", color: "", size: "", storage: "", ram: "", capacity: "", material: "", sku: "" }],
+  name: "",
+  productType: "simple" as ProductType,
+  templateId: "",
+  sku: "",
+  shortDescription: "",
+  richDescription: "",
+  productModel: "",
+  barcode: "",
+  brandId: "",
+  brandName: "",
+  categoryId: "",
+  categoryName: "",
+  supplierId: "",
+  tags: [],
+  visibility: "public",
+  status: "draft",
+  featured: false,
+  trending: false,
+  flashSale: false,
+  newArrival: true,
+  warranty: "",
+  returnPolicy: "",
+  notice: "",
+  badges: [],
+  specifications: [],
+  costPrice: "",
+  sellingPrice: "",
+  wholesalePrice: "",
+  resellerPrice: "",
+  comparePrice: "",
+  campaignPrice: "",
+  manualPriceOverrides: {},
+  inventorySku: "",
+  inventoryBarcode: "",
+  stock: "0",
+  reservedStock: "0",
+  incomingStock: "0",
+  lowStockThreshold: "5",
+  warehouseLocation: "DHAKA-CENTRAL-WH1",
+  weight: "0.5",
+  variants: [
+    { id: "v1", color: "", size: "", storage: "", ram: "", capacity: "", material: "", sku: "" },
+  ],
   media: [],
-  metaTitle: "", metaDescription: "", metaKeywords: [], slug: "", ogImage: "",
+  metaTitle: "",
+  metaDescription: "",
+  metaKeywords: [],
+  slug: "",
+  ogImage: "",
   bulletFeatures: [],
   selectedCollectionIds: [],
   channels: [],
@@ -122,6 +176,8 @@ export function useProductStudio(existingId?: string): {
   handleApplyAutoPricing: (pricing: Partial<StudioFormState>) => void;
   handleResetAutoPricing: () => void;
   handleMagicParse: (customText?: string) => void;
+  isParsing: boolean;
+  parseSummary: string[];
   handleSave: (overrideStatus?: string) => Promise<void>;
   handlePublish: () => Promise<void>;
   handlePreview: () => void;
@@ -166,65 +222,77 @@ export function useProductStudio(existingId?: string): {
     enabled: true,
   });
 
-  const update = React.useCallback((field: keyof StudioFormState, value: unknown) => {
-    setForm((prev) => {
-      const next = { ...prev, [field]: value };
+  const update = React.useCallback(
+    (field: keyof StudioFormState, value: unknown) => {
+      setForm((prev) => {
+        const next = { ...prev, [field]: value };
 
-      // Track manual price overrides
-      if (["sellingPrice", "wholesalePrice", "resellerPrice"].includes(field)) {
-        next.manualPriceOverrides = { ...prev.manualPriceOverrides, [field]: true };
-      }
+        // Track manual price overrides
+        if (["sellingPrice", "wholesalePrice", "resellerPrice"].includes(field)) {
+          next.manualPriceOverrides = { ...prev.manualPriceOverrides, [field]: true };
+        }
 
-      // Auto-calculate prices when cost changes (unless manually overridden)
-      if (field === "costPrice" && typeof value === "string") {
-        const cost = parseFloat(value) || 0;
-        if (cost > 0) {
-          if (!prev.manualPriceOverrides?.sellingPrice) {
-            next.sellingPrice = (cost * 1.30).toFixed(0);
+        // Auto-calculate prices when cost changes (unless manually overridden)
+        if (field === "costPrice" && typeof value === "string") {
+          const cost = parseFloat(value) || 0;
+          if (cost > 0) {
+            if (!prev.manualPriceOverrides?.sellingPrice) {
+              next.sellingPrice = (cost * 1.3).toFixed(0);
+            }
+            if (!prev.manualPriceOverrides?.wholesalePrice) {
+              next.wholesalePrice = (cost * 1.12).toFixed(0);
+            }
+            if (!prev.manualPriceOverrides?.resellerPrice) {
+              next.resellerPrice = (cost * 1.2).toFixed(0);
+            }
           }
-          if (!prev.manualPriceOverrides?.wholesalePrice) {
-            next.wholesalePrice = (cost * 1.12).toFixed(0);
+        }
+
+        // Auto-classification + auto-generation on name change
+        if (field === "name" && typeof value === "string" && value.trim().length >= 3) {
+          const classification = classifyFromName(value);
+          const generated = autoGenerate(value, prev.sku);
+
+          if (!prev.slug || prev.slug === autoGenerate(prev.name).slug) {
+            next.slug = generated.slug;
           }
-          if (!prev.manualPriceOverrides?.resellerPrice) {
-            next.resellerPrice = (cost * 1.20).toFixed(0);
+          if (!prev.metaTitle) {
+            next.metaTitle = generated.metaTitle;
+          }
+          if (!prev.metaDescription) {
+            next.metaDescription = generated.metaDescription;
+          }
+          if (classification.categoryName && !prev.categoryId) {
+            next.categoryName = classification.categoryName;
+          }
+          if (classification.brandName && !prev.brandId) {
+            next.brandName = classification.brandName;
+          }
+          if (classification.suggestedTags.length > 0 && prev.tags.length === 0) {
+            next.tags = classification.suggestedTags;
           }
         }
-      }
 
-      // Auto-classification + auto-generation on name change
-      if (field === "name" && typeof value === "string" && value.trim().length >= 3) {
-        const classification = classifyFromName(value);
-        const generated = autoGenerate(value, prev.sku);
+        return next;
+      });
+      triggerSave();
+    },
+    [triggerSave, classifyFromName, autoGenerate],
+  );
 
-        if (!prev.slug || prev.slug === autoGenerate(prev.name).slug) {
-          next.slug = generated.slug;
-        }
-        if (!prev.metaTitle) {
-          next.metaTitle = generated.metaTitle;
-        }
-        if (!prev.metaDescription) {
-          next.metaDescription = generated.metaDescription;
-        }
-        if (classification.categoryName && !prev.categoryId) {
-          next.categoryName = classification.categoryName;
-        }
-        if (classification.brandName && !prev.brandId) {
-          next.brandName = classification.brandName;
-        }
-        if (classification.suggestedTags.length > 0 && prev.tags.length === 0) {
-          next.tags = classification.suggestedTags;
-        }
-      }
+  const bulkUpdate = React.useCallback(
+    (partial: Partial<StudioFormState>) => {
+      setForm((prev) => ({ ...prev, ...partial }));
+      triggerSave();
+    },
+    [triggerSave],
+  );
 
-      return next;
-    });
-    triggerSave();
-  }, [triggerSave, classifyFromName, autoGenerate]);
-
-  const bulkUpdate = React.useCallback((partial: Partial<StudioFormState>) => {
-    setForm((prev) => ({ ...prev, ...partial }));
-    triggerSave();
-  }, [triggerSave]);
+  const { parse: rawParse, isParsing, summary: parseSummary } = useSmartParse(form, bulkUpdate);
+  const handleMagicParse = React.useCallback(
+    (customText?: string) => rawParse(customText ?? ""),
+    [rawParse],
+  );
 
   const handleAutoGenerateSKU = React.useCallback(() => {
     const prefix = form.name.trim() ? form.name.trim().substring(0, 3).toUpperCase() : "PROD";
@@ -235,142 +303,67 @@ export function useProductStudio(existingId?: string): {
     toast.success(`Generated SKU: ${newSku}`);
   }, [form.name, form.inventorySku, update]);
 
-  const handleApplyAutoPricing = React.useCallback((pricingPartial: Partial<StudioFormState>) => {
-    bulkUpdate({ ...pricingPartial, manualPriceOverrides: {} });
-    toast.success("Applied automated multi-tier pricing rules (+30%/+20%/+12%)");
-  }, [bulkUpdate]);
+  const handleApplyAutoPricing = React.useCallback(
+    (pricingPartial: Partial<StudioFormState>) => {
+      bulkUpdate({ ...pricingPartial, manualPriceOverrides: {} });
+      toast.success("Applied automated multi-tier pricing rules (+30%/+20%/+12%)");
+    },
+    [bulkUpdate],
+  );
 
   const handleResetAutoPricing = React.useCallback(() => {
     const cost = parseFloat(form.costPrice) || 0;
     if (cost <= 0) return;
     bulkUpdate({
-      sellingPrice: (cost * 1.30).toFixed(0),
+      sellingPrice: (cost * 1.3).toFixed(0),
       wholesalePrice: (cost * 1.12).toFixed(0),
-      resellerPrice: (cost * 1.20).toFixed(0),
+      resellerPrice: (cost * 1.2).toFixed(0),
       manualPriceOverrides: {},
     });
   }, [form.costPrice, bulkUpdate]);
 
-  const handleMagicParse = React.useCallback((customText?: string) => {
-    const textToParse = customText || form.richDescription || form.shortDescription || form.name || "";
-    if (!textToParse.trim()) {
-      toast.error("Please enter or paste product text in the description field first! (বিবরণ লিখুন বা পেস্ট করুন)");
-      return;
-    }
-
-    const parsed = SmartParserService.parse(textToParse);
-    const updates: Partial<StudioFormState> = {};
-    const report: string[] = [];
-
-    // 1. Title: Always auto-fill parsed title if available
-    if (parsed.title) {
-      updates.name = parsed.title;
-      report.push("Product Title");
-    }
-
-    // 2. SEO Meta Description (truncated to 160 chars max)
-    if (parsed.seoDescription) {
-      const cleanSeo = parsed.seoDescription.length > 160
-        ? parsed.seoDescription.substring(0, 157).trim() + "..."
-        : parsed.seoDescription;
-      updates.metaDescription = cleanSeo;
-      report.push("SEO Meta Description");
-
-      const cleanPitch = parsed.seoDescription.length > 500
-        ? parsed.seoDescription.substring(0, 497).trim() + "..."
-        : parsed.seoDescription;
-      updates.shortDescription = cleanPitch;
-      report.push("Short Summary Pitch");
-    }
-
-    // 3. Specifications: Format as [{ key, label, value, group, type }]
-    if (parsed.specifications && parsed.specifications.length > 0) {
-      const existingSpecs = form.specifications || [];
-      const specMap = new Map<string, any>();
-
-      // Preserve existing
-      for (const s of existingSpecs) {
-        if (s.key) specMap.set(s.key.toLowerCase(), s);
-      }
-
-      // Add/overwrite parsed specs
-      for (const s of parsed.specifications) {
-        specMap.set(s.key.toLowerCase(), {
-          key: s.key.trim(),
-          label: s.label || s.key.trim(),
-          value: String(s.value).trim(),
-          group: s.group || "General",
-          type: "text" as const,
-        });
-      }
-
-      updates.specifications = Array.from(specMap.values());
-      report.push(`${parsed.specifications.length} Specifications`);
-    }
-
-    // 4. Tags / Keywords: Flat array of string tags
-    if (parsed.keywords && parsed.keywords.length > 0) {
-      const tagSet = new Set(form.tags || []);
-      for (const kw of parsed.keywords) {
-        const cleanKw = kw.trim().toLowerCase();
-        if (cleanKw) tagSet.add(cleanKw);
-      }
-      updates.tags = Array.from(tagSet);
-      report.push(`${parsed.keywords.length} Tags`);
-    }
-
-    // 5. Features: Append HTML bullet list to richDescription if features exist
-    if (parsed.features && parsed.features.length > 0) {
-      const currentDescription = form.richDescription || textToParse;
-      if (!currentDescription.includes("<ul>") && !currentDescription.includes("<li>")) {
-        const featureHtml = `\n<h3>Key Features</h3>\n<ul>\n${parsed.features
-          .map((f) => `  <li>${f}</li>`)
-          .join("\n")}\n</ul>`;
-        updates.richDescription = `${currentDescription}\n${featureHtml}`;
-        report.push(`${parsed.features.length} Features`);
-      }
-    }
-
-    if (Object.keys(updates).length > 0) {
-      bulkUpdate(updates);
-      toast.success(`⚡ Product data successfully parsed and applied to fields! (${report.join(", ")})`);
-    } else {
-      toast.info("Could not extract any product attributes from the provided text.");
-    }
-  }, [form.richDescription, form.shortDescription, form.name, form.specifications, form.tags, bulkUpdate]);
+  // Simplified — delegates to useSmartParse hook
+  // useSmartParse handles: merge strategy, toast, field mapping, feature extraction
 
   const scrollToSection = React.useCallback((id: string) => {
     setActiveSection(id);
     document.getElementById(`studio-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
-  const handleSave = React.useCallback(async (overrideStatus?: string) => {
-    if (!form.name.trim()) {
-      toast.error("Product title is required (প্রোডাক্টের নাম আবশ্যক)");
-      scrollToSection("general");
-      return;
-    }
-    setSaving(true);
-    try {
-      const formToSave = overrideStatus ? { ...form, status: overrideStatus } : form;
-      const payload = buildPayload(formToSave);
-      const res = await saveStudioProductAction(payload, productIdRef.current);
-      if (res.success && res.data?.id) {
-        productIdRef.current = res.data.id;
-        toast.success(overrideStatus === "active" ? "Product published successfully! (পাবলিশ সফল হয়েছে)" : "Product saved as draft (খসড়া সংরক্ষিত)");
-        if (overrideStatus) setForm((prev) => ({ ...prev, status: overrideStatus }));
-        if (!existingId) {
-          router.replace(`/dashboard/products/${res.data.id}/edit`);
-        }
-      } else {
-        toast.error(res.error || "Save failed");
+  const handleSave = React.useCallback(
+    async (overrideStatus?: string) => {
+      if (!form.name.trim()) {
+        toast.error("Product title is required (প্রোডাক্টের নাম আবশ্যক)");
+        scrollToSection("general");
+        return;
       }
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Save failed");
-    } finally {
-      setSaving(false);
-    }
-  }, [form, existingId, router, scrollToSection]);
+      setSaving(true);
+      try {
+        const formToSave = overrideStatus ? { ...form, status: overrideStatus } : form;
+        const payload = buildPayload(formToSave);
+        const res = await saveStudioProductAction(payload, productIdRef.current);
+        if (res.success && res.data?.id) {
+          productIdRef.current = res.data.id;
+          toast.success(
+            overrideStatus === "active"
+              ? "Product published successfully! (পাবলিশ সফল হয়েছে)"
+              : "Product saved as draft (খসড়া সংরক্ষিত)",
+          );
+          if (overrideStatus) setForm((prev) => ({ ...prev, status: overrideStatus }));
+          if (!existingId) {
+            router.replace(`/dashboard/products/${res.data.id}/edit`);
+          }
+        } else {
+          toast.error(res.error || "Save failed");
+        }
+      } catch (err: unknown) {
+        toast.error(err instanceof Error ? err.message : "Save failed");
+      } finally {
+        setSaving(false);
+      }
+    },
+    [form, existingId, router, scrollToSection],
+  );
 
   const handlePublish = React.useCallback(async () => {
     if (!form.name.trim()) {
@@ -412,46 +405,57 @@ export function useProductStudio(existingId?: string): {
     }
   }, [form.slug]);
 
-  const sections = React.useMemo(() => [
-    { id: "general", label: "General" },
-    { id: "description", label: "Description" },
-    { id: "category", label: "Category" },
-    { id: "brand", label: "Brand" },
-    { id: "variants", label: "Variant Studio" },
-    { id: "specifications", label: "Specifications" },
-    { id: "media", label: "Media Studio" },
-    { id: "pricing", label: "Pricing Engine" },
-    { id: "inventory", label: "Inventory" },
-    { id: "collections", label: "Collections & Channels" },
-    { id: "seo", label: "SEO & Google Feed" },
-    { id: "marketing", label: "Marketing Intelligence" },
-    { id: "relationships", label: "Recommendations" },
-    { id: "supplier", label: "Supplier Sourcing" },
-    { id: "publishing", label: "Publishing Schedule" },
-  ], []);
-
   return {
-    form, update, bulkUpdate,
-    handleAutoGenerateSKU, handleApplyAutoPricing, handleResetAutoPricing, handleMagicParse,
-    handleSave, handlePublish, handlePreview,
-    saving, saveState, healthResult,
-    activeSection, setActiveSection, scrollToSection,
-    sections,
+    form,
+    update,
+    bulkUpdate,
+    handleAutoGenerateSKU,
+    handleApplyAutoPricing,
+    handleResetAutoPricing,
+    handleMagicParse,
+    isParsing,
+    parseSummary,
+    handleSave,
+    handlePublish,
+    handlePreview,
+    saving,
+    saveState,
+    healthResult,
+    activeSection,
+    setActiveSection,
+    scrollToSection,
+    sections: STUDIO_SECTIONS,
   };
 }
 
 function buildPayload(form: StudioFormState): Record<string, unknown> {
+  // Generate rich description HTML with features if present
+  let richDescription = form.richDescription || "";
+  if (form.bulletFeatures && form.bulletFeatures.length > 0) {
+    const nonEmptyFeatures = form.bulletFeatures.filter((f) => f.trim().length > 0);
+    if (nonEmptyFeatures.length > 0 && !richDescription.toLowerCase().includes("key features")) {
+      const featureHtml = `\n<h3>Key Features</h3>\n<ul>\n${nonEmptyFeatures
+        .map((f) => `  <li>${f.trim()}</li>`)
+        .join("\n")}\n</ul>`;
+      richDescription = `${richDescription}\n${featureHtml}`;
+    }
+  }
+
   return {
     name: form.name.trim(),
     productType: form.productType,
     templateId: form.templateId || undefined,
     sku: form.sku.trim() || form.inventorySku || `SKU-${Date.now()}`,
     shortDescription: form.shortDescription || undefined,
-    richDescription: form.richDescription || undefined,
-    description: form.richDescription || form.shortDescription || undefined,
+    richDescription: richDescription || undefined,
+    description: richDescription || form.shortDescription || undefined,
     notice: form.notice || undefined,
     badges: form.badges || [],
-    specifications: form.specifications || [],
+    specifications: (form.specifications || []).map((s) => ({
+      key: s.key,
+      value: String(s.value ?? ""),
+      group: s.group || "general",
+    })),
     productModel: form.productModel || undefined,
     barcode: form.barcode || undefined,
     brandId: form.brandId || undefined,

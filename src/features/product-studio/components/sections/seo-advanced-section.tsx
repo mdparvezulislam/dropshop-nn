@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { cn } from "@/lib/utils/cn";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,7 +9,7 @@ import { FormField } from "@/components/forms/form-field";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Globe, ShoppingBag, Share2, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
+import { Search, Globe, ShoppingBag, Sparkles, AlertCircle } from "lucide-react";
 import { useGoogleMerchant } from "../../hooks/use-google-merchant";
 import { GoogleMerchantModal } from "../modals/google-merchant-modal";
 
@@ -98,26 +99,28 @@ export function SEOAdvancedSection({
                   Search & Social Live Preview
                 </span>
               </div>
-              <div className="flex items-center gap-1 rounded-lg border border-border bg-muted/40 p-1">
+              <div className="flex items-center gap-1 rounded-xl sm:rounded-lg border border-border bg-muted/40 p-0.5 sm:p-1">
                 <button
                   type="button"
                   onClick={() => setPreviewTab("google")}
-                  className={`rounded-md px-2.5 py-0.5 text-[11px] font-bold transition-all ${
+                  className={cn(
+                    "rounded-xl sm:rounded-md px-3.5 sm:px-2.5 py-2 sm:py-0.5 text-xs sm:text-[11px] font-bold transition-all",
                     previewTab === "google"
                       ? "bg-primary text-primary-foreground shadow-2xs"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
                 >
                   Google Snippet
                 </button>
                 <button
                   type="button"
                   onClick={() => setPreviewTab("social")}
-                  className={`rounded-md px-2.5 py-0.5 text-[11px] font-bold transition-all ${
+                  className={cn(
+                    "rounded-xl sm:rounded-md px-3.5 sm:px-2.5 py-2 sm:py-0.5 text-xs sm:text-[11px] font-bold transition-all",
                     previewTab === "social"
                       ? "bg-primary text-primary-foreground shadow-2xs"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
+                      : "text-muted-foreground hover:text-foreground",
+                  )}
                 >
                   Facebook / OpenGraph
                 </button>
@@ -128,7 +131,9 @@ export function SEOAdvancedSection({
               <div className="p-3.5 rounded-xl border border-border bg-background space-y-1">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Globe className="h-3 w-3 text-success" />
-                  <span className="truncate font-mono text-[11px]">https://dropshop.nn/products/{displaySlug}</span>
+                  <span className="truncate font-mono text-[11px]">
+                    https://dropshop.nn/products/{displaySlug}
+                  </span>
                 </div>
                 <h3 className="text-sm font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer truncate">
                   {displayTitle}
@@ -140,10 +145,16 @@ export function SEOAdvancedSection({
             ) : (
               <div className="rounded-xl border border-border bg-card overflow-hidden max-w-md shadow-2xs">
                 <div className="aspect-[1.91/1] bg-muted flex items-center justify-center text-muted-foreground text-xs font-semibold">
-                  {ogImage ? <img src={ogImage} alt="OG" className="h-full w-full object-cover" /> : "OpenGraph Card Image"}
+                  {ogImage ? (
+                    <img src={ogImage} alt="OG" className="h-full w-full object-cover" />
+                  ) : (
+                    "OpenGraph Card Image"
+                  )}
                 </div>
                 <div className="p-3 space-y-0.5 bg-muted/20">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">DROPSHOP.NN</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    DROPSHOP.NN
+                  </p>
                   <p className="text-xs font-extrabold text-foreground truncate">{displayTitle}</p>
                   <p className="text-[11px] text-muted-foreground line-clamp-1">{displayDesc}</p>
                 </div>
@@ -183,7 +194,11 @@ export function SEOAdvancedSection({
                 className="font-mono text-xs"
               />
             </FormField>
-            <FormField label="Meta Title" hint={`${metaTitle.length}/70 chars`} className="sm:col-span-2">
+            <FormField
+              label="Meta Title"
+              hint={`${metaTitle.length}/70 chars`}
+              className="sm:col-span-2"
+            >
               <Input
                 value={metaTitle}
                 onChange={(e) => onMetaTitleChange(e.target.value)}
@@ -191,7 +206,11 @@ export function SEOAdvancedSection({
                 maxLength={70}
               />
             </FormField>
-            <FormField label="Meta Description" hint={`${metaDescription.length}/160 chars`} className="sm:col-span-2">
+            <FormField
+              label="Meta Description"
+              hint={`${metaDescription.length}/160 chars`}
+              className="sm:col-span-2"
+            >
               <Textarea
                 value={metaDescription}
                 onChange={(e) => onMetaDescriptionChange(e.target.value)}

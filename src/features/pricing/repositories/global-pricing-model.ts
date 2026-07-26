@@ -1,5 +1,9 @@
 import mongoose, { Schema } from "mongoose";
-import { baseFieldsDefinition, baseSchemaOptions, softDeletePlugin } from "@/lib/database/base-schema";
+import {
+  baseFieldsDefinition,
+  baseSchemaOptions,
+  softDeletePlugin,
+} from "@/lib/database/base-schema";
 import { BaseDocument } from "@/lib/database/types";
 
 export interface GlobalPricingRuleDBFields {
@@ -22,7 +26,12 @@ const { status: _, ...baseFields } = baseFieldsDefinition;
 const globalPricingRuleSchema = new Schema<GlobalPricingRuleDocument>(
   {
     name: { type: String, required: true, maxlength: 200 },
-    channel: { type: String, enum: ["retail", "wholesale", "reseller", "distributor", "vip_reseller", "marketplace"], required: true, index: true },
+    channel: {
+      type: String,
+      enum: ["retail", "wholesale", "reseller", "distributor", "vip_reseller", "marketplace"],
+      required: true,
+      index: true,
+    },
     markupType: { type: String, enum: ["percentage", "fixed_amount"], required: true },
     markupValue: { type: Number, required: true, min: 0 },
     roundPriceTo: { type: Number, enum: [1, 5, 10, 50, 100, 500, 1000], required: false },
@@ -95,7 +104,11 @@ const brandPricingSchema = new Schema<BrandPricingOverrideDocument>(
   {
     brandId: { type: Schema.Types.ObjectId, ref: "Brand", required: true, index: true },
     brandName: { type: String, required: true, maxlength: 200 },
-    channel: { type: String, enum: ["retail", "wholesale", "reseller", "distributor"], required: true },
+    channel: {
+      type: String,
+      enum: ["retail", "wholesale", "reseller", "distributor"],
+      required: true,
+    },
     markupType: { type: String, enum: ["percentage", "fixed_amount"], required: true },
     markupValue: { type: Number, required: true, min: 0 },
     minProfitPercent: { type: Number, required: false, min: 0, max: 100 },

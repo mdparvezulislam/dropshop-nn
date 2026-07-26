@@ -3,16 +3,22 @@ export type TriggerType = "event" | "schedule" | "manual" | "webhook" | "api";
 export type WorkflowStatus = "draft" | "active" | "paused" | "archived";
 
 export type ExecutionStatus =
-  | "pending"
-  | "running"
-  | "completed"
-  | "failed"
-  | "cancelled"
-  | "retrying"
-  | "paused"
-  | "timeout";
+  "pending" | "running" | "completed" | "failed" | "cancelled" | "retrying" | "paused" | "timeout";
 
-export type ConditionOperator = "eq" | "neq" | "gt" | "gte" | "lt" | "lte" | "in" | "nin" | "contains" | "startsWith" | "endsWith" | "exists" | "regex";
+export type ConditionOperator =
+  | "eq"
+  | "neq"
+  | "gt"
+  | "gte"
+  | "lt"
+  | "lte"
+  | "in"
+  | "nin"
+  | "contains"
+  | "startsWith"
+  | "endsWith"
+  | "exists"
+  | "regex";
 
 export type LogicalOperator = "and" | "or" | "not";
 
@@ -219,7 +225,10 @@ export interface TaskDefinition {
   category: TaskCategory;
   actionType: ActionType;
   configSchema: Record<string, unknown>;
-  handler: (config: Record<string, unknown>, context: Record<string, unknown>) => Promise<Record<string, unknown>>;
+  handler: (
+    config: Record<string, unknown>,
+    context: Record<string, unknown>,
+  ) => Promise<Record<string, unknown>>;
 }
 
 export interface AutomationDashboardData {

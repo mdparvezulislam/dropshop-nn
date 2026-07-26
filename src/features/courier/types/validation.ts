@@ -4,9 +4,17 @@ export const createShipmentSchema = z.object({
   orderId: z.string().min(1, "Order ID is required"),
   orderNumber: z.string().min(1, "Order number is required"),
   provider: z.string().min(1, "Courier provider is required"),
-  deliveryZone: z.enum(["inside_city", "outside_city", "sub_city", "remote_area"]).optional().default("inside_city"),
+  deliveryZone: z
+    .enum(["inside_city", "outside_city", "sub_city", "remote_area"])
+    .optional()
+    .default("inside_city"),
   parcelType: z.enum(["document", "parcel", "liquid"]).optional().default("parcel"),
-  parcelWeight: z.number().int().positive("Weight must be positive in grams").optional().default(500),
+  parcelWeight: z
+    .number()
+    .int()
+    .positive("Weight must be positive in grams")
+    .optional()
+    .default(500),
   codAmount: z.number().int().nonnegative("COD amount must be non-negative in cents"),
   deliveryCharge: z.number().int().nonnegative().optional().default(6000),
   recipient: z.object({
@@ -74,23 +82,27 @@ export const retryLogisticsTaskSchema = z.object({
 export const recordAttemptSchema = z.object({
   shipmentId: z.string().min(1, "Shipment ID is required"),
   courier: z.string().optional(),
-  deliveryAgent: z.object({
-    name: z.string().optional(),
-    phone: z.string().optional(),
-    agentId: z.string().optional(),
-  }).optional(),
+  deliveryAgent: z
+    .object({
+      name: z.string().optional(),
+      phone: z.string().optional(),
+      agentId: z.string().optional(),
+    })
+    .optional(),
   status: z.enum(["attempted", "failed", "delivered", "rescheduled"]),
-  failureReason: z.enum([
-    "customer_unavailable",
-    "phone_unreachable",
-    "address_incorrect",
-    "customer_refused",
-    "area_restricted",
-    "courier_issue",
-    "weather",
-    "damaged_parcel",
-    "other",
-  ]).optional(),
+  failureReason: z
+    .enum([
+      "customer_unavailable",
+      "phone_unreachable",
+      "address_incorrect",
+      "customer_refused",
+      "area_restricted",
+      "courier_issue",
+      "weather",
+      "damaged_parcel",
+      "other",
+    ])
+    .optional(),
   customerResponse: z.string().optional(),
   notes: z.string().optional(),
 });
@@ -103,7 +115,12 @@ export const reassignCourierSchema = z.object({
 
 export const manualInterventionSchema = z.object({
   shipmentId: z.string().min(1, "Shipment ID is required"),
-  actionType: z.enum(["force_status", "manual_tracking", "manual_delivery_confirm", "manual_return_confirm"]),
+  actionType: z.enum([
+    "force_status",
+    "manual_tracking",
+    "manual_delivery_confirm",
+    "manual_return_confirm",
+  ]),
   targetStatus: z.string().optional(),
   manualTrackingCode: z.string().optional(),
   notes: z.string().min(1, "Manual intervention notes are required"),
@@ -192,7 +209,9 @@ export const createDeliveryZoneSchema = z.object({
   district: z.string().min(1, "District is required"),
   area: z.string().min(1, "Area is required"),
   zoneCode: z.string().min(1, "Zone code is required"),
-  shippingCategory: z.enum(["inside_city", "outside_city", "sub_city", "remote_area"]).default("inside_city"),
+  shippingCategory: z
+    .enum(["inside_city", "outside_city", "sub_city", "remote_area"])
+    .default("inside_city"),
 });
 
 export const createCostRuleSchema = z.object({
@@ -279,5 +298,3 @@ export type SavePathaoSettingsInput = z.infer<typeof savePathaoSettingsSchema>;
 export type IssuePathaoTokenInput = z.infer<typeof issuePathaoTokenSchema>;
 export type TriggerManualAutomationSyncInput = z.infer<typeof triggerManualAutomationSyncSchema>;
 export type RestartAutomationInput = z.infer<typeof restartAutomationSchema>;
-
-

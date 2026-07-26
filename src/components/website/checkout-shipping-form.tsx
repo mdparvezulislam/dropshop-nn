@@ -4,7 +4,14 @@ import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 
 const BD_DIVISIONS = [
-  "Dhaka", "Chittagong", "Rajshahi", "Khulna", "Barisal", "Sylhet", "Rangpur", "Mymensingh",
+  "Dhaka",
+  "Chittagong",
+  "Rajshahi",
+  "Khulna",
+  "Barisal",
+  "Sylhet",
+  "Rangpur",
+  "Mymensingh",
 ];
 
 export interface ShippingFormData {
@@ -21,7 +28,12 @@ interface CheckoutShippingFormProps {
   onBack: () => void;
 }
 
-export function CheckoutShippingForm({ data, onChange, onSubmit, onBack }: CheckoutShippingFormProps) {
+export function CheckoutShippingForm({
+  data,
+  onChange,
+  onSubmit,
+  onBack,
+}: CheckoutShippingFormProps) {
   const isValid =
     data.division.trim().length > 0 &&
     data.district.trim().length > 0 &&
@@ -47,7 +59,10 @@ export function CheckoutShippingForm({ data, onChange, onSubmit, onBack }: Check
 
       <div className="space-y-4">
         <div>
-          <label htmlFor="shipping-division" className="block text-sm font-medium text-foreground/70 mb-1.5">
+          <label
+            htmlFor="shipping-division"
+            className="block text-sm font-medium text-foreground/70 mb-1.5"
+          >
             Division <span className="text-destructive">*</span>
           </label>
           <select
@@ -59,13 +74,18 @@ export function CheckoutShippingForm({ data, onChange, onSubmit, onBack }: Check
           >
             <option value="">Select division</option>
             {BD_DIVISIONS.map((div) => (
-              <option key={div} value={div}>{div}</option>
+              <option key={div} value={div}>
+                {div}
+              </option>
             ))}
           </select>
         </div>
 
         <div>
-          <label htmlFor="shipping-district" className="block text-sm font-medium text-foreground/70 mb-1.5">
+          <label
+            htmlFor="shipping-district"
+            className="block text-sm font-medium text-foreground/70 mb-1.5"
+          >
             District <span className="text-destructive">*</span>
           </label>
           <input
@@ -80,7 +100,10 @@ export function CheckoutShippingForm({ data, onChange, onSubmit, onBack }: Check
         </div>
 
         <div>
-          <label htmlFor="shipping-area" className="block text-sm font-medium text-foreground/70 mb-1.5">
+          <label
+            htmlFor="shipping-area"
+            className="block text-sm font-medium text-foreground/70 mb-1.5"
+          >
             Area / Thana (optional)
           </label>
           <input
@@ -94,7 +117,10 @@ export function CheckoutShippingForm({ data, onChange, onSubmit, onBack }: Check
         </div>
 
         <div>
-          <label htmlFor="shipping-address" className="block text-sm font-medium text-foreground/70 mb-1.5">
+          <label
+            htmlFor="shipping-address"
+            className="block text-sm font-medium text-foreground/70 mb-1.5"
+          >
             Full Address <span className="text-destructive">*</span>
           </label>
           <textarea

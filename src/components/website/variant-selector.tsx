@@ -63,16 +63,19 @@ export function VariantSelector({ variants, onVariantChange }: VariantSelectorPr
         // Collect unique values for this attribute key
         const uniqueValues = Array.from(
           new Set(
-            variants
-              .map((v) => v.attributes?.[key])
-              .filter((val): val is string => Boolean(val))
-          )
+            variants.map((v) => v.attributes?.[key]).filter((val): val is string => Boolean(val)),
+          ),
         );
 
         return (
           <div key={key} className="space-y-2">
             <label className="text-xs font-extrabold text-slate-900 flex items-center justify-between">
-              <span>{key}: <span className="text-red-600 font-black">{selectedAttrs[key] || "পছন্দ করুন"}</span></span>
+              <span>
+                {key}:{" "}
+                <span className="text-red-600 font-black">
+                  {selectedAttrs[key] || "পছন্দ করুন"}
+                </span>
+              </span>
             </label>
 
             <div className="flex flex-wrap gap-2">
@@ -93,10 +96,11 @@ export function VariantSelector({ variants, onVariantChange }: VariantSelectorPr
                     onClick={() => handleSelectAttribute(key, val)}
                     className={cn(
                       "px-3.5 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center space-x-1.5",
-                      !isAvailable && "opacity-30 cursor-not-allowed line-through bg-slate-100 border-slate-200 text-slate-400",
+                      !isAvailable &&
+                        "opacity-30 cursor-not-allowed line-through bg-slate-100 border-slate-200 text-slate-400",
                       isSelected
                         ? "border-red-600 bg-red-50 text-red-700 shadow-xs font-black ring-1 ring-red-600/30"
-                        : "border-slate-300 text-slate-800 hover:border-red-400 hover:bg-slate-50"
+                        : "border-slate-300 text-slate-800 hover:border-red-400 hover:bg-slate-50",
                     )}
                   >
                     <span>{val}</span>

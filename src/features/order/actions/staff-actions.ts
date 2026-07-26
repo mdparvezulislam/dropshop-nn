@@ -4,10 +4,7 @@ import { auth } from "@/lib/auth";
 import { checkPermission } from "@/lib/check-permission";
 import { StaffService } from "../services/staff-service";
 import type { StaffRole } from "../repositories/staff-repository";
-import {
-  assignStaffSchema,
-  completeStaffAssignmentSchema,
-} from "../types/validation";
+import { assignStaffSchema, completeStaffAssignmentSchema } from "../types/validation";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/utils/logger";
 
@@ -30,9 +27,7 @@ export async function assignStaffAction(formData: unknown): Promise<{
   }
 }
 
-export async function completeStaffAssignmentAction(
-  formData: unknown,
-): Promise<{
+export async function completeStaffAssignmentAction(formData: unknown): Promise<{
   success: boolean;
   data?: Awaited<ReturnType<StaffService["complete"]>>;
   error?: string;

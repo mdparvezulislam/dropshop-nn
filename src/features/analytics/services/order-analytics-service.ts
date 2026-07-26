@@ -1,7 +1,10 @@
 import { EventFactRepository } from "../repositories/event-fact-repository";
 import { AnalyticsCacheService } from "./analytics-cache-service";
 import {
-  type OrderAnalyticsData, type MetricCardData, type TimeSeriesPoint, ANALYTICS_EVENT_NAMES,
+  type OrderAnalyticsData,
+  type MetricCardData,
+  type TimeSeriesPoint,
+  ANALYTICS_EVENT_NAMES,
 } from "../domain/analytics-entity";
 import { resolveDateRange, type DateRange } from "./analytics-query-service";
 
@@ -20,7 +23,9 @@ export class OrderAnalyticsService {
   private readonly cache = AnalyticsCacheService.getInstance();
 
   async getOrderAnalytics(rangeInput?: {
-    from?: Date; to?: Date; preset?: string;
+    from?: Date;
+    to?: Date;
+    preset?: string;
   }): Promise<OrderAnalyticsData> {
     const cacheKey = rangeInput?.preset ?? "30d";
     const cached = await this.cache.get<OrderAnalyticsData>("order", cacheKey);
@@ -30,16 +35,27 @@ export class OrderAnalyticsService {
     const prev = previousRange(range);
 
     const [
-      totalRevenue, prevRevenue, totalOrders, prevOrders,
-      cancelledOrders, returnedOrders, pendingOrders,
-      sessions, revenueSeries, ordersSeries,
-      ordersByHour, ordersByDay, ordersByMonth,
+      totalRevenue,
+      prevRevenue,
+      totalOrders,
+      prevOrders,
+      cancelledOrders,
+      returnedOrders,
+      pendingOrders,
+      sessions,
+      revenueSeries,
+      ordersSeries,
+      ordersByHour,
+      ordersByDay,
+      ordersByMonth,
     ] = await Promise.all([
       this.facts.sumValueInRange(range.from, range.to, [
-        ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID,
+        ANALYTICS_EVENT_NAMES.ORDER_CREATED,
+        ANALYTICS_EVENT_NAMES.ORDER_PAID,
       ]),
       this.facts.sumValueInRange(prev.from, prev.to, [
-        ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID,
+        ANALYTICS_EVENT_NAMES.ORDER_CREATED,
+        ANALYTICS_EVENT_NAMES.ORDER_PAID,
       ]),
       this.facts.countInRange(range.from, range.to, {
         eventName: [ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID],
@@ -66,38 +82,57 @@ export class OrderAnalyticsService {
 
     const data: OrderAnalyticsData = {
       range: { from: range.from.toISOString(), to: range.to.toISOString() },
-      ordersByHour, ordersByDay, ordersByMonth,
+      ordersByHour,
+      ordersByDay,
+      ordersByMonth,
       averageOrderValue: totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0,
       conversionRate,
-      cancelledOrders, returnedOrders, pendingOrders,
+      cancelledOrders,
+      returnedOrders,
+      pendingOrders,
       totalOrders,
       metrics: [
         {
-          key: "total_orders", label: "Total Orders",
-          value: totalOrders, previousValue: prevOrders,
-          changePercent: pctChange(totalOrders, prevOrders), format: "number",
+          key: "total_orders",
+          label: "Total Orders",
+          value: totalOrders,
+          previousValue: prevOrders,
+          changePercent: pctChange(totalOrders, prevOrders),
+          format: "number",
         },
         {
-          key: "revenue", label: "Revenue",
-          value: totalRevenue, previousValue: prevRevenue,
-          changePercent: pctChange(totalRevenue, prevRevenue), format: "currency", currency: "BDT",
+          key: "revenue",
+          label: "Revenue",
+          value: totalRevenue,
+          previousValue: prevRevenue,
+          changePercent: pctChange(totalRevenue, prevRevenue),
+          format: "currency",
+          currency: "BDT",
         },
         {
-          key: "aov", label: "Avg Order Value",
+          key: "aov",
+          label: "Avg Order Value",
           value: totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0,
-          format: "currency", currency: "BDT",
+          format: "currency",
+          currency: "BDT",
         },
         {
-          key: "conversion", label: "Conversion Rate",
-          value: conversionRate, format: "percent",
+          key: "conversion",
+          label: "Conversion Rate",
+          value: conversionRate,
+          format: "percent",
         },
         {
-          key: "cancelled", label: "Cancelled",
-          value: cancelledOrders, format: "number",
+          key: "cancelled",
+          label: "Cancelled",
+          value: cancelledOrders,
+          format: "number",
         },
         {
-          key: "returned", label: "Returned",
-          value: returnedOrders, format: "number",
+          key: "returned",
+          label: "Returned",
+          value: returnedOrders,
+          format: "number",
         },
       ],
     };
@@ -118,17 +153,17 @@ export class OrderAnalyticsService {
   }
 
   private async getSeriesByHour(range: DateRange): Promise<TimeSeriesPoint[]> {
-    const rows = await this.facts.getSeriesByTimeUnit(range.from, range.to, "%H") as any[];
+    const rows = (await this.facts.getSeriesByTimeUnit(range.from, range.to, "%H")) as any[];
     return rows.map((r: any) => ({ date: r._id, value: r.value }));
   }
 
   private async getSeriesByDayOfMonth(range: DateRange): Promise<TimeSeriesPoint[]> {
-    const rows = await this.facts.getSeriesByTimeUnit(range.from, range.to, "%d") as any[];
+    const rows = (await this.facts.getSeriesByTimeUnit(range.from, range.to, "%d")) as any[];
     return rows.map((r: any) => ({ date: r._id, value: r.value }));
   }
 
   private async getSeriesByMonth(range: DateRange): Promise<TimeSeriesPoint[]> {
-    const rows = await this.facts.getSeriesByTimeUnit(range.from, range.to, "%Y-%m") as any[];
+    const rows = (await this.facts.getSeriesByTimeUnit(range.from, range.to, "%Y-%m")) as any[];
     return rows.map((r: any) => ({ date: r._id, value: r.value }));
   }
 }

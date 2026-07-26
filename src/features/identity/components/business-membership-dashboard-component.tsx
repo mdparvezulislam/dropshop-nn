@@ -37,7 +37,10 @@ import {
   adminArchiveMembershipTypeAction,
   adminToggleMembershipTypeActiveAction,
 } from "../actions/admin-membership-actions";
-import { BusinessMembershipTypeEntity, MembershipBenefits } from "../domain/business-membership-entity";
+import {
+  BusinessMembershipTypeEntity,
+  MembershipBenefits,
+} from "../domain/business-membership-entity";
 import { BusinessMembershipApprovalCenter } from "./business-membership-approval-center";
 import { UsersAdmin } from "./users-admin";
 
@@ -54,7 +57,9 @@ const ICON_MAP: Record<string, any> = {
 };
 
 export function BusinessMembershipDashboardComponent() {
-  const [activeSubTab, setActiveSubTab] = useState<"types" | "users" | "applications" | "analytics">("types");
+  const [activeSubTab, setActiveSubTab] = useState<
+    "types" | "users" | "applications" | "analytics"
+  >("types");
   const [loading, setLoading] = useState<boolean>(true);
   const [types, setTypes] = useState<BusinessMembershipTypeEntity[]>([]);
 
@@ -239,10 +244,15 @@ export function BusinessMembershipDashboardComponent() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-border pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-amber-50 text-amber-800 border-amber-300 font-extrabold text-[10px]">
+            <Badge
+              variant="outline"
+              className="bg-amber-50 text-amber-800 border-amber-300 font-extrabold text-[10px]"
+            >
               BUSINESS MEMBERSHIP REGISTRY
             </Badge>
-            <span className="text-xs text-muted-foreground font-mono">BUSINESS-MEMBERSHIP-001A</span>
+            <span className="text-xs text-muted-foreground font-mono">
+              BUSINESS-MEMBERSHIP-001A
+            </span>
           </div>
           <h1 className="text-2xl font-black tracking-tight text-foreground mt-1">
             বিজনেস মেম্বারশিপ হাব ও টাইপ রেজিস্ট্রি
@@ -253,11 +263,21 @@ export function BusinessMembershipDashboardComponent() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={fetchTypes} disabled={loading} className="gap-1.5 text-xs font-bold">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={fetchTypes}
+            disabled={loading}
+            className="gap-1.5 text-xs font-bold"
+          >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
             রিফ্রেশ
           </Button>
-          <Button size="sm" onClick={openCreateModal} className="gap-1.5 text-xs font-black bg-amber-500 hover:bg-amber-600 text-white shadow-2xs">
+          <Button
+            size="sm"
+            onClick={openCreateModal}
+            className="gap-1.5 text-xs font-black bg-amber-500 hover:bg-amber-600 text-white shadow-2xs"
+          >
             <Plus className="h-4 w-4 stroke-[3]" />
             নতুন মেম্বারশিপ টাইপ তৈরি করুন
           </Button>
@@ -268,7 +288,11 @@ export function BusinessMembershipDashboardComponent() {
       <div className="flex items-center gap-1 border-b border-border/80 overflow-x-auto">
         {[
           { id: "types" as const, label: "মেম্বারশিপ টাইপসমূহ (Registry)", icon: Layers },
-          { id: "applications" as const, label: "আবেদন ও রিভিউ সেন্টার (Approvals)", icon: ShieldCheck },
+          {
+            id: "applications" as const,
+            label: "আবেদন ও রিভিউ সেন্টার (Approvals)",
+            icon: ShieldCheck,
+          },
           { id: "users" as const, label: "ব্যবহারকারীর মেম্বারশিপ ও রোল (Users)", icon: Users },
         ].map((tab) => {
           const IconComp = tab.icon;
@@ -313,7 +337,10 @@ export function BusinessMembershipDashboardComponent() {
                       <div>
                         <div className="flex items-center gap-2">
                           <h3 className="text-base font-black text-foreground">{t.banglaName}</h3>
-                          <Badge variant="outline" className="text-[10px] uppercase font-mono bg-slate-100">
+                          <Badge
+                            variant="outline"
+                            className="text-[10px] uppercase font-mono bg-slate-100"
+                          >
                             {t.slug}
                           </Badge>
                         </div>
@@ -333,7 +360,9 @@ export function BusinessMembershipDashboardComponent() {
                         onClick={() => handleToggleActive(t.id, t.isActive)}
                         title={t.isActive ? "নিষ্ক্রিয় করুন" : "সক্রিয় করুন"}
                         className={`p-1.5 rounded-lg transition-colors ${
-                          t.isActive ? "text-emerald-600 hover:bg-emerald-50" : "text-slate-400 hover:bg-slate-100"
+                          t.isActive
+                            ? "text-emerald-600 hover:bg-emerald-50"
+                            : "text-slate-400 hover:bg-slate-100"
                         }`}
                       >
                         <Power className="h-4 w-4" />
@@ -348,23 +377,39 @@ export function BusinessMembershipDashboardComponent() {
                     </div>
                   </div>
 
-                  <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{t.description}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                    {t.description}
+                  </p>
 
                   <div className="grid grid-cols-2 gap-2 text-xs bg-muted/30 p-3 rounded-2xl border border-border/40">
                     <div>
-                      <span className="text-[10px] text-muted-foreground block font-bold">অনুমোদন প্রয়োজন?</span>
-                      <span className="font-extrabold text-foreground">{t.approvalRequired ? "হ্যাঁ (Required)" : "না (Instant)"}</span>
+                      <span className="text-[10px] text-muted-foreground block font-bold">
+                        অনুমোদন প্রয়োজন?
+                      </span>
+                      <span className="font-extrabold text-foreground">
+                        {t.approvalRequired ? "হ্যাঁ (Required)" : "না (Instant)"}
+                      </span>
                     </div>
                     <div>
-                      <span className="text-[10px] text-muted-foreground block font-bold">প্রাইসিং ডিসকাউন্ট:</span>
-                      <span className="font-extrabold text-amber-600">{t.benefits?.pricingRules?.discountPercent || 0}% Discount</span>
+                      <span className="text-[10px] text-muted-foreground block font-bold">
+                        প্রাইসিং ডিসকাউন্ট:
+                      </span>
+                      <span className="font-extrabold text-amber-600">
+                        {t.benefits?.pricingRules?.discountPercent || 0}% Discount
+                      </span>
                     </div>
                     <div>
-                      <span className="text-[10px] text-muted-foreground block font-bold">সর্বনিম্ন অর্ডার:</span>
-                      <span className="font-extrabold text-foreground">৳{t.benefits?.minimumOrderAmount || 0}</span>
+                      <span className="text-[10px] text-muted-foreground block font-bold">
+                        সর্বনিম্ন অর্ডার:
+                      </span>
+                      <span className="font-extrabold text-foreground">
+                        ৳{t.benefits?.minimumOrderAmount || 0}
+                      </span>
                     </div>
                     <div>
-                      <span className="text-[10px] text-muted-foreground block font-bold">অগ্রাধিকার (Priority):</span>
+                      <span className="text-[10px] text-muted-foreground block font-bold">
+                        অগ্রাধিকার (Priority):
+                      </span>
                       <span className="font-extrabold text-foreground">Level {t.priority}</span>
                     </div>
                   </div>
@@ -372,7 +417,10 @@ export function BusinessMembershipDashboardComponent() {
                   {t.benefits?.features && t.benefits.features.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 pt-1">
                       {t.benefits.features.map((f, idx) => (
-                        <span key={idx} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 border border-slate-200">
+                        <span
+                          key={idx}
+                          className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 border border-slate-200"
+                        >
                           ✓ {f}
                         </span>
                       ))}
@@ -394,88 +442,188 @@ export function BusinessMembershipDashboardComponent() {
       {/* CREATE / EDIT MODAL */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <form onSubmit={handleSaveType} className="bg-card border border-border rounded-3xl max-w-xl w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto text-foreground shadow-2xl">
+          <form
+            onSubmit={handleSaveType}
+            className="bg-card border border-border rounded-3xl max-w-xl w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto text-foreground shadow-2xl"
+          >
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div>
                 <span className="text-[10px] font-black uppercase text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
                   {editingType ? "Edit Membership Type" : "New Membership Type"}
                 </span>
                 <h2 className="text-xl font-extrabold mt-1">
-                  {editingType ? `${editingType.banglaName} সম্পাদনা` : "নতুন মেম্বারশিপ টাইপ তৈরি করুন"}
+                  {editingType
+                    ? `${editingType.banglaName} সম্পাদনা`
+                    : "নতুন মেম্বারশিপ টাইপ তৈরি করুন"}
                 </h2>
               </div>
-              <button type="button" onClick={() => setIsCreateModalOpen(false)} className="text-xs font-bold text-muted-foreground hover:text-foreground">
+              <button
+                type="button"
+                onClick={() => setIsCreateModalOpen(false)}
+                className="text-xs font-bold text-muted-foreground hover:text-foreground"
+              >
                 ✕ বন্ধ
               </button>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div className="space-y-1">
-                <label className="font-extrabold text-muted-foreground">Unique Slug (ইংরেজিতে, e.g. dealer):</label>
-                <Input required disabled={!!editingType} value={slug} onChange={(e) => setSlug(e.target.value)} placeholder="e.g. dealer" className="h-9" />
+                <label className="font-extrabold text-muted-foreground">
+                  Unique Slug (ইংরেজিতে, e.g. dealer):
+                </label>
+                <Input
+                  required
+                  disabled={!!editingType}
+                  value={slug}
+                  onChange={(e) => setSlug(e.target.value)}
+                  placeholder="e.g. dealer"
+                  className="h-9"
+                />
               </div>
 
               <div className="space-y-1">
                 <label className="font-extrabold text-muted-foreground">English Name:</label>
-                <Input required value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Authorized Dealer" className="h-9" />
+                <Input
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Authorized Dealer"
+                  className="h-9"
+                />
               </div>
 
               <div className="space-y-1">
-                <label className="font-extrabold text-muted-foreground">বাংলা নাম (Bangla Name):</label>
-                <Input required value={banglaName} onChange={(e) => setBanglaName(e.target.value)} placeholder="যেমন: অথরাইজড ডিলার" className="h-9" />
+                <label className="font-extrabold text-muted-foreground">
+                  বাংলা নাম (Bangla Name):
+                </label>
+                <Input
+                  required
+                  value={banglaName}
+                  onChange={(e) => setBanglaName(e.target.value)}
+                  placeholder="যেমন: অথরাইজড ডিলার"
+                  className="h-9"
+                />
               </div>
 
               <div className="space-y-1">
-                <label className="font-extrabold text-muted-foreground">অ্যানিমেটেড আইকন (Icon):</label>
-                <select value={icon} onChange={(e) => setIcon(e.target.value)} className="w-full h-9 px-3 rounded-xl border border-border bg-background outline-none">
+                <label className="font-extrabold text-muted-foreground">
+                  অ্যানিমেটেড আইকন (Icon):
+                </label>
+                <select
+                  value={icon}
+                  onChange={(e) => setIcon(e.target.value)}
+                  className="w-full h-9 px-3 rounded-xl border border-border bg-background outline-none"
+                >
                   {Object.keys(ICON_MAP).map((k) => (
-                    <option key={k} value={k}>{k}</option>
+                    <option key={k} value={k}>
+                      {k}
+                    </option>
                   ))}
                 </select>
               </div>
 
               <div className="col-span-2 space-y-1">
                 <label className="font-extrabold text-muted-foreground">বিবরণ (Description):</label>
-                <Input required value={description} onChange={(e) => setDescription(e.target.value)} placeholder="এই মেম্বারশিপের বর্ণনা লিখুন..." className="h-9" />
+                <Input
+                  required
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="এই মেম্বারশিপের বর্ণনা লিখুন..."
+                  className="h-9"
+                />
               </div>
 
               <div className="space-y-1">
-                <label className="font-extrabold text-muted-foreground">ডিসকাউন্ট হার (Discount %):</label>
-                <Input type="number" value={discountPercent} onChange={(e) => setDiscountPercent(Number(e.target.value))} className="h-9" />
+                <label className="font-extrabold text-muted-foreground">
+                  ডিসকাউন্ট হার (Discount %):
+                </label>
+                <Input
+                  type="number"
+                  value={discountPercent}
+                  onChange={(e) => setDiscountPercent(Number(e.target.value))}
+                  className="h-9"
+                />
               </div>
 
               <div className="space-y-1">
-                <label className="font-extrabold text-muted-foreground">সর্বনিম্ন অর্ডার টাকা (Min Order BDT):</label>
-                <Input type="number" value={minimumOrderAmount} onChange={(e) => setMinimumOrderAmount(Number(e.target.value))} className="h-9" />
+                <label className="font-extrabold text-muted-foreground">
+                  সর্বনিম্ন অর্ডার টাকা (Min Order BDT):
+                </label>
+                <Input
+                  type="number"
+                  value={minimumOrderAmount}
+                  onChange={(e) => setMinimumOrderAmount(Number(e.target.value))}
+                  className="h-9"
+                />
               </div>
 
               <div className="flex items-center gap-2 col-span-2 pt-1">
-                <input type="checkbox" id="appReq" checked={approvalRequired} onChange={(e) => setApprovalRequired(e.target.checked)} className="rounded border-border text-amber-500" />
-                <label htmlFor="appReq" className="font-bold text-foreground">এডমিন ম্যানুয়াল অনুমোদন আবশ্যক (Approval Required)</label>
+                <input
+                  type="checkbox"
+                  id="appReq"
+                  checked={approvalRequired}
+                  onChange={(e) => setApprovalRequired(e.target.checked)}
+                  className="rounded border-border text-amber-500"
+                />
+                <label htmlFor="appReq" className="font-bold text-foreground">
+                  এডমিন ম্যানুয়াল অনুমোদন আবশ্যক (Approval Required)
+                </label>
               </div>
             </div>
 
             {/* Features Tags */}
             <div className="space-y-2 pt-2 border-t border-border">
-              <label className="text-xs font-black text-amber-600 block">মেম্বারশিপ সুবিধাসমূহ (Features & Perks):</label>
+              <label className="text-xs font-black text-amber-600 block">
+                মেম্বারশিপ সুবিধাসমূহ (Features & Perks):
+              </label>
               <div className="flex gap-2">
-                <Input value={featureInput} onChange={(e) => setFeatureInput(e.target.value)} placeholder="নতুন সুবিধা লিখুন (e.g. Priority Support)" className="h-9 text-xs" />
-                <Button type="button" size="sm" onClick={addFeatureTag} className="h-9 text-xs font-bold">যোগ করুন</Button>
+                <Input
+                  value={featureInput}
+                  onChange={(e) => setFeatureInput(e.target.value)}
+                  placeholder="নতুন সুবিধা লিখুন (e.g. Priority Support)"
+                  className="h-9 text-xs"
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={addFeatureTag}
+                  className="h-9 text-xs font-bold"
+                >
+                  যোগ করুন
+                </Button>
               </div>
 
               <div className="flex flex-wrap gap-1.5 pt-2">
                 {features.map((f, i) => (
-                  <span key={i} className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-300 flex items-center gap-1">
+                  <span
+                    key={i}
+                    className="text-xs font-bold px-2.5 py-1 rounded-full bg-amber-50 text-amber-900 border border-amber-300 flex items-center gap-1"
+                  >
                     {f}
-                    <X className="h-3.5 w-3.5 cursor-pointer text-amber-700 hover:text-amber-900" onClick={() => removeFeatureTag(f)} />
+                    <X
+                      className="h-3.5 w-3.5 cursor-pointer text-amber-700 hover:text-amber-900"
+                      onClick={() => removeFeatureTag(f)}
+                    />
                   </span>
                 ))}
               </div>
             </div>
 
             <div className="flex items-center justify-end gap-2 pt-4 border-t border-border">
-              <Button type="button" variant="outline" size="sm" onClick={() => setIsCreateModalOpen(false)}>বাতিল</Button>
-              <Button type="submit" disabled={submitting} size="sm" className="bg-amber-500 hover:bg-amber-600 text-white font-bold">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsCreateModalOpen(false)}
+              >
+                বাতিল
+              </Button>
+              <Button
+                type="submit"
+                disabled={submitting}
+                size="sm"
+                className="bg-amber-500 hover:bg-amber-600 text-white font-bold"
+              >
                 {submitting ? "সংরক্ষণ হচ্ছে..." : "মেম্বারশিপ টাইপ সংরক্ষণ করুন"}
               </Button>
             </div>

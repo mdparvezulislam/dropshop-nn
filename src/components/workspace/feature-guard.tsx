@@ -23,14 +23,18 @@ export function FeatureGuard({
 
   React.useEffect(() => {
     let mounted = true;
-    import("@/lib/core/feature-flags").then(({ FeatureFlags }) => {
-      if (mounted) {
-        setEnabled(FeatureFlags.isEnabled(feature));
-      }
-    }).catch(() => {
-      if (mounted) setEnabled(false);
-    });
-    return () => { mounted = false; };
+    import("@/lib/core/feature-flags")
+      .then(({ FeatureFlags }) => {
+        if (mounted) {
+          setEnabled(FeatureFlags.isEnabled(feature));
+        }
+      })
+      .catch(() => {
+        if (mounted) setEnabled(false);
+      });
+    return () => {
+      mounted = false;
+    };
   }, [feature]);
 
   if (enabled === null) return <>{fallback}</>;

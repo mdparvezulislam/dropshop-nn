@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import { DEFAULT_PRICING_SETTINGS, type PricingSettings } from "../types/studio-types";
 

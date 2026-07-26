@@ -6,7 +6,9 @@ const store = new Map<string, QuotationEntity>();
 let counter = 0;
 
 export class QuotationRepository {
-  async create(data: Omit<QuotationEntity, "id" | "quoteNumber" | "createdAt" | "updatedAt">): Promise<QuotationEntity> {
+  async create(
+    data: Omit<QuotationEntity, "id" | "quoteNumber" | "createdAt" | "updatedAt">,
+  ): Promise<QuotationEntity> {
     counter++;
     const id = `quote_${Date.now()}_${counter}`;
     const entity: QuotationEntity = {
@@ -30,7 +32,11 @@ export class QuotationRepository {
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
-  async updateStatus(id: string, status: QuotationStatus, convertedOrderId?: string): Promise<QuotationEntity | null> {
+  async updateStatus(
+    id: string,
+    status: QuotationStatus,
+    convertedOrderId?: string,
+  ): Promise<QuotationEntity | null> {
     const entity = store.get(id);
     if (!entity) return null;
     entity.status = status;

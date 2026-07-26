@@ -30,7 +30,10 @@ export class SettingsImportExportService {
     };
   }
 
-  async importConfiguration(payload: any, changedBy: string = "system"): Promise<{ importedSettings: number; importedFlags: number }> {
+  async importConfiguration(
+    payload: any,
+    changedBy: string = "system",
+  ): Promise<{ importedSettings: number; importedFlags: number }> {
     if (!payload || typeof payload !== "object") {
       throw new Error("Invalid configuration import payload format");
     }
@@ -41,7 +44,12 @@ export class SettingsImportExportService {
     if (Array.isArray(payload.settings)) {
       for (const item of payload.settings) {
         if (item.key && item.value !== undefined) {
-          await this.settingsService.setSetting(item.key, item.value, changedBy, "Imported from configuration backup");
+          await this.settingsService.setSetting(
+            item.key,
+            item.value,
+            changedBy,
+            "Imported from configuration backup",
+          );
           importedSettings++;
         }
       }

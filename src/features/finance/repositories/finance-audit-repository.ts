@@ -55,7 +55,10 @@ export interface FinanceAuditFilter {
   limit?: number;
 }
 
-export class FinanceAuditRepository extends BaseRepository<FinanceAuditLogDocument, FinanceAuditLog> {
+export class FinanceAuditRepository extends BaseRepository<
+  FinanceAuditLogDocument,
+  FinanceAuditLog
+> {
   constructor() {
     super(FinanceAuditLogModel as any, mapToDomain);
   }
@@ -64,7 +67,9 @@ export class FinanceAuditRepository extends BaseRepository<FinanceAuditLogDocume
     return this.find({ walletId });
   }
 
-  async searchAndFilter(filter: FinanceAuditFilter): Promise<{ items: FinanceAuditLog[]; total: number }> {
+  async searchAndFilter(
+    filter: FinanceAuditFilter,
+  ): Promise<{ items: FinanceAuditLog[]; total: number }> {
     const query: Record<string, unknown> = {};
 
     if (filter.walletId) query.walletId = filter.walletId;

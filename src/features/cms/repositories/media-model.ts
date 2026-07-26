@@ -53,7 +53,6 @@ export type MediaMongoDocument = BaseDocument & {
 };
 
 export const MediaAssetModel =
-  mongoose.models.CmsMediaAsset ||
-  mongoose.model<MediaMongoDocument>("CmsMediaAsset", mediaSchema);
+  mongoose.models.CmsMediaAsset || mongoose.model<MediaMongoDocument>("CmsMediaAsset", mediaSchema);
 
 export default MediaAssetModel;

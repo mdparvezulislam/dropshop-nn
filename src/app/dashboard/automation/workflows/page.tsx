@@ -10,25 +10,27 @@ export default function WorkflowsPage() {
   const [selected, setSelected] = useState<WorkflowDefinition | null>(null);
 
   if (view === "create") {
-    return (
-      <WorkflowBuilder
-        onSaved={() => setView("list")}
-      />
-    );
+    return <WorkflowBuilder onSaved={() => setView("list")} />;
   }
 
   if (view === "edit" && selected) {
     return (
       <WorkflowBuilder
         workflow={selected}
-        onSaved={() => { setView("list"); setSelected(null); }}
+        onSaved={() => {
+          setView("list");
+          setSelected(null);
+        }}
       />
     );
   }
 
   return (
     <WorkflowList
-      onSelect={(w) => { setSelected(w); setView("edit"); }}
+      onSelect={(w) => {
+        setSelected(w);
+        setView("edit");
+      }}
       onNew={() => setView("create")}
     />
   );

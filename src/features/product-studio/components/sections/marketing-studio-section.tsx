@@ -27,7 +27,11 @@ export function MarketingStudioSection({
   brandName,
   tags = [],
   onTagsChange,
-  bulletFeatures = ["Official 1 Year Warranty across Bangladesh", "High-performance chipset & premium build quality", "Fast 24-hour express courier dispatch"],
+  bulletFeatures = [
+    "Official 1 Year Warranty across Bangladesh",
+    "High-performance chipset & premium build quality",
+    "Fast 24-hour express courier dispatch",
+  ],
   onBulletFeaturesChange,
 }: MarketingStudioSectionProps): React.ReactElement {
   const [newBullet, setNewBullet] = React.useState("");
@@ -90,7 +94,10 @@ export function MarketingStudioSection({
           </label>
           <div className="space-y-2">
             {bulletFeatures.map((b, i) => (
-              <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl border border-border bg-card shadow-2xs">
+              <div
+                key={i}
+                className="flex items-center gap-2 p-2.5 rounded-xl border border-border bg-card shadow-2xs"
+              >
                 <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
                 <span className="text-xs font-semibold text-foreground flex-1">{b}</span>
                 <button
@@ -110,7 +117,13 @@ export function MarketingStudioSection({
                 placeholder="e.g. Ultra-low latency bluetooth gaming mode"
                 className="text-xs font-semibold"
               />
-              <Button type="button" variant="outline" size="sm" onClick={addBullet} disabled={!newBullet.trim()}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addBullet}
+                disabled={!newBullet.trim()}
+              >
                 <Plus className="h-3.5 w-3.5" /> Add
               </Button>
             </div>
@@ -126,7 +139,11 @@ export function MarketingStudioSection({
             {tags.map((t) => (
               <Badge key={t} variant="secondary" className="gap-1 text-xs">
                 {t}
-                <button type="button" onClick={() => removeTag(t)} className="ml-1 hover:text-destructive">
+                <button
+                  type="button"
+                  onClick={() => removeTag(t)}
+                  className="ml-1 hover:text-destructive"
+                >
                   ×
                 </button>
               </Badge>
@@ -155,7 +172,10 @@ export function MarketingStudioSection({
           </div>
           <div className="flex flex-wrap gap-1 pt-1">
             {searchOpt.tokens.map((token) => (
-              <span key={token} className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-muted text-muted-foreground">
+              <span
+                key={token}
+                className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-muted text-muted-foreground"
+              >
                 #{token}
               </span>
             ))}

@@ -3,13 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Plus, Pencil, Trash2, Star, Loader2 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -233,7 +227,11 @@ export function AddressBookContent({ initialAddresses }: { initialAddresses: Add
         if (res.success) {
           setAddresses((prev) =>
             prev.map((a) =>
-              a.id === editingId ? { ...a, ...form, id: editingId } as Address : form.isDefault ? { ...a, isDefault: false } : a,
+              a.id === editingId
+                ? ({ ...a, ...form, id: editingId } as Address)
+                : form.isDefault
+                  ? { ...a, isDefault: false }
+                  : a,
             ),
           );
           setModalOpen(false);
@@ -256,7 +254,9 @@ export function AddressBookContent({ initialAddresses }: { initialAddresses: Add
             isDefault: form.isDefault,
           };
           setAddresses((prev) =>
-            form.isDefault ? prev.map((a) => ({ ...a, isDefault: false })).concat(newAddr) : [...prev, newAddr],
+            form.isDefault
+              ? prev.map((a) => ({ ...a, isDefault: false })).concat(newAddr)
+              : [...prev, newAddr],
           );
           setModalOpen(false);
           resetForm();

@@ -28,10 +28,6 @@ export default async function MediaLibraryPage() {
   }
 
   return (
-    <MediaLibraryClient
-      initialItems={items}
-      initialFolders={folders}
-      totalCount={totalCount}
-    />
+    <MediaLibraryClient initialItems={items} initialFolders={folders} totalCount={totalCount} />
   );
 }

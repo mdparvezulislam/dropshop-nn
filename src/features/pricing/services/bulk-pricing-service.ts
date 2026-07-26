@@ -22,7 +22,11 @@ export class BulkPricingService {
   private readonly pricingService = new PricingService();
   private readonly engine = new PricingEngineService();
 
-  async bulkUpdateByFilter(filter: BulkFilter, operation: BulkOperation, actorId?: string): Promise<{ updated: number; errors: string[] }> {
+  async bulkUpdateByFilter(
+    filter: BulkFilter,
+    operation: BulkOperation,
+    actorId?: string,
+  ): Promise<{ updated: number; errors: string[] }> {
     logger.info("BulkPricingService: bulk update", { filter, operation });
     const dbFilter: Record<string, unknown> = {};
     if (filter.categoryId) dbFilter["ruleConfig.categoryId"] = filter.categoryId;
@@ -58,22 +62,34 @@ export class BulkPricingService {
         }
 
         if (newValue !== currentValue) {
-          const check = await this.engine.checkPriceProtection(pricing.productId, newValue, "customer");
+          const check = await this.engine.checkPriceProtection(
+            pricing.productId,
+            newValue,
+            "customer",
+          );
           if (!check.allowed && check.blocks.length > 0) {
             errors.push(`Blocked: ${pricing.productId} - ${check.blocks[0]}`);
             continue;
           }
 
           if (operation.type === "assign_profile") {
-            await this.pricingService.updatePricing(pricing.id, {
-              ruleConfig: { ...pricing.ruleConfig },
-              pricingRule: "dynamic",
-            } as any, actorId);
+            await this.pricingService.updatePricing(
+              pricing.id,
+              {
+                ruleConfig: { ...pricing.ruleConfig },
+                pricingRule: "dynamic",
+              } as any,
+              actorId,
+            );
           } else {
-            await this.pricingService.updatePricing(pricing.id, {
-              [operation.field]: newValue,
-              pricingRule: "fixed",
-            } as any, actorId);
+            await this.pricingService.updatePricing(
+              pricing.id,
+              {
+                [operation.field]: newValue,
+                pricingRule: "fixed",
+              } as any,
+              actorId,
+            );
           }
           updated++;
         }
@@ -87,10 +103,14 @@ export class BulkPricingService {
 
   private getFieldValue(pricing: any, field: string): number | undefined {
     switch (field) {
-      case "sellingPrice": return pricing.sellingPrice;
-      case "wholesalePrice": return pricing.wholesalePrice;
-      case "resellerPrice": return pricing.resellerPrice;
-      default: return undefined;
+      case "sellingPrice":
+        return pricing.sellingPrice;
+      case "wholesalePrice":
+        return pricing.wholesalePrice;
+      case "resellerPrice":
+        return pricing.resellerPrice;
+      default:
+        return undefined;
     }
   }
 }

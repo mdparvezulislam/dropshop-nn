@@ -26,7 +26,10 @@ export class MoqService {
     return this.repo.delete(existing.id);
   }
 
-  resolveTierPrice(tiers: MoqTierEntry[], quantity: number): { price: number; tier: MoqTierEntry | null } {
+  resolveTierPrice(
+    tiers: MoqTierEntry[],
+    quantity: number,
+  ): { price: number; tier: MoqTierEntry | null } {
     const sorted = [...tiers].sort((a, b) => b.minQuantity - a.minQuantity);
     for (const tier of sorted) {
       if (quantity >= tier.minQuantity) {

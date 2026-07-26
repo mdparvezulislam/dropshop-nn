@@ -24,8 +24,5 @@ const staffAssignmentSchema = new Schema(
 staffAssignmentSchema.index({ staffId: 1, role: 1 });
 staffAssignmentSchema.index({ role: 1, createdAt: -1 });
 
-export const StaffAssignmentModel = mongoose.model(
-  "StaffAssignment",
-  staffAssignmentSchema,
-);
+export const StaffAssignmentModel = mongoose.model("StaffAssignment", staffAssignmentSchema);
 export default StaffAssignmentModel;

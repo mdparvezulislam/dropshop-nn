@@ -1,5 +1,8 @@
 import Link from "next/link";
-import { getPublicFlashDealsAction, getPublicFeaturedProductsAction } from "@/features/catalog/actions/public-actions";
+import {
+  getPublicFlashDealsAction,
+  getPublicFeaturedProductsAction,
+} from "@/features/catalog/actions/public-actions";
 import { ProductCard } from "@/components/website/product-card";
 import { Zap, Clock, Sparkles, Percent } from "lucide-react";
 
@@ -32,7 +35,8 @@ export default async function OffersPage() {
               ফ্ল্যাশ সেল এবং বিশেষ অফার
             </h1>
             <p className="text-sm sm:text-base text-amber-50 font-semibold leading-relaxed mb-6">
-              ইউগ্রিন, বেসাস, অ্যাঙ্কার এবং জেবিএল গ্যাজেট প্রোডাক্টে আকর্ষণীয় মূল্যছাড়। অরিজিনাল ওয়ারেন্টি এবং সারা বাংলাদেশে ক্যাশ অন ডেলিভারি।
+              ইউগ্রিন, বেসাস, অ্যাঙ্কার এবং জেবিএল গ্যাজেট প্রোডাক্টে আকর্ষণীয় মূল্যছাড়। অরিজিনাল
+              ওয়ারেন্টি এবং সারা বাংলাদেশে ক্যাশ অন ডেলিভারি।
             </p>
             <div className="flex flex-wrap items-center gap-3 text-xs font-black text-white">
               <div className="flex items-center gap-2 bg-slate-900/30 px-3.5 py-2 rounded-xl border border-white/20">
@@ -53,7 +57,9 @@ export default async function OffersPage() {
               <h2 className="text-2xl font-black text-slate-900 flex items-center gap-2.5">
                 <Zap className="w-6 h-6 text-amber-500 fill-amber-500" /> রানিং ফ্ল্যাশ ডিলসমূহ
               </h2>
-              <p className="text-xs font-bold text-slate-600 mt-1">প্রমোশনাল রেটে সীমিত সময়ের জন্য।</p>
+              <p className="text-xs font-bold text-slate-600 mt-1">
+                প্রমোশনাল রেটে সীমিত সময়ের জন্য।
+              </p>
             </div>
             <span className="text-xs font-black text-amber-900 bg-amber-100 border border-amber-300 px-3 py-1.5 rounded-xl">
               {flashDeals.length} টি ডিল লাইভ
@@ -62,7 +68,9 @@ export default async function OffersPage() {
 
           {flashDeals.length === 0 ? (
             <div className="bg-white border border-slate-300 rounded-2xl p-10 text-center shadow-xs">
-              <p className="text-xs font-bold text-slate-600">এখন কোনো ফ্ল্যাশ সেল নেই। খুব শীঘ্রই আবার আসবে!</p>
+              <p className="text-xs font-bold text-slate-600">
+                এখন কোনো ফ্ল্যাশ সেল নেই। খুব শীঘ্রই আবার আসবে!
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -80,7 +88,9 @@ export default async function OffersPage() {
               <h2 className="text-2xl font-black text-slate-900 flex items-center gap-2.5">
                 <Sparkles className="w-6 h-6 text-amber-500" /> ক্যাম্পেইন সেরা প্রোডাক্ট
               </h2>
-              <p className="text-xs font-bold text-slate-600 mt-1">সবচেয়ে বেশি বিক্রি হওয়া সেরা কালেকশন।</p>
+              <p className="text-xs font-bold text-slate-600 mt-1">
+                সবচেয়ে বেশি বিক্রি হওয়া সেরা কালেকশন।
+              </p>
             </div>
           </div>
 

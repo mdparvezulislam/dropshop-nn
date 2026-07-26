@@ -2,7 +2,18 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Sparkles, TrendingUp, PackageCheck, Zap, Smartphone, Headphones, Wifi, Home, ArrowRight, Layers } from "lucide-react";
+import {
+  Sparkles,
+  TrendingUp,
+  PackageCheck,
+  Zap,
+  Smartphone,
+  Headphones,
+  Wifi,
+  Home,
+  ArrowRight,
+  Layers,
+} from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 export interface CollectionItem {
@@ -110,7 +121,10 @@ const FEATURED_COLLECTIONS: CollectionItem[] = [
 
 export function CollectionsSection(): React.ReactElement {
   return (
-    <section className="py-14 lg:py-20 bg-muted/30 border-y border-border/40" aria-label="Featured Collections">
+    <section
+      className="py-14 lg:py-20 bg-muted/30 border-y border-border/40"
+      aria-label="Featured Collections"
+    >
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between mb-10">
           <div className="space-y-2">
@@ -126,7 +140,8 @@ export function CollectionsSection(): React.ReactElement {
               Handpicked Sourcing Collections
             </h2>
             <p className="text-sm text-muted-foreground max-w-xl">
-              Explore specialized product collections tailored for social commerce resellers, retail store owners, and bulk wholesale buyers.
+              Explore specialized product collections tailored for social commerce resellers, retail
+              store owners, and bulk wholesale buyers.
             </p>
           </div>
 
@@ -155,14 +170,21 @@ export function CollectionsSection(): React.ReactElement {
                   href={`/collections/${col.slug}`}
                   className="group flex flex-col justify-between h-full p-5 rounded-2xl bg-card border border-border/80 hover:border-primary/40 hover:shadow-lg transition-all duration-300 relative overflow-hidden"
                 >
-                  <div className={`absolute inset-0 bg-gradient-to-br ${col.gradient} opacity-50 group-hover:opacity-100 transition-opacity`} />
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-br ${col.gradient} opacity-50 group-hover:opacity-100 transition-opacity`}
+                  />
 
                   <div className="relative z-10 space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="h-10 w-10 rounded-xl bg-white border border-border/60 shadow-xs flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
                         <Icon className="h-5 w-5" />
                       </div>
-                      <span className={cn("text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md border", col.badgeColor)}>
+                      <span
+                        className={cn(
+                          "text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md border",
+                          col.badgeColor,
+                        )}
+                      >
                         {col.badge}
                       </span>
                     </div>

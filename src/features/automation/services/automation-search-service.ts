@@ -1,6 +1,10 @@
 import { workflowRepository } from "../repositories/workflow-repository";
 import { workflowExecutionRepository } from "../repositories/workflow-execution-repository";
-import type { WorkflowDefinition, WorkflowExecution, ScheduledJob } from "../domain/automation-entity";
+import type {
+  WorkflowDefinition,
+  WorkflowExecution,
+  ScheduledJob,
+} from "../domain/automation-entity";
 import { scheduleJobRepository } from "../repositories/schedule-job-repository";
 
 export interface AutomationSearchResult {

@@ -1,5 +1,9 @@
 import Link from "next/link";
-import { getPublicFeaturedProductsAction, getPublicTrendingProductsAction, getPublicFlashDealsAction } from "@/features/catalog/actions/public-actions";
+import {
+  getPublicFeaturedProductsAction,
+  getPublicTrendingProductsAction,
+  getPublicFlashDealsAction,
+} from "@/features/catalog/actions/public-actions";
 import { ProductsCatalogClient } from "@/components/website/products-catalog-client";
 import { ArrowLeft, Sparkles, Layers } from "lucide-react";
 import type { ProductCardData } from "@/components/website/product-card";
@@ -11,15 +15,30 @@ interface PageProps {
 }
 
 const COLLECTION_TITLES: Record<string, { banglaTitle: string; subtitle: string }> = {
-  "trending-now": { banglaTitle: "ট্রেন্ডিং সোর্সিং কালেকশন", subtitle: "বাংলাদেশে বর্তমানে সবচেয়ে জনপ্রিয় ও হাই-ডিমান্ড প্রোডাক্ট সমূহ" },
-  "fast-charging-hub": { banglaTitle: "ফাস্ট চার্জিং হাব", subtitle: "হাই-স্পিড চার্জার, পাওয়ার ব্যাংক এবং গ্যাজেট এক্সেসরিজ" },
-  "smart-home-essentials": { banglaTitle: "স্মার্ট হোম এসেনশিয়ালস", subtitle: "স্মার্ট সিকিউরিটি ক্যামেরা, সেন্সর এবং হোম অটোমেশন" },
-  "audio-sound-pro": { banglaTitle: "অডিও & সাউন্ড প্রো", subtitle: "প্রিমিয়াম TWS এয়ারবাডস, ব্লুটুথ স্পিকার এবং সাউন্ড সিস্টেম" },
+  "trending-now": {
+    banglaTitle: "ট্রেন্ডিং সোর্সিং কালেকশন",
+    subtitle: "বাংলাদেশে বর্তমানে সবচেয়ে জনপ্রিয় ও হাই-ডিমান্ড প্রোডাক্ট সমূহ",
+  },
+  "fast-charging-hub": {
+    banglaTitle: "ফাস্ট চার্জিং হাব",
+    subtitle: "হাই-স্পিড চার্জার, পাওয়ার ব্যাংক এবং গ্যাজেট এক্সেসরিজ",
+  },
+  "smart-home-essentials": {
+    banglaTitle: "স্মার্ট হোম এসেনশিয়ালস",
+    subtitle: "স্মার্ট সিকিউরিটি ক্যামেরা, সেন্সর এবং হোম অটোমেশন",
+  },
+  "audio-sound-pro": {
+    banglaTitle: "অডিও & সাউন্ড প্রো",
+    subtitle: "প্রিমিয়াম TWS এয়ারবাডস, ব্লুটুথ স্পিকার এবং সাউন্ড সিস্টেম",
+  },
 };
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params;
-  const colInfo = COLLECTION_TITLES[slug] || { banglaTitle: slug.replace(/-/g, " "), subtitle: "বিশেষ প্রোডাক্ট কালেকশন" };
+  const colInfo = COLLECTION_TITLES[slug] || {
+    banglaTitle: slug.replace(/-/g, " "),
+    subtitle: "বিশেষ প্রোডাক্ট কালেকশন",
+  };
 
   return {
     title: `${colInfo.banglaTitle} - DropshopNN`,
@@ -38,7 +57,10 @@ export default async function CollectionDetailPage({ params }: PageProps) {
   }
 
   const rawProducts = productsRes.data;
-  const colInfo = COLLECTION_TITLES[slug] || { banglaTitle: slug.replace(/-/g, " "), subtitle: "বিশেষ প্রোডাক্ট কালেকশন" };
+  const colInfo = COLLECTION_TITLES[slug] || {
+    banglaTitle: slug.replace(/-/g, " "),
+    subtitle: "বিশেষ প্রোডাক্ট কালেকশন",
+  };
 
   const mappedProducts: ProductCardData[] = rawProducts.map((p) => ({
     id: p.id,
@@ -60,7 +82,10 @@ export default async function CollectionDetailPage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-[hsl(0_0%_98%)] text-foreground py-8">
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
-        <Link href="/collections" className="inline-flex items-center gap-1.5 text-xs font-extrabold text-amber-600 hover:underline mb-6">
+        <Link
+          href="/collections"
+          className="inline-flex items-center gap-1.5 text-xs font-extrabold text-amber-600 hover:underline mb-6"
+        >
           <ArrowLeft className="h-3.5 w-3.5" /> সকল কালেকশন
         </Link>
 
@@ -76,11 +101,7 @@ export default async function CollectionDetailPage({ params }: PageProps) {
         </div>
 
         {/* Products Catalog Suite */}
-        <ProductsCatalogClient
-          initialProducts={mappedProducts}
-          categories={[]}
-          brands={[]}
-        />
+        <ProductsCatalogClient initialProducts={mappedProducts} categories={[]} brands={[]} />
       </div>
     </div>
   );

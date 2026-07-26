@@ -175,7 +175,9 @@ export function SettingsCenterUI(): React.ReactElement {
         const payload = JSON.parse(evt.target?.result as string);
         const res = await importSettingsAction({ payload });
         if (res.success) {
-          toast.success(`Import finished: ${res.data.importedSettings} settings & ${res.data.importedFlags} flags restored`);
+          toast.success(
+            `Import finished: ${res.data.importedSettings} settings & ${res.data.importedFlags} flags restored`,
+          );
           loadAllData();
         } else {
           toast.error(res.error || "Import failed");
@@ -217,13 +219,19 @@ export function SettingsCenterUI(): React.ReactElement {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-slate-800 pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Platform Configuration & Business Rules Center</h1>
-            <Badge variant="outline" className="border-emerald-500/30 text-emerald-400 bg-emerald-950/40 text-[10px]">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+              Platform Configuration & Business Rules Center
+            </h1>
+            <Badge
+              variant="outline"
+              className="border-emerald-500/30 text-emerald-400 bg-emerald-950/40 text-[10px]"
+            >
               SETTINGS-CENTER-001
             </Badge>
           </div>
           <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Single Source of Truth for Platform Configurations, Business Rules, Feature Flags, Maintenance & System Health
+            Single Source of Truth for Platform Configurations, Business Rules, Feature Flags,
+            Maintenance & System Health
           </p>
         </div>
 
@@ -237,14 +245,36 @@ export function SettingsCenterUI(): React.ReactElement {
               className="pl-8 text-xs bg-slate-900 border-slate-800"
             />
           </div>
-          <Button onClick={handleExportJSON} size="sm" variant="outline" className="border-slate-800 text-xs bg-slate-900 gap-1.5">
+          <Button
+            onClick={handleExportJSON}
+            size="sm"
+            variant="outline"
+            className="border-slate-800 text-xs bg-slate-900 gap-1.5"
+          >
             <Download className="h-3.5 w-3.5 text-emerald-400" /> Export JSON
           </Button>
-          <Button onClick={() => fileInputRef.current?.click()} size="sm" variant="outline" className="border-slate-800 text-xs bg-slate-900 gap-1.5">
+          <Button
+            onClick={() => fileInputRef.current?.click()}
+            size="sm"
+            variant="outline"
+            className="border-slate-800 text-xs bg-slate-900 gap-1.5"
+          >
             <Upload className="h-3.5 w-3.5 text-sky-400" /> Import JSON
           </Button>
-          <input ref={fileInputRef} type="file" accept=".json" onChange={handleImportJSON} className="hidden" />
-          <Button onClick={loadAllData} size="sm" variant="ghost" disabled={loading} className="text-slate-400 hover:text-white">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            onChange={handleImportJSON}
+            className="hidden"
+          />
+          <Button
+            onClick={loadAllData}
+            size="sm"
+            variant="ghost"
+            disabled={loading}
+            className="text-slate-400 hover:text-white"
+          >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </Button>
         </div>
@@ -268,7 +298,9 @@ export function SettingsCenterUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("overview")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "overview" ? "bg-emerald-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "overview"
+                ? "bg-emerald-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <Activity className="h-3.5 w-3.5" /> Dashboard Summary
@@ -276,7 +308,9 @@ export function SettingsCenterUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("general")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "general" ? "bg-emerald-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "general"
+                ? "bg-emerald-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <Globe className="h-3.5 w-3.5 text-sky-400" /> General & Branding
@@ -284,7 +318,9 @@ export function SettingsCenterUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("business_rules")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "business_rules" ? "bg-emerald-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "business_rules"
+                ? "bg-emerald-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <Scale className="h-3.5 w-3.5 text-amber-400" /> Business Rules
@@ -292,7 +328,9 @@ export function SettingsCenterUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("pricing")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "pricing" ? "bg-emerald-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "pricing"
+                ? "bg-emerald-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <DollarSign className="h-3.5 w-3.5 text-emerald-400" /> Pricing & Markup
@@ -300,7 +338,9 @@ export function SettingsCenterUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("order_product")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "order_product" ? "bg-emerald-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "order_product"
+                ? "bg-emerald-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <Package className="h-3.5 w-3.5 text-purple-400" /> Order & Product
@@ -308,7 +348,9 @@ export function SettingsCenterUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("logistics_finance")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "logistics_finance" ? "bg-emerald-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "logistics_finance"
+                ? "bg-emerald-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <Truck className="h-3.5 w-3.5 text-indigo-400" /> Logistics & Finance
@@ -316,7 +358,9 @@ export function SettingsCenterUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("security_access")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "security_access" ? "bg-emerald-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "security_access"
+                ? "bg-emerald-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <Lock className="h-3.5 w-3.5 text-rose-400" /> Security & Policy
@@ -324,7 +368,9 @@ export function SettingsCenterUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("feature_flags")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "feature_flags" ? "bg-emerald-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "feature_flags"
+                ? "bg-emerald-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <Flag className="h-3.5 w-3.5 text-yellow-400" /> Feature Flags ({flagsList.length})
@@ -332,7 +378,9 @@ export function SettingsCenterUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("system_health")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "system_health" ? "bg-emerald-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "system_health"
+                ? "bg-emerald-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <Server className="h-3.5 w-3.5 text-emerald-400" /> System Health
@@ -340,7 +388,9 @@ export function SettingsCenterUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("history_audit")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "history_audit" ? "bg-emerald-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "history_audit"
+                ? "bg-emerald-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <History className="h-3.5 w-3.5 text-slate-300" /> Configuration History
@@ -404,7 +454,9 @@ export function SettingsCenterUI(): React.ReactElement {
 
           <Card className="bg-slate-900/80 border-slate-800">
             <CardHeader>
-              <CardTitle className="text-sm font-semibold text-white">All Platform Settings Overview</CardTitle>
+              <CardTitle className="text-sm font-semibold text-white">
+                All Platform Settings Overview
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
@@ -420,12 +472,18 @@ export function SettingsCenterUI(): React.ReactElement {
                 <TableBody>
                   {filteredSettings.slice(0, 15).map((s) => (
                     <TableRow key={s.key} className="border-slate-800 hover:bg-slate-800/40">
-                      <TableCell className="text-xs capitalize font-medium text-sky-400">{s.category}</TableCell>
+                      <TableCell className="text-xs capitalize font-medium text-sky-400">
+                        {s.category}
+                      </TableCell>
                       <TableCell className="text-xs font-mono text-slate-400">{s.key}</TableCell>
                       <TableCell className="text-xs font-semibold text-white">{s.name}</TableCell>
-                      <TableCell className="text-xs font-mono font-bold text-emerald-400">{String(s.value)}</TableCell>
+                      <TableCell className="text-xs font-mono font-bold text-emerald-400">
+                        {String(s.value)}
+                      </TableCell>
                       <TableCell className="text-xs">
-                        <Badge variant="outline" className="capitalize border-slate-700">{s.scope}</Badge>
+                        <Badge variant="outline" className="capitalize border-slate-700">
+                          {s.scope}
+                        </Badge>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -443,35 +501,45 @@ export function SettingsCenterUI(): React.ReactElement {
             <CardTitle className="text-base font-semibold text-white flex items-center gap-2">
               <Globe className="h-4 w-4 text-sky-400" /> General & Branding Configuration
             </CardTitle>
-            <Button onClick={() => handleResetCategory("general")} size="sm" variant="outline" className="text-xs border-slate-800 text-slate-300">
+            <Button
+              onClick={() => handleResetCategory("general")}
+              size="sm"
+              variant="outline"
+              className="text-xs border-slate-800 text-slate-300"
+            >
               <RotateCcw className="h-3.5 w-3.5 mr-1" /> Reset General
             </Button>
           </CardHeader>
           <CardContent className="space-y-4">
-            {getCategorySettings("general").concat(getCategorySettings("branding")).map((s) => (
-              <div key={s.key} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded bg-slate-950 border border-slate-800 gap-3">
-                <div>
-                  <p className="text-xs font-semibold text-white">{s.name}</p>
-                  <p className="text-[11px] text-slate-400">{s.description}</p>
-                  <p className="text-[10px] font-mono text-slate-500">{s.key}</p>
+            {getCategorySettings("general")
+              .concat(getCategorySettings("branding"))
+              .map((s) => (
+                <div
+                  key={s.key}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded bg-slate-950 border border-slate-800 gap-3"
+                >
+                  <div>
+                    <p className="text-xs font-semibold text-white">{s.name}</p>
+                    <p className="text-[11px] text-slate-400">{s.description}</p>
+                    <p className="text-[10px] font-mono text-slate-500">{s.key}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={editValues[s.key] !== undefined ? String(editValues[s.key]) : ""}
+                      onChange={(e) => setEditValues({ ...editValues, [s.key]: e.target.value })}
+                      className="h-8 text-xs bg-slate-900 border-slate-700 w-48 sm:w-64"
+                    />
+                    <Button
+                      onClick={() => handleSaveSetting(s.key)}
+                      disabled={savingKey === s.key}
+                      size="sm"
+                      className="h-8 text-xs bg-emerald-600 hover:bg-emerald-500"
+                    >
+                      Save
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Input
-                    value={editValues[s.key] !== undefined ? String(editValues[s.key]) : ""}
-                    onChange={(e) => setEditValues({ ...editValues, [s.key]: e.target.value })}
-                    className="h-8 text-xs bg-slate-900 border-slate-700 w-48 sm:w-64"
-                  />
-                  <Button
-                    onClick={() => handleSaveSetting(s.key)}
-                    disabled={savingKey === s.key}
-                    size="sm"
-                    className="h-8 text-xs bg-emerald-600 hover:bg-emerald-500"
-                  >
-                    Save
-                  </Button>
-                </div>
-              </div>
-            ))}
+              ))}
           </CardContent>
         </Card>
       )}
@@ -483,13 +551,21 @@ export function SettingsCenterUI(): React.ReactElement {
             <CardTitle className="text-base font-semibold text-white flex items-center gap-2">
               <Scale className="h-4 w-4 text-amber-400" /> Business Rule Engine Settings
             </CardTitle>
-            <Button onClick={() => handleResetCategory("business_rules")} size="sm" variant="outline" className="text-xs border-slate-800 text-slate-300">
+            <Button
+              onClick={() => handleResetCategory("business_rules")}
+              size="sm"
+              variant="outline"
+              className="text-xs border-slate-800 text-slate-300"
+            >
               <RotateCcw className="h-3.5 w-3.5 mr-1" /> Reset Rules
             </Button>
           </CardHeader>
           <CardContent className="space-y-4">
             {getCategorySettings("business_rules").map((s) => (
-              <div key={s.key} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded bg-slate-950 border border-slate-800 gap-3">
+              <div
+                key={s.key}
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded bg-slate-950 border border-slate-800 gap-3"
+              >
                 <div>
                   <p className="text-xs font-semibold text-white">{s.name}</p>
                   <p className="text-[11px] text-slate-400">{s.description}</p>
@@ -499,7 +575,15 @@ export function SettingsCenterUI(): React.ReactElement {
                   <Input
                     type={s.dataType === "number" ? "number" : "text"}
                     value={editValues[s.key] !== undefined ? String(editValues[s.key]) : ""}
-                    onChange={(e) => setEditValues({ ...editValues, [s.key]: s.dataType === "number" ? parseFloat(e.target.value) || 0 : e.target.value })}
+                    onChange={(e) =>
+                      setEditValues({
+                        ...editValues,
+                        [s.key]:
+                          s.dataType === "number"
+                            ? parseFloat(e.target.value) || 0
+                            : e.target.value,
+                      })
+                    }
                     className="h-8 text-xs bg-slate-900 border-slate-700 w-48"
                   />
                   <Button
@@ -527,7 +611,10 @@ export function SettingsCenterUI(): React.ReactElement {
           </CardHeader>
           <CardContent className="space-y-4">
             {getCategorySettings("pricing").map((s) => (
-              <div key={s.key} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded bg-slate-950 border border-slate-800 gap-3">
+              <div
+                key={s.key}
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded bg-slate-950 border border-slate-800 gap-3"
+              >
                 <div>
                   <p className="text-xs font-semibold text-white">{s.name}</p>
                   <p className="text-[11px] text-slate-400">{s.description}</p>
@@ -537,7 +624,9 @@ export function SettingsCenterUI(): React.ReactElement {
                   <Input
                     type="number"
                     value={editValues[s.key] !== undefined ? String(editValues[s.key]) : ""}
-                    onChange={(e) => setEditValues({ ...editValues, [s.key]: parseFloat(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setEditValues({ ...editValues, [s.key]: parseFloat(e.target.value) || 0 })
+                    }
                     className="h-8 text-xs bg-slate-900 border-slate-700 w-36"
                   />
                   <Button
@@ -564,42 +653,49 @@ export function SettingsCenterUI(): React.ReactElement {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {getCategorySettings("order").concat(getCategorySettings("product")).map((s) => (
-              <div key={s.key} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded bg-slate-950 border border-slate-800 gap-3">
-                <div>
-                  <p className="text-xs font-semibold text-white">{s.name}</p>
-                  <p className="text-[11px] text-slate-400">{s.description}</p>
-                  <p className="text-[10px] font-mono text-slate-500">{s.key}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  {typeof s.value === "boolean" ? (
-                    <Switch
-                      checked={Boolean(editValues[s.key])}
-                      onCheckedChange={(chk) => {
-                        setEditValues({ ...editValues, [s.key]: chk });
-                        updateSettingAction({ key: s.key, value: chk }).then(loadAllData);
-                      }}
-                    />
-                  ) : (
-                    <>
-                      <Input
-                        value={editValues[s.key] !== undefined ? String(editValues[s.key]) : ""}
-                        onChange={(e) => setEditValues({ ...editValues, [s.key]: e.target.value })}
-                        className="h-8 text-xs bg-slate-900 border-slate-700 w-44"
+            {getCategorySettings("order")
+              .concat(getCategorySettings("product"))
+              .map((s) => (
+                <div
+                  key={s.key}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded bg-slate-950 border border-slate-800 gap-3"
+                >
+                  <div>
+                    <p className="text-xs font-semibold text-white">{s.name}</p>
+                    <p className="text-[11px] text-slate-400">{s.description}</p>
+                    <p className="text-[10px] font-mono text-slate-500">{s.key}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {typeof s.value === "boolean" ? (
+                      <Switch
+                        checked={Boolean(editValues[s.key])}
+                        onCheckedChange={(chk) => {
+                          setEditValues({ ...editValues, [s.key]: chk });
+                          updateSettingAction({ key: s.key, value: chk }).then(loadAllData);
+                        }}
                       />
-                      <Button
-                        onClick={() => handleSaveSetting(s.key)}
-                        disabled={savingKey === s.key}
-                        size="sm"
-                        className="h-8 text-xs bg-purple-600 hover:bg-purple-500"
-                      >
-                        Save
-                      </Button>
-                    </>
-                  )}
+                    ) : (
+                      <>
+                        <Input
+                          value={editValues[s.key] !== undefined ? String(editValues[s.key]) : ""}
+                          onChange={(e) =>
+                            setEditValues({ ...editValues, [s.key]: e.target.value })
+                          }
+                          className="h-8 text-xs bg-slate-900 border-slate-700 w-44"
+                        />
+                        <Button
+                          onClick={() => handleSaveSetting(s.key)}
+                          disabled={savingKey === s.key}
+                          size="sm"
+                          className="h-8 text-xs bg-purple-600 hover:bg-purple-500"
+                        >
+                          Save
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </CardContent>
         </Card>
       )}
@@ -613,30 +709,35 @@ export function SettingsCenterUI(): React.ReactElement {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {getCategorySettings("logistics").concat(getCategorySettings("finance")).map((s) => (
-              <div key={s.key} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded bg-slate-950 border border-slate-800 gap-3">
-                <div>
-                  <p className="text-xs font-semibold text-white">{s.name}</p>
-                  <p className="text-[11px] text-slate-400">{s.description}</p>
-                  <p className="text-[10px] font-mono text-slate-500">{s.key}</p>
+            {getCategorySettings("logistics")
+              .concat(getCategorySettings("finance"))
+              .map((s) => (
+                <div
+                  key={s.key}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded bg-slate-950 border border-slate-800 gap-3"
+                >
+                  <div>
+                    <p className="text-xs font-semibold text-white">{s.name}</p>
+                    <p className="text-[11px] text-slate-400">{s.description}</p>
+                    <p className="text-[10px] font-mono text-slate-500">{s.key}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      value={editValues[s.key] !== undefined ? String(editValues[s.key]) : ""}
+                      onChange={(e) => setEditValues({ ...editValues, [s.key]: e.target.value })}
+                      className="h-8 text-xs bg-slate-900 border-slate-700 w-44"
+                    />
+                    <Button
+                      onClick={() => handleSaveSetting(s.key)}
+                      disabled={savingKey === s.key}
+                      size="sm"
+                      className="h-8 text-xs bg-indigo-600 hover:bg-indigo-500"
+                    >
+                      Save
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Input
-                    value={editValues[s.key] !== undefined ? String(editValues[s.key]) : ""}
-                    onChange={(e) => setEditValues({ ...editValues, [s.key]: e.target.value })}
-                    className="h-8 text-xs bg-slate-900 border-slate-700 w-44"
-                  />
-                  <Button
-                    onClick={() => handleSaveSetting(s.key)}
-                    disabled={savingKey === s.key}
-                    size="sm"
-                    className="h-8 text-xs bg-indigo-600 hover:bg-indigo-500"
-                  >
-                    Save
-                  </Button>
-                </div>
-              </div>
-            ))}
+              ))}
           </CardContent>
         </Card>
       )}
@@ -651,7 +752,10 @@ export function SettingsCenterUI(): React.ReactElement {
           </CardHeader>
           <CardContent className="space-y-4">
             {getCategorySettings("security").map((s) => (
-              <div key={s.key} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded bg-slate-950 border border-slate-800 gap-3">
+              <div
+                key={s.key}
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded bg-slate-950 border border-slate-800 gap-3"
+              >
                 <div>
                   <p className="text-xs font-semibold text-white">{s.name}</p>
                   <p className="text-[11px] text-slate-400">{s.description}</p>
@@ -661,7 +765,9 @@ export function SettingsCenterUI(): React.ReactElement {
                   <Input
                     type="number"
                     value={editValues[s.key] !== undefined ? String(editValues[s.key]) : ""}
-                    onChange={(e) => setEditValues({ ...editValues, [s.key]: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setEditValues({ ...editValues, [s.key]: parseInt(e.target.value) || 0 })
+                    }
                     className="h-8 text-xs bg-slate-900 border-slate-700 w-36"
                   />
                   <Button
@@ -711,8 +817,8 @@ export function SettingsCenterUI(): React.ReactElement {
                           f.state === "on"
                             ? "border-emerald-500/40 text-emerald-400 bg-emerald-950/30"
                             : f.state === "beta"
-                            ? "border-yellow-500/40 text-yellow-400 bg-yellow-950/30"
-                            : "border-slate-700 text-slate-400"
+                              ? "border-yellow-500/40 text-yellow-400 bg-yellow-950/30"
+                              : "border-slate-700 text-slate-400"
                         }`}
                       >
                         {f.state}
@@ -737,7 +843,8 @@ export function SettingsCenterUI(): React.ReactElement {
         <Card className="bg-slate-900/80 border-slate-800">
           <CardHeader>
             <CardTitle className="text-base font-semibold text-white flex items-center gap-2">
-              <Server className="h-4 w-4 text-emerald-400" /> Platform System Health & Infrastructure
+              <Server className="h-4 w-4 text-emerald-400" /> Platform System Health &
+              Infrastructure
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -745,7 +852,9 @@ export function SettingsCenterUI(): React.ReactElement {
               <div className="p-4 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between">
                 <div>
                   <p className="text-xs text-slate-400">Database Engine (MongoDB)</p>
-                  <p className="text-lg font-bold text-emerald-400 capitalize">{healthStatus?.database || "Healthy"}</p>
+                  <p className="text-lg font-bold text-emerald-400 capitalize">
+                    {healthStatus?.database || "Healthy"}
+                  </p>
                 </div>
                 <Database className="h-6 w-6 text-emerald-400" />
               </div>
@@ -753,7 +862,9 @@ export function SettingsCenterUI(): React.ReactElement {
               <div className="p-4 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between">
                 <div>
                   <p className="text-xs text-slate-400">BullMQ & Redis Queue</p>
-                  <p className="text-lg font-bold text-emerald-400 capitalize">{healthStatus?.redis || "Healthy"}</p>
+                  <p className="text-lg font-bold text-emerald-400 capitalize">
+                    {healthStatus?.redis || "Healthy"}
+                  </p>
                 </div>
                 <Zap className="h-6 w-6 text-yellow-400" />
               </div>
@@ -761,7 +872,9 @@ export function SettingsCenterUI(): React.ReactElement {
               <div className="p-4 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between">
                 <div>
                   <p className="text-xs text-slate-400">Asset Storage (ImageKit)</p>
-                  <p className="text-lg font-bold text-emerald-400 capitalize">{healthStatus?.storage || "Healthy"}</p>
+                  <p className="text-lg font-bold text-emerald-400 capitalize">
+                    {healthStatus?.storage || "Healthy"}
+                  </p>
                 </div>
                 <HardDrive className="h-6 w-6 text-sky-400" />
               </div>
@@ -800,12 +913,24 @@ export function SettingsCenterUI(): React.ReactElement {
                 ) : (
                   auditLogs.map((a) => (
                     <TableRow key={a.id} className="border-slate-800 hover:bg-slate-800/40">
-                      <TableCell className="text-xs text-slate-400">{new Date(a.timestamp).toLocaleString()}</TableCell>
-                      <TableCell className="text-xs font-mono font-semibold text-indigo-400">{a.settingKey}</TableCell>
-                      <TableCell className="text-xs capitalize text-slate-300">{a.category}</TableCell>
-                      <TableCell className="text-xs font-mono text-rose-400">{String(a.oldValue ?? "N/A")}</TableCell>
-                      <TableCell className="text-xs font-mono font-bold text-emerald-400">{String(a.newValue)}</TableCell>
-                      <TableCell className="text-xs text-slate-300 font-medium">{a.changedBy}</TableCell>
+                      <TableCell className="text-xs text-slate-400">
+                        {new Date(a.timestamp).toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-xs font-mono font-semibold text-indigo-400">
+                        {a.settingKey}
+                      </TableCell>
+                      <TableCell className="text-xs capitalize text-slate-300">
+                        {a.category}
+                      </TableCell>
+                      <TableCell className="text-xs font-mono text-rose-400">
+                        {String(a.oldValue ?? "N/A")}
+                      </TableCell>
+                      <TableCell className="text-xs font-mono font-bold text-emerald-400">
+                        {String(a.newValue)}
+                      </TableCell>
+                      <TableCell className="text-xs text-slate-300 font-medium">
+                        {a.changedBy}
+                      </TableCell>
                     </TableRow>
                   ))
                 )}

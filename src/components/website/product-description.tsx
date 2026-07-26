@@ -25,7 +25,9 @@ export function ProductDescription({
   const tabs: Tab[] = [
     ...(description ? [{ id: "description", label: "Description" }] : []),
     ...(features && features.length > 0 ? [{ id: "features", label: "Features" }] : []),
-    ...(includedItems && includedItems.length > 0 ? [{ id: "includes", label: "What's Included" }] : []),
+    ...(includedItems && includedItems.length > 0
+      ? [{ id: "includes", label: "What's Included" }]
+      : []),
   ];
 
   const [activeTab, setActiveTab] = useState(tabs[0]?.id ?? "description");

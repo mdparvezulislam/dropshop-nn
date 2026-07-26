@@ -19,7 +19,9 @@ export async function generateMetadata({ params }: PageProps) {
 
   return {
     title: `${brand.name} প্রোডাক্টস - DropshopNN অফিসিয়াল পার্টনার`,
-    description: brand.description || `বাংলাদেশে ১০০% অরিজিনাল ${brand.name} গ্যাজেট ও ইলেকট্রনিক্স এক্সেসরিজ কিনুন।`,
+    description:
+      brand.description ||
+      `বাংলাদেশে ১০০% অরিজিনাল ${brand.name} গ্যাজেট ও ইলেকট্রনিক্স এক্সেসরিজ কিনুন।`,
   };
 }
 
@@ -77,7 +79,8 @@ export default async function BrandDetailPage({ params }: PageProps) {
                 <CheckCircle2 className="w-5 h-5 text-emerald-600" />
               </div>
               <p className="text-xs sm:text-sm font-bold text-slate-600 max-w-xl leading-relaxed">
-                {brand.description || `বাংলাদেশে ${brand.name} ব্র্যান্ডের ১০০% অরিজিনাল গ্যাজেট ও ইলেকট্রনিক্স প্রোডাক্টের বিশ্বস্ত সাপ্লাই।`}
+                {brand.description ||
+                  `বাংলাদেশে ${brand.name} ব্র্যান্ডের ১০০% অরিজিনাল গ্যাজেট ও ইলেকট্রনিক্স প্রোডাক্টের বিশ্বস্ত সাপ্লাই।`}
               </p>
             </div>
           </div>
@@ -85,21 +88,21 @@ export default async function BrandDetailPage({ params }: PageProps) {
           <div className="flex items-center gap-3 shrink-0">
             <div className="bg-amber-50 border border-amber-300 px-4 py-2.5 rounded-2xl text-center">
               <span className="block text-xl font-black text-amber-900">{products.length}</span>
-              <span className="text-[10px] font-black text-amber-950 uppercase">একটিভ প্রোডাক্টস</span>
+              <span className="text-[10px] font-black text-amber-950 uppercase">
+                একটিভ প্রোডাক্টস
+              </span>
             </div>
             <div className="bg-emerald-50 border border-emerald-300 px-4 py-2.5 rounded-2xl text-center">
               <span className="block text-xs font-black text-emerald-900">১ বছর</span>
-              <span className="text-[10px] font-black text-emerald-950 uppercase">অফিসিয়াল ওয়ারেন্টি</span>
+              <span className="text-[10px] font-black text-emerald-950 uppercase">
+                অফিসিয়াল ওয়ারেন্টি
+              </span>
             </div>
           </div>
         </div>
 
         {/* Products Catalog Suite */}
-        <ProductsCatalogClient
-          initialProducts={mappedProducts}
-          categories={[]}
-          brands={[]}
-        />
+        <ProductsCatalogClient initialProducts={mappedProducts} categories={[]} brands={[]} />
       </div>
     </div>
   );

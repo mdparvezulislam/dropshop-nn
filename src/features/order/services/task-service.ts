@@ -102,18 +102,13 @@ export class TaskService {
       action: "order.system_action",
       summary: `Task "${task.title}" status: ${task.status} → ${status}`,
       actor,
-      changes: [
-        { field: "taskStatus", oldValue: task.status, newValue: status },
-      ],
+      changes: [{ field: "taskStatus", oldValue: task.status, newValue: status }],
     });
 
     return updated;
   }
 
-  async addChecklistItem(
-    taskId: string,
-    text: string,
-  ): Promise<TaskEntity> {
+  async addChecklistItem(taskId: string, text: string): Promise<TaskEntity> {
     const task = await this.taskRepository.findById(taskId);
     if (!task) throw new NotFoundError("Task not found");
 
@@ -127,10 +122,7 @@ export class TaskService {
     return this.taskRepository.update(taskId, { checklist } as any);
   }
 
-  async toggleChecklistItem(
-    taskId: string,
-    itemId: string,
-  ): Promise<TaskEntity> {
+  async toggleChecklistItem(taskId: string, itemId: string): Promise<TaskEntity> {
     const task = await this.taskRepository.findById(taskId);
     if (!task) throw new NotFoundError("Task not found");
 
@@ -165,10 +157,7 @@ export class TaskService {
     return this.taskRepository.findByOrder(orderId);
   }
 
-  async listByAssignee(
-    assigneeId: string,
-    status?: TaskStatus,
-  ): Promise<TaskEntity[]> {
+  async listByAssignee(assigneeId: string, status?: TaskStatus): Promise<TaskEntity[]> {
     return this.taskRepository.findByAssignee(assigneeId, status);
   }
 
@@ -192,12 +181,8 @@ export class TaskService {
     const byStatus = await this.taskRepository.countByStatus();
     const overdue = await this.taskRepository.findOverdue();
 
-    const pipeline = [
-      { $group: { _id: "$priority", count: { $sum: 1 } } },
-    ];
-    const results = await (this.taskRepository as any).model.aggregate(
-      pipeline,
-    );
+    const pipeline = [{ $group: { _id: "$priority", count: { $sum: 1 } } }];
+    const results = await (this.taskRepository as any).model.aggregate(pipeline);
     const byPriority: Record<string, number> = {};
     for (const r of results) {
       byPriority[r._id] = r.count;

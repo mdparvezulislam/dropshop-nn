@@ -1,5 +1,9 @@
 import mongoose, { Schema } from "mongoose";
-import { baseFieldsDefinition, baseSchemaOptions, softDeletePlugin } from "@/lib/database/base-schema";
+import {
+  baseFieldsDefinition,
+  baseSchemaOptions,
+  softDeletePlugin,
+} from "@/lib/database/base-schema";
 import { BaseDocument } from "@/lib/database/types";
 
 export interface CampaignPricingDBFields {
@@ -40,7 +44,12 @@ const { status: _, ...baseFields } = baseFieldsDefinition;
 const campaignPricingSchema = new Schema<CampaignPricingDocument>(
   {
     name: { type: String, required: true, maxlength: 200 },
-    campaignType: { type: String, enum: ["campaign", "flash_sale", "festival", "seasonal", "clearance"], required: true, index: true },
+    campaignType: {
+      type: String,
+      enum: ["campaign", "flash_sale", "festival", "seasonal", "clearance"],
+      required: true,
+      index: true,
+    },
     productId: { type: Schema.Types.ObjectId, ref: "Product", required: true, index: true },
     variantSku: { type: String, required: false, index: true },
     campaignPrice: { type: Number, required: true, min: 0 },
@@ -75,7 +84,12 @@ const scheduledPricingSchema = new Schema<ScheduledPricingDocument>(
     autoEnable: { type: Boolean, default: true },
     autoDisable: { type: Boolean, default: true },
     isActive: { type: Boolean, default: true, index: true },
-    status: { type: String, enum: ["pending", "active", "expired", "cancelled"], default: "pending", index: true },
+    status: {
+      type: String,
+      enum: ["pending", "active", "expired", "cancelled"],
+      default: "pending",
+      index: true,
+    },
     ...baseFields,
   },
   baseSchemaOptions,

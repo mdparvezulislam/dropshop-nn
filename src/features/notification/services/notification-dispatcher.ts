@@ -56,9 +56,7 @@ export class NotificationDispatcher {
       sentAt: new Date(),
       deliveredAt: anySuccess ? new Date() : null,
       retryCount:
-        overall === "failed"
-          ? (notification.retryCount ?? 0) + 1
-          : notification.retryCount ?? 0,
+        overall === "failed" ? (notification.retryCount ?? 0) + 1 : (notification.retryCount ?? 0),
     } as any);
 
     // Queue retry for failed messages (BullMQ ready)
@@ -85,7 +83,12 @@ export class NotificationDispatcher {
         case "email": {
           const enabled = FeatureFlags.isEnabled("notifications.email-enabled");
           if (!enabled) {
-            return { channel, status: "cancelled", provider: "email", error: "Email channel disabled" };
+            return {
+              channel,
+              status: "cancelled",
+              provider: "email",
+              error: "Email channel disabled",
+            };
           }
           logger.info("NotificationDispatcher: email (stub)", {
             to: notification.recipientEmail ?? notification.userId,

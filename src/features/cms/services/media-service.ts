@@ -20,10 +20,7 @@ export class MediaService {
     };
   }
 
-  async registerAsset(
-    input: CreateMediaInput,
-    actorId?: string,
-  ): Promise<MediaAsset> {
+  async registerAsset(input: CreateMediaInput, actorId?: string): Promise<MediaAsset> {
     logger.info("MediaService: registering asset", { name: input.name, type: input.type });
     return this.repo.create({
       name: input.name,
@@ -43,10 +40,7 @@ export class MediaService {
     } as any);
   }
 
-  async updateAsset(
-    id: string,
-    data: Partial<CreateMediaInput>,
-  ): Promise<MediaAsset> {
+  async updateAsset(id: string, data: Partial<CreateMediaInput>): Promise<MediaAsset> {
     const current = await this.repo.findById(id);
     if (!current) throw new NotFoundError("Media asset not found");
     return this.repo.update(id, data as any);

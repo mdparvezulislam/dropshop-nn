@@ -16,13 +16,20 @@ export default function NotFound() {
       </p>
       <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
         <Link href="/">
-          <Button size="lg" className="h-11 px-6 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs">
+          <Button
+            size="lg"
+            className="h-11 px-6 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs"
+          >
             <Home className="h-4 w-4 mr-2" />
             হোম পেজে ফিরে যান
           </Button>
         </Link>
         <Link href="/products">
-          <Button variant="outline" size="lg" className="h-11 px-6 text-xs font-extrabold border-border/80 text-foreground hover:bg-muted">
+          <Button
+            variant="outline"
+            size="lg"
+            className="h-11 px-6 text-xs font-extrabold border-border/80 text-foreground hover:bg-muted"
+          >
             <Search className="h-4 w-4 mr-2 text-amber-600" />
             প্রোডাক্ট ক্যাটালগ দেখুন
           </Button>

@@ -3,7 +3,7 @@ import { exportWorkflowAction } from "@/features/automation/actions/automation-a
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   const { id } = await params;
   const result = await exportWorkflowAction(id);

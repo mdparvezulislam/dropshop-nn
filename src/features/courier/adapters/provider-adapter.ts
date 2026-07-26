@@ -43,7 +43,10 @@ export interface CourierProvider {
   name: string;
   testConnection(): Promise<ConnectionTestResult>;
   createShipment(shipment: Shipment, order: any): Promise<ProviderShipmentResult>;
-  cancelShipment(trackingCode: string, consignmentId?: string): Promise<{ success: boolean; error?: string }>;
+  cancelShipment(
+    trackingCode: string,
+    consignmentId?: string,
+  ): Promise<{ success: boolean; error?: string }>;
   requestPickup(shipment: Shipment, details: any): Promise<ProviderPickupResult>;
   trackShipment(trackingCode: string): Promise<ProviderTrackingResult>;
   verifyWebhookSignature(signature: string, rawBody: string): boolean;

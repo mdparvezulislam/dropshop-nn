@@ -3,13 +3,25 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, Shield, Truck, RefreshCw, ChevronLeft, ChevronRight, CheckCircle2, TrendingUp, Package, Users } from "lucide-react";
+import {
+  ArrowRight,
+  Shield,
+  Truck,
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  TrendingUp,
+  Package,
+  Users,
+} from "lucide-react";
 
 const HERO_SLIDES = [
   {
     id: "1",
     title: "Premium Products at Factory Prices",
-    subtitle: "Source thousands of quality products directly from verified suppliers across Bangladesh and beyond.",
+    subtitle:
+      "Source thousands of quality products directly from verified suppliers across Bangladesh and beyond.",
     cta: "Browse Products",
     href: "/products",
     badge: "10,000+ Products",
@@ -18,7 +30,8 @@ const HERO_SLIDES = [
   {
     id: "2",
     title: "Start Your Dropshipping Business Today",
-    subtitle: "Zero inventory needed. List products, we handle storage, packing, and delivery across Bangladesh.",
+    subtitle:
+      "Zero inventory needed. List products, we handle storage, packing, and delivery across Bangladesh.",
     cta: "Become a Reseller",
     href: "/become-reseller",
     badge: "Zero Inventory Required",
@@ -27,7 +40,8 @@ const HERO_SLIDES = [
   {
     id: "3",
     title: "Wholesale Pricing for Bulk Buyers",
-    subtitle: "Unlock tiered discounts, MOQ flexibility, and dedicated account management for wholesale partners.",
+    subtitle:
+      "Unlock tiered discounts, MOQ flexibility, and dedicated account management for wholesale partners.",
     cta: "Wholesale Program",
     href: "/become-wholesale-partner",
     badge: "Tiered Discounts",
@@ -103,7 +117,7 @@ export function HeroSection() {
                   <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] text-[hsl(222_47%_11%)]">
                     {HERO_SLIDES[current].title}
                   </h1>
-                  
+
                   <p className="mt-6 text-lg sm:text-xl text-[hsl(215_16%_47%)] leading-relaxed max-w-xl">
                     {HERO_SLIDES[current].subtitle}
                   </p>
@@ -127,11 +141,16 @@ export function HeroSection() {
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {businessStats.map((stat) => (
-                <div key={stat.label} className="rounded-xl bg-white border border-[hsl(0_0%_91%)] p-4 text-center hover:border-primary/20 hover:shadow-md transition-all">
+                <div
+                  key={stat.label}
+                  className="rounded-xl bg-white border border-[hsl(0_0%_91%)] p-4 text-center hover:border-primary/20 hover:shadow-md transition-all"
+                >
                   <div className="inline-flex items-center justify-center h-10 w-10 rounded-lg bg-primary/10 text-primary mb-2 mx-auto">
                     <stat.icon className="h-5 w-5" />
                   </div>
-                  <p className="text-lg sm:text-xl font-bold text-[hsl(222_47%_11%)]">{stat.value}</p>
+                  <p className="text-lg sm:text-xl font-bold text-[hsl(222_47%_11%)]">
+                    {stat.value}
+                  </p>
                   <p className="text-xs text-[hsl(215_16%_47%)]">{stat.label}</p>
                 </div>
               ))}
@@ -162,7 +181,7 @@ export function HeroSection() {
           >
             <div className="relative w-full aspect-square rounded-2xl overflow-hidden">
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 via-white to-primary/[0.03] border border-primary/10" />
-              
+
               <AnimatePresence mode="wait">
                 <motion.div
                   key={current}
@@ -198,7 +217,7 @@ export function HeroSection() {
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
-              
+
               <button
                 type="button"
                 onClick={next}
@@ -216,7 +235,9 @@ export function HeroSection() {
                     onClick={() => setCurrent(i)}
                     className={cn(
                       "rounded-full transition-all duration-300",
-                      i === current ? "h-2.5 w-8 bg-primary" : "h-2.5 w-2.5 bg-[hsl(0_0%_91%)] hover:bg-[hsl(215_16%_47%)]",
+                      i === current
+                        ? "h-2.5 w-8 bg-primary"
+                        : "h-2.5 w-2.5 bg-[hsl(0_0%_91%)] hover:bg-[hsl(215_16%_47%)]",
                     )}
                     aria-label={`Go to slide ${i + 1}`}
                   />

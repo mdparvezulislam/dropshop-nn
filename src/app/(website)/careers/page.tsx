@@ -5,7 +5,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Careers at DropshopNN Bangladesh",
-  description: "Join the team building Bangladesh's next-generation e-commerce and logistics platform.",
+  description:
+    "Join the team building Bangladesh's next-generation e-commerce and logistics platform.",
 };
 
 const JOBS = [
@@ -41,7 +42,8 @@ export default function CareersPage() {
             Build the Future of BD E-commerce
           </h1>
           <p className="text-sm text-slate-400 leading-relaxed">
-            We are looking for driven engineers, operators, and growth marketers passionate about revolutionizing digital commerce in Bangladesh.
+            We are looking for driven engineers, operators, and growth marketers passionate about
+            revolutionizing digital commerce in Bangladesh.
           </p>
         </div>
 

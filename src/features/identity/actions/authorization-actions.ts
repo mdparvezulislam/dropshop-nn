@@ -102,7 +102,12 @@ export async function createRoleWithValidationAction(input: unknown): Promise<{
   try {
     const { actor } = await requirePermission("identity.identity.manage");
     const validated = createRoleSchema.parse(input);
-    const role = await service.createRole(validated.name, validated.description, validated.permissions, actor);
+    const role = await service.createRole(
+      validated.name,
+      validated.description,
+      validated.permissions,
+      actor,
+    );
     revalidatePath("/dashboard/identity/roles");
     revalidatePath("/dashboard/identity/authorization");
     return { success: true, data: { id: role.id, name: role.name } };
@@ -111,7 +116,10 @@ export async function createRoleWithValidationAction(input: unknown): Promise<{
   }
 }
 
-export async function updateRoleWithValidationAction(id: string, input: unknown): Promise<{
+export async function updateRoleWithValidationAction(
+  id: string,
+  input: unknown,
+): Promise<{
   success: boolean;
   data?: { id: string; name: string };
   error?: string;

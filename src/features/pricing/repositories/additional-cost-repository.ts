@@ -4,7 +4,10 @@ import { AdditionalCost } from "../domain/additional-cost-entity";
 import { logger } from "@/lib/utils/logger";
 import { DatabaseError } from "@/lib/errors/app-error";
 
-export class AdditionalCostRepository extends BaseRepository<AdditionalCostDocument, AdditionalCost> {
+export class AdditionalCostRepository extends BaseRepository<
+  AdditionalCostDocument,
+  AdditionalCost
+> {
   constructor() {
     super(AdditionalCostModel, AdditionalCostRepository.mapToDomain);
   }
@@ -38,7 +41,10 @@ export class AdditionalCostRepository extends BaseRepository<AdditionalCostDocum
       }
       return this.find(filter);
     } catch (error) {
-      logger.error("AdditionalCostRepository findByProduct failed", error, { productId, variantSku });
+      logger.error("AdditionalCostRepository findByProduct failed", error, {
+        productId,
+        variantSku,
+      });
       throw new DatabaseError("Database search error", error);
     }
   }

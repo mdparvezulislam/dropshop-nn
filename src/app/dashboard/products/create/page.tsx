@@ -2,20 +2,28 @@
 
 import * as React from "react";
 import dynamic from "next/dynamic";
-import { StudioLayout } from "@/features/product-studio/components/studio-layout";
+import {
+  NewStudioLayout,
+  StudioTabPanel,
+} from "@/features/product-studio/components/new-studio-layout";
 import { StudioHeader } from "@/features/product-studio/components/studio-header";
-import { StudioRightSidebar } from "@/features/product-studio/components/sidebar/studio-right-sidebar";
 import { StudioQuickCreate } from "@/features/product-studio/components/studio-quick-create";
 import { StudioLivePreview } from "@/features/product-studio/components/studio-live-preview";
 import { useProductStudio } from "@/features/product-studio/hooks/use-product-studio";
 import { useProductDraft } from "@/features/product-studio/hooks/use-product-draft";
-import { checkSkuUniquenessAction, checkSlugUniquenessAction } from "@/features/catalog/actions/product-actions";
+import {
+  checkSkuUniquenessAction,
+  checkSlugUniquenessAction,
+} from "@/features/catalog/actions/product-actions";
 
 import { GeneralSection } from "@/features/product-studio/components/sections/general-section";
 import { CategorySection } from "@/features/product-studio/components/sections/category-section";
 import { BrandSection } from "@/features/product-studio/components/sections/brand-section";
 import { VariantStudioSection } from "@/features/product-studio/components/sections/variant-studio-section";
-import { SpecificationSection } from "@/features/product-studio/components/sections/specification-section";
+import { InlineSpecEditor } from "@/features/product-studio/components/inline-spec-editor";
+import { FeaturesEditor } from "@/features/product-studio/components/features-editor";
+import { ParserBar } from "@/features/product-studio/components/parser-bar";
+import { UrlImportBar } from "@/features/product-studio/components/url-import-bar";
 import { MediaSection } from "@/features/product-studio/components/sections/media-section";
 import { PricingSection } from "@/features/product-studio/components/sections/pricing-section";
 import { InventorySection } from "@/features/product-studio/components/sections/inventory-section";
@@ -28,41 +36,59 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Spinner } from "@/components/ui/spinner";
 
-// Lazy-load heavy components (Rich Text Description, Supplier, Marketing) only when Advanced Mode is activated
+// Lazy-load heavy components
 const LazyDescriptionSection = dynamic(
   () =>
     import("@/features/product-studio/components/sections/description-section").then(
-      (m) => m.DescriptionSection
+      (m) => m.DescriptionSection,
     ),
   {
-    loading: () => <div className="p-4 bg-slate-900 border border-slate-800 rounded-xl text-slate-400 text-xs flex items-center space-x-2"><Spinner size="sm" /><span>Loading Rich Text Editor…</span></div>,
+    loading: () => (
+      <div className="p-4 rounded-xl border border-border bg-card text-muted-foreground text-xs flex items-center gap-2">
+        <Spinner size="sm" />
+        <span>Loading Rich Text Editor…</span>
+      </div>
+    ),
     ssr: false,
-  }
+  },
 );
 
 const LazySupplierStudioSection = dynamic(
   () =>
     import("@/features/product-studio/components/sections/supplier-studio-section").then(
-      (m) => m.SupplierStudioSection
+      (m) => m.SupplierStudioSection,
     ),
-  { ssr: false }
+  { ssr: false },
 );
 
 const LazyPublishingStudioSection = dynamic(
   () =>
     import("@/features/product-studio/components/sections/publishing-studio-section").then(
-      (m) => m.PublishingStudioSection
+      (m) => m.PublishingStudioSection,
     ),
-  { ssr: false }
+  { ssr: false },
 );
 
 export default function CreateProductStudioPage(): React.ReactElement {
   const {
-    form, update, bulkUpdate,
-    handleAutoGenerateSKU, handleApplyAutoPricing, handleResetAutoPricing, handleMagicParse,
-    handleSave, handlePublish, handlePreview,
-    saving, saveState, healthResult,
-    activeSection, setActiveSection, scrollToSection,
+    form,
+    update,
+    bulkUpdate,
+    handleAutoGenerateSKU,
+    handleApplyAutoPricing,
+    handleResetAutoPricing,
+    handleMagicParse,
+    isParsing,
+    parseSummary,
+    handleSave,
+    handlePublish,
+    handlePreview,
+    saving,
+    saveState,
+    healthResult,
+    activeSection,
+    setActiveSection,
+    scrollToSection,
     sections,
   } = useProductStudio();
 
@@ -71,7 +97,7 @@ export default function CreateProductStudioPage(): React.ReactElement {
   const [skuUniqueError, setSkuUniqueError] = React.useState<string | null>(null);
   const [slugUniqueError, setSlugUniqueError] = React.useState<string | null>(null);
 
-  const { hasUnsavedDraft, loadDraftFromLocalStorage, clearDraft } = useProductDraft("new", form);
+  const { hasUnsavedDraft, loadDraftFromLocalStorage, clearDraft } = useProductDraft("new");
 
   // Background Uniqueness Check for SKU
   React.useEffect(() => {
@@ -115,19 +141,23 @@ export default function CreateProductStudioPage(): React.ReactElement {
     />
   );
 
-  const main = (
-    <div className="space-y-6">
-      {/* Draft Recovery Alert */}
+  // Alert banner (draft recovery + uniqueness warnings)
+  const alert = (
+    <>
       {hasUnsavedDraft && (
-        <div className="bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl flex items-center justify-between">
-          <div className="flex items-center space-x-3 text-amber-400">
+        <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-500/30 p-4 rounded-xl flex items-center justify-between">
+          <div className="flex items-center gap-3 text-amber-700 dark:text-amber-400">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <div className="text-xs">
-              <span className="font-bold block">Unsaved Local Draft Found (খসড়া তথ্য পাওয়া গেছে)</span>
-              <span className="text-slate-400">Would you like to restore your previously edited product details?</span>
+              <span className="font-bold block">
+                Unsaved Local Draft Found (খসড়া তথ্য পাওয়া গেছে)
+              </span>
+              <span className="text-amber-600 dark:text-slate-400">
+                Would you like to restore your previously edited product details?
+              </span>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2">
             <Button
               size="sm"
               variant="outline"
@@ -135,7 +165,7 @@ export default function CreateProductStudioPage(): React.ReactElement {
                 const restored = loadDraftFromLocalStorage();
                 if (restored) bulkUpdate(restored);
               }}
-              className="border-amber-500/40 text-amber-400 hover:bg-amber-500/20 text-xs font-bold"
+              className="border-amber-300 dark:border-amber-500/40 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-500/20 text-xs font-bold"
             >
               <RotateCcw className="w-3.5 h-3.5 mr-1" /> Restore Draft
             </Button>
@@ -143,7 +173,7 @@ export default function CreateProductStudioPage(): React.ReactElement {
               size="sm"
               variant="ghost"
               onClick={clearDraft}
-              className="text-slate-400 hover:text-slate-200 text-xs"
+              className="text-muted-foreground hover:text-foreground text-xs"
             >
               Discard
             </Button>
@@ -151,124 +181,157 @@ export default function CreateProductStudioPage(): React.ReactElement {
         </div>
       )}
 
-      {/* Mode Switcher Banner */}
-      <div className="flex items-center justify-between p-3 bg-slate-900 border border-slate-800 rounded-xl">
-        <div className="flex items-center space-x-1 bg-slate-950 p-1 rounded-lg border border-slate-800">
-          <button
-            type="button"
-            onClick={() => setMode("quick")}
-            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center space-x-1.5 ${
-              mode === "quick"
-                ? "bg-amber-500 text-slate-950 shadow-md"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            <Zap className="w-3.5 h-3.5" />
-            <span>Quick Create (6 Core Fields)</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setMode("advanced")}
-            className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center space-x-1.5 ${
-              mode === "advanced"
-                ? "bg-amber-500 text-slate-950 shadow-md"
-                : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            <Sliders className="w-3.5 h-3.5" />
-            <span>Advanced Mode (ফুল স্টুডিও)</span>
-          </button>
-        </div>
-
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => setShowPreview(!showPreview)}
-          className={`border-slate-800 text-xs font-bold ${
-            showPreview ? "bg-amber-500/20 text-amber-400 border-amber-500/40" : "text-slate-300 hover:bg-slate-800"
-          }`}
-        >
-          <Eye className="w-3.5 h-3.5 mr-1.5" />
-          <span>{showPreview ? "Hide Preview" : "Live Preview"}</span>
-        </Button>
-      </div>
-
-      {/* SKU / Slug Validation Warning */}
       {(skuUniqueError || slugUniqueError) && (
-        <div className="bg-red-500/10 border border-red-500/30 p-3 rounded-xl text-red-400 text-xs font-semibold">
+        <div className="bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 p-3 rounded-xl text-red-600 dark:text-red-400 text-xs font-semibold">
           {skuUniqueError && <p>• {skuUniqueError}</p>}
           {slugUniqueError && <p>• {slugUniqueError}</p>}
         </div>
       )}
+    </>
+  );
 
-      {/* Main Mode View */}
-      {mode === "quick" ? (
-        <StudioQuickCreate
-          form={form}
-          update={update}
-          bulkUpdate={bulkUpdate}
-          onSave={handleSave}
-          onPublish={handlePublish}
-          saving={saving}
-          onSwitchToAdvanced={() => setMode("advanced")}
-        />
-      ) : (
-        <>
-          <GeneralSection
-            name={form.name}
-            onNameChange={(v) => update("name", v)}
-            sku={form.sku}
-            onSkuChange={(v) => update("sku", v)}
-            shortDescription={form.shortDescription}
-            onShortDescriptionChange={(v) => update("shortDescription", v)}
-            productModel={form.productModel}
-            onProductModelChange={(v) => update("productModel", v)}
-            barcode={form.barcode}
-            onBarcodeChange={(v) => update("barcode", v)}
-            onAutoGenerateSKU={handleAutoGenerateSKU}
+  // ── Quick Create Mode ──
+  if (mode === "quick") {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        {header}
+        <div className="flex-1 mx-auto w-full max-w-[94rem] px-3 sm:px-6 lg:px-8 py-5">
+          {/* Mode Switcher */}
+          <div className="flex items-center justify-between mb-5 p-3 bg-muted dark:bg-slate-900 border border-border dark:border-slate-800 rounded-xl">
+            <div className="flex items-center gap-1 bg-card dark:bg-slate-950 p-1 rounded-lg border border-border dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setMode("quick")}
+                className="px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 bg-amber-500 text-white shadow-md"
+              >
+                <Zap className="w-3.5 h-3.5" />
+                <span>Quick Create (6 Core Fields)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("advanced")}
+                className="px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+              >
+                <Sliders className="w-3.5 h-3.5" />
+                <span>Advanced Mode (ফুল স্টুডিও)</span>
+              </button>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowPreview(!showPreview)}
+              className="border-border text-xs font-bold"
+            >
+              <Eye className="w-3.5 h-3.5 mr-1.5" />
+              <span>{showPreview ? "Hide Preview" : "Live Preview"}</span>
+            </Button>
+          </div>
+
+          {alert}
+          <StudioQuickCreate
+            form={form}
+            update={update}
+            bulkUpdate={bulkUpdate}
+            onSave={handleSave}
+            onPublish={handlePublish}
+            saving={saving}
+            onSwitchToAdvanced={() => setMode("advanced")}
           />
+          {showPreview && <StudioLivePreview form={form} className="mt-6" />}
+        </div>
+      </div>
+    );
+  }
 
-          <BadgesStudioSection
-            badges={form.badges}
-            onChange={(b) => update("badges", b)}
-          />
+  // ── Advanced Mode (Tab-based Layout) ──
+  return (
+    <div className="min-h-screen flex flex-col bg-background">
+      {header}
 
-          <LazyDescriptionSection
-            value={form.richDescription}
-            onChange={(v) => update("richDescription", v)}
-            onMagicParse={() => handleMagicParse()}
-          />
+      <div className="mx-auto w-full max-w-[94rem] px-3 sm:px-6 lg:px-8 pt-5">
+        {/* Mode Switcher + Preview */}
+        <div className="flex items-center justify-between mb-5 p-3 bg-muted dark:bg-slate-900 border border-border dark:border-slate-800 rounded-xl">
+          <div className="flex items-center gap-1 bg-card dark:bg-slate-950 p-1 rounded-lg border border-border dark:border-slate-800">
+            <button
+              type="button"
+              onClick={() => setMode("quick")}
+              className="px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+            >
+              <Zap className="w-3.5 h-3.5" />
+              <span>Quick Create</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("advanced")}
+              className="px-3 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-1.5 bg-amber-500 text-white shadow-md"
+            >
+              <Sliders className="w-3.5 h-3.5" />
+              <span>Advanced Mode (ফুল স্টুডিও)</span>
+            </button>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setShowPreview(!showPreview)}
+            className="border-border text-xs font-bold"
+          >
+            <Eye className="w-3.5 h-3.5 mr-1.5" />
+            <span>{showPreview ? "Hide Preview" : "Live Preview"}</span>
+          </Button>
+        </div>
+      </div>
 
-          <CategorySection
-            categoryId={form.categoryId}
-            onCategoryChange={(id) => update("categoryId", id)}
-            tags={form.tags}
-            onTagsChange={(t) => update("tags", t)}
-          />
+      <NewStudioLayout
+        status={form.status}
+        visibility={form.visibility}
+        onVisibilityChange={(v) => update("visibility", v)}
+        onStatusChange={(v) => update("status", v)}
+        onSave={handleSave}
+        onPublish={handlePublish}
+        onPreview={() => setShowPreview(!showPreview)}
+        saving={saving}
+        saveState={saveState}
+        productName={form.name}
+        productSku={form.sku}
+        healthResult={healthResult}
+        sections={sections}
+        activeSection={activeSection}
+        onSectionClick={scrollToSection}
+        alert={alert}
+        urlImportBar={<UrlImportBar bulkUpdate={bulkUpdate} />}
+        parserBar={
+          <ParserBar onParse={handleMagicParse} isParsing={isParsing} summary={parseSummary} />
+        }
+      >
+        {/* ── Tab: Basic ── */}
+        <StudioTabPanel value="basic">
+          <div className="space-y-5">
+            <GeneralSection
+              name={form.name}
+              onNameChange={(v) => update("name", v)}
+              sku={form.sku}
+              onSkuChange={(v) => update("sku", v)}
+              shortDescription={form.shortDescription}
+              onShortDescriptionChange={(v) => update("shortDescription", v)}
+              productModel={form.productModel}
+              onProductModelChange={(v) => update("productModel", v)}
+              barcode={form.barcode}
+              onBarcodeChange={(v) => update("barcode", v)}
+              onAutoGenerateSKU={handleAutoGenerateSKU}
+            />
+            <CategorySection
+              categoryId={form.categoryId}
+              onCategoryChange={(id) => update("categoryId", id)}
+              tags={form.tags}
+              onTagsChange={(t) => update("tags", t)}
+            />
+            <BrandSection brandId={form.brandId} onBrandChange={(id) => update("brandId", id)} />
+            <BadgesStudioSection badges={form.badges} onChange={(b) => update("badges", b)} />
+          </div>
+        </StudioTabPanel>
 
-          <BrandSection
-            brandId={form.brandId}
-            onBrandChange={(id) => update("brandId", id)}
-          />
-
-          <VariantStudioSection
-            variants={form.variants as any}
-            onChange={(vars) => update("variants", vars)}
-            baseSku={form.sku}
-            basePrice={parseFloat(form.sellingPrice) || 1200}
-            baseCost={parseFloat(form.costPrice) || 800}
-          />
-
-          <SpecificationSection
-            categoryName={form.categoryId || "Smart Watch"}
-          />
-
-          <MediaSection
-            items={form.media}
-            onChange={(items) => update("media", items)}
-          />
-
+        {/* ── Tab: Pricing ── */}
+        <StudioTabPanel value="pricing">
           <PricingSection
             costPrice={form.costPrice}
             onCostPriceChange={(v) => update("costPrice", v)}
@@ -286,33 +349,48 @@ export default function CreateProductStudioPage(): React.ReactElement {
             showResetButton={Object.keys(form.manualPriceOverrides ?? {}).length > 0}
             onResetAutoPricing={handleResetAutoPricing}
           />
+        </StudioTabPanel>
 
-          <InventorySection
-            sku={form.inventorySku || form.sku}
-            onSkuChange={(v) => update("inventorySku", v)}
-            barcode={form.inventoryBarcode || form.barcode}
-            onBarcodeChange={(v) => update("inventoryBarcode", v)}
-            stock={form.stock}
-            onStockChange={(v) => update("stock", v)}
-            lowStockThreshold={form.lowStockThreshold}
-            onLowStockThresholdChange={(v) => update("lowStockThreshold", v)}
-            reservedStock={form.reservedStock}
-            onReservedStockChange={(v) => update("reservedStock", v)}
-            incomingStock={form.incomingStock}
-            onIncomingStockChange={(v) => update("incomingStock", v)}
-            warehouseLocation={form.warehouseLocation}
-            onWarehouseLocationChange={(v) => update("warehouseLocation", v)}
-            weight={form.weight}
-            onWeightChange={(v) => update("weight", v)}
+        {/* ── Tab: Images ── */}
+        <StudioTabPanel value="images">
+          <MediaSection items={form.media} onChange={(items) => update("media", items)} />
+        </StudioTabPanel>
+
+        {/* ── Tab: Description ── */}
+        <StudioTabPanel value="description">
+          <div className="space-y-5">
+            <LazyDescriptionSection
+              value={form.richDescription}
+              onChange={(v) => update("richDescription", v)}
+            />
+            <FeaturesEditor
+              features={form.bulletFeatures}
+              onChange={(features) => update("bulletFeatures", features)}
+            />
+          </div>
+        </StudioTabPanel>
+
+        {/* ── Tab: Specifications ── */}
+        <StudioTabPanel value="specs">
+          <InlineSpecEditor
+            specs={form.specifications}
+            onChange={(specs) => update("specifications", specs)}
           />
+        </StudioTabPanel>
 
-          <CollectionsChannelsSection
-            visibility={form.visibility}
-            onVisibilityChange={(v) => update("visibility", v)}
-            selectedCollectionIds={form.selectedCollectionIds}
-            onCollectionsChange={(ids) => update("selectedCollectionIds", ids)}
+        {/* ── Tab: Variants ── */}
+        <StudioTabPanel value="variants">
+          <VariantStudioSection
+            variants={form.variants as any}
+            onChange={(vars) => update("variants", vars)}
+            baseSku={form.sku}
+            basePrice={parseFloat(form.sellingPrice) || 1200}
+            baseCost={parseFloat(form.costPrice) || 800}
           />
+        </StudioTabPanel>
 
+        {/* ── Tab: SEO ── */}
+        <StudioTabPanel value="seo">
           <SEOAdvancedSection
             name={form.name}
             sku={form.sku}
@@ -326,62 +404,58 @@ export default function CreateProductStudioPage(): React.ReactElement {
             ogImage={form.ogImage}
             onOgImageChange={(v) => update("ogImage", v)}
           />
+        </StudioTabPanel>
 
-          <LazySupplierStudioSection
-            supplierId={form.supplierId}
-            onSupplierIdChange={(v) => update("supplierId", v)}
-            supplierSku={form.supplierSku}
-            onSupplierSkuChange={(v) => update("supplierSku", v)}
-            supplierCost={form.supplierCost}
-            onSupplierCostChange={(v) => update("supplierCost", v)}
-            leadTimeDays={form.leadTimeDays}
-            onLeadTimeDaysChange={(v) => update("leadTimeDays", v)}
-            purchaseLink={form.purchaseLink}
-            onPurchaseLinkChange={(v) => update("purchaseLink", v)}
-            supplierNotes={form.supplierNotes}
-            onSupplierNotesChange={(v) => update("supplierNotes", v)}
-          />
+        {/* ── Tab: Marketing ── */}
+        <StudioTabPanel value="marketing">
+          <div className="space-y-5">
+            <CollectionsChannelsSection
+              visibility={form.visibility}
+              onVisibilityChange={(v) => update("visibility", v)}
+              selectedCollectionIds={form.selectedCollectionIds}
+              onCollectionsChange={(ids) => update("selectedCollectionIds", ids)}
+            />
+          </div>
+        </StudioTabPanel>
 
-          <LazyPublishingStudioSection
-            status={form.status}
-            onStatusChange={(s) => update("status", s)}
-            scheduledDate={form.scheduledPublishDate}
-            onScheduledDateChange={(v) => update("scheduledPublishDate", v)}
-            scheduledTime={form.scheduledPublishTime}
-            onScheduledTimeChange={(v) => update("scheduledPublishTime", v)}
-            timezone={form.timezone}
-            onTimezoneChange={(v) => update("timezone", v)}
-            scheduledUnpublishDate={form.scheduledUnpublishDate}
-            onScheduledUnpublishDateChange={(v) => update("scheduledUnpublishDate", v)}
-            healthResult={healthResult}
-          />
-        </>
-      )}
+        {/* ── Tab: Advanced ── */}
+        <StudioTabPanel value="advanced">
+          <div className="space-y-5">
+            <LazySupplierStudioSection
+              supplierId={form.supplierId}
+              onSupplierIdChange={(v) => update("supplierId", v)}
+              supplierSku={form.supplierSku}
+              onSupplierSkuChange={(v) => update("supplierSku", v)}
+              supplierCost={form.supplierCost}
+              onSupplierCostChange={(v) => update("supplierCost", v)}
+              leadTimeDays={form.leadTimeDays}
+              onLeadTimeDaysChange={(v) => update("leadTimeDays", v)}
+              purchaseLink={form.purchaseLink}
+              onPurchaseLinkChange={(v) => update("purchaseLink", v)}
+              supplierNotes={form.supplierNotes}
+              onSupplierNotesChange={(v) => update("supplierNotes", v)}
+            />
+            <LazyPublishingStudioSection
+              status={form.status}
+              onStatusChange={(s) => update("status", s)}
+              scheduledDate={form.scheduledPublishDate}
+              onScheduledDateChange={(v) => update("scheduledPublishDate", v)}
+              scheduledTime={form.scheduledPublishTime}
+              onScheduledTimeChange={(v) => update("scheduledPublishTime", v)}
+              timezone={form.timezone}
+              onTimezoneChange={(v) => update("timezone", v)}
+              scheduledUnpublishDate={form.scheduledUnpublishDate}
+              onScheduledUnpublishDateChange={(v) => update("scheduledUnpublishDate", v)}
+              healthResult={healthResult}
+            />
+          </div>
+        </StudioTabPanel>
 
-      {/* Live Preview Modal / Drawer */}
-      {showPreview && <StudioLivePreview form={form} className="mt-6" />}
+        {/* ── Tab: Preview ── */}
+        <StudioTabPanel value="preview">
+          <StudioLivePreview form={form} />
+        </StudioTabPanel>
+      </NewStudioLayout>
     </div>
   );
-
-  const sidebar = (
-    <StudioRightSidebar
-      status={form.status}
-      visibility={form.visibility}
-      onVisibilityChange={(v) => update("visibility", v)}
-      onStatusChange={(v) => update("status", v)}
-      onPublish={handlePublish}
-      onSave={handleSave}
-      onPreview={() => setShowPreview(!showPreview)}
-      saving={saving}
-      saveState={saveState}
-      productName={form.name}
-      productSku={form.sku}
-      healthResult={healthResult}
-      sections={sections}
-      activeSection={activeSection}
-      onSectionClick={scrollToSection}
-    />
-  );
-
-  return <StudioLayout header={header} main={main} sidebar={sidebar} />;
 }

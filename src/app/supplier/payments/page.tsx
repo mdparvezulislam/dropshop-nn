@@ -40,14 +40,16 @@ export default function SupplierPaymentsPage(): React.ReactElement {
         }
         if (ledgerRes.status === "fulfilled" && ledgerRes.value.success) {
           const entries = Array.isArray(ledgerRes.value.data) ? ledgerRes.value.data : [];
-          setRows(entries.map((e: any) => ({
-            id: e.id ?? e._id,
-            type: e.type ?? "unknown",
-            description: e.description ?? "",
-            amount: e.amount ?? 0,
-            status: e.status ?? "cleared",
-            createdAt: e.createdAt,
-          })));
+          setRows(
+            entries.map((e: any) => ({
+              id: e.id ?? e._id,
+              type: e.type ?? "unknown",
+              description: e.description ?? "",
+              amount: e.amount ?? 0,
+              status: e.status ?? "cleared",
+              createdAt: e.createdAt,
+            })),
+          );
         }
       } catch {
         toast.error("Failed to load payment data");
@@ -65,7 +67,11 @@ export default function SupplierPaymentsPage(): React.ReactElement {
     {
       id: "date",
       header: "Date",
-      cell: (r) => <span className="text-muted-foreground">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}</span>,
+      cell: (r) => (
+        <span className="text-muted-foreground">
+          {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}
+        </span>
+      ),
     },
     {
       id: "description",
@@ -77,7 +83,8 @@ export default function SupplierPaymentsPage(): React.ReactElement {
       header: "Amount",
       cell: (r) => (
         <span className="font-semibold tabular-nums">
-          {r.type === "credit" ? "+" : r.type === "debit" ? "-" : ""}{formatCents(r.amount)}
+          {r.type === "credit" ? "+" : r.type === "debit" ? "-" : ""}
+          {formatCents(r.amount)}
         </span>
       ),
     },
@@ -101,13 +108,30 @@ export default function SupplierPaymentsPage(): React.ReactElement {
       />
 
       <div className="grid gap-3 grid-cols-2 lg:grid-cols-3">
-        <StatCard label="Available Balance" value={loading ? "—" : formatCents(balance)} icon={Wallet} accent="success" />
-        <StatCard label="Pending Settlement" value={loading ? "—" : formatCents(0)} icon={Clock} accent="warning" />
-        <StatCard label="Total Paid" value={loading ? "—" : formatCents(0)} icon={DollarSign} accent="info" />
+        <StatCard
+          label="Available Balance"
+          value={loading ? "—" : formatCents(balance)}
+          icon={Wallet}
+          accent="success"
+        />
+        <StatCard
+          label="Pending Settlement"
+          value={loading ? "—" : formatCents(0)}
+          icon={Clock}
+          accent="warning"
+        />
+        <StatCard
+          label="Total Paid"
+          value={loading ? "—" : formatCents(0)}
+          icon={DollarSign}
+          accent="info"
+        />
       </div>
 
       <Card>
-        <CardHeader className="p-4 pb-2"><CardTitle className="text-sm">Payment History</CardTitle></CardHeader>
+        <CardHeader className="p-4 pb-2">
+          <CardTitle className="text-sm">Payment History</CardTitle>
+        </CardHeader>
         <CardContent className="p-0">
           <DataTable
             columns={columns}

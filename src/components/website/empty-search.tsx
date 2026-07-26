@@ -28,7 +28,8 @@ export function EmptySearch({ query }: EmptySearchProps) {
       </div>
       <h3 className="text-xl font-black text-foreground mb-1">কোনো প্রোডাক্ট পাওয়া যায়নি</h3>
       <p className="text-xs sm:text-sm text-muted-foreground max-w-md mb-2 font-medium">
-        &ldquo;<span className="text-amber-600 font-extrabold">{query}</span>&rdquo; এর সাথে মিল রেখে কোনো প্রোডাক্ট আমাদের তালিকায় পাওয়া যায়নি।
+        &ldquo;<span className="text-amber-600 font-extrabold">{query}</span>&rdquo; এর সাথে মিল
+        রেখে কোনো প্রোডাক্ট আমাদের তালিকায় পাওয়া যায়নি।
       </p>
       <p className="text-xs text-muted-foreground mb-6">
         বানান পরীক্ষা করুন অথবা নিচের জনপ্রিয় সার্চ কি-ওয়ার্ডগুলো ট্রাই করুন।

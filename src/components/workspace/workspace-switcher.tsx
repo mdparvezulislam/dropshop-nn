@@ -77,8 +77,14 @@ export function WorkspaceSwitcher({
             <Icon className="h-4 w-4 text-primary" />
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" side="right" className="w-60 bg-sidebar text-sidebar-foreground border-sidebar-border shadow-xl">
-          <DropdownMenuLabel className="text-[11px] font-bold uppercase tracking-wider text-sidebar-foreground/50">Switch Workspace</DropdownMenuLabel>
+        <DropdownMenuContent
+          align="start"
+          side="right"
+          className="w-60 bg-sidebar text-sidebar-foreground border-sidebar-border shadow-xl"
+        >
+          <DropdownMenuLabel className="text-[11px] font-bold uppercase tracking-wider text-sidebar-foreground/50">
+            Switch Workspace
+          </DropdownMenuLabel>
           <DropdownMenuSeparator className="bg-sidebar-border" />
           {workspaces.map((ws) => {
             const WsIcon = getWorkspaceIcon(ws);
@@ -95,7 +101,12 @@ export function WorkspaceSwitcher({
                 )}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <span className={cn("flex h-6 w-6 shrink-0 items-center justify-center rounded-md border text-xs font-bold", WORKSPACE_COLORS[ws.id])}>
+                  <span
+                    className={cn(
+                      "flex h-6 w-6 shrink-0 items-center justify-center rounded-md border text-xs font-bold",
+                      WORKSPACE_COLORS[ws.id],
+                    )}
+                  >
                     <WsIcon className="h-3.5 w-3.5" />
                   </span>
                   <span className="truncate">{ws.label}</span>
@@ -116,7 +127,12 @@ export function WorkspaceSwitcher({
           type="button"
           className="group flex w-full items-center gap-3 rounded-lg border border-sidebar-border bg-sidebar-muted/60 px-3 py-2.5 hover:bg-sidebar-muted hover:border-sidebar-border/80 transition-all text-left"
         >
-          <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border shadow-xs transition-transform group-hover:scale-105", WORKSPACE_COLORS[active.id])}>
+          <span
+            className={cn(
+              "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border shadow-xs transition-transform group-hover:scale-105",
+              WORKSPACE_COLORS[active.id],
+            )}
+          >
             <Icon className="h-4 w-4" />
           </span>
           <div className="min-w-0 flex-1">
@@ -124,12 +140,20 @@ export function WorkspaceSwitcher({
               {active.label}
               <ChevronsUpDown className="h-3.5 w-3.5 text-sidebar-foreground/40 group-hover:text-sidebar-foreground/70 transition-colors" />
             </div>
-            <div className="text-[10px] text-sidebar-foreground/50 truncate font-medium">{active.description}</div>
+            <div className="text-[10px] text-sidebar-foreground/50 truncate font-medium">
+              {active.description}
+            </div>
           </div>
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" side="right" className="w-64 bg-sidebar text-sidebar-foreground border-sidebar-border shadow-2xl">
-        <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-wider text-sidebar-foreground/50">Switch Workspace</DropdownMenuLabel>
+      <DropdownMenuContent
+        align="start"
+        side="right"
+        className="w-64 bg-sidebar text-sidebar-foreground border-sidebar-border shadow-2xl"
+      >
+        <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-wider text-sidebar-foreground/50">
+          Switch Workspace
+        </DropdownMenuLabel>
         <DropdownMenuSeparator className="bg-sidebar-border" />
         {workspaces.map((ws) => {
           const WsIcon = getWorkspaceIcon(ws);
@@ -146,12 +170,19 @@ export function WorkspaceSwitcher({
               )}
             >
               <div className="flex items-center gap-3 min-w-0">
-                <span className={cn("flex h-7 w-7 shrink-0 items-center justify-center rounded-md border text-xs font-bold", WORKSPACE_COLORS[ws.id])}>
+                <span
+                  className={cn(
+                    "flex h-7 w-7 shrink-0 items-center justify-center rounded-md border text-xs font-bold",
+                    WORKSPACE_COLORS[ws.id],
+                  )}
+                >
                   <WsIcon className="h-4 w-4" />
                 </span>
                 <div className="min-w-0">
                   <div className="text-xs font-semibold truncate">{ws.label}</div>
-                  <div className="text-[10px] text-sidebar-foreground/50 truncate">{ws.description}</div>
+                  <div className="text-[10px] text-sidebar-foreground/50 truncate">
+                    {ws.description}
+                  </div>
                 </div>
               </div>
               {isActive ? <Check className="h-4 w-4 text-primary shrink-0" /> : null}

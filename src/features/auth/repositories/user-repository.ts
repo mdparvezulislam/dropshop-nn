@@ -20,7 +20,10 @@ export class UserRepository extends BaseRepository<UserDocument, User> {
       passwordHash: doc.passwordHash,
       role: doc.role,
       roles: Array.isArray(doc.roles) && doc.roles.length > 0 ? doc.roles : [doc.role],
-      memberships: Array.isArray(doc.memberships) && doc.memberships.length > 0 ? doc.memberships : ["customer"],
+      memberships:
+        Array.isArray(doc.memberships) && doc.memberships.length > 0
+          ? doc.memberships
+          : ["customer"],
       status: doc.status as any,
       profileImage: doc.profileImage,
       emailVerifiedAt: doc.emailVerifiedAt,

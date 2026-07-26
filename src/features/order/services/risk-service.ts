@@ -6,10 +6,7 @@ import { EventBus } from "@/lib/event-bus";
 import { NotFoundError, ValidationError } from "@/lib/errors/app-error";
 import { runInTransaction } from "@/lib/database/query-builder";
 import type { z } from "zod";
-import type {
-  createRiskFlagSchema,
-  resolveRiskFlagSchema,
-} from "../types/validation";
+import type { createRiskFlagSchema, resolveRiskFlagSchema } from "../types/validation";
 
 type CreateRiskFlagInput = z.infer<typeof createRiskFlagSchema>;
 type ResolveRiskFlagInput = z.infer<typeof resolveRiskFlagSchema>;
@@ -131,14 +128,17 @@ export class RiskService {
     try {
       const orders = await this.orderRepository.find({ "customer.phone": customerPhone });
 
-      if (orders.length === 0) return { isHighRisk: false, reasons: [], score: 0, riskLevel: "low" };
+      if (orders.length === 0)
+        return { isHighRisk: false, reasons: [], score: 0, riskLevel: "low" };
 
       let score = 0;
       const reasons: string[] = [];
 
       const totalOrders = orders.length;
       const cancelledOrders = orders.filter((o: any) => o.status === "cancelled").length;
-      const returnedOrders = orders.filter((o: any) => ["returned", "refunded"].includes(o.status)).length;
+      const returnedOrders = orders.filter((o: any) =>
+        ["returned", "refunded"].includes(o.status),
+      ).length;
       const failedDeliveries = orders.filter((o: any) => o.status === "failed").length;
 
       const cancelRate = cancelledOrders / totalOrders;
@@ -172,11 +172,17 @@ export class RiskService {
         reasons.push(`COD cancellations worth BDT ${Math.round(codCancelledTotal / 100)}`);
       }
 
-      const riskLevel = score >= 70 ? "critical" : score >= 40 ? "high" : score >= 20 ? "medium" : "low";
+      const riskLevel =
+        score >= 70 ? "critical" : score >= 40 ? "high" : score >= 20 ? "medium" : "low";
 
       return { isHighRisk: score >= 40, reasons, score, riskLevel };
     } catch {
-      return { isHighRisk: false, reasons: ["Failed to compute risk score"], score: 0, riskLevel: "low" };
+      return {
+        isHighRisk: false,
+        reasons: ["Failed to compute risk score"],
+        score: 0,
+        riskLevel: "low",
+      };
     }
   }
 
@@ -184,19 +190,15 @@ export class RiskService {
     page: number = 1,
     limit: number = 20,
   ): Promise<{ items: RiskFlagEntity[]; total: number }> {
-    const result = await this.riskRepository.findPaginated(
-      { resolved: false },
-      { page, limit },
-      { createdAt: -1 } as any,
-    );
+    const result = await this.riskRepository.findPaginated({ resolved: false }, { page, limit }, {
+      createdAt: -1,
+    } as any);
     return { items: result.items, total: result.totalCount };
   }
 
   async getStats(): Promise<RiskStats> {
     const byLevel = await this.riskRepository.countByRiskLevel();
-    const pipeline = [
-      { $group: { _id: "$category", count: { $sum: 1 } } },
-    ];
+    const pipeline = [{ $group: { _id: "$category", count: { $sum: 1 } } }];
     const byCatResults = await (RiskModel as any).aggregate(pipeline);
     const byCategory: Record<string, number> = {};
     for (const r of byCatResults) {

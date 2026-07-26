@@ -47,14 +47,22 @@ export function CatalogGridView({
           {/* Card Media Preview */}
           <div className="relative aspect-[4/3] rounded-xl bg-muted/40 overflow-hidden mb-3 border border-border/60">
             {item.image ? (
-              <img src={item.image} alt={item.name} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              <img
+                src={item.image}
+                alt={item.name}
+                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
             ) : (
               <div className="flex h-full items-center justify-center text-muted-foreground">
                 <Package className="h-10 w-10 text-primary" />
               </div>
             )}
             <div className="absolute left-2 top-2">
-              <Badge variant={item.status === "active" ? "success" : "warning"} size="xs" className="font-bold shadow-2xs">
+              <Badge
+                variant={item.status === "active" ? "success" : "warning"}
+                size="xs"
+                className="font-bold shadow-2xs"
+              >
                 {item.status === "active" ? "সক্রিয়" : "খসড়া"}
               </Badge>
             </div>
@@ -71,15 +79,25 @@ export function CatalogGridView({
               <span className="text-sm font-mono font-extrabold text-foreground">
                 ৳{item.price.toLocaleString()}
               </span>
-              <span className={`text-[11px] font-mono font-bold ${item.stock <= 0 ? "text-destructive" : item.stock <= 10 ? "text-warning" : "text-muted-foreground"}`}>
+              <span
+                className={`text-[11px] font-mono font-bold ${item.stock <= 0 ? "text-destructive" : item.stock <= 10 ? "text-warning" : "text-muted-foreground"}`}
+              >
                 {item.stock} pcs
               </span>
             </div>
           </div>
 
           {/* Quick Actions Footer */}
-          <div className="flex items-center justify-between gap-1 pt-3 mt-2 border-t border-border/60" onClick={(e) => e.stopPropagation()}>
-            <Button size="sm" variant="ghost" className="h-7 text-[11px] font-bold px-2 gap-1 text-muted-foreground hover:text-foreground" onClick={() => onPreview(item.id)}>
+          <div
+            className="flex items-center justify-between gap-1 pt-3 mt-2 border-t border-border/60"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-7 text-[11px] font-bold px-2 gap-1 text-muted-foreground hover:text-foreground"
+              onClick={() => onPreview(item.id)}
+            >
               <Eye className="h-3 w-3" /> Quick View
             </Button>
             <Link href={`/dashboard/products/${item.id}/edit`}>

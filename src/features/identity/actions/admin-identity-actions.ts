@@ -236,9 +236,7 @@ export async function listAllActiveSessionsAdminAction(): Promise<{
     const session = await auth();
     checkPermission(session, "Identity.Sessions");
 
-    const { UserSessionModel } = await import(
-      "@/features/auth/repositories/user-session-model"
-    );
+    const { UserSessionModel } = await import("@/features/auth/repositories/user-session-model");
     const docs = await UserSessionModel.find({
       expiresAt: { $gt: new Date() },
     })
@@ -294,20 +292,17 @@ export async function getIdentityOpsOverviewAction(): Promise<{
     const userRepo = new UserRepository();
     const profileService = new BusinessProfileService();
 
-    const [pending, activeUsers, suspendedUsers, pendingUsers, pendingList] =
-      await Promise.all([
-        profileService.findPendingApprovals().catch(() => []),
-        userRepo.count({ status: "active", isDeleted: { $ne: true } }).catch(() => 0),
-        userRepo.count({ status: "suspended", isDeleted: { $ne: true } }).catch(() => 0),
-        userRepo.count({ status: "pending", isDeleted: { $ne: true } }).catch(() => 0),
-        profileService.findPendingApprovals().catch(() => []),
-      ]);
+    const [pending, activeUsers, suspendedUsers, pendingUsers, pendingList] = await Promise.all([
+      profileService.findPendingApprovals().catch(() => []),
+      userRepo.count({ status: "active", isDeleted: { $ne: true } }).catch(() => 0),
+      userRepo.count({ status: "suspended", isDeleted: { $ne: true } }).catch(() => 0),
+      userRepo.count({ status: "pending", isDeleted: { $ne: true } }).catch(() => 0),
+      profileService.findPendingApprovals().catch(() => []),
+    ]);
 
     let activeSessions = 0;
     try {
-      const { UserSessionModel } = await import(
-        "@/features/auth/repositories/user-session-model"
-      );
+      const { UserSessionModel } = await import("@/features/auth/repositories/user-session-model");
       activeSessions = await UserSessionModel.countDocuments({
         expiresAt: { $gt: new Date() },
       });
@@ -439,9 +434,8 @@ export async function getAdminAuditFeedAction(limit = 50): Promise<{
     const session = await auth();
     checkPermission(session, "Identity.View");
 
-    const { EventFactRepository } = await import(
-      "@/features/analytics/repositories/event-fact-repository"
-    );
+    const { EventFactRepository } =
+      await import("@/features/analytics/repositories/event-fact-repository");
     const repo = new EventFactRepository();
     const recent = await repo.listRecent(Math.min(limit, 100));
 

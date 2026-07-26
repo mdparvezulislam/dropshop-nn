@@ -2,7 +2,15 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Bell, Mail, MessageSquare, Smartphone, Megaphone, Loader2, CheckCircle2 } from "lucide-react";
+import {
+  Bell,
+  Mail,
+  MessageSquare,
+  Smartphone,
+  Megaphone,
+  Loader2,
+  CheckCircle2,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";

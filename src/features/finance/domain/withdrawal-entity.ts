@@ -11,7 +11,8 @@ export type WithdrawalStatus =
   | "cancelled"
   | "hold";
 
-export type PayoutMethod = "bkash" | "nagad" | "rocket" | "upay" | "bank" | "binance_pay" | "manual";
+export type PayoutMethod =
+  "bkash" | "nagad" | "rocket" | "upay" | "bank" | "binance_pay" | "manual";
 
 export interface Withdrawal extends BaseDBEntity {
   referenceNumber: string; // e.g. WTH-2026-1001

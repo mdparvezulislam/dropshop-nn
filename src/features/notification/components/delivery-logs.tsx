@@ -64,7 +64,11 @@ export function DeliveryLogs(): React.ReactElement {
             <option value="read">Read</option>
           </select>
           <Button variant="outline" size="sm" onClick={load} disabled={loading} className="gap-1.5">
-            {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+            {loading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <RefreshCw className="h-3.5 w-3.5" />
+            )}
             Refresh
           </Button>
         </div>
@@ -91,9 +95,7 @@ export function DeliveryLogs(): React.ReactElement {
                   </p>
                   <p className="text-[11px] text-muted-foreground/80">
                     {new Date(n.createdAt).toLocaleString()}
-                    {n.attempts?.length
-                      ? ` · ${n.attempts.length} attempt(s)`
-                      : ""}
+                    {n.attempts?.length ? ` · ${n.attempts.length} attempt(s)` : ""}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">

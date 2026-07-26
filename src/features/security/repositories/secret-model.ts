@@ -64,4 +64,5 @@ export const SecretAuditLogModel =
   mongoose.models.SecretAuditLog || mongoose.model("SecretAuditLog", secretAuditLogSchema);
 
 export const SecretFailedAccessLogModel =
-  mongoose.models.SecretFailedAccessLog || mongoose.model("SecretFailedAccessLog", secretFailedAccessLogSchema);
+  mongoose.models.SecretFailedAccessLog ||
+  mongoose.model("SecretFailedAccessLog", secretFailedAccessLogSchema);

@@ -42,7 +42,7 @@ export interface TrustedDevice extends BaseDBEntity {
 // Failed Login Types
 // ============================================================================
 
-export type FailedLoginReason = 
+export type FailedLoginReason =
   | "invalid_credentials"
   | "account_locked"
   | "account_suspended"
@@ -68,7 +68,7 @@ export interface FailedLoginAttempt extends BaseDBEntity {
 // ============================================================================
 
 export type LockoutType = "temporary" | "permanent";
-export type LockoutReason = 
+export type LockoutReason =
   | "max_failed_attempts"
   | "manual_lock"
   | "suspicious_activity"
@@ -92,7 +92,7 @@ export interface AccountLockout extends BaseDBEntity {
 // ============================================================================
 
 export type SecurityEventSeverity = "low" | "medium" | "high" | "critical";
-export type SecurityEventType = 
+export type SecurityEventType =
   | "login_success"
   | "login_failed"
   | "login_locked_out"
@@ -139,7 +139,8 @@ export interface SecurityEvent extends BaseDBEntity {
 // Recovery Token Types
 // ============================================================================
 
-export type RecoveryTokenType = "password_reset" | "email_verification" | "phone_verification" | "account_recovery";
+export type RecoveryTokenType =
+  "password_reset" | "email_verification" | "phone_verification" | "account_recovery";
 export type RecoveryTokenStatus = "pending" | "used" | "expired" | "revoked";
 
 export interface RecoveryToken extends BaseDBEntity {
@@ -270,7 +271,7 @@ export const DEFAULT_SECURITY_SETTINGS: SecuritySettings = {
 // Notification Event Types
 // ============================================================================
 
-export type SecurityNotificationType = 
+export type SecurityNotificationType =
   | "new_login"
   | "new_device_login"
   | "password_changed"

@@ -4,8 +4,7 @@ import * as React from "react";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
 import { listCategoriesAction } from "@/features/catalog/actions/classification-actions";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Search, FolderTree, Star, Clock, Sparkles } from "lucide-react";
+import { Search, FolderTree } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 export interface CategorySectionProps {
@@ -43,9 +42,7 @@ export function CategorySection({
 
   const filtered = React.useMemo(() => {
     if (!query.trim()) return categories;
-    return categories.filter((c) =>
-      c.name.toLowerCase().includes(query.toLowerCase()),
-    );
+    return categories.filter((c) => c.name.toLowerCase().includes(query.toLowerCase()));
   }, [categories, query]);
 
   const selectedCategory = categories.find((c) => c.id === categoryId);
@@ -72,16 +69,20 @@ export function CategorySection({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search categories (e.g. Electronics, Clothing, Gadgets)…"
-            className="h-9.5 w-full rounded-lg border border-border bg-card pl-9 pr-3 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+            className="h-9 w-full rounded-lg border border-border bg-card pl-9 pr-3 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
           />
         </div>
 
         {/* Category List */}
         <div className="ws-scroll max-h-48 overflow-y-auto rounded-xl border border-border bg-muted/20 p-2 space-y-1">
           {loading ? (
-            <p className="text-xs text-muted-foreground text-center py-4">Loading catalog taxonomy…</p>
+            <p className="text-xs text-muted-foreground text-center py-4">
+              Loading catalog taxonomy…
+            </p>
           ) : filtered.length === 0 ? (
-            <p className="text-xs text-muted-foreground text-center py-4">No matching categories found</p>
+            <p className="text-xs text-muted-foreground text-center py-4">
+              No matching categories found
+            </p>
           ) : (
             filtered.map((cat) => {
               const isSelected = cat.id === categoryId;
@@ -102,7 +103,9 @@ export function CategorySection({
                     {cat.name}
                   </span>
                   {isSelected ? (
-                    <Badge variant="secondary" size="xs">Selected</Badge>
+                    <Badge variant="secondary" size="xs">
+                      Selected
+                    </Badge>
                   ) : null}
                 </button>
               );

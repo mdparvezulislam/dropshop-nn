@@ -1,5 +1,9 @@
 import mongoose, { Schema } from "mongoose";
-import { baseFieldsDefinition, baseSchemaOptions, softDeletePlugin } from "@/lib/database/base-schema";
+import {
+  baseFieldsDefinition,
+  baseSchemaOptions,
+  softDeletePlugin,
+} from "@/lib/database/base-schema";
 import { BaseDocument } from "@/lib/database/types";
 
 export interface BusinessMembershipDBFields {
@@ -21,7 +25,12 @@ const businessMembershipSchema = new Schema<BusinessMembershipDocument>(
   {
     userId: { type: String, required: true, index: true },
     membershipType: { type: String, required: true, index: true },
-    status: { type: String, enum: ["active", "suspended", "expired"], default: "active", index: true },
+    status: {
+      type: String,
+      enum: ["active", "suspended", "expired"],
+      default: "active",
+      index: true,
+    },
     grantedAt: { type: Date, default: Date.now, required: true },
     grantedBy: { type: String, required: true },
     expiresAt: { type: Date, default: null, required: false },

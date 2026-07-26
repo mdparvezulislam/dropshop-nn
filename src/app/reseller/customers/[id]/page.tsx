@@ -22,9 +22,7 @@ export default function ResellerCustomerDetailPage(): React.ReactElement {
   const load = React.useCallback(async () => {
     setLoading(true);
     try {
-      const { listCustomersAction } = await import(
-        "@/features/customer/actions/customer-actions"
-      );
+      const { listCustomersAction } = await import("@/features/customer/actions/customer-actions");
       const res = await listCustomersAction();
       if (res.success && res.data) {
         const found = (Array.isArray(res.data) ? res.data : []).find(
@@ -95,11 +93,7 @@ export default function ResellerCustomerDetailPage(): React.ReactElement {
     <div className="space-y-6 animate-[fade-in_0.2s_ease-out]">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => router.push("/reseller/customers")}
-          >
+          <Button variant="ghost" size="icon-sm" onClick={() => router.push("/reseller/customers")}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <PageHeader

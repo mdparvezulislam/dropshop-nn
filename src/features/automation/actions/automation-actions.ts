@@ -27,7 +27,7 @@ import type {
 /* ───────── Workflow CRUD ───────── */
 
 export async function createWorkflowAction(
-  input: Record<string, unknown>
+  input: Record<string, unknown>,
 ): Promise<{ success: boolean; data?: WorkflowDefinition; error?: string }> {
   try {
     const parsed = createWorkflowSchema.parse(input);
@@ -41,7 +41,7 @@ export async function createWorkflowAction(
 
 export async function updateWorkflowAction(
   id: string,
-  input: Record<string, unknown>
+  input: Record<string, unknown>,
 ): Promise<{ success: boolean; data?: WorkflowDefinition; error?: string }> {
   try {
     const parsed = updateWorkflowSchema.parse(input);
@@ -55,7 +55,7 @@ export async function updateWorkflowAction(
 }
 
 export async function duplicateWorkflowAction(
-  id: string
+  id: string,
 ): Promise<{ success: boolean; data?: WorkflowDefinition; error?: string }> {
   try {
     const workflow = await workflowEngine.duplicate(id);
@@ -68,7 +68,7 @@ export async function duplicateWorkflowAction(
 }
 
 export async function enableWorkflowAction(
-  id: string
+  id: string,
 ): Promise<{ success: boolean; data?: WorkflowDefinition; error?: string }> {
   try {
     const workflow = await workflowEngine.enable(id);
@@ -81,7 +81,7 @@ export async function enableWorkflowAction(
 }
 
 export async function disableWorkflowAction(
-  id: string
+  id: string,
 ): Promise<{ success: boolean; data?: WorkflowDefinition; error?: string }> {
   try {
     const workflow = await workflowEngine.disable(id);
@@ -94,7 +94,7 @@ export async function disableWorkflowAction(
 }
 
 export async function deleteWorkflowAction(
-  id: string
+  id: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const deleted = await workflowEngine.delete(id);
@@ -107,7 +107,7 @@ export async function deleteWorkflowAction(
 }
 
 export async function getWorkflowAction(
-  id: string
+  id: string,
 ): Promise<{ success: boolean; data?: WorkflowDefinition; error?: string }> {
   try {
     const workflow = await workflowRepository.findById(id);
@@ -136,15 +136,11 @@ export async function getWorkflowsAction(): Promise<{
 /* ───────── Execution ───────── */
 
 export async function executeWorkflowAction(
-  input: Record<string, unknown>
+  input: Record<string, unknown>,
 ): Promise<{ success: boolean; data?: WorkflowExecution; error?: string }> {
   try {
     const parsed = executeWorkflowSchema.parse(input);
-    const execution = await workflowEngine.execute(
-      parsed.workflowId,
-      parsed.input,
-      parsed.trigger
-    );
+    const execution = await workflowEngine.execute(parsed.workflowId, parsed.input, parsed.trigger);
     return { success: true, data: execution };
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Failed to execute workflow";
@@ -153,7 +149,7 @@ export async function executeWorkflowAction(
 }
 
 export async function retryExecutionAction(
-  executionId: string
+  executionId: string,
 ): Promise<{ success: boolean; data?: WorkflowExecution; error?: string }> {
   try {
     const execution = await retryEngine.retryExecution(executionId);
@@ -166,7 +162,7 @@ export async function retryExecutionAction(
 }
 
 export async function cancelExecutionAction(
-  executionId: string
+  executionId: string,
 ): Promise<{ success: boolean; data?: WorkflowExecution; error?: string }> {
   try {
     const execution = await workflowEngine.cancel(executionId);
@@ -179,7 +175,7 @@ export async function cancelExecutionAction(
 }
 
 export async function getExecutionAction(
-  id: string
+  id: string,
 ): Promise<{ success: boolean; data?: WorkflowExecution; error?: string }> {
   try {
     const execution = await workflowExecutionRepository.findById(id);
@@ -192,7 +188,7 @@ export async function getExecutionAction(
 }
 
 export async function getExecutionsAction(
-  workflowId?: string
+  workflowId?: string,
 ): Promise<{ success: boolean; data?: WorkflowExecution[]; error?: string }> {
   try {
     const executions = workflowId
@@ -208,7 +204,7 @@ export async function getExecutionsAction(
 /* ───────── Execution Logs ───────── */
 
 export async function getExecutionLogsAction(
-  executionId: string
+  executionId: string,
 ): Promise<{ success: boolean; data?: ExecutionLog[]; error?: string }> {
   try {
     const logs = await executionLogRepository.findByExecutionId(executionId);
@@ -252,12 +248,10 @@ export async function getAutomationDashboardAction(): Promise<{
     ]);
 
     const totalExecutions = stats.todayTotal;
-    const successRate = totalExecutions > 0
-      ? Math.round((stats.todaySuccess / totalExecutions) * 100)
-      : 0;
-    const failureRate = totalExecutions > 0
-      ? Math.round((stats.todayFailure / totalExecutions) * 100)
-      : 0;
+    const successRate =
+      totalExecutions > 0 ? Math.round((stats.todaySuccess / totalExecutions) * 100) : 0;
+    const failureRate =
+      totalExecutions > 0 ? Math.round((stats.todayFailure / totalExecutions) * 100) : 0;
 
     const data: AutomationDashboardData = {
       runningWorkflows: stats.runningCount,
@@ -285,7 +279,7 @@ export async function getAutomationDashboardAction(): Promise<{
 /* ───────── Schedules ───────── */
 
 export async function createScheduleAction(
-  input: Record<string, unknown>
+  input: Record<string, unknown>,
 ): Promise<{ success: boolean; data?: ScheduledJob; error?: string }> {
   try {
     const parsed = scheduleJobSchema.parse(input);
@@ -313,7 +307,7 @@ export async function getSchedulesAction(): Promise<{
 }
 
 export async function disableScheduleAction(
-  jobId: string
+  jobId: string,
 ): Promise<{ success: boolean; data?: ScheduledJob; error?: string }> {
   try {
     const job = await scheduleCenter.disable(jobId);
@@ -326,7 +320,7 @@ export async function disableScheduleAction(
 }
 
 export async function enableScheduleAction(
-  jobId: string
+  jobId: string,
 ): Promise<{ success: boolean; data?: ScheduledJob; error?: string }> {
   try {
     const job = await scheduleCenter.enable(jobId);
@@ -340,9 +334,7 @@ export async function enableScheduleAction(
 
 /* ───────── Search ───────── */
 
-export async function searchAutomationAction(
-  input: Record<string, unknown>
-): Promise<{
+export async function searchAutomationAction(input: Record<string, unknown>): Promise<{
   success: boolean;
   data?: Awaited<ReturnType<typeof automationSearchService.search>>;
   error?: string;
@@ -360,7 +352,7 @@ export async function searchAutomationAction(
 /* ───────── Export / Import ───────── */
 
 export async function exportWorkflowAction(
-  workflowId: string
+  workflowId: string,
 ): Promise<{ success: boolean; data?: Record<string, unknown>; error?: string }> {
   try {
     const data = await automationExportService.exportWorkflow(workflowId);
@@ -373,7 +365,7 @@ export async function exportWorkflowAction(
 }
 
 export async function importWorkflowAction(
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const result = await automationExportService.importWorkflow(data);

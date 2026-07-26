@@ -160,7 +160,10 @@ export async function saveGlobalShippingDefaultsAction(formData: unknown): Promi
   }
 }
 
-export async function getCourierApiLogsAction(provider?: string, logType?: string): Promise<{
+export async function getCourierApiLogsAction(
+  provider?: string,
+  logType?: string,
+): Promise<{
   success: boolean;
   data?: any[];
   error?: string;

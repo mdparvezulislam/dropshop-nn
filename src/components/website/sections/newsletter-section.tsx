@@ -17,7 +17,10 @@ export function NewsletterSection(): React.ReactElement {
   };
 
   return (
-    <section className="py-12 lg:py-16 bg-white border-b border-slate-200" aria-label="Newsletter & Contact">
+    <section
+      className="py-12 lg:py-16 bg-white border-b border-slate-200"
+      aria-label="Newsletter & Contact"
+    >
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Box - Newsletter Subscription */}
@@ -50,7 +53,11 @@ export function NewsletterSection(): React.ReactElement {
                 placeholder="আপনার ইমেইল দিন..."
                 className="flex-1 h-11 px-4 text-xs font-bold rounded-xl bg-white border border-slate-300 text-slate-900 placeholder:text-slate-500 outline-none focus:border-amber-500 transition-colors shadow-2xs"
               />
-              <Button size="sm" type="submit" className="h-11 px-6 text-xs font-black bg-slate-900 hover:bg-slate-800 text-white shadow-xs">
+              <Button
+                size="sm"
+                type="submit"
+                className="h-11 px-6 text-xs font-black bg-slate-900 hover:bg-slate-800 text-white shadow-xs"
+              >
                 সাবস্ক্রাইব করুন
               </Button>
             </form>
@@ -68,9 +75,7 @@ export function NewsletterSection(): React.ReactElement {
               <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
                 আমাদের সাথে যোগাযোগ করুন
               </h2>
-              <p className="text-xs text-slate-600 font-bold">
-                আমরা ২৪/৭ আপনার সেবায় নিয়োজিত
-              </p>
+              <p className="text-xs text-slate-600 font-bold">আমরা ২৪/৭ আপনার সেবায় নিয়োজিত</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">

@@ -20,7 +20,8 @@ export default function ContactPage() {
             যোগাযোগ করুন
           </h1>
           <p className="text-xs sm:text-sm font-bold text-slate-600">
-            রিসেলার অনবোর্ডিং, পাইকারি রেট বা অর্ডার ট্র্যাকিং নিয়ে যেকোনো তথ্যের জন্য আমাদের টিম সবসময় প্রস্তুত।
+            রিসেলার অনবোর্ডিং, পাইকারি রেট বা অর্ডার ট্র্যাকিং নিয়ে যেকোনো তথ্যের জন্য আমাদের টিম
+            সবসময় প্রস্তুত।
           </p>
         </div>
 
@@ -35,7 +36,9 @@ export default function ContactPage() {
                 <div>
                   <h3 className="text-xs font-black text-slate-500 uppercase">কাস্টমার সাপোর্ট</h3>
                   <p className="text-sm font-black text-slate-900 mt-0.5">01410777606</p>
-                  <p className="text-[11px] font-bold text-slate-600">শনিবার - বৃহস্পতিবার: ৯:০০ AM - ৯:০০ PM</p>
+                  <p className="text-[11px] font-bold text-slate-600">
+                    শনিবার - বৃহস্পতিবার: ৯:০০ AM - ৯:০০ PM
+                  </p>
                 </div>
               </div>
 
@@ -45,8 +48,12 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="text-xs font-black text-slate-500 uppercase">ইমেইল</h3>
-                  <p className="text-sm font-black text-slate-900 mt-0.5">support@dropshop.com.bd</p>
-                  <p className="text-[11px] font-bold text-slate-600">২ ঘন্টার মধ্যে দ্রুত রেসপন্স</p>
+                  <p className="text-sm font-black text-slate-900 mt-0.5">
+                    support@dropshop.com.bd
+                  </p>
+                  <p className="text-[11px] font-bold text-slate-600">
+                    ২ ঘন্টার মধ্যে দ্রুত রেসপন্স
+                  </p>
                 </div>
               </div>
 
@@ -70,7 +77,9 @@ export default function ContactPage() {
             <form className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-black text-slate-700 block mb-1.5">আপনার নাম</label>
+                  <label className="text-xs font-black text-slate-700 block mb-1.5">
+                    আপনার নাম
+                  </label>
                   <input
                     type="text"
                     required
@@ -79,7 +88,9 @@ export default function ContactPage() {
                   />
                 </div>
                 <div>
-                  <label className="text-xs font-black text-slate-700 block mb-1.5">মোবাইল নম্বর</label>
+                  <label className="text-xs font-black text-slate-700 block mb-1.5">
+                    মোবাইল নম্বর
+                  </label>
                   <input
                     type="tel"
                     required
@@ -101,7 +112,9 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label className="text-xs font-black text-slate-700 block mb-1.5">আপনার মেসেজ</label>
+                <label className="text-xs font-black text-slate-700 block mb-1.5">
+                  আপনার মেসেজ
+                </label>
                 <textarea
                   rows={4}
                   required

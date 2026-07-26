@@ -463,12 +463,16 @@ export class OrderService {
 
   async createManualOrder(input: CreateManualOrderInput): Promise<Order> {
     return runInTransaction(async () => {
-      const subtotal = input.items.reduce((sum, item) => sum + item.unitSellingPrice * item.quantity, 0);
+      const subtotal = input.items.reduce(
+        (sum, item) => sum + item.unitSellingPrice * item.quantity,
+        0,
+      );
       const grandTotal = subtotal + input.discountTotal + input.taxTotal + input.shippingCost;
 
       const pricingItems = input.items.map((item) => {
         const totalSelling = item.unitSellingPrice * item.quantity;
-        const totalCost = (item.unitCostBasis ?? Math.round(item.unitSellingPrice * 0.7)) * item.quantity;
+        const totalCost =
+          (item.unitCostBasis ?? Math.round(item.unitSellingPrice * 0.7)) * item.quantity;
         return {
           productId: item.productId,
           variantSku: item.variantSku,
@@ -479,7 +483,8 @@ export class OrderService {
           totalSellingPrice: totalSelling,
           totalCostBasis: totalCost,
           totalProfit: totalSelling - totalCost,
-          marginPercent: totalSelling > 0 ? Math.round(((totalSelling - totalCost) / totalSelling) * 100) : 0,
+          marginPercent:
+            totalSelling > 0 ? Math.round(((totalSelling - totalCost) / totalSelling) * 100) : 0,
           currency: item.currency ?? "BDT",
           pricingSource: item.pricingSource,
         };
@@ -518,7 +523,10 @@ export class OrderService {
           totalCostBasis,
           totalRevenue,
           totalProfit: totalRevenue - totalCostBasis,
-          averageMargin: totalRevenue > 0 ? Math.round(((totalRevenue - totalCostBasis) / totalRevenue) * 100) : 0,
+          averageMargin:
+            totalRevenue > 0
+              ? Math.round(((totalRevenue - totalCostBasis) / totalRevenue) * 100)
+              : 0,
         },
         timeline: [timelineEntry],
         source: input.source,
@@ -552,19 +560,26 @@ export class OrderService {
         summary: `Manual order ${order.orderNumber} created (source: ${input.source})`,
       });
 
-      await EventBus.publish("order.created", {
-        orderId: order.id,
-        orderNumber: order.orderNumber,
-        type: order.type,
-        grandTotal: order.pricing.grandTotal,
-        source: input.source,
-      }, { source: "order" });
+      await EventBus.publish(
+        "order.created",
+        {
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          type: order.type,
+          grandTotal: order.pricing.grandTotal,
+          source: input.source,
+        },
+        { source: "order" },
+      );
 
       return order;
     });
   }
 
-  async bulkAction(action: string, orderIds: string[]): Promise<{ success: number; failed: number }> {
+  async bulkAction(
+    action: string,
+    orderIds: string[],
+  ): Promise<{ success: number; failed: number }> {
     let success = 0;
     let failed = 0;
 
@@ -572,10 +587,20 @@ export class OrderService {
       try {
         switch (action) {
           case "confirm":
-            await this.transitionStatus(orderId, "confirmed", { id: "system", role: "admin" }, "Bulk confirm");
+            await this.transitionStatus(
+              orderId,
+              "confirmed",
+              { id: "system", role: "admin" },
+              "Bulk confirm",
+            );
             break;
           case "pack":
-            await this.transitionStatus(orderId, "packed", { id: "system", role: "admin" }, "Bulk pack");
+            await this.transitionStatus(
+              orderId,
+              "packed",
+              { id: "system", role: "admin" },
+              "Bulk pack",
+            );
             break;
           case "cancel":
             await this.cancelOrder(orderId, "Cancelled via bulk action", "system");
@@ -600,12 +625,30 @@ export class OrderService {
     const [counts, todayOrders, codOrders] = await Promise.all([
       this.orderRepository.countByStatus(),
       this.orderRepository.count({ createdAt: { $gte: todayStart } } as any),
-      this.orderRepository.count({ "pricing.grandTotal": { $gt: 0 }, status: { $nin: ["cancelled", "refunded"] } } as any),
+      this.orderRepository.count({
+        "pricing.grandTotal": { $gt: 0 },
+        status: { $nin: ["cancelled", "refunded"] },
+      } as any),
     ]);
 
-    const allStatuses = ["draft", "pending", "confirmed", "packed", "ready_for_dispatch",
-      "courier_assigned", "shipped", "out_for_delivery", "delivered", "completed",
-      "cancelled", "return_requested", "return_initiated", "returned", "refunded", "failed"];
+    const allStatuses = [
+      "draft",
+      "pending",
+      "confirmed",
+      "packed",
+      "ready_for_dispatch",
+      "courier_assigned",
+      "shipped",
+      "out_for_delivery",
+      "delivered",
+      "completed",
+      "cancelled",
+      "return_requested",
+      "return_initiated",
+      "returned",
+      "refunded",
+      "failed",
+    ];
 
     const result: Record<string, number> = { today: todayOrders, total_cod: codOrders };
     for (const s of allStatuses) {

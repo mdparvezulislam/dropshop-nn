@@ -6,7 +6,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "অফিসিয়াল ব্র্যান্ড পার্টনার - DropshopNN Bangladesh",
-  description: "ইউগ্রিন, বেসাস, অ্যাঙ্কার, ওরাইমো, লজিটেক এবং শাওমি এর অফিসিয়াল ব্র্যান্ড গ্যাজেট সমূহ।",
+  description:
+    "ইউগ্রিন, বেসাস, অ্যাঙ্কার, ওরাইমো, লজিটেক এবং শাওমি এর অফিসিয়াল ব্র্যান্ড গ্যাজেট সমূহ।",
 };
 
 export default async function BrandsPage() {
@@ -49,7 +50,8 @@ export default async function BrandsPage() {
                   {brand.name} <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 </h2>
                 <p className="text-xs font-bold text-slate-600 line-clamp-2 leading-relaxed mb-4">
-                  {brand.description || `বাংলাদেশে অরিজিনাল ${brand.name} গ্যাজেট ও চার্জিং এক্সেসরিজ।`}
+                  {brand.description ||
+                    `বাংলাদেশে অরিজিনাল ${brand.name} গ্যাজেট ও চার্জিং এক্সেসরিজ।`}
                 </p>
               </div>
 

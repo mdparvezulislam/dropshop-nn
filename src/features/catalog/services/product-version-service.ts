@@ -11,7 +11,13 @@ export class ProductVersionService {
     this.productRepository = new ProductRepository();
   }
 
-  async createVersion(productId: string, changedFields: string[], editorId?: string, editorName?: string, reason?: string): Promise<void> {
+  async createVersion(
+    productId: string,
+    changedFields: string[],
+    editorId?: string,
+    editorName?: string,
+    reason?: string,
+  ): Promise<void> {
     try {
       const product = await this.productRepository.findById(productId);
       if (!product) return;
@@ -39,11 +45,19 @@ export class ProductVersionService {
     return this.versionRepository.getVersion(productId, versionNumber);
   }
 
-  async compareVersions(productId: string, v1: number, v2: number): Promise<{ added: string[]; removed: string[]; changed: string[] } | null> {
+  async compareVersions(
+    productId: string,
+    v1: number,
+    v2: number,
+  ): Promise<{ added: string[]; removed: string[]; changed: string[] } | null> {
     return this.versionRepository.compareVersions(productId, v1, v2);
   }
 
-  async restoreVersion(productId: string, versionNumber: number, actor?: { id: string; name?: string }): Promise<void> {
+  async restoreVersion(
+    productId: string,
+    versionNumber: number,
+    actor?: { id: string; name?: string },
+  ): Promise<void> {
     const version = await this.versionRepository.getVersion(productId, versionNumber);
     if (!version) throw new Error("Version not found");
     const snapshot = version.snapshot as Record<string, unknown>;

@@ -10,7 +10,12 @@ export interface StudioLayoutProps {
   mobileFooter?: React.ReactNode;
 }
 
-export function StudioLayout({ header, main, sidebar, mobileFooter }: StudioLayoutProps): React.ReactElement {
+export function StudioLayout({
+  header,
+  main,
+  sidebar,
+  mobileFooter,
+}: StudioLayoutProps): React.ReactElement {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground select-none pb-20 lg:pb-6">
       {/* Top Sticky Header */}
@@ -33,9 +38,7 @@ export function StudioLayout({ header, main, sidebar, mobileFooter }: StudioLayo
         </aside>
 
         {/* Mobile Sidebar Fallback */}
-        <div className="md:hidden w-full space-y-4 pt-4 border-t border-border">
-          {sidebar}
-        </div>
+        <div className="md:hidden w-full space-y-4 pt-4 border-t border-border">{sidebar}</div>
       </div>
 
       {/* Mobile Sticky Bottom Navigation */}
@@ -57,19 +60,34 @@ export interface StudioSectionProps {
   action?: React.ReactNode;
 }
 
-export function StudioSection({ id, title, description, children, className, action }: StudioSectionProps): React.ReactElement {
+export function StudioSection({
+  id,
+  title,
+  description,
+  children,
+  className,
+  action,
+}: StudioSectionProps): React.ReactElement {
   return (
-    <section id={`studio-${id}`} className={cn("rounded-2xl border border-border bg-card shadow-2xs transition-all duration-200 hover:shadow-xs", className)}>
+    <section
+      id={`studio-${id}`}
+      className={cn(
+        "rounded-2xl border border-border bg-card shadow-2xs transition-all duration-200 hover:shadow-xs",
+        className,
+      )}
+    >
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <div>
           <h2 className="text-base sm:text-lg font-bold tracking-tight text-foreground">{title}</h2>
-          {description ? <p className="text-xs text-muted-foreground mt-0.5 font-medium leading-relaxed">{description}</p> : null}
+          {description ? (
+            <p className="text-xs text-muted-foreground mt-0.5 font-medium leading-relaxed">
+              {description}
+            </p>
+          ) : null}
         </div>
         {action}
       </div>
-      <div className="p-5 sm:p-6 space-y-5">
-        {children}
-      </div>
+      <div className="p-5 sm:p-6 space-y-5">{children}</div>
     </section>
   );
 }

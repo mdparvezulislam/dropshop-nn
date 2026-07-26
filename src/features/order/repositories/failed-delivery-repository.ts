@@ -44,7 +44,10 @@ function toDomain(doc: any): FailedDelivery {
   };
 }
 
-export class FailedDeliveryRepository extends BaseRepository<FailedDeliveryDocument, FailedDelivery> {
+export class FailedDeliveryRepository extends BaseRepository<
+  FailedDeliveryDocument,
+  FailedDelivery
+> {
   constructor() {
     super(FailedDeliveryModel as any, toDomain);
   }

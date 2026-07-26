@@ -121,12 +121,42 @@ export class SecurityDashboardService {
 
   async getUserSecurityOverview(userId: string): Promise<{
     user: { id: string; fullName: string; email: string; role: string; status: string };
-    sessions: Array<{ id: string; ipAddress: string; userAgent: string; expiresAt: Date; createdAt: Date; isCurrent: boolean }>;
-    devices: Array<{ id: string; deviceId: string; name?: string; type: string; os: string; browser: string; ipAddress: string; lastUsedAt: Date; isTrusted: boolean; autoTrusted: boolean }>;
+    sessions: Array<{
+      id: string;
+      ipAddress: string;
+      userAgent: string;
+      expiresAt: Date;
+      createdAt: Date;
+      isCurrent: boolean;
+    }>;
+    devices: Array<{
+      id: string;
+      deviceId: string;
+      name?: string;
+      type: string;
+      os: string;
+      browser: string;
+      ipAddress: string;
+      lastUsedAt: Date;
+      isTrusted: boolean;
+      autoTrusted: boolean;
+    }>;
     loginHistory: Array<{ ip: string; userAgent: string; loggedAt: Date }>;
-    passwordStatus: { lastChangedAt?: Date | null; mustChangePassword: boolean; resetToken?: boolean };
+    passwordStatus: {
+      lastChangedAt?: Date | null;
+      mustChangePassword: boolean;
+      resetToken?: boolean;
+    };
     verificationStatus: { emailVerified: boolean; phoneVerified: boolean };
-    securityEvents: Array<{ id: string; eventType: string; severity: string; title: string; description?: string; createdAt: Date; resolved: boolean }>;
+    securityEvents: Array<{
+      id: string;
+      eventType: string;
+      severity: string;
+      title: string;
+      description?: string;
+      createdAt: Date;
+      resolved: boolean;
+    }>;
     lockoutStatus: { isLocked: boolean; lockoutUntil?: Date | null; failedAttempts: number };
   }> {
     const user = await this.userRepository.findById(userId);
@@ -197,7 +227,9 @@ export class SecurityDashboardService {
       const { UserSessionModel } = await import("@/features/auth/repositories/user-session-model");
       const sessions = await UserSessionModel.find({
         expiresAt: { $gt: new Date() },
-      }).lean().exec();
+      })
+        .lean()
+        .exec();
       const uniqueUsers = new Set(sessions.map((s: any) => s.userId?.toString()));
       return uniqueUsers.size;
     } catch {
@@ -207,7 +239,8 @@ export class SecurityDashboardService {
 
   private async getPendingVerificationCount(): Promise<number> {
     try {
-      const { BusinessProfileService } = await import("@/features/identity/services/business-profile-service");
+      const { BusinessProfileService } =
+        await import("@/features/identity/services/business-profile-service");
       const service = new BusinessProfileService();
       const pending = await service.findPendingApprovals();
       return Array.isArray(pending) ? pending.length : 0;
@@ -216,20 +249,25 @@ export class SecurityDashboardService {
     }
   }
 
-  private async getUserSessions(userId: string): Promise<Array<{
-    id: string;
-    ipAddress: string;
-    userAgent: string;
-    expiresAt: Date;
-    createdAt: Date;
-    isCurrent: boolean;
-  }>> {
+  private async getUserSessions(userId: string): Promise<
+    Array<{
+      id: string;
+      ipAddress: string;
+      userAgent: string;
+      expiresAt: Date;
+      createdAt: Date;
+      isCurrent: boolean;
+    }>
+  > {
     try {
       const { UserSessionModel } = await import("@/features/auth/repositories/user-session-model");
       const sessions = await UserSessionModel.find({
         userId,
         expiresAt: { $gt: new Date() },
-      }).sort({ createdAt: -1 }).lean().exec();
+      })
+        .sort({ createdAt: -1 })
+        .lean()
+        .exec();
 
       return sessions.map((s: any) => ({
         id: s._id.toString(),

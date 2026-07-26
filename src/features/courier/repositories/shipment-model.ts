@@ -88,6 +88,5 @@ shipmentSchema.index({ createdAt: -1 });
 shipmentSchema.index({ status: 1, provider: 1 });
 shipmentSchema.index({ "recipient.phone": 1 });
 
-export const ShipmentModel =
-  mongoose.models.Shipment || mongoose.model("Shipment", shipmentSchema);
+export const ShipmentModel = mongoose.models.Shipment || mongoose.model("Shipment", shipmentSchema);
 export default ShipmentModel;

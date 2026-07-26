@@ -20,21 +20,33 @@ export class ShippingRuleService {
     return this.ruleRepository.listCostRules();
   }
 
-  async createZone(data: Omit<DeliveryZone, "id" | "createdAt" | "updatedAt" | "isDeleted" | "status">): Promise<DeliveryZone> {
+  async createZone(
+    data: Omit<DeliveryZone, "id" | "createdAt" | "updatedAt" | "isDeleted" | "status">,
+  ): Promise<DeliveryZone> {
     return this.ruleRepository.create({ ...data, status: "active" } as any);
   }
 
-  async createShippingRule(data: Omit<ShippingRule, "id" | "createdAt" | "updatedAt" | "isDeleted" | "status">): Promise<ShippingRule> {
+  async createShippingRule(
+    data: Omit<ShippingRule, "id" | "createdAt" | "updatedAt" | "isDeleted" | "status">,
+  ): Promise<ShippingRule> {
     return this.ruleRepository.createShippingRule({ ...data, status: "active" });
   }
 
-  async createCostRule(data: Omit<DeliveryCostRule, "id" | "createdAt" | "updatedAt" | "isDeleted" | "status">): Promise<DeliveryCostRule> {
+  async createCostRule(
+    data: Omit<DeliveryCostRule, "id" | "createdAt" | "updatedAt" | "isDeleted" | "status">,
+  ): Promise<DeliveryCostRule> {
     return this.ruleRepository.createCostRule({ ...data, status: "active" });
   }
 
-  async calculateDeliveryCost(weightGrams: number, deliveryZone: string, provider: string): Promise<number> {
+  async calculateDeliveryCost(
+    weightGrams: number,
+    deliveryZone: string,
+    provider: string,
+  ): Promise<number> {
     const rules = await this.listCostRules();
-    const matchingRule = rules.find((r) => r.active && (r.courierProvider === provider || !r.courierProvider));
+    const matchingRule = rules.find(
+      (r) => r.active && (r.courierProvider === provider || !r.courierProvider),
+    );
 
     if (!matchingRule) {
       // Default flat rate if no cost rule matches
@@ -42,7 +54,11 @@ export class ShippingRuleService {
     }
 
     let cost = matchingRule.baseCostCents;
-    if (matchingRule.extraWeightUnitGrams && matchingRule.extraWeightCostCents && weightGrams > 1000) {
+    if (
+      matchingRule.extraWeightUnitGrams &&
+      matchingRule.extraWeightCostCents &&
+      weightGrams > 1000
+    ) {
       const extraGrams = weightGrams - 1000;
       const extraUnits = Math.ceil(extraGrams / matchingRule.extraWeightUnitGrams);
       cost += extraUnits * matchingRule.extraWeightCostCents;

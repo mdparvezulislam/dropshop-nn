@@ -14,7 +14,11 @@ interface CheckoutStepIndicatorProps {
   onStepClick?: (step: string) => void;
 }
 
-export function CheckoutStepIndicator({ steps, currentStep, onStepClick }: CheckoutStepIndicatorProps) {
+export function CheckoutStepIndicator({
+  steps,
+  currentStep,
+  onStepClick,
+}: CheckoutStepIndicatorProps) {
   const currentIndex = steps.findIndex((s) => s.id === currentStep);
 
   return (

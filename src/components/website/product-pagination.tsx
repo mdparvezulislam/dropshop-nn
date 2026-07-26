@@ -32,9 +32,7 @@ export function ProductPagination({
           {loading ? "Loading..." : "Load More Products"}
         </Button>
       ) : (
-        <p className="text-sm text-muted-foreground">
-          Showing all {totalCount} products
-        </p>
+        <p className="text-sm text-muted-foreground">Showing all {totalCount} products</p>
       )}
     </div>
   );

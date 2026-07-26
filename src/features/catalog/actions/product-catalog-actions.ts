@@ -85,7 +85,10 @@ export async function bulkUpdateProductsAction(
             if (changes.priceAdjustment.type === "percent_add") {
               newPrice = Math.round(currentPrice * (1 + changes.priceAdjustment.value / 100));
             } else if (changes.priceAdjustment.type === "percent_sub") {
-              newPrice = Math.max(0, Math.round(currentPrice * (1 - changes.priceAdjustment.value / 100)));
+              newPrice = Math.max(
+                0,
+                Math.round(currentPrice * (1 - changes.priceAdjustment.value / 100)),
+              );
             } else if (changes.priceAdjustment.type === "fixed") {
               newPrice = Math.max(0, changes.priceAdjustment.value);
             }
@@ -142,7 +145,11 @@ export async function inlineUpdateProductAction(
       const pricingService = new PricingService();
       const pricing = await pricingService.getPricingByProduct(id);
       if (pricing) {
-        await pricingService.updatePricing(pricing.id, { sellingPrice: Math.round(parseFloat(value) || 0) }, userObj?.id);
+        await pricingService.updatePricing(
+          pricing.id,
+          { sellingPrice: Math.round(parseFloat(value) || 0) },
+          userObj?.id,
+        );
       }
     } else if (field === "costPrice") {
       const { createCostVersionSchema } = await import("@/features/cost/types/validation");
@@ -153,7 +160,10 @@ export async function inlineUpdateProductAction(
         costPrice: Math.round(parseFloat(value) || 0),
         reason: "manual_correction",
       });
-      await costService.createCostVersion(input, { id: userObj?.id ?? "unknown", name: userObj?.name });
+      await costService.createCostVersion(input, {
+        id: userObj?.id ?? "unknown",
+        name: userObj?.name,
+      });
     } else if (field === "stock") updateData.stockQuantity = parseInt(value) || 0;
     else if (field === "status") updateData.status = value;
     else updateData[field] = value;
@@ -183,28 +193,38 @@ export async function exportProductsAction(
     const result = await service.list({}, { limit: 500 });
     const items = result.items || [];
 
-    const targetItems = ids && ids.length > 0
-      ? items.filter((p: any) => ids.includes(p.id))
-      : items;
+    const targetItems =
+      ids && ids.length > 0 ? items.filter((p: any) => ids.includes(p.id)) : items;
 
-    const headers = ["ID", "Name", "SKU", "Category", "Brand", "Retail Price (BDT)", "Stock", "Status"];
-    const rows = await Promise.all(targetItems.map(async (p: any) => {
-      let retailPrice = 0;
-      try {
-        const pricing = await pricingService.getPricingByProduct(p.id);
-        if (pricing) retailPrice = pricing.sellingPrice;
-      } catch {}
-      return [
-        p.id,
-        `"${(p.title ?? p.name ?? "").replace(/"/g, '""')}"`,
-        p.sku ?? "",
-        `"${p.category?.name ?? p.category ?? "General"}"`,
-        `"${p.brand?.name ?? p.brand ?? "Default Brand"}"`,
-        retailPrice,
-        p.stockQuantity ?? p.stock ?? 0,
-        p.status ?? "draft",
-      ];
-    }));
+    const headers = [
+      "ID",
+      "Name",
+      "SKU",
+      "Category",
+      "Brand",
+      "Retail Price (BDT)",
+      "Stock",
+      "Status",
+    ];
+    const rows = await Promise.all(
+      targetItems.map(async (p: any) => {
+        let retailPrice = 0;
+        try {
+          const pricing = await pricingService.getPricingByProduct(p.id);
+          if (pricing) retailPrice = pricing.sellingPrice;
+        } catch {}
+        return [
+          p.id,
+          `"${(p.title ?? p.name ?? "").replace(/"/g, '""')}"`,
+          p.sku ?? "",
+          `"${p.category?.name ?? p.category ?? "General"}"`,
+          `"${p.brand?.name ?? p.brand ?? "Default Brand"}"`,
+          retailPrice,
+          p.stockQuantity ?? p.stock ?? 0,
+          p.status ?? "draft",
+        ];
+      }),
+    );
 
     const csvContent = [headers.join(","), ...rows.map((r: any) => r.join(","))].join("\n");
     return { success: true, csvContent };
@@ -242,7 +262,9 @@ const bulkIdsWithStatusSchema = z.object({
 // --- Bulk actions ---
 
 export async function bulkPublishProductsAction(ids: string[]): Promise<{
-  success: boolean; data?: { processed: number; failed: number }; error?: string;
+  success: boolean;
+  data?: { processed: number; failed: number };
+  error?: string;
 }> {
   try {
     const session = await auth();
@@ -250,7 +272,11 @@ export async function bulkPublishProductsAction(ids: string[]): Promise<{
     const validated = bulkIdsSchema.parse({ ids });
     const service = new ProductService();
     const userObj = session?.user as any;
-    const actor = { id: userObj?.id || "admin", name: userObj?.name || "Admin", role: userObj?.role || "ADMIN" };
+    const actor = {
+      id: userObj?.id || "admin",
+      name: userObj?.name || "Admin",
+      role: userObj?.role || "ADMIN",
+    };
 
     let processed = 0;
     let failed = 0;
@@ -271,8 +297,13 @@ export async function bulkPublishProductsAction(ids: string[]): Promise<{
   }
 }
 
-export async function bulkArchiveProductsAction(ids: string[], reason?: string): Promise<{
-  success: boolean; data?: { processed: number; failed: number }; error?: string;
+export async function bulkArchiveProductsAction(
+  ids: string[],
+  reason?: string,
+): Promise<{
+  success: boolean;
+  data?: { processed: number; failed: number };
+  error?: string;
 }> {
   try {
     const session = await auth();
@@ -280,7 +311,11 @@ export async function bulkArchiveProductsAction(ids: string[], reason?: string):
     const validated = bulkIdsOptionalReasonSchema.parse({ ids, reason });
     const service = new ProductService();
     const userObj = session?.user as any;
-    const actor = { id: userObj?.id || "admin", name: userObj?.name || "Admin", role: userObj?.role || "ADMIN" };
+    const actor = {
+      id: userObj?.id || "admin",
+      name: userObj?.name || "Admin",
+      role: userObj?.role || "ADMIN",
+    };
 
     let processed = 0;
     let failed = 0;
@@ -302,7 +337,9 @@ export async function bulkArchiveProductsAction(ids: string[], reason?: string):
 }
 
 export async function bulkDeleteProductsAction(ids: string[]): Promise<{
-  success: boolean; data?: { processed: number; failed: number }; error?: string;
+  success: boolean;
+  data?: { processed: number; failed: number };
+  error?: string;
 }> {
   try {
     const session = await auth();
@@ -310,7 +347,11 @@ export async function bulkDeleteProductsAction(ids: string[]): Promise<{
     const validated = bulkIdsSchema.parse({ ids });
     const service = new ProductService();
     const userObj = session?.user as any;
-    const actor = { id: userObj?.id || "admin", name: userObj?.name || "Admin", role: userObj?.role || "ADMIN" };
+    const actor = {
+      id: userObj?.id || "admin",
+      name: userObj?.name || "Admin",
+      role: userObj?.role || "ADMIN",
+    };
 
     let processed = 0;
     let failed = 0;
@@ -332,7 +373,9 @@ export async function bulkDeleteProductsAction(ids: string[]): Promise<{
 }
 
 export async function bulkRestoreProductsAction(ids: string[]): Promise<{
-  success: boolean; data?: { processed: number; failed: number }; error?: string;
+  success: boolean;
+  data?: { processed: number; failed: number };
+  error?: string;
 }> {
   try {
     const session = await auth();
@@ -361,8 +404,13 @@ export async function bulkRestoreProductsAction(ids: string[]): Promise<{
   }
 }
 
-export async function bulkCategoryChangeAction(ids: string[], categoryId: string): Promise<{
-  success: boolean; data?: { processed: number; failed: number }; error?: string;
+export async function bulkCategoryChangeAction(
+  ids: string[],
+  categoryId: string,
+): Promise<{
+  success: boolean;
+  data?: { processed: number; failed: number };
+  error?: string;
 }> {
   try {
     const session = await auth();
@@ -370,7 +418,11 @@ export async function bulkCategoryChangeAction(ids: string[], categoryId: string
     const validated = bulkIdsWithCategorySchema.parse({ ids, categoryId });
     const service = new ProductService();
     const userObj = session?.user as any;
-    const actor = { id: userObj?.id || "admin", name: userObj?.name || "Admin", role: userObj?.role || "ADMIN" };
+    const actor = {
+      id: userObj?.id || "admin",
+      name: userObj?.name || "Admin",
+      role: userObj?.role || "ADMIN",
+    };
 
     let processed = 0;
     let failed = 0;
@@ -387,12 +439,20 @@ export async function bulkCategoryChangeAction(ids: string[], categoryId: string
     return { success: true, data: { processed, failed } };
   } catch (err: unknown) {
     logger.error("Failed bulk category change", err);
-    return { success: false, error: err instanceof Error ? err.message : "Bulk category change failed" };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Bulk category change failed",
+    };
   }
 }
 
-export async function bulkBrandChangeAction(ids: string[], brandId: string): Promise<{
-  success: boolean; data?: { processed: number; failed: number }; error?: string;
+export async function bulkBrandChangeAction(
+  ids: string[],
+  brandId: string,
+): Promise<{
+  success: boolean;
+  data?: { processed: number; failed: number };
+  error?: string;
 }> {
   try {
     const session = await auth();
@@ -400,7 +460,11 @@ export async function bulkBrandChangeAction(ids: string[], brandId: string): Pro
     const validated = bulkIdsWithBrandSchema.parse({ ids, brandId });
     const service = new ProductService();
     const userObj = session?.user as any;
-    const actor = { id: userObj?.id || "admin", name: userObj?.name || "Admin", role: userObj?.role || "ADMIN" };
+    const actor = {
+      id: userObj?.id || "admin",
+      name: userObj?.name || "Admin",
+      role: userObj?.role || "ADMIN",
+    };
 
     let processed = 0;
     let failed = 0;
@@ -417,12 +481,20 @@ export async function bulkBrandChangeAction(ids: string[], brandId: string): Pro
     return { success: true, data: { processed, failed } };
   } catch (err: unknown) {
     logger.error("Failed bulk brand change", err);
-    return { success: false, error: err instanceof Error ? err.message : "Bulk brand change failed" };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Bulk brand change failed",
+    };
   }
 }
 
-export async function bulkStatusChangeAction(ids: string[], status: string): Promise<{
-  success: boolean; data?: { processed: number; failed: number }; error?: string;
+export async function bulkStatusChangeAction(
+  ids: string[],
+  status: string,
+): Promise<{
+  success: boolean;
+  data?: { processed: number; failed: number };
+  error?: string;
 }> {
   try {
     const session = await auth();
@@ -430,7 +502,11 @@ export async function bulkStatusChangeAction(ids: string[], status: string): Pro
     const validated = bulkIdsWithStatusSchema.parse({ ids, status: status as any });
     const service = new ProductService();
     const userObj = session?.user as any;
-    const actor = { id: userObj?.id || "admin", name: userObj?.name || "Admin", role: userObj?.role || "ADMIN" };
+    const actor = {
+      id: userObj?.id || "admin",
+      name: userObj?.name || "Admin",
+      role: userObj?.role || "ADMIN",
+    };
 
     let processed = 0;
     let failed = 0;
@@ -447,6 +523,9 @@ export async function bulkStatusChangeAction(ids: string[], status: string): Pro
     return { success: true, data: { processed, failed } };
   } catch (err: unknown) {
     logger.error("Failed bulk status change", err);
-    return { success: false, error: err instanceof Error ? err.message : "Bulk status change failed" };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Bulk status change failed",
+    };
   }
 }

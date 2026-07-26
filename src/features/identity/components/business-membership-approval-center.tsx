@@ -59,7 +59,9 @@ export function BusinessMembershipApprovalCenter() {
   } | null>(null);
 
   // Review Form Inputs
-  const [reviewAction, setReviewAction] = useState<"approve" | "reject" | "need_info" | "under_review" | null>(null);
+  const [reviewAction, setReviewAction] = useState<
+    "approve" | "reject" | "need_info" | "under_review" | null
+  >(null);
   const [rejectionReason, setRejectionReason] = useState<string>("");
   const [adminQuestion, setAdminQuestion] = useState<string>("");
   const [reviewNotes, setReviewNotes] = useState<string>("");
@@ -93,7 +95,7 @@ export function BusinessMembershipApprovalCenter() {
     setRejectionReason("");
     setAdminQuestion("");
     setReviewNotes("");
-    
+
     const res = await adminGetApplicationDetailsAction(id);
     if (res.success && res.data) {
       setSelectedDetails(res.data as unknown as typeof selectedDetails);
@@ -122,10 +124,10 @@ export function BusinessMembershipApprovalCenter() {
           reviewAction === "approve"
             ? "আবেদনটি অনুমোদিত হয়েছে এবং মেম্বারশিপ প্রদান করা হয়েছে!"
             : reviewAction === "reject"
-            ? "আবেদনটি প্রত্যাখ্যান করা হয়েছে"
-            : reviewAction === "need_info"
-            ? "ব্যবহারকারীর নিকট তথ্যের জন্য বার্তা পাঠানো হয়েছে"
-            : "আবেদনটি আন্ডার রিভিউ হিসেবে চিহ্নিত করা হয়েছে"
+              ? "আবেদনটি প্রত্যাখ্যান করা হয়েছে"
+              : reviewAction === "need_info"
+                ? "ব্যবহারকারীর নিকট তথ্যের জন্য বার্তা পাঠানো হয়েছে"
+                : "আবেদনটি আন্ডার রিভিউ হিসেবে চিহ্নিত করা হয়েছে",
         );
         setSelectedAppId(null);
         setSelectedDetails(null);
@@ -208,31 +210,33 @@ export function BusinessMembershipApprovalCenter() {
       <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 p-4 rounded-2xl bg-card border border-border/80 shadow-2xs">
         {/* Status Tabs */}
         <div className="flex items-center gap-1 overflow-x-auto pb-1 md:pb-0">
-          {(["pending", "under_review", "need_info", "approved", "rejected", "all"] as const).map((tab) => {
-            const labels: Record<string, string> = {
-              pending: `পেন্ডিং (${analytics.pendingCount})`,
-              under_review: "আন্ডার রিভিউ",
-              need_info: `তথ্য প্রয়োজন (${analytics.needInfoCount})`,
-              approved: `অনুমোদিত (${analytics.approvedCount})`,
-              rejected: `প্রত্যাখ্যাত (${analytics.rejectedCount})`,
-              all: "সকল আবেদন",
-            };
-            const isActive = activeTab === tab;
-            return (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setActiveTab(tab)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
-                  isActive
-                    ? "bg-amber-500 text-white shadow-2xs font-extrabold"
-                    : "text-muted-foreground hover:bg-muted"
-                }`}
-              >
-                {labels[tab]}
-              </button>
-            );
-          })}
+          {(["pending", "under_review", "need_info", "approved", "rejected", "all"] as const).map(
+            (tab) => {
+              const labels: Record<string, string> = {
+                pending: `পেন্ডিং (${analytics.pendingCount})`,
+                under_review: "আন্ডার রিভিউ",
+                need_info: `তথ্য প্রয়োজন (${analytics.needInfoCount})`,
+                approved: `অনুমোদিত (${analytics.approvedCount})`,
+                rejected: `প্রত্যাখ্যাত (${analytics.rejectedCount})`,
+                all: "সকল আবেদন",
+              };
+              const isActive = activeTab === tab;
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
+                    isActive
+                      ? "bg-amber-500 text-white shadow-2xs font-extrabold"
+                      : "text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  {labels[tab]}
+                </button>
+              );
+            },
+          )}
         </div>
 
         {/* Membership Type & Search */}
@@ -319,10 +323,10 @@ export function BusinessMembershipApprovalCenter() {
                       app.status === "approved"
                         ? "bg-emerald-50 text-emerald-800 border-emerald-300"
                         : app.status === "rejected"
-                        ? "bg-red-50 text-red-800 border-red-300"
-                        : app.status === "need_info"
-                        ? "bg-blue-50 text-blue-800 border-blue-300"
-                        : "bg-amber-50 text-amber-800 border-amber-300"
+                          ? "bg-red-50 text-red-800 border-red-300"
+                          : app.status === "need_info"
+                            ? "bg-blue-50 text-blue-800 border-blue-300"
+                            : "bg-amber-50 text-amber-800 border-amber-300"
                     }`}
                   >
                     {app.status}
@@ -359,30 +363,69 @@ export function BusinessMembershipApprovalCenter() {
 
             {/* Applicant Profile Details */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-muted/40 p-4 rounded-2xl border border-border/60">
-              <p><span className="font-bold text-muted-foreground">ফোন:</span> {selectedDetails.application.commonFields?.phone}</p>
-              <p><span className="font-bold text-muted-foreground">বিকাশ:</span> {selectedDetails.application.commonFields?.bkashNumber}</p>
-              <p><span className="font-bold text-muted-foreground">জেলা:</span> {selectedDetails.application.commonFields?.district}</p>
-              <p><span className="font-bold text-muted-foreground">উপজেলা:</span> {selectedDetails.application.commonFields?.upazila}</p>
-              <p className="col-span-2"><span className="font-bold text-muted-foreground">ঠিকানা:</span> {selectedDetails.application.commonFields?.fullAddress}</p>
-              <p><span className="font-bold text-muted-foreground">বিক্রয়ের মাধ্যম:</span> {selectedDetails.application.commonFields?.salesChannel}</p>
+              <p>
+                <span className="font-bold text-muted-foreground">ফোন:</span>{" "}
+                {selectedDetails.application.commonFields?.phone}
+              </p>
+              <p>
+                <span className="font-bold text-muted-foreground">বিকাশ:</span>{" "}
+                {selectedDetails.application.commonFields?.bkashNumber}
+              </p>
+              <p>
+                <span className="font-bold text-muted-foreground">জেলা:</span>{" "}
+                {selectedDetails.application.commonFields?.district}
+              </p>
+              <p>
+                <span className="font-bold text-muted-foreground">উপজেলা:</span>{" "}
+                {selectedDetails.application.commonFields?.upazila}
+              </p>
+              <p className="col-span-2">
+                <span className="font-bold text-muted-foreground">ঠিকানা:</span>{" "}
+                {selectedDetails.application.commonFields?.fullAddress}
+              </p>
+              <p>
+                <span className="font-bold text-muted-foreground">বিক্রয়ের মাধ্যম:</span>{" "}
+                {selectedDetails.application.commonFields?.salesChannel}
+              </p>
               {selectedDetails.application.commonFields?.facebookPage && (
-                <p><span className="font-bold text-muted-foreground">ফেসবুক পেজ:</span> {selectedDetails.application.commonFields.facebookPage}</p>
+                <p>
+                  <span className="font-bold text-muted-foreground">ফেসবুক পেজ:</span>{" "}
+                  {selectedDetails.application.commonFields.facebookPage}
+                </p>
               )}
 
               {selectedDetails.application.resellerFields && (
                 <>
-                  <p><span className="font-bold text-muted-foreground">মাসিক আনুমানিক অর্ডার:</span> {selectedDetails.application.resellerFields.monthlyOrders}</p>
-                  <p className="col-span-2"><span className="font-bold text-muted-foreground">ক্যাটাগরি:</span> {selectedDetails.application.resellerFields.productCategories?.join(", ")}</p>
+                  <p>
+                    <span className="font-bold text-muted-foreground">মাসিক আনুমানিক অর্ডার:</span>{" "}
+                    {selectedDetails.application.resellerFields.monthlyOrders}
+                  </p>
+                  <p className="col-span-2">
+                    <span className="font-bold text-muted-foreground">ক্যাটাগরি:</span>{" "}
+                    {selectedDetails.application.resellerFields.productCategories?.join(", ")}
+                  </p>
                 </>
               )}
 
               {selectedDetails.application.wholesalerFields && (
                 <>
-                  <p><span className="font-bold text-muted-foreground">প্রতিষ্ঠানের নাম:</span> {selectedDetails.application.wholesalerFields.companyName}</p>
-                  <p><span className="font-bold text-muted-foreground">ব্যবসার ধরন:</span> {selectedDetails.application.wholesalerFields.businessType}</p>
-                  <p><span className="font-bold text-muted-foreground">মাসিক ক্রয়:</span> {selectedDetails.application.wholesalerFields.estimatedMonthlyPurchase}</p>
+                  <p>
+                    <span className="font-bold text-muted-foreground">প্রতিষ্ঠানের নাম:</span>{" "}
+                    {selectedDetails.application.wholesalerFields.companyName}
+                  </p>
+                  <p>
+                    <span className="font-bold text-muted-foreground">ব্যবসার ধরন:</span>{" "}
+                    {selectedDetails.application.wholesalerFields.businessType}
+                  </p>
+                  <p>
+                    <span className="font-bold text-muted-foreground">মাসিক ক্রয়:</span>{" "}
+                    {selectedDetails.application.wholesalerFields.estimatedMonthlyPurchase}
+                  </p>
                   {selectedDetails.application.wholesalerFields.tradeLicense && (
-                    <p><span className="font-bold text-muted-foreground">Trade License:</span> {selectedDetails.application.wholesalerFields.tradeLicense}</p>
+                    <p>
+                      <span className="font-bold text-muted-foreground">Trade License:</span>{" "}
+                      {selectedDetails.application.wholesalerFields.tradeLicense}
+                    </p>
                   )}
                 </>
               )}
@@ -435,7 +478,9 @@ export function BusinessMembershipApprovalCenter() {
               {/* Conditional Form Inputs */}
               {reviewAction === "reject" && (
                 <div className="space-y-1.5 p-3 rounded-xl bg-red-50 border border-red-200">
-                  <label className="text-xs font-black text-red-900">প্রত্যাখ্যানের কারণ লিখুন (আবশ্যক):</label>
+                  <label className="text-xs font-black text-red-900">
+                    প্রত্যাখ্যানের কারণ লিখুন (আবশ্যক):
+                  </label>
                   <textarea
                     required
                     rows={2}
@@ -449,7 +494,9 @@ export function BusinessMembershipApprovalCenter() {
 
               {reviewAction === "need_info" && (
                 <div className="space-y-1.5 p-3 rounded-xl bg-blue-50 border border-blue-200">
-                  <label className="text-xs font-black text-blue-900">ব্যবহারকারীর নিকট আপনার প্রশ্নটি লিখুন (আবশ্যক):</label>
+                  <label className="text-xs font-black text-blue-900">
+                    ব্যবহারকারীর নিকট আপনার প্রশ্নটি লিখুন (আবশ্যক):
+                  </label>
                   <textarea
                     required
                     rows={2}
@@ -498,8 +545,12 @@ export function BusinessMembershipApprovalCenter() {
                 <div className="space-y-1.5 text-xs bg-muted/30 p-3 rounded-xl">
                   {selectedDetails.notes.map((n, i) => (
                     <div key={i} className="flex justify-between">
-                      <span><strong className="text-foreground">{n.authorName}:</strong> {n.note}</span>
-                      <span className="text-[10px] text-muted-foreground">{new Date(n.createdAt).toLocaleDateString()}</span>
+                      <span>
+                        <strong className="text-foreground">{n.authorName}:</strong> {n.note}
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">
+                        {new Date(n.createdAt).toLocaleDateString()}
+                      </span>
                     </div>
                   ))}
                 </div>

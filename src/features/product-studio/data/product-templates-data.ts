@@ -19,7 +19,8 @@ export const PRODUCT_TEMPLATES: ProductTemplate[] = [
     nameBangla: "পাওয়ার ব্যাংক",
     iconName: "BatteryCharging",
     categoryName: "Power Bank",
-    shortDescription: "High-capacity 20,000mAh fast-charging portable power bank with Dual USB-C PD 3.0 & QC 4.0 ports.",
+    shortDescription:
+      "High-capacity 20,000mAh fast-charging portable power bank with Dual USB-C PD 3.0 & QC 4.0 ports.",
     tags: ["powerbank", "fastcharge", "20000mah", "pd30", "gadget"],
     costPrice: "1400",
     weight: "0.45",
@@ -42,7 +43,8 @@ export const PRODUCT_TEMPLATES: ProductTemplate[] = [
     nameBangla: "ব্লুটুথ স্পিকার",
     iconName: "Volume2",
     categoryName: "Audio & Speaker",
-    shortDescription: "Portable outdoor bluetooth 5.3 stereo speaker with IPX7 waterproof rating and RGB ambient lighting.",
+    shortDescription:
+      "Portable outdoor bluetooth 5.3 stereo speaker with IPX7 waterproof rating and RGB ambient lighting.",
     tags: ["speaker", "audio", "bluetooth", "waterproof", "rgblight"],
     costPrice: "1100",
     weight: "0.55",
@@ -65,7 +67,8 @@ export const PRODUCT_TEMPLATES: ProductTemplate[] = [
     nameBangla: "ওয়্যারলেস ইয়ারবাডস",
     iconName: "Headphones",
     categoryName: "Audio & Speaker",
-    shortDescription: "True Wireless Stereo ANC earbuds with Active Noise Cancellation and low-latency gaming mode.",
+    shortDescription:
+      "True Wireless Stereo ANC earbuds with Active Noise Cancellation and low-latency gaming mode.",
     tags: ["tws", "earbuds", "anc", "audio", "wireless"],
     costPrice: "950",
     weight: "0.15",
@@ -87,7 +90,8 @@ export const PRODUCT_TEMPLATES: ProductTemplate[] = [
     nameBangla: "ওয়াইফাই ৬ রাউটার",
     iconName: "Wifi",
     categoryName: "Networking",
-    shortDescription: "AX3000 Dual-Band Gigabit WiFi 6 router with 5 High-Gain 6dBi Antennas and Beamforming.",
+    shortDescription:
+      "AX3000 Dual-Band Gigabit WiFi 6 router with 5 High-Gain 6dBi Antennas and Beamforming.",
     tags: ["router", "wifi6", "gigabit", "networking", "ax3000"],
     costPrice: "2200",
     weight: "0.75",
@@ -109,7 +113,8 @@ export const PRODUCT_TEMPLATES: ProductTemplate[] = [
     nameBangla: "রিচার্জেবল ফ্যান",
     iconName: "Fan",
     categoryName: "Home Utility",
-    shortDescription: "Desktop rechargeable portable fan with 4000mAh battery, 4 speed control, and night light.",
+    shortDescription:
+      "Desktop rechargeable portable fan with 4000mAh battery, 4 speed control, and night light.",
     tags: ["fan", "rechargeable", "utility", "summer", "homegadget"],
     costPrice: "850",
     weight: "0.50",

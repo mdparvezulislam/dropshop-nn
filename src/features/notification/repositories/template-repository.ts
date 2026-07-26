@@ -1,8 +1,5 @@
 import { BaseRepository } from "@/lib/database/generic-repository";
-import {
-  NotificationTemplateModel,
-  type TemplateMongoDocument,
-} from "./template-model";
+import { NotificationTemplateModel, type TemplateMongoDocument } from "./template-model";
 import type { NotificationTemplate } from "../domain/notification-entity";
 import type { NotificationCategory } from "../domain/notification-entity";
 import type { NotificationChannelType } from "../domain/notification-entity";

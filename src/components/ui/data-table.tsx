@@ -261,7 +261,10 @@ export function DataTable<T extends { id: string }>({
             <span className="font-semibold text-foreground">
               {total === 0 ? 0 : (page - 1) * pageSize + 1}
             </span>
-            –<span className="font-semibold text-foreground">{Math.min(page * pageSize, total)}</span>{" "}
+            –
+            <span className="font-semibold text-foreground">
+              {Math.min(page * pageSize, total)}
+            </span>{" "}
             of <span className="font-semibold text-foreground">{total}</span> items
           </p>
           <div className="flex items-center gap-1.5">

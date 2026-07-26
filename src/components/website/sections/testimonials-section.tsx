@@ -9,21 +9,25 @@ const TESTIMONIALS = [
   {
     name: "মোহাব্বাত চৌধুরী",
     role: "রিসেলার, ঢাকা",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
+    avatar:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
     rating: 5,
-    content: "DropshopNN এর সাথে কাজ করে আমি খুবই সন্তুষ্ট। প্রোডাক্ট কোয়ালিটি এবং ডেলিভারি সার্ভিস অসাধারণ!",
+    content:
+      "DropshopNN এর সাথে কাজ করে আমি খুবই সন্তুষ্ট। প্রোডাক্ট কোয়ালিটি এবং ডেলিভারি সার্ভিস অসাধারণ!",
   },
   {
     name: "ফারিয়া আক্তার",
     role: "এন্টারপ্রেনার, চট্টগ্রাম",
-    avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80",
+    avatar:
+      "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80",
     rating: 5,
     content: "বাল্ক অর্ডারে সেরা দাম এবং ফাস্ট ডেলিভারি পাই। আমার ব্যবসা অনেক সহজে চলছে।",
   },
   {
     name: "মাহমুদুল হাসান রেজওয়ান",
     role: "ড্রপশিপার, সিলেট",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+    avatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
     rating: 5,
     content: "স্টক ছাড়াই ব্যবসা শুরু করেছি। DropshopNN আমার জন্য গেম চেঞ্জার!",
   },
@@ -31,16 +35,17 @@ const TESTIMONIALS = [
 
 export function TestimonialsSection(): React.ReactElement {
   return (
-    <section className="py-12 lg:py-16 bg-white border-b border-slate-200" aria-label="Client Testimonials">
+    <section
+      className="py-12 lg:py-16 bg-white border-b border-slate-200"
+      aria-label="Client Testimonials"
+    >
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between mb-8">
           <div>
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
               আমাদের ক্লায়েন্টদের মতামত
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 font-bold mt-1">
-              তাদের অভিজ্ঞতা জানুন
-            </p>
+            <p className="text-xs sm:text-sm text-slate-600 font-bold mt-1">তাদের অভিজ্ঞতা জানুন</p>
           </div>
 
           <Link

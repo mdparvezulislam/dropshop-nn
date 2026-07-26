@@ -1,6 +1,7 @@
 import { BaseDBEntity } from "@/lib/database/types";
 
-export type CostType = "import" | "shipping" | "packaging" | "handling" | "vat" | "tax" | "customs" | "other";
+export type CostType =
+  "import" | "shipping" | "packaging" | "handling" | "vat" | "tax" | "customs" | "other";
 
 export interface AdditionalCost extends BaseDBEntity {
   productId: string;

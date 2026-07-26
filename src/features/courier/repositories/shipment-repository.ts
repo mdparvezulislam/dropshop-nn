@@ -98,7 +98,13 @@ export class ShipmentRepository extends BaseRepository<ShipmentDocument, Shipmen
     endDate?: string;
     page?: number;
     limit?: number;
-  }): Promise<{ items: Shipment[]; total: number; page: number; limit: number; totalPages: number }> {
+  }): Promise<{
+    items: Shipment[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
     const query: any = { isDeleted: { $ne: true } };
 
     if (filters.provider && filters.provider !== "all") {

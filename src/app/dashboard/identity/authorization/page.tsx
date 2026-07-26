@@ -9,7 +9,16 @@ import {
   getPermissionRegistryAction,
   getRolesWithUserCountsAction,
 } from "@/features/identity/actions/authorization-actions";
-import { ArrowLeft, RefreshCw, ShieldCheck, Users, Key, Shield, ChevronRight, Lock } from "lucide-react";
+import {
+  ArrowLeft,
+  RefreshCw,
+  ShieldCheck,
+  Users,
+  Key,
+  Shield,
+  ChevronRight,
+  Lock,
+} from "lucide-react";
 
 interface RegistryData {
   modules: string[];
@@ -85,7 +94,9 @@ export default function AuthorizationPage(): React.ReactElement {
                     <Key className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-foreground">{registry?.totalCount ?? 0}</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {registry?.totalCount ?? 0}
+                    </p>
                     <p className="text-xs text-muted-foreground">Total Permissions</p>
                   </div>
                 </div>
@@ -98,7 +109,9 @@ export default function AuthorizationPage(): React.ReactElement {
                     <ShieldCheck className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-foreground">{registry?.modules.length ?? 0}</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {registry?.modules.length ?? 0}
+                    </p>
                     <p className="text-xs text-muted-foreground">Modules</p>
                   </div>
                 </div>
@@ -112,7 +125,9 @@ export default function AuthorizationPage(): React.ReactElement {
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-foreground">{roles.length}</p>
-                    <p className="text-xs text-muted-foreground">Roles ({systemRoles.length} system, {customRoles.length} custom)</p>
+                    <p className="text-xs text-muted-foreground">
+                      Roles ({systemRoles.length} system, {customRoles.length} custom)
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -146,7 +161,9 @@ export default function AuthorizationPage(): React.ReactElement {
                     className="flex items-center justify-between p-2.5 rounded-lg border border-border/40 bg-muted/10 hover:bg-muted/20 transition-colors"
                   >
                     <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="text-[10px] capitalize">{mod}</Badge>
+                      <Badge variant="secondary" className="text-[10px] capitalize">
+                        {mod}
+                      </Badge>
                     </div>
                     <Link
                       href="/dashboard/identity/permissions"

@@ -2,12 +2,24 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { CheckCircle2, ArrowRight, Store, Building2, Tag, Truck, TrendingUp, ShieldCheck } from "lucide-react";
+import {
+  CheckCircle2,
+  ArrowRight,
+  Store,
+  Building2,
+  Tag,
+  Truck,
+  TrendingUp,
+  ShieldCheck,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function CampaignBannerSection(): React.ReactElement {
   return (
-    <section className="py-12 lg:py-16 bg-white border-b border-border/50" aria-label="Business Opportunity Banners">
+    <section
+      className="py-12 lg:py-16 bg-white border-b border-border/50"
+      aria-label="Business Opportunity Banners"
+    >
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left Box - Reseller Dropshipping Banner matching reference image */}
@@ -46,13 +58,20 @@ export function CampaignBannerSection(): React.ReactElement {
 
             <div className="flex flex-wrap items-center gap-3 pt-6 relative z-10">
               <Link href="/become-reseller">
-                <Button size="sm" className="h-10 px-5 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-md">
+                <Button
+                  size="sm"
+                  className="h-10 px-5 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-md"
+                >
                   <Store className="h-3.5 w-3.5 mr-1.5" />
                   রিসেলার রেজিস্ট্রেশন
                 </Button>
               </Link>
               <Link href="/become-reseller">
-                <Button size="sm" variant="outline" className="h-10 px-5 text-xs font-bold border-white/30 text-white hover:bg-white/10 hover:border-white">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-10 px-5 text-xs font-bold border-white/30 text-white hover:bg-white/10 hover:border-white"
+                >
                   বিস্তারিত জানুন
                 </Button>
               </Link>
@@ -84,13 +103,20 @@ export function CampaignBannerSection(): React.ReactElement {
             <div className="space-y-4 pt-4 relative z-10">
               <div className="flex flex-wrap items-center gap-3">
                 <Link href="/become-wholesale-partner">
-                  <Button size="sm" className="h-10 px-5 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-md">
+                  <Button
+                    size="sm"
+                    className="h-10 px-5 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-md"
+                  >
                     <Building2 className="h-3.5 w-3.5 mr-1.5" />
                     প্রোডাক্ট ক্যাটালগ
                   </Button>
                 </Link>
                 <Link href="/become-wholesale-partner">
-                  <Button size="sm" variant="outline" className="h-10 px-5 text-xs font-bold border-white/30 text-white hover:bg-white/10 hover:border-white">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-10 px-5 text-xs font-bold border-white/30 text-white hover:bg-white/10 hover:border-white"
+                  >
                     বিস্তারিত জানুন
                   </Button>
                 </Link>

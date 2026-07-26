@@ -64,12 +64,42 @@ const DEFAULT: DashboardData = {
 };
 
 const QUICK_ACTIONS = [
-  { label: "Submit Product", href: "/supplier/products/new", icon: Plus, description: "Add product to catalog" },
-  { label: "Manage Inventory", href: "/supplier/inventory", icon: Warehouse, description: "Update stock levels" },
-  { label: "Purchase Orders", href: "/supplier/purchase-orders", icon: ClipboardList, description: "Incoming B2B POs" },
-  { label: "Deliveries", href: "/supplier/deliveries", icon: Truck, description: "Dispatch & courier" },
-  { label: "Payments", href: "/supplier/payments", icon: DollarSign, description: "Earnings & settlements" },
-  { label: "Reports", href: "/supplier/reports", icon: TrendingUp, description: "Supply analytics" },
+  {
+    label: "Submit Product",
+    href: "/supplier/products/new",
+    icon: Plus,
+    description: "Add product to catalog",
+  },
+  {
+    label: "Manage Inventory",
+    href: "/supplier/inventory",
+    icon: Warehouse,
+    description: "Update stock levels",
+  },
+  {
+    label: "Purchase Orders",
+    href: "/supplier/purchase-orders",
+    icon: ClipboardList,
+    description: "Incoming B2B POs",
+  },
+  {
+    label: "Deliveries",
+    href: "/supplier/deliveries",
+    icon: Truck,
+    description: "Dispatch & courier",
+  },
+  {
+    label: "Payments",
+    href: "/supplier/payments",
+    icon: DollarSign,
+    description: "Earnings & settlements",
+  },
+  {
+    label: "Reports",
+    href: "/supplier/reports",
+    icon: TrendingUp,
+    description: "Supply analytics",
+  },
 ];
 
 function greeting(): string {
@@ -110,9 +140,10 @@ export default function SupplierDashboardPage(): React.ReactElement {
 
         if (orderRes.status === "fulfilled" && orderRes.value.success) {
           const od = orderRes.value.data as any;
-          const items = Array.isArray(od) ? od : od?.items ?? [];
+          const items = Array.isArray(od) ? od : (od?.items ?? []);
           d.pendingOrders = items.filter(
-            (o: any) => !["completed", "cancelled", "delivered", "failed", "refunded"].includes(o.status),
+            (o: any) =>
+              !["completed", "cancelled", "delivered", "failed", "refunded"].includes(o.status),
           ).length;
           d.completedOrders = items.filter((o: any) => o.status === "completed").length;
           d.pendingPO = items.filter((o: any) => o.status === "pending").length;
@@ -133,7 +164,9 @@ export default function SupplierDashboardPage(): React.ReactElement {
           const raw = productRes.value.data as any;
           const items = raw?.items ?? (Array.isArray(raw) ? raw : []);
           d.productsCount = items.length;
-          d.productsPending = items.filter((p: any) => p.status === "draft" || p.status === "pending").length;
+          d.productsPending = items.filter(
+            (p: any) => p.status === "draft" || p.status === "pending",
+          ).length;
           d.productsApproved = items.filter((p: any) => p.status === "active").length;
           d.productsRejected = items.filter((p: any) => p.status === "rejected").length;
         }
@@ -184,7 +217,8 @@ export default function SupplierDashboardPage(): React.ReactElement {
               {greeting()}, Supplier Partner
             </h1>
             <p className="max-w-xl text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              Manage product listings, inventory stock levels, purchase orders, and payout settlements.
+              Manage product listings, inventory stock levels, purchase orders, and payout
+              settlements.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
@@ -200,17 +234,65 @@ export default function SupplierDashboardPage(): React.ReactElement {
 
       {/* KPI Cards */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Products Submitted" value={data.productsCount} icon={Package} accent="primary" loading={loading} />
-        <StatCard label="Pending Approval" value={data.productsPending} icon={Clock} accent="warning" loading={loading} />
-        <StatCard label="Approved Listings" value={data.productsApproved} icon={CheckCircle2} accent="success" loading={loading} />
-        <StatCard label="Rejected Products" value={data.productsRejected} icon={XCircle} accent="danger" loading={loading} />
+        <StatCard
+          label="Products Submitted"
+          value={data.productsCount}
+          icon={Package}
+          accent="primary"
+          loading={loading}
+        />
+        <StatCard
+          label="Pending Approval"
+          value={data.productsPending}
+          icon={Clock}
+          accent="warning"
+          loading={loading}
+        />
+        <StatCard
+          label="Approved Listings"
+          value={data.productsApproved}
+          icon={CheckCircle2}
+          accent="success"
+          loading={loading}
+        />
+        <StatCard
+          label="Rejected Products"
+          value={data.productsRejected}
+          icon={XCircle}
+          accent="danger"
+          loading={loading}
+        />
       </div>
 
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Low Stock Items" value={data.lowStockCount} icon={AlertTriangle} accent={data.lowStockCount > 0 ? "warning" : "success"} loading={loading} />
-        <StatCard label="Pending Orders" value={data.pendingOrders} icon={ShoppingCart} accent="warning" loading={loading} />
-        <StatCard label="Completed Orders" value={data.completedOrders} icon={CheckCircle2} accent="success" loading={loading} />
-        <StatCard label="Available Earnings" value={formatCents(data.totalEarnings)} icon={DollarSign} accent="success" loading={loading} />
+        <StatCard
+          label="Low Stock Items"
+          value={data.lowStockCount}
+          icon={AlertTriangle}
+          accent={data.lowStockCount > 0 ? "warning" : "success"}
+          loading={loading}
+        />
+        <StatCard
+          label="Pending Orders"
+          value={data.pendingOrders}
+          icon={ShoppingCart}
+          accent="warning"
+          loading={loading}
+        />
+        <StatCard
+          label="Completed Orders"
+          value={data.completedOrders}
+          icon={CheckCircle2}
+          accent="success"
+          loading={loading}
+        />
+        <StatCard
+          label="Available Earnings"
+          value={formatCents(data.totalEarnings)}
+          icon={DollarSign}
+          accent="success"
+          loading={loading}
+        />
       </div>
 
       {/* Quick Actions */}
@@ -224,7 +306,10 @@ export default function SupplierDashboardPage(): React.ReactElement {
             <CardHeader className="p-4 pb-2 border-b border-border/60">
               <CardTitle className="text-xs font-bold uppercase tracking-wider flex items-center justify-between">
                 <span>Recent Supply Orders</span>
-                <Link href="/supplier/orders" className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1">
+                <Link
+                  href="/supplier/orders"
+                  className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
+                >
                   View all <ArrowRight className="h-3 w-3" />
                 </Link>
               </CardTitle>
@@ -243,14 +328,23 @@ export default function SupplierDashboardPage(): React.ReactElement {
                       className="flex items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-muted/50 group"
                     >
                       <div className="min-w-0">
-                        <p className="truncate text-xs sm:text-sm font-semibold text-foreground group-hover:text-primary transition-colors">{o.orderNumber}</p>
+                        <p className="truncate text-xs sm:text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+                          {o.orderNumber}
+                        </p>
                         <p className="text-[11px] text-muted-foreground mt-0.5">
-                          {o.customer} · {o.createdAt ? new Date(o.createdAt).toLocaleDateString() : "—"}
+                          {o.customer} ·{" "}
+                          {o.createdAt ? new Date(o.createdAt).toLocaleDateString() : "—"}
                         </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-3">
-                        <span className="text-xs sm:text-sm font-bold text-foreground tabular-nums">{formatCents(o.total)}</span>
-                        <StatusChip label={o.status} tone={statusToneFromValue(o.status)} size="sm" />
+                        <span className="text-xs sm:text-sm font-bold text-foreground tabular-nums">
+                          {formatCents(o.total)}
+                        </span>
+                        <StatusChip
+                          label={o.status}
+                          tone={statusToneFromValue(o.status)}
+                          size="sm"
+                        />
                       </div>
                     </Link>
                   ))}
@@ -264,7 +358,10 @@ export default function SupplierDashboardPage(): React.ReactElement {
             <CardHeader className="p-4 pb-2 border-b border-border/60">
               <CardTitle className="text-xs font-bold uppercase tracking-wider flex items-center justify-between">
                 <span>Inventory Stock Status</span>
-                <Link href="/supplier/inventory" className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1">
+                <Link
+                  href="/supplier/inventory"
+                  className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
+                >
                   Manage stock <ArrowRight className="h-3 w-3" />
                 </Link>
               </CardTitle>
@@ -275,8 +372,12 @@ export default function SupplierDashboardPage(): React.ReactElement {
                   <div className="h-10 w-10 rounded-full bg-success/10 text-success flex items-center justify-center">
                     <CheckCircle2 className="h-5 w-5" />
                   </div>
-                  <p className="text-xs sm:text-sm font-semibold text-foreground">Stock levels are healthy</p>
-                  <p className="text-[11px] text-muted-foreground">All items have sufficient inventory on hand.</p>
+                  <p className="text-xs sm:text-sm font-semibold text-foreground">
+                    Stock levels are healthy
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    All items have sufficient inventory on hand.
+                  </p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center text-center space-y-3 py-4">
@@ -286,7 +387,9 @@ export default function SupplierDashboardPage(): React.ReactElement {
                   <p className="text-xs sm:text-sm font-bold text-foreground">
                     {data.lowStockCount} item{data.lowStockCount !== 1 ? "s" : ""} low on stock
                   </p>
-                  <p className="text-[11px] text-muted-foreground">Update inventory quantities to prevent stockouts.</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Update inventory quantities to prevent stockouts.
+                  </p>
                   <Link href="/supplier/inventory">
                     <Button size="sm" variant="outline" className="gap-1.5 text-xs">
                       Update inventory

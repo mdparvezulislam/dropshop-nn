@@ -36,13 +36,7 @@ export interface BusinessMembershipTypeEntity extends BaseDBEntity {
 export type MembershipStatus = "active" | "suspended" | "expired";
 
 export type ApplicationStatus =
-  | "pending"
-  | "under_review"
-  | "need_info"
-  | "approved"
-  | "rejected"
-  | "suspended"
-  | "expired";
+  "pending" | "under_review" | "need_info" | "approved" | "rejected" | "suspended" | "expired";
 
 export interface CommonApplicationFields {
   fullName: string;

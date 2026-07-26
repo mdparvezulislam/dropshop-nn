@@ -63,7 +63,10 @@ function mapToDomainRTS(doc: any): RTSRecord {
   };
 }
 
-export class DeliveryReturnRepository extends BaseRepository<DeliveryReturnDocument, DeliveryReturn> {
+export class DeliveryReturnRepository extends BaseRepository<
+  DeliveryReturnDocument,
+  DeliveryReturn
+> {
   constructor() {
     super(DeliveryReturnModel as any, mapToDomainReturn);
   }

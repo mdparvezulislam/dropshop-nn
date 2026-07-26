@@ -59,10 +59,7 @@ const itemVariants = {
 
 export function BusinessJourneySection(): React.ReactElement {
   return (
-    <section
-      className="w-full py-16 lg:py-24 bg-[hsl(0_0%_96%)]"
-      aria-labelledby="journey-heading"
-    >
+    <section className="w-full py-16 lg:py-24 bg-[hsl(0_0%_96%)]" aria-labelledby="journey-heading">
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -90,22 +87,14 @@ export function BusinessJourneySection(): React.ReactElement {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {steps.map((step) => (
-            <motion.div
-              key={step.index}
-              variants={itemVariants}
-              className="relative"
-            >
+            <motion.div key={step.index} variants={itemVariants} className="relative">
               <div className="flex flex-col items-center text-center">
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-xl mb-4 shadow-md">
                   {step.index}
                 </div>
                 <div className="mb-3 text-primary">{step.icon}</div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">
-                  {step.title}
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  {step.description}
-                </p>
+                <h3 className="text-lg font-semibold text-foreground mb-2">{step.title}</h3>
+                <p className="text-sm text-muted-foreground">{step.description}</p>
               </div>
 
               {step.index < 4 && (

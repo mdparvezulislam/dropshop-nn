@@ -37,7 +37,10 @@ export function CheckoutCustomerForm({ data, onChange, onSubmit }: CheckoutCusto
 
       <div className="space-y-4">
         <div>
-          <label htmlFor="customer-name" className="block text-sm font-medium text-foreground/70 mb-1.5">
+          <label
+            htmlFor="customer-name"
+            className="block text-sm font-medium text-foreground/70 mb-1.5"
+          >
             Full Name <span className="text-destructive">*</span>
           </label>
           <input
@@ -52,7 +55,10 @@ export function CheckoutCustomerForm({ data, onChange, onSubmit }: CheckoutCusto
         </div>
 
         <div>
-          <label htmlFor="customer-phone" className="block text-sm font-medium text-foreground/70 mb-1.5">
+          <label
+            htmlFor="customer-phone"
+            className="block text-sm font-medium text-foreground/70 mb-1.5"
+          >
             Phone Number <span className="text-destructive">*</span>
           </label>
           <input
@@ -67,7 +73,10 @@ export function CheckoutCustomerForm({ data, onChange, onSubmit }: CheckoutCusto
         </div>
 
         <div>
-          <label htmlFor="customer-email" className="block text-sm font-medium text-foreground/70 mb-1.5">
+          <label
+            htmlFor="customer-email"
+            className="block text-sm font-medium text-foreground/70 mb-1.5"
+          >
             Email (optional)
           </label>
           <input

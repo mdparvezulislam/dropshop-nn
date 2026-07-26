@@ -5,7 +5,10 @@ import { DatabaseQueryOptions } from "@/lib/database/types";
 import { logger } from "@/lib/utils/logger";
 import { DatabaseError } from "@/lib/errors/app-error";
 
-export class ProductTemplateRepository extends BaseRepository<ProductTemplateDocument, ProductTemplate> {
+export class ProductTemplateRepository extends BaseRepository<
+  ProductTemplateDocument,
+  ProductTemplate
+> {
   constructor() {
     super(ProductTemplateModel, ProductTemplateRepository.mapToDomain);
   }
@@ -23,59 +26,87 @@ export class ProductTemplateRepository extends BaseRepository<ProductTemplateDoc
       categoryName: doc.categoryName,
       isActive: doc.isActive,
       sortOrder: doc.sortOrder,
-      specs: doc.specs ? doc.specs.map((s: any) => ({
-        key: s.key,
-        label: s.label,
-        type: s.type,
-        defaultValue: s.defaultValue,
-        options: s.options,
-        required: s.required,
-        group: s.group,
-      })) : [],
-      attributes: doc.attributes ? doc.attributes.map((a: any) => ({
-        key: a.key,
-        label: a.label,
-        type: a.type,
-        options: a.options,
-        required: a.required,
-      })) : [],
+      specs: doc.specs
+        ? doc.specs.map((s: any) => ({
+            key: s.key,
+            label: s.label,
+            type: s.type,
+            defaultValue: s.defaultValue,
+            options: s.options,
+            required: s.required,
+            group: s.group,
+          }))
+        : [],
+      attributes: doc.attributes
+        ? doc.attributes.map((a: any) => ({
+            key: a.key,
+            label: a.label,
+            type: a.type,
+            options: a.options,
+            required: a.required,
+          }))
+        : [],
       suggestedTags: doc.suggestedTags || [],
       suggestedCollections: doc.suggestedCollections || [],
-      pricingProfile: doc.pricingProfile ? {
-        retailMultiplier: doc.pricingProfile.retailMultiplier ?? 1.40,
-        wholesaleMultiplier: doc.pricingProfile.wholesaleMultiplier ?? 1.30,
-        resellerMultiplier: doc.pricingProfile.resellerMultiplier ?? 1.22,
-        campaignMultiplier: doc.pricingProfile.campaignMultiplier ?? 1.15,
-        minMarginPercent: doc.pricingProfile.minMarginPercent ?? 15,
-      } : { retailMultiplier: 1.40, wholesaleMultiplier: 1.30, resellerMultiplier: 1.22, campaignMultiplier: 1.15, minMarginPercent: 15 },
-      shippingProfile: doc.shippingProfile ? {
-        weight: doc.shippingProfile.weight ?? 0.5,
-        weightUnit: doc.shippingProfile.weightUnit ?? "kg",
-        length: doc.shippingProfile.length ?? 0,
-        width: doc.shippingProfile.width ?? 0,
-        height: doc.shippingProfile.height ?? 0,
-        dimensionUnit: doc.shippingProfile.dimensionUnit ?? "cm",
-        shippingClass: doc.shippingProfile.shippingClass ?? "standard",
-      } : { weight: 0.5, weightUnit: "kg", length: 0, width: 0, height: 0, dimensionUnit: "cm", shippingClass: "standard" },
-      warrantyProfile: doc.warrantyProfile ? {
-        period: doc.warrantyProfile.period ?? "1 Year",
-        periodDays: doc.warrantyProfile.periodDays ?? 365,
-        type: doc.warrantyProfile.type ?? "seller",
-        description: doc.warrantyProfile.description ?? "",
-      } : { period: "1 Year", periodDays: 365, type: "seller", description: "" },
+      pricingProfile: doc.pricingProfile
+        ? {
+            retailMultiplier: doc.pricingProfile.retailMultiplier ?? 1.4,
+            wholesaleMultiplier: doc.pricingProfile.wholesaleMultiplier ?? 1.3,
+            resellerMultiplier: doc.pricingProfile.resellerMultiplier ?? 1.22,
+            campaignMultiplier: doc.pricingProfile.campaignMultiplier ?? 1.15,
+            minMarginPercent: doc.pricingProfile.minMarginPercent ?? 15,
+          }
+        : {
+            retailMultiplier: 1.4,
+            wholesaleMultiplier: 1.3,
+            resellerMultiplier: 1.22,
+            campaignMultiplier: 1.15,
+            minMarginPercent: 15,
+          },
+      shippingProfile: doc.shippingProfile
+        ? {
+            weight: doc.shippingProfile.weight ?? 0.5,
+            weightUnit: doc.shippingProfile.weightUnit ?? "kg",
+            length: doc.shippingProfile.length ?? 0,
+            width: doc.shippingProfile.width ?? 0,
+            height: doc.shippingProfile.height ?? 0,
+            dimensionUnit: doc.shippingProfile.dimensionUnit ?? "cm",
+            shippingClass: doc.shippingProfile.shippingClass ?? "standard",
+          }
+        : {
+            weight: 0.5,
+            weightUnit: "kg",
+            length: 0,
+            width: 0,
+            height: 0,
+            dimensionUnit: "cm",
+            shippingClass: "standard",
+          },
+      warrantyProfile: doc.warrantyProfile
+        ? {
+            period: doc.warrantyProfile.period ?? "1 Year",
+            periodDays: doc.warrantyProfile.periodDays ?? 365,
+            type: doc.warrantyProfile.type ?? "seller",
+            description: doc.warrantyProfile.description ?? "",
+          }
+        : { period: "1 Year", periodDays: 365, type: "seller", description: "" },
       returnPolicy: doc.returnPolicy || "",
       packageIncludes: doc.packageIncludes || [],
-      seoProfile: doc.seoProfile ? {
-        metaTitleTemplate: doc.seoProfile.metaTitleTemplate ?? "",
-        metaDescriptionTemplate: doc.seoProfile.metaDescriptionTemplate ?? "",
-        focusKeywordSuggestions: doc.seoProfile.focusKeywordSuggestions || [],
-      } : { metaTitleTemplate: "", metaDescriptionTemplate: "", focusKeywordSuggestions: [] },
-      googleMerchant: doc.googleMerchant ? {
-        googleProductCategory: doc.googleMerchant.googleProductCategory ?? "",
-        ageGroup: doc.googleMerchant.ageGroup ?? "adult",
-        gender: doc.googleMerchant.gender ?? "unisex",
-        condition: doc.googleMerchant.condition ?? "new",
-      } : { googleProductCategory: "", ageGroup: "adult", gender: "unisex", condition: "new" },
+      seoProfile: doc.seoProfile
+        ? {
+            metaTitleTemplate: doc.seoProfile.metaTitleTemplate ?? "",
+            metaDescriptionTemplate: doc.seoProfile.metaDescriptionTemplate ?? "",
+            focusKeywordSuggestions: doc.seoProfile.focusKeywordSuggestions || [],
+          }
+        : { metaTitleTemplate: "", metaDescriptionTemplate: "", focusKeywordSuggestions: [] },
+      googleMerchant: doc.googleMerchant
+        ? {
+            googleProductCategory: doc.googleMerchant.googleProductCategory ?? "",
+            ageGroup: doc.googleMerchant.ageGroup ?? "adult",
+            gender: doc.googleMerchant.gender ?? "unisex",
+            condition: doc.googleMerchant.condition ?? "new",
+          }
+        : { googleProductCategory: "", ageGroup: "adult", gender: "unisex", condition: "new" },
       suggestedBulletFeatures: doc.suggestedBulletFeatures || [],
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
@@ -114,7 +145,10 @@ export class ProductTemplateRepository extends BaseRepository<ProductTemplateDoc
     }
   }
 
-  async findByCategory(categoryName: string, options?: DatabaseQueryOptions): Promise<ProductTemplate[]> {
+  async findByCategory(
+    categoryName: string,
+    options?: DatabaseQueryOptions,
+  ): Promise<ProductTemplate[]> {
     try {
       return this.find({ categoryName: categoryName, isActive: true }, options);
     } catch (error) {
@@ -139,7 +173,9 @@ export class ProductTemplateRepository extends BaseRepository<ProductTemplateDoc
         .sort({ sortOrder: 1, name: 1 })
         .lean()
         .exec();
-      return docs.map((doc) => ProductTemplateRepository.mapToDomain(doc as ProductTemplateDocument));
+      return docs.map((doc) =>
+        ProductTemplateRepository.mapToDomain(doc as ProductTemplateDocument),
+      );
     } catch (error) {
       logger.error("ProductTemplateRepository search failed", error, { query });
       throw new DatabaseError("Database search error", error);

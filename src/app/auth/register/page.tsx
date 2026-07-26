@@ -3,25 +3,12 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FormField } from "@/components/forms/form-field";
 import { registerUserAction } from "@/features/auth/actions/auth-actions";
-import { Shield, Sparkles, UserPlus, CheckCircle2, AlertCircle } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { UserPlus, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -32,7 +19,6 @@ export default function RegisterPage() {
     phone: "",
     password: "",
     confirmPassword: "",
-    role: "Customer",
   });
 
   const [loading, setLoading] = React.useState(false);
@@ -63,7 +49,7 @@ export default function RegisterPage() {
         email: formData.email,
         phone: formData.phone,
         password: formData.password,
-        role: formData.role,
+        role: "Customer",
       });
 
       if (!res.success) {
@@ -95,9 +81,7 @@ export default function RegisterPage() {
               Dropshop<span className="text-primary">NN</span>
             </span>
           </Link>
-          <p className="text-xs text-muted-foreground">
-            Create an enterprise commerce account
-          </p>
+          <p className="text-xs text-muted-foreground">Create an enterprise commerce account</p>
         </div>
 
         <Card className="border-border/80 bg-card/95 backdrop-blur-md shadow-xl rounded-2xl">
@@ -106,7 +90,7 @@ export default function RegisterPage() {
               Create Account
             </CardTitle>
             <CardDescription className="text-xs text-muted-foreground">
-              Register as a Retail Customer, Reseller, Wholesale Buyer, or Supplier
+              Create your retail customer account to start shopping
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -136,36 +120,16 @@ export default function RegisterPage() {
                 />
               </FormField>
 
-              <div className="grid grid-cols-2 gap-3">
-                <FormField label="Username" required>
-                  <Input
-                    type="text"
-                    placeholder="rahim_ahmed"
-                    value={formData.username}
-                    onChange={(e) => handleChange("username", e.target.value)}
-                    disabled={loading}
-                    required
-                  />
-                </FormField>
-
-                <FormField label="Account Role" required>
-                  <Select
-                    value={formData.role}
-                    onValueChange={(val) => handleChange("role", val)}
-                    disabled={loading}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Role" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Customer">Retail Customer</SelectItem>
-                      <SelectItem value="Reseller">Reseller Partner</SelectItem>
-                      <SelectItem value="Wholesale Buyer">Wholesale Buyer</SelectItem>
-                      <SelectItem value="Supplier">Official Supplier</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormField>
-              </div>
+              <FormField label="Username" required>
+                <Input
+                  type="text"
+                  placeholder="rahim_ahmed"
+                  value={formData.username}
+                  onChange={(e) => handleChange("username", e.target.value)}
+                  disabled={loading}
+                  required
+                />
+              </FormField>
 
               <FormField label="Email Address" required>
                 <Input

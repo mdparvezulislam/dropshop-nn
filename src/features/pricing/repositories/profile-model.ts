@@ -1,5 +1,9 @@
 import mongoose, { Schema } from "mongoose";
-import { baseFieldsDefinition, baseSchemaOptions, softDeletePlugin } from "@/lib/database/base-schema";
+import {
+  baseFieldsDefinition,
+  baseSchemaOptions,
+  softDeletePlugin,
+} from "@/lib/database/base-schema";
 import { BaseDocument } from "@/lib/database/types";
 
 export interface ProfileMarkupRuleDB {
@@ -32,7 +36,11 @@ const { status: _, ...baseFields } = baseFieldsDefinition;
 
 const profileMarkupRuleSchema = new Schema(
   {
-    channel: { type: String, enum: ["retail", "wholesale", "reseller", "distributor"], required: true },
+    channel: {
+      type: String,
+      enum: ["retail", "wholesale", "reseller", "distributor"],
+      required: true,
+    },
     markupType: { type: String, enum: ["percentage", "fixed_amount"], required: true },
     markupValue: { type: Number, required: true, min: 0 },
   },

@@ -1,3 +1,5 @@
+"use client";
+
 import * as React from "react";
 import type { StudioFormState } from "./use-product-studio";
 import type { HealthScoreItem, HealthScoreResult } from "../types/studio-types";
@@ -22,22 +24,100 @@ export function useHealthScore(form: StudioFormState): HealthScoreResult {
     const hasBarcode = Boolean(form.barcode || form.inventoryBarcode);
 
     return [
-      { id: "name", label: "Product Title (min 3 chars)", weight: 10, completed: hasName, sectionId: "general" },
-      { id: "shortDesc", label: "Short Description", weight: 5, completed: hasShortDesc, sectionId: "general" },
-      { id: "richDesc", label: "Rich Description & Details", weight: 10, completed: hasRichDesc, sectionId: "description" },
-      { id: "primaryImage", label: "Primary Image Uploaded", weight: 12, completed: hasPrimaryImage, sectionId: "media" },
-      { id: "gallery", label: "2+ Gallery Images Uploaded", weight: 8, completed: hasGalleryImages, sectionId: "media" },
-      { id: "category", label: "Category Assigned", weight: 10, completed: hasCategory, sectionId: "category" },
+      {
+        id: "name",
+        label: "Product Title (min 3 chars)",
+        weight: 10,
+        completed: hasName,
+        sectionId: "general",
+      },
+      {
+        id: "shortDesc",
+        label: "Short Description",
+        weight: 5,
+        completed: hasShortDesc,
+        sectionId: "general",
+      },
+      {
+        id: "richDesc",
+        label: "Rich Description & Details",
+        weight: 10,
+        completed: hasRichDesc,
+        sectionId: "description",
+      },
+      {
+        id: "primaryImage",
+        label: "Primary Image Uploaded",
+        weight: 12,
+        completed: hasPrimaryImage,
+        sectionId: "media",
+      },
+      {
+        id: "gallery",
+        label: "2+ Gallery Images Uploaded",
+        weight: 8,
+        completed: hasGalleryImages,
+        sectionId: "media",
+      },
+      {
+        id: "category",
+        label: "Category Assigned",
+        weight: 10,
+        completed: hasCategory,
+        sectionId: "category",
+      },
       { id: "brand", label: "Brand Assigned", weight: 5, completed: hasBrand, sectionId: "brand" },
-      { id: "sellingPrice", label: "Retail Selling Price Set", weight: 12, completed: hasPricing, sectionId: "pricing" },
-      { id: "costPrice", label: "Cost Price Set (Profit Tracking)", weight: 8, completed: hasCostPricing, sectionId: "pricing" },
-      { id: "inventory", label: "Stock Quantity & SKU Defined", weight: 10, completed: hasStock, sectionId: "inventory" },
+      {
+        id: "sellingPrice",
+        label: "Retail Selling Price Set",
+        weight: 12,
+        completed: hasPricing,
+        sectionId: "pricing",
+      },
+      {
+        id: "costPrice",
+        label: "Cost Price Set (Profit Tracking)",
+        weight: 8,
+        completed: hasCostPricing,
+        sectionId: "pricing",
+      },
+      {
+        id: "inventory",
+        label: "Stock Quantity & SKU Defined",
+        weight: 10,
+        completed: hasStock,
+        sectionId: "inventory",
+      },
       { id: "seo", label: "SEO Meta & Slug Set", weight: 5, completed: hasSEO, sectionId: "seo" },
-      { id: "warranty", label: "Warranty Policy Defined", weight: 5, completed: hasWarranty, sectionId: "general" },
-      { id: "weight", label: "Product Weight Set", weight: 3, completed: hasWeight, sectionId: "inventory" },
-      { id: "keywords", label: "SEO Keywords Added", weight: 3, completed: hasKeywords, sectionId: "seo" },
+      {
+        id: "warranty",
+        label: "Warranty Policy Defined",
+        weight: 5,
+        completed: hasWarranty,
+        sectionId: "general",
+      },
+      {
+        id: "weight",
+        label: "Product Weight Set",
+        weight: 3,
+        completed: hasWeight,
+        sectionId: "inventory",
+      },
+      {
+        id: "keywords",
+        label: "SEO Keywords Added",
+        weight: 3,
+        completed: hasKeywords,
+        sectionId: "seo",
+      },
       { id: "slug", label: "URL Slug Set", weight: 3, completed: hasSlug, sectionId: "seo" },
-      { id: "barcode", label: "Barcode / GTIN Assigned", weight: 3, completed: hasBarcode, sectionId: "inventory" },
+      {
+        id: "barcode",
+        label: "Barcode / GTIN Assigned",
+        weight: 3,
+        completed: hasBarcode,
+        sectionId: "inventory",
+      },
     ];
   }, [form]);
 

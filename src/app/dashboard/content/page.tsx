@@ -83,7 +83,9 @@ export default async function CmsOverviewPage() {
         </CardHeader>
         <CardContent className="space-y-2">
           {recent.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No content yet. Create a page or blog post.</p>
+            <p className="text-sm text-muted-foreground">
+              No content yet. Create a page or blog post.
+            </p>
           ) : (
             recent.map((item) => (
               <div

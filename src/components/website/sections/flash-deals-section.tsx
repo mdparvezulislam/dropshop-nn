@@ -13,7 +13,8 @@ const MOCK_FLASH_PRODUCTS: ProductCardData[] = [
     id: "flash-1",
     name: "বোরো i12 TWS এয়ারবাডস",
     slug: "i12-tws-earbuds",
-    image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=400&q=80",
     retailPrice: 47000,
     comparePrice: 65000,
     rating: 4.8,
@@ -25,7 +26,8 @@ const MOCK_FLASH_PRODUCTS: ProductCardData[] = [
     id: "flash-2",
     name: "রেমি ৩০০০০mAh পাওয়ার ব্যাংক",
     slug: "remi-30000mah-powerbank",
-    image: "https://images.unsplash.com/photo-1609592424109-dd9892f1b177?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1609592424109-dd9892f1b177?auto=format&fit=crop&w=400&q=80",
     retailPrice: 145000,
     comparePrice: 170000,
     rating: 4.7,
@@ -37,7 +39,8 @@ const MOCK_FLASH_PRODUCTS: ProductCardData[] = [
     id: "flash-3",
     name: "হোলো স্মার্টওয়াচ X8",
     slug: "holo-smartwatch-x8",
-    image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=400&q=80",
     retailPrice: 149000,
     comparePrice: 180000,
     rating: 4.9,
@@ -49,7 +52,8 @@ const MOCK_FLASH_PRODUCTS: ProductCardData[] = [
     id: "flash-4",
     name: "এক্সপ্রো P102 এয়ারবাডস স্পিকার",
     slug: "expro-p102-speaker",
-    image: "https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=400&q=80",
     retailPrice: 125000,
     comparePrice: 160000,
     rating: 4.6,
@@ -61,7 +65,8 @@ const MOCK_FLASH_PRODUCTS: ProductCardData[] = [
     id: "flash-5",
     name: "RGB LED স্ট্রিপ লাইট",
     slug: "rgb-led-strip-light",
-    image: "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=400&q=80",
+    image:
+      "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=400&q=80",
     retailPrice: 65000,
     comparePrice: 95000,
     rating: 4.8,

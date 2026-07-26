@@ -31,18 +31,18 @@ export class BusinessMembershipService {
   }): Promise<BusinessMembershipApplicationEntity> {
     const existing = await businessMembershipApplicationRepository.findActiveByUserAndType(
       input.userId,
-      input.membershipType
+      input.membershipType,
     );
 
     if (existing && (existing.status === "pending" || existing.status === "under_review")) {
       throw new ValidationError(
-        `আপনার একটি ${input.membershipType === "reseller" ? "রিসেলার" : "হোলসেলার"} আবেদন ইতোমধ্যে অপেক্ষমাণ রয়েছে।`
+        `আপনার একটি ${input.membershipType === "reseller" ? "রিসেলার" : "হোলসেলার"} আবেদন ইতোমধ্যে অপেক্ষমাণ রয়েছে।`,
       );
     }
 
     if (existing && existing.status === "approved") {
       throw new ValidationError(
-        `আপনি ইতোমধ্যে একজন অনুমোদিত ${input.membershipType === "reseller" ? "রিসেলার" : "হোলসেলার"} মেম্বার।`
+        `আপনি ইতোমধ্যে একজন অনুমোদিত ${input.membershipType === "reseller" ? "রিসেলার" : "হোলসেলার"} মেম্বার।`,
       );
     }
 
@@ -192,7 +192,7 @@ export class BusinessMembershipService {
         app.userId,
         app.membershipType,
         input.adminId,
-        "active"
+        "active",
       );
 
       // Add to user's memberships array in UserModel
@@ -317,7 +317,9 @@ export class BusinessMembershipService {
     }
 
     const previousMemberships: string[] = user.memberships || ["customer"];
-    const newMemberships = Array.from(new Set(input.memberships.length > 0 ? input.memberships : ["customer"]));
+    const newMemberships = Array.from(
+      new Set(input.memberships.length > 0 ? input.memberships : ["customer"]),
+    );
 
     // Update User Document
     user.memberships = newMemberships;
@@ -325,7 +327,12 @@ export class BusinessMembershipService {
 
     // Sync BusinessMembership DB Records
     for (const type of newMemberships) {
-      await businessMembershipRepository.upsertMembership(input.targetUserId, type as any, input.adminId, "active");
+      await businessMembershipRepository.upsertMembership(
+        input.targetUserId,
+        type as any,
+        input.adminId,
+        "active",
+      );
     }
 
     // Log History

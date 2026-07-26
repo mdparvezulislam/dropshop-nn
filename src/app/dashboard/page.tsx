@@ -79,11 +79,36 @@ function greeting(): string {
 }
 
 const QUICK_ACTIONS = [
-  { label: "New product", href: "/dashboard/products/new", icon: Package, description: "Add item to catalog" },
-  { label: "Onboard supplier", href: "/dashboard/suppliers/new", icon: Building2, description: "Register new supplier" },
-  { label: "Onboard reseller", href: "/dashboard/resellers/new", icon: Store, description: "Activate seller store" },
-  { label: "Adjust stock", href: "/dashboard/inventory/adjust", icon: Warehouse, description: "Inventory adjustments" },
-  { label: "Update pricing", href: "/dashboard/pricing/bulk", icon: DollarSign, description: "Bulk price management" },
+  {
+    label: "New product",
+    href: "/dashboard/products/new",
+    icon: Package,
+    description: "Add item to catalog",
+  },
+  {
+    label: "Onboard supplier",
+    href: "/dashboard/suppliers/new",
+    icon: Building2,
+    description: "Register new supplier",
+  },
+  {
+    label: "Onboard reseller",
+    href: "/dashboard/resellers/new",
+    icon: Store,
+    description: "Activate seller store",
+  },
+  {
+    label: "Adjust stock",
+    href: "/dashboard/inventory/adjust",
+    icon: Warehouse,
+    description: "Inventory adjustments",
+  },
+  {
+    label: "Update pricing",
+    href: "/dashboard/pricing/bulk",
+    icon: DollarSign,
+    description: "Bulk price management",
+  },
 ];
 
 const NEED_ATTENTION = [
@@ -177,12 +202,13 @@ export default function WorkspaceHomePage(): React.ReactElement {
         if (ordersRes.status === "fulfilled" && ordersRes.value.success) {
           const od = ordersRes.value.data as any;
           d.ordersTotal = od?.totalCount ?? od?.items?.length ?? 0;
-          d.ordersActive = od?.items?.filter((o: any) =>
-            !["completed", "cancelled", "failed", "refunded"].includes(o.status)
-          ).length ?? 0;
+          d.ordersActive =
+            od?.items?.filter(
+              (o: any) => !["completed", "cancelled", "failed", "refunded"].includes(o.status),
+            ).length ?? 0;
           d.ordersCompleted = od?.items?.filter((o: any) => o.status === "completed").length ?? 0;
-          d.ordersRevenue = od?.items?.reduce((s: number, o: any) =>
-            s + (o.pricing?.grandTotal ?? 0), 0) ?? 0;
+          d.ordersRevenue =
+            od?.items?.reduce((s: number, o: any) => s + (o.pricing?.grandTotal ?? 0), 0) ?? 0;
         }
 
         if (suppliersRes.status === "fulfilled" && suppliersRes.value.success) {
@@ -208,7 +234,7 @@ export default function WorkspaceHomePage(): React.ReactElement {
 
         if (customersRes.status === "fulfilled" && customersRes.value.success) {
           const cd = customersRes.value.data;
-          d.customerCount = Array.isArray(cd) ? cd.length : (cd as any)?.totalCount ?? 0;
+          d.customerCount = Array.isArray(cd) ? cd.length : ((cd as any)?.totalCount ?? 0);
         }
 
         if (productsRes.status === "fulfilled" && productsRes.value.success) {
@@ -266,7 +292,8 @@ export default function WorkspaceHomePage(): React.ReactElement {
               {greeting()}, Operations Admin
             </h1>
             <p className="max-w-xl text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              Warm Amber Commerce OS — managing catalog, multi-tier pricing, suppliers, reseller partners, and logistics across Bangladesh.
+              Warm Amber Commerce OS — managing catalog, multi-tier pricing, suppliers, reseller
+              partners, and logistics across Bangladesh.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5 shrink-0">
@@ -357,7 +384,9 @@ export default function WorkspaceHomePage(): React.ReactElement {
             <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
               <BarChart3 className="h-4 w-4 text-primary" /> Sales & Performance Overview
             </CardTitle>
-            <p className="text-xs text-muted-foreground">Real-time revenue growth and order metrics</p>
+            <p className="text-xs text-muted-foreground">
+              Real-time revenue growth and order metrics
+            </p>
           </div>
           <div className="flex items-center gap-1 rounded-lg border border-border bg-muted/40 p-1">
             {(["weekly", "monthly", "yearly"] as const).map((r) => (
@@ -380,7 +409,10 @@ export default function WorkspaceHomePage(): React.ReactElement {
         <CardContent className="p-6 pt-4">
           <div className="h-48 flex items-end justify-between gap-2 border-b border-border pb-4 pt-4">
             {[45, 60, 35, 70, 85, 50, 95, 80, 65, 90, 75, 100].map((h, idx) => (
-              <div key={idx} className="flex-1 flex flex-col items-center gap-2 group cursor-pointer">
+              <div
+                key={idx}
+                className="flex-1 flex flex-col items-center gap-2 group cursor-pointer"
+              >
                 <div
                   style={{ height: `${h}%` }}
                   className="w-full max-w-[28px] rounded-t-md bg-gradient-to-t from-primary/60 to-primary group-hover:from-primary group-hover:to-primary/80 transition-all duration-200"
@@ -402,7 +434,10 @@ export default function WorkspaceHomePage(): React.ReactElement {
       <div className="grid gap-6 lg:grid-cols-5">
         {/* Need attention column */}
         <section className="lg:col-span-3 space-y-3">
-          <SectionHeader title="Need Attention" description="Items requiring administrative review or action" />
+          <SectionHeader
+            title="Need Attention"
+            description="Items requiring administrative review or action"
+          />
           <div className="grid gap-3 sm:grid-cols-2">
             {attentionItems.map((item) => {
               const Icon = item.icon;
@@ -420,7 +455,9 @@ export default function WorkspaceHomePage(): React.ReactElement {
                           </p>
                           <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60 group-hover:text-primary transition-colors mt-0.5" />
                         </div>
-                        <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">{item.detail}</p>
+                        <p className="text-[11px] text-muted-foreground mt-0.5 font-medium">
+                          {item.detail}
+                        </p>
                         <div className="mt-2.5">
                           <StatusChip label="Action needed" tone={item.tone} size="sm" />
                         </div>
@@ -448,7 +485,9 @@ export default function WorkspaceHomePage(): React.ReactElement {
                           <Icon className="h-3.5 w-3.5" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-xs font-semibold text-foreground leading-snug">{a.text}</p>
+                          <p className="text-xs font-semibold text-foreground leading-snug">
+                            {a.text}
+                          </p>
                           <p className="text-[10px] font-medium text-muted-foreground mt-0.5 flex items-center gap-1">
                             <Clock className="h-3 w-3" />
                             {a.time}

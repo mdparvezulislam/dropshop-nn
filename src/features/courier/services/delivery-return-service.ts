@@ -1,7 +1,13 @@
 import { ShipmentRepository } from "../repositories/shipment-repository";
 import { DeliveryReturnRepository } from "../repositories/delivery-return-repository";
 import { LogisticsAuditRepository } from "../repositories/logistics-audit-repository";
-import type { DeliveryReturn, RTSRecord, ReturnReason, ReturnStatus, RTSStatus } from "../domain/delivery-return-entity";
+import type {
+  DeliveryReturn,
+  RTSRecord,
+  ReturnReason,
+  ReturnStatus,
+  RTSStatus,
+} from "../domain/delivery-return-entity";
 import type { Shipment } from "../domain/shipment-entity";
 import { EventBus } from "@/lib/event-bus/event-bus";
 
@@ -63,14 +69,24 @@ export class DeliveryReturnService {
 
     await EventBus.publish(
       "courier.returned",
-      { shipmentId: shipment.id, orderId: shipment.orderId, returnNumber, returnChargeCents: input.returnChargeCents || 4000 },
+      {
+        shipmentId: shipment.id,
+        orderId: shipment.orderId,
+        returnNumber,
+        returnChargeCents: input.returnChargeCents || 4000,
+      },
       { source: "delivery-return-service" },
     );
 
     return returnRecord;
   }
 
-  async updateReturnStatus(returnId: string, status: ReturnStatus, notes?: string, actorId: string = "system"): Promise<DeliveryReturn> {
+  async updateReturnStatus(
+    returnId: string,
+    status: ReturnStatus,
+    notes?: string,
+    actorId: string = "system",
+  ): Promise<DeliveryReturn> {
     const ret = await this.returnRepository.findById(returnId);
     if (!ret) {
       throw new Error(`Return record not found: ${returnId}`);
@@ -85,7 +101,11 @@ export class DeliveryReturnService {
     return updated;
   }
 
-  async createRTS(input: { shipmentId: string; reason: string; actorId?: string }): Promise<RTSRecord> {
+  async createRTS(input: {
+    shipmentId: string;
+    reason: string;
+    actorId?: string;
+  }): Promise<RTSRecord> {
     const shipment = await this.shipmentRepository.findById(input.shipmentId);
     if (!shipment) {
       throw new Error(`Shipment not found: ${input.shipmentId}`);
@@ -115,7 +135,11 @@ export class DeliveryReturnService {
     return rts;
   }
 
-  async inspectRTSPackage(rtsId: string, condition: "intact" | "damaged" | "missing_items" | "opened", notes?: string): Promise<RTSRecord> {
+  async inspectRTSPackage(
+    rtsId: string,
+    condition: "intact" | "damaged" | "missing_items" | "opened",
+    notes?: string,
+  ): Promise<RTSRecord> {
     return this.returnRepository.updateRTS(rtsId, {
       status: "package_inspected",
       inspectionCondition: condition,

@@ -6,8 +6,8 @@ import { NumberInput } from "@/components/forms/number-input";
 import { FormField } from "@/components/forms/form-field";
 import { Badge } from "@/components/ui/badge";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
-import { Warehouse, Boxes, AlertTriangle, CheckCircle2, XCircle, Clock } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Warehouse, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 export interface InventorySectionProps {
   sku: string;
@@ -29,14 +29,22 @@ export interface InventorySectionProps {
 }
 
 export function InventorySection({
-  sku, onSkuChange,
-  barcode, onBarcodeChange,
-  stock, onStockChange,
-  lowStockThreshold, onLowStockThresholdChange,
-  reservedStock = "0", onReservedStockChange,
-  incomingStock = "0", onIncomingStockChange,
-  warehouseLocation = "Central DHAKA-WH1", onWarehouseLocationChange,
-  weight = "0.5", onWeightChange,
+  sku,
+  onSkuChange,
+  barcode,
+  onBarcodeChange,
+  stock,
+  onStockChange,
+  lowStockThreshold,
+  onLowStockThresholdChange,
+  reservedStock = "0",
+  onReservedStockChange,
+  incomingStock = "0",
+  onIncomingStockChange,
+  warehouseLocation = "Central DHAKA-WH1",
+  onWarehouseLocationChange,
+  weight = "0.5",
+  onWeightChange,
 }: InventorySectionProps): React.ReactElement {
   const stockNum = parseInt(stock) || 0;
   const reservedNum = parseInt(reservedStock) || 0;
@@ -103,7 +111,9 @@ export function InventorySection({
       {/* Live Inventory Summary Card */}
       <Card className="border border-border bg-accent/30 p-4 rounded-xl shadow-2xs">
         <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
-          <span className="flex items-center gap-1.5"><Warehouse className="h-3.5 w-3.5 text-primary" /> Live Warehouse Allocation</span>
+          <span className="flex items-center gap-1.5">
+            <Warehouse className="h-3.5 w-3.5 text-primary" /> Live Warehouse Allocation
+          </span>
           {statusBadge}
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
@@ -121,7 +131,9 @@ export function InventorySection({
           </div>
           <div className="p-2.5 rounded-lg border border-border bg-card">
             <p className="text-[10px] font-bold text-muted-foreground uppercase">Alert Threshold</p>
-            <p className="text-base font-extrabold font-mono text-muted-foreground">≤ {threshold} pcs</p>
+            <p className="text-base font-extrabold font-mono text-muted-foreground">
+              ≤ {threshold} pcs
+            </p>
           </div>
         </div>
       </Card>

@@ -213,13 +213,19 @@ export default function ResellersListPage(): React.ReactElement {
             <>
               <SearchBox
                 value={search}
-                onChange={(v) => { setSearch(v); setPage(1); }}
+                onChange={(v) => {
+                  setSearch(v);
+                  setPage(1);
+                }}
                 placeholder="Search name, code, email…"
                 className="w-full sm:w-72"
               />
               <select
                 value={statusFilter}
-                onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setPage(1);
+                }}
                 className="h-9 rounded-md border border-input bg-card px-3 text-sm"
               >
                 <option value="all">All status</option>

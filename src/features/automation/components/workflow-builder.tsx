@@ -15,10 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  createWorkflowAction,
-  updateWorkflowAction,
-} from "../actions/automation-actions";
+import { createWorkflowAction, updateWorkflowAction } from "../actions/automation-actions";
 import type {
   WorkflowDefinition,
   WorkflowRule,
@@ -101,9 +98,7 @@ export function WorkflowBuilder({ workflow, onSaved }: WorkflowBuilderProps): Re
     const rule: WorkflowRule = {
       id: generateId(),
       name: `Rule ${rules.length + 1}`,
-      conditions: [
-        { field: "event.type", operator: "eq", value: "", source: "event" },
-      ],
+      conditions: [{ field: "event.type", operator: "eq", value: "", source: "event" }],
       logicalOperator: "and",
       actions: [
         { id: generateId(), type: "send_notification", config: {}, label: "Action 1", order: 0 },
@@ -125,9 +120,20 @@ export function WorkflowBuilder({ workflow, onSaved }: WorkflowBuilderProps): Re
     setRules(
       rules.map((r) =>
         r.id === ruleId
-          ? { ...r, conditions: [...r.conditions, { field: "", operator: "eq" as ConditionOperator, value: "", source: "event" as const }] }
-          : r
-      )
+          ? {
+              ...r,
+              conditions: [
+                ...r.conditions,
+                {
+                  field: "",
+                  operator: "eq" as ConditionOperator,
+                  value: "",
+                  source: "event" as const,
+                },
+              ],
+            }
+          : r,
+      ),
     );
   };
 
@@ -135,17 +141,20 @@ export function WorkflowBuilder({ workflow, onSaved }: WorkflowBuilderProps): Re
     setRules(
       rules.map((r) =>
         r.id === ruleId
-          ? { ...r, conditions: r.conditions.map((c, i) => (i === condIndex ? { ...c, ...updates } : c)) }
-          : r
-      )
+          ? {
+              ...r,
+              conditions: r.conditions.map((c, i) => (i === condIndex ? { ...c, ...updates } : c)),
+            }
+          : r,
+      ),
     );
   };
 
   const removeCondition = (ruleId: string, condIndex: number) => {
     setRules(
       rules.map((r) =>
-        r.id === ruleId ? { ...r, conditions: r.conditions.filter((_, i) => i !== condIndex) } : r
-      )
+        r.id === ruleId ? { ...r, conditions: r.conditions.filter((_, i) => i !== condIndex) } : r,
+      ),
     );
   };
 
@@ -153,9 +162,21 @@ export function WorkflowBuilder({ workflow, onSaved }: WorkflowBuilderProps): Re
     setRules(
       rules.map((r) =>
         r.id === ruleId
-          ? { ...r, actions: [...r.actions, { id: generateId(), type: "send_notification" as ActionType, config: {}, label: `Action ${r.actions.length + 1}`, order: r.actions.length }] }
-          : r
-      )
+          ? {
+              ...r,
+              actions: [
+                ...r.actions,
+                {
+                  id: generateId(),
+                  type: "send_notification" as ActionType,
+                  config: {},
+                  label: `Action ${r.actions.length + 1}`,
+                  order: r.actions.length,
+                },
+              ],
+            }
+          : r,
+      ),
     );
   };
 
@@ -163,17 +184,20 @@ export function WorkflowBuilder({ workflow, onSaved }: WorkflowBuilderProps): Re
     setRules(
       rules.map((r) =>
         r.id === ruleId
-          ? { ...r, actions: r.actions.map((a, i) => (i === actionIndex ? { ...a, ...updates } : a)) }
-          : r
-      )
+          ? {
+              ...r,
+              actions: r.actions.map((a, i) => (i === actionIndex ? { ...a, ...updates } : a)),
+            }
+          : r,
+      ),
     );
   };
 
   const removeAction = (ruleId: string, actionIndex: number) => {
     setRules(
       rules.map((r) =>
-        r.id === ruleId ? { ...r, actions: r.actions.filter((_, i) => i !== actionIndex) } : r
-      )
+        r.id === ruleId ? { ...r, actions: r.actions.filter((_, i) => i !== actionIndex) } : r,
+      ),
     );
   };
 
@@ -213,25 +237,41 @@ export function WorkflowBuilder({ workflow, onSaved }: WorkflowBuilderProps): Re
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Name</Label>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="My Workflow" />
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="My Workflow"
+              />
             </div>
             <div className="space-y-2">
               <Label>Key</Label>
-              <Input value={key} onChange={(e) => setKey(e.target.value)} placeholder="my_workflow" />
+              <Input
+                value={key}
+                onChange={(e) => setKey(e.target.value)}
+                placeholder="my_workflow"
+              />
             </div>
           </div>
           <div className="space-y-2">
             <Label>Description</Label>
-            <Input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What does this workflow do?" />
+            <Input
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="What does this workflow do?"
+            />
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Category</Label>
               <Select value={category} onValueChange={(v) => setCategory(v as TaskCategory)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   {categoryOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -239,10 +279,14 @@ export function WorkflowBuilder({ workflow, onSaved }: WorkflowBuilderProps): Re
             <div className="space-y-2">
               <Label>Trigger Type</Label>
               <Select value={triggerType} onValueChange={(v) => setTriggerType(v as TriggerType)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
                 <SelectContent>
                   {triggerOptions.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -250,13 +294,21 @@ export function WorkflowBuilder({ workflow, onSaved }: WorkflowBuilderProps): Re
             {triggerType === "event" && (
               <div className="space-y-2">
                 <Label>Event Type</Label>
-                <Input value={eventType} onChange={(e) => setEventType(e.target.value)} placeholder="order.created" />
+                <Input
+                  value={eventType}
+                  onChange={(e) => setEventType(e.target.value)}
+                  placeholder="order.created"
+                />
               </div>
             )}
             {triggerType === "schedule" && (
               <div className="space-y-2">
                 <Label>Cron Expression</Label>
-                <Input value={cron} onChange={(e) => setCron(e.target.value)} placeholder="0 */6 * * *" />
+                <Input
+                  value={cron}
+                  onChange={(e) => setCron(e.target.value)}
+                  placeholder="0 */6 * * *"
+                />
               </div>
             )}
           </div>
@@ -287,9 +339,16 @@ export function WorkflowBuilder({ workflow, onSaved }: WorkflowBuilderProps): Re
                         value={rule.name}
                         onChange={(e) => updateRule(rule.id, { name: e.target.value })}
                       />
-                      <Badge variant="outline" className="text-[10px]">Priority: {rule.priority}</Badge>
+                      <Badge variant="outline" className="text-[10px]">
+                        Priority: {rule.priority}
+                      </Badge>
                     </div>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-rose-500" onClick={() => removeRule(rule.id)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-rose-500"
+                      onClick={() => removeRule(rule.id)}
+                    >
                       <Trash2 className="h-3.5 w-3.5" />
                     </Button>
                   </div>
@@ -297,7 +356,12 @@ export function WorkflowBuilder({ workflow, onSaved }: WorkflowBuilderProps): Re
                   <div className="mb-3 space-y-2">
                     <div className="flex items-center justify-between">
                       <Label className="text-xs text-muted-foreground">Conditions</Label>
-                      <Button size="sm" variant="ghost" className="h-6 gap-1 text-xs" onClick={() => addCondition(rule.id)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 gap-1 text-xs"
+                        onClick={() => addCondition(rule.id)}
+                      >
                         <Plus className="h-3 w-3" /> Add Condition
                       </Button>
                     </div>
@@ -314,12 +378,18 @@ export function WorkflowBuilder({ workflow, onSaved }: WorkflowBuilderProps): Re
                         />
                         <Select
                           value={cond.operator}
-                          onValueChange={(v) => updateCondition(rule.id, ci, { operator: v as ConditionOperator })}
+                          onValueChange={(v) =>
+                            updateCondition(rule.id, ci, { operator: v as ConditionOperator })
+                          }
                         >
-                          <SelectTrigger className="h-7 w-28 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectTrigger className="h-7 w-28 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
                           <SelectContent>
                             {conditionOperators.map((op) => (
-                              <SelectItem key={op.value} value={op.value} className="text-xs">{op.label}</SelectItem>
+                              <SelectItem key={op.value} value={op.value} className="text-xs">
+                                {op.label}
+                              </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
@@ -329,7 +399,12 @@ export function WorkflowBuilder({ workflow, onSaved }: WorkflowBuilderProps): Re
                           value={String(cond.value ?? "")}
                           onChange={(e) => updateCondition(rule.id, ci, { value: e.target.value })}
                         />
-                        <Button variant="ghost" size="icon" className="h-6 w-6 text-rose-500" onClick={() => removeCondition(rule.id, ci)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-rose-500"
+                          onClick={() => removeCondition(rule.id, ci)}
+                        >
                           <X className="h-3 w-3" />
                         </Button>
                       </div>
@@ -339,21 +414,35 @@ export function WorkflowBuilder({ workflow, onSaved }: WorkflowBuilderProps): Re
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Label className="text-xs text-muted-foreground">Actions</Label>
-                      <Button size="sm" variant="ghost" className="h-6 gap-1 text-xs" onClick={() => addAction(rule.id)}>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 gap-1 text-xs"
+                        onClick={() => addAction(rule.id)}
+                      >
                         <Plus className="h-3 w-3" /> Add Action
                       </Button>
                     </div>
                     {rule.actions.map((action, ai) => (
-                      <div key={action.id} className="flex items-center gap-2 rounded-lg bg-muted/50 p-2">
+                      <div
+                        key={action.id}
+                        className="flex items-center gap-2 rounded-lg bg-muted/50 p-2"
+                      >
                         <ArrowDown className="h-3 w-3 text-muted-foreground" />
                         <Select
                           value={action.type}
-                          onValueChange={(v) => updateAction(rule.id, ai, { type: v as ActionType })}
+                          onValueChange={(v) =>
+                            updateAction(rule.id, ai, { type: v as ActionType })
+                          }
                         >
-                          <SelectTrigger className="h-7 w-44 text-xs"><SelectValue /></SelectTrigger>
+                          <SelectTrigger className="h-7 w-44 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
                           <SelectContent>
                             {actionOptions.map((opt) => (
-                              <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>
+                              <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                                {opt.label}
+                              </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
@@ -363,7 +452,12 @@ export function WorkflowBuilder({ workflow, onSaved }: WorkflowBuilderProps): Re
                           value={action.label}
                           onChange={(e) => updateAction(rule.id, ai, { label: e.target.value })}
                         />
-                        <Button variant="ghost" size="icon" className="h-6 w-6 text-rose-500" onClick={() => removeAction(rule.id, ai)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-rose-500"
+                          onClick={() => removeAction(rule.id, ai)}
+                        >
                           <X className="h-3 w-3" />
                         </Button>
                       </div>

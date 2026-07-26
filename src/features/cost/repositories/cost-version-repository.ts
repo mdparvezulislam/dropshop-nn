@@ -97,10 +97,9 @@ export class CostVersionRepository extends BaseRepository<CostVersionDocument, C
 
   async unsetCurrentVersion(productId: string): Promise<void> {
     try {
-      await this.model.updateMany(
-        { productId, isCurrentVersion: true },
-        { $set: { isCurrentVersion: false } },
-      ).exec();
+      await this.model
+        .updateMany({ productId, isCurrentVersion: true }, { $set: { isCurrentVersion: false } })
+        .exec();
     } catch (error) {
       logger.error("CostVersionRepository unsetCurrentVersion failed", error, { productId });
       throw new DatabaseError("Database update error", error);

@@ -76,9 +76,7 @@ export function registerNotificationModule(): void {
         eventType,
         priority: 40,
         handle: async (event) => {
-          const { NotificationPublisher } = await import(
-            "./services/notification-publisher"
-          );
+          const { NotificationPublisher } = await import("./services/notification-publisher");
           await new NotificationPublisher().handleBusinessEvent(event);
         },
       });

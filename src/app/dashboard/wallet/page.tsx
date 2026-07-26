@@ -46,7 +46,9 @@ export default function ResellerWalletPage() {
 
   // Form states
   const [withdrawAmount, setWithdrawAmount] = React.useState("");
-  const [payoutMethod, setPayoutMethod] = React.useState<"bkash" | "nagad" | "rocket" | "upay" | "bank">("bkash");
+  const [payoutMethod, setPayoutMethod] = React.useState<
+    "bkash" | "nagad" | "rocket" | "upay" | "bank"
+  >("bkash");
   const [accountNumber, setAccountNumber] = React.useState("");
   const [accountName, setAccountName] = React.useState("");
   const [bankName, setBankName] = React.useState("");
@@ -172,7 +174,9 @@ export default function ResellerWalletPage() {
     <div className="min-h-screen bg-slate-950 p-4 sm:p-6 text-white space-y-6">
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Merchant E-Wallet</h1>
-        <p className="text-sm text-slate-400">Track order earnings, profit payouts clearances, and withdrawals</p>
+        <p className="text-sm text-slate-400">
+          Track order earnings, profit payouts clearances, and withdrawals
+        </p>
       </div>
 
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
@@ -183,8 +187,12 @@ export default function ResellerWalletPage() {
             </span>
           </CardHeader>
           <CardContent className="p-4 pt-0">
-            <div className="text-2xl font-bold text-emerald-400">{formatCurrency(balances.withdrawableBalance)}</div>
-            <p className="text-[10px] text-slate-500 mt-1">Available: {formatCurrency(balances.availableBalance)}</p>
+            <div className="text-2xl font-bold text-emerald-400">
+              {formatCurrency(balances.withdrawableBalance)}
+            </div>
+            <p className="text-[10px] text-slate-500 mt-1">
+              Available: {formatCurrency(balances.availableBalance)}
+            </p>
           </CardContent>
         </Card>
 
@@ -195,7 +203,9 @@ export default function ResellerWalletPage() {
             </span>
           </CardHeader>
           <CardContent className="p-4 pt-0">
-            <div className="text-2xl font-bold text-amber-400">{formatCurrency(balances.lockedBalance)}</div>
+            <div className="text-2xl font-bold text-amber-400">
+              {formatCurrency(balances.lockedBalance)}
+            </div>
           </CardContent>
         </Card>
 
@@ -206,7 +216,9 @@ export default function ResellerWalletPage() {
             </span>
           </CardHeader>
           <CardContent className="p-4 pt-0">
-            <div className="text-2xl font-bold text-indigo-400">{formatCurrency(balances.pendingBalance)}</div>
+            <div className="text-2xl font-bold text-indigo-400">
+              {formatCurrency(balances.pendingBalance)}
+            </div>
           </CardContent>
         </Card>
 
@@ -217,7 +229,9 @@ export default function ResellerWalletPage() {
             </span>
           </CardHeader>
           <CardContent className="p-4 pt-0">
-            <div className="text-2xl font-bold text-indigo-400">{formatCurrency(balances.lifetimeEarnings)}</div>
+            <div className="text-2xl font-bold text-indigo-400">
+              {formatCurrency(balances.lifetimeEarnings)}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -229,7 +243,9 @@ export default function ResellerWalletPage() {
               <button
                 onClick={() => setActiveTab("ledger")}
                 className={`flex items-center gap-2 px-4 h-9 rounded-md text-xs font-medium transition-colors ${
-                  activeTab === "ledger" ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white"
+                  activeTab === "ledger"
+                    ? "bg-indigo-600 text-white"
+                    : "text-slate-400 hover:text-white"
                 }`}
               >
                 Ledger Statements
@@ -237,7 +253,9 @@ export default function ResellerWalletPage() {
               <button
                 onClick={() => setActiveTab("withdrawals")}
                 className={`flex items-center gap-2 px-4 h-9 rounded-md text-xs font-medium transition-colors ${
-                  activeTab === "withdrawals" ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white"
+                  activeTab === "withdrawals"
+                    ? "bg-indigo-600 text-white"
+                    : "text-slate-400 hover:text-white"
                 }`}
               >
                 Withdrawals History
@@ -245,7 +263,9 @@ export default function ResellerWalletPage() {
               <button
                 onClick={() => setActiveTab("invoices")}
                 className={`flex items-center gap-2 px-4 h-9 rounded-md text-xs font-medium transition-colors ${
-                  activeTab === "invoices" ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white"
+                  activeTab === "invoices"
+                    ? "bg-indigo-600 text-white"
+                    : "text-slate-400 hover:text-white"
                 }`}
               >
                 Generated Invoices
@@ -277,13 +297,20 @@ export default function ResellerWalletPage() {
                     ) : (
                       ledger.map((l) => (
                         <TableRow key={l.id} className="border-slate-800">
-                          <TableCell className="text-xs text-slate-400">{new Date(l.createdAt).toLocaleString()}</TableCell>
-                          <TableCell className="font-mono text-xs text-indigo-300">{l.referenceNumber || l.id.slice(-8)}</TableCell>
-                          <TableCell className="font-mono text-xs capitalize text-indigo-400">{l.type.replace("_", " ")}</TableCell>
+                          <TableCell className="text-xs text-slate-400">
+                            {new Date(l.createdAt).toLocaleString()}
+                          </TableCell>
+                          <TableCell className="font-mono text-xs text-indigo-300">
+                            {l.referenceNumber || l.id.slice(-8)}
+                          </TableCell>
+                          <TableCell className="font-mono text-xs capitalize text-indigo-400">
+                            {l.type.replace("_", " ")}
+                          </TableCell>
                           <TableCell
                             className={`font-semibold ${l.amount >= 0 ? "text-emerald-400" : "text-rose-400"}`}
                           >
-                            {l.amount >= 0 ? "+" : ""}{formatCurrency(l.amount)}
+                            {l.amount >= 0 ? "+" : ""}
+                            {formatCurrency(l.amount)}
                           </TableCell>
                           <TableCell>
                             <Badge variant={getStatusVariant(l.status)}>{l.status}</Badge>
@@ -320,14 +347,20 @@ export default function ResellerWalletPage() {
                     ) : (
                       withdrawals.map((w) => (
                         <TableRow key={w.id} className="border-slate-800">
-                          <TableCell className="text-xs text-slate-400">{new Date(w.createdAt).toLocaleDateString()}</TableCell>
-                          <TableCell className="font-mono text-xs text-indigo-300">{w.referenceNumber || w.id.slice(-8)}</TableCell>
+                          <TableCell className="text-xs text-slate-400">
+                            {new Date(w.createdAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell className="font-mono text-xs text-indigo-300">
+                            {w.referenceNumber || w.id.slice(-8)}
+                          </TableCell>
                           <TableCell className="capitalize text-slate-200">{w.method}</TableCell>
                           <TableCell className="text-xs text-slate-300">
                             {w.payoutDetails?.accountNumber}
                             {w.payoutDetails?.bankName && ` (${w.payoutDetails.bankName})`}
                           </TableCell>
-                          <TableCell className="font-semibold text-white">{formatCurrency(w.amount)}</TableCell>
+                          <TableCell className="font-semibold text-white">
+                            {formatCurrency(w.amount)}
+                          </TableCell>
                           <TableCell className="text-right">
                             <Badge variant={getStatusVariant(w.status)}>{w.status}</Badge>
                           </TableCell>
@@ -359,13 +392,19 @@ export default function ResellerWalletPage() {
                     ) : (
                       invoices.map((i) => (
                         <TableRow key={i.id} className="border-slate-800">
-                          <TableCell className="font-semibold text-indigo-300 text-xs">{i.invoiceNumber}</TableCell>
+                          <TableCell className="font-semibold text-indigo-300 text-xs">
+                            {i.invoiceNumber}
+                          </TableCell>
                           <TableCell className="text-xs text-slate-300">{i.orderNumber}</TableCell>
-                          <TableCell className="font-semibold text-white">{formatCurrency(i.grandTotal)}</TableCell>
+                          <TableCell className="font-semibold text-white">
+                            {formatCurrency(i.grandTotal)}
+                          </TableCell>
                           <TableCell>
                             <Badge variant={getStatusVariant(i.status)}>{i.status}</Badge>
                           </TableCell>
-                          <TableCell className="text-right text-xs text-slate-500">{new Date(i.createdAt).toLocaleDateString()}</TableCell>
+                          <TableCell className="text-right text-xs text-slate-500">
+                            {new Date(i.createdAt).toLocaleDateString()}
+                          </TableCell>
                         </TableRow>
                       ))
                     )}
@@ -386,7 +425,9 @@ export default function ResellerWalletPage() {
             <CardContent>
               <form onSubmit={handleRequestWithdrawal} className="space-y-4">
                 <div className="space-y-1">
-                  <label className="text-[10px] uppercase text-slate-400">Withdraw Amount (BDT)</label>
+                  <label className="text-[10px] uppercase text-slate-400">
+                    Withdraw Amount (BDT)
+                  </label>
                   <Input
                     type="number"
                     step="0.01"
@@ -479,7 +520,11 @@ export default function ResellerWalletPage() {
                   </div>
                 )}
 
-                <Button type="submit" disabled={submitting} className="w-full text-xs font-semibold bg-indigo-600 hover:bg-indigo-500">
+                <Button
+                  type="submit"
+                  disabled={submitting}
+                  className="w-full text-xs font-semibold bg-indigo-600 hover:bg-indigo-500"
+                >
                   {submitting ? "Submitting Payout..." : "Request Payout"}
                 </Button>
               </form>

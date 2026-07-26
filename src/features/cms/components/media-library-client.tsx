@@ -119,7 +119,12 @@ export function MediaLibraryClient({
             <Card key={item.id} className="overflow-hidden">
               <div className="relative aspect-square bg-muted">
                 {item.type === "image" ? (
-                  <Image src={item.url} alt={item.altText || item.name} fill className="object-cover" />
+                  <Image
+                    src={item.url}
+                    alt={item.altText || item.name}
+                    fill
+                    className="object-cover"
+                  />
                 ) : (
                   <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
                     {item.type}
@@ -183,7 +188,11 @@ export function MediaLibraryClient({
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="media-folder">Folder</Label>
-                <Input id="media-folder" value={folder} onChange={(e) => setFolder(e.target.value)} />
+                <Input
+                  id="media-folder"
+                  value={folder}
+                  onChange={(e) => setFolder(e.target.value)}
+                />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="media-type">Type</Label>

@@ -1,6 +1,11 @@
 import { BaseRepository } from "@/lib/database/generic-repository";
 import { LedgerEntryModel } from "./ledger-model";
-import type { LedgerEntry, LedgerEntryType, LedgerEntryStatus, SourceModule } from "../domain/ledger-entity";
+import type {
+  LedgerEntry,
+  LedgerEntryType,
+  LedgerEntryStatus,
+  SourceModule,
+} from "../domain/ledger-entity";
 import type { BaseDocument } from "@/lib/database/types";
 
 interface LedgerEntryDocument extends BaseDocument {
@@ -23,7 +28,8 @@ interface LedgerEntryDocument extends BaseDocument {
 function mapToDomain(doc: any): LedgerEntry {
   return {
     id: doc.id ?? doc._id?.toString(),
-    referenceNumber: doc.referenceNumber ?? `REF-LED-${doc._id?.toString().slice(-6).toUpperCase()}`,
+    referenceNumber:
+      doc.referenceNumber ?? `REF-LED-${doc._id?.toString().slice(-6).toUpperCase()}`,
     walletId: doc.walletId?.toString ? doc.walletId.toString() : doc.walletId,
     workspaceId: doc.workspaceId,
     amount: doc.amount,
@@ -80,12 +86,23 @@ export class LedgerRepository extends BaseRepository<LedgerEntryDocument, Ledger
     });
   }
 
-  async existsDuplicateEntry(walletId: string, type: string, referenceId: string): Promise<boolean> {
-    const existing = await this.findOne({ walletId, type, referenceId, status: { $ne: "cancelled" } });
+  async existsDuplicateEntry(
+    walletId: string,
+    type: string,
+    referenceId: string,
+  ): Promise<boolean> {
+    const existing = await this.findOne({
+      walletId,
+      type,
+      referenceId,
+      status: { $ne: "cancelled" },
+    });
     return !!existing;
   }
 
-  async searchAndFilter(filter: LedgerQueryFilter): Promise<{ items: LedgerEntry[]; total: number }> {
+  async searchAndFilter(
+    filter: LedgerQueryFilter,
+  ): Promise<{ items: LedgerEntry[]; total: number }> {
     const query: Record<string, unknown> = {};
 
     if (filter.walletId) query.walletId = filter.walletId;

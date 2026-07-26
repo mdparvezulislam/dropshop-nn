@@ -8,10 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getPendingApprovalsAction } from "../actions/business-profile-actions";
-import {
-  approveBusinessAction,
-  rejectBusinessAction,
-} from "../actions/verification-actions";
+import { approveBusinessAction, rejectBusinessAction } from "../actions/verification-actions";
 
 interface PendingProfile {
   id: string;
@@ -82,7 +79,11 @@ export function ApprovalsQueue(): React.ReactElement {
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={load} disabled={loading} className="gap-1.5">
-          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+          {loading ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <RefreshCw className="h-3.5 w-3.5" />
+          )}
           Refresh
         </Button>
       </div>

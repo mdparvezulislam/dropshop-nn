@@ -11,6 +11,7 @@
 PUBLIC-WEBSITE-001 establishes a world-class enterprise storefront foundation for DropshopNN serving retail customers, resellers, wholesale buyers, and business owners across Bangladesh.
 
 ### Design Language
+
 - **Visual Identity**: Modern, Enterprise, Premium, Minimal
 - **Inspiration**: Stripe, Apple, Linear, Shopify, Vercel
 - **Color System**: Soft Business Red (#EF4444) primary, Deep Neutral secondary, Warm White backgrounds
@@ -48,6 +49,7 @@ src/components/website/sections/
 ### Enterprise Sections (NEW)
 
 #### Hero Section Enterprise (`hero-section-enterprise.tsx`)
+
 - **Features**: Multi-slide carousel with 3 hero messages
 - **Auto-rotation**: 5-second intervals with manual controls
 - **Split Layout**: 50/50 desktop, stacked mobile
@@ -56,24 +58,28 @@ src/components/website/sections/
 - **Responsive**: Desktop 600px min-height, full viewport mobile
 
 #### Trust Section (`trust-section.tsx`)
+
 - **5 Trust Indicators**: Verified Supplier, Business Ready, Fast Delivery, Secure Payment, Quality Assured
 - **Icons**: Shield, Zap, Clock, Truck, Award from Lucide
 - **Grid**: 1 col mobile, 2 cols tablet, 5 cols desktop
 - **Hover Effects**: Border accent, shadow elevation, icon tint
 
 #### Why Choose Us Section (`why-choose-us-section.tsx`)
+
 - **6 Feature Cards**: Smart Pricing, Inventory Automation, Bangladesh Commerce, Supplier Portal, Reseller Network, Analytics
 - **Grid**: 1 col mobile, 2 cols tablet, 3 cols desktop
 - **Hover Effects**: Gradient overlay, elevation, border accent
 - **Icons**: Emoji-based (🚀📦🌍💼👥📊)
 
 #### Business Journey Section (`business-journey-section.tsx`)
+
 - **4-Step Workflow**: Supplier → DropshopNN → Reseller → Customer
 - **Visual Flow**: Numbered badges (1-4) with connecting lines
 - **Grid**: 1 col mobile, 2x2 tablet, 4 cols desktop
 - **Colors**: Primary badges, muted text, subtle dividers
 
 #### Testimonials Section (`testimonials-section.tsx`)
+
 - **3 Testimonials**: Supplier, Reseller, Wholesale Buyer
 - **Display**: 3-column grid desktop, 1 col mobile
 - **Rating**: 5-star display with filled/unfilled stars
@@ -81,24 +87,28 @@ src/components/website/sections/
 - **Hover**: Gradient overlay, shadow elevation
 
 #### FAQ Section (`faq-section.tsx`)
+
 - **6 FAQs**: General, Business, Technical categories
 - **Filter Tabs**: Category switcher (General, Business, Technical)
 - **Accordion**: Expandable/collapsible with Framer Motion
 - **Icons**: ChevronDown rotation animation
 
 #### Brand Slider Section (`brand-slider-section.tsx`)
+
 - **6 Featured Brands**: Apple, Samsung, Sony, LG, Dell, HP
 - **Grayscale Hover**: Color on hover, grayscale by default
 - **Grid**: 2 cols mobile, 3 cols tablet, 6 cols desktop
 - **Links**: `/brand/[slug]` routing
 
 #### Newsletter Section (`newsletter-section.tsx`)
+
 - **Input + CTA**: Email subscription form with validation
 - **Loading State**: Disabled state during submission
 - **Toast Notifications**: Success/error messages via Sonner
 - **Privacy Note**: "We'll never share your email"
 
 #### Footer CTA Section (`footer-cta-section.tsx`)
+
 - **Split Layout**: Headline + CTAs left, Stats grid right
 - **4 Statistics**: Active Sellers, Products Listed, Daily Orders, Countries
 - **CTAs**: "Start as Reseller" primary, "Browse Products" secondary
@@ -125,12 +135,12 @@ src/components/website/sections/
 ```css
 [data-layout="public"] {
   /* Colors */
-  --primary: 0 84% 60%;           /* #EF4444 Soft Red */
-  --background: 0 0% 98%;         /* #FAFAFA Soft White */
-  --card: 0 0% 100%;              /* #FFFFFF Pure White */
-  --muted: 0 0% 96%;              /* Light Gray */
-  --border: 0 0% 91%;             /* Soft Gray */
-  
+  --primary: 0 84% 60%; /* #EF4444 Soft Red */
+  --background: 0 0% 98%; /* #FAFAFA Soft White */
+  --card: 0 0% 100%; /* #FFFFFF Pure White */
+  --muted: 0 0% 96%; /* Light Gray */
+  --border: 0 0% 91%; /* Soft Gray */
+
   /* Shadows */
   --shadow-xs: 0 1px 2px hsl(0 0% 0% / 0.03);
   --shadow-md: 0 4px 12px hsl(0 0% 0% / 0.05);
@@ -139,12 +149,14 @@ src/components/website/sections/
 ```
 
 ### Grid Background Pattern
+
 - Subtle repeating grid overlay (16px × 16px)
 - Very light gray lines (15% opacity)
 - Fixed background attachment for depth effect
 - Disabled on dark mode
 
 ### Dark Mode Support
+
 - Primary brightened to `0 84% 65%` for contrast
 - Background darkened to `224 28% 6%`
 - Shadow intensity increased
@@ -174,20 +186,22 @@ searchProductsAction(query, pagination, filters) → SearchResults
 ```
 
 ### Role-Based Pricing Resolution
+
 - Admin: All pricing tiers visible
 - Reseller: Reseller pricing (margin-based)
 - Wholesaler: Wholesale tier pricing + MOQ
 - Customer: Retail pricing (default)
 
 ### Analytics Integration
+
 ```typescript
 AnalyticsPublisher.track({
   eventName: "product.viewed" | "search.performed" | "category.browsed",
   module: "public",
   source: "homepage" | "search" | "category",
   entityId: productId,
-  metadata: { role, campaignId }
-})
+  metadata: { role, campaignId },
+});
 ```
 
 ---
@@ -195,9 +209,11 @@ AnalyticsPublisher.track({
 ## 5. Homepage Integration
 
 ### Page Route
+
 `/` (website root) → `src/app/(website)/page.tsx`
 
 ### Section Sequence (Top to Bottom)
+
 1. **HeroSection** - Multi-slide campaign hero
 2. **TrustSection** - 5 trust indicators
 3. **CategoryShowcase** - Featured categories (8+ cards)
@@ -226,8 +242,8 @@ export const metadata = {
     title: "DropshopNN - Enterprise Commerce OS",
     description: "Source, sell, and scale across Bangladesh...",
     type: "website",
-    locale: "en_BD"
-  }
+    locale: "en_BD",
+  },
 };
 ```
 
@@ -238,6 +254,7 @@ export const metadata = {
 ### Framer Motion Patterns
 
 **Scroll-triggered reveal** (all sections)
+
 ```typescript
 whileInView={{ opacity: 1, y: 0 }}
 viewport={{ once: true, margin: "-100px" }}
@@ -245,21 +262,24 @@ transition={{ duration: 0.4 }}
 ```
 
 **Staggered children** (grids)
+
 ```typescript
 containerVariants = {
   visible: {
-    transition: { staggerChildren: 0.1, delayChildren: 0.1 }
-  }
-}
+    transition: { staggerChildren: 0.1, delayChildren: 0.1 },
+  },
+};
 ```
 
 **Hover elevation** (cards)
+
 ```typescript
 whileHover={{ y: -3 }}
 className="hover:shadow-lg transition-all"
 ```
 
 **Auto-rotation slider** (hero)
+
 - 5-second interval with useEffect
 - Manual controls via chevron buttons
 - Dot indicators for slide navigation
@@ -269,12 +289,14 @@ className="hover:shadow-lg transition-all"
 ## 7. Responsive Design
 
 ### Breakpoints
+
 - **Mobile**: < 640px (single column, stacked)
 - **Tablet**: 640px - 1024px (2-3 columns)
 - **Desktop**: > 1024px (3-6 columns, full features)
 - **Large**: > 1280px (max-width: 92rem container)
 
 ### Mobile Optimizations
+
 - Single column grids
 - Larger touch targets (min 44px)
 - Stacked forms (full width inputs)
@@ -303,23 +325,27 @@ className="hover:shadow-lg transition-all"
 ## 9. Performance Optimizations
 
 ### Build Metrics
+
 - ✅ TypeScript: 0 errors
 - ✅ Production build: Passes
 - ✅ Code splitting: Automatic via Next.js
 - ✅ Image optimization: ImageKit integration
 
 ### Client vs Server Components
+
 - **Server Components** (default): Sections, data fetching
 - **Client Components**: Hero (carousel), Newsletter (form), FAQ (accordion), Hero Section (slider)
 - **Streaming**: Suspense boundaries for parallel data loading
 
 ### Image Optimization
+
 - ImageKit URL integration ready
 - Responsive images via `next/image`
 - Lazy loading with blur placeholders
 - WebP format support
 
 ### Caching Strategy
+
 - **Catalog data**: 5-min ISR (incremental static regeneration)
 - **Brand/category data**: 1-hour cache
 - **Blog posts**: 30-min cache
@@ -366,11 +392,13 @@ className="hover:shadow-lg transition-all"
 ### ✅ All Architectural Rules Followed
 
 **Feature-First DDD**
+
 - Public feature in `/src/features/public/`
 - Separated concerns (components, styles, types)
 - No business logic in UI components
 
 **Engines Reused**
+
 - ✅ Catalog Engine (products, categories, brands)
 - ✅ Pricing Engine (role-based pricing)
 - ✅ Inventory Engine (stock levels)
@@ -380,17 +408,20 @@ className="hover:shadow-lg transition-all"
 - ✅ Notification Engine (newsletter ready)
 
 **No Duplicate Business Logic**
+
 - ✅ All data flows through existing services
 - ✅ No duplicate repositories created
 - ✅ No duplicate server actions
 - ✅ Reused UI component library
 
 **Repository Pattern**
+
 - All data access through `BaseRepository`
 - Services coordinate through repositories
 - Server actions validate and delegate
 
 **Design System (DS-001)**
+
 - ✅ Primary: Warm Amber (#F59E0B) for admin workspace
 - ✅ Public Theme Override: Soft Red (#EF4444) for storefront
 - ✅ Consistent typography, spacing, shadows
@@ -401,18 +432,18 @@ className="hover:shadow-lg transition-all"
 
 ## 12. New Components Created
 
-| Component | Type | Purpose |
-|-----------|------|---------|
-| trust-section.tsx | Server | Trust indicators |
-| why-choose-us-section.tsx | Server | Platform benefits |
-| business-journey-section.tsx | Server | Workflow visualization |
-| testimonials-section.tsx | Server | Customer success |
-| faq-section.tsx | Client | FAQ accordion |
-| brand-slider-section.tsx | Server | Brand showcase |
-| newsletter-section.tsx | Client | Email signup |
-| footer-cta-section.tsx | Server | CTA + stats |
-| hero-section-enterprise.tsx | Client | Multi-slide hero |
-| public-theme.css | Stylesheet | Public color system |
+| Component                    | Type       | Purpose                |
+| ---------------------------- | ---------- | ---------------------- |
+| trust-section.tsx            | Server     | Trust indicators       |
+| why-choose-us-section.tsx    | Server     | Platform benefits      |
+| business-journey-section.tsx | Server     | Workflow visualization |
+| testimonials-section.tsx     | Server     | Customer success       |
+| faq-section.tsx              | Client     | FAQ accordion          |
+| brand-slider-section.tsx     | Server     | Brand showcase         |
+| newsletter-section.tsx       | Client     | Email signup           |
+| footer-cta-section.tsx       | Server     | CTA + stats            |
+| hero-section-enterprise.tsx  | Client     | Multi-slide hero       |
+| public-theme.css             | Stylesheet | Public color system    |
 
 ---
 
@@ -421,12 +452,14 @@ className="hover:shadow-lg transition-all"
 ### ✅ Verification Checklist
 
 **Build & Compilation**
+
 - ✅ TypeScript: 0 type errors
 - ✅ ESLint: All files valid
 - ✅ Next.js Build: Passes
 - ✅ Production Bundle: Optimized
 
 **Functionality**
+
 - ✅ Homepage renders
 - ✅ All sections integrated
 - ✅ Data fetching works
@@ -434,6 +467,7 @@ className="hover:shadow-lg transition-all"
 - ✅ Forms validate
 
 **Design & UX**
+
 - ✅ Responsive: Mobile, Tablet, Desktop
 - ✅ Color system: Public theme applied
 - ✅ Typography: Professional bilingual
@@ -441,6 +475,7 @@ className="hover:shadow-lg transition-all"
 - ✅ Accessibility: WCAG 2.1 AA ready
 
 **Performance**
+
 - ✅ Lazy loading enabled
 - ✅ Image optimization ready
 - ✅ Code splitting active
@@ -448,6 +483,7 @@ className="hover:shadow-lg transition-all"
 - ✅ Streaming ready
 
 **SEO & Metadata**
+
 - ✅ Meta tags configured
 - ✅ OpenGraph ready
 - ✅ Canonical URLs ready
@@ -491,6 +527,7 @@ className="hover:shadow-lg transition-all"
 ## 16. File Summary
 
 ### New Files Created
+
 ```
 src/features/public/styles/public-theme.css (148 lines)
 src/components/website/sections/trust-section.tsx (76 lines)
@@ -505,6 +542,7 @@ src/components/website/sections/hero-section-enterprise.tsx (190 lines)
 ```
 
 ### Modified Files
+
 ```
 src/app/globals.css - Added public-theme.css import
 src/app/(website)/page.tsx - Updated homepage with new sections
@@ -515,11 +553,13 @@ src/app/(website)/page.tsx - Updated homepage with new sections
 ## 17. Success Metrics
 
 **Traffic & Engagement**
+
 - Target: 10,000+ homepage visits/month
 - Conversion: 2-5% to product pages
 - Newsletter signup: 1,000+ subscribers
 
 **Performance**
+
 - Lighthouse Score: > 90 (all categories)
 - Core Web Vitals: Green across all metrics
 - Load time: < 2.5s (3G throttle)
@@ -528,6 +568,7 @@ src/app/(website)/page.tsx - Updated homepage with new sections
 - CLS: < 0.1
 
 **User Experience**
+
 - Mobile usability: 100%
 - Accessibility: WCAG 2.1 AA compliant
 - Error rate: < 0.1%
@@ -538,12 +579,14 @@ src/app/(website)/page.tsx - Updated homepage with new sections
 ## 18. Support & Maintenance
 
 ### Regular Updates
+
 - Weekly: Analytics review
 - Bi-weekly: Performance audit
 - Monthly: Content updates
 - Quarterly: Design refresh
 
 ### Monitoring
+
 - Error tracking: Sentry
 - Performance: New Relic / Datadog
 - Analytics: Google Analytics 4

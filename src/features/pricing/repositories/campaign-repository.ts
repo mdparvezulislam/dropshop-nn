@@ -1,14 +1,19 @@
 import { BaseRepository } from "@/lib/database/generic-repository";
 import {
-  CampaignPricingModel, CampaignPricingDocument,
-  ScheduledPricingModel, ScheduledPricingDocument,
+  CampaignPricingModel,
+  CampaignPricingDocument,
+  ScheduledPricingModel,
+  ScheduledPricingDocument,
 } from "./campaign-model";
 import { CampaignPricing } from "../domain/campaign-entity";
 import { ScheduledPricing } from "../domain/campaign-entity";
 import { logger } from "@/lib/utils/logger";
 import { DatabaseError } from "@/lib/errors/app-error";
 
-export class CampaignPricingRepository extends BaseRepository<CampaignPricingDocument, CampaignPricing> {
+export class CampaignPricingRepository extends BaseRepository<
+  CampaignPricingDocument,
+  CampaignPricing
+> {
   constructor() {
     super(CampaignPricingModel, CampaignPricingRepository.mapToDomain);
   }
@@ -68,7 +73,10 @@ export class CampaignPricingRepository extends BaseRepository<CampaignPricingDoc
   }
 }
 
-export class ScheduledPricingRepository extends BaseRepository<ScheduledPricingDocument, ScheduledPricing> {
+export class ScheduledPricingRepository extends BaseRepository<
+  ScheduledPricingDocument,
+  ScheduledPricing
+> {
   constructor() {
     super(ScheduledPricingModel, ScheduledPricingRepository.mapToDomain);
   }

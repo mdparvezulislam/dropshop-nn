@@ -14,7 +14,10 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ success: true, data });
   } catch (err) {
     return NextResponse.json(
-      { success: false, error: err instanceof Error ? err.message : "Failed to load live dashboard" },
+      {
+        success: false,
+        error: err instanceof Error ? err.message : "Failed to load live dashboard",
+      },
       { status: 500 },
     );
   }

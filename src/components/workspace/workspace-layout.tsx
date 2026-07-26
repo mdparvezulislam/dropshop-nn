@@ -74,7 +74,15 @@ function WorkspaceShellInner({
       searchPlaceholder: resolvedSearch,
       showQuickAction: resolvedQuick,
     });
-  }, [config, resolvedNav, resolvedLabel, resolvedHome, resolvedCrumbs, resolvedSearch, resolvedQuick]);
+  }, [
+    config,
+    resolvedNav,
+    resolvedLabel,
+    resolvedHome,
+    resolvedCrumbs,
+    resolvedSearch,
+    resolvedQuick,
+  ]);
 
   React.useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
@@ -95,8 +103,7 @@ function WorkspaceShellInner({
   }, [collapsed]);
 
   const sessionUser = session?.user as
-    | { name?: string | null; email?: string | null; role?: string }
-    | undefined;
+    { name?: string | null; email?: string | null; role?: string } | undefined;
   const displayName = sessionUser?.name || resolvedLabel;
   const displayEmail = sessionUser?.email || "";
   const avatarFallback = (displayName || "U")
@@ -107,9 +114,7 @@ function WorkspaceShellInner({
     .toUpperCase();
 
   const settingsHref =
-    resolvedHome === "/dashboard"
-      ? "/account"
-      : `${resolvedHome.replace(/\/$/, "")}/settings`;
+    resolvedHome === "/dashboard" ? "/account" : `${resolvedHome.replace(/\/$/, "")}/settings`;
 
   const defaultMenu: TopbarUserMenuItem[] = [
     { label: "Account", href: "/account" },

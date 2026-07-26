@@ -11,18 +11,13 @@ import {
   Image,
   PlusCircle,
 } from "lucide-react";
-import {
-  getWorkspaceBreadcrumbs,
-  type NavSection,
-} from "@/components/workspace/nav-config";
+import { getWorkspaceBreadcrumbs, type NavSection } from "@/components/workspace/nav-config";
 
 export const RESELLER_NAV: NavSection[] = [
   {
     id: "overview",
     label: "Overview",
-    items: [
-      { label: "Dashboard", href: "/reseller", icon: LayoutDashboard },
-    ],
+    items: [{ label: "Dashboard", href: "/reseller", icon: LayoutDashboard }],
   },
   {
     id: "catalog",
@@ -59,9 +54,7 @@ export const RESELLER_NAV: NavSection[] = [
   {
     id: "customers",
     label: "Customers",
-    items: [
-      { label: "My Customers", href: "/reseller/customers", icon: Users },
-    ],
+    items: [{ label: "My Customers", href: "/reseller/customers", icon: Users }],
   },
   {
     id: "finance",
@@ -74,16 +67,12 @@ export const RESELLER_NAV: NavSection[] = [
   {
     id: "insights",
     label: "Insights",
-    items: [
-        { label: "Reports", href: "/reseller/reports", icon: BarChart3 },
-    ],
+    items: [{ label: "Reports", href: "/reseller/reports", icon: BarChart3 }],
   },
   {
     id: "system",
     label: "System",
-    items: [
-      { label: "Shop Settings", href: "/reseller/settings", icon: Settings },
-    ],
+    items: [{ label: "Shop Settings", href: "/reseller/settings", icon: Settings }],
   },
 ];
 

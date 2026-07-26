@@ -21,7 +21,7 @@ export function WholesaleQuotationSection({
 
   const tier1Price = wholesalePrice;
   const tier2Price = Math.round(wholesalePrice * 0.95);
-  const tier3Price = Math.round(wholesalePrice * 0.90);
+  const tier3Price = Math.round(wholesalePrice * 0.9);
 
   const handleRequestQuotation = () => {
     setRequested(true);
@@ -43,7 +43,9 @@ export function WholesaleQuotationSection({
                 MOQ: {moq} Units
               </span>
             </h3>
-            <p className="text-[11px] text-slate-400">Direct factory bulk prices for registered B2B buyers</p>
+            <p className="text-[11px] text-slate-400">
+              Direct factory bulk prices for registered B2B buyers
+            </p>
           </div>
         </div>
       </div>
@@ -51,7 +53,9 @@ export function WholesaleQuotationSection({
       {/* Tiered Bulk Price Table */}
       <div className="grid grid-cols-3 gap-3 text-center text-xs">
         <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
-          <span className="text-[10px] font-bold text-slate-400 uppercase block">{moq}-49 Units</span>
+          <span className="text-[10px] font-bold text-slate-400 uppercase block">
+            {moq}-49 Units
+          </span>
           <span className="text-base font-black text-emerald-400 mt-1 block">
             ৳{tier1Price.toLocaleString("en-BD")}
           </span>
@@ -73,7 +77,9 @@ export function WholesaleQuotationSection({
       {/* Request Quotation CTA */}
       <div className="flex items-center space-x-3 pt-2">
         <div className="w-32">
-          <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">পরিমাণ (Units)</label>
+          <label className="text-[10px] font-bold text-slate-400 uppercase block mb-1">
+            পরিমাণ (Units)
+          </label>
           <input
             type="number"
             min={moq}

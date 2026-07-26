@@ -115,12 +115,8 @@ export class StaffService {
       completedAt: { $ne: null },
     });
 
-    const pipeline = [
-      { $group: { _id: "$role", count: { $sum: 1 } } },
-    ];
-    const results = await (
-      this.staffRepository as any
-    ).model.aggregate(pipeline);
+    const pipeline = [{ $group: { _id: "$role", count: { $sum: 1 } } }];
+    const results = await (this.staffRepository as any).model.aggregate(pipeline);
     const byRole: Record<string, number> = {};
     for (const r of results) {
       byRole[r._id] = r.count;

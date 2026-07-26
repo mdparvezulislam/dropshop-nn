@@ -35,7 +35,11 @@ export class CODReconciliationService {
       } else if (s.status === "partial_delivered") {
         collectedCODCents += Math.floor(s.codAmount * 0.5); // Example partial COD collected split
         codDiscrepancyCents += Math.floor(s.codAmount * 0.5);
-      } else if (s.status === "in_transit" || s.status === "out_for_delivery" || s.status === "booked") {
+      } else if (
+        s.status === "in_transit" ||
+        s.status === "out_for_delivery" ||
+        s.status === "booked"
+      ) {
         pendingCODCents += s.codAmount;
       }
     }

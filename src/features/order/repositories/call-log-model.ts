@@ -14,8 +14,13 @@ const callLogSchema = new Schema(
     outcome: {
       type: String,
       enum: [
-        "reached", "not_reached", "busy", "switched_off",
-        "wrong_number", "call_back_later", "completed",
+        "reached",
+        "not_reached",
+        "busy",
+        "switched_off",
+        "wrong_number",
+        "call_back_later",
+        "completed",
       ],
       required: true,
     },

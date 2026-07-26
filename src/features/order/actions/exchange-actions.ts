@@ -3,10 +3,7 @@
 import { auth } from "@/lib/auth";
 import { checkPermission } from "@/lib/check-permission";
 import { ExchangeService } from "../services/exchange-service";
-import {
-  createExchangeSchema,
-  updateExchangeStatusSchema,
-} from "../types/validation";
+import { createExchangeSchema, updateExchangeStatusSchema } from "../types/validation";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/utils/logger";
 
@@ -39,7 +36,11 @@ export async function updateExchangeStatusAction(formData: unknown): Promise<{
   try {
     const validated = updateExchangeStatusSchema.parse(formData);
     const service = new ExchangeService();
-    const result = await service.transitionStatus(validated.exchangeId, validated.toStatus, validated);
+    const result = await service.transitionStatus(
+      validated.exchangeId,
+      validated.toStatus,
+      validated,
+    );
     revalidatePath("/dashboard/orders/exchange");
     return { success: true, data: result };
   } catch (error: any) {
@@ -62,7 +63,10 @@ export async function getExchangeAction(exchangeId: string): Promise<{
   }
 }
 
-export async function listExchangesAction(page: number = 1, limit: number = 20): Promise<{
+export async function listExchangesAction(
+  page: number = 1,
+  limit: number = 20,
+): Promise<{
   success: boolean;
   data?: Awaited<ReturnType<ExchangeService["listExchanges"]>>;
   error?: string;

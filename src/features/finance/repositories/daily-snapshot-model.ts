@@ -25,6 +25,5 @@ const dailySnapshotSchema = new Schema(
 dailySnapshotSchema.index({ snapshotDate: -1 });
 
 export const DailySnapshotModel =
-  mongoose.models.DailySnapshot ||
-  mongoose.model("DailySnapshot", dailySnapshotSchema);
+  mongoose.models.DailySnapshot || mongoose.model("DailySnapshot", dailySnapshotSchema);
 export default DailySnapshotModel;

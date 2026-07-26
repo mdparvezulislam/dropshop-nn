@@ -14,8 +14,7 @@ if (!cached) {
 }
 
 const isBuildTime =
-  process.env.NEXT_PHASE === "phase-production-build" ||
-  process.env.NEXT_PHASE === "phase-export";
+  process.env.NEXT_PHASE === "phase-production-build" || process.env.NEXT_PHASE === "phase-export";
 
 export class DatabaseConnectionManager {
   private static maxRetries = 5;
@@ -127,4 +126,3 @@ if (
   (process as any)["on"]("SIGTERM", () => shutdown("SIGTERM"));
   (global as any).databaseShutdownRegistered = true;
 }
-

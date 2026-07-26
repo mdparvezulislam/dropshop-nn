@@ -76,7 +76,10 @@ export default function WholesaleOrderDetailPage(): React.ReactElement {
 
   const shipping = o.shipping ?? {};
   const items = o.items ?? [];
-  const subtotal = items.reduce((s: number, i: any) => s + (i.resolvedPrice ?? i.unitPrice ?? 0) * (i.quantity ?? 0), 0);
+  const subtotal = items.reduce(
+    (s: number, i: any) => s + (i.resolvedPrice ?? i.unitPrice ?? 0) * (i.quantity ?? 0),
+    0,
+  );
   const deliveryCharge = o.deliveryCharge ?? 0;
   const grandTotal = o.grandTotal ?? o.total ?? subtotal + deliveryCharge;
 
@@ -118,7 +121,9 @@ export default function WholesaleOrderDetailPage(): React.ReactElement {
                     </div>
                     <div className="text-right shrink-0">
                       <p className="text-sm font-semibold tabular-nums">
-                        {formatCents((item.resolvedPrice ?? item.unitPrice ?? 0) * (item.quantity ?? 0))}
+                        {formatCents(
+                          (item.resolvedPrice ?? item.unitPrice ?? 0) * (item.quantity ?? 0),
+                        )}
                       </p>
                     </div>
                   </div>
@@ -145,7 +150,9 @@ export default function WholesaleOrderDetailPage(): React.ReactElement {
               {shipping.area && (
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <MapPin className="h-4 w-4" />
-                  <span>{shipping.area}, {shipping.district ?? "—"}</span>
+                  <span>
+                    {shipping.area}, {shipping.district ?? "—"}
+                  </span>
                 </div>
               )}
             </CardContent>
@@ -184,7 +191,10 @@ export default function WholesaleOrderDetailPage(): React.ReactElement {
                 <CreditCard className="h-4 w-4 text-muted-foreground" />
                 <span>{o.paymentMethod === "cod" ? "Cash on Delivery" : "Prepaid"}</span>
               </div>
-              <StatusChip label={o.paymentStatus ?? "pending"} tone={statusToneFromValue(o.paymentStatus)} />
+              <StatusChip
+                label={o.paymentStatus ?? "pending"}
+                tone={statusToneFromValue(o.paymentStatus)}
+              />
             </CardContent>
           </Card>
 
@@ -195,9 +205,7 @@ export default function WholesaleOrderDetailPage(): React.ReactElement {
                   <Truck className="h-4 w-4 text-primary" /> Tracking
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-4 text-sm font-mono">
-                {o.trackingNumber}
-              </CardContent>
+              <CardContent className="p-4 text-sm font-mono">{o.trackingNumber}</CardContent>
             </Card>
           )}
         </div>

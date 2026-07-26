@@ -1,14 +1,21 @@
+"use client";
+
 import * as React from "react";
 import { toast } from "sonner";
 import { getMediaUploadAuthAction } from "@/features/cms/actions/media-actions";
 import type { ImageUploadItem } from "../types/studio-types";
 
-const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif", "image/svg+xml"];
+const ALLOWED_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/svg+xml",
+];
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
 
-export function useImageKitUpload(
-  onUploadSuccess: (item: ImageUploadItem) => void,
-): {
+export function useImageKitUpload(onUploadSuccess: (item: ImageUploadItem) => void): {
   uploading: boolean;
   uploadFile: (file: File) => Promise<void>;
   uploadFiles: (files: FileList | File[]) => Promise<void>;

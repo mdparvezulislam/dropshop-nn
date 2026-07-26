@@ -19,7 +19,8 @@ export function usePermissions(): PermissionCheckResult {
   const userRole = rawRole.toLowerCase().replace(/[\s-]+/g, "_");
 
   // Super admin and admin have full unrestricted powers across all roles & features
-  const isSuperAdmin = userRole === "super_admin" || userRole === "admin" || permissions.includes("*");
+  const isSuperAdmin =
+    userRole === "super_admin" || userRole === "admin" || permissions.includes("*");
 
   return {
     hasPermission: (permission: string) => {

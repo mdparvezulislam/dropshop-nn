@@ -18,7 +18,9 @@ export function registerCourierFeatureFlags(): void {
       defaultState: "on",
     });
   } catch (err) {
-    logger.warn("Courier feature flags already registered or minor bootstrapping error occurred", { error: err });
+    logger.warn("Courier feature flags already registered or minor bootstrapping error occurred", {
+      error: err,
+    });
   }
 
   // Event Subscriptions
@@ -38,7 +40,7 @@ export function registerCourierFeatureFlags(): void {
 
           // Auto-detect zone
           const isInsideDhaka = order.shipping.division?.toLowerCase().includes("dhaka");
-          const deliveryZone = isInsideDhaka ? "inside_city" as const : "outside_city" as const;
+          const deliveryZone = isInsideDhaka ? ("inside_city" as const) : ("outside_city" as const);
 
           await courierService.createShipment({
             orderId: order.id,
@@ -60,7 +62,7 @@ export function registerCourierFeatureFlags(): void {
         const { orderId } = event.data;
         const { OrderService } = await import("@/features/order/services/order-service");
         const orderService = new OrderService();
-        
+
         // Transition order status to delivered
         await orderService.transitionStatus(
           orderId as string,

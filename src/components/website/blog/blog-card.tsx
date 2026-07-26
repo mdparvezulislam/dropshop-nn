@@ -59,7 +59,9 @@ export function BlogCard({ post }: BlogCardProps): React.ReactElement {
             {post.title}
           </h3>
           {post.excerpt && (
-            <p className="line-clamp-2 text-xs font-bold text-slate-600 leading-relaxed">{post.excerpt}</p>
+            <p className="line-clamp-2 text-xs font-bold text-slate-600 leading-relaxed">
+              {post.excerpt}
+            </p>
           )}
           {post.authorName && (
             <p className="text-[11px] font-extrabold text-slate-500">By {post.authorName}</p>

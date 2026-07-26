@@ -33,9 +33,8 @@ export default function ResellerProductsPage(): React.ReactElement {
   const load = React.useCallback(async () => {
     setLoading(true);
     try {
-      const { searchResellerProductsAction } = await import(
-        "@/features/reseller/actions/reseller-actions"
-      );
+      const { searchResellerProductsAction } =
+        await import("@/features/reseller/actions/reseller-actions");
       const res = await searchResellerProductsAction({
         resellerId: "me",
         page,
@@ -77,9 +76,8 @@ export default function ResellerProductsPage(): React.ReactElement {
 
   const handleFavorite = async (id: string, isFavorite: boolean) => {
     try {
-      const { favoriteResellerProductAction } = await import(
-        "@/features/reseller/actions/reseller-actions"
-      );
+      const { favoriteResellerProductAction } =
+        await import("@/features/reseller/actions/reseller-actions");
       await favoriteResellerProductAction(id, isFavorite);
       setRows((prev) => prev.map((r) => (r.id === id ? { ...r, isFavorite } : r)));
       toast.success(isFavorite ? "Added to favorites" : "Removed from favorites");

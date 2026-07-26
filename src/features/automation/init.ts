@@ -95,7 +95,7 @@ export function registerAutomationModule(): void {
               { event: event.data, eventType: event.eventType },
               "event",
               undefined,
-              event.eventId
+              event.eventId,
             );
           }
         },
@@ -116,7 +116,7 @@ export function registerAutomationModule(): void {
             { event: event.data, eventType: event.eventType },
             "event",
             undefined,
-            event.eventId
+            event.eventId,
           );
         }
       },

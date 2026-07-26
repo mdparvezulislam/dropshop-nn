@@ -268,7 +268,11 @@ export async function retryFailedTransactionAction(formData: unknown): Promise<{
   try {
     const validated = retryTransactionSchema.parse(formData);
     const service = new FailedTransactionService();
-    const result = await service.retryFailedTransaction(validated.entityId, validated.type, session.user.id);
+    const result = await service.retryFailedTransaction(
+      validated.entityId,
+      validated.type,
+      session.user.id,
+    );
     revalidatePath("/dashboard/finance");
     return { success: true, data: { retried: result } };
   } catch (error: any) {

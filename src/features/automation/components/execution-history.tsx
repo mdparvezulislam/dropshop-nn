@@ -43,11 +43,12 @@ export function ExecutionHistory(): React.ReactElement {
     setLoading(false);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
-  const filtered = statusFilter === "all"
-    ? executions
-    : executions.filter((e) => e.status === statusFilter);
+  const filtered =
+    statusFilter === "all" ? executions : executions.filter((e) => e.status === statusFilter);
 
   const handleCancel = async (id: string) => {
     await cancelExecutionAction(id);
@@ -79,7 +80,9 @@ export function ExecutionHistory(): React.ReactElement {
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Execution History</h2>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="h-8 w-36 text-xs"><SelectValue /></SelectTrigger>
+          <SelectTrigger className="h-8 w-36 text-xs">
+            <SelectValue />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="completed">Completed</SelectItem>
@@ -112,10 +115,15 @@ export function ExecutionHistory(): React.ReactElement {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-semibold">{exec.workflowName}</span>
-                      <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${statusColors[exec.status] ?? ""}`}>
+                      <Badge
+                        variant="outline"
+                        className={`text-[10px] px-1.5 py-0 ${statusColors[exec.status] ?? ""}`}
+                      >
                         {exec.status}
                       </Badge>
-                      <span className="text-[10px] text-muted-foreground">v{exec.workflowVersion}</span>
+                      <span className="text-[10px] text-muted-foreground">
+                        v{exec.workflowVersion}
+                      </span>
                     </div>
                     <p className="mt-0.5 text-xs text-muted-foreground">
                       Trigger: {exec.trigger} &middot; Duration: {formatDuration(exec.duration)}
@@ -130,12 +138,24 @@ export function ExecutionHistory(): React.ReactElement {
                   </div>
                   <div className="flex items-center gap-1">
                     {exec.status === "failed" && (
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleRetry(exec.id)} title="Retry">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => handleRetry(exec.id)}
+                        title="Retry"
+                      >
                         <RotateCcw className="h-3.5 w-3.5" />
                       </Button>
                     )}
                     {(exec.status === "running" || exec.status === "pending") && (
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-rose-500" onClick={() => handleCancel(exec.id)} title="Cancel">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-rose-500"
+                        onClick={() => handleCancel(exec.id)}
+                        title="Cancel"
+                      >
                         <XCircle className="h-3.5 w-3.5" />
                       </Button>
                     )}

@@ -10,7 +10,8 @@ export class ExportService {
 
   async exportOrdersCsv(filter: Record<string, unknown>): Promise<string> {
     const orders = await this.orderRepository.find(filter, { sort: { createdAt: -1 } } as any);
-    const header = "Order#,Customer,Phone,Division,District,Items,Subtotal,Discount,Tax,Grand Total,Profit,Status,Source,Courier,Tracking,Created At";
+    const header =
+      "Order#,Customer,Phone,Division,District,Items,Subtotal,Discount,Tax,Grand Total,Profit,Status,Source,Courier,Tracking,Created At";
     const rows = orders.map((o: Order) =>
       [
         o.orderNumber,

@@ -9,7 +9,8 @@ export function EmptyCart() {
       </div>
       <h2 className="text-xl font-semibold text-foreground mb-2">Your cart is empty</h2>
       <p className="text-sm text-foreground/50 max-w-sm mb-8">
-        Looks like you haven&apos;t added anything yet. Browse our catalog and find something you love.
+        Looks like you haven&apos;t added anything yet. Browse our catalog and find something you
+        love.
       </p>
       <Link
         href="/products"

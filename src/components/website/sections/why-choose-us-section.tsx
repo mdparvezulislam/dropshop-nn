@@ -33,7 +33,10 @@ const WHY_CHOOSE_ITEMS = [
 
 export function WhyChooseUsSection(): React.ReactElement {
   return (
-    <section className="py-12 lg:py-16 bg-white border-b border-slate-200" aria-label="Why Choose Us">
+    <section
+      className="py-12 lg:py-16 bg-white border-b border-slate-200"
+      aria-label="Why Choose Us"
+    >
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">

@@ -64,8 +64,8 @@ export default function PricingEditorPage() {
             taxRate: String(item.taxRate ?? 0),
             taxInclusive: item.taxInclusive ?? false,
             commissionRate: String(item.commissionRate ?? 0),
-            pricingRule: item.pricingRule as any || "fixed",
-            status: item.status as any || "active",
+            pricingRule: (item.pricingRule as any) || "fixed",
+            status: (item.status as any) || "active",
           });
           if ((item as any).productName) setProductName((item as any).productName);
           if ((item as any).variantSku) setVariantSku((item as any).variantSku);
@@ -183,7 +183,9 @@ export default function PricingEditorPage() {
                 <span className="text-xs text-slate-400">Rule</span>
               </CardHeader>
               <CardContent className="p-4 pt-0">
-                <div className="text-xl font-bold capitalize">{form.pricingRule.replace("_", " ")}</div>
+                <div className="text-xl font-bold capitalize">
+                  {form.pricingRule.replace("_", " ")}
+                </div>
               </CardContent>
             </Card>
             <Card className="border-slate-800 bg-slate-900/50">

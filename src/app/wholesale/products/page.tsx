@@ -52,7 +52,7 @@ export default function WholesaleProductsPage(): React.ReactElement {
           id: p.id ?? p._id,
           name: p.title ?? p.name ?? "Unnamed",
           sku: p.sku ?? "—",
-          category: catMap.get(p.categoryId ?? p.category) ?? (p.categoryName ?? "—"),
+          category: catMap.get(p.categoryId ?? p.category) ?? p.categoryName ?? "—",
           wholesalePrice: p.wholesalePrice ?? p.pricing?.wholesale ?? 0,
           moq: p.moq ?? p.minOrderQuantity ?? 1,
           stock: p.stock ?? p.inventory?.available ?? 0,

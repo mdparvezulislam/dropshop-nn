@@ -5,11 +5,7 @@ import { CookieBanner } from "@/components/website/cookie-banner";
 import { FloatingActions } from "@/components/website/floating-actions";
 import { StorefrontJsonLd } from "@/components/website/storefront-json-ld";
 
-export default function WebsiteLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function WebsiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <div data-layout="public">
       <AuthProvider>
@@ -23,4 +19,3 @@ export default function WebsiteLayout({
     </div>
   );
 }
-

@@ -5,7 +5,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Become a Supplier Partner - DropshopNN Bangladesh",
-  description: "List your inventory on Bangladesh's leading dropshipping and wholesale platform. Reach 2,500+ active resellers.",
+  description:
+    "List your inventory on Bangladesh's leading dropshipping and wholesale platform. Reach 2,500+ active resellers.",
 };
 
 export default function BecomeSupplierPage() {
@@ -20,7 +21,8 @@ export default function BecomeSupplierPage() {
             Expand Your Brand Distribution Across BD
           </h1>
           <p className="text-sm text-slate-400 leading-relaxed">
-            Are you an official brand importer or electronics manufacturer in Bangladesh? Connect your warehouse stock to 2,500+ active reseller stores automatically.
+            Are you an official brand importer or electronics manufacturer in Bangladesh? Connect
+            your warehouse stock to 2,500+ active reseller stores automatically.
           </p>
         </div>
 
@@ -29,7 +31,8 @@ export default function BecomeSupplierPage() {
             <Store className="w-8 h-8 text-amber-400 mb-3" />
             <h3 className="text-base font-bold text-white mb-1">2,500+ Reseller Force</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Your products are promoted instantly across thousands of Facebook pages and e-commerce stores.
+              Your products are promoted instantly across thousands of Facebook pages and e-commerce
+              stores.
             </p>
           </div>
           <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 backdrop-blur-md">
@@ -43,15 +46,19 @@ export default function BecomeSupplierPage() {
             <DollarSign className="w-8 h-8 text-amber-400 mb-3" />
             <h3 className="text-base font-bold text-white mb-1">Guaranteed Weekly Payouts</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Timely bank settlements for fulfilled orders directly into your corporate bank account.
+              Timely bank settlements for fulfilled orders directly into your corporate bank
+              account.
             </p>
           </div>
         </div>
 
         <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-8 sm:p-12 text-center backdrop-blur-md">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white font-heading mb-3">Become a Supplier Partner</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white font-heading mb-3">
+            Become a Supplier Partner
+          </h2>
           <p className="text-xs text-slate-400 max-w-md mx-auto mb-6">
-            Submit your company trade license and BIN number to get onboarded as an official supplier.
+            Submit your company trade license and BIN number to get onboarded as an official
+            supplier.
           </p>
           <Link
             href="/contact?type=supplier"

@@ -37,19 +37,36 @@ function PrintCenterContent(): React.ReactElement {
 
   const PRINT_OPTIONS = [
     { id: "invoice", label: "ইনভয়েস", labelEn: "Invoice", icon: FileText, color: "text-blue-400" },
-    { id: "packing_slip", label: "প্যাকিং স্লিপ", labelEn: "Packing Slip", icon: Package, color: "text-emerald-400" },
-    { id: "courier_label", label: "কুরিয়ার লেবেল", labelEn: "Courier Label", icon: Truck, color: "text-violet-400" },
+    {
+      id: "packing_slip",
+      label: "প্যাকিং স্লিপ",
+      labelEn: "Packing Slip",
+      icon: Package,
+      color: "text-emerald-400",
+    },
+    {
+      id: "courier_label",
+      label: "কুরিয়ার লেবেল",
+      labelEn: "Courier Label",
+      icon: Truck,
+      color: "text-violet-400",
+    },
   ];
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 space-y-5">
       <div className="flex items-center gap-3">
-        <Link href="/dashboard/orders" className="p-2 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground">
+        <Link
+          href="/dashboard/orders"
+          className="p-2 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"
+        >
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-foreground">প্রিন্ট সেন্টার</h1>
-          <p className="text-sm text-muted-foreground">Print Center — Invoice, Packing Slip, Courier Label</p>
+          <p className="text-sm text-muted-foreground">
+            Print Center — Invoice, Packing Slip, Courier Label
+          </p>
         </div>
       </div>
 
@@ -62,8 +79,11 @@ function PrintCenterContent(): React.ReactElement {
             {PRINT_OPTIONS.map((opt) => {
               const Icon = opt.icon;
               return (
-                <button key={opt.id} onClick={() => handlePrint(opt.label)}
-                  className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border bg-card hover:border-primary hover:bg-accent transition-all">
+                <button
+                  key={opt.id}
+                  onClick={() => handlePrint(opt.label)}
+                  className="flex flex-col items-center gap-3 p-6 rounded-xl border-2 border-border bg-card hover:border-primary hover:bg-accent transition-all"
+                >
                   <Icon className={`h-10 w-10 ${opt.color}`} />
                   <div className="text-center">
                     <p className="font-semibold text-foreground">{opt.label}</p>
@@ -87,14 +107,19 @@ function PrintCenterContent(): React.ReactElement {
       {/* Multi-order print */}
       {!orderId && (
         <Card className="border-border/50 bg-card">
-          <CardHeader><CardTitle className="text-base font-semibold">একাধিক অর্ডার প্রিন্ট</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">একাধিক অর্ডার প্রিন্ট</CardTitle>
+          </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              একটি অর্ডার সিলেক্ট করে প্রিন্ট করতে অর্ডার ড্যাশবোর্ড থেকে অর্ডার সিলেক্ট করুন, অথবা নিচের লিংকে ক্লিক করুন।
+              একটি অর্ডার সিলেক্ট করে প্রিন্ট করতে অর্ডার ড্যাশবোর্ড থেকে অর্ডার সিলেক্ট করুন, অথবা
+              নিচের লিংকে ক্লিক করুন।
             </p>
             <div className="flex gap-3">
               <Link href="/dashboard/orders">
-                <Button variant="outline"><ArrowLeft className="h-4 w-4 mr-1" /> অর্ডার প্যানেলে যান</Button>
+                <Button variant="outline">
+                  <ArrowLeft className="h-4 w-4 mr-1" /> অর্ডার প্যানেলে যান
+                </Button>
               </Link>
             </div>
           </CardContent>
@@ -154,7 +179,13 @@ function PrintCenterContent(): React.ReactElement {
 
 export default function PrintCenterPage(): React.ReactElement {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-background p-4 sm:p-6 flex items-center justify-center"><p className="text-muted-foreground">Loading...</p></div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-background p-4 sm:p-6 flex items-center justify-center">
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      }
+    >
       <PrintCenterContent />
     </Suspense>
   );

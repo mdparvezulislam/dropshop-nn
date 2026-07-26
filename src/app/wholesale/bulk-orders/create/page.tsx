@@ -59,17 +59,27 @@ interface CompanyInfo {
   poReference: string;
 }
 
-const DELIVERY_ZONES = ["Inside Dhaka", "Outside Dhaka", "Chattogram", "Sylhet", "Khulna", "Rajshahi", "Barishal", "Rangpur", "Mymensingh"];
+const DELIVERY_ZONES = [
+  "Inside Dhaka",
+  "Outside Dhaka",
+  "Chattogram",
+  "Sylhet",
+  "Khulna",
+  "Rajshahi",
+  "Barishal",
+  "Rangpur",
+  "Mymensingh",
+];
 const COURIER_RATES: Record<string, number> = {
   "Inside Dhaka": 6000,
   "Outside Dhaka": 13000,
-  "Chattogram": 10000,
-  "Sylhet": 12000,
-  "Khulna": 13000,
-  "Rajshahi": 13000,
-  "Barishal": 14000,
-  "Rangpur": 15000,
-  "Mymensingh": 13000,
+  Chattogram: 10000,
+  Sylhet: 12000,
+  Khulna: 13000,
+  Rajshahi: 13000,
+  Barishal: 14000,
+  Rangpur: 15000,
+  Mymensingh: 13000,
 };
 
 function CreateBulkOrderPageContent(): React.ReactElement {
@@ -103,9 +113,7 @@ function CreateBulkOrderPageContent(): React.ReactElement {
     }
     setSearching(true);
     try {
-      const { listProductsAction } = await import(
-        "@/features/catalog/actions/product-actions"
-      );
+      const { listProductsAction } = await import("@/features/catalog/actions/product-actions");
       const res = await listProductsAction({ search: q } as any, { limit: 10 });
       if (res.success && res.data) {
         const raw = res.data as any;
@@ -175,7 +183,10 @@ function CreateBulkOrderPageContent(): React.ReactElement {
     setItems((prev) => prev.filter((i) => i.id !== id));
   };
 
-  const getBestTierPrice = (tiers: { minQty: number; price: number }[], qty: number): number | null => {
+  const getBestTierPrice = (
+    tiers: { minQty: number; price: number }[],
+    qty: number,
+  ): number | null => {
     if (!tiers.length) return null;
     const sorted = [...tiers].sort((a, b) => b.minQty - a.minQty);
     for (const tier of sorted) {
@@ -202,9 +213,8 @@ function CreateBulkOrderPageContent(): React.ReactElement {
 
     setSubmitting(true);
     try {
-      const { completeRoleCheckoutAction } = await import(
-        "@/features/checkout/actions/checkout-actions"
-      );
+      const { completeRoleCheckoutAction } =
+        await import("@/features/checkout/actions/checkout-actions");
 
       const res = await completeRoleCheckoutAction({
         type: "wholesaler",
@@ -227,8 +237,9 @@ function CreateBulkOrderPageContent(): React.ReactElement {
 
       if (res.success) {
         toast.success("Bulk order created");
-        const orderId = (res.data as { orderId?: string; id?: string } | undefined)?.orderId
-          ?? (res.data as { id?: string } | undefined)?.id;
+        const orderId =
+          (res.data as { orderId?: string; id?: string } | undefined)?.orderId ??
+          (res.data as { id?: string } | undefined)?.id;
         router.push(orderId ? `/wholesale/bulk-orders/${orderId}` : "/wholesale/bulk-orders");
       } else {
         toast.error(res.error ?? "Failed to create order");
@@ -324,7 +335,9 @@ function CreateBulkOrderPageContent(): React.ReactElement {
                     </SelectTrigger>
                     <SelectContent>
                       {DELIVERY_ZONES.map((z) => (
-                        <SelectItem key={z} value={z}>{z}</SelectItem>
+                        <SelectItem key={z} value={z}>
+                          {z}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -424,10 +437,7 @@ function CreateBulkOrderPageContent(): React.ReactElement {
               </CardHeader>
               <CardContent className="p-4 space-y-3">
                 {items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="rounded-lg border border-border p-3 space-y-2"
-                  >
+                  <div key={item.id} className="rounded-lg border border-border p-3 space-y-2">
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="text-sm font-medium truncate">{item.productName}</p>
@@ -478,11 +488,17 @@ function CreateBulkOrderPageContent(): React.ReactElement {
                           value={item.quantity}
                           onChange={(e) => {
                             const qty = Math.max(item.moq, parseInt(e.target.value) || item.moq);
-                            const bestPrice = getBestTierPrice(item.tierPricing, qty) ?? item.unitPrice;
+                            const bestPrice =
+                              getBestTierPrice(item.tierPricing, qty) ?? item.unitPrice;
                             setItems((prev) =>
                               prev.map((it) =>
                                 it.id === item.id
-                                  ? { ...it, quantity: qty, unitPrice: bestPrice, totalPrice: bestPrice * qty }
+                                  ? {
+                                      ...it,
+                                      quantity: qty,
+                                      unitPrice: bestPrice,
+                                      totalPrice: bestPrice * qty,
+                                    }
                                   : it,
                               ),
                             );

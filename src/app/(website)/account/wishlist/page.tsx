@@ -9,5 +9,5 @@ export const metadata: Metadata = {
 
 export default async function WishlistPage() {
   const result = await getWishlistAction();
-  return <WishlistPageContent initialItems={result.success ? result.data ?? [] : []} />;
+  return <WishlistPageContent initialItems={result.success ? (result.data ?? []) : []} />;
 }

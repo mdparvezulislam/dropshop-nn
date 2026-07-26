@@ -90,10 +90,7 @@ export class TaskRepository extends BaseRepository<TaskDocument, TaskEntity> {
     return this.find({ orderId }, { sort: { createdAt: -1 } } as any);
   }
 
-  async findByAssignee(
-    assigneeId: string,
-    status?: TaskStatus,
-  ): Promise<TaskEntity[]> {
+  async findByAssignee(assigneeId: string, status?: TaskStatus): Promise<TaskEntity[]> {
     const filter: Record<string, unknown> = { assignedTo: assigneeId };
     if (status) filter.status = status;
     return this.find(filter, { sort: { createdAt: -1 } } as any);

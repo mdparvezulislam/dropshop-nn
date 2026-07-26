@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { FormField } from "@/components/forms/form-field";
 import { Button } from "@/components/ui/button";
 import { StudioCollapsibleSection } from "../studio-collapsible-section";
-import { QrCode, Wand2, RefreshCw } from "lucide-react";
+import { QrCode, Wand2 } from "lucide-react";
 import { QRCodeModal } from "../modals/qr-code-modal";
 
 export interface GeneralSectionProps {
@@ -24,11 +24,16 @@ export interface GeneralSectionProps {
 }
 
 export function GeneralSection({
-  name, onNameChange,
-  sku, onSkuChange,
-  shortDescription, onShortDescriptionChange,
-  productModel, onProductModelChange,
-  barcode, onBarcodeChange,
+  name,
+  onNameChange,
+  sku,
+  onSkuChange,
+  shortDescription,
+  onShortDescriptionChange,
+  productModel,
+  onProductModelChange,
+  barcode,
+  onBarcodeChange,
   onAutoGenerateSKU,
 }: GeneralSectionProps): React.ReactElement {
   const [qrOpen, setQrOpen] = React.useState(false);

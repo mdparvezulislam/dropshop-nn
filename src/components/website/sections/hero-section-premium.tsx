@@ -2,7 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, ArrowRight, TrendingUp, Users, Package, Zap } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ArrowRight,
+  TrendingUp,
+  Users,
+  Package,
+  Zap,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -89,7 +97,8 @@ export function HeroSectionPremium(): React.ReactElement {
                 transition={{ delay: 0.2 }}
                 className="text-xl text-[hsl(215_16%_47%)] leading-relaxed"
               >
-                Enterprise commerce platform connecting suppliers, resellers, and customers. Automate, scale, and grow your business.
+                Enterprise commerce platform connecting suppliers, resellers, and customers.
+                Automate, scale, and grow your business.
               </motion.p>
             </div>
 
@@ -168,9 +177,7 @@ export function HeroSectionPremium(): React.ReactElement {
                 {current === 2 && "📦"}
               </div>
               <h3 className="text-3xl font-bold text-foreground mb-2">{banner.subtitle}</h3>
-              <p className="text-sm text-[hsl(215_16%_47%)] max-w-xs mb-6">
-                {banner.title}
-              </p>
+              <p className="text-sm text-[hsl(215_16%_47%)] max-w-xs mb-6">{banner.title}</p>
               {banner.cta && (
                 <Button size="sm" variant="outline">
                   {banner.cta.text}
@@ -189,7 +196,7 @@ export function HeroSectionPremium(): React.ReactElement {
                   }}
                   className={cn(
                     "h-2 rounded-full transition-all",
-                    i === current ? "w-8 bg-primary" : "w-2 bg-white/40 hover:bg-white/60"
+                    i === current ? "w-8 bg-primary" : "w-2 bg-white/40 hover:bg-white/60",
                   )}
                   aria-label={`Go to banner ${i + 1}`}
                 />

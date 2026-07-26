@@ -1,7 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Smartphone, Headphones, Watch, Laptop, Home, Video, Sparkles, Grid3x3 } from "lucide-react";
+import {
+  ArrowRight,
+  Smartphone,
+  Headphones,
+  Watch,
+  Laptop,
+  Home,
+  Video,
+  Sparkles,
+  Grid3x3,
+} from "lucide-react";
 import type { Category } from "@/features/catalog/domain/classification-entity";
 
 interface CategoryShowcaseProps {
@@ -9,19 +19,43 @@ interface CategoryShowcaseProps {
 }
 
 const CATEGORY_ITEMS = [
-  { name: "মোবাইল অ্যাক্সেসরিজ", count: "১,২৫০+ প্রোডাক্ট", icon: Smartphone, slug: "mobile-accessories" },
+  {
+    name: "মোবাইল অ্যাক্সেসরিজ",
+    count: "১,২৫০+ প্রোডাক্ট",
+    icon: Smartphone,
+    slug: "mobile-accessories",
+  },
   { name: "অডিও & সাউন্ড", count: "৯৫০+ প্রোডাক্ট", icon: Headphones, slug: "audio-sound" },
   { name: "স্মার্ট গ্যাজেট", count: "১,১০০+ প্রোডাক্ট", icon: Watch, slug: "smart-gadgets" },
-  { name: "কম্পিউটার অ্যাক্সেসরিজ", count: "৪৫০+ প্রোডাক্ট", icon: Laptop, slug: "computer-accessories" },
+  {
+    name: "কম্পিউটার অ্যাক্সেসরিজ",
+    count: "৪৫০+ প্রোডাক্ট",
+    icon: Laptop,
+    slug: "computer-accessories",
+  },
   { name: "হোম & কিচেন", count: "১,৫০০+ প্রোডাক্ট", icon: Home, slug: "home-kitchen" },
   { name: "সিকিউরিটি ক্যামেরা", count: "৩৫০+ প্রোডাক্ট", icon: Video, slug: "security-camera" },
-  { name: "বিউটি & পার্সোনাল কেয়ার", count: "৭৫০+ প্রোডাক্ট", icon: Sparkles, slug: "beauty-care" },
-  { name: "সব ক্যাটাগরি", count: "সব প্রোডাক্ট দেখুন", icon: Grid3x3, slug: "categories", isAll: true },
+  {
+    name: "বিউটি & পার্সোনাল কেয়ার",
+    count: "৭৫০+ প্রোডাক্ট",
+    icon: Sparkles,
+    slug: "beauty-care",
+  },
+  {
+    name: "সব ক্যাটাগরি",
+    count: "সব প্রোডাক্ট দেখুন",
+    icon: Grid3x3,
+    slug: "categories",
+    isAll: true,
+  },
 ];
 
 export function CategoryShowcase({ categories }: CategoryShowcaseProps) {
   return (
-    <section className="py-12 lg:py-16 bg-white border-b border-slate-200" aria-label="Popular Categories">
+    <section
+      className="py-12 lg:py-16 bg-white border-b border-slate-200"
+      aria-label="Popular Categories"
+    >
       <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between mb-8">
           <div>
@@ -58,9 +92,7 @@ export function CategoryShowcase({ categories }: CategoryShowcaseProps) {
                 <h3 className="text-xs font-black text-slate-900 leading-snug line-clamp-1 group-hover:text-amber-600 transition-colors">
                   {cat.name}
                 </h3>
-                <p className="text-[10px] font-bold text-slate-600 mt-1">
-                  {cat.count}
-                </p>
+                <p className="text-[10px] font-bold text-slate-600 mt-1">{cat.count}</p>
               </Link>
             );
           })}

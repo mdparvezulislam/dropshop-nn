@@ -35,9 +35,7 @@ export function BrandSection({ brandId, onBrandChange }: BrandSectionProps): Rea
 
   const filtered = React.useMemo(() => {
     if (!query.trim()) return brands;
-    return brands.filter((b) =>
-      b.name.toLowerCase().includes(query.toLowerCase()),
-    );
+    return brands.filter((b) => b.name.toLowerCase().includes(query.toLowerCase()));
   }, [brands, query]);
 
   const selectedBrand = brands.find((b) => b.id === brandId);
@@ -64,16 +62,20 @@ export function BrandSection({ brandId, onBrandChange }: BrandSectionProps): Rea
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search brands (e.g. Apple, Samsung, Nike)…"
-            className="h-9.5 w-full rounded-lg border border-border bg-card pl-9 pr-3 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+            className="h-9 w-full rounded-lg border border-border bg-card pl-9 pr-3 text-xs font-semibold text-foreground placeholder:text-muted-foreground/60 focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
           />
         </div>
 
         {/* Brand Grid Select */}
         <div className="ws-scroll max-h-48 overflow-y-auto rounded-xl border border-border bg-muted/20 p-2 grid grid-cols-2 sm:grid-cols-3 gap-2">
           {loading ? (
-            <p className="col-span-full text-xs text-muted-foreground text-center py-4">Loading brands…</p>
+            <p className="col-span-full text-xs text-muted-foreground text-center py-4">
+              Loading brands…
+            </p>
           ) : filtered.length === 0 ? (
-            <p className="col-span-full text-xs text-muted-foreground text-center py-4">No matching brands found</p>
+            <p className="col-span-full text-xs text-muted-foreground text-center py-4">
+              No matching brands found
+            </p>
           ) : (
             filtered.map((brand) => {
               const isSelected = brand.id === brandId;
@@ -91,7 +93,11 @@ export function BrandSection({ brandId, onBrandChange }: BrandSectionProps): Rea
                 >
                   <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/60 font-bold text-xs text-primary overflow-hidden">
                     {brand.logoUrl ? (
-                      <img src={brand.logoUrl} alt={brand.name} className="h-full w-full object-cover" />
+                      <img
+                        src={brand.logoUrl}
+                        alt={brand.name}
+                        className="h-full w-full object-cover"
+                      />
                     ) : (
                       <Building2 className="h-3.5 w-3.5" />
                     )}

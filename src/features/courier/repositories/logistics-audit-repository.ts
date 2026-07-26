@@ -40,7 +40,10 @@ function mapToDomain(doc: any): LogisticsAuditLog {
   };
 }
 
-export class LogisticsAuditRepository extends BaseRepository<LogisticsAuditDocument, LogisticsAuditLog> {
+export class LogisticsAuditRepository extends BaseRepository<
+  LogisticsAuditDocument,
+  LogisticsAuditLog
+> {
   constructor() {
     super(LogisticsAuditModel as any, mapToDomain);
   }

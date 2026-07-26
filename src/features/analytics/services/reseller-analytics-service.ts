@@ -1,7 +1,9 @@
 import { EventFactRepository } from "../repositories/event-fact-repository";
 import { AnalyticsCacheService } from "./analytics-cache-service";
 import {
-  type ResellerAnalyticsData, type MetricCardData, ANALYTICS_EVENT_NAMES,
+  type ResellerAnalyticsData,
+  type MetricCardData,
+  ANALYTICS_EVENT_NAMES,
 } from "../domain/analytics-entity";
 import { resolveDateRange } from "./analytics-query-service";
 
@@ -10,7 +12,9 @@ export class ResellerAnalyticsService {
   private readonly cache = AnalyticsCacheService.getInstance();
 
   async getResellerAnalytics(rangeInput?: {
-    from?: Date; to?: Date; preset?: string;
+    from?: Date;
+    to?: Date;
+    preset?: string;
   }): Promise<ResellerAnalyticsData> {
     const cacheKey = rangeInput?.preset ?? "30d";
     const cached = await this.cache.get<ResellerAnalyticsData>("reseller", cacheKey);
@@ -24,9 +28,16 @@ export class ResellerAnalyticsService {
         module: "reseller",
       }),
       this.facts.sumValueInRange(range.from, range.to, [
-        ANALYTICS_EVENT_NAMES.ORDER_CREATED, ANALYTICS_EVENT_NAMES.ORDER_PAID,
+        ANALYTICS_EVENT_NAMES.ORDER_CREATED,
+        ANALYTICS_EVENT_NAMES.ORDER_PAID,
       ]),
-      this.facts.topByField(range.from, range.to, ANALYTICS_EVENT_NAMES.ORDER_CREATED, "metadata.resellerId", 10),
+      this.facts.topByField(
+        range.from,
+        range.to,
+        ANALYTICS_EVENT_NAMES.ORDER_CREATED,
+        "metadata.resellerId",
+        10,
+      ),
     ]);
 
     const data: ResellerAnalyticsData = {
@@ -39,16 +50,24 @@ export class ResellerAnalyticsService {
       totalConversion: 0,
       metrics: [
         {
-          key: "reseller_revenue", label: "Reseller Revenue",
-          value: resellerRevenue, format: "currency", currency: "BDT",
+          key: "reseller_revenue",
+          label: "Reseller Revenue",
+          value: resellerRevenue,
+          format: "currency",
+          currency: "BDT",
         },
         {
-          key: "reseller_orders", label: "Reseller Orders",
-          value: resellerOrders, format: "number",
+          key: "reseller_orders",
+          label: "Reseller Orders",
+          value: resellerOrders,
+          format: "number",
         },
         {
-          key: "commission", label: "Commission",
-          value: Math.round(resellerRevenue * 0.1), format: "currency", currency: "BDT",
+          key: "commission",
+          label: "Commission",
+          value: Math.round(resellerRevenue * 0.1),
+          format: "currency",
+          currency: "BDT",
         },
       ],
     };

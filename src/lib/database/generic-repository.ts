@@ -32,9 +32,9 @@ export abstract class BaseRepository<
       return this.toDomainEntity(doc as TDocument);
     } catch (error) {
       logger.error("Repository create operation failed", error, { data });
-      throw error instanceof DatabaseError
-        ? error
-        : new DatabaseError("Database write error", error);
+      if (error instanceof DatabaseError) throw error;
+      const originalMessage = error instanceof Error ? error.message : "Unknown error";
+      throw new DatabaseError(`Database write error: ${originalMessage}`, error);
     }
   }
 
@@ -170,7 +170,8 @@ export abstract class BaseRepository<
     } catch (error) {
       logger.error("Repository update operation failed", error, { id, data });
       if (error instanceof NotFoundError) throw error;
-      throw new DatabaseError("Database update error", error);
+      const originalMessage = error instanceof Error ? error.message : "Unknown error";
+      throw new DatabaseError(`Database update error: ${originalMessage}`, error);
     }
   }
 

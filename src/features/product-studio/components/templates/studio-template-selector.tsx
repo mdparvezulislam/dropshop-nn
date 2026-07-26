@@ -1,9 +1,17 @@
 "use client";
 
 import * as React from "react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Wand2, BatteryCharging, Volume2, Headphones, Wifi, Fan, Check } from "lucide-react";
+import {
+  Sparkles,
+  Wand2,
+  BatteryCharging,
+  Volume2,
+  Headphones,
+  Wifi,
+  Fan,
+  Check,
+} from "lucide-react";
 import { PRODUCT_TEMPLATES, type ProductTemplate } from "../../data/product-templates-data";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils/cn";
@@ -20,7 +28,9 @@ const ICON_MAP: Record<string, React.ElementType> = {
   Fan,
 };
 
-export function StudioTemplateSelector({ onApplyTemplate }: StudioTemplateSelectorProps): React.ReactElement {
+export function StudioTemplateSelector({
+  onApplyTemplate,
+}: StudioTemplateSelectorProps): React.ReactElement {
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
 
   const handleSelect = (template: ProductTemplate) => {
@@ -44,7 +54,8 @@ export function StudioTemplateSelector({ onApplyTemplate }: StudioTemplateSelect
       </div>
 
       <p className="text-xs text-muted-foreground font-medium">
-        Select a product template to automatically pre-populate specifications, pricing rules, tags, and bullet features.
+        Select a product template to automatically pre-populate specifications, pricing rules, tags,
+        and bullet features.
       </p>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 pt-1">
@@ -63,7 +74,14 @@ export function StudioTemplateSelector({ onApplyTemplate }: StudioTemplateSelect
                   : "border-border/80 bg-card text-foreground hover:border-primary/50 hover:bg-muted/40",
               )}
             >
-              <div className={cn("flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border", isSelected ? "bg-primary-foreground/20 border-white/20" : "bg-muted/60 border-border")}>
+              <div
+                className={cn(
+                  "flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border",
+                  isSelected
+                    ? "bg-primary-foreground/20 border-white/20"
+                    : "bg-muted/60 border-border",
+                )}
+              >
                 <Icon className="h-3.5 w-3.5" />
               </div>
               <div className="min-w-0 flex-1">

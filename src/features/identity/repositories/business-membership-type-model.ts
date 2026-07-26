@@ -1,5 +1,9 @@
 import mongoose, { Schema } from "mongoose";
-import { baseFieldsDefinition, baseSchemaOptions, softDeletePlugin } from "@/lib/database/base-schema";
+import {
+  baseFieldsDefinition,
+  baseSchemaOptions,
+  softDeletePlugin,
+} from "@/lib/database/base-schema";
 import { BaseDocument } from "@/lib/database/types";
 
 export interface MembershipBenefitsDBFields {
@@ -74,6 +78,9 @@ businessMembershipTypeSchema.plugin(softDeletePlugin);
 
 export const BusinessMembershipTypeModel =
   mongoose.models.BusinessMembershipType ||
-  mongoose.model<BusinessMembershipTypeDocument>("BusinessMembershipType", businessMembershipTypeSchema);
+  mongoose.model<BusinessMembershipTypeDocument>(
+    "BusinessMembershipType",
+    businessMembershipTypeSchema,
+  );
 
 export default BusinessMembershipTypeModel;

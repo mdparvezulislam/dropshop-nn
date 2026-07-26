@@ -5,7 +5,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Order Placed Successfully - DropshopNN Bangladesh",
-  description: "Thank you for your order! Your consignment has been queued for Pathao / Steadfast delivery.",
+  description:
+    "Thank you for your order! Your consignment has been queued for Pathao / Steadfast delivery.",
 };
 
 interface PageProps {
@@ -28,7 +29,8 @@ export default async function OrderSuccessPage({ searchParams }: PageProps) {
             Order Placed Successfully!
           </h1>
           <p className="text-sm text-slate-400 max-w-md mx-auto mb-6">
-            Thank you for shopping with DropshopNN. Your order has been registered and sent to supplier warehouse fulfillment.
+            Thank you for shopping with DropshopNN. Your order has been registered and sent to
+            supplier warehouse fulfillment.
           </p>
 
           <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 mb-8 inline-block text-left w-full max-w-md">

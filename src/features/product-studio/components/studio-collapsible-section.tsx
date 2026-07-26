@@ -65,20 +65,29 @@ export function StudioCollapsibleSection({
         <div className="flex items-center gap-3 min-w-0">
           <button
             type="button"
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/40 text-muted-foreground transition-transform duration-200"
+            className="flex h-10 sm:h-7 w-10 sm:w-7 shrink-0 items-center justify-center rounded-xl sm:rounded-lg border border-border bg-muted/40 text-muted-foreground transition-transform duration-200"
             aria-expanded={expanded}
             aria-label={`Toggle ${title}`}
           >
-            <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", expanded && "rotate-180 text-primary")} />
+            <ChevronDown
+              className={cn(
+                "h-5 sm:h-4 w-5 sm:w-4 transition-transform duration-200",
+                expanded && "rotate-180 text-primary",
+              )}
+            />
           </button>
 
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="text-base sm:text-lg font-bold tracking-tight text-foreground">{title}</h2>
+              <h2 className="text-base sm:text-lg font-bold tracking-tight text-foreground">
+                {title}
+              </h2>
               {badge}
             </div>
             {description ? (
-              <p className="text-xs text-muted-foreground font-medium truncate mt-0.5">{description}</p>
+              <p className="text-xs text-muted-foreground font-medium truncate mt-0.5">
+                {description}
+              </p>
             ) : null}
           </div>
         </div>
@@ -95,9 +104,7 @@ export function StudioCollapsibleSection({
             transition={{ duration: 0.2, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <div className="p-5 sm:p-6 space-y-5 border-t border-border/40">
-              {children}
-            </div>
+            <div className="p-5 sm:p-6 space-y-5 border-t border-border/40">{children}</div>
           </motion.div>
         )}
       </AnimatePresence>

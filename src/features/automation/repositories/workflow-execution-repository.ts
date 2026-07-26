@@ -29,7 +29,10 @@ function toExecDomain(doc: WorkflowExecutionDocument): WorkflowExecution {
   };
 }
 
-export class WorkflowExecutionRepository extends BaseRepository<WorkflowExecutionDocument, WorkflowExecution> {
+export class WorkflowExecutionRepository extends BaseRepository<
+  WorkflowExecutionDocument,
+  WorkflowExecution
+> {
   constructor() {
     super(WorkflowExecutionModel, toExecDomain);
   }
@@ -57,12 +60,16 @@ export class WorkflowExecutionRepository extends BaseRepository<WorkflowExecutio
 
   async countByStatus(): Promise<Record<string, number>> {
     const docModels = this.model;
-    const counts = await docModels.aggregate([
-      { $group: { _id: "$status", count: { $sum: 1 } } },
-    ]);
+    const counts = await docModels.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]);
     const result: Record<string, number> = {
-      pending: 0, running: 0, completed: 0, failed: 0,
-      cancelled: 0, retrying: 0, paused: 0, timeout: 0,
+      pending: 0,
+      running: 0,
+      completed: 0,
+      failed: 0,
+      cancelled: 0,
+      retrying: 0,
+      paused: 0,
+      timeout: 0,
     };
     for (const c of counts) {
       result[c._id as string] = c.count as number;
@@ -74,13 +81,25 @@ export class WorkflowExecutionRepository extends BaseRepository<WorkflowExecutio
     const all = await this.find({});
     const regex = new RegExp(query, "i");
     return all
-      .filter((e) => regex.test(e.workflowName) || regex.test(e.workflowKey) || (e.correlationId && regex.test(e.correlationId)) || (e.initiatedBy && regex.test(e.initiatedBy)))
+      .filter(
+        (e) =>
+          regex.test(e.workflowName) ||
+          regex.test(e.workflowKey) ||
+          (e.correlationId && regex.test(e.correlationId)) ||
+          (e.initiatedBy && regex.test(e.initiatedBy)),
+      )
       .slice(0, limit);
   }
 
   async getDashboardStats(): Promise<{
-    todayTotal: number; todaySuccess: number; todayFailure: number; avgDuration: number;
-    runningCount: number; failedCount: number; retryCount: number; deadLetterCount: number;
+    todayTotal: number;
+    todaySuccess: number;
+    todayFailure: number;
+    avgDuration: number;
+    runningCount: number;
+    failedCount: number;
+    retryCount: number;
+    deadLetterCount: number;
   }> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -89,9 +108,18 @@ export class WorkflowExecutionRepository extends BaseRepository<WorkflowExecutio
       {
         $facet: {
           todayTotal: [{ $match: { createdAt: { $gte: today } } }, { $count: "count" }],
-          todaySuccess: [{ $match: { createdAt: { $gte: today }, status: "completed" } }, { $count: "count" }],
-          todayFailure: [{ $match: { createdAt: { $gte: today }, status: "failed" } }, { $count: "count" }],
-          avgDuration: [{ $match: { status: "completed", duration: { $exists: true } } }, { $group: { _id: null, avg: { $avg: "$duration" } } }],
+          todaySuccess: [
+            { $match: { createdAt: { $gte: today }, status: "completed" } },
+            { $count: "count" },
+          ],
+          todayFailure: [
+            { $match: { createdAt: { $gte: today }, status: "failed" } },
+            { $count: "count" },
+          ],
+          avgDuration: [
+            { $match: { status: "completed", duration: { $exists: true } } },
+            { $group: { _id: null, avg: { $avg: "$duration" } } },
+          ],
           runningCount: [{ $match: { status: "running" } }, { $count: "count" }],
           failedCount: [{ $match: { status: "failed" } }, { $count: "count" }],
           retryCount: [{ $match: { status: "retrying" } }, { $count: "count" }],

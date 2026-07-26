@@ -1,7 +1,12 @@
 import { logger } from "@/lib/utils/logger";
 import { EventFactRepository } from "../repositories/event-fact-repository";
 import { resolveDateRange, type DateRange } from "./analytics-query-service";
-import { ANALYTICS_EVENT_NAMES, type ExecutiveDashboardData, type MetricCardData, type TimeSeriesPoint } from "../domain/analytics-entity";
+import {
+  ANALYTICS_EVENT_NAMES,
+  type ExecutiveDashboardData,
+  type MetricCardData,
+  type TimeSeriesPoint,
+} from "../domain/analytics-entity";
 import { AnalyticsCacheService } from "./analytics-cache-service";
 
 function pctChange(current: number, previous: number): number | undefined {
@@ -19,7 +24,9 @@ export class ExecutiveAnalyticsService {
   private readonly cache = AnalyticsCacheService.getInstance();
 
   async getExecutiveDashboard(rangeInput?: {
-    from?: Date; to?: Date; preset?: string;
+    from?: Date;
+    to?: Date;
+    preset?: string;
   }): Promise<ExecutiveDashboardData> {
     const cacheKey = `executive:${rangeInput?.preset ?? "30d"}`;
     const cached = await this.cache.get<ExecutiveDashboardData>("executive", cacheKey);
@@ -30,10 +37,22 @@ export class ExecutiveAnalyticsService {
     const today = resolveDateRange({ preset: "today" });
 
     const [
-      todayRevenue, todayOrders, revenue, prevRevenue,
-      orders, prevOrders, shipments, deliveries,
-      returnsCount, grossSales, netSales, profit,
-      expensesVal, outstandingCOD, revenueSeries, ordersSeries,
+      todayRevenue,
+      todayOrders,
+      revenue,
+      prevRevenue,
+      orders,
+      prevOrders,
+      shipments,
+      deliveries,
+      returnsCount,
+      grossSales,
+      netSales,
+      profit,
+      expensesVal,
+      outstandingCOD,
+      revenueSeries,
+      ordersSeries,
     ] = await Promise.all([
       this.facts.sumValueInRange(today.from, today.to, [
         ANALYTICS_EVENT_NAMES.ORDER_CREATED,
@@ -103,31 +122,43 @@ export class ExecutiveAnalyticsService {
   }
 
   private buildMetrics(
-    revenue: number, prevRevenue: number,
-    orders: number, prevOrders: number,
+    revenue: number,
+    prevRevenue: number,
+    orders: number,
+    prevOrders: number,
     grossSales: number,
   ): MetricCardData[] {
     return [
       {
-        key: "revenue", label: "Gross Revenue",
-        value: revenue, previousValue: prevRevenue,
+        key: "revenue",
+        label: "Gross Revenue",
+        value: revenue,
+        previousValue: prevRevenue,
         changePercent: pctChange(revenue, prevRevenue),
-        format: "currency", currency: "BDT",
+        format: "currency",
+        currency: "BDT",
       },
       {
-        key: "orders", label: "Total Orders",
-        value: orders, previousValue: prevOrders,
+        key: "orders",
+        label: "Total Orders",
+        value: orders,
+        previousValue: prevOrders,
         changePercent: pctChange(orders, prevOrders),
         format: "number",
       },
       {
-        key: "aov", label: "Avg Order Value",
+        key: "aov",
+        label: "Avg Order Value",
         value: orders > 0 ? Math.round(revenue / orders) : 0,
-        format: "currency", currency: "BDT",
+        format: "currency",
+        currency: "BDT",
       },
       {
-        key: "gross_sales", label: "Gross Sales",
-        value: grossSales, format: "currency", currency: "BDT",
+        key: "gross_sales",
+        label: "Gross Sales",
+        value: grossSales,
+        format: "currency",
+        currency: "BDT",
       },
     ];
   }

@@ -49,7 +49,8 @@ export default async function CategoriesPage() {
                   {category.name}
                 </h2>
                 <p className="text-xs font-bold text-slate-600 line-clamp-2 leading-relaxed mb-4">
-                  {category.description || `অরিজিনাল ${category.name} প্রোডাক্টসমূহ সারা বাংলাদেশে ফাস্ট শিপিং সহ কিনুন।`}
+                  {category.description ||
+                    `অরিজিনাল ${category.name} প্রোডাক্টসমূহ সারা বাংলাদেশে ফাস্ট শিপিং সহ কিনুন।`}
                 </p>
               </div>
 

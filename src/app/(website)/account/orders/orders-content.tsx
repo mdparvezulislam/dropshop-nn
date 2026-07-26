@@ -60,7 +60,9 @@ export function OrdersPageContent({
             <Package className="h-8 w-8 text-muted-foreground/40 mb-3" />
             <p className="text-sm text-muted-foreground">You haven&apos;t placed any orders yet.</p>
             <Link href="/">
-              <Button variant="outline" size="sm" className="mt-3">Start Shopping</Button>
+              <Button variant="outline" size="sm" className="mt-3">
+                Start Shopping
+              </Button>
             </Link>
           </CardContent>
         </Card>
@@ -87,7 +89,9 @@ export function OrdersPageContent({
                       <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                         <span>{formatDate(order.createdAt)}</span>
                         <span>·</span>
-                        <span>{order.itemCount} item{order.itemCount !== 1 ? "s" : ""}</span>
+                        <span>
+                          {order.itemCount} item{order.itemCount !== 1 ? "s" : ""}
+                        </span>
                       </div>
                     </div>
                   </div>

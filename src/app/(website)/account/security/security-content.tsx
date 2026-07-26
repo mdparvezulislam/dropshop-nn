@@ -35,7 +35,10 @@ export function SecurityPageContent({ sessions }: { sessions: Session[] }) {
   const [loading, setLoading] = useState(false);
   const [revokeLoading, setRevokeLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
-  const [revokeMessage, setRevokeMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [revokeMessage, setRevokeMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   const handleRevokeOthers = async () => {
     setRevokeLoading(true);
@@ -89,7 +92,9 @@ export function SecurityPageContent({ sessions }: { sessions: Session[] }) {
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div>
         <h1 className="text-xl sm:text-2xl font-bold">Security</h1>
-        <p className="text-sm text-muted-foreground mt-1">Manage your password and account security.</p>
+        <p className="text-sm text-muted-foreground mt-1">
+          Manage your password and account security.
+        </p>
       </div>
 
       <Card>

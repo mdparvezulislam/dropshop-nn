@@ -1,4 +1,7 @@
-import { PriceApprovalRepository, PriceHistoryRepository } from "../repositories/approval-repository";
+import {
+  PriceApprovalRepository,
+  PriceHistoryRepository,
+} from "../repositories/approval-repository";
 import { PriceApproval, PriceChange } from "../domain/price-approval-entity";
 import { PriceHistoryEntry } from "../domain/price-history-entity";
 import { NotFoundError, ValidationError } from "@/lib/errors/app-error";
@@ -24,7 +27,10 @@ export class PriceApprovalService {
     changes: PriceChange[];
     reason: string;
   }): Promise<PriceApproval> {
-    logger.info("ApprovalService: requesting approval", { entityType: data.entityType, entityId: data.entityId });
+    logger.info("ApprovalService: requesting approval", {
+      entityType: data.entityType,
+      entityId: data.entityId,
+    });
     return this.approvalRepo.create({
       ...data,
       status: "pending",
@@ -33,10 +39,16 @@ export class PriceApprovalService {
     } as any);
   }
 
-  async approveApproval(id: string, reviewedBy: string, reviewedByName?: string, note?: string): Promise<PriceApproval> {
+  async approveApproval(
+    id: string,
+    reviewedBy: string,
+    reviewedByName?: string,
+    note?: string,
+  ): Promise<PriceApproval> {
     const approval = await this.approvalRepo.findById(id);
     if (!approval) throw new NotFoundError("Approval request not found");
-    if (approval.status !== "pending") throw new ValidationError(`Approval already ${approval.status}`);
+    if (approval.status !== "pending")
+      throw new ValidationError(`Approval already ${approval.status}`);
 
     logger.info("ApprovalService: approving", { id });
     return this.approvalRepo.update(id, {
@@ -49,10 +61,16 @@ export class PriceApprovalService {
     } as any);
   }
 
-  async rejectApproval(id: string, reviewedBy: string, reviewedByName?: string, note?: string): Promise<PriceApproval> {
+  async rejectApproval(
+    id: string,
+    reviewedBy: string,
+    reviewedByName?: string,
+    note?: string,
+  ): Promise<PriceApproval> {
     const approval = await this.approvalRepo.findById(id);
     if (!approval) throw new NotFoundError("Approval request not found");
-    if (approval.status !== "pending") throw new ValidationError(`Approval already ${approval.status}`);
+    if (approval.status !== "pending")
+      throw new ValidationError(`Approval already ${approval.status}`);
 
     logger.info("ApprovalService: rejecting", { id });
     return this.approvalRepo.update(id, {
@@ -65,7 +83,20 @@ export class PriceApprovalService {
     } as any);
   }
 
-  async recordHistory(entry: Omit<PriceHistoryEntry, "id" | "createdAt" | "updatedAt" | "isDeleted" | "status" | "metadata" | "deletedAt" | "createdBy" | "updatedBy">): Promise<PriceHistoryEntry> {
+  async recordHistory(
+    entry: Omit<
+      PriceHistoryEntry,
+      | "id"
+      | "createdAt"
+      | "updatedAt"
+      | "isDeleted"
+      | "status"
+      | "metadata"
+      | "deletedAt"
+      | "createdBy"
+      | "updatedBy"
+    >,
+  ): Promise<PriceHistoryEntry> {
     return this.historyRepo.create(entry as any);
   }
 

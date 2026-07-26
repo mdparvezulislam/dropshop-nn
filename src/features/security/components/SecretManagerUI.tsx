@@ -42,7 +42,9 @@ import {
 } from "lucide-react";
 
 export function SecretManagerUI(): React.ReactElement {
-  const [activeTab, setActiveTab] = React.useState<"inventory" | "create" | "audit" | "failed">("inventory");
+  const [activeTab, setActiveTab] = React.useState<"inventory" | "create" | "audit" | "failed">(
+    "inventory",
+  );
   const [loading, setLoading] = React.useState(false);
   const [data, setData] = React.useState<any>(null);
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -66,7 +68,10 @@ export function SecretManagerUI(): React.ReactElement {
   const tabSliderRef = React.useRef<HTMLDivElement>(null);
   const scrollTabs = (direction: "left" | "right") => {
     if (tabSliderRef.current) {
-      tabSliderRef.current.scrollBy({ left: direction === "left" ? -280 : 280, behavior: "smooth" });
+      tabSliderRef.current.scrollBy({
+        left: direction === "left" ? -280 : 280,
+        behavior: "smooth",
+      });
     }
   };
 
@@ -193,13 +198,19 @@ export function SecretManagerUI(): React.ReactElement {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-slate-800 pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Enterprise Secrets & Credential Security</h1>
-            <Badge variant="outline" className="border-rose-500/30 text-rose-400 bg-rose-950/40 text-[10px]">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+              Enterprise Secrets & Credential Security
+            </h1>
+            <Badge
+              variant="outline"
+              className="border-rose-500/30 text-rose-400 bg-rose-950/40 text-[10px]"
+            >
               SECURITY-CENTER-001
             </Badge>
           </div>
           <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            AES-256-GCM Authenticated Encryption, Zero Plaintext Storage, Secret Masking & Zero-Downtime Rotation
+            AES-256-GCM Authenticated Encryption, Zero Plaintext Storage, Secret Masking &
+            Zero-Downtime Rotation
           </p>
         </div>
 
@@ -212,10 +223,20 @@ export function SecretManagerUI(): React.ReactElement {
               className="pl-8 text-xs bg-slate-900 border-slate-800"
             />
           </div>
-          <Button onClick={() => setActiveTab("create")} size="sm" className="bg-rose-600 hover:bg-rose-500 text-xs gap-1.5">
+          <Button
+            onClick={() => setActiveTab("create")}
+            size="sm"
+            className="bg-rose-600 hover:bg-rose-500 text-xs gap-1.5"
+          >
             <PlusCircle className="h-3.5 w-3.5" /> Add Secret
           </Button>
-          <Button onClick={loadAllData} size="sm" variant="ghost" disabled={loading} className="text-slate-400 hover:text-white">
+          <Button
+            onClick={loadAllData}
+            size="sm"
+            variant="ghost"
+            disabled={loading}
+            className="text-slate-400 hover:text-white"
+          >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </Button>
         </div>
@@ -227,7 +248,9 @@ export function SecretManagerUI(): React.ReactElement {
           <CardContent className="p-4 space-y-1">
             <p className="text-[11px] font-medium text-slate-400">Master Encryption Key</p>
             <div className="flex items-center justify-between">
-              <p className="text-sm font-bold text-emerald-400">{data?.masterKeyHealthy ? "AES-256-GCM ACTIVE" : "KEY ERROR"}</p>
+              <p className="text-sm font-bold text-emerald-400">
+                {data?.masterKeyHealthy ? "AES-256-GCM ACTIVE" : "KEY ERROR"}
+              </p>
               <ShieldCheck className="h-4 w-4 text-emerald-400" />
             </div>
           </CardContent>
@@ -257,7 +280,9 @@ export function SecretManagerUI(): React.ReactElement {
           <CardContent className="p-4 space-y-1">
             <p className="text-[11px] font-medium text-slate-400">Failed Access Logs</p>
             <div className="flex items-center justify-between">
-              <p className="text-xl font-bold text-rose-400">{data?.failedAccessLogs?.length || 0}</p>
+              <p className="text-xl font-bold text-rose-400">
+                {data?.failedAccessLogs?.length || 0}
+              </p>
               <AlertTriangle className="h-4 w-4 text-rose-400" />
             </div>
           </CardContent>
@@ -282,7 +307,9 @@ export function SecretManagerUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("inventory")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "inventory" ? "bg-rose-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "inventory"
+                ? "bg-rose-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <Lock className="h-3.5 w-3.5" /> Secrets Inventory ({secretsList.length})
@@ -290,7 +317,9 @@ export function SecretManagerUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("create")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "create" ? "bg-rose-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "create"
+                ? "bg-rose-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <PlusCircle className="h-3.5 w-3.5 text-emerald-400" /> Add / Update Secret
@@ -298,7 +327,9 @@ export function SecretManagerUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("audit")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "audit" ? "bg-rose-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "audit"
+                ? "bg-rose-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <History className="h-3.5 w-3.5 text-amber-400" /> Security Audit Log
@@ -306,7 +337,9 @@ export function SecretManagerUI(): React.ReactElement {
           <button
             onClick={() => setActiveTab("failed")}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "failed" ? "bg-rose-600 text-white font-semibold" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+              activeTab === "failed"
+                ? "bg-rose-600 text-white font-semibold"
+                : "text-slate-400 hover:bg-slate-900 hover:text-white"
             }`}
           >
             <AlertTriangle className="h-3.5 w-3.5 text-rose-400" /> Failed Access Logs
@@ -327,7 +360,9 @@ export function SecretManagerUI(): React.ReactElement {
       {activeTab === "inventory" && (
         <Card className="bg-slate-900/80 border-slate-800">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-white">Encrypted Platform Secrets</CardTitle>
+            <CardTitle className="text-base font-semibold text-white">
+              Encrypted Platform Secrets
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -352,13 +387,25 @@ export function SecretManagerUI(): React.ReactElement {
                 ) : (
                   filteredSecrets.map((s: any) => (
                     <TableRow key={s.id} className="border-slate-800 hover:bg-slate-800/40">
-                      <TableCell className="text-xs capitalize font-semibold text-rose-400">{s.provider}</TableCell>
-                      <TableCell className="text-xs font-mono text-slate-300">{s.secretType}</TableCell>
-                      <TableCell className="text-xs text-white font-medium">{s.displayName}</TableCell>
-                      <TableCell className="text-xs font-mono text-emerald-400">{s.maskedValue}</TableCell>
-                      <TableCell className="text-xs font-mono font-bold text-amber-300">v{s.version}</TableCell>
+                      <TableCell className="text-xs capitalize font-semibold text-rose-400">
+                        {s.provider}
+                      </TableCell>
+                      <TableCell className="text-xs font-mono text-slate-300">
+                        {s.secretType}
+                      </TableCell>
+                      <TableCell className="text-xs text-white font-medium">
+                        {s.displayName}
+                      </TableCell>
+                      <TableCell className="text-xs font-mono text-emerald-400">
+                        {s.maskedValue}
+                      </TableCell>
+                      <TableCell className="text-xs font-mono font-bold text-amber-300">
+                        v{s.version}
+                      </TableCell>
                       <TableCell className="text-xs">
-                        <Badge variant={s.status === "active" ? "success" : "destructive"}>{s.status}</Badge>
+                        <Badge variant={s.status === "active" ? "success" : "destructive"}>
+                          {s.status}
+                        </Badge>
                       </TableCell>
                       <TableCell className="text-xs text-right space-x-1">
                         <Button
@@ -407,7 +454,9 @@ export function SecretManagerUI(): React.ReactElement {
       {activeTab === "create" && (
         <Card className="bg-slate-900/80 border-slate-800">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-white">Store Encrypted Credential</CardTitle>
+            <CardTitle className="text-base font-semibold text-white">
+              Store Encrypted Credential
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSaveSecret} className="space-y-4 max-w-xl">
@@ -468,7 +517,9 @@ export function SecretManagerUI(): React.ReactElement {
               </div>
 
               <div>
-                <label className="text-xs font-medium text-slate-300">Plaintext Secret Value * (Will be encrypted with AES-256-GCM)</label>
+                <label className="text-xs font-medium text-slate-300">
+                  Plaintext Secret Value * (Will be encrypted with AES-256-GCM)
+                </label>
                 <Input
                   type="password"
                   value={plaintextValue}
@@ -489,7 +540,12 @@ export function SecretManagerUI(): React.ReactElement {
               </div>
 
               <div className="pt-2">
-                <Button type="submit" disabled={submitting} size="sm" className="bg-rose-600 hover:bg-rose-500 text-xs">
+                <Button
+                  type="submit"
+                  disabled={submitting}
+                  size="sm"
+                  className="bg-rose-600 hover:bg-rose-500 text-xs"
+                >
                   Encrypt & Save Secret
                 </Button>
               </div>
@@ -519,10 +575,18 @@ export function SecretManagerUI(): React.ReactElement {
               <TableBody>
                 {(data?.auditLogs || []).map((a: any) => (
                   <TableRow key={a.id} className="border-slate-800 hover:bg-slate-800/40">
-                    <TableCell className="text-xs text-slate-400">{new Date(a.timestamp).toLocaleString()}</TableCell>
-                    <TableCell className="text-xs font-semibold text-rose-400 uppercase">{a.provider}</TableCell>
-                    <TableCell className="text-xs font-mono text-slate-300">{a.secretType}</TableCell>
-                    <TableCell className="text-xs uppercase font-bold text-amber-300">{a.action}</TableCell>
+                    <TableCell className="text-xs text-slate-400">
+                      {new Date(a.timestamp).toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-xs font-semibold text-rose-400 uppercase">
+                      {a.provider}
+                    </TableCell>
+                    <TableCell className="text-xs font-mono text-slate-300">
+                      {a.secretType}
+                    </TableCell>
+                    <TableCell className="text-xs uppercase font-bold text-amber-300">
+                      {a.action}
+                    </TableCell>
                     <TableCell className="text-xs text-white">{a.performedBy}</TableCell>
                     <TableCell className="text-xs text-slate-400">{a.details}</TableCell>
                   </TableRow>
@@ -537,7 +601,9 @@ export function SecretManagerUI(): React.ReactElement {
       {activeTab === "failed" && (
         <Card className="bg-slate-900/80 border-slate-800">
           <CardHeader>
-            <CardTitle className="text-base font-semibold text-white">Failed Access & Security Alerts</CardTitle>
+            <CardTitle className="text-base font-semibold text-white">
+              Failed Access & Security Alerts
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -559,10 +625,16 @@ export function SecretManagerUI(): React.ReactElement {
                 ) : (
                   (data?.failedAccessLogs || []).map((f: any) => (
                     <TableRow key={f.id} className="border-slate-800 hover:bg-slate-800/40">
-                      <TableCell className="text-xs text-slate-400">{new Date(f.timestamp).toLocaleString()}</TableCell>
-                      <TableCell className="text-xs font-bold text-rose-400 uppercase">{f.failureReason}</TableCell>
+                      <TableCell className="text-xs text-slate-400">
+                        {new Date(f.timestamp).toLocaleString()}
+                      </TableCell>
+                      <TableCell className="text-xs font-bold text-rose-400 uppercase">
+                        {f.failureReason}
+                      </TableCell>
                       <TableCell className="text-xs text-white">{f.attemptedBy}</TableCell>
-                      <TableCell className="text-xs font-mono text-slate-300">{f.errorMessage}</TableCell>
+                      <TableCell className="text-xs font-mono text-slate-300">
+                        {f.errorMessage}
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -576,9 +648,12 @@ export function SecretManagerUI(): React.ReactElement {
       {isRotateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
           <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-lg p-5 space-y-4">
-            <h3 className="text-base font-bold text-white">Rotate Secret [{rotateProvider}/{rotateType}]</h3>
+            <h3 className="text-base font-bold text-white">
+              Rotate Secret [{rotateProvider}/{rotateType}]
+            </h3>
             <p className="text-xs text-slate-400">
-              Entering a new secret value will encrypt the new key with AES-256-GCM and store the previous version for zero-downtime rollback.
+              Entering a new secret value will encrypt the new key with AES-256-GCM and store the
+              previous version for zero-downtime rollback.
             </p>
 
             <div>
@@ -593,10 +668,20 @@ export function SecretManagerUI(): React.ReactElement {
             </div>
 
             <div className="flex justify-end gap-2 pt-2">
-              <Button onClick={() => setIsRotateModalOpen(false)} size="sm" variant="ghost" className="text-xs text-slate-400">
+              <Button
+                onClick={() => setIsRotateModalOpen(false)}
+                size="sm"
+                variant="ghost"
+                className="text-xs text-slate-400"
+              >
                 Cancel
               </Button>
-              <Button onClick={handleRotateSecret} disabled={submitting} size="sm" className="bg-emerald-600 hover:bg-emerald-500 text-xs">
+              <Button
+                onClick={handleRotateSecret}
+                disabled={submitting}
+                size="sm"
+                className="bg-emerald-600 hover:bg-emerald-500 text-xs"
+              >
                 Rotate Key Zero-Downtime
               </Button>
             </div>

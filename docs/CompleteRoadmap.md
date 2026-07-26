@@ -319,12 +319,14 @@ CMS Pages
 Admin ops control center on unified shell (`/dashboard/*`). 30+ pages.
 
 #### Dashboard
+
 - Revenue, orders, customers, products, suppliers, inventory stats
 - Recent orders list
 - Low stock alerts
 - Quick action links
 
 #### Products
+
 - Product list with search, status filter, pagination
 - Product Studio (create, edit)
 - Product detail view
@@ -335,6 +337,7 @@ Admin ops control center on unified shell (`/dashboard/*`). 30+ pages.
 - Publish workflow
 
 #### Orders
+
 - Order list with search, status filter
 - Order detail (items, timeline, pricing, notes)
 - Order Kanban board
@@ -344,10 +347,12 @@ Admin ops control center on unified shell (`/dashboard/*`). 30+ pages.
 - Cancel order
 
 #### Customers
+
 - Customer list
 - Customer detail (orders, notes, addresses)
 
 #### Suppliers
+
 - Supplier list with search, category filter
 - Supplier detail (profile, products, banking, notes, tags, stats)
 - Supplier CRUD
@@ -355,6 +360,7 @@ Admin ops control center on unified shell (`/dashboard/*`). 30+ pages.
 - Product-to-supplier mapping
 
 #### Inventory
+
 - Stock list
 - Stock adjustments
 - Inventory history
@@ -362,16 +368,19 @@ Admin ops control center on unified shell (`/dashboard/*`). 30+ pages.
 - New adjustment form
 
 #### Finance
+
 - Wallet overview
 - Ledger transactions
 - Withdrawal management
 
 #### Courier
+
 - Shipment management
 - Tracking status
 - Fulfillment overview
 
 #### Identity
+
 - User management
 - Role management
 - Permission system
@@ -379,13 +388,16 @@ Admin ops control center on unified shell (`/dashboard/*`). 30+ pages.
 - Active sessions
 
 #### Settings
+
 - Platform settings
 - Feature flag management
 
 #### Audit
+
 - Audit log viewer
 
 #### Content CMS
+
 - Pages (create, edit, list)
 - Banners (create, edit, list)
 - Blog (create, edit, list)
@@ -394,12 +406,14 @@ Admin ops control center on unified shell (`/dashboard/*`). 30+ pages.
 - Media library
 
 #### Analytics
+
 - Sales analytics
 - Order analytics
 - Catalog analytics
 - Content analytics
 
 #### Notifications
+
 - Template management
 - Notification logs
 
@@ -412,14 +426,17 @@ Admin ops control center on unified shell (`/dashboard/*`). 30+ pages.
 Reseller commerce workspace on unified shell (`/reseller/*`). 11 pages.
 
 #### Dashboard
+
 - Orders, wallet, catalog stats, customers, recent orders
 
 #### Products
+
 - Browse catalog
 - Product search
 - Product detail view
 
 #### Create Order ⭐
+
 - CHECKOUT pipeline integration
 - Product selection with pricing
 - Customer info collection
@@ -427,33 +444,40 @@ Reseller commerce workspace on unified shell (`/reseller/*`). 11 pages.
 - Order confirmation
 
 #### Orders
+
 - Order list with status filter
 - Order detail with timeline
 - Status tracking
 
 #### Customers
+
 - Customer list
 - Customer detail (notes, create-order deep link)
 
 #### Wallet
+
 - Balance display
 - Transaction history
 - Withdraw requests
 
 #### Reports
+
 - Order profit analysis
 - Revenue statistics
 
 #### Marketing Kit
+
 - CMS media assets
 - Product marketing materials
 - Downloadable assets
 
 #### Shop Settings
+
 - Profile save (logo, banner, phone, address)
 - Brand customization
 
 #### Settings
+
 - Order preferences
 - Payment settings
 - Notification preferences
@@ -467,15 +491,18 @@ Reseller commerce workspace on unified shell (`/reseller/*`). 11 pages.
 Wholesale buyer workspace on unified shell (`/wholesale/*`). 12 pages.
 
 #### Dashboard
+
 - 8 stat widgets (total orders, pending, completed, total spent, outstanding balance, products available, pending quotations, invoices due)
 - Recent orders
 - Recent quotations
 
 #### Products
+
 - Catalog list with search
 - Product detail with tier pricing, MOQ, stock info
 
 #### Bulk Orders
+
 - CHECKOUT pipeline with `type: "wholesaler"`
 - MOQ validation
 - Tier pricing application
@@ -484,26 +511,32 @@ Wholesale buyer workspace on unified shell (`/wholesale/*`). 12 pages.
 - Order list + detail (timeline, shipping, payment)
 
 #### Orders
+
 - Order history detail (timeline, shipping, payment)
 
 #### Quotations
+
 - Quotation list
 - Request quotation form
 
 #### Invoices
+
 - Invoice list
 - Invoice detail
 
 #### Customers
+
 - Customer list
 
 #### Company Profile
+
 - Business information
 - Document uploads
 - Contact details
 - Address management
 
 #### Settings
+
 - Order preferences
 - Payment settings
 - Notification preferences
@@ -518,16 +551,19 @@ Wholesale buyer workspace on unified shell (`/wholesale/*`). 12 pages.
 Supplier workspace on unified shell (`/supplier/*`). 14 pages.
 
 #### Dashboard
+
 - 8 stat cards (products, pending approval, approved, rejected, low stock, pending orders, completed, balance)
 - Recent orders
 - Inventory alerts
 - Quick actions
 
 #### Products
+
 - List with status chips and search
 - Detail (description, variants, pricing, stock, edit link)
 
 #### Product Submission
+
 - General info (name, SKU, model, barcode, short/full description)
 - Pricing (cost, selling, wholesale)
 - Variants (dynamic add/remove: SKU, label, price, stock, weight)
@@ -535,32 +571,40 @@ Supplier workspace on unified shell (`/supplier/*`). 14 pages.
 - Save as draft or submit for review
 
 #### Product Edit
+
 - Pre-populated form from existing product
 - Update general info, pricing, variants, inventory
 - Resubmit for review
 
 #### Purchase Orders
+
 - List with status chips
 - Detail (items, timeline, accept/decline for pending, summary, shipping, notes)
 
 #### Orders
+
 - List
 - Detail (items, customer & delivery with full address, timeline, payment, tracking)
 
 #### Deliveries
+
 - Order-based delivery list
 
 #### Inventory
+
 - Stock list with batch info
 
 #### Payments
+
 - Wallet balance + ledger transactions
 
 #### Reports
+
 - Order stats (pending, completed, total revenue)
 - Top products analysis
 
 #### Documents
+
 - Trade license
 - BIN/VAT certificate
 - Company agreement
@@ -571,9 +615,11 @@ Supplier workspace on unified shell (`/supplier/*`). 14 pages.
 - Required/optional markers
 
 #### Profile
+
 - Company info form
 
 #### Settings
+
 - Preferences form
 
 ---
@@ -907,19 +953,19 @@ AFTER DEPLOY 🚀
 
 ## Summary
 
-| Phase | Status | Pages | Engines |
-|-------|--------|-------|---------|
-| PHASE 0 — Foundation | ✅ Complete | — | CORE, IDENTITY |
-| PHASE 1 — Commerce | ✅ Complete | — | CATALOG, PRICING, INVENTORY, SUPPLIER |
-| PHASE 2 — Product Studio | ✅ Complete | — | PRODUCT-STUDIO |
-| PHASE 3 — Customer Commerce | ✅ Complete | — | CHECKOUT, ORDER, CUSTOMER, RETURN |
-| PHASE 4 — Operations | ✅ Complete | — | FINANCE, COURIER |
-| PHASE 5 — Public Website | ✅ Complete | 25+ | — |
-| PHASE 6 — Admin Workspace | ✅ Complete | 30+ | — |
-| PHASE 7 — Reseller Workspace | ✅ Complete | 11 | — |
-| PHASE 8 — Wholesale Workspace | ✅ Complete | 12 | — |
-| PHASE 9 — Supplier Workspace | ✅ Complete | 14 | — |
-| PHASE 10 — Intelligence | ⏳ Pending | — | ANALYTICS, NOTIFICATION |
-| RELEASE-001 — Deploy | ⏳ Pending | — | — |
-| After Deploy | 🚀 Planned | — | 21 future modules |
-| **Total** | **88 pages** | **14 engines** | **4 workspaces** |
+| Phase                         | Status       | Pages          | Engines                               |
+| ----------------------------- | ------------ | -------------- | ------------------------------------- |
+| PHASE 0 — Foundation          | ✅ Complete  | —              | CORE, IDENTITY                        |
+| PHASE 1 — Commerce            | ✅ Complete  | —              | CATALOG, PRICING, INVENTORY, SUPPLIER |
+| PHASE 2 — Product Studio      | ✅ Complete  | —              | PRODUCT-STUDIO                        |
+| PHASE 3 — Customer Commerce   | ✅ Complete  | —              | CHECKOUT, ORDER, CUSTOMER, RETURN     |
+| PHASE 4 — Operations          | ✅ Complete  | —              | FINANCE, COURIER                      |
+| PHASE 5 — Public Website      | ✅ Complete  | 25+            | —                                     |
+| PHASE 6 — Admin Workspace     | ✅ Complete  | 30+            | —                                     |
+| PHASE 7 — Reseller Workspace  | ✅ Complete  | 11             | —                                     |
+| PHASE 8 — Wholesale Workspace | ✅ Complete  | 12             | —                                     |
+| PHASE 9 — Supplier Workspace  | ✅ Complete  | 14             | —                                     |
+| PHASE 10 — Intelligence       | ⏳ Pending   | —              | ANALYTICS, NOTIFICATION               |
+| RELEASE-001 — Deploy          | ⏳ Pending   | —              | —                                     |
+| After Deploy                  | 🚀 Planned   | —              | 21 future modules                     |
+| **Total**                     | **88 pages** | **14 engines** | **4 workspaces**                      |

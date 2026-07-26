@@ -69,5 +69,6 @@ const shipmentAutomationSchema = new Schema(
 );
 
 export const ShipmentAutomationModel =
-  mongoose.models.ShipmentAutomation || mongoose.model("ShipmentAutomation", shipmentAutomationSchema);
+  mongoose.models.ShipmentAutomation ||
+  mongoose.model("ShipmentAutomation", shipmentAutomationSchema);
 export default ShipmentAutomationModel;

@@ -20,7 +20,7 @@ export class InvoiceService {
       }
 
       const invoiceNumber = `INV-${order.orderNumber}`;
-      
+
       const customerSnapshot = {
         name: order.shipping.receiverName || order.customer.name,
         phone: order.shipping.phone || order.customer.phone,
@@ -38,22 +38,25 @@ export class InvoiceService {
         totalPrice: it.totalSellingPrice,
       }));
 
-      const invoice = await this.invoiceRepository.create({
-        invoiceNumber,
-        orderId: order.id,
-        orderNumber: order.orderNumber,
-        customerSnapshot,
-        businessSnapshot,
-        items: itemsMapped,
-        subtotal: order.pricing.subtotal,
-        discountTotal: order.pricing.discountTotal,
-        taxTotal: order.pricing.taxTotal,
-        grandTotal: order.pricing.grandTotal,
-        currency: order.pricing.currency || "BDT",
-        status: ["completed", "delivered", "confirmed", "shipped"].includes(order.status)
-          ? "paid"
-          : "unpaid",
-      }, { session });
+      const invoice = await this.invoiceRepository.create(
+        {
+          invoiceNumber,
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          customerSnapshot,
+          businessSnapshot,
+          items: itemsMapped,
+          subtotal: order.pricing.subtotal,
+          discountTotal: order.pricing.discountTotal,
+          taxTotal: order.pricing.taxTotal,
+          grandTotal: order.pricing.grandTotal,
+          currency: order.pricing.currency || "BDT",
+          status: ["completed", "delivered", "confirmed", "shipped"].includes(order.status)
+            ? "paid"
+            : "unpaid",
+        },
+        { session },
+      );
 
       await EventBus.publish(
         "finance.invoice_generated",

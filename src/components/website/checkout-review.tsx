@@ -58,7 +58,9 @@ export function CheckoutReview({
     >
       <div>
         <h2 className="text-lg font-semibold text-foreground mb-1">Review Your Order</h2>
-        <p className="text-sm text-foreground/50 mb-4">Please verify everything before placing the order</p>
+        <p className="text-sm text-foreground/50 mb-4">
+          Please verify everything before placing the order
+        </p>
       </div>
 
       <div className="space-y-4">
@@ -81,7 +83,9 @@ export function CheckoutReview({
           </h3>
           <div className="space-y-1 text-sm text-foreground/70">
             <p>{shipping.address}</p>
-            <p>{[shipping.area, shipping.district, shipping.division].filter(Boolean).join(", ")}</p>
+            <p>
+              {[shipping.area, shipping.district, shipping.division].filter(Boolean).join(", ")}
+            </p>
           </div>
         </div>
 
@@ -101,9 +105,7 @@ export function CheckoutReview({
                 <div className="w-12 h-12 rounded-lg bg-muted shrink-0 bg-cover bg-center" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
-                  {item.variant && (
-                    <p className="text-xs text-foreground/40">{item.variant}</p>
-                  )}
+                  {item.variant && <p className="text-xs text-foreground/40">{item.variant}</p>}
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-semibold text-foreground">

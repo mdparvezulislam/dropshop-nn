@@ -76,41 +76,47 @@ export class FinanceService {
       const refNum = `REF-LED-SETTL-${Math.floor(100000 + Math.random() * 900000)}`;
 
       // 5. Create ledger entry (in holding state "pending")
-      const entry = await this.ledgerRepository.create({
-        referenceNumber: refNum,
-        walletId: wallet.id,
-        workspaceId,
-        amount: profit,
-        currency: "BDT",
-        type: "profit_credit",
-        status: "pending",
-        sourceModule: "order",
-        referenceType: "order",
-        referenceId: order.id,
-        orderId: order.id,
-        description: `Order completion profit release for order #${order.orderNumber}`,
-        createdBy: "system",
-        clearsAt,
-        metadata: {
-          orderNumber: order.orderNumber,
-          delayDays,
+      const entry = await this.ledgerRepository.create(
+        {
+          referenceNumber: refNum,
+          walletId: wallet.id,
+          workspaceId,
+          amount: profit,
+          currency: "BDT",
+          type: "profit_credit",
+          status: "pending",
+          sourceModule: "order",
+          referenceType: "order",
+          referenceId: order.id,
+          orderId: order.id,
+          description: `Order completion profit release for order #${order.orderNumber}`,
+          createdBy: "system",
+          clearsAt,
+          metadata: {
+            orderNumber: order.orderNumber,
+            delayDays,
+          },
         },
-      }, { session });
+        { session },
+      );
 
       const balances = await this.walletService.getBalances(wallet.id);
 
       // Audit Log
-      await this.financeAuditRepository.create({
-        referenceNumber: refNum,
-        action: "order_settled",
-        walletId: wallet.id,
-        actorId: "system",
-        amount: profit,
-        oldBalance: balances.availableBalance,
-        newBalance: balances.availableBalance,
-        currency: "BDT",
-        reason: `Order #${order.orderNumber} settled with ৳${(profit / 100).toFixed(2)} profit pending clearance`,
-      }, { session });
+      await this.financeAuditRepository.create(
+        {
+          referenceNumber: refNum,
+          action: "order_settled",
+          walletId: wallet.id,
+          actorId: "system",
+          amount: profit,
+          oldBalance: balances.availableBalance,
+          newBalance: balances.availableBalance,
+          currency: "BDT",
+          reason: `Order #${order.orderNumber} settled with ৳${(profit / 100).toFixed(2)} profit pending clearance`,
+        },
+        { session },
+      );
 
       await EventBus.publish(
         "finance.profit_released",
@@ -160,41 +166,47 @@ export class FinanceService {
       const refNum = `REF-LED-REFUND-${Math.floor(100000 + Math.random() * 900000)}`;
 
       // Create a reverse ledger entry (immediate debit adjustment / refund type)
-      const entry = await this.ledgerRepository.create({
-        referenceNumber: refNum,
-        walletId: wallet.id,
-        workspaceId,
-        amount: -profit,
-        currency: "BDT",
-        type: "refund",
-        status: "cleared",
-        sourceModule: "refund",
-        referenceType: "order",
-        referenceId: order.id,
-        orderId: order.id,
-        description: `Reverse profit payout on order refund #${order.orderNumber}`,
-        createdBy: "system",
-        metadata: {
-          info: "Reverse profit payout on order refund",
-          orderNumber: order.orderNumber,
-          reason: refundReason,
+      const entry = await this.ledgerRepository.create(
+        {
+          referenceNumber: refNum,
+          walletId: wallet.id,
+          workspaceId,
+          amount: -profit,
+          currency: "BDT",
+          type: "refund",
+          status: "cleared",
+          sourceModule: "refund",
+          referenceType: "order",
+          referenceId: order.id,
+          orderId: order.id,
+          description: `Reverse profit payout on order refund #${order.orderNumber}`,
+          createdBy: "system",
+          metadata: {
+            info: "Reverse profit payout on order refund",
+            orderNumber: order.orderNumber,
+            reason: refundReason,
+          },
         },
-      }, { session });
+        { session },
+      );
 
       const balances = await this.walletService.getBalances(wallet.id);
 
       // Audit Log
-      await this.financeAuditRepository.create({
-        referenceNumber: refNum,
-        action: "refund_processed",
-        walletId: wallet.id,
-        actorId: "system",
-        amount: -profit,
-        oldBalance: balances.availableBalance,
-        newBalance: balances.availableBalance - profit,
-        currency: "BDT",
-        reason: `Order #${order.orderNumber} refund processed. Deducted ৳${(profit / 100).toFixed(2)}`,
-      }, { session });
+      await this.financeAuditRepository.create(
+        {
+          referenceNumber: refNum,
+          action: "refund_processed",
+          walletId: wallet.id,
+          actorId: "system",
+          amount: -profit,
+          oldBalance: balances.availableBalance,
+          newBalance: balances.availableBalance - profit,
+          currency: "BDT",
+          reason: `Order #${order.orderNumber} refund processed. Deducted ৳${(profit / 100).toFixed(2)}`,
+        },
+        { session },
+      );
 
       await EventBus.publish(
         "finance.refund_processed",

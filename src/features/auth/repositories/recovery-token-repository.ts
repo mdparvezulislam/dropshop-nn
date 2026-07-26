@@ -33,7 +33,10 @@ export class RecoveryTokenRepository extends BaseRepository<RecoveryTokenDocumen
     };
   }
 
-  async findByTokenHash(tokenHash: string, options?: DatabaseQueryOptions): Promise<RecoveryToken | null> {
+  async findByTokenHash(
+    tokenHash: string,
+    options?: DatabaseQueryOptions,
+  ): Promise<RecoveryToken | null> {
     try {
       await this.ensureConnected();
       const query = RecoveryTokenModel.findOne({ tokenHash }).session(options?.session || null);
@@ -61,7 +64,10 @@ export class RecoveryTokenRepository extends BaseRepository<RecoveryTokenDocumen
     }
   }
 
-  async findValidToken(token: string, options?: DatabaseQueryOptions): Promise<RecoveryToken | null> {
+  async findValidToken(
+    token: string,
+    options?: DatabaseQueryOptions,
+  ): Promise<RecoveryToken | null> {
     try {
       await this.ensureConnected();
       const session = options?.session;
@@ -145,11 +151,7 @@ export class RecoveryTokenRepository extends BaseRepository<RecoveryTokenDocumen
     try {
       await this.ensureConnected();
       const result = await RecoveryTokenModel.deleteMany({
-        $or: [
-          { status: "used" },
-          { status: "expired" },
-          { expiresAt: { $lt: new Date() } },
-        ],
+        $or: [{ status: "used" }, { status: "expired" }, { expiresAt: { $lt: new Date() } }],
       }).session(options?.session || null);
       return result.deletedCount;
     } catch (error) {

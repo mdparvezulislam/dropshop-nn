@@ -2,7 +2,10 @@ import { BaseRepository } from "@/lib/database/generic-repository";
 import { BusinessMembershipModel, BusinessMembershipDocument } from "./business-membership-model";
 import { BusinessMembershipEntity } from "../domain/business-membership-entity";
 
-export class BusinessMembershipRepository extends BaseRepository<BusinessMembershipDocument, BusinessMembershipEntity> {
+export class BusinessMembershipRepository extends BaseRepository<
+  BusinessMembershipDocument,
+  BusinessMembershipEntity
+> {
   constructor() {
     super(BusinessMembershipModel, BusinessMembershipRepository.mapToDomain);
   }
@@ -28,12 +31,21 @@ export class BusinessMembershipRepository extends BaseRepository<BusinessMembers
   public async findByUserId(userId: string): Promise<BusinessMembershipEntity[]> {
     await this.ensureConnected();
     const docs = await BusinessMembershipModel.find({ userId, deletedAt: null }).lean();
-    return docs.map((d) => BusinessMembershipRepository.mapToDomain(d as unknown as BusinessMembershipDocument));
+    return docs.map((d) =>
+      BusinessMembershipRepository.mapToDomain(d as unknown as BusinessMembershipDocument),
+    );
   }
 
-  public async findByUserAndType(userId: string, membershipType: string): Promise<BusinessMembershipEntity | null> {
+  public async findByUserAndType(
+    userId: string,
+    membershipType: string,
+  ): Promise<BusinessMembershipEntity | null> {
     await this.ensureConnected();
-    const doc = await BusinessMembershipModel.findOne({ userId, membershipType, deletedAt: null }).lean();
+    const doc = await BusinessMembershipModel.findOne({
+      userId,
+      membershipType,
+      deletedAt: null,
+    }).lean();
     if (!doc) return null;
     return BusinessMembershipRepository.mapToDomain(doc as unknown as BusinessMembershipDocument);
   }
@@ -42,7 +54,7 @@ export class BusinessMembershipRepository extends BaseRepository<BusinessMembers
     userId: string,
     membershipType: string,
     grantedBy: string,
-    status: "active" | "suspended" | "expired" = "active"
+    status: "active" | "suspended" | "expired" = "active",
   ): Promise<BusinessMembershipEntity> {
     await this.ensureConnected();
     const doc = await BusinessMembershipModel.findOneAndUpdate(
@@ -56,7 +68,7 @@ export class BusinessMembershipRepository extends BaseRepository<BusinessMembers
           deletedAt: null,
         },
       },
-      { upsert: true, new: true }
+      { upsert: true, new: true },
     ).lean();
     return BusinessMembershipRepository.mapToDomain(doc as unknown as BusinessMembershipDocument);
   }

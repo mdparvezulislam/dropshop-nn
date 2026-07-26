@@ -9,7 +9,13 @@ const CATEGORIES = [
   {
     name: "Electronics",
     href: "/category/electronics",
-    items: ["Smart Watches", "Audio & Speakers", "Power Banks", "Accessories", "Rechargeable Devices"],
+    items: [
+      "Smart Watches",
+      "Audio & Speakers",
+      "Power Banks",
+      "Accessories",
+      "Rechargeable Devices",
+    ],
   },
   {
     name: "Fashion",
@@ -49,10 +55,7 @@ export function MegaMenu({ isOpen, onClose }: MegaMenuProps) {
             <div className="grid grid-cols-2 gap-px bg-border/30">
               {CATEGORIES.map((cat) => (
                 <div key={cat.name} className="p-5 hover:bg-muted/30 transition-colors">
-                  <Link
-                    href={cat.href}
-                    className="flex items-center justify-between group mb-3"
-                  >
+                  <Link href={cat.href} className="flex items-center justify-between group mb-3">
                     <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
                       {cat.name}
                     </span>

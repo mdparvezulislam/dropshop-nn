@@ -74,7 +74,11 @@ export async function cancelOrderAction(formData: unknown): Promise<{
   try {
     const validated = cancelOrderSchema.parse(formData);
     const service = new OrderService();
-    const result = await service.cancelOrder(validated.orderId, validated.reason, validated.cancelledBy);
+    const result = await service.cancelOrder(
+      validated.orderId,
+      validated.reason,
+      validated.cancelledBy,
+    );
     revalidatePath("/dashboard/orders");
     return { success: true, data: result };
   } catch (error: any) {
@@ -118,7 +122,11 @@ export async function updateTrackingAction(formData: unknown): Promise<{
   try {
     const validated = updateTrackingSchema.parse(formData);
     const service = new OrderService();
-    const result = await service.updateTracking(validated.orderId, validated.trackingNumber, validated.trackingUrl);
+    const result = await service.updateTracking(
+      validated.orderId,
+      validated.trackingNumber,
+      validated.trackingUrl,
+    );
     revalidatePath("/dashboard/orders");
     return { success: true, data: result };
   } catch (error: any) {
@@ -156,7 +164,11 @@ export async function requestReturnAction(formData: unknown): Promise<{
   try {
     const validated = requestReturnSchema.parse(formData);
     const service = new OrderService();
-    const result = await service.requestReturn(validated.orderId, validated.reason, validated.requestedBy);
+    const result = await service.requestReturn(
+      validated.orderId,
+      validated.reason,
+      validated.requestedBy,
+    );
     revalidatePath("/dashboard/orders");
     return { success: true, data: result };
   } catch (error: any) {
@@ -194,7 +206,11 @@ export async function refundOrderAction(formData: unknown): Promise<{
   try {
     const validated = refundOrderSchema.parse(formData);
     const service = new OrderService();
-    const result = await service.refundOrder(validated.orderId, validated.refundAmount, validated.refundedBy);
+    const result = await service.refundOrder(
+      validated.orderId,
+      validated.refundAmount,
+      validated.refundedBy,
+    );
     revalidatePath("/dashboard/orders");
     return { success: true, data: result };
   } catch (error: any) {
@@ -246,7 +262,10 @@ export async function listOrdersAction(formData: unknown): Promise<{
   try {
     const validated = orderListQuerySchema.parse(formData);
     const service = new OrderService();
-    const result = await service.listOrders(validated, { page: validated.page, limit: validated.limit });
+    const result = await service.listOrders(validated, {
+      page: validated.page,
+      limit: validated.limit,
+    });
     return { success: true, data: result };
   } catch (error: any) {
     logger.error("listOrdersAction failed", error);

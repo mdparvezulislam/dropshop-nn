@@ -43,8 +43,7 @@ export class ProductAuditRepository extends BaseRepository<ProductAuditDocument,
   async findByAction(action: string, limit: number = 50): Promise<ProductAudit[]> {
     try {
       await this.ensureConnected();
-      const docs = await ProductAuditModel
-        .find({ action })
+      const docs = await ProductAuditModel.find({ action })
         .sort({ createdAt: -1 })
         .limit(limit)
         .exec();
@@ -58,11 +57,7 @@ export class ProductAuditRepository extends BaseRepository<ProductAuditDocument,
   async getRecent(limit: number = 20): Promise<ProductAudit[]> {
     try {
       await this.ensureConnected();
-      const docs = await ProductAuditModel
-        .find({})
-        .sort({ createdAt: -1 })
-        .limit(limit)
-        .exec();
+      const docs = await ProductAuditModel.find({}).sort({ createdAt: -1 }).limit(limit).exec();
       return docs.map((doc) => ProductAuditRepository.mapToDomain(doc as ProductAuditDocument));
     } catch (error) {
       logger.error("ProductAuditRepository getRecent failed", error);

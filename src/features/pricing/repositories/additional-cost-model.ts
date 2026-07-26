@@ -1,5 +1,9 @@
 import mongoose, { Schema } from "mongoose";
-import { baseFieldsDefinition, baseSchemaOptions, softDeletePlugin } from "@/lib/database/base-schema";
+import {
+  baseFieldsDefinition,
+  baseSchemaOptions,
+  softDeletePlugin,
+} from "@/lib/database/base-schema";
 import { BaseDocument } from "@/lib/database/types";
 
 export interface AdditionalCostDBFields {
@@ -21,11 +25,20 @@ const additionalCostSchema = new Schema<AdditionalCostDocument>(
   {
     productId: { type: Schema.Types.ObjectId, ref: "Product", required: true, index: true },
     variantSku: { type: String, required: false, index: true },
-    costType: { type: String, enum: ["import", "shipping", "packaging", "handling", "vat", "tax", "customs", "other"], required: true, index: true },
+    costType: {
+      type: String,
+      enum: ["import", "shipping", "packaging", "handling", "vat", "tax", "customs", "other"],
+      required: true,
+      index: true,
+    },
     label: { type: String, required: true, maxlength: 200 },
     amount: { type: Number, required: true, min: 0 },
     isPercentage: { type: Boolean, default: false },
-    percentageOfField: { type: String, enum: ["baseCostPrice", "purchasePrice", "supplierPrice", "sellingPrice"], required: false },
+    percentageOfField: {
+      type: String,
+      enum: ["baseCostPrice", "purchasePrice", "supplierPrice", "sellingPrice"],
+      required: false,
+    },
     isActive: { type: Boolean, default: true, index: true },
     ...baseFields,
   },

@@ -250,7 +250,10 @@ export async function changeVisibilityAction(id: string, visibility: string) {
   }
 }
 
-export async function updateProductStatusAction(id: string, status: "active" | "draft" | "archived") {
+export async function updateProductStatusAction(
+  id: string,
+  status: "active" | "draft" | "archived",
+) {
   if (status === "active") return publishProductAction(id);
   if (status === "archived") return archiveProductAction(id);
   return updateProductAction(id, { status });

@@ -213,13 +213,15 @@ export async function getPublicContentBySlugAction(
   }
 }
 
-export async function listPublicBlogAction(filters: {
-  page?: number;
-  limit?: number;
-  category?: string;
-  tag?: string;
-  search?: string;
-} = {}): Promise<{ success: boolean; data?: unknown; error?: string }> {
+export async function listPublicBlogAction(
+  filters: {
+    page?: number;
+    limit?: number;
+    category?: string;
+    tag?: string;
+    search?: string;
+  } = {},
+): Promise<{ success: boolean; data?: unknown; error?: string }> {
   try {
     const service = new ContentService();
     const result = await service.list(
@@ -264,7 +266,6 @@ export async function getPublicBlogPostAction(slug: string): Promise<{
     };
   }
 }
-
 
 export async function getBlogTaxonomyAction(): Promise<{
   success: boolean;

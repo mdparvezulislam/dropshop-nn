@@ -11,8 +11,8 @@ export default async function OrdersPage() {
   const result = await getOrdersAction();
   return (
     <OrdersPageContent
-      initialOrders={result.success ? result.data?.items ?? [] : []}
-      initialTotal={result.success ? result.data?.total ?? 0 : 0}
+      initialOrders={result.success ? (result.data?.items ?? []) : []}
+      initialTotal={result.success ? (result.data?.total ?? 0) : 0}
     />
   );
 }

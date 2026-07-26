@@ -6,10 +6,22 @@ import { FileText, Loader2, Download, Calendar, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   getReportsAction,
   generateReportAction,
@@ -35,7 +47,9 @@ export function ReportCenter(): React.ReactElement {
     setLoading(false);
   }, [filterType]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const handleGenerate = async () => {
     if (!generateTitle.trim()) return;
@@ -57,12 +71,18 @@ export function ReportCenter(): React.ReactElement {
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = filename; a.click();
+    a.href = url;
+    a.download = filename;
+    a.click();
     URL.revokeObjectURL(url);
   };
 
   const frequencyColors: Record<string, "default" | "info" | "success" | "warning" | "muted"> = {
-    daily: "info", weekly: "default", monthly: "success", quarterly: "warning", yearly: "muted",
+    daily: "info",
+    weekly: "default",
+    monthly: "success",
+    quarterly: "warning",
+    yearly: "muted",
   };
 
   return (
@@ -74,7 +94,9 @@ export function ReportCenter(): React.ReactElement {
         </div>
         <div className="flex items-center gap-2">
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="w-32"><SelectValue placeholder="All types" /></SelectTrigger>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="All types" />
+            </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Types</SelectItem>
               <SelectItem value="daily">Daily</SelectItem>
@@ -92,16 +114,27 @@ export function ReportCenter(): React.ReactElement {
               </Button>
             </DialogTrigger>
             <DialogContent>
-              <DialogHeader><DialogTitle>Generate Report</DialogTitle></DialogHeader>
+              <DialogHeader>
+                <DialogTitle>Generate Report</DialogTitle>
+              </DialogHeader>
               <div className="space-y-4 pt-2">
                 <div className="space-y-2">
                   <Label>Report Title</Label>
-                  <Input placeholder="Monthly Sales Report" value={generateTitle} onChange={(e) => setGenerateTitle(e.target.value)} />
+                  <Input
+                    placeholder="Monthly Sales Report"
+                    value={generateTitle}
+                    onChange={(e) => setGenerateTitle(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>Frequency</Label>
-                  <Select value={generateType} onValueChange={(v) => setGenerateType(v as ReportFrequency)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                  <Select
+                    value={generateType}
+                    onValueChange={(v) => setGenerateType(v as ReportFrequency)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="daily">Daily</SelectItem>
                       <SelectItem value="weekly">Weekly</SelectItem>
@@ -112,7 +145,11 @@ export function ReportCenter(): React.ReactElement {
                     </SelectContent>
                   </Select>
                 </div>
-                <Button onClick={handleGenerate} disabled={generating || !generateTitle.trim()} className="w-full gap-1.5">
+                <Button
+                  onClick={handleGenerate}
+                  disabled={generating || !generateTitle.trim()}
+                  className="w-full gap-1.5"
+                >
                   {generating && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                   Generate
                 </Button>
@@ -131,7 +168,9 @@ export function ReportCenter(): React.ReactElement {
           <CardContent className="flex flex-col items-center justify-center py-12 text-center">
             <FileText className="mb-3 h-10 w-10 text-muted-foreground/50" />
             <p className="font-medium">No reports generated yet</p>
-            <p className="text-sm text-muted-foreground">Click Generate Report to create your first report.</p>
+            <p className="text-sm text-muted-foreground">
+              Click Generate Report to create your first report.
+            </p>
           </CardContent>
         </Card>
       ) : (
@@ -146,7 +185,9 @@ export function ReportCenter(): React.ReactElement {
                   <div>
                     <p className="font-medium">{report.title}</p>
                     <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                      <Badge variant={frequencyColors[report.type] ?? "muted"} size="xs">{report.type}</Badge>
+                      <Badge variant={frequencyColors[report.type] ?? "muted"} size="xs">
+                        {report.type}
+                      </Badge>
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         {new Date(report.generatedAt).toLocaleDateString()}

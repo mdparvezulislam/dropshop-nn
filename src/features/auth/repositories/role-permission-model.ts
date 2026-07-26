@@ -1,5 +1,9 @@
 import mongoose, { Schema } from "mongoose";
-import { baseFieldsDefinition, baseSchemaOptions, softDeletePlugin } from "@/lib/database/base-schema";
+import {
+  baseFieldsDefinition,
+  baseSchemaOptions,
+  softDeletePlugin,
+} from "@/lib/database/base-schema";
 import { BaseDocument } from "@/lib/database/types";
 
 export interface RolePermissionDBFields {
@@ -26,6 +30,7 @@ rolePermissionSchema.plugin(softDeletePlugin);
 rolePermissionSchema.index({ roleName: 1, permissionName: 1 }, { unique: true });
 
 export const RolePermissionModel =
-  mongoose.models.RolePermission || mongoose.model<RolePermissionDocument>("RolePermission", rolePermissionSchema);
+  mongoose.models.RolePermission ||
+  mongoose.model<RolePermissionDocument>("RolePermission", rolePermissionSchema);
 
 export default RolePermissionModel;

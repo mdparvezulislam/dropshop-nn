@@ -1,5 +1,9 @@
 import mongoose, { Schema } from "mongoose";
-import { baseFieldsDefinition, baseSchemaOptions, softDeletePlugin } from "@/lib/database/base-schema";
+import {
+  baseFieldsDefinition,
+  baseSchemaOptions,
+  softDeletePlugin,
+} from "@/lib/database/base-schema";
 import type { BaseDocument } from "@/lib/database/types";
 
 export interface WishlistItemDBFields {
@@ -24,5 +28,6 @@ wishlistItemSchema.index({ userId: 1, productId: 1 }, { unique: true });
 wishlistItemSchema.plugin(softDeletePlugin);
 
 export const WishlistItemModel =
-  mongoose.models.WishlistItem || mongoose.model<WishlistItemDocument>("WishlistItem", wishlistItemSchema);
+  mongoose.models.WishlistItem ||
+  mongoose.model<WishlistItemDocument>("WishlistItem", wishlistItemSchema);
 export default WishlistItemModel;

@@ -20,7 +20,10 @@ export const updateFeatureFlagSchema = z.object({
 
 export const updateMaintenanceSchema = z.object({
   enabled: z.boolean(),
-  message: z.string().optional().default("System is under scheduled maintenance. Please check back shortly."),
+  message: z
+    .string()
+    .optional()
+    .default("System is under scheduled maintenance. Please check back shortly."),
   allowedRoles: z.array(z.string()).optional().default(["admin"]),
   whitelistedIPs: z.array(z.string()).optional().default([]),
 });

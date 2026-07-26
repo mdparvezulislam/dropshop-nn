@@ -4,7 +4,11 @@ import { auth } from "@/lib/auth";
 import { businessMembershipService } from "../services/business-membership-service";
 import { businessMembershipApplicationRepository } from "../repositories/business-membership-application-repository";
 import { businessMembershipRepository } from "../repositories/business-membership-repository";
-import { CommonApplicationFields, ResellerApplicationFields, WholesalerApplicationFields } from "../domain/business-membership-entity";
+import {
+  CommonApplicationFields,
+  ResellerApplicationFields,
+  WholesalerApplicationFields,
+} from "../domain/business-membership-entity";
 
 export async function submitMembershipApplicationAction(input: {
   membershipType: string;
@@ -14,7 +18,8 @@ export async function submitMembershipApplicationAction(input: {
 }) {
   try {
     const session = await auth();
-    const user = session?.user as { id?: string; name?: string | null; email?: string | null } | undefined;
+    const user = session?.user as
+      { id?: string; name?: string | null; email?: string | null } | undefined;
     if (!user || !user.id) {
       return { success: false, error: "আবেদন করার জন্য প্রথমে লগইন করা আবশ্যক।" };
     }
@@ -76,7 +81,10 @@ export async function getUserMembershipStatusAction(membershipType: string) {
     const session = await auth();
     const user = session?.user as { id?: string } | undefined;
     if (!user || !user.id) {
-      return { success: true, data: { isLoggedIn: false, activeApplication: null, isMember: false } };
+      return {
+        success: true,
+        data: { isLoggedIn: false, activeApplication: null, isMember: false },
+      };
     }
 
     const [activeApp, memberships] = await Promise.all([
@@ -84,7 +92,9 @@ export async function getUserMembershipStatusAction(membershipType: string) {
       businessMembershipRepository.findByUserId(user.id),
     ]);
 
-    const isMember = memberships.some((m) => m.membershipType === membershipType && m.status === "active");
+    const isMember = memberships.some(
+      (m) => m.membershipType === membershipType && m.status === "active",
+    );
 
     return {
       success: true,

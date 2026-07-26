@@ -30,7 +30,8 @@ export function ImageZoomModal({
       <DialogContent className="max-w-4xl border border-border bg-card shadow-2xl rounded-2xl p-6">
         <DialogHeader className="flex flex-row items-center justify-between pb-3">
           <DialogTitle className="text-base font-bold flex items-center gap-2 text-foreground">
-            <Maximize2 className="h-4 w-4 text-primary" /> ImageKit HD Preview & Responsive Inspector
+            <Maximize2 className="h-4 w-4 text-primary" /> ImageKit HD Preview & Responsive
+            Inspector
           </DialogTitle>
           <div className="flex items-center gap-1 rounded-lg border border-border bg-muted/40 p-1">
             <button
@@ -38,7 +39,9 @@ export function ImageZoomModal({
               onClick={() => setDevice("desktop")}
               className={cn(
                 "rounded-md p-1 text-xs font-semibold transition-all",
-                device === "desktop" ? "bg-primary text-primary-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground",
+                device === "desktop"
+                  ? "bg-primary text-primary-foreground shadow-2xs"
+                  : "text-muted-foreground hover:text-foreground",
               )}
               title="Desktop view"
             >
@@ -49,7 +52,9 @@ export function ImageZoomModal({
               onClick={() => setDevice("tablet")}
               className={cn(
                 "rounded-md p-1 text-xs font-semibold transition-all",
-                device === "tablet" ? "bg-primary text-primary-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground",
+                device === "tablet"
+                  ? "bg-primary text-primary-foreground shadow-2xs"
+                  : "text-muted-foreground hover:text-foreground",
               )}
               title="Tablet view"
             >
@@ -60,7 +65,9 @@ export function ImageZoomModal({
               onClick={() => setDevice("mobile")}
               className={cn(
                 "rounded-md p-1 text-xs font-semibold transition-all",
-                device === "mobile" ? "bg-primary text-primary-foreground shadow-2xs" : "text-muted-foreground hover:text-foreground",
+                device === "mobile"
+                  ? "bg-primary text-primary-foreground shadow-2xs"
+                  : "text-muted-foreground hover:text-foreground",
               )}
               title="Mobile view"
             >
@@ -94,7 +101,9 @@ export function ImageZoomModal({
             <Button size="icon-sm" variant="ghost" onClick={handleZoomOut} title="Zoom out">
               <ZoomOut className="h-4 w-4" />
             </Button>
-            <span className="text-xs font-mono font-bold px-2 text-foreground">{Math.round(zoom * 100)}%</span>
+            <span className="text-xs font-mono font-bold px-2 text-foreground">
+              {Math.round(zoom * 100)}%
+            </span>
             <Button size="icon-sm" variant="ghost" onClick={handleZoomIn} title="Zoom in">
               <ZoomIn className="h-4 w-4" />
             </Button>

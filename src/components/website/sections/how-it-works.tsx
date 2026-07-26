@@ -4,12 +4,14 @@ const steps = [
   {
     icon: Store,
     title: "Browse & Select",
-    description: "Explore thousands of products from verified suppliers. Add items to your store with one click.",
+    description:
+      "Explore thousands of products from verified suppliers. Add items to your store with one click.",
   },
   {
     icon: ShoppingCart,
     title: "Customer Orders",
-    description: "When a customer places an order, we automatically fulfill it from our supplier network.",
+    description:
+      "When a customer places an order, we automatically fulfill it from our supplier network.",
   },
   {
     icon: TrendingUp,
@@ -35,7 +37,10 @@ export function HowItWorks() {
           {steps.map((step, index) => (
             <div key={step.title} className="relative flex flex-col items-center text-center">
               {index < steps.length - 1 && (
-                <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-px bg-[hsl(0_0%_91%)] border-t-2 border-dashed border-[hsl(0_0%_91%)] pointer-events-none" style={{ borderTopStyle: "dashed" }} />
+                <div
+                  className="hidden md:block absolute top-8 left-[60%] w-[80%] h-px bg-[hsl(0_0%_91%)] border-t-2 border-dashed border-[hsl(0_0%_91%)] pointer-events-none"
+                  style={{ borderTopStyle: "dashed" }}
+                />
               )}
               <div className="relative">
                 <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 relative z-10 border-2 border-primary/20">
@@ -46,7 +51,9 @@ export function HowItWorks() {
                 </div>
               </div>
               <h3 className="text-lg font-bold text-[hsl(222_47%_11%)] mb-2">{step.title}</h3>
-              <p className="text-sm text-[hsl(215_16%_47%)] leading-relaxed max-w-xs">{step.description}</p>
+              <p className="text-sm text-[hsl(215_16%_47%)] leading-relaxed max-w-xs">
+                {step.description}
+              </p>
             </div>
           ))}
         </div>

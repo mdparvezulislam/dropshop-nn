@@ -1,6 +1,16 @@
 import { EngineRegistry, type EngineLifecycle } from "./engine-registry";
-import type { PlatformEngine, PlatformEngineId, BootstrapContext, EngineStatus } from "./platform-types";
-import { FeatureFlags, Settings, DEFAULT_FEATURE_FLAGS, DEFAULT_SETTINGS } from "@/lib/core/feature-flags";
+import type {
+  PlatformEngine,
+  PlatformEngineId,
+  BootstrapContext,
+  EngineStatus,
+} from "./platform-types";
+import {
+  FeatureFlags,
+  Settings,
+  DEFAULT_FEATURE_FLAGS,
+  DEFAULT_SETTINGS,
+} from "@/lib/core/feature-flags";
 import { logger } from "@/lib/utils/logger";
 
 const BOOTSTRAP_PHASES: { name: string; order: number; engines: PlatformEngineId[] }[] = [
@@ -53,7 +63,10 @@ export class PlatformBootstrap {
 
     if (context.errors.length > 0) {
       for (const err of context.errors) {
-        logger.error(`PlatformBootstrap: engine "${err.engineId}" failed at ${err.phase}`, err.message);
+        logger.error(
+          `PlatformBootstrap: engine "${err.engineId}" failed at ${err.phase}`,
+          err.message,
+        );
       }
     }
 
@@ -63,56 +76,198 @@ export class PlatformBootstrap {
   private static async registerDefaultEngines(): Promise<void> {
     const coreEngines: { engine: PlatformEngine; lifecycle?: EngineLifecycle }[] = [
       {
-        engine: { id: "CORE", name: "Core Engine", description: "Platform kernel: feature flags, settings, event bus", version: "1.0.0", enabled: true },
-        lifecycle: { preInit: async () => { PlatformBootstrap.registerCore(); } },
+        engine: {
+          id: "CORE",
+          name: "Core Engine",
+          description: "Platform kernel: feature flags, settings, event bus",
+          version: "1.0.0",
+          enabled: true,
+        },
+        lifecycle: {
+          preInit: async () => {
+            PlatformBootstrap.registerCore();
+          },
+        },
       },
       {
-        engine: { id: "IDENTITY", name: "Identity Engine", description: "Business workspace, profiles, approvals, sessions", version: "1.0.0", enabled: true },
-        lifecycle: { init: async () => { const { registerIdentityModule } = await import("@/features/identity/init"); registerIdentityModule(); } },
+        engine: {
+          id: "IDENTITY",
+          name: "Identity Engine",
+          description: "Business workspace, profiles, approvals, sessions",
+          version: "1.0.0",
+          enabled: true,
+        },
+        lifecycle: {
+          init: async () => {
+            const { registerIdentityModule } = await import("@/features/identity/init");
+            registerIdentityModule();
+          },
+        },
       },
       {
-        engine: { id: "CATALOG", name: "Catalog Engine", description: "Enterprise product catalog with variants, media, SEO", version: "1.0.0", enabled: true },
-        lifecycle: { init: async () => { const { registerCatalogModule } = await import("@/features/catalog/init"); registerCatalogModule(); } },
+        engine: {
+          id: "CATALOG",
+          name: "Catalog Engine",
+          description: "Enterprise product catalog with variants, media, SEO",
+          version: "1.0.0",
+          enabled: true,
+        },
+        lifecycle: {
+          init: async () => {
+            const { registerCatalogModule } = await import("@/features/catalog/init");
+            registerCatalogModule();
+          },
+        },
       },
       {
-        engine: { id: "COST", name: "Cost Engine", description: "Versioned product cost intelligence & history with landed cost breakdowns", version: "1.0.0", enabled: true },
-        lifecycle: { init: async () => { const { registerCostModule } = await import("@/features/cost/init"); registerCostModule(); } },
+        engine: {
+          id: "COST",
+          name: "Cost Engine",
+          description: "Versioned product cost intelligence & history with landed cost breakdowns",
+          version: "1.0.0",
+          enabled: true,
+        },
+        lifecycle: {
+          init: async () => {
+            const { registerCostModule } = await import("@/features/cost/init");
+            registerCostModule();
+          },
+        },
       },
       {
-        engine: { id: "PRICING", name: "Pricing Engine", description: "Pricing rules, profit calculation, tier pricing", version: "1.0.0", enabled: true },
-        lifecycle: { init: async () => { const { registerPricingModule } = await import("@/features/pricing/init"); registerPricingModule(); } },
+        engine: {
+          id: "PRICING",
+          name: "Pricing Engine",
+          description: "Pricing rules, profit calculation, tier pricing",
+          version: "1.0.0",
+          enabled: true,
+        },
+        lifecycle: {
+          init: async () => {
+            const { registerPricingModule } = await import("@/features/pricing/init");
+            registerPricingModule();
+          },
+        },
       },
       {
-        engine: { id: "INVENTORY", name: "Inventory Engine", description: "Stock management, reservations, supplier stock", version: "1.0.0", enabled: true },
-        lifecycle: { init: async () => { const { registerInventoryModule } = await import("@/features/inventory/init"); registerInventoryModule(); } },
+        engine: {
+          id: "INVENTORY",
+          name: "Inventory Engine",
+          description: "Stock management, reservations, supplier stock",
+          version: "1.0.0",
+          enabled: true,
+        },
+        lifecycle: {
+          init: async () => {
+            const { registerInventoryModule } = await import("@/features/inventory/init");
+            registerInventoryModule();
+          },
+        },
       },
       {
-        engine: { id: "SUPPLIER", name: "Supplier Engine", description: "Supplier profiles, performance tracking, product mapping", version: "1.0.0", enabled: true },
-        lifecycle: { init: async () => { const { registerSupplierFeatureFlags } = await import("@/features/supplier/init"); registerSupplierFeatureFlags(); } },
+        engine: {
+          id: "SUPPLIER",
+          name: "Supplier Engine",
+          description: "Supplier profiles, performance tracking, product mapping",
+          version: "1.0.0",
+          enabled: true,
+        },
+        lifecycle: {
+          init: async () => {
+            const { registerSupplierFeatureFlags } = await import("@/features/supplier/init");
+            registerSupplierFeatureFlags();
+          },
+        },
       },
       {
-        engine: { id: "CHECKOUT", name: "Checkout Engine", description: "Cart, checkout sessions, order draft creation", version: "1.0.0", enabled: true },
-        lifecycle: { init: async () => { const { registerCheckoutFeatureFlags } = await import("@/features/checkout/init"); registerCheckoutFeatureFlags(); } },
+        engine: {
+          id: "CHECKOUT",
+          name: "Checkout Engine",
+          description: "Cart, checkout sessions, order draft creation",
+          version: "1.0.0",
+          enabled: true,
+        },
+        lifecycle: {
+          init: async () => {
+            const { registerCheckoutFeatureFlags } = await import("@/features/checkout/init");
+            registerCheckoutFeatureFlags();
+          },
+        },
       },
       {
-        engine: { id: "ORDER", name: "Order Engine", description: "Order lifecycle, state machine, timeline, returns", version: "1.0.0", enabled: true },
-        lifecycle: { init: async () => { const { registerOrderFeatureFlags } = await import("@/features/order/init"); registerOrderFeatureFlags(); } },
+        engine: {
+          id: "ORDER",
+          name: "Order Engine",
+          description: "Order lifecycle, state machine, timeline, returns",
+          version: "1.0.0",
+          enabled: true,
+        },
+        lifecycle: {
+          init: async () => {
+            const { registerOrderFeatureFlags } = await import("@/features/order/init");
+            registerOrderFeatureFlags();
+          },
+        },
       },
       {
-        engine: { id: "CUSTOMER", name: "Customer Engine", description: "Customer profiles, addresses, notes, timeline, statistics", version: "1.0.0", enabled: true },
-        lifecycle: { init: async () => { const { registerCustomerFeatureFlags } = await import("@/features/customer/init"); registerCustomerFeatureFlags(); } },
+        engine: {
+          id: "CUSTOMER",
+          name: "Customer Engine",
+          description: "Customer profiles, addresses, notes, timeline, statistics",
+          version: "1.0.0",
+          enabled: true,
+        },
+        lifecycle: {
+          init: async () => {
+            const { registerCustomerFeatureFlags } = await import("@/features/customer/init");
+            registerCustomerFeatureFlags();
+          },
+        },
       },
       {
-        engine: { id: "FINANCE", name: "Finance Engine", description: "Wallet, ledger, invoicing, payouts, withdrawals", version: "1.0.0", enabled: true },
-        lifecycle: { init: async () => { const { registerFinanceFeatureFlags } = await import("@/features/finance/init"); registerFinanceFeatureFlags(); } },
+        engine: {
+          id: "FINANCE",
+          name: "Finance Engine",
+          description: "Wallet, ledger, invoicing, payouts, withdrawals",
+          version: "1.0.0",
+          enabled: true,
+        },
+        lifecycle: {
+          init: async () => {
+            const { registerFinanceFeatureFlags } = await import("@/features/finance/init");
+            registerFinanceFeatureFlags();
+          },
+        },
       },
       {
-        engine: { id: "COURIER", name: "Courier Engine", description: "Multicourier dispatch, tracking, pickup scheduling", version: "1.0.0", enabled: true },
-        lifecycle: { init: async () => { const { registerCourierFeatureFlags } = await import("@/features/courier/init"); registerCourierFeatureFlags(); } },
+        engine: {
+          id: "COURIER",
+          name: "Courier Engine",
+          description: "Multicourier dispatch, tracking, pickup scheduling",
+          version: "1.0.0",
+          enabled: true,
+        },
+        lifecycle: {
+          init: async () => {
+            const { registerCourierFeatureFlags } = await import("@/features/courier/init");
+            registerCourierFeatureFlags();
+          },
+        },
       },
       {
-        engine: { id: "CMS", name: "CMS Engine", description: "Headless content, media library, navigation, SEO", version: "1.0.0", enabled: true },
-        lifecycle: { init: async () => { const { registerCmsModule } = await import("@/features/cms/init"); registerCmsModule(); } },
+        engine: {
+          id: "CMS",
+          name: "CMS Engine",
+          description: "Headless content, media library, navigation, SEO",
+          version: "1.0.0",
+          enabled: true,
+        },
+        lifecycle: {
+          init: async () => {
+            const { registerCmsModule } = await import("@/features/cms/init");
+            registerCmsModule();
+          },
+        },
       },
       {
         engine: {
@@ -139,9 +294,7 @@ export class PlatformBootstrap {
         },
         lifecycle: {
           init: async () => {
-            const { registerNotificationModule } = await import(
-              "@/features/notification/init"
-            );
+            const { registerNotificationModule } = await import("@/features/notification/init");
             registerNotificationModule();
           },
         },
@@ -185,7 +338,6 @@ export class PlatformBootstrap {
   }
 
   private static registerCore(): void {
-
     for (const flag of DEFAULT_FEATURE_FLAGS) {
       try {
         FeatureFlags.register(flag);
@@ -202,14 +354,20 @@ export class PlatformBootstrap {
       }
     }
 
-    logger.info(`Core: registered ${DEFAULT_FEATURE_FLAGS.length} default feature flags, ${DEFAULT_SETTINGS.length} default settings`);
+    logger.info(
+      `Core: registered ${DEFAULT_FEATURE_FLAGS.length} default feature flags, ${DEFAULT_SETTINGS.length} default settings`,
+    );
   }
 
   static getContext(): BootstrapContext | null {
     return bootstrapContext;
   }
 
-  static async verifyEngines(): Promise<{ registered: string[]; enabled: string[]; failed: string[] }> {
+  static async verifyEngines(): Promise<{
+    registered: string[];
+    enabled: string[];
+    failed: string[];
+  }> {
     const all = EngineRegistry.getAll();
     const enabled = EngineRegistry.getEnabled();
     const ctx = bootstrapContext;

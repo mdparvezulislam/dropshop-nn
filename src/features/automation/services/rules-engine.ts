@@ -1,4 +1,9 @@
-import type { RuleCondition, WorkflowRule, WorkflowAction, LogicalOperator } from "../domain/automation-entity";
+import type {
+  RuleCondition,
+  WorkflowRule,
+  WorkflowAction,
+  LogicalOperator,
+} from "../domain/automation-entity";
 
 export interface ConditionContext {
   event: Record<string, unknown>;
@@ -59,7 +64,7 @@ function resolveNestedValue(obj: Record<string, unknown>, path: string): unknown
 function evaluateLogicalGroup(
   conditions: RuleCondition[],
   logicalOperator: LogicalOperator,
-  ctx: ConditionContext
+  ctx: ConditionContext,
 ): boolean {
   const results = conditions.map((c) => evaluateCondition(c, ctx));
 
@@ -98,7 +103,10 @@ export function evaluateRules(rules: WorkflowRule[], ctx: ConditionContext): Rul
   return { matched: false, matchedActions: [] };
 }
 
-export function evaluateAllRules(rules: WorkflowRule[], ctx: ConditionContext): RulesEngineResult[] {
+export function evaluateAllRules(
+  rules: WorkflowRule[],
+  ctx: ConditionContext,
+): RulesEngineResult[] {
   return rules
     .sort((a, b) => a.priority - b.priority)
     .map((rule) => ({
@@ -107,9 +115,7 @@ export function evaluateAllRules(rules: WorkflowRule[], ctx: ConditionContext): 
     }))
     .map(({ rule, matched }) => ({
       matched,
-      matchedActions: matched
-        ? rule.actions.sort((a, b) => a.order - b.order)
-        : [],
+      matchedActions: matched ? rule.actions.sort((a, b) => a.order - b.order) : [],
       matchedRuleName: rule.name,
     }));
 }

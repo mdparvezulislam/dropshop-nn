@@ -18,7 +18,12 @@ const paymentOptions: PaymentOption[] = [
   { id: "bkash", label: "bKash", description: "Send money to bKash number", icon: Smartphone },
   { id: "nagad", label: "Nagad", description: "Send money to Nagad number", icon: Smartphone },
   { id: "rocket", label: "Rocket", description: "Send money to Rocket number", icon: Smartphone },
-  { id: "bank", label: "Bank Transfer", description: "Deposit to our bank account", icon: Building2 },
+  {
+    id: "bank",
+    label: "Bank Transfer",
+    description: "Deposit to our bank account",
+    icon: Building2,
+  },
   { id: "wallet", label: "Wallet", description: "Pay using your balance", icon: Wallet },
 ];
 
@@ -29,7 +34,12 @@ interface CheckoutPaymentFormProps {
   onBack: () => void;
 }
 
-export function CheckoutPaymentForm({ selected, onSelect, onSubmit, onBack }: CheckoutPaymentFormProps) {
+export function CheckoutPaymentForm({
+  selected,
+  onSelect,
+  onSubmit,
+  onBack,
+}: CheckoutPaymentFormProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -57,10 +67,12 @@ export function CheckoutPaymentForm({ selected, onSelect, onSubmit, onBack }: Ch
                   : "border-border/60 bg-card hover:border-border hover:shadow-sm",
               )}
             >
-              <div className={cn(
-                "p-2 rounded-lg shrink-0 transition-colors",
-                isSelected ? "bg-primary/10 text-primary" : "bg-muted text-foreground/50",
-              )}>
+              <div
+                className={cn(
+                  "p-2 rounded-lg shrink-0 transition-colors",
+                  isSelected ? "bg-primary/10 text-primary" : "bg-muted text-foreground/50",
+                )}
+              >
                 <option.icon className="h-5 w-5" />
               </div>
               <div>

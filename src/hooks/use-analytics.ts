@@ -2,7 +2,10 @@
 
 import { useCallback, useEffect, useRef } from "react";
 import { trackAnalyticsEventAction } from "@/features/analytics/actions/analytics-actions";
-import type { AnalyticsEventName, AnalyticsModule } from "@/features/analytics/domain/analytics-entity";
+import type {
+  AnalyticsEventName,
+  AnalyticsModule,
+} from "@/features/analytics/domain/analytics-entity";
 
 const SESSION_KEY = "dropshopnn_analytics_sid";
 
@@ -57,5 +60,8 @@ export function useAnalytics() {
     });
   }, []);
 
-  return { track, sessionId: sessionId.current || (typeof window !== "undefined" ? getSessionId() : "") };
+  return {
+    track,
+    sessionId: sessionId.current || (typeof window !== "undefined" ? getSessionId() : ""),
+  };
 }

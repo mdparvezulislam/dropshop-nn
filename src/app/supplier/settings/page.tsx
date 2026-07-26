@@ -2,13 +2,7 @@
 
 import * as React from "react";
 import { toast } from "sonner";
-import {
-  Bell,
-  Globe,
-  Package,
-  Save,
-  RefreshCw,
-} from "lucide-react";
+import { Bell, Globe, Package, Save, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,23 +44,31 @@ export default function SupplierSettingsPage(): React.ReactElement {
             <div className="space-y-1.5">
               <Label className="text-xs">Auto-accept Orders</Label>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Automatically accept incoming orders</span>
+                <span className="text-sm text-muted-foreground">
+                  Automatically accept incoming orders
+                </span>
                 <Switch defaultChecked />
               </div>
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs">Allow Backorders</Label>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Accept orders for out-of-stock items</span>
+                <span className="text-sm text-muted-foreground">
+                  Accept orders for out-of-stock items
+                </span>
                 <Switch />
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="processingTime" className="text-xs">Processing Time (days)</Label>
+              <Label htmlFor="processingTime" className="text-xs">
+                Processing Time (days)
+              </Label>
               <Input id="processingTime" type="number" min="1" defaultValue="2" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="shippingTime" className="text-xs">Shipping Time (days)</Label>
+              <Label htmlFor="shippingTime" className="text-xs">
+                Shipping Time (days)
+              </Label>
               <Input id="shippingTime" type="number" min="1" defaultValue="3" />
             </div>
           </CardContent>
@@ -80,11 +82,15 @@ export default function SupplierSettingsPage(): React.ReactElement {
           </CardHeader>
           <CardContent className="p-4 space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="returnPolicy" className="text-xs">Return Policy</Label>
+              <Label htmlFor="returnPolicy" className="text-xs">
+                Return Policy
+              </Label>
               <Input id="returnPolicy" placeholder="e.g. 7 days, 30 days" defaultValue="7 days" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="warrantyDays" className="text-xs">Warranty Period (days)</Label>
+              <Label htmlFor="warrantyDays" className="text-xs">
+                Warranty Period (days)
+              </Label>
               <Input id="warrantyDays" type="number" min="0" defaultValue="0" />
             </div>
           </CardContent>

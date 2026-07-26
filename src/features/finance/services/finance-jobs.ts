@@ -36,9 +36,13 @@ export class FinanceJobs {
     for (const entry of pendingEntries) {
       try {
         await runInTransaction(async (session) => {
-          await this.ledgerRepository.update(entry.id, {
-            status: "cleared",
-          }, { session });
+          await this.ledgerRepository.update(
+            entry.id,
+            {
+              status: "cleared",
+            },
+            { session },
+          );
           clearedCount++;
         });
       } catch (err) {
@@ -69,23 +73,37 @@ export class FinanceJobs {
     for (const w of staleWithdrawals) {
       try {
         await runInTransaction(async (session) => {
-          await this.withdrawalRepository.update(w.id, {
-            status: "cancelled",
-            metadata: { ...w.metadata, cancellationReason: `Auto-expired after ${expireDays} days` },
-          }, { session });
+          await this.withdrawalRepository.update(
+            w.id,
+            {
+              status: "cancelled",
+              metadata: {
+                ...w.metadata,
+                cancellationReason: `Auto-expired after ${expireDays} days`,
+              },
+            },
+            { session },
+          );
 
           // Cancel the locked ledger debit entry
-          const ledgerEntries = await this.ledgerRepository.find({
-            walletId: w.walletId,
-            referenceType: "withdrawal",
-            referenceId: w.id,
-            status: "locked",
-          }, { session });
+          const ledgerEntries = await this.ledgerRepository.find(
+            {
+              walletId: w.walletId,
+              referenceType: "withdrawal",
+              referenceId: w.id,
+              status: "locked",
+            },
+            { session },
+          );
 
           for (const le of ledgerEntries) {
-            await this.ledgerRepository.update(le.id, {
-              status: "cancelled",
-            }, { session });
+            await this.ledgerRepository.update(
+              le.id,
+              {
+                status: "cancelled",
+              },
+              { session },
+            );
           }
 
           expiredCount++;
@@ -109,7 +127,7 @@ export class FinanceJobs {
     for (const wallet of wallets) {
       try {
         const balances = await this.walletService.getBalances(wallet.id);
-        
+
         // Ledger reconciliation check: Available balance + Pending balance + Locked balance
         // is checked against the database ledger records.
         // We log audit reports.

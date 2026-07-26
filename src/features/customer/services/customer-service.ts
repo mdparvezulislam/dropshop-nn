@@ -1,5 +1,11 @@
 import { CustomerRepository } from "../repositories/customer-repository";
-import type { Customer, CustomerAddress, CustomerNote, CustomerStatus, AddressType } from "../domain/customer-entity";
+import type {
+  Customer,
+  CustomerAddress,
+  CustomerNote,
+  CustomerStatus,
+  AddressType,
+} from "../domain/customer-entity";
 import { OrderRepository } from "@/features/order/repositories/order-repository";
 import { logger } from "@/lib/utils/logger";
 import { EventBus } from "@/lib/event-bus/event-bus";
@@ -26,44 +32,55 @@ export class CustomerService {
     this.orderRepository = new OrderRepository();
   }
 
-  async createCustomer(input: CreateCustomerInput, actorId?: string, options?: { session?: any }): Promise<Customer> {
+  async createCustomer(
+    input: CreateCustomerInput,
+    actorId?: string,
+    options?: { session?: any },
+  ): Promise<Customer> {
     const execute = async (session: any) => {
       // Check duplicate phone in the same workspace
-      const existing = await this.customerRepository.findByPhone(input.phone, input.workspaceId, { session });
+      const existing = await this.customerRepository.findByPhone(input.phone, input.workspaceId, {
+        session,
+      });
       if (existing) {
-        throw new Error(`Customer with phone number ${input.phone} already exists in this workspace`);
+        throw new Error(
+          `Customer with phone number ${input.phone} already exists in this workspace`,
+        );
       }
 
-      const customer = await this.customerRepository.create({
-        workspaceId: input.workspaceId,
-        name: input.name,
-        phone: input.phone,
-        alternativePhone: input.alternativePhone,
-        email: input.email,
-        gender: input.gender,
-        birthDate: input.birthDate,
-        profileImage: input.profileImage,
-        status: "active",
-        source: input.source,
-        addresses: [],
-        notes: [],
-        tags: ["Regular"],
-        timeline: [
-          {
-            eventType: "customer.created",
-            timestamp: new Date(),
-            message: `Customer profile initialized via ${input.source}`,
-            actorId,
+      const customer = await this.customerRepository.create(
+        {
+          workspaceId: input.workspaceId,
+          name: input.name,
+          phone: input.phone,
+          alternativePhone: input.alternativePhone,
+          email: input.email,
+          gender: input.gender,
+          birthDate: input.birthDate,
+          profileImage: input.profileImage,
+          status: "active",
+          source: input.source,
+          addresses: [],
+          notes: [],
+          tags: ["Regular"],
+          timeline: [
+            {
+              eventType: "customer.created",
+              timestamp: new Date(),
+              message: `Customer profile initialized via ${input.source}`,
+              actorId,
+            },
+          ],
+          statistics: {
+            totalOrders: 0,
+            completedOrders: 0,
+            cancelledOrders: 0,
+            totalSpend: 0,
+            averageOrderValue: 0,
           },
-        ],
-        statistics: {
-          totalOrders: 0,
-          completedOrders: 0,
-          cancelledOrders: 0,
-          totalSpend: 0,
-          averageOrderValue: 0,
         },
-      }, { session });
+        { session },
+      );
 
       await EventBus.publish(
         "customer.created",
@@ -104,9 +121,13 @@ export class CustomerService {
 
       // Check unique constraint if phone changes
       if (data.phone && data.phone !== customer.phone) {
-        const dup = await this.customerRepository.findByPhone(data.phone, customer.workspaceId, { session });
+        const dup = await this.customerRepository.findByPhone(data.phone, customer.workspaceId, {
+          session,
+        });
         if (dup) {
-          throw new Error(`Phone number ${data.phone} already linked to another client in this workspace`);
+          throw new Error(
+            `Phone number ${data.phone} already linked to another client in this workspace`,
+          );
         }
       }
 
@@ -236,11 +257,7 @@ export class CustomerService {
         },
       ];
 
-      return this.customerRepository.update(
-        customerId,
-        { notes, timeline },
-        { session },
-      );
+      return this.customerRepository.update(customerId, { notes, timeline }, { session });
     });
   }
 
@@ -323,11 +340,7 @@ export class CustomerService {
         },
       ];
 
-      await this.customerRepository.update(
-        customer.id,
-        { timeline },
-        { session },
-      );
+      await this.customerRepository.update(customer.id, { timeline }, { session });
 
       // Re-trigger stats update to account for the new order count
       await this.refreshStatistics(order.id, { session });
@@ -371,7 +384,7 @@ export class CustomerService {
 
       for (const ord of ordersList) {
         totalOrders++;
-        
+
         if (ord.status === "completed") {
           completedOrders++;
           totalSpend += ord.pricing.grandTotal;

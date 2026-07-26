@@ -5,7 +5,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Customer Reviews & Ratings - DropshopNN Bangladesh",
-  description: "Read real verified customer reviews and feedback for chargers, TWS earbuds, and tech accessories.",
+  description:
+    "Read real verified customer reviews and feedback for chargers, TWS earbuds, and tech accessories.",
 };
 
 const REVIEWS = [
@@ -16,7 +17,8 @@ const REVIEWS = [
     rating: 5,
     date: "2026-07-18",
     productName: "UGREEN Nexode 65W GaN Charger",
-    content: "Original product! Delivered in 24 hours via Pathao. 65W fast charging works seamlessly with my MacBook Pro.",
+    content:
+      "Original product! Delivered in 24 hours via Pathao. 65W fast charging works seamlessly with my MacBook Pro.",
     verified: true,
   },
   {
@@ -26,7 +28,8 @@ const REVIEWS = [
     rating: 5,
     date: "2026-07-15",
     productName: "Anker Soundcore Liberty 4 NC Earbuds",
-    content: "Sound quality and ANC noise cancellation are top class. Official warranty card included inside packaging.",
+    content:
+      "Sound quality and ANC noise cancellation are top class. Official warranty card included inside packaging.",
     verified: true,
   },
   {
@@ -36,7 +39,8 @@ const REVIEWS = [
     rating: 5,
     date: "2026-07-12",
     productName: "Logitech MX Master 3S Mouse",
-    content: "Quiet click functionality is awesome for night productivity. Great reseller price margins too.",
+    content:
+      "Quiet click functionality is awesome for night productivity. Great reseller price margins too.",
     verified: true,
   },
   {
@@ -46,7 +50,8 @@ const REVIEWS = [
     rating: 5,
     date: "2026-07-10",
     productName: "Xiaomi Router AX3000T WiFi 6",
-    content: "Full house coverage with 5GHz WiFi 6 speeds. Smooth experience ordering from DropshopNN.",
+    content:
+      "Full house coverage with 5GHz WiFi 6 speeds. Smooth experience ordering from DropshopNN.",
     verified: true,
   },
 ];
@@ -64,7 +69,8 @@ export default function ReviewsPage() {
             Customer Reviews & Feedback
           </h1>
           <p className="text-sm text-slate-400">
-            Read real feedback from retail buyers, resellers, and wholesale traders across Bangladesh.
+            Read real feedback from retail buyers, resellers, and wholesale traders across
+            Bangladesh.
           </p>
         </div>
 
@@ -77,7 +83,9 @@ export default function ReviewsPage() {
                 <Star key={i} className="w-5 h-5 fill-amber-400" />
               ))}
             </div>
-            <p className="text-xs text-slate-400">Based on 1,450+ verified customer purchases in BD</p>
+            <p className="text-xs text-slate-400">
+              Based on 1,450+ verified customer purchases in BD
+            </p>
           </div>
 
           <div className="flex items-center gap-4 text-xs font-semibold">
@@ -110,7 +118,9 @@ export default function ReviewsPage() {
                 </div>
 
                 <h3 className="text-sm font-bold text-amber-300 mb-2">{rev.productName}</h3>
-                <p className="text-xs text-slate-300 leading-relaxed mb-4">&quot;{rev.content}&quot;</p>
+                <p className="text-xs text-slate-300 leading-relaxed mb-4">
+                  &quot;{rev.content}&quot;
+                </p>
               </div>
 
               <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">

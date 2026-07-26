@@ -3,10 +3,7 @@
 import { auth } from "@/lib/auth";
 import { checkPermission } from "@/lib/check-permission";
 import { WarrantyService } from "../services/warranty-service";
-import {
-  createWarrantySchema,
-  updateWarrantyStatusSchema,
-} from "../types/validation";
+import { createWarrantySchema, updateWarrantyStatusSchema } from "../types/validation";
 import { revalidatePath } from "next/cache";
 import { logger } from "@/lib/utils/logger";
 
@@ -39,7 +36,11 @@ export async function updateWarrantyStatusAction(formData: unknown): Promise<{
   try {
     const validated = updateWarrantyStatusSchema.parse(formData);
     const service = new WarrantyService();
-    const result = await service.transitionStatus(validated.warrantyId, validated.toStatus, validated);
+    const result = await service.transitionStatus(
+      validated.warrantyId,
+      validated.toStatus,
+      validated,
+    );
     revalidatePath("/dashboard/orders/warranty");
     return { success: true, data: result };
   } catch (error: any) {
@@ -62,7 +63,10 @@ export async function getWarrantyAction(warrantyId: string): Promise<{
   }
 }
 
-export async function listWarrantiesAction(page: number = 1, limit: number = 20): Promise<{
+export async function listWarrantiesAction(
+  page: number = 1,
+  limit: number = 20,
+): Promise<{
   success: boolean;
   data?: Awaited<ReturnType<WarrantyService["listWarranties"]>>;
   error?: string;

@@ -3,7 +3,17 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Search, ShoppingCart, User, ChevronDown, Phone, MapPin, Clock } from "lucide-react";
+import {
+  Menu,
+  X,
+  Search,
+  ShoppingCart,
+  User,
+  ChevronDown,
+  Phone,
+  MapPin,
+  Clock,
+} from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { AnnouncementBar } from "./announcement-bar";
 import { MegaMenu } from "./mega-menu";
@@ -57,12 +67,15 @@ export function SiteHeader() {
   return (
     <>
       <AnnouncementBar />
-      
+
       {/* Top Info Bar */}
       <div className="hidden sm:block bg-white border-b border-[hsl(0_0%_91%)] text-[10px] text-[hsl(215_16%_47%)]">
         <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <a href="tel:+8801700000000" className="flex items-center gap-1.5 hover:text-primary transition-colors">
+            <a
+              href="tel:+8801700000000"
+              className="flex items-center gap-1.5 hover:text-primary transition-colors"
+            >
               <Phone className="h-3 w-3" />
               <span>+880 1700-000000</span>
             </a>
@@ -165,11 +178,14 @@ export function SiteHeader() {
                     )}
                   >
                     {item.label}
-                    {item.hasMega && (
-                      <ChevronDown className="h-4 w-4 transition-transform" />
-                    )}
+                    {item.hasMega && <ChevronDown className="h-4 w-4 transition-transform" />}
                   </Link>
-                  {item.hasMega && <MegaMenu isOpen={activeMega === item.label} onClose={() => setActiveMega(null)} />}
+                  {item.hasMega && (
+                    <MegaMenu
+                      isOpen={activeMega === item.label}
+                      onClose={() => setActiveMega(null)}
+                    />
+                  )}
                 </div>
               ))}
             </div>
@@ -195,9 +211,7 @@ export function SiteHeader() {
       </header>
 
       <AnimatePresence>
-        {mobileOpen && (
-          <MobileNav isOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
-        )}
+        {mobileOpen && <MobileNav isOpen={mobileOpen} onClose={() => setMobileOpen(false)} />}
       </AnimatePresence>
 
       <AnimatePresence>

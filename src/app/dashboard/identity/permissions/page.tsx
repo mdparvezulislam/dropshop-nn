@@ -236,9 +236,13 @@ export default function PermissionsPage(): React.ReactElement {
                         onClick={() => setSelectedRole(selectedRole === role.id ? null : role.id)}
                       >
                         <div className="flex flex-col items-center gap-0.5">
-                          <span className="capitalize text-[11px]">{role.name.split(" ").slice(-1)[0]}</span>
+                          <span className="capitalize text-[11px]">
+                            {role.name.split(" ").slice(-1)[0]}
+                          </span>
                           {role.isSystem && (
-                            <Badge variant="secondary" className="text-[8px] px-1">SYS</Badge>
+                            <Badge variant="secondary" className="text-[8px] px-1">
+                              SYS
+                            </Badge>
                           )}
                         </div>
                       </th>
@@ -259,7 +263,10 @@ export default function PermissionsPage(): React.ReactElement {
                           className="border-b border-border/30 bg-muted/10 cursor-pointer hover:bg-muted/20"
                           onClick={() => toggleModule(mod)}
                         >
-                          <td className="p-3 font-semibold text-foreground sticky left-0 bg-muted/10" colSpan={1}>
+                          <td
+                            className="p-3 font-semibold text-foreground sticky left-0 bg-muted/10"
+                            colSpan={1}
+                          >
                             <div className="flex items-center gap-2">
                               {expanded ? (
                                 <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
@@ -267,7 +274,9 @@ export default function PermissionsPage(): React.ReactElement {
                                 <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
                               )}
                               <span className="capitalize">{mod}</span>
-                              <Badge variant="secondary" className="text-[9px]">{modulePerms.length}</Badge>
+                              <Badge variant="secondary" className="text-[9px]">
+                                {modulePerms.length}
+                              </Badge>
                             </div>
                           </td>
                           {roles.map((role) => {
@@ -301,13 +310,17 @@ export default function PermissionsPage(): React.ReactElement {
                             .map((perm) => {
                               const action = perm.split(".").pop() || "";
                               return (
-                                <tr key={perm} className="border-b border-border/20 hover:bg-muted/10">
+                                <tr
+                                  key={perm}
+                                  className="border-b border-border/20 hover:bg-muted/10"
+                                >
                                   <td className="p-3 font-mono text-left sticky left-0 bg-card pl-8">
                                     <span className="text-muted-foreground">{mod}.</span>
                                     <span className="text-foreground">{action}</span>
                                   </td>
                                   {roles.map((role) => {
-                                    const has = role.permissions.includes("*") || matrix[role.id]?.[perm];
+                                    const has =
+                                      role.permissions.includes("*") || matrix[role.id]?.[perm];
                                     const isEditable = !role.isSystem;
                                     return (
                                       <td key={role.id} className="p-2 text-center">
@@ -392,7 +405,9 @@ export default function PermissionsPage(): React.ReactElement {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-semibold text-muted-foreground mb-1 block">Source Role</label>
+              <label className="text-xs font-semibold text-muted-foreground mb-1 block">
+                Source Role
+              </label>
               <select
                 value={copySource}
                 onChange={(e) => setCopySource(e.target.value)}
@@ -407,7 +422,9 @@ export default function PermissionsPage(): React.ReactElement {
               </select>
             </div>
             <div>
-              <label className="text-xs font-semibold text-muted-foreground mb-1 block">Target Role</label>
+              <label className="text-xs font-semibold text-muted-foreground mb-1 block">
+                Target Role
+              </label>
               <select
                 value={copyTarget}
                 onChange={(e) => setCopyTarget(e.target.value)}

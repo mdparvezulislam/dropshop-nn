@@ -43,7 +43,10 @@ function mapToDomain(doc: any): ReconciliationLog {
   };
 }
 
-export class ReconciliationRepository extends BaseRepository<ReconciliationLogDocument, ReconciliationLog> {
+export class ReconciliationRepository extends BaseRepository<
+  ReconciliationLogDocument,
+  ReconciliationLog
+> {
   constructor() {
     super(ReconciliationLogModel as any, mapToDomain);
   }
@@ -57,7 +60,9 @@ export class ReconciliationRepository extends BaseRepository<ReconciliationLogDo
   }
 
   async countUnreconciled(): Promise<number> {
-    return ReconciliationLogModel.countDocuments({ status: { $in: ["mismatch", "warning", "missing_ledger"] } });
+    return ReconciliationLogModel.countDocuments({
+      status: { $in: ["mismatch", "warning", "missing_ledger"] },
+    });
   }
 }
 

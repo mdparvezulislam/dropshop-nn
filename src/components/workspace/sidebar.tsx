@@ -16,22 +16,52 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { WORKSPACE_NAV, type NavItem, type NavSection } from "./nav-config";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { usePermissions } from "@/hooks/use-permissions";
 import { WorkspaceSwitcher } from "./workspace-switcher";
 import type { WorkspaceDefinition } from "@/lib/platform/platform-types";
 
 const DEFAULT_WORKSPACES: WorkspaceDefinition[] = [
-  { id: "admin", label: "Admin", description: "Full platform control", icon: "admin", roles: ["super_admin", "admin", "manager"], href: "/dashboard" },
-  { id: "reseller", label: "Reseller", description: "Private catalog & orders", icon: "reseller", roles: ["reseller"], href: "/reseller" },
-  { id: "wholesaler", label: "Wholesaler", description: "Wholesale pricing & MOQ", icon: "wholesaler", roles: ["wholesaler"], href: "/wholesale" },
-  { id: "supplier", label: "Supplier", description: "Product & inventory access", icon: "supplier", roles: ["supplier"], href: "/supplier" },
-  { id: "customer", label: "Customer", description: "Order & profile access", icon: "customer", roles: ["dashboard"], href: "/dashboard" },
+  {
+    id: "admin",
+    label: "Admin",
+    description: "Full platform control",
+    icon: "admin",
+    roles: ["super_admin", "admin", "manager"],
+    href: "/dashboard",
+  },
+  {
+    id: "reseller",
+    label: "Reseller",
+    description: "Private catalog & orders",
+    icon: "reseller",
+    roles: ["reseller"],
+    href: "/reseller",
+  },
+  {
+    id: "wholesaler",
+    label: "Wholesaler",
+    description: "Wholesale pricing & MOQ",
+    icon: "wholesaler",
+    roles: ["wholesaler"],
+    href: "/wholesale",
+  },
+  {
+    id: "supplier",
+    label: "Supplier",
+    description: "Product & inventory access",
+    icon: "supplier",
+    roles: ["supplier"],
+    href: "/supplier",
+  },
+  {
+    id: "customer",
+    label: "Customer",
+    description: "Order & profile access",
+    icon: "customer",
+    roles: ["dashboard"],
+    href: "/dashboard",
+  },
 ];
 
 export interface SidebarProps {
@@ -88,7 +118,9 @@ export function Sidebar({
   const navConfig = nav ?? WORKSPACE_NAV;
 
   const accessibleWorkspaces = DEFAULT_WORKSPACES.filter((ws) =>
-    ws.roles.some((r) => hasAnyRole([r]) || userRole === r || (userRole ?? "").toLowerCase().includes(r)),
+    ws.roles.some(
+      (r) => hasAnyRole([r]) || userRole === r || (userRole ?? "").toLowerCase().includes(r),
+    ),
   );
   const currentWorkspace =
     accessibleWorkspaces.find((ws) => pathname.startsWith(ws.href)) ??
@@ -309,7 +341,9 @@ export function Sidebar({
                           <Icon
                             className={cn(
                               "h-4 w-4 shrink-0 transition-colors",
-                              active ? "text-primary font-bold" : "text-muted-foreground group-hover:text-foreground",
+                              active
+                                ? "text-primary font-bold"
+                                : "text-muted-foreground group-hover:text-foreground",
                             )}
                           />
                           {!collapsed ? <span className="truncate">{item.label}</span> : null}
@@ -326,7 +360,10 @@ export function Sidebar({
                           {collapsed ? (
                             <Tooltip>
                               <TooltipTrigger asChild>{link}</TooltipTrigger>
-                              <TooltipContent side="right" className="bg-foreground text-background font-semibold">
+                              <TooltipContent
+                                side="right"
+                                className="bg-foreground text-background font-semibold"
+                              >
                                 {item.label}
                               </TooltipContent>
                             </Tooltip>
@@ -430,10 +467,15 @@ export function Sidebar({
       <div className="border-t border-border p-2.5 shrink-0 space-y-2">
         {!collapsed && (
           <div className="flex items-center justify-between text-[11px] text-muted-foreground px-1">
-            <Link href="/support" className="flex items-center gap-1 hover:text-foreground transition-colors">
+            <Link
+              href="/support"
+              className="flex items-center gap-1 hover:text-foreground transition-colors"
+            >
               <HelpCircle className="h-3.5 w-3.5 text-primary" /> Support Center
             </Link>
-            <span className="font-mono text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">v1.0</span>
+            <span className="font-mono text-[10px] bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+              v1.0
+            </span>
           </div>
         )}
         {accessibleWorkspaces.length > 1 ? (
@@ -444,11 +486,18 @@ export function Sidebar({
           />
         ) : !collapsed ? (
           <div className="rounded-lg border border-border bg-muted/40 p-2.5">
-            <p className="text-xs font-bold text-foreground truncate">{currentWorkspace?.label ?? "Workspace"}</p>
-            <p className="text-[10px] text-muted-foreground truncate">{currentWorkspace?.description ?? "DropshopNN OS"}</p>
+            <p className="text-xs font-bold text-foreground truncate">
+              {currentWorkspace?.label ?? "Workspace"}
+            </p>
+            <p className="text-[10px] text-muted-foreground truncate">
+              {currentWorkspace?.description ?? "DropshopNN OS"}
+            </p>
           </div>
         ) : (
-          <div className="mx-auto h-2 w-2 rounded-full bg-primary animate-pulse" title="System Active" />
+          <div
+            className="mx-auto h-2 w-2 rounded-full bg-primary animate-pulse"
+            title="System Active"
+          />
         )}
       </div>
     </div>

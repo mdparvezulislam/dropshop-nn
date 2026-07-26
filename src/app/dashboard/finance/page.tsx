@@ -98,7 +98,10 @@ export default function AdminFinancePage() {
   const [deposits, setDeposits] = React.useState<any[]>([]);
   const [auditLogs, setAuditLogs] = React.useState<any[]>([]);
   const [failedTxns, setFailedTxns] = React.useState<any[]>([]);
-  const [snapshots, setSnapshots] = React.useState<{ daily: any[]; monthly: any[] }>({ daily: [], monthly: [] });
+  const [snapshots, setSnapshots] = React.useState<{ daily: any[]; monthly: any[] }>({
+    daily: [],
+    monthly: [],
+  });
   const [pnlReport, setPnlReport] = React.useState<any>(null);
   const [revenueReport, setRevenueReport] = React.useState<any>(null);
 
@@ -145,10 +148,18 @@ export default function AdminFinancePage() {
       const walRes = await listWalletsAction();
       if (walRes.success && walRes.data) setWallets(walRes.data);
 
-      const ledRes = await listLedgerEntriesAction({ search: searchQuery, type: typeFilter !== "all" ? typeFilter : undefined, limit: 100 });
+      const ledRes = await listLedgerEntriesAction({
+        search: searchQuery,
+        type: typeFilter !== "all" ? typeFilter : undefined,
+        limit: 100,
+      });
       if (ledRes.success && ledRes.data) setLedgerItems(ledRes.data.items || []);
 
-      const witRes = await listWithdrawalsAction({ search: searchQuery, status: statusFilter !== "all" ? statusFilter : undefined, limit: 100 });
+      const witRes = await listWithdrawalsAction({
+        search: searchQuery,
+        status: statusFilter !== "all" ? statusFilter : undefined,
+        limit: 100,
+      });
       if (witRes.success && witRes.data) setWithdrawals(witRes.data.items || []);
 
       const depRes = await listDepositsAction({ search: searchQuery, limit: 100 });
@@ -184,7 +195,9 @@ export default function AdminFinancePage() {
     try {
       const res = await runReconciliationAction();
       if (res.success) {
-        toast.success(`Reconciliation complete. Health Score: ${res.data.score}/100 (${res.data.rating})`);
+        toast.success(
+          `Reconciliation complete. Health Score: ${res.data.score}/100 (${res.data.rating})`,
+        );
         loadAllData();
       } else {
         toast.error(res.error || "Reconciliation execution failed");
@@ -388,11 +401,16 @@ export default function AdminFinancePage() {
       new Date(l.createdAt).toISOString(),
     ]);
 
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `dropshop_accounting_ledger_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute(
+      "download",
+      `dropshop_accounting_ledger_${new Date().toISOString().slice(0, 10)}.csv`,
+    );
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -434,27 +452,55 @@ export default function AdminFinancePage() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-slate-800 pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">Enterprise Accounting & Reconciliation Center</h1>
-            <Badge variant="outline" className="border-indigo-500/30 text-indigo-400 bg-indigo-950/40 text-[10px]">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+              Enterprise Accounting & Reconciliation Center
+            </h1>
+            <Badge
+              variant="outline"
+              className="border-indigo-500/30 text-indigo-400 bg-indigo-950/40 text-[10px]"
+            >
               FINANCE-CENTER-001B
             </Badge>
           </div>
           <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Reconciliation Engine, Daily & Month-End Closing Snapshots, Financial Health Score & P&L Reports
+            Reconciliation Engine, Daily & Month-End Closing Snapshots, Financial Health Score & P&L
+            Reports
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button onClick={handleRunReconciliation} disabled={reconciling} size="sm" variant="outline" className="border-indigo-600/50 bg-indigo-950/50 text-indigo-300 text-xs gap-1.5 hover:bg-indigo-900">
-            <Play className={`h-3.5 w-3.5 text-indigo-400 ${reconciling ? "animate-spin" : ""}`} /> Run Reconciliation
+          <Button
+            onClick={handleRunReconciliation}
+            disabled={reconciling}
+            size="sm"
+            variant="outline"
+            className="border-indigo-600/50 bg-indigo-950/50 text-indigo-300 text-xs gap-1.5 hover:bg-indigo-900"
+          >
+            <Play className={`h-3.5 w-3.5 text-indigo-400 ${reconciling ? "animate-spin" : ""}`} />{" "}
+            Run Reconciliation
           </Button>
-          <Button onClick={() => setShowDepModal(true)} size="sm" variant="outline" className="border-slate-800 text-xs bg-slate-900 gap-1.5">
+          <Button
+            onClick={() => setShowDepModal(true)}
+            size="sm"
+            variant="outline"
+            className="border-slate-800 text-xs bg-slate-900 gap-1.5"
+          >
             <PlusCircle className="h-3.5 w-3.5 text-emerald-400" /> Log Deposit
           </Button>
-          <Button onClick={() => setShowAdjModal(true)} size="sm" className="bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold gap-1.5">
+          <Button
+            onClick={() => setShowAdjModal(true)}
+            size="sm"
+            className="bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold gap-1.5"
+          >
             <Sliders className="h-3.5 w-3.5" /> Adjustment
           </Button>
-          <Button onClick={loadAllData} size="sm" variant="ghost" disabled={loading} className="text-slate-400 hover:text-white">
+          <Button
+            onClick={loadAllData}
+            size="sm"
+            variant="ghost"
+            disabled={loading}
+            className="text-slate-400 hover:text-white"
+          >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
           </Button>
         </div>
@@ -468,17 +514,32 @@ export default function AdminFinancePage() {
             <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
               <Activity className="h-4 w-4 text-emerald-400" /> Financial Health Score
             </span>
-            <Badge variant={healthScore?.score >= 90 ? "success" : healthScore?.score >= 75 ? "warning" : "destructive"} className="text-[10px]">
+            <Badge
+              variant={
+                healthScore?.score >= 90
+                  ? "success"
+                  : healthScore?.score >= 75
+                    ? "warning"
+                    : "destructive"
+              }
+              className="text-[10px]"
+            >
               {healthScore?.rating ?? "Calculating..."}
             </Badge>
           </div>
 
           <div className="my-4 text-center">
-            <div className={`text-4xl font-extrabold tracking-tight ${healthScore?.score >= 90 ? "text-emerald-400" : healthScore?.score >= 75 ? "text-amber-400" : "text-rose-400"}`}>
-              {healthScore?.score ?? 100}<span className="text-xl text-slate-500">/100</span>
+            <div
+              className={`text-4xl font-extrabold tracking-tight ${healthScore?.score >= 90 ? "text-emerald-400" : healthScore?.score >= 75 ? "text-amber-400" : "text-rose-400"}`}
+            >
+              {healthScore?.score ?? 100}
+              <span className="text-xl text-slate-500">/100</span>
             </div>
             <p className="text-[11px] text-slate-400 mt-1">
-              Unreconciled issues: <span className="font-semibold text-white">{healthScore?.unreconciledCount ?? 0}</span>
+              Unreconciled issues:{" "}
+              <span className="font-semibold text-white">
+                {healthScore?.unreconciledCount ?? 0}
+              </span>
             </p>
           </div>
 
@@ -497,7 +558,9 @@ export default function AdminFinancePage() {
             </div>
             <div className="flex justify-between">
               <span>Settlement Integrity:</span>
-              <span className={healthScore?.settlementIntegrity ? "text-emerald-400" : "text-rose-400"}>
+              <span
+                className={healthScore?.settlementIntegrity ? "text-emerald-400" : "text-rose-400"}
+              >
                 {healthScore?.settlementIntegrity ? "✓ Reconciled" : "⚠ Pending"}
               </span>
             </div>
@@ -513,7 +576,9 @@ export default function AdminFinancePage() {
             <div className="text-xl font-bold text-emerald-400 mt-1">
               {formatCurrency(summary?.availableBalance ?? 0)}
             </div>
-            <p className="text-[10px] text-slate-500 mt-0.5">{summary?.activeWalletsCount ?? 0} wallets</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">
+              {summary?.activeWalletsCount ?? 0} wallets
+            </p>
           </Card>
 
           <Card className="border-slate-800 bg-slate-900/50 p-3">
@@ -550,9 +615,7 @@ export default function AdminFinancePage() {
             <span className="text-[11px] text-slate-400 flex items-center gap-1">
               <AlertTriangle className="h-3.5 w-3.5 text-rose-400" /> Failed Transactions
             </span>
-            <div className="text-xl font-bold text-rose-400 mt-1">
-              {failedTxns.length} errors
-            </div>
+            <div className="text-xl font-bold text-rose-400 mt-1">{failedTxns.length} errors</div>
             <p className="text-[10px] text-slate-500 mt-0.5">Ready for retry</p>
           </Card>
 
@@ -573,10 +636,18 @@ export default function AdminFinancePage() {
         <CardContent className="p-2 flex gap-1.5 overflow-x-auto">
           {[
             { id: "analytics", label: "Dashboard & Trends", icon: TrendingUp },
-            { id: "reconciliation", label: `Reconciliation (${healthScore?.unreconciledCount ?? 0})`, icon: Activity },
+            {
+              id: "reconciliation",
+              label: `Reconciliation (${healthScore?.unreconciledCount ?? 0})`,
+              icon: Activity,
+            },
             { id: "closing", label: "Daily & Monthly Closing", icon: Calendar },
             { id: "pnl", label: "P&L & Revenue Analysis", icon: FileSpreadsheet },
-            { id: "failed_txns", label: `Failed Queue (${failedTxns.length})`, icon: AlertTriangle },
+            {
+              id: "failed_txns",
+              label: `Failed Queue (${failedTxns.length})`,
+              icon: AlertTriangle,
+            },
             { id: "wallets", label: `Wallets (${wallets.length})`, icon: WalletIcon },
             { id: "ledger", label: "Ledger Stream", icon: ClipboardList },
             { id: "withdrawals", label: "Withdrawals Queue", icon: Landmark },
@@ -607,16 +678,26 @@ export default function AdminFinancePage() {
           {activeTab === "analytics" && (
             <div className="p-6 space-y-6">
               <div>
-                <h3 className="text-lg font-semibold text-white">Monthly Cash Flow & Profit Trends</h3>
-                <p className="text-xs text-slate-400">Reconciled historical performance breakdown across platform ledgers</p>
+                <h3 className="text-lg font-semibold text-white">
+                  Monthly Cash Flow & Profit Trends
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Reconciled historical performance breakdown across platform ledgers
+                </p>
               </div>
 
               <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {summary?.monthlyChartData?.map((item: any, idx: number) => (
-                  <div key={idx} className="p-4 rounded-lg border border-slate-800 bg-slate-950/60 space-y-3">
+                  <div
+                    key={idx}
+                    className="p-4 rounded-lg border border-slate-800 bg-slate-950/60 space-y-3"
+                  >
                     <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                       <span className="text-sm font-semibold text-slate-200">{item.month}</span>
-                      <Badge variant="outline" className="text-[10px] border-slate-700 text-slate-400">
+                      <Badge
+                        variant="outline"
+                        className="text-[10px] border-slate-700 text-slate-400"
+                      >
                         Profit: {formatCurrency(item.profit)}
                       </Badge>
                     </div>
@@ -624,11 +705,15 @@ export default function AdminFinancePage() {
                     <div className="space-y-1.5 text-xs">
                       <div className="flex justify-between">
                         <span className="text-slate-400">Total Credits:</span>
-                        <span className="font-semibold text-emerald-400">{formatCurrency(item.credits)}</span>
+                        <span className="font-semibold text-emerald-400">
+                          {formatCurrency(item.credits)}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-400">Total Debits:</span>
-                        <span className="font-semibold text-rose-400">{formatCurrency(item.debits)}</span>
+                        <span className="font-semibold text-rose-400">
+                          {formatCurrency(item.debits)}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -642,19 +727,33 @@ export default function AdminFinancePage() {
             <div className="p-6 space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-800 pb-4">
                 <div>
-                  <h3 className="text-base font-semibold text-white">Reconciliation & Consistency Console</h3>
-                  <p className="text-xs text-slate-400">Compare wallet available balances against computed ledger entries</p>
+                  <h3 className="text-base font-semibold text-white">
+                    Reconciliation & Consistency Console
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Compare wallet available balances against computed ledger entries
+                  </p>
                 </div>
-                <Button onClick={handleRunReconciliation} disabled={reconciling} size="sm" className="bg-indigo-600 hover:bg-indigo-500 text-xs">
+                <Button
+                  onClick={handleRunReconciliation}
+                  disabled={reconciling}
+                  size="sm"
+                  className="bg-indigo-600 hover:bg-indigo-500 text-xs"
+                >
                   {reconciling ? "Reconciling..." : "Run Full System Check"}
                 </Button>
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-xs uppercase text-slate-400 font-semibold tracking-wider">Health Verification Checklist</h4>
+                <h4 className="text-xs uppercase text-slate-400 font-semibold tracking-wider">
+                  Health Verification Checklist
+                </h4>
                 <div className="grid gap-3 grid-cols-1 md:grid-cols-3">
                   {healthScore?.checkSummary?.map((check: string, idx: number) => (
-                    <div key={idx} className="p-3 rounded border border-slate-800 bg-slate-950 text-xs font-mono text-slate-300">
+                    <div
+                      key={idx}
+                      className="p-3 rounded border border-slate-800 bg-slate-950 text-xs font-mono text-slate-300"
+                    >
                       {check}
                     </div>
                   ))}
@@ -668,21 +767,37 @@ export default function AdminFinancePage() {
             <div className="p-6 space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-800 pb-4">
                 <div>
-                  <h3 className="text-base font-semibold text-white">Financial Closing & Snapshot Freezer</h3>
-                  <p className="text-xs text-slate-400">Perform Daily & Month-End Closing to lock immutable financial snapshots</p>
+                  <h3 className="text-base font-semibold text-white">
+                    Financial Closing & Snapshot Freezer
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Perform Daily & Month-End Closing to lock immutable financial snapshots
+                  </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button onClick={handleDailyClosing} disabled={closing} size="sm" className="bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold">
+                  <Button
+                    onClick={handleDailyClosing}
+                    disabled={closing}
+                    size="sm"
+                    className="bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold"
+                  >
                     {closing ? "Closing..." : "Close Today"}
                   </Button>
-                  <Button onClick={handleMonthlyClosing} disabled={closing} size="sm" className="bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold">
+                  <Button
+                    onClick={handleMonthlyClosing}
+                    disabled={closing}
+                    size="sm"
+                    className="bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold"
+                  >
                     {closing ? "Closing..." : "Close Month"}
                   </Button>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <h4 className="text-xs uppercase text-slate-400 font-semibold">Recent Daily Closing Snapshots</h4>
+                <h4 className="text-xs uppercase text-slate-400 font-semibold">
+                  Recent Daily Closing Snapshots
+                </h4>
                 <Table>
                   <TableHeader>
                     <TableRow className="border-slate-800 hover:bg-transparent">
@@ -698,17 +813,28 @@ export default function AdminFinancePage() {
                     {snapshots.daily.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={6} className="text-center py-6 text-slate-500 text-xs">
-                          No daily closing snapshots generated yet. Click "Close Today" to perform closing.
+                          No daily closing snapshots generated yet. Click "Close Today" to perform
+                          closing.
                         </TableCell>
                       </TableRow>
                     ) : (
                       snapshots.daily.map((s) => (
                         <TableRow key={s.id} className="border-slate-800">
-                          <TableCell className="font-mono text-xs text-indigo-300">{s.snapshotDate}</TableCell>
-                          <TableCell className="text-xs text-slate-400">{formatCurrency(s.openingBalanceCents)}</TableCell>
-                          <TableCell className="text-xs text-emerald-400 font-semibold">{formatCurrency(s.revenueCents)}</TableCell>
-                          <TableCell className="text-xs text-teal-400 font-semibold">{formatCurrency(s.profitCents)}</TableCell>
-                          <TableCell className="text-xs text-white font-bold">{formatCurrency(s.closingBalanceCents)}</TableCell>
+                          <TableCell className="font-mono text-xs text-indigo-300">
+                            {s.snapshotDate}
+                          </TableCell>
+                          <TableCell className="text-xs text-slate-400">
+                            {formatCurrency(s.openingBalanceCents)}
+                          </TableCell>
+                          <TableCell className="text-xs text-emerald-400 font-semibold">
+                            {formatCurrency(s.revenueCents)}
+                          </TableCell>
+                          <TableCell className="text-xs text-teal-400 font-semibold">
+                            {formatCurrency(s.profitCents)}
+                          </TableCell>
+                          <TableCell className="text-xs text-white font-bold">
+                            {formatCurrency(s.closingBalanceCents)}
+                          </TableCell>
                           <TableCell>
                             <Badge variant="success">Locked & Reconciled</Badge>
                           </TableCell>
@@ -726,8 +852,12 @@ export default function AdminFinancePage() {
             <div className="p-6 space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-800 pb-4">
                 <div>
-                  <h3 className="text-base font-semibold text-white">Profit & Loss Statement & Revenue Analysis</h3>
-                  <p className="text-xs text-slate-400">Financial earnings, cost of goods, refund losses, and platform earnings</p>
+                  <h3 className="text-base font-semibold text-white">
+                    Profit & Loss Statement & Revenue Analysis
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Financial earnings, cost of goods, refund losses, and platform earnings
+                  </p>
                 </div>
                 <select
                   value={reportPeriod}
@@ -744,19 +874,27 @@ export default function AdminFinancePage() {
               {pnlReport && (
                 <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
                   <Card className="border-slate-800 bg-slate-950/60 p-4 space-y-3">
-                    <h4 className="text-sm font-semibold text-emerald-400 border-b border-slate-800 pb-2">Profit & Loss Breakdown</h4>
+                    <h4 className="text-sm font-semibold text-emerald-400 border-b border-slate-800 pb-2">
+                      Profit & Loss Breakdown
+                    </h4>
                     <div className="space-y-2 text-xs">
                       <div className="flex justify-between">
                         <span className="text-slate-400">Gross Revenue:</span>
-                        <span className="font-semibold text-white">{formatCurrency(pnlReport.grossRevenueCents)}</span>
+                        <span className="font-semibold text-white">
+                          {formatCurrency(pnlReport.grossRevenueCents)}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-400">Cost of Goods (COGS):</span>
-                        <span className="font-semibold text-slate-300">{formatCurrency(pnlReport.costOfGoodsSoldCents)}</span>
+                        <span className="font-semibold text-slate-300">
+                          {formatCurrency(pnlReport.costOfGoodsSoldCents)}
+                        </span>
                       </div>
                       <div className="flex justify-between border-t border-slate-800 pt-1">
                         <span className="text-slate-300 font-medium">Gross Profit:</span>
-                        <span className="font-semibold text-emerald-400">{formatCurrency(pnlReport.grossProfitCents)}</span>
+                        <span className="font-semibold text-emerald-400">
+                          {formatCurrency(pnlReport.grossProfitCents)}
+                        </span>
                       </div>
                       <div className="flex justify-between text-rose-400">
                         <span>Refund Losses:</span>
@@ -771,19 +909,27 @@ export default function AdminFinancePage() {
 
                   {revenueReport && (
                     <Card className="border-slate-800 bg-slate-950/60 p-4 space-y-3">
-                      <h4 className="text-sm font-semibold text-indigo-400 border-b border-slate-800 pb-2">Revenue Streams</h4>
+                      <h4 className="text-sm font-semibold text-indigo-400 border-b border-slate-800 pb-2">
+                        Revenue Streams
+                      </h4>
                       <div className="space-y-2 text-xs">
                         <div className="flex justify-between">
                           <span className="text-slate-400">Gross Inflow:</span>
-                          <span className="font-semibold text-white">{formatCurrency(revenueReport.grossRevenueCents)}</span>
+                          <span className="font-semibold text-white">
+                            {formatCurrency(revenueReport.grossRevenueCents)}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-400">Net Inflow (after refunds):</span>
-                          <span className="font-semibold text-teal-400">{formatCurrency(revenueReport.netRevenueCents)}</span>
+                          <span className="font-semibold text-teal-400">
+                            {formatCurrency(revenueReport.netRevenueCents)}
+                          </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-slate-400">Commissions Earned:</span>
-                          <span className="font-semibold text-indigo-300">{formatCurrency(revenueReport.commissionCents)}</span>
+                          <span className="font-semibold text-indigo-300">
+                            {formatCurrency(revenueReport.commissionCents)}
+                          </span>
                         </div>
                         <div className="flex justify-between border-t border-slate-800 pt-2 text-sm font-bold text-emerald-400">
                           <span>Total Platform Earnings:</span>
@@ -820,12 +966,22 @@ export default function AdminFinancePage() {
                 ) : (
                   failedTxns.map((item) => (
                     <TableRow key={item.id} className="border-slate-800">
-                      <TableCell className="font-mono text-xs text-indigo-300">{item.referenceNumber}</TableCell>
-                      <TableCell className="capitalize text-xs font-medium text-white">{item.type.replace("_", " ")}</TableCell>
-                      <TableCell className="font-semibold text-rose-400">{formatCurrency(item.amountCents)}</TableCell>
-                      <TableCell className="text-xs text-slate-400 max-w-xs truncate">{item.failureReason}</TableCell>
+                      <TableCell className="font-mono text-xs text-indigo-300">
+                        {item.referenceNumber}
+                      </TableCell>
+                      <TableCell className="capitalize text-xs font-medium text-white">
+                        {item.type.replace("_", " ")}
+                      </TableCell>
+                      <TableCell className="font-semibold text-rose-400">
+                        {formatCurrency(item.amountCents)}
+                      </TableCell>
+                      <TableCell className="text-xs text-slate-400 max-w-xs truncate">
+                        {item.failureReason}
+                      </TableCell>
                       <TableCell>
-                        <Badge variant={item.retryStatus === "can_retry" ? "warning" : "destructive"}>
+                        <Badge
+                          variant={item.retryStatus === "can_retry" ? "warning" : "destructive"}
+                        >
                           {item.retryStatus}
                         </Badge>
                       </TableCell>
@@ -837,7 +993,10 @@ export default function AdminFinancePage() {
                             size="sm"
                             className="bg-indigo-600 hover:bg-indigo-500 text-xs h-7 gap-1"
                           >
-                            <RotateCcw className={`h-3 w-3 ${retrying[item.id] ? "animate-spin" : ""}`} /> Retry
+                            <RotateCcw
+                              className={`h-3 w-3 ${retrying[item.id] ? "animate-spin" : ""}`}
+                            />{" "}
+                            Retry
                           </Button>
                         )}
                       </TableCell>
@@ -874,17 +1033,29 @@ export default function AdminFinancePage() {
                 ) : (
                   wallets.map((w) => (
                     <TableRow key={w.id} className="border-slate-800">
-                      <TableCell className="font-mono text-xs text-indigo-400">{w.id.slice(-10)}</TableCell>
-                      <TableCell className="font-mono text-xs text-slate-300">{w.workspaceId}</TableCell>
+                      <TableCell className="font-mono text-xs text-indigo-400">
+                        {w.id.slice(-10)}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs text-slate-300">
+                        {w.workspaceId}
+                      </TableCell>
                       <TableCell className="capitalize text-slate-200">
                         <Badge variant="outline" className="border-slate-700 text-xs">
                           {w.workspaceRole}
                         </Badge>
                       </TableCell>
-                      <TableCell className="font-semibold text-emerald-400">{formatCurrency(w.balances?.availableBalance ?? 0)}</TableCell>
-                      <TableCell className="text-indigo-400">{formatCurrency(w.balances?.pendingBalance ?? 0)}</TableCell>
-                      <TableCell className="text-amber-400">{formatCurrency(w.balances?.lockedBalance ?? 0)}</TableCell>
-                      <TableCell className="font-semibold text-white">{formatCurrency(w.balances?.withdrawableBalance ?? 0)}</TableCell>
+                      <TableCell className="font-semibold text-emerald-400">
+                        {formatCurrency(w.balances?.availableBalance ?? 0)}
+                      </TableCell>
+                      <TableCell className="text-indigo-400">
+                        {formatCurrency(w.balances?.pendingBalance ?? 0)}
+                      </TableCell>
+                      <TableCell className="text-amber-400">
+                        {formatCurrency(w.balances?.lockedBalance ?? 0)}
+                      </TableCell>
+                      <TableCell className="font-semibold text-white">
+                        {formatCurrency(w.balances?.withdrawableBalance ?? 0)}
+                      </TableCell>
                       <TableCell>
                         <Badge variant={getStatusVariant(w.status)}>{w.status}</Badge>
                       </TableCell>
@@ -933,17 +1104,30 @@ export default function AdminFinancePage() {
                 ) : (
                   ledgerItems.map((l) => (
                     <TableRow key={l.id} className="border-slate-800">
-                      <TableCell className="text-xs text-slate-400">{new Date(l.createdAt).toLocaleString()}</TableCell>
-                      <TableCell className="font-mono text-xs text-indigo-300">{l.referenceNumber || l.id.slice(-8)}</TableCell>
-                      <TableCell className="capitalize text-xs text-slate-300">{l.sourceModule || "system"}</TableCell>
-                      <TableCell className="font-mono text-xs text-slate-200 capitalize">{l.type.replace("_", " ")}</TableCell>
-                      <TableCell className={`font-semibold ${l.amount >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                        {l.amount >= 0 ? "+" : ""}{formatCurrency(l.amount)}
+                      <TableCell className="text-xs text-slate-400">
+                        {new Date(l.createdAt).toLocaleString()}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs text-indigo-300">
+                        {l.referenceNumber || l.id.slice(-8)}
+                      </TableCell>
+                      <TableCell className="capitalize text-xs text-slate-300">
+                        {l.sourceModule || "system"}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs text-slate-200 capitalize">
+                        {l.type.replace("_", " ")}
+                      </TableCell>
+                      <TableCell
+                        className={`font-semibold ${l.amount >= 0 ? "text-emerald-400" : "text-rose-400"}`}
+                      >
+                        {l.amount >= 0 ? "+" : ""}
+                        {formatCurrency(l.amount)}
                       </TableCell>
                       <TableCell>
                         <Badge variant={getStatusVariant(l.status)}>{l.status}</Badge>
                       </TableCell>
-                      <TableCell className="text-xs text-slate-400 max-w-xs truncate">{l.description || l.metadata?.reason || "—"}</TableCell>
+                      <TableCell className="text-xs text-slate-400 max-w-xs truncate">
+                        {l.description || l.metadata?.reason || "—"}
+                      </TableCell>
                       <TableCell className="text-xs text-slate-400 text-right">
                         {l.clearsAt ? new Date(l.clearsAt).toLocaleDateString() : "Immediate"}
                       </TableCell>
@@ -977,14 +1161,28 @@ export default function AdminFinancePage() {
                 ) : (
                   withdrawals.map((w) => (
                     <TableRow key={w.id} className="border-slate-800">
-                      <TableCell className="font-mono text-xs text-indigo-300">{w.referenceNumber || w.id.slice(-8)}</TableCell>
-                      <TableCell className="capitalize text-slate-200 font-medium">{w.method}</TableCell>
+                      <TableCell className="font-mono text-xs text-indigo-300">
+                        {w.referenceNumber || w.id.slice(-8)}
+                      </TableCell>
+                      <TableCell className="capitalize text-slate-200 font-medium">
+                        {w.method}
+                      </TableCell>
                       <TableCell className="text-xs text-slate-300">
                         <div className="font-mono">{w.payoutDetails?.accountNumber}</div>
-                        {w.payoutDetails?.accountName && <div className="text-[10px] text-slate-400">{w.payoutDetails.accountName}</div>}
-                        {w.payoutDetails?.bankName && <div className="text-[10px] text-slate-400">{w.payoutDetails.bankName}</div>}
+                        {w.payoutDetails?.accountName && (
+                          <div className="text-[10px] text-slate-400">
+                            {w.payoutDetails.accountName}
+                          </div>
+                        )}
+                        {w.payoutDetails?.bankName && (
+                          <div className="text-[10px] text-slate-400">
+                            {w.payoutDetails.bankName}
+                          </div>
+                        )}
                       </TableCell>
-                      <TableCell className="font-semibold text-white">{formatCurrency(w.amount)}</TableCell>
+                      <TableCell className="font-semibold text-white">
+                        {formatCurrency(w.amount)}
+                      </TableCell>
                       <TableCell>
                         <Badge variant={getStatusVariant(w.status)}>{w.status}</Badge>
                       </TableCell>
@@ -1056,10 +1254,16 @@ export default function AdminFinancePage() {
                 ) : (
                   deposits.map((d) => (
                     <TableRow key={d.id} className="border-slate-800">
-                      <TableCell className="font-mono text-xs text-indigo-300">{d.referenceNumber || d.id.slice(-8)}</TableCell>
+                      <TableCell className="font-mono text-xs text-indigo-300">
+                        {d.referenceNumber || d.id.slice(-8)}
+                      </TableCell>
                       <TableCell className="capitalize text-slate-200">{d.method}</TableCell>
-                      <TableCell className="font-mono text-xs text-slate-300">{d.paymentReference || "N/A"}</TableCell>
-                      <TableCell className="font-semibold text-emerald-400">{formatCurrency(d.amount)}</TableCell>
+                      <TableCell className="font-mono text-xs text-slate-300">
+                        {d.paymentReference || "N/A"}
+                      </TableCell>
+                      <TableCell className="font-semibold text-emerald-400">
+                        {formatCurrency(d.amount)}
+                      </TableCell>
                       <TableCell>
                         <Badge variant={getStatusVariant(d.status)}>{d.status}</Badge>
                       </TableCell>
@@ -1097,15 +1301,22 @@ export default function AdminFinancePage() {
               <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                 <div>
                   <h3 className="text-base font-semibold text-white">Manual Adjustments Console</h3>
-                  <p className="text-xs text-slate-400">Direct wallet credit and debit actions protected by audit logs</p>
+                  <p className="text-xs text-slate-400">
+                    Direct wallet credit and debit actions protected by audit logs
+                  </p>
                 </div>
-                <Button onClick={() => setShowAdjModal(true)} size="sm" className="bg-indigo-600 hover:bg-indigo-500 text-xs">
+                <Button
+                  onClick={() => setShowAdjModal(true)}
+                  size="sm"
+                  className="bg-indigo-600 hover:bg-indigo-500 text-xs"
+                >
                   + New Adjustment
                 </Button>
               </div>
 
               <p className="text-xs text-slate-400">
-                To perform a credit or debit adjustment, click the "+ New Adjustment" button above or click "Adjust" on any wallet in the Wallets tab.
+                To perform a credit or debit adjustment, click the "+ New Adjustment" button above
+                or click "Adjust" on any wallet in the Wallets tab.
               </p>
             </div>
           )}
@@ -1135,16 +1346,33 @@ export default function AdminFinancePage() {
                 ) : (
                   auditLogs.map((a) => (
                     <TableRow key={a.id} className="border-slate-800">
-                      <TableCell className="text-xs text-slate-400">{new Date(a.createdAt).toLocaleString()}</TableCell>
-                      <TableCell className="font-mono text-xs text-indigo-300">{a.referenceNumber || "N/A"}</TableCell>
-                      <TableCell className="capitalize text-xs font-semibold text-white">{a.action.replace("_", " ")}</TableCell>
-                      <TableCell className="text-xs text-slate-300 font-mono">{a.actorId.slice(-8)}</TableCell>
-                      <TableCell className={`font-semibold ${a.amount >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
-                        {a.amount >= 0 ? "+" : ""}{formatCurrency(a.amount)}
+                      <TableCell className="text-xs text-slate-400">
+                        {new Date(a.createdAt).toLocaleString()}
                       </TableCell>
-                      <TableCell className="text-xs text-slate-400">{formatCurrency(a.oldBalance)}</TableCell>
-                      <TableCell className="text-xs text-white font-medium">{formatCurrency(a.newBalance)}</TableCell>
-                      <TableCell className="text-xs text-slate-400 max-w-xs truncate">{a.reason}</TableCell>
+                      <TableCell className="font-mono text-xs text-indigo-300">
+                        {a.referenceNumber || "N/A"}
+                      </TableCell>
+                      <TableCell className="capitalize text-xs font-semibold text-white">
+                        {a.action.replace("_", " ")}
+                      </TableCell>
+                      <TableCell className="text-xs text-slate-300 font-mono">
+                        {a.actorId.slice(-8)}
+                      </TableCell>
+                      <TableCell
+                        className={`font-semibold ${a.amount >= 0 ? "text-emerald-400" : "text-rose-400"}`}
+                      >
+                        {a.amount >= 0 ? "+" : ""}
+                        {formatCurrency(a.amount)}
+                      </TableCell>
+                      <TableCell className="text-xs text-slate-400">
+                        {formatCurrency(a.oldBalance)}
+                      </TableCell>
+                      <TableCell className="text-xs text-white font-medium">
+                        {formatCurrency(a.newBalance)}
+                      </TableCell>
+                      <TableCell className="text-xs text-slate-400 max-w-xs truncate">
+                        {a.reason}
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -1160,7 +1388,10 @@ export default function AdminFinancePage() {
           <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4 text-white">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-base font-semibold">Execute Manual Wallet Adjustment</h3>
-              <button onClick={() => setShowAdjModal(false)} className="text-slate-400 hover:text-white">
+              <button
+                onClick={() => setShowAdjModal(false)}
+                className="text-slate-400 hover:text-white"
+              >
                 ✕
               </button>
             </div>
@@ -1177,7 +1408,8 @@ export default function AdminFinancePage() {
                   <option value="">Select Target Wallet...</option>
                   {wallets.map((w) => (
                     <option key={w.id} value={w.id}>
-                      {w.workspaceRole.toUpperCase()} — {w.workspaceId.slice(-10)} (Avail: ৳{(w.balances?.availableBalance / 100).toFixed(2)})
+                      {w.workspaceRole.toUpperCase()} — {w.workspaceId.slice(-10)} (Avail: ৳
+                      {(w.balances?.availableBalance / 100).toFixed(2)})
                     </option>
                   ))}
                 </select>
@@ -1190,7 +1422,9 @@ export default function AdminFinancePage() {
                     type="button"
                     onClick={() => setAdjType("credit")}
                     className={`h-9 text-xs font-semibold rounded border ${
-                      adjType === "credit" ? "bg-emerald-600 border-emerald-500 text-white" : "border-slate-800 bg-slate-950 text-slate-400"
+                      adjType === "credit"
+                        ? "bg-emerald-600 border-emerald-500 text-white"
+                        : "border-slate-800 bg-slate-950 text-slate-400"
                     }`}
                   >
                     Credit (+)
@@ -1199,7 +1433,9 @@ export default function AdminFinancePage() {
                     type="button"
                     onClick={() => setAdjType("debit")}
                     className={`h-9 text-xs font-semibold rounded border ${
-                      adjType === "debit" ? "bg-rose-600 border-rose-500 text-white" : "border-slate-800 bg-slate-950 text-slate-400"
+                      adjType === "debit"
+                        ? "bg-rose-600 border-rose-500 text-white"
+                        : "border-slate-800 bg-slate-950 text-slate-400"
                     }`}
                   >
                     Debit (-)
@@ -1233,7 +1469,9 @@ export default function AdminFinancePage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] uppercase text-slate-400">Internal Note (Optional)</label>
+                <label className="text-[10px] uppercase text-slate-400">
+                  Internal Note (Optional)
+                </label>
                 <Input
                   type="text"
                   placeholder="Internal audit metadata"
@@ -1244,10 +1482,19 @@ export default function AdminFinancePage() {
               </div>
 
               <div className="flex gap-2 pt-2">
-                <Button type="button" variant="outline" onClick={() => setShowAdjModal(false)} className="w-1/2 text-xs border-slate-800">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowAdjModal(false)}
+                  className="w-1/2 text-xs border-slate-800"
+                >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={adjSubmitting} className="w-1/2 text-xs bg-indigo-600 hover:bg-indigo-500 font-semibold">
+                <Button
+                  type="submit"
+                  disabled={adjSubmitting}
+                  className="w-1/2 text-xs bg-indigo-600 hover:bg-indigo-500 font-semibold"
+                >
                   {adjSubmitting ? "Executing..." : "Confirm Adjustment"}
                 </Button>
               </div>
@@ -1262,7 +1509,10 @@ export default function AdminFinancePage() {
           <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-lg p-6 space-y-4 text-white">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h3 className="text-base font-semibold">Log Platform Deposit Request</h3>
-              <button onClick={() => setShowDepModal(false)} className="text-slate-400 hover:text-white">
+              <button
+                onClick={() => setShowDepModal(false)}
+                className="text-slate-400 hover:text-white"
+              >
                 ✕
               </button>
             </div>
@@ -1315,7 +1565,9 @@ export default function AdminFinancePage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] uppercase text-slate-400">Payment Transaction Ref</label>
+                <label className="text-[10px] uppercase text-slate-400">
+                  Payment Transaction Ref
+                </label>
                 <Input
                   type="text"
                   placeholder="MFS Trx ID or Bank Slip reference"
@@ -1337,10 +1589,19 @@ export default function AdminFinancePage() {
               </div>
 
               <div className="flex gap-2 pt-2">
-                <Button type="button" variant="outline" onClick={() => setShowDepModal(false)} className="w-1/2 text-xs border-slate-800">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowDepModal(false)}
+                  className="w-1/2 text-xs border-slate-800"
+                >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={depSubmitting} className="w-1/2 text-xs bg-emerald-600 hover:bg-emerald-500 font-semibold">
+                <Button
+                  type="submit"
+                  disabled={depSubmitting}
+                  className="w-1/2 text-xs bg-emerald-600 hover:bg-emerald-500 font-semibold"
+                >
                   {depSubmitting ? "Logging..." : "Log Deposit Request"}
                 </Button>
               </div>

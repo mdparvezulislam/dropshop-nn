@@ -29,9 +29,16 @@ export default async function TermsPage() {
           ) : (
             <div>
               <h2>Platform Agreement</h2>
-              <p>By registering an account on DropshopNN, suppliers, reseller partners, wholesale buyers, and retail customers agree to follow fair trading practices and accurate product descriptions.</p>
+              <p>
+                By registering an account on DropshopNN, suppliers, reseller partners, wholesale
+                buyers, and retail customers agree to follow fair trading practices and accurate
+                product descriptions.
+              </p>
               <h2>Reseller Code of Conduct</h2>
-              <p>Resellers must not mislead retail customers regarding product specifications, delivery times, or official warranty terms.</p>
+              <p>
+                Resellers must not mislead retail customers regarding product specifications,
+                delivery times, or official warranty terms.
+              </p>
             </div>
           )}
         </div>

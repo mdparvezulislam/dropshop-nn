@@ -57,10 +57,7 @@ export async function getProductDashboardStatsAction(): Promise<{
       repo.count({ status: "archived", isDeleted: { $ne: true } }),
       ProductModel.countDocuments({
         isDeleted: { $ne: true },
-        $or: [
-          { media: { $exists: false } },
-          { media: { $size: 0 } },
-        ],
+        $or: [{ media: { $exists: false } }, { media: { $size: 0 } }],
       }).exec(),
       ProductModel.countDocuments({
         isDeleted: { $ne: true },
@@ -77,10 +74,7 @@ export async function getProductDashboardStatsAction(): Promise<{
         isDeleted: { $ne: true },
         $and: [
           {
-            $or: [
-              { media: { $exists: false } },
-              { media: { $size: 0 } },
-            ],
+            $or: [{ media: { $exists: false } }, { media: { $size: 0 } }],
           },
           {
             $or: [
@@ -136,6 +130,9 @@ export async function getProductDashboardStatsAction(): Promise<{
     };
   } catch (err: unknown) {
     logger.error("Failed to get product dashboard stats", err);
-    return { success: false, error: err instanceof Error ? err.message : "Failed to fetch dashboard stats" };
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to fetch dashboard stats",
+    };
   }
 }

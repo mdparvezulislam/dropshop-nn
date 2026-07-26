@@ -48,7 +48,12 @@ const ROLE_INFO: Record<string, { label: string; description: string; features: 
   supplier: {
     label: "Supplier",
     description: "List and sell your products on DropshopNN.",
-    features: ["Product management", "Inventory control", "Order fulfillment", "Supplier dashboard"],
+    features: [
+      "Product management",
+      "Inventory control",
+      "Order fulfillment",
+      "Supplier dashboard",
+    ],
   },
 };
 
@@ -61,16 +66,14 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 function formatDate(d: string | Date): string {
-  return new Date(d).toLocaleDateString("en-BD", { day: "numeric", month: "short", year: "numeric" });
+  return new Date(d).toLocaleDateString("en-BD", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
 
-function RoleApplicationForm({
-  role,
-  onClose,
-}: {
-  role: string;
-  onClose: () => void;
-}) {
+function RoleApplicationForm({ role, onClose }: { role: string; onClose: () => void }) {
   const [businessName, setBusinessName] = useState("");
   const [ownerName, setOwnerName] = useState("");
   const [primaryPhone, setPrimaryPhone] = useState("");
@@ -187,7 +190,9 @@ function RoleApplicationForm({
           />
         </div>
         <div className="col-span-2 space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground">Description (optional)</label>
+          <label className="text-xs font-medium text-muted-foreground">
+            Description (optional)
+          </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -311,10 +316,7 @@ export function RolePageContent({ currentRole, applications }: RolePageContentPr
           </CardHeader>
           <CardContent className="space-y-2">
             {applications.map((app) => (
-              <div
-                key={app.id}
-                className="flex items-center justify-between text-sm py-2"
-              >
+              <div key={app.id} className="flex items-center justify-between text-sm py-2">
                 <div>
                   <p className="font-medium capitalize">{app.role}</p>
                   <p className="text-xs text-muted-foreground">{app.businessName}</p>
@@ -328,7 +330,9 @@ export function RolePageContent({ currentRole, applications }: RolePageContentPr
                   >
                     {app.status}
                   </Badge>
-                  <p className="text-xs text-muted-foreground mt-0.5">{formatDate(app.createdAt)}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {formatDate(app.createdAt)}
+                  </p>
                 </div>
               </div>
             ))}
@@ -346,9 +350,7 @@ export function RolePageContent({ currentRole, applications }: RolePageContentPr
               Fill out the form to apply for {applyRole} access. We&apos;ll review your application.
             </DialogDescription>
           </DialogHeader>
-          {applyRole && (
-            <RoleApplicationForm role={applyRole} onClose={() => setApplyRole(null)} />
-          )}
+          {applyRole && <RoleApplicationForm role={applyRole} onClose={() => setApplyRole(null)} />}
         </DialogContent>
       </Dialog>
     </motion.div>

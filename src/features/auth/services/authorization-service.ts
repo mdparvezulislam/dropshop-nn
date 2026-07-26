@@ -8,10 +8,7 @@ import {
 } from "@/lib/core/permission-registry";
 import { SYSTEM_ROLES } from "@/lib/core/permissions";
 import { AuditLogger } from "@/lib/audit-logger";
-import {
-  ValidationError,
-  ForbiddenError,
-} from "@/lib/errors/app-error";
+import { ValidationError, ForbiddenError } from "@/lib/errors/app-error";
 
 const DEFAULT_ROLE_PERMISSIONS: Record<string, string[]> = {};
 for (const role of SYSTEM_ROLES) {
@@ -76,7 +73,10 @@ export class AuthorizationService {
 
   async isAdmin(roleName: string): Promise<boolean> {
     if (await this.isSuperAdmin(roleName)) return true;
-    const normalized = roleName.trim().toLowerCase().replace(/[\s-]+/g, "_");
+    const normalized = roleName
+      .trim()
+      .toLowerCase()
+      .replace(/[\s-]+/g, "_");
     return normalized === "admin" || normalized.includes("admin");
   }
 
@@ -84,10 +84,7 @@ export class AuthorizationService {
     return validatePermissions(permissions);
   }
 
-  async preventPrivilegeEscalation(
-    actorRole: string,
-    targetPermissions: string[],
-  ): Promise<void> {
+  async preventPrivilegeEscalation(actorRole: string, targetPermissions: string[]): Promise<void> {
     if (await this.isSuperAdmin(actorRole)) return;
 
     const actorPermissions = await this.getPermissionsForRole(actorRole);

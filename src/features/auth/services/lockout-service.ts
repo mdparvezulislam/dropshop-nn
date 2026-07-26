@@ -99,7 +99,11 @@ export class LockoutService {
         actor: { id: "system", role: "system" },
         changes: [
           { field: "status", oldValue: user.status, newValue: "blocked" },
-          { field: "lockedUntil", oldValue: user.lockedUntil, newValue: lockoutUntil.toISOString() },
+          {
+            field: "lockedUntil",
+            oldValue: user.lockedUntil,
+            newValue: lockoutUntil.toISOString(),
+          },
         ],
       });
 
@@ -131,11 +135,7 @@ export class LockoutService {
     return false;
   }
 
-  async unlockAccount(
-    userId: string,
-    unlockedBy: string,
-    notes?: string,
-  ): Promise<User> {
+  async unlockAccount(userId: string, unlockedBy: string, notes?: string): Promise<User> {
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new ValidationError("User not found");
@@ -225,7 +225,11 @@ export class LockoutService {
           status: "active",
         } as never);
 
-        await this.accountLockoutRepository.unlock(lockout.userId, "system", "Auto-unlocked after timeout");
+        await this.accountLockoutRepository.unlock(
+          lockout.userId,
+          "system",
+          "Auto-unlocked after timeout",
+        );
 
         await this.securityEventRepository.create({
           userId: lockout.userId,

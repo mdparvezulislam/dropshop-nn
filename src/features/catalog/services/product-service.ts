@@ -15,6 +15,8 @@ import type { ActorInfo } from "@/lib/core/types";
 import type { CreateProductInput, UpdateProductInput } from "../types/validation";
 import { ProductVersionService } from "./product-version-service";
 import { ProductAuditService } from "./product-audit-service";
+import { PricingService } from "@/features/pricing/services/pricing-service";
+import { ProductAutomationEngine } from "./product-automation-engine";
 
 export class ProductService {
   private readonly productRepository: ProductRepository;
@@ -22,6 +24,8 @@ export class ProductService {
   private readonly categoryRepository: CategoryRepository;
   private readonly versionService: ProductVersionService;
   private readonly auditService: ProductAuditService;
+  private readonly pricingService: PricingService;
+  private readonly automationEngine: ProductAutomationEngine;
 
   constructor() {
     this.productRepository = new ProductRepository();
@@ -29,55 +33,17 @@ export class ProductService {
     this.categoryRepository = new CategoryRepository();
     this.versionService = new ProductVersionService();
     this.auditService = new ProductAuditService();
-  }
-
-  private async generateUniqueSlug(name: string): Promise<string> {
-    const baseSlug = generateSlug(name || "product");
-    let uniqueSlug = baseSlug;
-    let counter = 1;
-    while (true) {
-      const existing = await this.productRepository.findBySlug(uniqueSlug);
-      if (!existing) break;
-      uniqueSlug = `${baseSlug}-${counter}`;
-      counter++;
-    }
-    return uniqueSlug;
-  }
-
-  private generateUniqueSKU(name: string): string {
-    const prefix = name.trim() ? name.trim().substring(0, 3).toUpperCase() : "DS";
-    const rand = Math.floor(100000 + Math.random() * 900000);
-    return `DS-${prefix}-${rand}`;
+    this.pricingService = new PricingService();
+    this.automationEngine = new ProductAutomationEngine(
+      this.productRepository,
+      this.categoryRepository,
+    );
   }
 
   async create(data: CreateProductInput, actor?: ActorInfo): Promise<Product> {
     logger.info("ProductService: creating product", { name: data.name, actor: actor?.id });
 
-    // Automation 1: Auto SKU if missing
-    let finalSku = data.sku ? data.sku.toUpperCase().trim() : this.generateUniqueSKU(data.name);
-    let existingSku = await this.productRepository.findBySku(finalSku);
-    if (existingSku) {
-      if (data.sku) {
-        throw new ValidationError("SKU already exists", {
-          sku: ["A product with this SKU is already registered"],
-        });
-      } else {
-        finalSku = `${finalSku}-${Math.floor(100 + Math.random() * 900)}`;
-      }
-    }
-
-    if (data.barcode) {
-      const existingBarcode = await this.productRepository.findOne({ barcode: data.barcode });
-      if (existingBarcode) {
-        throw new ValidationError("Barcode already exists", {
-          barcode: ["A product with this barcode is already registered"],
-        });
-      }
-    }
-
-    // Automation 2: Auto Slug
-    const slug = data.slug ? data.slug.toLowerCase().trim() : await this.generateUniqueSlug(data.name);
-
+    // ── Validate brand/category references ──
     if (data.brandId) {
       const brand = await this.brandRepository.findById(data.brandId);
       if (!brand)
@@ -91,29 +57,107 @@ export class ProductService {
         });
     }
 
-    // Automation 3: Auto Badges consolidation
-    const badges: string[] = Array.isArray(data.badges) ? [...data.badges] : [];
+    // ── Automation engine: generates slug, SKU, SEO, pricing, badges ──
+    const enriched = await this.automationEngine.generate({
+      name: data.name,
+      shortDescription: data.shortDescription,
+      description: data.description,
+      categoryId: data.categoryId,
+      sku: data.sku,
+      slug: data.slug,
+      metaTitle: data.metaTitle || data.seo?.metaTitle,
+      metaDescription: data.metaDescription || data.seo?.metaDescription,
+      tags: data.tags,
+      costPrice: (data as any).costPrice ?? null,
+      stock: (data as any).stock ?? (data as any).stockQuantity ?? null,
+      badges: data.badges,
+    });
+
+    // ── SKU collision guard (user-provided SKU) ──
+    if (data.sku) {
+      const dup = await this.productRepository.findBySku(enriched.finalSku);
+      if (dup) {
+        throw new ValidationError("SKU already exists", {
+          sku: ["A product with this SKU is already registered"],
+        });
+      }
+    }
+
+    // ── Barcode uniqueness ──
+    if (data.barcode) {
+      const dup = await this.productRepository.findOne({ barcode: data.barcode });
+      if (dup) {
+        throw new ValidationError("Barcode already exists", {
+          barcode: ["A product with this barcode is already registered"],
+        });
+      }
+    }
+
+    // ── Legacy badge consolidation ──
+    const badges = [...enriched.finalBadges];
     if (data.featured && !badges.includes("featured")) badges.push("featured");
     if (data.trending && !badges.includes("trending")) badges.push("trending");
     if (data.flashSale && !badges.includes("flash_sale")) badges.push("flash_sale");
     if (data.newArrival && !badges.includes("new_arrival")) badges.push("new_arrival");
 
-    // Automation 4: Auto SEO Meta Title & Description
-    const metaTitle = data.metaTitle || data.seo?.metaTitle || data.name;
-    const metaDescription =
-      data.metaDescription || data.seo?.metaDescription || data.shortDescription || "";
-
+    // ── Build final document ──
     const product = await this.productRepository.create({
       ...data,
-      sku: finalSku,
-      slug,
+      sku: enriched.finalSku,
+      slug: enriched.finalSlug,
       badges,
-      metaTitle,
-      metaDescription,
+      metaTitle: enriched.finalMetaTitle,
+      metaDescription: enriched.finalMetaDescription,
+      tags: enriched.finalTags,
       status: data.status || "draft",
       visibility: data.visibility || "public",
     });
 
+    // ── Auto-create pricing record ──
+    const pricingPayload = (data as any).pricing;
+    if (enriched.finalPricing.sellingPrice && enriched.finalPricing.sellingPrice > 0) {
+      try {
+        const costCents =
+          (pricingPayload?.costPrice ?? 0) > 0
+            ? Math.round((pricingPayload?.costPrice ?? 0) * 100)
+            : 0;
+        await this.pricingService.createPricing(
+          {
+            productId: product.id,
+            variantSku: product.sku,
+            baseCostPrice: costCents,
+            purchasePrice: pricingPayload?.purchasePrice ?? 0,
+            supplierPrice: pricingPayload?.supplierPrice ?? 0,
+            sellingPrice: Math.round(enriched.finalPricing.sellingPrice * 100),
+            wholesalePrice: enriched.finalPricing.wholesalePrice
+              ? Math.round(enriched.finalPricing.wholesalePrice * 100)
+              : Math.round(enriched.finalPricing.sellingPrice * 100 * 0.9),
+            resellerPrice: enriched.finalPricing.resellerPrice
+              ? Math.round(enriched.finalPricing.resellerPrice * 100)
+              : Math.round(enriched.finalPricing.sellingPrice * 100 * 0.85),
+            comparePrice: pricingPayload?.comparePrice
+              ? Math.round(pricingPayload.comparePrice * 100)
+              : 0,
+            discountAmount: 0,
+            discountPercentage: 0,
+            taxRate: 0,
+            taxInclusive: false,
+            commissionRate: 0,
+            currency: "BDT",
+            pricingRule: "fixed" as const,
+            status: "active" as const,
+          },
+          actor?.id,
+        );
+      } catch (err) {
+        logger.error("ProductService: auto-pricing record creation failed", {
+          productId: product.id,
+          error: err instanceof Error ? err.message : "unknown",
+        });
+      }
+    }
+
+    // ── Events ──
     await EventBus.publish(
       CATALOG_EVENTS.PRODUCT_CREATED,
       {
@@ -140,7 +184,13 @@ export class ProductService {
       changedFields: Object.keys(data),
       summary: `Product ${product.name} created`,
     });
-    await this.versionService.createVersion(product.id, Object.keys(data), actor?.id, actor?.name, "Initial version");
+    await this.versionService.createVersion(
+      product.id,
+      Object.keys(data),
+      actor?.id,
+      actor?.name,
+      "Initial version",
+    );
 
     return product;
   }
@@ -163,27 +213,45 @@ export class ProductService {
     const existing = await this.productRepository.findById(id);
     if (!existing) throw new NotFoundError("Product not found");
 
+    // ── Slug regeneration on name change ──
     let slug = existing.slug;
     if (data.name && data.name.trim().toLowerCase() !== existing.name.trim().toLowerCase()) {
-      slug = data.slug ? data.slug.toLowerCase().trim() : await this.generateUniqueSlug(data.name);
+      slug = data.slug
+        ? data.slug.toLowerCase().trim()
+        : await this.automationEngine.generateUniqueSlug(data.name);
     } else if (data.slug && data.slug !== existing.slug) {
       slug = data.slug.toLowerCase().trim();
     }
 
+    // ── SKU collision guard ──
     if (data.sku && data.sku.toUpperCase().trim() !== existing.sku.toUpperCase().trim()) {
       const dup = await this.productRepository.findBySku(data.sku);
       if (dup) throw new ValidationError("SKU already exists", { sku: ["SKU is already in use"] });
     }
 
+    // ── Barcode uniqueness ──
     if (data.barcode && data.barcode !== existing.barcode) {
-      const dup = await this.productRepository.findOne({ barcode: data.barcode, _id: { $ne: id } });
+      const dup = await this.productRepository.findOne({
+        barcode: data.barcode,
+        _id: { $ne: id },
+      });
       if (dup)
         throw new ValidationError("Barcode already exists", {
           barcode: ["Barcode is already in use"],
         });
     }
 
-    const badges: string[] = Array.isArray(data.badges) ? [...data.badges] : [...(existing.badges || [])];
+    // ── Dynamic badges ──
+    const inputBadges = Array.isArray(data.badges) ? data.badges : [...(existing.badges || [])];
+    const existingStock = (existing as any).stock ?? (existing as any).stockQuantity ?? null;
+    const inputStock = (data as any).stock ?? (data as any).stockQuantity ?? existingStock;
+    const badges = this.automationEngine.assignDynamicBadges(
+      new Date(),
+      existing.createdAt,
+      inputStock,
+      inputBadges,
+    );
+    // Legacy flags still respected
     if (data.featured !== undefined) {
       if (data.featured && !badges.includes("featured")) badges.push("featured");
       else if (!data.featured && badges.includes("featured")) {
@@ -192,13 +260,59 @@ export class ProductService {
       }
     }
 
+    // ── Auto-SEO on update (only fill empty fields) ──
+    const metaTitle = data.metaTitle || data.seo?.metaTitle || existing.metaTitle || existing.name;
+    const metaDescription =
+      data.metaDescription ||
+      data.seo?.metaDescription ||
+      existing.metaDescription ||
+      existing.shortDescription ||
+      "";
+
+    // ── Persist ──
     const updated = await this.productRepository.update(id, {
       ...data,
       slug,
       badges,
+      metaTitle,
+      metaDescription,
     });
 
     const changedFields = Object.keys(data);
+
+    // ── Auto-pricing on costPrice change ──
+    const updatePricingPayload = (data as any).pricing;
+    if (updatePricingPayload?.costPrice && updatePricingPayload.costPrice > 0) {
+      try {
+        const pricing = await this.pricingService.getPricingByProduct(id);
+        const costCents = Math.round(updatePricingPayload.costPrice * 100);
+        if (pricing) {
+          await this.pricingService.updatePricing(
+            pricing.id,
+            {
+              baseCostPrice: costCents,
+              sellingPrice: updatePricingPayload.sellingPrice
+                ? Math.round(updatePricingPayload.sellingPrice * 100)
+                : undefined,
+              wholesalePrice: updatePricingPayload.wholesalePrice
+                ? Math.round(updatePricingPayload.wholesalePrice * 100)
+                : undefined,
+              resellerPrice: updatePricingPayload.resellerPrice
+                ? Math.round(updatePricingPayload.resellerPrice * 100)
+                : undefined,
+            },
+            actor?.id,
+          );
+        }
+      } catch (err) {
+        logger.warn("ProductService: pricing update on cost change failed", {
+          productId: id,
+          error: err instanceof Error ? err.message : "unknown",
+        });
+      }
+    }
+
+    // ── Events ──
     await EventBus.publish(
       CATALOG_EVENTS.PRODUCT_UPDATED,
       {
@@ -222,18 +336,15 @@ export class ProductService {
       );
     }
 
+    // ── Audit & Versioning ──
     await this.auditService.record({
       productId: updated.id,
       action: "updated",
       editorId: actor?.id,
       editorName: actor?.name,
       changedFields,
-      oldValues: Object.fromEntries(
-        changedFields.map((k) => [k, (existing as any)[k]]),
-      ),
-      newValues: Object.fromEntries(
-        changedFields.map((k) => [k, (data as any)[k]]),
-      ),
+      oldValues: Object.fromEntries(changedFields.map((k) => [k, (existing as any)[k]])),
+      newValues: Object.fromEntries(changedFields.map((k) => [k, (data as any)[k]])),
       summary: `Product ${updated.name} updated`,
     });
     await this.versionService.createVersion(updated.id, changedFields, actor?.id, actor?.name);
@@ -280,9 +391,7 @@ export class ProductService {
     if (existing.status === "archived")
       throw new ValidationError("Cannot publish an archived product");
 
-    if (existing.status === "active") {
-      return existing;
-    }
+    if (existing.status === "active") return existing;
 
     const updated = await this.productRepository.update(id, { status: "active" as const });
 
@@ -306,7 +415,13 @@ export class ProductService {
       changedFields: ["status"],
       summary: `Product ${updated.name} published`,
     });
-    await this.versionService.createVersion(updated.id, ["status"], actor?.id, actor?.name, "Published");
+    await this.versionService.createVersion(
+      updated.id,
+      ["status"],
+      actor?.id,
+      actor?.name,
+      "Published",
+    );
 
     return updated;
   }
@@ -338,9 +453,17 @@ export class ProductService {
       editorId: actor?.id,
       editorName: actor?.name,
       changedFields: ["status"],
-      summary: reason ? `Product ${updated.name} archived: ${reason}` : `Product ${updated.name} archived`,
+      summary: reason
+        ? `Product ${updated.name} archived: ${reason}`
+        : `Product ${updated.name} archived`,
     });
-    await this.versionService.createVersion(updated.id, ["status"], actor?.id, actor?.name, reason || "Archived");
+    await this.versionService.createVersion(
+      updated.id,
+      ["status"],
+      actor?.id,
+      actor?.name,
+      reason || "Archived",
+    );
 
     return updated;
   }
@@ -356,7 +479,7 @@ export class ProductService {
 
     const duplicated = await this.productRepository.create({
       name,
-      slug: await this.generateUniqueSlug(name),
+      slug: generateSlug(name),
       sku: newSku,
       barcode: existing.barcode ? `${existing.barcode}-DUP` : undefined,
       gtin: existing.gtin ? `${existing.gtin}-DUP` : undefined,
@@ -413,7 +536,13 @@ export class ProductService {
       changedFields: ["name", "sku", "slug"],
       summary: `Product duplicated from ${existing.name}`,
     });
-    await this.versionService.createVersion(duplicated.id, ["name", "sku", "slug"], actor?.id, actor?.name, "Duplicated from original");
+    await this.versionService.createVersion(
+      duplicated.id,
+      ["name", "sku", "slug"],
+      actor?.id,
+      actor?.name,
+      "Duplicated from original",
+    );
 
     return duplicated;
   }
@@ -457,7 +586,13 @@ export class ProductService {
       changedFields: ["variants"],
       summary: `Variant ${variant.sku} added`,
     });
-    await this.versionService.createVersion(productId, ["variants"], actor?.id, actor?.name, `Variant ${variant.sku} added`);
+    await this.versionService.createVersion(
+      productId,
+      ["variants"],
+      actor?.id,
+      actor?.name,
+      `Variant ${variant.sku} added`,
+    );
 
     return updated;
   }
@@ -497,7 +632,13 @@ export class ProductService {
       changedFields: ["variants"],
       summary: `Variant ${sku} updated`,
     });
-    await this.versionService.createVersion(productId, ["variants"], actor?.id, actor?.name, `Variant ${sku} updated`);
+    await this.versionService.createVersion(
+      productId,
+      ["variants"],
+      actor?.id,
+      actor?.name,
+      `Variant ${sku} updated`,
+    );
 
     return updated;
   }
@@ -533,7 +674,13 @@ export class ProductService {
       changedFields: ["variants"],
       summary: `Variant ${sku} removed`,
     });
-    await this.versionService.createVersion(productId, ["variants"], actor?.id, actor?.name, `Variant ${sku} removed`);
+    await this.versionService.createVersion(
+      productId,
+      ["variants"],
+      actor?.id,
+      actor?.name,
+      `Variant ${sku} removed`,
+    );
 
     return updated;
   }
@@ -568,7 +715,13 @@ export class ProductService {
       changedFields: ["media"],
       summary: `Media ${media.url} added`,
     });
-    await this.versionService.createVersion(productId, ["media"], actor?.id, actor?.name, `Media ${media.url} added`);
+    await this.versionService.createVersion(
+      productId,
+      ["media"],
+      actor?.id,
+      actor?.name,
+      `Media ${media.url} added`,
+    );
 
     return updated;
   }
@@ -599,7 +752,13 @@ export class ProductService {
       changedFields: ["media"],
       summary: `Media removed`,
     });
-    await this.versionService.createVersion(productId, ["media"], actor?.id, actor?.name, `Media removed`);
+    await this.versionService.createVersion(
+      productId,
+      ["media"],
+      actor?.id,
+      actor?.name,
+      `Media removed`,
+    );
 
     return updated;
   }
@@ -636,7 +795,13 @@ export class ProductService {
       changedFields: ["media"],
       summary: `Featured media set to ${mediaUrl}`,
     });
-    await this.versionService.createVersion(productId, ["media"], actor?.id, actor?.name, `Featured media set`);
+    await this.versionService.createVersion(
+      productId,
+      ["media"],
+      actor?.id,
+      actor?.name,
+      `Featured media set`,
+    );
 
     return updated;
   }
@@ -709,7 +874,13 @@ export class ProductService {
       newValues: { visibility },
       summary: `Visibility changed from ${oldVisibility} to ${visibility}`,
     });
-    await this.versionService.createVersion(id, ["visibility"], actor?.id, actor?.name, `Visibility changed to ${visibility}`);
+    await this.versionService.createVersion(
+      id,
+      ["visibility"],
+      actor?.id,
+      actor?.name,
+      `Visibility changed to ${visibility}`,
+    );
 
     return updated;
   }

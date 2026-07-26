@@ -5,32 +5,50 @@ const roles = [
   {
     title: "Reseller & Dropshipper Track",
     subtitle: "Zero Inventory Risk",
-    description: "Launch your Facebook, Instagram, or Website shop with 10,000+ ready-to-sell products. Set your own prices and keep 100% of your retail margin.",
+    description:
+      "Launch your Facebook, Instagram, or Website shop with 10,000+ ready-to-sell products. Set your own prices and keep 100% of your retail margin.",
     icon: Store,
     href: "/become-reseller",
     cta: "Start Dropshipping Now",
     badge: "Most Popular",
-    benefits: ["Zero upfront inventory cost", "1-Click product sync & marketing kit", "Automated Pathao/Steadfast delivery", "Instant profit wallet withdrawal"],
+    benefits: [
+      "Zero upfront inventory cost",
+      "1-Click product sync & marketing kit",
+      "Automated Pathao/Steadfast delivery",
+      "Instant profit wallet withdrawal",
+    ],
   },
   {
     title: "Wholesale & Bulk Buyer Track",
     subtitle: "Direct Factory Sourcing",
-    description: "Bulk purchasing power with tiered discount matrices. Access factory-direct inventory, tax invoices, and dedicated account management.",
+    description:
+      "Bulk purchasing power with tiered discount matrices. Access factory-direct inventory, tax invoices, and dedicated account management.",
     icon: PackageCheck,
     href: "/become-wholesale-partner",
     cta: "Wholesale Partner Portal",
     badge: "Bulk Savings",
-    benefits: ["Factory tier pricing (-35%)", "Flexible MOQ start from 10 pcs", "Dedicated BD account manager", "Custom packaging & branding"],
+    benefits: [
+      "Factory tier pricing (-35%)",
+      "Flexible MOQ start from 10 pcs",
+      "Dedicated BD account manager",
+      "Custom packaging & branding",
+    ],
   },
   {
     title: "Direct Supplier Track",
     subtitle: "Nationwide Distribution",
-    description: "List your inventory on Bangladesh's premier commerce OS. Reach 5,000+ active resellers and wholesale buyers across 64 districts.",
+    description:
+      "List your inventory on Bangladesh's premier commerce OS. Reach 5,000+ active resellers and wholesale buyers across 64 districts.",
     icon: Building2,
     href: "/become-supplier",
     cta: "Join as Verified Supplier",
     badge: "High Growth",
-    benefits: ["Reach 5,000+ active sellers", "Automated stock & order sync", "Guaranteed weekly payouts", "Full inventory analytics hub"],
+    benefits: [
+      "Reach 5,000+ active sellers",
+      "Automated stock & order sync",
+      "Guaranteed weekly payouts",
+      "Full inventory analytics hub",
+    ],
   },
 ];
 
@@ -46,7 +64,8 @@ export function RoleHighlights() {
             Who Is DropshopNN Built For?
           </h2>
           <p className="text-base text-muted-foreground max-w-2xl mx-auto">
-            Select your commerce track to start sourcing, selling, or supplying products across Bangladesh with enterprise automation.
+            Select your commerce track to start sourcing, selling, or supplying products across
+            Bangladesh with enterprise automation.
           </p>
         </div>
 
@@ -73,13 +92,14 @@ export function RoleHighlights() {
                   <p className="text-xs font-bold text-primary/80 mt-0.5">{role.subtitle}</p>
                 </div>
 
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {role.description}
-                </p>
+                <p className="text-xs text-muted-foreground leading-relaxed">{role.description}</p>
 
                 <ul className="space-y-2.5 pt-2 border-t border-border/50">
                   {role.benefits.map((benefit) => (
-                    <li key={benefit} className="flex items-start gap-2 text-xs text-foreground/80 font-medium">
+                    <li
+                      key={benefit}
+                      className="flex items-start gap-2 text-xs text-foreground/80 font-medium"
+                    >
                       <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
                       <span>{benefit}</span>
                     </li>
@@ -105,4 +125,3 @@ export function RoleHighlights() {
 }
 
 export default RoleHighlights;
-

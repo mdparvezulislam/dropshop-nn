@@ -1,14 +1,24 @@
 import { BaseDBEntity } from "@/lib/database/types";
 
 export const COMPLAINT_TYPES = [
-  "wrong_product", "damaged_product", "missing_item",
-  "courier_delay", "late_delivery", "refund_issue",
-  "warranty_issue", "exchange_issue", "payment_issue",
+  "wrong_product",
+  "damaged_product",
+  "missing_item",
+  "courier_delay",
+  "late_delivery",
+  "refund_issue",
+  "warranty_issue",
+  "exchange_issue",
+  "payment_issue",
   "other",
 ] as const;
 
 export const COMPLAINT_STATUSES = [
-  "open", "in_progress", "resolved", "closed", "escalated",
+  "open",
+  "in_progress",
+  "resolved",
+  "closed",
+  "escalated",
 ] as const;
 
 export type ComplaintType = (typeof COMPLAINT_TYPES)[number];

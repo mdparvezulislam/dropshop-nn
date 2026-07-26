@@ -17,11 +17,7 @@ export type ReturnReason =
   | "delivery_failed";
 
 export type RTSStatus =
-  | "rts_created"
-  | "rts_in_transit"
-  | "rts_received"
-  | "package_inspected"
-  | "rts_completed";
+  "rts_created" | "rts_in_transit" | "rts_received" | "package_inspected" | "rts_completed";
 
 export interface DeliveryReturn extends BaseDBEntity {
   returnNumber: string;

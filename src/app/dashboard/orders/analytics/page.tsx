@@ -5,7 +5,10 @@ import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getOrderDashboardStatsAction, listOrdersAction } from "@/features/order/actions/order-actions";
+import {
+  getOrderDashboardStatsAction,
+  listOrdersAction,
+} from "@/features/order/actions/order-actions";
 import { getReturnStatsAction } from "@/features/order/actions/return-actions";
 import { getWarrantyStatsAction } from "@/features/order/actions/warranty-actions";
 import { getExchangeStatsAction } from "@/features/order/actions/exchange-actions";
@@ -15,9 +18,20 @@ import { getWarrantyHumanLabel } from "@/features/order/domain/warranty-entity";
 import { getExchangeHumanLabel } from "@/features/order/domain/exchange-entity";
 import { toast } from "sonner";
 import {
-  ArrowLeft, RefreshCw, ShoppingCart, PackageCheck, Truck,
-  Undo2, ShieldCheck, Repeat, BarChart3, Clock, DollarSign,
-  TrendingUp, TrendingDown, Award,
+  ArrowLeft,
+  RefreshCw,
+  ShoppingCart,
+  PackageCheck,
+  Truck,
+  Undo2,
+  ShieldCheck,
+  Repeat,
+  BarChart3,
+  Clock,
+  DollarSign,
+  TrendingUp,
+  TrendingDown,
+  Award,
 } from "lucide-react";
 
 export default function AnalyticsPage(): React.ReactElement {
@@ -52,20 +66,28 @@ export default function AnalyticsPage(): React.ReactElement {
           mismatched: s.totalMismatched,
         });
       }
-    } catch { toast.error("Failed to load analytics"); }
-    finally { setLoading(false); }
+    } catch {
+      toast.error("Failed to load analytics");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  React.useEffect(() => { load(); }, [load]);
+  React.useEffect(() => {
+    load();
+  }, [load]);
 
-  const totalActive = (orderStats.pending ?? 0) + (orderStats.confirmed ?? 0) + (orderStats.packed ?? 0);
+  const totalActive =
+    (orderStats.pending ?? 0) + (orderStats.confirmed ?? 0) + (orderStats.packed ?? 0);
   const totalDelivered = (orderStats.delivered ?? 0) + (orderStats.completed ?? 0);
   const totalReturns = Object.values(returnStats).reduce((s, v) => s + v, 0);
   const totalCodPending = (codStats.pending ?? 0) + (codStats.mismatched ?? 0);
 
   const SectionCard = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <Card className="border-border/50 bg-card">
-      <CardHeader><CardTitle className="text-sm font-semibold">{title}</CardTitle></CardHeader>
+      <CardHeader>
+        <CardTitle className="text-sm font-semibold">{title}</CardTitle>
+      </CardHeader>
       <CardContent>{children}</CardContent>
     </Card>
   );
@@ -74,42 +96,81 @@ export default function AnalyticsPage(): React.ReactElement {
     <div className="min-h-screen bg-background p-4 sm:p-6 space-y-5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link href="/dashboard/orders" className="p-2 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground">
+          <Link
+            href="/dashboard/orders"
+            className="p-2 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-foreground">অর্ডার অ্যানালিটিক্স</h1>
-            <p className="text-sm text-muted-foreground">Order Analytics & Fulfillment Performance</p>
+            <p className="text-sm text-muted-foreground">
+              Order Analytics & Fulfillment Performance
+            </p>
           </div>
         </div>
-        <Button variant="ghost" onClick={load}><RefreshCw className="h-4 w-4" /></Button>
+        <Button variant="ghost" onClick={load}>
+          <RefreshCw className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* Top Overview */}
       <div className="grid gap-3 grid-cols-2 sm:grid-cols-4 lg:grid-cols-6">
         <Card className="border-border/50 bg-card/50">
-          <CardContent className="p-3"><div className="flex items-center gap-2 text-blue-400"><ShoppingCart className="h-4 w-4" /><span className="text-xs text-muted-foreground">Today</span></div>
-            <p className="text-xl font-bold">{orderStats.today ?? 0}</p></CardContent>
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2 text-blue-400">
+              <ShoppingCart className="h-4 w-4" />
+              <span className="text-xs text-muted-foreground">Today</span>
+            </div>
+            <p className="text-xl font-bold">{orderStats.today ?? 0}</p>
+          </CardContent>
         </Card>
         <Card className="border-border/50 bg-card/50">
-          <CardContent className="p-3"><div className="flex items-center gap-2 text-amber-400"><PackageCheck className="h-4 w-4" /><span className="text-xs text-muted-foreground">Active</span></div>
-            <p className="text-xl font-bold text-amber-400">{totalActive}</p></CardContent>
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2 text-amber-400">
+              <PackageCheck className="h-4 w-4" />
+              <span className="text-xs text-muted-foreground">Active</span>
+            </div>
+            <p className="text-xl font-bold text-amber-400">{totalActive}</p>
+          </CardContent>
         </Card>
         <Card className="border-border/50 bg-card/50">
-          <CardContent className="p-3"><div className="flex items-center gap-2 text-emerald-400"><Truck className="h-4 w-4" /><span className="text-xs text-muted-foreground">Delivered</span></div>
-            <p className="text-xl font-bold text-emerald-400">{totalDelivered}</p></CardContent>
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2 text-emerald-400">
+              <Truck className="h-4 w-4" />
+              <span className="text-xs text-muted-foreground">Delivered</span>
+            </div>
+            <p className="text-xl font-bold text-emerald-400">{totalDelivered}</p>
+          </CardContent>
         </Card>
         <Card className="border-border/50 bg-card/50">
-          <CardContent className="p-3"><div className="flex items-center gap-2 text-rose-400"><Undo2 className="h-4 w-4" /><span className="text-xs text-muted-foreground">Returns</span></div>
-            <p className="text-xl font-bold text-rose-400">{totalReturns}</p></CardContent>
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2 text-rose-400">
+              <Undo2 className="h-4 w-4" />
+              <span className="text-xs text-muted-foreground">Returns</span>
+            </div>
+            <p className="text-xl font-bold text-rose-400">{totalReturns}</p>
+          </CardContent>
         </Card>
         <Card className="border-border/50 bg-card/50">
-          <CardContent className="p-3"><div className="flex items-center gap-2 text-amber-500"><Clock className="h-4 w-4" /><span className="text-xs text-muted-foreground">COD Pending</span></div>
-            <p className="text-xl font-bold text-amber-500">{totalCodPending}</p></CardContent>
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2 text-amber-500">
+              <Clock className="h-4 w-4" />
+              <span className="text-xs text-muted-foreground">COD Pending</span>
+            </div>
+            <p className="text-xl font-bold text-amber-500">{totalCodPending}</p>
+          </CardContent>
         </Card>
         <Card className="border-border/50 bg-card/50">
-          <CardContent className="p-3"><div className="flex items-center gap-2 text-violet-400"><Award className="h-4 w-4" /><span className="text-xs text-muted-foreground">Warranty</span></div>
-            <p className="text-xl font-bold text-violet-400">{Object.values(warrantyStats).reduce((s, v) => s + v, 0)}</p></CardContent>
+          <CardContent className="p-3">
+            <div className="flex items-center gap-2 text-violet-400">
+              <Award className="h-4 w-4" />
+              <span className="text-xs text-muted-foreground">Warranty</span>
+            </div>
+            <p className="text-xl font-bold text-violet-400">
+              {Object.values(warrantyStats).reduce((s, v) => s + v, 0)}
+            </p>
+          </CardContent>
         </Card>
       </div>
 
@@ -148,7 +209,9 @@ export default function AnalyticsPage(): React.ReactElement {
           ) : (
             <div className="space-y-4">
               <div>
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Returns</h4>
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-2">
+                  Returns
+                </h4>
                 <div className="space-y-1">
                   {Object.entries(returnStats).map(([status, count]) => (
                     <div key={status} className="flex justify-between text-sm">
@@ -159,7 +222,9 @@ export default function AnalyticsPage(): React.ReactElement {
                 </div>
               </div>
               <div>
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Warranties</h4>
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-2">
+                  Warranties
+                </h4>
                 <div className="space-y-1">
                   {Object.entries(warrantyStats).map(([status, count]) => (
                     <div key={status} className="flex justify-between text-sm">
@@ -170,7 +235,9 @@ export default function AnalyticsPage(): React.ReactElement {
                 </div>
               </div>
               <div>
-                <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Exchanges</h4>
+                <h4 className="text-xs font-semibold text-muted-foreground uppercase mb-2">
+                  Exchanges
+                </h4>
                 <div className="space-y-1">
                   {Object.entries(exchangeStats).map(([status, count]) => (
                     <div key={status} className="flex justify-between text-sm">
@@ -213,7 +280,9 @@ export default function AnalyticsPage(): React.ReactElement {
               <TrendingUp className="h-5 w-5 text-emerald-400 mb-1" />
               <p className="text-xs text-muted-foreground">Delivery Rate</p>
               <p className="text-lg font-bold text-emerald-400">
-                {orderStats.delivered != null && orderStats.completed != null && orderStats.pending != null
+                {orderStats.delivered != null &&
+                orderStats.completed != null &&
+                orderStats.pending != null
                   ? `${Math.round(((orderStats.delivered + orderStats.completed) / Math.max(1, orderStats.pending + orderStats.delivered + orderStats.completed)) * 100)}%`
                   : "—"}
               </p>
@@ -238,7 +307,9 @@ export default function AnalyticsPage(): React.ReactElement {
               <BarChart3 className="h-5 w-5 text-violet-400 mb-1" />
               <p className="text-xs text-muted-foreground">Total Orders</p>
               <p className="text-lg font-bold text-violet-400">
-                {Object.entries(orderStats).filter(([k]) => !["today", "total_cod"].includes(k)).reduce((s, [, v]) => s + v, 0)}
+                {Object.entries(orderStats)
+                  .filter(([k]) => !["today", "total_cod"].includes(k))
+                  .reduce((s, [, v]) => s + v, 0)}
               </p>
             </div>
           </div>

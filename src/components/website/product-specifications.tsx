@@ -16,17 +16,10 @@ export function ProductSpecifications({ specifications }: ProductSpecificationsP
             {specifications.map((spec, i) => (
               <tr
                 key={spec.key}
-                className={cn(
-                  "text-sm",
-                  i % 2 === 0 ? "bg-muted/20" : "bg-transparent",
-                )}
+                className={cn("text-sm", i % 2 === 0 ? "bg-muted/20" : "bg-transparent")}
               >
-                <td className="px-4 py-3 text-foreground/50 w-2/5 font-medium">
-                  {spec.key}
-                </td>
-                <td className="px-4 py-3 text-foreground/70">
-                  {spec.value}
-                </td>
+                <td className="px-4 py-3 text-foreground/50 w-2/5 font-medium">{spec.key}</td>
+                <td className="px-4 py-3 text-foreground/70">{spec.value}</td>
               </tr>
             ))}
           </tbody>

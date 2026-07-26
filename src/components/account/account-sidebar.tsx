@@ -63,7 +63,8 @@ export function AccountSidebar({ collapsed, onToggle }: AccountSidebarProps) {
 
       <nav className="flex-1 overflow-y-auto p-2 space-y-0.5">
         {ACCOUNT_NAV_ITEMS.map((item) => {
-          const active = pathname === item.href || (item.href !== "/account" && pathname.startsWith(item.href));
+          const active =
+            pathname === item.href || (item.href !== "/account" && pathname.startsWith(item.href));
           return (
             <Link
               key={item.href}

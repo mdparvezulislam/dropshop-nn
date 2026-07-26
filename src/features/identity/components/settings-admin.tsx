@@ -71,7 +71,11 @@ export function SettingsAdmin(): React.ReactElement {
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={load} disabled={loading} className="gap-1.5">
-          {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+          {loading ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <RefreshCw className="h-3.5 w-3.5" />
+          )}
           Refresh
         </Button>
       </div>
@@ -93,10 +97,7 @@ export function SettingsAdmin(): React.ReactElement {
             flags.map((f) => {
               const on = f.state === "on" || f.state === "partial";
               return (
-                <div
-                  key={f.key}
-                  className="flex items-center justify-between gap-3 px-4 py-3"
-                >
+                <div key={f.key} className="flex items-center justify-between gap-3 px-4 py-3">
                   <div className="min-w-0">
                     <p className="text-sm font-medium">{f.name}</p>
                     <p className="text-xs text-muted-foreground">{f.description}</p>

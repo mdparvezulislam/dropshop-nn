@@ -31,14 +31,16 @@ export default function SupplierPurchaseOrdersPage(): React.ReactElement {
         if (res.success && res.data) {
           const raw = res.data as any;
           const items = raw?.items ?? (Array.isArray(raw) ? raw : []);
-          setRows(items.map((o: any) => ({
-            id: o.id ?? o._id,
-            poNumber: o.orderNumber ?? o._id?.slice(-6) ?? "—",
-            items: o.items?.length ?? 0,
-            total: o.grandTotal ?? o.total ?? 0,
-            status: o.status ?? "pending",
-            createdAt: o.createdAt,
-          })));
+          setRows(
+            items.map((o: any) => ({
+              id: o.id ?? o._id,
+              poNumber: o.orderNumber ?? o._id?.slice(-6) ?? "—",
+              items: o.items?.length ?? 0,
+              total: o.grandTotal ?? o.total ?? 0,
+              status: o.status ?? "pending",
+              createdAt: o.createdAt,
+            })),
+          );
         }
       } catch {
         toast.error("Failed to load purchase orders");
@@ -62,7 +64,11 @@ export default function SupplierPurchaseOrdersPage(): React.ReactElement {
       id: "date",
       header: "Date",
       hideOnMobile: true,
-      cell: (r) => <span className="text-muted-foreground">{r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}</span>,
+      cell: (r) => (
+        <span className="text-muted-foreground">
+          {r.createdAt ? new Date(r.createdAt).toLocaleDateString() : "—"}
+        </span>
+      ),
     },
     {
       id: "items",
@@ -84,7 +90,10 @@ export default function SupplierPurchaseOrdersPage(): React.ReactElement {
       header: "",
       cell: (r) => (
         <div className="flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-          <Link href={`/supplier/orders/${r.id}`} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted">
+          <Link
+            href={`/supplier/orders/${r.id}`}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted"
+          >
             <Eye className="h-4 w-4" />
           </Link>
         </div>
@@ -97,13 +106,30 @@ export default function SupplierPurchaseOrdersPage(): React.ReactElement {
       header={{ title: "Purchase Orders", description: "View and manage purchase orders" }}
       stats={
         loading ? (
-          <div className="col-span-4 flex items-center gap-2 text-sm text-muted-foreground"><Spinner size="sm" /> Loading…</div>
+          <div className="col-span-4 flex items-center gap-2 text-sm text-muted-foreground">
+            <Spinner size="sm" /> Loading…
+          </div>
         ) : (
           <>
             <StatCard label="Total POs" value={rows.length} icon={ClipboardList} />
-            <StatCard label="Pending" value={rows.filter((r) => r.status === "pending").length} icon={Clock} accent="warning" />
-            <StatCard label="Accepted" value={rows.filter((r) => r.status === "confirmed").length} icon={CheckCircle2} accent="success" />
-            <StatCard label="Rejected" value={rows.filter((r) => r.status === "cancelled").length} icon={XCircle} accent="danger" />
+            <StatCard
+              label="Pending"
+              value={rows.filter((r) => r.status === "pending").length}
+              icon={Clock}
+              accent="warning"
+            />
+            <StatCard
+              label="Accepted"
+              value={rows.filter((r) => r.status === "confirmed").length}
+              icon={CheckCircle2}
+              accent="success"
+            />
+            <StatCard
+              label="Rejected"
+              value={rows.filter((r) => r.status === "cancelled").length}
+              icon={XCircle}
+              accent="danger"
+            />
           </>
         )
       }

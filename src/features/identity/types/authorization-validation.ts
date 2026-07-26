@@ -1,10 +1,10 @@
 import { z } from "zod";
 import { isValidPermission } from "@/lib/core/permission-registry";
 
-const permissionString = z.string().min(1, "Permission cannot be empty").refine(
-  (val: string) => isValidPermission(val),
-  { message: "Invalid permission string" },
-);
+const permissionString = z
+  .string()
+  .min(1, "Permission cannot be empty")
+  .refine((val: string) => isValidPermission(val), { message: "Invalid permission string" });
 
 export const createRoleSchema = z.object({
   name: z
@@ -23,10 +23,7 @@ export const updateRoleSchema = z.object({
     .max(50, "Role name must be 50 characters or less")
     .trim()
     .optional(),
-  description: z
-    .string()
-    .max(500, "Description must be 500 characters or less")
-    .optional(),
+  description: z.string().max(500, "Description must be 500 characters or less").optional(),
   permissions: z.array(permissionString).optional(),
 });
 

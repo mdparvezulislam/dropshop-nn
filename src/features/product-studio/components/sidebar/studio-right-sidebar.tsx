@@ -5,18 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusChip, statusToneFromValue } from "@/components/workspace/status-chip";
 import { Badge } from "@/components/ui/badge";
-import {
-  Send,
-  Eye,
-  RefreshCw,
-  Globe,
-  Activity,
-  CheckCircle2,
-  AlertCircle,
-  Copy,
-  Trash2,
-  Share2,
-} from "lucide-react";
+import { Send, Eye, RefreshCw, Activity, AlertCircle, Copy, Trash2, Share2 } from "lucide-react";
 import type { SaveState } from "../../hooks/use-autosave";
 import type { HealthScoreResult } from "../../types/studio-types";
 import { toast } from "sonner";
@@ -42,20 +31,30 @@ export interface StudioRightSidebarProps {
 }
 
 export function StudioRightSidebar({
-  status, visibility, onVisibilityChange,
-  onPublish, onSave, onPreview, onDuplicate, onDelete,
-  saving, saveState,
-  productName, productSku,
+  status,
+  visibility,
+  onVisibilityChange,
+  onPublish,
+  onSave,
+  onPreview,
+  onDuplicate,
+  onDelete,
+  saving,
+  saveState,
+  productName,
+  productSku,
   healthResult,
-  sections, activeSection, onSectionClick,
+  sections,
+  activeSection,
+  onSectionClick,
 }: StudioRightSidebarProps): React.ReactElement {
   const score = healthResult?.score ?? 0;
   const scoreColor =
     score >= 80
       ? "text-success bg-success/15 border-success/30"
       : score >= 50
-      ? "text-warning bg-warning/15 border-warning/30"
-      : "text-destructive bg-destructive/15 border-destructive/30";
+        ? "text-warning bg-warning/15 border-warning/30"
+        : "text-destructive bg-destructive/15 border-destructive/30";
 
   const handleCopyUrl = () => {
     const url = `${window.location.origin}/products/${productSku || "item"}`;
@@ -73,7 +72,9 @@ export function StudioRightSidebar({
               <span className="flex items-center gap-1.5">
                 <Activity className="h-4 w-4 text-primary" /> Product Health
               </span>
-              <span className={`px-2 py-0.5 rounded-full border font-mono font-extrabold text-xs ${scoreColor}`}>
+              <span
+                className={`px-2 py-0.5 rounded-full border font-mono font-extrabold text-xs ${scoreColor}`}
+              >
                 {score}/100
               </span>
             </CardTitle>
@@ -145,11 +146,25 @@ export function StudioRightSidebar({
           </div>
 
           <div className="space-y-2 pt-1">
-            <Button size="sm" className="w-full justify-center gap-1.5 font-bold shadow-xs" onClick={onSave} disabled={saving}>
+            <Button
+              size="sm"
+              className="w-full justify-center gap-1.5 font-bold shadow-xs"
+              onClick={onSave}
+              disabled={saving}
+            >
               <RefreshCw className={`h-3.5 w-3.5 ${saving ? "animate-spin" : ""}`} />
-              {saveState === "saving" ? "Saving Changes…" : saveState === "saved" ? "Autosaved" : "Save Draft"}
+              {saveState === "saving"
+                ? "Saving Changes…"
+                : saveState === "saved"
+                  ? "Autosaved"
+                  : "Save Draft"}
             </Button>
-            <Button size="sm" className="w-full justify-center gap-1.5 font-extrabold shadow-xs bg-amber-500 hover:bg-amber-600 text-slate-950" onClick={onPublish} disabled={saving}>
+            <Button
+              size="sm"
+              className="w-full justify-center gap-1.5 font-extrabold shadow-xs bg-amber-500 hover:bg-amber-600 text-slate-950"
+              onClick={onPublish}
+              disabled={saving}
+            >
               <Send className="h-3.5 w-3.5" />
               {status === "active" ? "Publish Changes" : "Publish Product"}
             </Button>
@@ -165,19 +180,39 @@ export function StudioRightSidebar({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-1">
-          <Button size="sm" variant="ghost" className="w-full justify-start gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground" onClick={onPreview}>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="w-full justify-start gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
+            onClick={onPreview}
+          >
             <Eye className="h-3.5 w-3.5 text-primary" /> Preview Listing
           </Button>
-          <Button size="sm" variant="ghost" className="w-full justify-start gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground" onClick={handleCopyUrl}>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="w-full justify-start gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
+            onClick={handleCopyUrl}
+          >
             <Share2 className="h-3.5 w-3.5 text-primary" /> Copy Product Link
           </Button>
           {onDuplicate && (
-            <Button size="sm" variant="ghost" className="w-full justify-start gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground" onClick={onDuplicate}>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="w-full justify-start gap-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
+              onClick={onDuplicate}
+            >
               <Copy className="h-3.5 w-3.5 text-primary" /> Duplicate Item
             </Button>
           )}
           {onDelete && (
-            <Button size="sm" variant="ghost" className="w-full justify-start gap-2 text-xs font-semibold text-destructive hover:bg-destructive/10" onClick={onDelete}>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="w-full justify-start gap-2 text-xs font-semibold text-destructive hover:bg-destructive/10"
+              onClick={onDelete}
+            >
               <Trash2 className="h-3.5 w-3.5" /> Delete Product
             </Button>
           )}

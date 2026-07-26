@@ -17,7 +17,13 @@ export default function FinanceAnalyticsPage() {
             columns: 2,
             items: [
               { title: "Revenue Trend", key: "revenueSeries", type: "area", label: "Revenue" },
-              { title: "Profit Trend", key: "profitSeries", type: "area", label: "Profit", color: "hsl(142 71% 45%)" },
+              {
+                title: "Profit Trend",
+                key: "profitSeries",
+                type: "area",
+                label: "Profit",
+                color: "hsl(142 71% 45%)",
+              },
             ],
           },
         ],

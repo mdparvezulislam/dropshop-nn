@@ -43,15 +43,25 @@ export class WalletService {
         lockedBalance += Math.abs(entry.amount);
       }
 
-      if (entry.amount > 0 && ["profit_credit", "credit", "commission", "manual_credit", "bonus"].includes(entry.type)) {
+      if (
+        entry.amount > 0 &&
+        ["profit_credit", "credit", "commission", "manual_credit", "bonus"].includes(entry.type)
+      ) {
         lifetimeEarnings += entry.amount;
       }
 
-      if (["withdrawal_paid", "withdrawal"].includes(entry.type) || (entry.type === "withdrawal_request" && entry.status === "cleared")) {
+      if (
+        ["withdrawal_paid", "withdrawal"].includes(entry.type) ||
+        (entry.type === "withdrawal_request" && entry.status === "cleared")
+      ) {
         lifetimeWithdrawals += Math.abs(entry.amount);
       }
 
-      if (["deposit", "manual_credit"].includes(entry.type) && entry.status === "cleared" && entry.amount > 0) {
+      if (
+        ["deposit", "manual_credit"].includes(entry.type) &&
+        entry.status === "cleared" &&
+        entry.amount > 0
+      ) {
         lifetimeDeposits += entry.amount;
       }
     }
@@ -74,36 +84,46 @@ export class WalletService {
     };
   }
 
-  async createWallet(workspaceId: string, role: WorkspaceRole, options?: { session?: any }): Promise<Wallet> {
+  async createWallet(
+    workspaceId: string,
+    role: WorkspaceRole,
+    options?: { session?: any },
+  ): Promise<Wallet> {
     const execute = async (session: any) => {
       const existing = await this.walletRepository.findOne({ workspaceId }, { session });
       if (existing) {
         return existing;
       }
 
-      const wallet = await this.walletRepository.create({
-        workspaceId,
-        workspaceRole: role,
-        currency: "BDT",
-        status: "active",
-      }, { session });
+      const wallet = await this.walletRepository.create(
+        {
+          workspaceId,
+          workspaceRole: role,
+          currency: "BDT",
+          status: "active",
+        },
+        { session },
+      );
 
       const refNum = `REF-LED-INIT-${Math.floor(100000 + Math.random() * 900000)}`;
 
       // Create opening balance ledger entry
-      await this.ledgerRepository.create({
-        referenceNumber: refNum,
-        walletId: wallet.id,
-        workspaceId,
-        amount: 0,
-        currency: "BDT",
-        type: "opening_balance",
-        status: "cleared",
-        sourceModule: "system",
-        description: `Opening platform business wallet setup for ${role}`,
-        createdBy: "system",
-        metadata: { info: "Opening platform business wallet setup" },
-      }, { session });
+      await this.ledgerRepository.create(
+        {
+          referenceNumber: refNum,
+          walletId: wallet.id,
+          workspaceId,
+          amount: 0,
+          currency: "BDT",
+          type: "opening_balance",
+          status: "cleared",
+          sourceModule: "system",
+          description: `Opening platform business wallet setup for ${role}`,
+          createdBy: "system",
+          metadata: { info: "Opening platform business wallet setup" },
+        },
+        { session },
+      );
 
       await EventBus.publish(
         "finance.wallet_created",

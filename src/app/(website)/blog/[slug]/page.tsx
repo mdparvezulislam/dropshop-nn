@@ -2,10 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPublicBlogPostAction } from "@/features/cms/actions/content-actions";
 import type { CmsContent } from "@/features/cms/domain/content-entity";
-import {
-  buildArticleJsonLd,
-  buildBreadcrumbJsonLd,
-} from "@/features/cms/utils/blog-utils";
+import { buildArticleJsonLd, buildBreadcrumbJsonLd } from "@/features/cms/utils/blog-utils";
 import { BlogArticle } from "@/components/website/blog/blog-article";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +21,8 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   }
 
   const title = post.seo?.metaTitle || post.title;
-  const description = post.seo?.metaDescription || post.excerpt || `Read ${post.title} on DropshopNN`;
+  const description =
+    post.seo?.metaDescription || post.excerpt || `Read ${post.title} on DropshopNN`;
   const image = post.seo?.ogImage || post.coverImage;
 
   return {

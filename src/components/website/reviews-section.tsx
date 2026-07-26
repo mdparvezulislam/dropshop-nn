@@ -39,7 +39,9 @@ export function ReviewsSection({
       <section className="py-8 border-t border-border/40">
         <h2 className="text-lg font-semibold text-foreground mb-4">Customer Reviews</h2>
         <div className="text-center py-12 rounded-xl border border-border/60 bg-muted/20">
-          <p className="text-sm text-foreground/50">No reviews yet. Be the first to review this product!</p>
+          <p className="text-sm text-foreground/50">
+            No reviews yet. Be the first to review this product!
+          </p>
         </div>
       </section>
     );
@@ -61,9 +63,7 @@ export function ReviewsSection({
                 key={i}
                 className={cn(
                   "h-4 w-4",
-                  i < Math.round(rating)
-                    ? "text-amber-500 fill-amber-500"
-                    : "text-foreground/20",
+                  i < Math.round(rating) ? "text-amber-500 fill-amber-500" : "text-foreground/20",
                 )}
               />
             ))}
@@ -92,10 +92,7 @@ export function ReviewsSection({
 
       <div className="space-y-4">
         {reviews.map((review) => (
-          <div
-            key={review.id}
-            className="p-4 rounded-xl border border-border/60 bg-card"
-          >
+          <div key={review.id} className="p-4 rounded-xl border border-border/60 bg-card">
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-foreground/50">
