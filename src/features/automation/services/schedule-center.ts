@@ -2,6 +2,7 @@ import { scheduleJobRepository } from "../repositories/schedule-job-repository";
 import { workflowEngine } from "./workflow-engine";
 import { AUTOMATION_DOMAIN_EVENTS } from "../domain/automation-events";
 import { EventBus } from "@/lib/event-bus";
+import { logger } from "@/lib/utils/logger";
 import type { ScheduledJob } from "../domain/automation-entity";
 
 export class ScheduleCenter {
@@ -64,7 +65,7 @@ export class ScheduleCenter {
           workflowId: job.workflowId,
         });
       } catch (error) {
-        console.error(`Failed to trigger scheduled job ${job.id}:`, error);
+        logger.error(`Failed to trigger scheduled job ${job.id}`, error);
       }
     }
   }

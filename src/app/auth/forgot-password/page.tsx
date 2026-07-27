@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { emailSchema } from "@/lib/utils/validation";
+import { requestPasswordResetAction } from "@/features/identity/actions/security-actions";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = React.useState("");
@@ -22,16 +23,20 @@ export default function ForgotPasswordPage() {
     try {
       emailSchema.parse(email);
 
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const res = await requestPasswordResetAction(email);
 
-      setSuccess(true);
+      if (res.success) {
+        setSuccess(true);
+      } else {
+        setErrorMsg(res.error || "পাসওয়ার্ড রিসেট করতে ব্যর্থ হয়েছে। আবার চেষ্টা করুন।");
+      }
       setLoading(false);
     } catch (err: any) {
       setLoading(false);
       if (err.errors && err.errors[0]) {
         setErrorMsg(err.errors[0].message);
       } else {
-        setErrorMsg("Failed to process request. Please enter a valid email address.");
+        setErrorMsg("পাসওয়ার্ড রিসেট করতে ব্যর্থ হয়েছে। দয়া করে একটি বৈধ ইমেইল ঠিকানা দিন।");
       }
     }
   };
@@ -42,24 +47,23 @@ export default function ForgotPasswordPage() {
         <Card className="border-slate-800 bg-slate-900/50 backdrop-blur-xl">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold tracking-tight text-white">
-              Reset Password
+              পাসওয়ার্ড রিসেট
             </CardTitle>
             <CardDescription className="text-slate-400">
-              Enter your email address to receive a temporary recovery link
+              আপনার ইমেইল ঠিকানা দিন। একটি রিকভারি লিংক পাঠানো হবে।
             </CardDescription>
           </CardHeader>
           <CardContent>
             {success ? (
               <div className="space-y-4">
                 <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3 text-sm text-emerald-400">
-                  Password reset link has been dispatched to your email address! Please check your
-                  inbox.
+                  পাসওয়ার্ড রিসেট লিংক আপনার ইমেইলে পাঠানো হয়েছে! আপনার ইনবক্স চেক করুন।
                 </div>
                 <Link
                   href="/auth/login"
                   className="flex h-10 w-full items-center justify-center rounded-md bg-indigo-600 text-sm font-medium text-white hover:bg-indigo-500 transition-colors"
                 >
-                  Return to Sign In
+                  সাইন ইন করুন
                 </Link>
               </div>
             ) : (
@@ -71,7 +75,7 @@ export default function ForgotPasswordPage() {
                 )}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-slate-200" htmlFor="email">
-                    Email Address
+                    ইমেইল ঠিকানা
                   </label>
                   <Input
                     id="email"
@@ -90,13 +94,13 @@ export default function ForgotPasswordPage() {
                     disabled={loading}
                     className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium"
                   >
-                    {loading ? <Spinner size="sm" className="mr-2" /> : "Send Recovery Link"}
+                    {loading ? <Spinner size="sm" className="mr-2" /> : "রিকভারি লিংক পাঠান"}
                   </Button>
                   <Link
                     href="/auth/login"
                     className="flex h-10 w-full items-center justify-center rounded-md border border-slate-800 text-sm font-medium text-slate-300 hover:bg-slate-900 transition-colors"
                   >
-                    Cancel
+                    বাতিল
                   </Link>
                 </div>
               </form>

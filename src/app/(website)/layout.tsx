@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/website/site-footer";
 import { CookieBanner } from "@/components/website/cookie-banner";
 import { FloatingActions } from "@/components/website/floating-actions";
 import { StorefrontJsonLd } from "@/components/website/storefront-json-ld";
+import { SkipNavLink } from "@/components/website/skip-nav-link";
 import { getPublicCategoriesAction } from "@/features/catalog/actions/public-actions";
 
 export default async function WebsiteLayout({
@@ -21,13 +22,14 @@ export default async function WebsiteLayout({
   return (
     // Bangla-first storefront; the root layout stays lang="en" for the admin side.
     <div data-layout="public" lang="bn">
+      <SkipNavLink />
       <AuthProvider>
         <LocalCartProvider>
           {/* One wishlist fetch per session feeds every heart + the header counter. */}
           <WishlistProvider>
             <StorefrontJsonLd />
             <SiteHeader categories={categories} />
-            <main className="flex-1">{children}</main>
+            <main id="main-content" className="flex-1">{children}</main>
             <SiteFooter categories={categories} />
             <FloatingActions />
             <CookieBanner />

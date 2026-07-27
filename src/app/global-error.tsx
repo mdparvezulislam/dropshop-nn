@@ -5,7 +5,13 @@
 // default fails to prerender on this canary (null dispatcher inside the
 // framework chunk), and the less this page depends on, the less can break
 // while everything else is already broken.
-export default function GlobalError({ reset }: { error: Error; reset: () => void }) {
+export default function GlobalError({
+  error,
+  unstable_retry,
+}: {
+  error: Error & { digest?: string };
+  unstable_retry: () => void;
+}) {
   return (
     <html lang="bn">
       <body
@@ -30,7 +36,7 @@ export default function GlobalError({ reset }: { error: Error; reset: () => void
           </p>
           <button
             type="button"
-            onClick={() => reset()}
+            onClick={() => unstable_retry()}
             style={{
               padding: "0.75rem 1.5rem",
               borderRadius: "0.75rem",

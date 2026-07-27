@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { X, Store, ShoppingBag, Tag, Zap, Phone, User, LogIn } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
 import type { PublicCategoryInfo } from "@/features/catalog/domain/public-catalog-types";
 
 const MOBILE_LINKS = [
@@ -27,6 +28,9 @@ export function MobileNav({
   categories = [],
 }: MobileNavProps): React.ReactElement | null {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+
+  useFocusTrap(dialogRef, isOpen);
 
   // Dialog behavior: Escape closes, initial focus lands on the close button,
   // and the page behind the drawer stops scrolling.
@@ -57,6 +61,7 @@ export function MobileNav({
         aria-hidden
       />
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label="মূল মেনু"

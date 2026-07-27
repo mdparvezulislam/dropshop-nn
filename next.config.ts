@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  output: process.env.NODE_ENV === "production" ? "standalone" : undefined,
   reactCompiler: true,
   serverExternalPackages: ["mongoose", "bcrypt", "bcryptjs", "bullmq", "ioredis", "sharp"],
   async headers() {
@@ -35,9 +36,6 @@ const nextConfig: NextConfig = {
         : []),
     ];
     return [{ source: "/:path*", headers: securityHeaders }];
-  },
-  outputFileTracingIncludes: {
-    "/": ["./node_modules/.pnpm/**/*"],
   },
 };
 

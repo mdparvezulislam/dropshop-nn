@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 
 export default function WebsiteError({
   error,
-  reset,
+  unstable_retry,
 }: {
   error: Error & { digest?: string };
-  reset: () => void;
+  unstable_retry: () => void;
 }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[65vh] px-4 text-center bg-[hsl(0_0%_98%)] text-foreground py-16">
@@ -30,7 +30,7 @@ export default function WebsiteError({
       </p>
       <div className="flex flex-wrap items-center justify-center gap-3 mt-8">
         <Button
-          onClick={reset}
+          onClick={unstable_retry}
           size="lg"
           className="h-11 px-6 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-white shadow-xs"
         >

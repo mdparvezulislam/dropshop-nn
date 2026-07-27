@@ -412,6 +412,12 @@ export const WORKSPACE_NAV: NavSection[] = [
             icon: Truck,
             permission: "Order.View",
           },
+          {
+            label: "Reviews",
+            href: "/dashboard/reviews",
+            icon: MessageSquare,
+            permission: "Order.View",
+          },
         ],
       },
     ],
