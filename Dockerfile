@@ -5,8 +5,8 @@
 # pnpm is required because the lockfile is pnpm-only.
 
 # ── Base (shared deps version) ──────────────────────────────────────────────
-FROM node:20-alpine AS base
-RUN corepack enable && corepack prepare pnpm@latest --activate
+FROM node:22-alpine AS base
+RUN npm install -g pnpm@9.15.9
 WORKDIR /app
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 
@@ -25,8 +25,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm build
 
 # ── Runner ──────────────────────────────────────────────────────────────────
-FROM node:20-alpine AS runner
-RUN corepack enable && corepack prepare pnpm@latest --activate
+FROM node:22-alpine AS runner
+RUN npm install -g pnpm@9.15.9
 WORKDIR /app
 
 ENV NODE_ENV=production
