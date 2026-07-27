@@ -18,6 +18,7 @@ import {
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { useLocalCart } from "@/features/checkout/store/local-cart";
+import { toast } from "sonner";
 import {
   quoteStorefrontCheckoutAction,
   placeStorefrontOrderAction,
@@ -229,41 +230,52 @@ export function CheckoutFlow() {
     setErrors(found);
     if (Object.keys(found).length > 0) {
       const firstKey = Object.keys(found)[0];
+      const errorMessage = found[firstKey as keyof CheckoutForm];
+      toast.error(errorMessage || "সকল প্রয়োজনীয় তথ্য সঠিকভাবে পূরণ করুন");
       document.getElementById(firstKey === "districtId" ? "district" : firstKey!)?.focus();
       return;
     }
 
     setPlacing(true);
     setError(null);
-    const result = await placeStorefrontOrderAction({
-      items: cartLines,
-      shipping: {
-        receiverName: form.receiverName,
-        phone: form.phone,
-        email: form.email || undefined,
-        division: form.division,
-        district: form.district,
-        address: form.address,
-        deliveryNote: form.deliveryNote || undefined,
-      },
-      shippingMethodId,
-      paymentMethod: "cod",
-    });
-    setPlacing(false);
+    try {
+      const result = await placeStorefrontOrderAction({
+        items: cartLines,
+        shipping: {
+          receiverName: form.receiverName,
+          phone: form.phone,
+          email: form.email || undefined,
+          division: form.division,
+          district: form.district,
+          address: form.address,
+          deliveryNote: form.deliveryNote || undefined,
+        },
+        shippingMethodId,
+        paymentMethod: "cod",
+      });
+      setPlacing(false);
 
-    if (!result.success) {
-      setError(result.error);
-      errorRef.current?.focus();
-      void refreshQuote();
-      return;
+      if (!result.success) {
+        setError(result.error);
+        toast.error(result.error || "অর্ডার সম্পন্ন করা যায়নি। আবার চেষ্টা করুন।");
+        errorRef.current?.focus();
+        void refreshQuote();
+        return;
+      }
+
+      toast.success("অর্ডার সফলভাবে কনফার্ম হয়েছে!");
+      cart.clear();
+      const params = new URLSearchParams({
+        n: result.data.orderNumber,
+        k: result.data.accessToken,
+      });
+      router.push(`/order/success?${params.toString()}`);
+    } catch (err) {
+      setPlacing(false);
+      const message = err instanceof Error ? err.message : "অর্ডার সম্পন্ন করতে সমস্যা হয়েছে।";
+      setError(message);
+      toast.error(message);
     }
-
-    cart.clear();
-    const params = new URLSearchParams({
-      n: result.data.orderNumber,
-      k: result.data.accessToken,
-    });
-    router.push(`/order/success?${params.toString()}`);
   };
 
   if (!cart.hydrated) {

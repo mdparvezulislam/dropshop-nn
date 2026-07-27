@@ -74,7 +74,7 @@ export class AccountLockoutRepository extends BaseRepository<
             status: "inactive",
           },
         },
-        { new: true, session: options?.session },
+        { returnDocument: "after", session: options?.session },
       );
       if (!doc) throw new NotFoundError("Account lockout not found");
       return this.toDomainEntity(doc as AccountLockoutDocument);

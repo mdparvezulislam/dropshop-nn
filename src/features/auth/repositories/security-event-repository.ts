@@ -162,7 +162,7 @@ export class SecurityEventRepository extends BaseRepository<SecurityEventDocumen
             resolvedNotes,
           },
         },
-        { new: true, session: options?.session },
+        { returnDocument: "after", session: options?.session },
       );
       if (!doc) throw new DatabaseError("Security event not found");
       return this.toDomainEntity(doc as SecurityEventDocument);

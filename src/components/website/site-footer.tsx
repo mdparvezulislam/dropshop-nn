@@ -44,7 +44,7 @@ const STATIC_COLUMNS: Array<{ title: string; links: FooterLink[] }> = [
     links: [
       { label: "সব প্রোডাক্ট", href: "/products" },
       { label: "ফ্ল্যাশ সেল", href: "/offers" },
-      { label: "নতুন আগমন", href: "/products?sort=newest" },
+      { label: "New Arrivals", href: "/products?sort=newest" },
       { label: "জনপ্রিয় প্রোডাক্ট", href: "/products?sort=featured" },
     ],
   },

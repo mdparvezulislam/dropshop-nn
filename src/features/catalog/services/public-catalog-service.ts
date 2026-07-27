@@ -142,6 +142,10 @@ export class PublicCatalogService {
 
   async listBadgeSection(badge: PublicBadgeSection, limit: number): Promise<PublicProductCard[]> {
     const result = await this.listCards({ badge, limit, page: 1, sort: "newest" });
+    if (result.items.length === 0) {
+      const fallback = await this.listCards({ limit, page: 1, sort: "newest" });
+      return fallback.items;
+    }
     return result.items;
   }
 

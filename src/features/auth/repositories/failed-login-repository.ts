@@ -104,7 +104,7 @@ export class FailedLoginRepository extends BaseRepository<FailedLoginDocument, F
           },
         };
         const doc = await FailedLoginModel.findByIdAndUpdate(existing._id, update, {
-          new: true,
+          returnDocument: "after",
           session,
         });
         if (!doc) throw new DatabaseError("Failed to update failed login attempt");
@@ -152,7 +152,7 @@ export class FailedLoginRepository extends BaseRepository<FailedLoginDocument, F
             resolvedBy,
           },
         },
-        { new: true, session: options?.session },
+        { returnDocument: "after", session: options?.session },
       );
       if (!doc) throw new DatabaseError("Failed login attempt not found");
       return this.toDomainEntity(doc as FailedLoginDocument);

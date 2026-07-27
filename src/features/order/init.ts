@@ -191,40 +191,63 @@ export function registerOrderFeatureFlags(): void {
         const totalCostBasis = itemsMapped.reduce((acc, curr) => acc + curr.totalCostBasis, 0);
         const totalProfit = subtotal - totalCostBasis;
 
-        await orderService.createFromDraft({
-          draftId: draftId as string,
-          checkoutId: checkoutId as string,
-          cartId: cartId as string,
-          orderNumber:
-            "ORD-" + Date.now().toString().slice(-6) + Math.floor(Math.random() * 100).toString(),
-          type: type as any,
-          customer: {
-            customerId: checkout.createdBy || undefined,
-            name: checkout.shipping?.receiverName || "Guest Customer",
-            // Never fabricate contact data — missing stays missing.
-            phone: checkout.shipping?.phone || "",
-            email: checkout.shipping?.email || undefined,
-          },
-          shipping: checkout.shipping as any,
-          pricing: {
-            items: itemsMapped,
-            subtotal,
-            discountTotal: checkout.totals?.discountTotal ?? 0,
-            taxTotal: checkout.totals?.taxTotal ?? 0,
-            grandTotal: checkout.totals?.grandTotal ?? subtotal,
-            currency: checkout.totals?.currency ?? DEFAULT_CURRENCY,
-          },
-          profitPreview: {
-            totalCostBasis,
-            totalRevenue: subtotal,
-            totalProfit,
-            averageMargin: subtotal > 0 ? (totalProfit / subtotal) * 100 : 0,
-          },
-          autoConfirmed: false,
-        });
+        try {
+          await orderService.createFromDraft({
+            draftId: draftId as string,
+            checkoutId: checkoutId as string,
+            cartId: cartId as string,
+            orderNumber:
+              "ORD-" + Date.now().toString().slice(-6) + Math.floor(Math.random() * 100).toString(),
+            type: type as any,
+            customer: {
+              customerId: checkout.createdBy || undefined,
+              name: checkout.shipping?.receiverName || "Guest Customer",
+              // Never fabricate contact data — missing stays missing.
+              phone: checkout.shipping?.phone || "",
+              email: checkout.shipping?.email || undefined,
+            },
+            shipping: {
+              ...checkout.shipping,
+              // upazila and area are optional — normalise missing values to null
+              // so Mongoose does not throw a validation error on required fields.
+              upazila: (checkout.shipping as any)?.upazila || null,
+              area: (checkout.shipping as any)?.area || null,
+            } as any,
+            pricing: {
+              items: itemsMapped,
+              subtotal,
+              discountTotal: checkout.totals?.discountTotal ?? 0,
+              taxTotal: checkout.totals?.taxTotal ?? 0,
+              grandTotal: checkout.totals?.grandTotal ?? subtotal,
+              currency: checkout.totals?.currency ?? DEFAULT_CURRENCY,
+            },
+            profitPreview: {
+              totalCostBasis,
+              totalRevenue: subtotal,
+              totalProfit,
+              averageMargin: subtotal > 0 ? (totalProfit / subtotal) * 100 : 0,
+            },
+            autoConfirmed: false,
+          });
+        } catch (createErr: unknown) {
+          const { ConflictError } = await import("@/lib/errors/app-error");
+          const { logger } = await import("@/lib/utils/logger");
+          if (createErr instanceof ConflictError) {
+            // Race condition: fallback path already created the order — this is safe.
+            logger.info("order.init: subscriber skipped duplicate order creation", {
+              draftId: draftId as string,
+            });
+          } else {
+            logger.error(
+              "order.init: createFromDraft failed inside subscriber",
+              createErr as Error,
+              { draftId: draftId as string, checkoutId: checkoutId as string },
+            );
+          }
+        }
       },
     });
-  } catch (err) {
+  } catch {
     // Already registered
   }
 }

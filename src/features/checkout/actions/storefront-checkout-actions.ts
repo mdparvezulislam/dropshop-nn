@@ -19,10 +19,10 @@ import { logger } from "@/lib/utils/logger";
 
 type ActionResult<T> = { success: true; data: T } | { success: false; error: string };
 
-const objectId = z.string().regex(/^[0-9a-fA-F]{24}$/, "invalid id");
+const productIdSchema = z.string().trim().min(1).max(100);
 
 const lineSchema = z.object({
-  productId: objectId,
+  productId: productIdSchema,
   variantSku: z.string().trim().min(1).max(80).optional(),
   quantity: z.coerce.number().int().min(1).max(99),
 });
@@ -52,12 +52,7 @@ const addressSchema = z.object({
   // Optional: checkout asks for district + full address only. A thana/upazila
   // line the customer never filled in is not worth blocking an order over —
   // the street address already carries it.
-  upazila: z
-    .string()
-    .trim()
-    .max(60)
-    .optional()
-    .or(z.literal("").transform(() => undefined)),
+
   postalCode: z
     .string()
     .trim()
@@ -145,10 +140,8 @@ export async function placeStorefrontOrderAction(
       // back-filled with the district — a duplicated district in the address
       // reads as real sub-area data that nobody entered.
       shipping: {
-        ...parsed.data.shipping,
-        upazila: parsed.data.shipping.upazila ?? "",
-        area: parsed.data.shipping.upazila ?? "",
-      },
+          ...parsed.data.shipping,
+        },
       shippingMethodId: parsed.data.shippingMethodId,
       paymentMethod: parsed.data.paymentMethod,
       viewer,

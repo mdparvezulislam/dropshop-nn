@@ -153,7 +153,7 @@ export abstract class BaseRepository<
         id,
         { $set: data as any },
         {
-          new: true,
+          returnDocument: "after",
           runValidators: true,
           session: options?.session,
         },

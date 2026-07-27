@@ -101,7 +101,7 @@ export class RecoveryTokenRepository extends BaseRepository<RecoveryTokenDocumen
             usedByUserAgent,
           },
         },
-        { new: true, session: options?.session },
+        { returnDocument: "after", session: options?.session },
       );
       if (!doc) throw new NotFoundError("Recovery token not found");
       return this.toDomainEntity(doc as RecoveryTokenDocument);
@@ -122,7 +122,7 @@ export class RecoveryTokenRepository extends BaseRepository<RecoveryTokenDocumen
             status: "revoked",
           },
         },
-        { new: true, session: options?.session },
+        { returnDocument: "after", session: options?.session },
       );
       if (!doc) throw new NotFoundError("Recovery token not found");
       return this.toDomainEntity(doc as RecoveryTokenDocument);

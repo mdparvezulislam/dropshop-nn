@@ -73,7 +73,7 @@ export interface CustomerOrderDetail {
     phone: string;
     division: string;
     district: string;
-    upazila: string;
+    upazila?: string;
     address: string;
     postalCode?: string;
     landmark?: string;

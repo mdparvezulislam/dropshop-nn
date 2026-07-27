@@ -46,8 +46,8 @@ export const checkoutShippingSchema = z.object({
   alternativePhone: phoneSchema.optional().or(z.literal("")),
   division: z.string().min(1, "Division is required").max(100).trim(),
   district: z.string().min(1, "District is required").max(100).trim(),
-  upazila: z.string().min(1, "Upazila is required").max(100).trim(),
-  area: z.string().min(1, "Area is required").max(100).trim(),
+
+  area: z.string().max(100).optional().or(z.literal("")),
   address: z.string().min(1, "Address is required").max(500).trim(),
   deliveryNote: z.string().max(500).optional().or(z.literal("")),
 });

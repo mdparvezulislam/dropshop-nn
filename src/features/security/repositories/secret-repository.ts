@@ -133,7 +133,7 @@ export class SecretRepository extends BaseRepository<PlatformSecretDocument, Pla
     const doc = await PlatformSecretModel.findOneAndUpdate(
       { provider: data.provider, secretType: data.secretType },
       { $set: data },
-      { upsert: true, new: true },
+      { upsert: true, returnDocument: "after" },
     ).lean();
     return mapToSecret({ ...doc, id: doc._id.toString() });
   }

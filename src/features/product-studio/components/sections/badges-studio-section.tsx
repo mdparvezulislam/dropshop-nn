@@ -32,7 +32,7 @@ const AVAILABLE_BADGES = [
   },
   {
     id: "new_arrival",
-    label: "New Arrival (নতুন আগমন)",
+    label: "New Arrival",
     color:
       "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/40",
   },

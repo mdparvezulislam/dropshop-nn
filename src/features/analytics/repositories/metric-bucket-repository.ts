@@ -70,7 +70,7 @@ export class MetricBucketRepository extends BaseRepository<
           status: "active",
         },
       },
-      { upsert: true, new: true },
+      { upsert: true, returnDocument: "after" },
     );
   }
 

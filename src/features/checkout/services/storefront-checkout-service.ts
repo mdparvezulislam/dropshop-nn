@@ -10,6 +10,7 @@ import type { CartType } from "../domain/cart-entity";
 import type { CheckoutShippingInfo } from "../domain/checkout-entity";
 import { SHIPPING_METHODS } from "@/config/site";
 import { logger } from "@/lib/utils/logger";
+import { ConflictError } from "@/lib/errors/app-error";
 
 /**
  * Storefront checkout orchestration. The SERVER is the price and stock
@@ -255,6 +256,9 @@ export class StorefrontCheckoutService {
 
     const shippingInfo: CheckoutShippingInfo = {
       ...input.shipping,
+      // upazila and area are optional in the schema — pass null when not provided
+    
+
       shippingMethod: method.id,
       deliveryCharge: Math.round(method.cost * 100),
       paymentMethod: input.paymentMethod,
@@ -262,10 +266,101 @@ export class StorefrontCheckoutService {
 
     const { draft } = await checkoutService.fullCheckout(cartId, shippingInfo, input.viewer.userId);
 
-    // The order subscriber runs synchronously on draft creation.
-    const order = await new OrderRepository().findByCheckoutDraft(draft.id);
+    // The event subscriber (checkout.order_draft_created) may have already
+    // created the order synchronously. Check before attempting a duplicate.
+    let order = await new OrderRepository().findByCheckoutDraft(draft.id);
 
-    const orderNumber = order?.orderNumber ?? `DRAFT-${draft.id.slice(-8).toUpperCase()}`;
+    if (!order) {
+      const { OrderService } = await import("@/features/order/services/order-service");
+      const orderService = new OrderService();
+      const generatedOrderNumber =
+        "ORD-" + Date.now().toString().slice(-6) + Math.floor(Math.random() * 100).toString();
+
+      const itemsMapped = await Promise.all(
+        draft.resolvedPrices.map(async (priceItem) => {
+          let productName = "Product Item";
+          const unitCostBasis = Math.floor(priceItem.unitPrice * 0.7);
+
+          try {
+            const p = await this.products.findById(priceItem.productId);
+            if (p) productName = p.name;
+          } catch {}
+
+          const totalSellingPrice = priceItem.totalPrice;
+          const totalCostBasis = unitCostBasis * priceItem.quantity;
+          const totalProfit = totalSellingPrice - totalCostBasis;
+          const marginPercent = totalSellingPrice > 0 ? (totalProfit / totalSellingPrice) * 100 : 0;
+
+          return {
+            productId: priceItem.productId,
+            variantSku: priceItem.variantSku || "SKU-DEFAULT",
+            productName,
+            quantity: priceItem.quantity,
+            unitSellingPrice: priceItem.unitPrice,
+            unitCostBasis,
+            totalSellingPrice,
+            totalCostBasis,
+            totalProfit,
+            marginPercent,
+            currency: priceItem.currency,
+            pricingSource: priceItem.pricingSource,
+            appliedRules: priceItem.appliedRules || [],
+          };
+        }),
+      );
+
+      const subtotal = itemsMapped.reduce((acc, curr) => acc + curr.totalSellingPrice, 0);
+      const totalCostBasis = itemsMapped.reduce((acc, curr) => acc + curr.totalCostBasis, 0);
+      const totalProfit = subtotal - totalCostBasis;
+
+      try {
+        order = await orderService.createFromDraft({
+          draftId: draft.id,
+          checkoutId: draft.checkoutId,
+          cartId: draft.cartId,
+          orderNumber: generatedOrderNumber,
+          type: draft.type as any,
+          customer: {
+            customerId: input.viewer.userId,
+            name: input.shipping.receiverName || "Guest Customer",
+            phone: input.shipping.phone || "",
+            email: input.shipping.email,
+          },
+          shipping: {
+            ...draft.shipping,
+            upazila: (draft.shipping as any).upazila || null,
+            area: (draft.shipping as any).area || null,
+          } as any,
+          pricing: {
+            items: itemsMapped,
+            subtotal,
+            discountTotal: draft.totals.discountTotal ?? 0,
+            taxTotal: draft.totals.taxTotal ?? 0,
+            grandTotal: draft.totals.grandTotal ?? subtotal,
+            currency: draft.totals.currency ?? "BDT",
+          },
+          profitPreview: {
+            totalCostBasis,
+            totalRevenue: subtotal,
+            totalProfit,
+            averageMargin: subtotal > 0 ? (totalProfit / subtotal) * 100 : 0,
+          },
+        });
+      } catch (err) {
+        if (err instanceof ConflictError) {
+          // Subscriber beat us to it — look up the order it created.
+          order = await new OrderRepository().findByCheckoutDraft(draft.id);
+          if (!order) throw err;
+        } else {
+          logger.error("StorefrontCheckoutService: createFromDraft failed", err, {
+            draftId: draft.id,
+          });
+          throw err;
+        }
+      }
+    }
+
+    const orderNumber = order.orderNumber;
 
     return {
       orderNumber,

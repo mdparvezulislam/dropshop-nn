@@ -85,7 +85,7 @@ const cachedCollections = cache(async () => getCollectionsDataCache());
 const getBadgeSectionDataCache = (badge: "featured" | "trending" | "new_arrival" | "flash_sale", limit: number) =>
   cachedQuery(
     async () => service().listBadgeSection(badge, limit),
-    [`public-badge-section`, badge, String(limit)],
+    [`public-badge-section-${badge}-${limit}`],
     {
       tags: [
         CACHE_TAGS.PRODUCTS,

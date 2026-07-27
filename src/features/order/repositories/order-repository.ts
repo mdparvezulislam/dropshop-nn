@@ -141,7 +141,7 @@ export class OrderRepository extends BaseRepository<OrderDocument, Order> {
     const doc = await OrderModel.findByIdAndUpdate(
       id,
       { $push: { timeline: entry } },
-      { new: true },
+      { new: true, returnDocument: "after" },
     );
     if (!doc) {
       return this.updateStatus(id, "draft");

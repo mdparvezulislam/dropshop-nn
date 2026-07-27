@@ -73,7 +73,7 @@ export class CourierConfigRepository extends BaseRepository<CourierConfigDocumen
     const updated = await CourierConfigModel.findOneAndUpdate(
       { provider },
       { $set: { ...data, provider } },
-      { upsert: true, new: true, runValidators: true },
+      { upsert: true, returnDocument: "after", runValidators: true },
     ).lean();
 
     return mapToDomain({ ...updated, id: (updated as any)._id.toString() });

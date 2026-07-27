@@ -56,7 +56,7 @@ export function CampaignBannerSection(): React.ReactElement {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="h-10 px-5 text-xs font-bold border-white/30 text-white hover:bg-white/10 hover:border-white"
+                  className="h-10 px-5 text-xs font-bold border-white/30 text-black hover:bg-orange-500 hover:border-white"
                 >
                   বিস্তারিত জানুন
                 </Button>
@@ -88,7 +88,7 @@ export function CampaignBannerSection(): React.ReactElement {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="h-10 px-5 text-xs font-bold border-white/30 text-white hover:bg-white/10 hover:border-white"
+                    className="h-10 px-5 text-xs font-bold border-white/30 text-white bg-black hover:bg-white/10 hover:border-white"
                   >
                     বিস্তারিত জানুন
                   </Button>

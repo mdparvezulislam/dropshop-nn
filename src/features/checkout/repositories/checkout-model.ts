@@ -33,8 +33,7 @@ const shippingInfoSchema = new Schema({
   alternativePhone: { type: String, default: null },
   division: { type: String, required: true },
   district: { type: String, required: true },
-  upazila: { type: String, required: true },
-  area: { type: String, required: true },
+
   address: { type: String, required: true },
   deliveryNote: { type: String, default: null },
 });

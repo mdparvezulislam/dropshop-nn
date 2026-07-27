@@ -68,7 +68,7 @@ export class BusinessMembershipRepository extends BaseRepository<
           deletedAt: null,
         },
       },
-      { upsert: true, new: true },
+      { upsert: true, returnDocument: "after" },
     ).lean();
     return BusinessMembershipRepository.mapToDomain(doc as unknown as BusinessMembershipDocument);
   }

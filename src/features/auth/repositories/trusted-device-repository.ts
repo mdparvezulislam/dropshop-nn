@@ -112,7 +112,7 @@ export class TrustedDeviceRepository extends BaseRepository<TrustedDeviceDocumen
             lastUsedAt: new Date(),
           },
         },
-        { new: true, session: options?.session },
+        { returnDocument: "after", session: options?.session },
       );
       if (!doc) return null;
       return this.toDomainEntity(doc as TrustedDeviceDocument);
@@ -141,7 +141,7 @@ export class TrustedDeviceRepository extends BaseRepository<TrustedDeviceDocumen
             autoTrusted: false,
           },
         },
-        { new: true, session: options?.session },
+        { returnDocument: "after", session: options?.session },
       );
       if (!doc) throw new NotFoundError("Trusted device not found");
       return this.toDomainEntity(doc as TrustedDeviceDocument);

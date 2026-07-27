@@ -22,8 +22,13 @@ export interface CheckoutShippingInfo {
   email?: string;
   division: string;
   district: string;
-  upazila: string;
-  area: string;
+  /** Optional thana/upazila (sub-district) for legacy pipelines. */
+  upazila?: string;
+
+  /** Optional area/sub-area string used by some shipping integrations. */
+  area?: string;
+
+
   address: string;
   postalCode?: string;
   landmark?: string;

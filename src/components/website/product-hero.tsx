@@ -207,7 +207,7 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
             <div className="flex flex-wrap items-center gap-2">
               {data.isNew && (
                 <span className="px-2.5 py-0.5 rounded-full bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider">
-                  নতুন আগমন
+                  New Arrival
                 </span>
               )}
               {data.isFlashSale && (

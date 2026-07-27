@@ -19,8 +19,8 @@ export interface ShippingSnapshot {
   email?: string;
   division: string;
   district: string;
-  upazila: string;
-  area: string;
+  upazila?: string;
+  area?: string;
   address: string;
   postalCode?: string;
   landmark?: string;

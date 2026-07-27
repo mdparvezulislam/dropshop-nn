@@ -108,7 +108,7 @@ export class SettingRepository extends BaseRepository<PlatformSettingDocument, S
     const doc = await PlatformSettingModel.findOneAndUpdate(
       { key: data.key },
       { $set: data },
-      { upsert: true, new: true },
+      { upsert: true, returnDocument: "after" },
     ).lean();
     return mapToSetting({ ...doc, id: doc._id.toString() });
   }
@@ -133,7 +133,7 @@ export class SettingRepository extends BaseRepository<PlatformSettingDocument, S
     const doc = await FeatureFlagModel.findOneAndUpdate(
       { key: data.key },
       { $set: data },
-      { upsert: true, new: true },
+      { upsert: true, returnDocument: "after" },
     ).lean();
     return mapToFlag({ ...doc, id: doc._id.toString() });
   }

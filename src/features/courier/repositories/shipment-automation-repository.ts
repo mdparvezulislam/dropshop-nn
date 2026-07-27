@@ -108,7 +108,7 @@ export class ShipmentAutomationRepository extends BaseRepository<
     const doc = await ShipmentAutomationModel.findOneAndUpdate(
       { shipmentId },
       { $set: data },
-      { upsert: true, new: true },
+      { upsert: true, returnDocument: "after" },
     ).lean();
     return mapToDomain({ ...doc, id: doc._id.toString() });
   }

@@ -100,7 +100,7 @@ export class DeliveryReturnRepository extends BaseRepository<
 
   async updateRTS(id: string, data: any): Promise<RTSRecord> {
     await this.ensureConnected();
-    const doc = await RTSRecordModel.findByIdAndUpdate(id, { $set: data }, { new: true }).lean();
+    const doc = await RTSRecordModel.findByIdAndUpdate(id, { $set: data }, { returnDocument: "after" }).lean();
     return mapToDomainRTS({ ...doc, id: doc._id.toString() });
   }
 

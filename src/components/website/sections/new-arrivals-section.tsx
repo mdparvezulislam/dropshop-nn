@@ -33,7 +33,7 @@ export function NewArrivalsSection({
               id="new-arrivals-heading"
               className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900"
             >
-              নতুন আগমন
+              New Arrivals
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 font-bold mt-1">
               সদ্য যুক্ত হওয়া প্রোডাক্টসমূহ
