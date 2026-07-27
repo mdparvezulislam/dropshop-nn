@@ -1,7 +1,7 @@
 export default function ProductDetailLoading() {
   return (
     <div className="min-h-screen bg-[hsl(0_0%_98%)] py-6" aria-busy="true" aria-label="লোড হচ্ছে">
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8 space-y-10">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8 space-y-10">
         <div className="h-4 w-64 bg-slate-200 rounded animate-pulse" />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">

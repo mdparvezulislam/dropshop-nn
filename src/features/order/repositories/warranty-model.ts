@@ -30,5 +30,5 @@ const warrantySchema = new Schema(
 warrantySchema.index({ orderId: 1, status: 1 });
 warrantySchema.index({ createdAt: -1 });
 
-export const WarrantyModel = mongoose.model("Warranty", warrantySchema);
+export const WarrantyModel = mongoose.models.Warranty || mongoose.model("Warranty", warrantySchema);
 export default WarrantyModel;

@@ -55,7 +55,7 @@ const roles = [
 export function RoleHighlights() {
   return (
     <section className="py-16 lg:py-24 bg-card border-y border-border/60">
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <div className="text-center mb-14 space-y-3">
           <span className="text-xs font-bold uppercase tracking-widest text-primary px-3.5 py-1 rounded-full bg-accent border border-primary/20">
             Partner Ecosystem

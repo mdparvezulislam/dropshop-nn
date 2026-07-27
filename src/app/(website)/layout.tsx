@@ -1,6 +1,7 @@
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/providers/auth-provider";
 import { LocalCartProvider } from "@/features/checkout/store/local-cart";
+import { WishlistProvider } from "@/components/website/wishlist/wishlist-provider";
 import { SiteHeader } from "@/components/website/site-header";
 import { SiteFooter } from "@/components/website/site-footer";
 import { CookieBanner } from "@/components/website/cookie-banner";
@@ -22,14 +23,17 @@ export default async function WebsiteLayout({
     <div data-layout="public" lang="bn">
       <AuthProvider>
         <LocalCartProvider>
-          <StorefrontJsonLd />
-          <SiteHeader categories={categories} />
-          <main className="flex-1">{children}</main>
-          <SiteFooter categories={categories} />
-          <FloatingActions />
-          <CookieBanner />
-          {/* Storefront toast outlet — without this, cart/share confirmations render nowhere. */}
-          <Toaster position="top-center" richColors closeButton />
+          {/* One wishlist fetch per session feeds every heart + the header counter. */}
+          <WishlistProvider>
+            <StorefrontJsonLd />
+            <SiteHeader categories={categories} />
+            <main className="flex-1">{children}</main>
+            <SiteFooter categories={categories} />
+            <FloatingActions />
+            <CookieBanner />
+            {/* Storefront toast outlet — without this, cart/share confirmations render nowhere. */}
+            <Toaster position="top-center" richColors closeButton />
+          </WishlistProvider>
         </LocalCartProvider>
       </AuthProvider>
     </div>

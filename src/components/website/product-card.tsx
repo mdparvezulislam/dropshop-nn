@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Heart, Eye, ArrowLeftRight, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { PRODUCT_IMAGE_PLACEHOLDER } from "@/config/site";
+import { CompactRating } from "@/components/website/reviews/rating-stars";
 import type { PublicProductCard } from "@/features/catalog/domain/public-catalog-types";
 
 export interface ProductCardProps {
@@ -43,6 +44,29 @@ function CardPrice({ product, large }: { product: PublicProductCard; large?: boo
         </span>
       )}
     </div>
+  );
+}
+
+/**
+ * Rating line. `rating`/`reviewCount` are optional by contract — undefined
+ * means the product has no published reviews, so nothing is rendered.
+ */
+function CardRating({
+  product,
+  countLabel,
+}: {
+  product: PublicProductCard;
+  countLabel?: "full" | "bare";
+}) {
+  if (product.rating === undefined || !product.reviewCount) return null;
+  return (
+    <CompactRating
+      average={product.rating}
+      count={product.reviewCount}
+      size="xs"
+      countLabel={countLabel}
+      className="text-[11px]"
+    />
   );
 }
 
@@ -196,6 +220,8 @@ export function ProductCard({
             <p className="text-xs font-bold text-slate-600">{product.categoryName}</p>
           )}
 
+          <CardRating product={product} />
+
           <CardPrice product={product} large />
         </div>
 
@@ -293,7 +319,7 @@ export function ProductCard({
           )}
         </div>
 
-        <div className="p-3.5 space-y-2">
+        <div className="p-2.5 sm:p-3.5 space-y-1.5 sm:space-y-2">
           <div className="flex items-center justify-between gap-1">
             {product.brandName ? (
               <Link
@@ -317,11 +343,13 @@ export function ProductCard({
             </h3>
           </Link>
 
+          <CardRating product={product} countLabel="bare" />
+
           <CardPrice product={product} />
         </div>
       </div>
 
-      <div className="px-3.5 pb-3.5 pt-1">
+      <div className="px-2.5 sm:px-3.5 pb-2.5 sm:pb-3.5 pt-0.5 sm:pt-1">
         <Link
           href={productUrl}
           className="flex items-center justify-center gap-2 w-full h-9 rounded-xl text-xs font-extrabold transition-all duration-150 bg-amber-500 text-slate-950 shadow-xs hover:bg-amber-600 hover:shadow-md active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"

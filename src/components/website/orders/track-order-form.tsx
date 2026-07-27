@@ -10,6 +10,7 @@ import {
   OrderStatusBadge,
   formatOrderDate,
 } from "@/components/website/orders/order-view";
+import { ShipmentCard } from "@/components/website/orders/shipment-card";
 
 const inputClass =
   "w-full h-12 px-4 rounded-xl border border-slate-300 bg-white text-sm font-bold text-slate-900 placeholder:text-slate-400 placeholder:font-medium focus-visible:outline-2 focus-visible:outline-amber-500";
@@ -152,23 +153,11 @@ export function TrackOrderForm() {
 
           <OrderProgress status={result.status} />
 
-          {result.courier?.trackingNumber && (
-            <p className="text-xs font-bold text-slate-700">
-              কুরিয়ার{result.courier.name ? ` (${result.courier.name})` : ""} ট্র্যাকিং:{" "}
-              {result.courier.trackingUrl ? (
-                <a
-                  href={result.courier.trackingUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-amber-700 underline font-mono"
-                >
-                  {result.courier.trackingNumber}
-                </a>
-              ) : (
-                <span className="font-mono">{result.courier.trackingNumber}</span>
-              )}
-            </p>
-          )}
+          <ShipmentCard
+            shipment={result.shipment}
+            orderStatus={result.status}
+            className="border-slate-200"
+          />
 
           {result.timeline.length > 0 && <OrderEventTimeline steps={result.timeline} />}
         </div>

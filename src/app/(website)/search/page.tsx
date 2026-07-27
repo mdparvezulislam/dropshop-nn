@@ -87,7 +87,7 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
 function SearchErrorState({ message }: { message: string }): ReactElement {
   return (
     <div className="min-h-screen bg-[hsl(0_0%_98%)] py-8 text-slate-900">
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <div className="space-y-4 rounded-3xl border border-red-200 bg-white p-12 text-center shadow-xs">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-red-600">
             <AlertTriangle className="h-6 w-6" aria-hidden />

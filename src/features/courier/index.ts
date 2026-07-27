@@ -1,6 +1,6 @@
 export { registerCourierFeatureFlags } from "./init";
 
-export { LogisticsService } from "./services/logistics-service";
+export { FulfillmentService } from "./services/fulfillment-service";
 export { TrackingService } from "./services/tracking-service";
 export { CourierConfigService } from "./services/courier-config-service";
 export { PickupAddressService } from "./services/pickup-address-service";
@@ -34,6 +34,8 @@ export { ShipmentAutomationRepository } from "./repositories/shipment-automation
 export { CourierProviderRegistry } from "./adapters/provider-registry";
 
 export * from "./domain/shipment-entity";
+export * from "./domain/shipment-state-machine";
+export * from "./domain/courier-catalog";
 export * from "./domain/courier-config-entity";
 export * from "./domain/pickup-address-entity";
 export * from "./domain/logistics-audit-entity";
@@ -47,10 +49,22 @@ export * from "./domain/delivery-automation-entity";
 
 export {
   createShipmentAction,
-  bookShipmentAction,
+  assignCourierAction,
+  updateShipmentStatusAction,
+  bulkUpdateShipmentStatusAction,
+  updateShipmentPackageAction,
+  updateShipmentNotesAction,
   cancelShipmentAction,
-  bulkBookShipmentsAction,
+  bookShipmentAction,
   listShipmentsAction,
+  getShipmentAction,
+  getShipmentForOrderAction,
+  getFulfillmentDashboardAction,
+  listCourierProvidersAction,
+  listShippableOrdersAction,
+} from "./actions/fulfillment-actions";
+
+export {
   saveCourierConfigAction,
   listCourierConfigsAction,
   testCourierConnectionAction,

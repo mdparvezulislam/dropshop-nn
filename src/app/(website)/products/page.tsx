@@ -164,7 +164,7 @@ export default async function ProductsPage({ searchParams }: PageProps): Promise
   if (!catalogRes.success) {
     return (
       <div className="min-h-screen bg-[hsl(0_0%_98%)] py-8 text-slate-900">
-        <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
           {header}
           <CatalogErrorState message={catalogRes.error} />
         </div>
@@ -206,7 +206,7 @@ export default async function ProductsPage({ searchParams }: PageProps): Promise
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
       />
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         {header}
 
         <ProductsCatalogClient

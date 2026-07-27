@@ -34,7 +34,7 @@ export function TrustSection(): React.ReactElement {
       className="w-full py-6 lg:py-8 bg-white border-y border-slate-200"
       aria-label="Trust Bar"
     >
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4">
           {TRUST_ITEMS.map((item) => {
             const Icon = item.icon;

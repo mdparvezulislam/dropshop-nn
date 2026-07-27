@@ -125,7 +125,7 @@ export function CollectionsSection(): React.ReactElement {
       className="py-14 lg:py-20 bg-muted/30 border-y border-border/40"
       aria-label="Featured Collections"
     >
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between mb-10">
           <div className="space-y-2">
             <div className="flex items-center gap-2.5">

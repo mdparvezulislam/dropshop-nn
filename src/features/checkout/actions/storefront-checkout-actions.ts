@@ -8,6 +8,7 @@ import {
   type StorefrontQuote,
 } from "../services/storefront-checkout-service";
 import type { CartType } from "../domain/cart-entity";
+import { SHIPPING_METHOD_IDS } from "@/config/site";
 import { logger } from "@/lib/utils/logger";
 
 /**
@@ -47,8 +48,16 @@ const addressSchema = z.object({
     .optional()
     .or(z.literal("").transform(() => undefined)),
   division: z.string().trim().min(2, "বিভাগ নির্বাচন করুন").max(40),
-  district: z.string().trim().min(2, "জেলা দিন").max(40),
-  upazila: z.string().trim().min(2, "উপজেলা/এলাকা দিন").max(60),
+  district: z.string().trim().min(2, "জেলা নির্বাচন করুন").max(40),
+  // Optional: checkout asks for district + full address only. A thana/upazila
+  // line the customer never filled in is not worth blocking an order over —
+  // the street address already carries it.
+  upazila: z
+    .string()
+    .trim()
+    .max(60)
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
   postalCode: z
     .string()
     .trim()
@@ -74,8 +83,12 @@ const addressSchema = z.object({
 const placeOrderSchema = z.object({
   items: itemsSchema,
   shipping: addressSchema,
-  shippingMethodId: z.enum(["standard", "express", "pickup"]),
-  paymentMethod: z.enum(["cod", "bkash", "nagad", "rocket", "sslcommerz", "bank_transfer"]),
+  // Derived from SHIPPING_METHODS so config and validation cannot drift apart.
+  shippingMethodId: z.enum(SHIPPING_METHOD_IDS),
+  // Cash on delivery is the only settlement method the platform supports.
+  // Gateways are a later phase; accepting any other value here would create
+  // orders nothing can actually collect against.
+  paymentMethod: z.literal("cod").default("cod"),
 });
 
 export type StorefrontAddressInput = z.input<typeof addressSchema>;
@@ -127,8 +140,15 @@ export async function placeStorefrontOrderAction(
     const viewer = await resolveViewer();
     const order = await new StorefrontCheckoutService().placeOrder({
       items: parsed.data.items,
-      // `area` mirrors upazila — the legacy pipeline requires both fields.
-      shipping: { ...parsed.data.shipping, area: parsed.data.shipping.upazila },
+      // The legacy pipeline requires both `upazila` and `area`. Checkout no
+      // longer asks for a thana line, so both settle to "" rather than being
+      // back-filled with the district — a duplicated district in the address
+      // reads as real sub-area data that nobody entered.
+      shipping: {
+        ...parsed.data.shipping,
+        upazila: parsed.data.shipping.upazila ?? "",
+        area: parsed.data.shipping.upazila ?? "",
+      },
       shippingMethodId: parsed.data.shippingMethodId,
       paymentMethod: parsed.data.paymentMethod,
       viewer,

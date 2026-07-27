@@ -50,7 +50,7 @@ export function SearchResultsContent({
 
   return (
     <div className="min-h-screen bg-[hsl(0_0%_98%)] py-8 text-slate-900">
-      <div className="mx-auto max-w-(--content-max) space-y-6 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) space-y-6 px-3 sm:px-6 lg:px-8">
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <button

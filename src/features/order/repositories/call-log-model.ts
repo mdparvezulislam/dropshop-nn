@@ -36,5 +36,5 @@ callLogSchema.index({ orderId: 1, callTime: -1 });
 callLogSchema.index({ staffId: 1, callTime: -1 });
 callLogSchema.index({ callTime: -1 });
 
-export const CallLogModel = mongoose.model("CallLog", callLogSchema);
+export const CallLogModel = mongoose.models.CallLog || mongoose.model("CallLog", callLogSchema);
 export default CallLogModel;

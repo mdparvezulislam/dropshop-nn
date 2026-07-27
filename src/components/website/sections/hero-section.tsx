@@ -89,7 +89,7 @@ export function HeroSection() {
       <div className="absolute top-0 right-0 w-[1000px] h-[600px] bg-primary/[0.04] rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-primary/[0.02] rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="relative mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 pt-12 pb-16 lg:pt-20 lg:pb-24 items-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

@@ -1,21 +1,15 @@
 "use server";
 
 import { auth } from "@/lib/auth";
-import { LogisticsService } from "../services/logistics-service";
 import { TrackingService } from "../services/tracking-service";
 import { CourierConfigService } from "../services/courier-config-service";
 import { PickupAddressService } from "../services/pickup-address-service";
 import { CourierHealthService } from "../services/courier-health-service";
 import { DeliveryAnalyticsService } from "../services/delivery-analytics-service";
 import { RetryQueueService } from "../services/retry-queue-service";
-import { ShipmentRepository } from "../repositories/shipment-repository";
 import { WebhookEventRepository } from "../repositories/webhook-event-repository";
 import { LogisticsAuditRepository } from "../repositories/logistics-audit-repository";
 import {
-  createShipmentSchema,
-  bookShipmentSchema,
-  cancelShipmentSchema,
-  bulkBookSchema,
   saveCourierConfigSchema,
   createPickupAddressSchema,
   syncTrackingSchema,
@@ -25,110 +19,12 @@ import { checkPermission } from "@/lib/check-permission";
 import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
 
-export async function createShipmentAction(formData: unknown): Promise<{
-  success: boolean;
-  data?: any;
-  error?: string;
-}> {
-  const session = (await auth()) as any;
-  checkPermission(session, "Courier.Manage");
-
-  try {
-    const validated = createShipmentSchema.parse(formData);
-    const service = new LogisticsService();
-    const result = await service.createShipment({
-      ...validated,
-      actorId: session.user.id,
-    });
-    revalidatePath("/dashboard/courier");
-    return { success: true, data: result };
-  } catch (error: any) {
-    logger.error("createShipmentAction failed", error);
-    return { success: false, error: error.message };
-  }
-}
-
-export async function bookShipmentAction(formData: unknown): Promise<{
-  success: boolean;
-  data?: any;
-  error?: string;
-}> {
-  const session = (await auth()) as any;
-  checkPermission(session, "Courier.Manage");
-
-  try {
-    const validated = bookShipmentSchema.parse(formData);
-    const service = new LogisticsService();
-    const result = await service.bookShipment(validated.shipmentId, session.user.id);
-    revalidatePath("/dashboard/courier");
-    return { success: true, data: result };
-  } catch (error: any) {
-    logger.error("bookShipmentAction failed", error);
-    return { success: false, error: error.message };
-  }
-}
-
-export async function cancelShipmentAction(formData: unknown): Promise<{
-  success: boolean;
-  data?: any;
-  error?: string;
-}> {
-  const session = (await auth()) as any;
-  checkPermission(session, "Courier.Manage");
-
-  try {
-    const validated = cancelShipmentSchema.parse(formData);
-    const service = new LogisticsService();
-    const result = await service.cancelShipment(
-      validated.shipmentId,
-      validated.reason,
-      session.user.id,
-    );
-    revalidatePath("/dashboard/courier");
-    return { success: true, data: result };
-  } catch (error: any) {
-    logger.error("cancelShipmentAction failed", error);
-    return { success: false, error: error.message };
-  }
-}
-
-export async function bulkBookShipmentsAction(formData: unknown): Promise<{
-  success: boolean;
-  data?: any;
-  error?: string;
-}> {
-  const session = (await auth()) as any;
-  checkPermission(session, "Courier.Manage");
-
-  try {
-    const validated = bulkBookSchema.parse(formData);
-    const service = new LogisticsService();
-    const result = await service.bulkBookShipments(validated.shipmentIds, session.user.id);
-    revalidatePath("/dashboard/courier");
-    return { success: true, data: result };
-  } catch (error: any) {
-    logger.error("bulkBookShipmentsAction failed", error);
-    return { success: false, error: error.message };
-  }
-}
-
-export async function listShipmentsAction(filters: unknown = {}): Promise<{
-  success: boolean;
-  data?: any;
-  error?: string;
-}> {
-  const session = await auth();
-  checkPermission(session, "Courier.View");
-
-  try {
-    const repo = new ShipmentRepository();
-    const result = await repo.findWithFilters(filters as any);
-    return { success: true, data: result };
-  } catch (error: any) {
-    logger.error("listShipmentsAction failed", error);
-    return { success: false, error: error.message };
-  }
-}
+/**
+ * Courier configuration, pickup addresses, health, webhooks and the retry
+ * queue. Shipment lifecycle actions (create / assign / status / package /
+ * bulk) live in `fulfillment-actions.ts` — there is exactly one path that
+ * moves a shipment, and it is `FulfillmentService`.
+ */
 
 export async function saveCourierConfigAction(formData: unknown): Promise<{
   success: boolean;
@@ -225,20 +121,26 @@ export async function listPickupAddressesAction(): Promise<{
   }
 }
 
+/**
+ * Polls the courier for a status update. Every provider is in manual mode, so
+ * this reports honestly that there is nothing to poll rather than writing an
+ * invented scan — see `TrackingService.syncShipmentTracking`.
+ */
 export async function syncShipmentTrackingAction(formData: unknown): Promise<{
   success: boolean;
-  data?: any;
+  data?: { changed: boolean; message: string };
   error?: string;
 }> {
   const session = (await auth()) as any;
-  checkPermission(session, "Courier.Sync");
+  checkPermission(session, "Courier.Manage");
 
   try {
     const validated = syncTrackingSchema.parse(formData);
     const service = new TrackingService();
     const result = await service.syncShipmentTracking(validated.shipmentId, session.user.id);
     revalidatePath("/dashboard/courier");
-    return { success: true, data: result };
+    revalidatePath("/dashboard/shipments");
+    return { success: true, data: { changed: result.changed, message: result.message } };
   } catch (error: any) {
     logger.error("syncShipmentTrackingAction failed", error);
     return { success: false, error: error.message };

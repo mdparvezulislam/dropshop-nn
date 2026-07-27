@@ -42,6 +42,7 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
   draft: "প্রক্রিয়াধীন",
   pending: "অপেক্ষমাণ",
   confirmed: "নিশ্চিত হয়েছে",
+  picking: "পণ্য সংগ্রহ চলছে",
   packed: "প্যাক হয়েছে",
   ready_for_dispatch: "ডিসপ্যাচের জন্য প্রস্তুত",
   courier_assigned: "কুরিয়ারে হস্তান্তর",
@@ -105,7 +106,7 @@ const PROGRESS_STEPS: Array<{
   {
     label: "প্যাকিং",
     icon: PackageCheck,
-    statuses: ["packed", "ready_for_dispatch", "courier_assigned"],
+    statuses: ["picking", "packed", "ready_for_dispatch", "courier_assigned"],
   },
   { label: "শিপিং", icon: Truck, statuses: ["shipped", "out_for_delivery"] },
   { label: "ডেলিভারড", icon: Home, statuses: ["delivered", "completed"] },
@@ -277,9 +278,17 @@ export function OrderAddressCard({ order }: { order: CustomerOrderDetail }) {
       <p className="font-black text-slate-900">
         {order.address.receiverName} — {order.address.phone}
       </p>
+      {/* Empty parts are dropped — checkout no longer collects an upazila, and
+          a dangling ", ," reads like missing data rather than an absent field. */}
       <p>
-        {order.address.address}, {order.address.upazila}, {order.address.district},{" "}
-        {order.address.division}
+        {[
+          order.address.address,
+          order.address.upazila,
+          order.address.district,
+          order.address.division,
+        ]
+          .filter((part) => Boolean(part?.trim()))
+          .join(", ")}
         {order.address.postalCode ? ` — ${order.address.postalCode}` : ""}
       </p>
       {order.address.landmark && <p>ল্যান্ডমার্ক: {order.address.landmark}</p>}

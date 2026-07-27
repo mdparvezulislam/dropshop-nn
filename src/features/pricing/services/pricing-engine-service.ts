@@ -131,6 +131,29 @@ export class PricingEngineService {
       return this.roundingService.roundPrices(result);
     }
 
+    // An explicit per-product price wins over every generic markup rule.
+    //
+    // This branch used to sit last, after the global/supplier/brand/category/
+    // profile rules — so a single active global rule silently repriced the
+    // whole catalog from cost basis, and the storefront (which reads the
+    // pricing record directly) quoted a different number than checkout
+    // (which came through here). A price somebody deliberately set on a
+    // product is the intent; the rules exist to price what has no price.
+    if (pricing) {
+      const manualUnitPrice = this.getPriceByRole(pricing, request.role);
+      if (manualUnitPrice > 0) {
+        appliedRules.push("manual:pricing_record");
+        const result = this.buildResult({
+          unitPrice: manualUnitPrice,
+          costBasis: totalCostBasis,
+          quantity: request.quantity,
+          appliedRules,
+          source: "manual",
+        });
+        return this.roundingService.roundPrices(result);
+      }
+    }
+
     const channel = this.roleToChannel(request.role);
     const globalRule = await this.globalRuleRepo.findActiveByChannel(channel);
     const profileRule = request.profileId
@@ -235,19 +258,6 @@ export class PricingEngineService {
         });
         return this.roundingService.roundPrices(result);
       }
-    }
-
-    if (pricing) {
-      appliedRules.push("manual:pricing_record");
-      const unitPrice = this.getPriceByRole(pricing, request.role);
-      const result = this.buildResult({
-        unitPrice,
-        costBasis: totalCostBasis,
-        quantity: request.quantity,
-        appliedRules,
-        source: "manual",
-      });
-      return this.roundingService.roundPrices(result);
     }
 
     if (totalCostBasis > 0) {

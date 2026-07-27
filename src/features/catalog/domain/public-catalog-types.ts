@@ -31,6 +31,10 @@ export interface PublicProductCard {
   badges: string[];
   isNew: boolean;
   isFlashSale: boolean;
+  /** REAL average from published reviews; undefined when the product has none. */
+  rating?: number;
+  /** REAL published review count; undefined when the product has none. */
+  reviewCount?: number;
 }
 
 export interface PublicListResult {

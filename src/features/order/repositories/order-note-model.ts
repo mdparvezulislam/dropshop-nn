@@ -19,5 +19,5 @@ const noteSchema = new Schema(
 noteSchema.index({ orderId: 1, createdAt: -1 });
 noteSchema.index({ orderId: 1, type: 1 });
 
-export const OrderNoteModel = mongoose.model("OrderNote", noteSchema);
+export const OrderNoteModel = mongoose.models.OrderNote || mongoose.model("OrderNote", noteSchema);
 export default OrderNoteModel;

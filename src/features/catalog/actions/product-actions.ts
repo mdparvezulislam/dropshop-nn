@@ -214,9 +214,18 @@ const listProductsFilterSchema = z
   .object({
     status: z.enum(["draft", "active", "pending_review", "inactive", "archived"]).optional(),
     visibility: z.enum(["public", "private", "hidden", "supplier_only"]).optional(),
-    categoryId: z.string().regex(/^[0-9a-fA-F]{24}$/).optional(),
-    brandId: z.string().regex(/^[0-9a-fA-F]{24}$/).optional(),
-    supplierId: z.string().regex(/^[0-9a-fA-F]{24}$/).optional(),
+    categoryId: z
+      .string()
+      .regex(/^[0-9a-fA-F]{24}$/)
+      .optional(),
+    brandId: z
+      .string()
+      .regex(/^[0-9a-fA-F]{24}$/)
+      .optional(),
+    supplierId: z
+      .string()
+      .regex(/^[0-9a-fA-F]{24}$/)
+      .optional(),
     featured: z.boolean().optional(),
   })
   .strip();

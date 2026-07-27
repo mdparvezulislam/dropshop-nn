@@ -11,6 +11,7 @@ import {
   OrderStatusBadge,
   formatOrderDate,
 } from "@/components/website/orders/order-view";
+import { ShipmentCard } from "@/components/website/orders/shipment-card";
 
 export const dynamic = "force-dynamic";
 
@@ -124,6 +125,17 @@ export default async function OrderSuccessPage({ searchParams }: PageProps) {
                 </div>
               </section>
             </div>
+
+            {/* Shipment — only once fulfillment has actually created one. A
+                just-placed order has none, and the next-steps block below
+                already explains what happens first. */}
+            {order.shipment && (
+              <ShipmentCard
+                shipment={order.shipment}
+                orderStatus={order.status}
+                className="rounded-3xl shadow-xs"
+              />
+            )}
 
             {/* Next steps */}
             <div className="bg-amber-50/70 border border-amber-200 rounded-3xl p-5 text-xs font-bold text-amber-900 space-y-1">

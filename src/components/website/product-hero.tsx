@@ -3,20 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  Minus,
-  Plus,
-  ShoppingBag,
-  Zap,
-  Heart,
-  Share2,
-  ShieldCheck,
-  Truck,
-  RotateCcw,
-  Check,
-} from "lucide-react";
+import { Minus, Plus, ShoppingBag, Zap, ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { ProductGallery, type GalleryMedia } from "@/components/website/product-gallery";
 import { VariantSelector } from "@/components/website/variant-selector";
@@ -25,6 +13,9 @@ import { ResellerProfitCalculator } from "@/components/website/reseller-profit-c
 import { WholesaleQuotationSection } from "@/components/website/wholesale-quotation-section";
 import { MarketingAssetsProvider } from "@/components/website/marketing-assets-provider";
 import { ProductDeliveryInfo } from "@/components/website/product-delivery-info";
+import { CompactRating } from "@/components/website/reviews/rating-stars";
+import { WishlistButton } from "@/components/website/wishlist/wishlist-button";
+import { ShareMenu } from "@/components/website/share/share-menu";
 import { useLocalCart } from "@/features/checkout/store/local-cart";
 import { usePermissions } from "@/hooks/use-permissions";
 import type { ProductVariantEntity } from "@/features/catalog/domain/product-dto";
@@ -51,6 +42,8 @@ export interface ProductHeroData {
   media: GalleryMedia[];
   variants: ProductVariantEntity[];
   warranty?: string;
+  /** Real published-review aggregate; omitted entirely when there are none. */
+  rating?: { average: number; count: number };
 }
 
 interface ProductHeroProps {
@@ -77,8 +70,6 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
 
   const [variant, setVariant] = React.useState<ProductVariantEntity | null>(null);
   const [quantity, setQuantity] = React.useState(1);
-  const [wishlisted, setWishlisted] = React.useState(false);
-  const [shared, setShared] = React.useState(false);
 
   const isReseller = userRole === "reseller";
   const isWholesaler = userRole === "wholesaler";
@@ -168,22 +159,6 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
     if (addToCart()) router.push("/checkout");
   }, [addToCart, router]);
 
-  const share = React.useCallback(async () => {
-    const url = window.location.href;
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: data.name, url });
-      } else {
-        await navigator.clipboard.writeText(url);
-        setShared(true);
-        toast.success("লিংক কপি হয়েছে");
-        setTimeout(() => setShared(false), 2000);
-      }
-    } catch {
-      // user dismissed the share sheet — nothing to do
-    }
-  }, [data.name]);
-
   const decreaseQty = () => setQuantity((q) => Math.max(1, q - 1));
   const increaseQty = () =>
     setQuantity((q) => Math.min(q + 1, maxQuantity ?? Number.MAX_SAFE_INTEGER));
@@ -191,7 +166,7 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
   // ── Render ───────────────────────────────────────────────────────────
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8 lg:gap-12 items-start">
         {/* Gallery */}
         <div className="lg:sticky lg:top-24">
           <ProductGallery
@@ -201,8 +176,12 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
           />
         </div>
 
-        {/* Information + purchase */}
-        <div className="space-y-5 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-xs text-slate-900">
+        {/* Information + purchase.
+            On mobile the card chrome is dropped entirely — it bleeds to the
+            viewport edges (cancelling the page's px-3) so content gets the full
+            width instead of paying 16px page padding + 24px card padding on a
+            390px screen. The card returns from `sm:` up. */}
+        <div className="space-y-4 sm:space-y-5 bg-white -mx-3 sm:mx-0 px-4 py-5 sm:p-8 rounded-none sm:rounded-3xl border-y sm:border border-slate-200 sm:shadow-xs text-slate-900">
           {/* Taxonomy row */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
             {data.brandName && (
@@ -240,6 +219,16 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">
               {data.name}
             </h1>
+            {/* Only rendered when real published reviews exist — never a default. */}
+            {data.rating && (
+              <CompactRating
+                average={data.rating.average}
+                count={data.rating.count}
+                size="md"
+                href="#reviews"
+                className="text-slate-600"
+              />
+            )}
             {data.shortDescription && (
               <p className="text-sm text-slate-600 font-medium leading-relaxed">
                 {data.shortDescription}
@@ -335,9 +324,12 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
             <VariantSelector variants={data.variants} onVariantChange={setVariant} />
           )}
 
-          {/* Quantity + CTAs */}
+          {/* Quantity + CTAs.
+              Hidden on mobile: the sticky bottom bar carries the identical
+              stepper and both CTAs, and two live copies of the same controls on
+              one screen is a duplicate the user has to reason about. */}
           <div className="space-y-3 pt-1">
-            <div className="flex items-center gap-3 flex-wrap">
+            <div className="hidden md:flex items-center gap-3 flex-wrap">
               <div
                 className="flex items-center border border-slate-300 rounded-xl bg-white shadow-2xs"
                 role="group"
@@ -382,7 +374,7 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
               )}
             </div>
 
-            <div className="flex gap-3">
+            <div className="hidden md:flex gap-3">
               <Button
                 size="lg"
                 onClick={addToCart}
@@ -404,34 +396,13 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
             </div>
 
             <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setWishlisted(!wishlisted)}
-                aria-pressed={wishlisted}
-                aria-label={wishlisted ? "উইশলিস্ট থেকে সরান" : "উইশলিস্টে যোগ করুন"}
-                className={cn(
-                  "flex-1 h-11 flex items-center justify-center gap-2 rounded-xl border text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-amber-500",
-                  wishlisted
-                    ? "bg-red-50 border-red-200 text-red-600"
-                    : "border-slate-300 text-slate-700 hover:bg-slate-50",
-                )}
-              >
-                <Heart className={cn("h-4 w-4", wishlisted && "fill-red-600")} aria-hidden />
-                উইশলিস্ট
-              </button>
-              <button
-                type="button"
-                onClick={share}
-                className="flex-1 h-11 flex items-center justify-center gap-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-amber-500"
-                aria-label="প্রোডাক্ট শেয়ার করুন"
-              >
-                {shared ? (
-                  <Check className="h-4 w-4 text-emerald-600" aria-hidden />
-                ) : (
-                  <Share2 className="h-4 w-4" aria-hidden />
-                )}
-                শেয়ার
-              </button>
+              <WishlistButton productId={data.id} productName={data.name} className="flex-1" />
+              <ShareMenu
+                path={`/product/${data.slug}`}
+                title={data.name}
+                text={data.shortDescription}
+                className="flex-1"
+              />
             </div>
           </div>
 
@@ -473,38 +444,87 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
             </div>
           )}
 
-          {/* Service points */}
-          <div className="grid grid-cols-3 gap-2.5 pt-3 border-t border-slate-200 text-[11px] font-black text-slate-900">
-            <div className="flex items-center justify-center gap-1.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-              <ShieldCheck className="h-4 w-4 text-amber-600 shrink-0" aria-hidden />
-              <span>১০০% অরিজিনাল</span>
-            </div>
-            <div className="flex items-center justify-center gap-1.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-              <Truck className="h-4 w-4 text-amber-600 shrink-0" aria-hidden />
-              <span>সারাদেশে ডেলিভারি</span>
-            </div>
-            <div className="flex items-center justify-center gap-1.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-              <RotateCcw className="h-4 w-4 text-amber-600 shrink-0" aria-hidden />
-              <span>সহজ রিটার্ন</span>
-            </div>
-          </div>
+          {/* Service points — icon over label on mobile so three items fit
+              without wrapping or shrinking the text below readable size. */}
+          <ul className="grid grid-cols-3 gap-1.5 sm:gap-2.5 pt-3 border-t border-slate-200 text-[10px] sm:text-[11px] font-black text-slate-900">
+            {[
+              { icon: ShieldCheck, label: "১০০% অরিজিনাল" },
+              { icon: Truck, label: "সারাদেশে ডেলিভারি" },
+              { icon: RotateCcw, label: "সহজ রিটার্ন" },
+            ].map(({ icon: Icon, label }) => (
+              <li
+                key={label}
+                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-1.5 py-2 sm:p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-center"
+              >
+                <Icon className="h-4 w-4 text-amber-600 shrink-0" aria-hidden />
+                <span className="leading-tight">{label}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
 
-      {/* Mobile sticky purchase bar — same state, same validation */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white/95 backdrop-blur-md border-t border-slate-200 p-3 shadow-2xl">
-        <div className="flex items-center gap-2">
-          <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-bold text-slate-500 truncate">{data.name}</p>
-            <p className="text-sm font-black text-slate-900 tabular-nums">
+      {/* Mobile sticky purchase bar.
+          Carries the quantity stepper as well as the price and both CTAs, so a
+          shopper can set the quantity and buy without scrolling back up — the
+          in-page stepper sits far above the fold on a phone. Same state and the
+          same validation as the desktop controls; nothing is duplicated but the
+          layout. Bottom padding respects the iOS home indicator. */}
+      <div
+        className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-[0_-4px_16px_rgba(15,23,42,0.08)] px-3 pt-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))]"
+        role="region"
+        aria-label="ক্রয় অপশন"
+      >
+        <div className="flex items-center justify-between gap-3 mb-2">
+          <div className="min-w-0">
+            <p className="text-lg font-black text-slate-900 tabular-nums leading-none">
               {unitPrice > 0 ? formatBdt(unitPrice * quantity) : "দাম আসছে"}
             </p>
+            {unitPrice > 0 && quantity > 1 && (
+              <p className="text-[10px] font-bold text-slate-500 mt-0.5">
+                {quantity} × {formatBdt(unitPrice)}
+              </p>
+            )}
           </div>
+
+          <div
+            className="flex items-center border border-slate-300 rounded-xl bg-white shrink-0 overflow-hidden"
+            role="group"
+            aria-label="পরিমাণ নির্বাচন"
+          >
+            <button
+              type="button"
+              onClick={decreaseQty}
+              disabled={quantity <= 1}
+              aria-label="পরিমাণ কমান"
+              className="h-10 w-10 flex items-center justify-center text-slate-800 active:bg-slate-100 disabled:opacity-30 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-amber-500"
+            >
+              <Minus className="h-4 w-4" aria-hidden />
+            </button>
+            <span
+              className="w-9 text-center text-sm font-black text-slate-900 tabular-nums"
+              aria-live="polite"
+            >
+              {quantity}
+            </span>
+            <button
+              type="button"
+              onClick={increaseQty}
+              disabled={maxQuantity !== undefined && quantity >= maxQuantity}
+              aria-label="পরিমাণ বাড়ান"
+              className="h-10 w-10 flex items-center justify-center text-slate-800 active:bg-slate-100 disabled:opacity-30 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-amber-500"
+            >
+              <Plus className="h-4 w-4" aria-hidden />
+            </button>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
           <Button
             type="button"
             onClick={addToCart}
             disabled={outOfStock}
-            className="min-h-11 px-4 text-xs font-black bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl shadow-md disabled:opacity-40"
+            className="flex-1 h-12 text-sm font-black bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-slate-950 rounded-xl shadow-sm transition-transform disabled:opacity-40"
           >
             <ShoppingBag className="w-4 h-4 mr-1.5" aria-hidden />
             {outOfStock ? "স্টক শেষ" : "কার্টে যোগ করুন"}
@@ -513,10 +533,11 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
             type="button"
             onClick={buyNow}
             disabled={outOfStock}
-            className="min-h-11 px-4 text-xs font-black bg-slate-900 hover:bg-slate-800 text-white rounded-xl shadow-md disabled:opacity-40"
+            aria-label="এখনই কিনুন"
+            className="h-12 px-4 text-sm font-black bg-slate-900 hover:bg-slate-800 active:scale-[0.98] text-white rounded-xl shadow-sm transition-transform disabled:opacity-40"
           >
-            <Zap className="w-4 h-4" aria-hidden />
-            <span className="sr-only">এখনই কিনুন</span>
+            <Zap className="w-4 h-4 mr-1.5" aria-hidden />
+            কিনুন
           </Button>
         </div>
       </div>

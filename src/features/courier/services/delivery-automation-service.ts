@@ -220,6 +220,10 @@ export class DeliveryAutomationService {
         const adapter = CourierProviderRegistry.get(auto.provider);
         const tracking = await adapter.trackShipment(auto.trackingCode);
 
+        // Manual-mode providers cannot be polled. Skipping is the honest
+        // outcome; writing a status the courier never reported is not.
+        if (!tracking) continue;
+
         await this.orchestrateCourierEvent({
           shipmentId: auto.shipmentId,
           newStatus: tracking.status,

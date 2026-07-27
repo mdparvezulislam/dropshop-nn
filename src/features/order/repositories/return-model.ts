@@ -39,5 +39,5 @@ const returnSchema = new Schema(
 returnSchema.index({ orderId: 1, status: 1 });
 returnSchema.index({ createdAt: -1 });
 
-export const ReturnModel = mongoose.model("Return", returnSchema);
+export const ReturnModel = mongoose.models.Return || mongoose.model("Return", returnSchema);
 export default ReturnModel;

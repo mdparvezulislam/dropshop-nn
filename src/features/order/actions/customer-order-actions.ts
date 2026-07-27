@@ -6,6 +6,10 @@ import { OrderRepository } from "../repositories/order-repository";
 import type { Order, OrderTimelineEntry } from "../domain/order-entity";
 import type { OrderStatus } from "../domain/state-machine";
 import { verifyOrderAccessToken } from "../utils/order-access-token";
+import {
+  ShipmentReadService,
+  type CustomerShipmentView,
+} from "@/features/courier/services/shipment-read-service";
 import { SHIPPING_METHODS, PAYMENT_METHODS } from "@/config/site";
 import { logger } from "@/lib/utils/logger";
 
@@ -81,6 +85,8 @@ export interface CustomerOrderDetail {
   shippingEta?: string;
   paymentMethodLabel?: string;
   courier?: { name?: string; trackingNumber?: string; trackingUrl?: string };
+  /** Absent until fulfillment creates a shipment — the UI says so honestly. */
+  shipment?: CustomerShipmentView;
   timeline: CustomerOrderTimelineStep[];
 }
 
@@ -90,6 +96,7 @@ export interface TrackOrderResult {
   placedAt: string;
   district: string;
   courier?: { name?: string; trackingNumber?: string; trackingUrl?: string };
+  shipment?: CustomerShipmentView;
   timeline: CustomerOrderTimelineStep[];
 }
 
@@ -116,7 +123,7 @@ function toSummary(order: Order): CustomerOrderSummary {
   };
 }
 
-function toDetail(order: Order): CustomerOrderDetail {
+function toDetail(order: Order, shipment?: CustomerShipmentView | null): CustomerOrderDetail {
   const shippingMethod = SHIPPING_METHODS.find((m) => m.id === order.shipping.shippingMethod);
   const paymentMethod = PAYMENT_METHODS.find((m) => m.id === order.shipping.paymentMethod);
 
@@ -161,11 +168,12 @@ function toDetail(order: Order): CustomerOrderDetail {
           trackingUrl: order.shippingInfo.trackingUrl ?? undefined,
         }
       : undefined,
+    shipment: shipment ?? undefined,
     timeline: mapTimeline(order.timeline ?? []),
   };
 }
 
-function toTracking(order: Order): TrackOrderResult {
+function toTracking(order: Order, shipment?: CustomerShipmentView | null): TrackOrderResult {
   return {
     orderNumber: order.orderNumber,
     status: order.status,
@@ -178,6 +186,7 @@ function toTracking(order: Order): TrackOrderResult {
           trackingUrl: order.shippingInfo.trackingUrl ?? undefined,
         }
       : undefined,
+    shipment: shipment ?? undefined,
     timeline: mapTimeline(order.timeline ?? []),
   };
 }
@@ -314,7 +323,8 @@ export async function getMyOrderDetailAction(
     // not a different error (no existence oracle).
     if (!order || !ownsOrder(order, identity)) return { success: true, data: null };
 
-    return { success: true, data: toDetail(order) };
+    const shipment = await new ShipmentReadService().getCustomerShipmentForOrder(order.id);
+    return { success: true, data: toDetail(order, shipment) };
   } catch (error) {
     logger.error("getMyOrderDetailAction failed", error);
     return { success: false, error: "অর্ডারটি লোড করা যায়নি।" };
@@ -333,7 +343,8 @@ export async function getOrderByAccessTokenAction(
     const order = await new OrderRepository().findByOrderNumber(orderNumber);
     if (!order) return { success: true, data: null };
 
-    return { success: true, data: toDetail(order) };
+    const shipment = await new ShipmentReadService().getCustomerShipmentForOrder(order.id);
+    return { success: true, data: toDetail(order, shipment) };
   } catch (error) {
     logger.error("getOrderByAccessTokenAction failed", error);
     return { success: false, error: "অর্ডারটি লোড করা যায়নি।" };
@@ -367,7 +378,8 @@ export async function trackOrderAction(input: {
     // Identical response for wrong number and wrong phone — no oracle.
     if (!order || !matches) return { success: true, data: null };
 
-    return { success: true, data: toTracking(order) };
+    const shipment = await new ShipmentReadService().getCustomerShipmentForOrder(order.id);
+    return { success: true, data: toTracking(order, shipment) };
   } catch (error) {
     logger.error("trackOrderAction failed", error);
     return { success: false, error: "অর্ডার খুঁজে পাওয়া যায়নি। তথ্যগুলো যাচাই করুন।" };

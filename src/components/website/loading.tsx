@@ -77,7 +77,7 @@ export function CatalogPageSkeleton(): ReactElement {
       aria-label="প্রোডাক্ট লোড হচ্ছে"
       className="min-h-screen bg-[hsl(0_0%_98%)] py-8"
     >
-      <div className="mx-auto max-w-(--content-max) animate-pulse space-y-6 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) animate-pulse space-y-6 px-3 sm:px-6 lg:px-8">
         <div className="space-y-2">
           <Bone className="h-3 w-32" />
           <Bone className="h-8 w-72 max-w-full" />
@@ -107,7 +107,7 @@ export function SearchPageSkeleton(): ReactElement {
       aria-label="সার্চ ফলাফল লোড হচ্ছে"
       className="min-h-screen bg-[hsl(0_0%_98%)] py-8"
     >
-      <div className="mx-auto max-w-(--content-max) animate-pulse space-y-6 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) animate-pulse space-y-6 px-3 sm:px-6 lg:px-8">
         <div className="space-y-4">
           <Bone className="h-4 w-24" />
           <Bone className="h-10 w-full max-w-xl rounded-xl" />

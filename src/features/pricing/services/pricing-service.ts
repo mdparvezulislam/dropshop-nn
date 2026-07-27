@@ -214,10 +214,33 @@ export class PricingService {
     return pricing;
   }
 
+  /**
+   * The price row that applies to a product (optionally a specific variant).
+   *
+   * A variant without its own row falls back to the product's base row — that
+   * is what `ProductVariant.priceAdjustment` is for, so a variant is priced
+   * relative to the base rather than being unpriced. Without the fallback a
+   * simple product read with no `variantSku` matched nothing (the base row is
+   * written stamped with the product's SKU), which is why the PDP showed
+   * "contact for price" and checkout refused to quote while listing cards —
+   * which pick the row through a different query — showed a price.
+   */
   async getPricingByProduct(
     productId: string,
     variantSku?: string,
   ): Promise<ProductPricing | null> {
+    const normalized = normalizeVariantSku(variantSku);
+
+    if (normalized) {
+      const exact = await this.pricingRepository.findByProductAndVariant(productId, normalized);
+      if (exact) return exact;
+    }
+
+    return this.pricingRepository.findBaseByProduct(productId);
+  }
+
+  /** Strict lookup — used by writes that must not silently target another row. */
+  async getExactPricing(productId: string, variantSku?: string): Promise<ProductPricing | null> {
     return this.pricingRepository.findByProductAndVariant(
       productId,
       normalizeVariantSku(variantSku),

@@ -62,6 +62,8 @@ export interface AccountOverviewData {
   };
   orderCount: number;
   wishlistCount: number;
+  reviewCount: number;
+  pendingReviewCount: number;
   recentOrders: {
     id: string;
     orderNumber: string;
@@ -99,7 +101,13 @@ export async function getAccountOverviewAction(): Promise<{
     );
 
     const wishlistRepo = new WishlistItemRepository();
-    const wishlistCount = await wishlistRepo.countByUser(currentUserId);
+    const { ReviewService } = await import("@/features/reviews/services/review-service");
+    const reviewService = new ReviewService();
+    const [wishlistCount, myReviews, reviewable] = await Promise.all([
+      wishlistRepo.countByUser(currentUserId),
+      reviewService.listByUser(currentUserId).catch(() => []),
+      reviewService.listReviewableItems(currentUserId, user.email).catch(() => []),
+    ]);
 
     return {
       success: true,
@@ -114,6 +122,8 @@ export async function getAccountOverviewAction(): Promise<{
         },
         orderCount: orderResult.totalCount,
         wishlistCount,
+        reviewCount: myReviews.length,
+        pendingReviewCount: reviewable.length,
         recentOrders: orderResult.items.slice(0, 5).map((o: any) => ({
           id: o.id,
           orderNumber: o.orderNumber,
@@ -367,119 +377,10 @@ export async function getOrdersAction(
 }
 
 // ─── Wishlist ──────────────────────────────────────────
-
-export async function getWishlistAction(): Promise<{
-  success: boolean;
-  data?: any[];
-  error?: string;
-}> {
-  try {
-    const session = await auth();
-    const sessionUser = getSessionUser(session);
-
-    const wishlistRepo = new WishlistItemRepository();
-    const items = await wishlistRepo.findByUser(sessionUser.id);
-
-    if (items.length === 0) return { success: true, data: [] };
-
-    const productService = new ProductService();
-    const pricingService = new PricingService();
-
-    const products = await Promise.all(
-      items.map(async (item) => {
-        const product = await productService.findById(item.productId);
-        if (!product) return null;
-        const pricing = await pricingService.getPricingByProduct(product.id);
-        return {
-          id: product.id,
-          name: product.name,
-          slug: product.slug,
-          image:
-            product.media?.find((m: any) => m.isFeatured)?.url || product.media?.[0]?.url || "",
-          retailPrice: pricing?.sellingPrice || 0,
-          comparePrice: pricing?.comparePrice,
-          rating: 0,
-          stockStatus: "in_stock" as const,
-          wishlistId: item.id,
-        };
-      }),
-    );
-
-    return { success: true, data: products.filter(Boolean) };
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "Failed to load wishlist";
-    return { success: false, error: msg };
-  }
-}
-
-export async function addToWishlistAction(productId: string): Promise<{
-  success: boolean;
-  error?: string;
-}> {
-  try {
-    const session = await auth();
-    const sessionUser = getSessionUser(session);
-
-    const repo = new WishlistItemRepository();
-    const existing = await repo.findByUserAndProduct(sessionUser.id, productId);
-
-    if (!existing) {
-      await repo.create({ userId: sessionUser.id, productId });
-    }
-
-    revalidatePath("/account/wishlist");
-    return { success: true };
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "Failed to add to wishlist";
-    return { success: false, error: msg };
-  }
-}
-
-export async function removeFromWishlistAction(productId: string): Promise<{
-  success: boolean;
-  error?: string;
-}> {
-  try {
-    const session = await auth();
-    const sessionUser = getSessionUser(session);
-
-    const repo = new WishlistItemRepository();
-    const existing = await repo.findByUserAndProduct(sessionUser.id, productId);
-    if (existing) {
-      await repo.delete(existing.id);
-    }
-
-    revalidatePath("/account/wishlist");
-    return { success: true };
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "Failed to remove from wishlist";
-    return { success: false, error: msg };
-  }
-}
-
-export async function removeWishlistItemAction(wishlistId: string): Promise<{
-  success: boolean;
-  error?: string;
-}> {
-  try {
-    const session = await auth();
-    const sessionUser = getSessionUser(session);
-
-    const repo = new WishlistItemRepository();
-    const existing = await repo.findById(wishlistId);
-    if (!existing || existing.userId !== sessionUser.id) {
-      return { success: false, error: "Item not found" };
-    }
-
-    await repo.delete(wishlistId);
-
-    revalidatePath("/account/wishlist");
-    return { success: true };
-  } catch (err) {
-    logger.error("removeWishlistItemAction failed", err);
-    return { success: false, error: "Failed to remove from wishlist" };
-  }
-}
+// Wishlist actions live in `src/features/catalog/actions/wishlist-actions.ts`.
+// They render through PublicCatalogService so saved products carry the same
+// real prices/stock/ratings as every other storefront surface; the previous
+// copies here returned raw paisa with hardcoded stock and rating values.
 
 // ─── Notifications ────────────────────────────────────
 

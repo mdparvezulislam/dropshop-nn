@@ -16,7 +16,7 @@ export function FooterCta({
 }: FooterCtaProps) {
   return (
     <section className="py-16 lg:py-24 border-t border-[hsl(0_0%_91%)] bg-white">
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary/80 to-primary/60 p-8 sm:p-12 lg:p-16 text-center">
           <div className="absolute inset-0 public-grid-bg pointer-events-none" />
 

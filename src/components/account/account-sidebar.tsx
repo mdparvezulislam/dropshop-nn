@@ -8,6 +8,8 @@ import {
   MapPin,
   Package,
   Heart,
+  Star,
+  History,
   Shield,
   Bell,
   UserCog,
@@ -15,7 +17,6 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 interface AccountSidebarProps {
@@ -29,6 +30,8 @@ export const ACCOUNT_NAV_ITEMS = [
   { label: "Addresses", href: "/account/addresses", icon: MapPin },
   { label: "Orders", href: "/account/orders", icon: Package },
   { label: "Wishlist", href: "/account/wishlist", icon: Heart },
+  { label: "Reviews", href: "/account/reviews", icon: Star },
+  { label: "Recently Viewed", href: "/account/recently-viewed", icon: History },
   { label: "Security", href: "/account/security", icon: Shield },
   { label: "Notifications", href: "/account/notifications", icon: Bell },
   { label: "Role & Permissions", href: "/account/role", icon: UserCog },

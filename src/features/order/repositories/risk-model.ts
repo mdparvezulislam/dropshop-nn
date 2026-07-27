@@ -41,5 +41,5 @@ const riskSchema = new Schema(
 riskSchema.index({ category: 1, createdAt: -1 });
 riskSchema.index({ riskLevel: 1, resolved: 1 });
 
-export const RiskModel = mongoose.model("RiskFlag", riskSchema);
+export const RiskModel = mongoose.models.RiskFlag || mongoose.model("RiskFlag", riskSchema);
 export default RiskModel;

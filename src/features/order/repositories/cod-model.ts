@@ -25,5 +25,6 @@ codReconciliationSchema.index({ orderId: 1 });
 codReconciliationSchema.index({ settlementStatus: 1, createdAt: -1 });
 codReconciliationSchema.index({ createdAt: -1 });
 
-export const CodReconciliationModel = mongoose.model("CodReconciliation", codReconciliationSchema);
+export const CodReconciliationModel =
+  mongoose.models.CodReconciliation || mongoose.model("CodReconciliation", codReconciliationSchema);
 export default CodReconciliationModel;

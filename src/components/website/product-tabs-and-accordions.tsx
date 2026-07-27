@@ -219,7 +219,7 @@ export function ProductTabsAndAccordions({
   if (sections.length === 0 && tags.length === 0) return null;
 
   return (
-    <div className="mt-8 bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 shadow-xs text-slate-900">
+    <div className="mt-5 sm:mt-8 bg-white -mx-3 sm:mx-0 border-y sm:border border-slate-200 rounded-none sm:rounded-3xl px-4 py-5 sm:p-6 sm:shadow-xs text-slate-900">
       {sections.length > 0 && (
         <>
           {/* Desktop: ARIA tabs */}

@@ -2,6 +2,7 @@ export const ORDER_STATUSES = [
   "draft",
   "pending",
   "confirmed",
+  "picking",
   "packed",
   "ready_for_dispatch",
   "courier_assigned",
@@ -26,6 +27,7 @@ const STATUS_CATEGORY: Record<OrderStatus, OrderCategory> = {
   draft: "draft",
   pending: "active",
   confirmed: "active",
+  picking: "fulfillment",
   packed: "fulfillment",
   ready_for_dispatch: "fulfillment",
   courier_assigned: "delivery",
@@ -41,14 +43,34 @@ const STATUS_CATEGORY: Record<OrderStatus, OrderCategory> = {
   failed: "failed",
 };
 
+/**
+ * The fulfillment lifecycle:
+ *
+ *   pending → confirmed → picking → packed → ready_for_dispatch
+ *           → courier_assigned → shipped → out_for_delivery → delivered → completed
+ *
+ * Every edge below models something an operator or a courier can actually do;
+ * anything absent is an invalid jump and is refused by `canTransition`.
+ *
+ * Notes on the non-obvious edges:
+ *  - `confirmed → packed` skips picking on purpose: a single-operator shop packs
+ *    straight off the shelf and never runs a separate pick stage.
+ *  - Cancellation stays open through `courier_assigned` because a COD order is
+ *    routinely cancelled by phone right up to hand-off.
+ *  - `shipped → delivered` exists because couriers report delivery without ever
+ *    emitting an out-for-delivery scan.
+ *  - `failed → out_for_delivery` is the re-attempt edge (BD couriers retry a
+ *    failed delivery up to three times); `failed → returned` is the RTS edge.
+ */
 const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   draft: ["pending", "cancelled"],
   pending: ["confirmed", "cancelled"],
-  confirmed: ["packed", "cancelled"],
+  confirmed: ["picking", "packed", "cancelled"],
+  picking: ["packed", "cancelled"],
   packed: ["ready_for_dispatch", "cancelled"],
-  ready_for_dispatch: ["courier_assigned"],
-  courier_assigned: ["shipped", "failed"],
-  shipped: ["out_for_delivery", "failed"],
+  ready_for_dispatch: ["courier_assigned", "cancelled"],
+  courier_assigned: ["shipped", "failed", "cancelled"],
+  shipped: ["out_for_delivery", "delivered", "failed"],
   out_for_delivery: ["delivered", "failed"],
   delivered: ["completed", "return_requested"],
   completed: [],
@@ -57,7 +79,7 @@ const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   return_initiated: ["returned"],
   returned: ["refunded"],
   refunded: [],
-  failed: ["cancelled"],
+  failed: ["out_for_delivery", "returned", "cancelled"],
 };
 
 const TERMINAL_STATUSES: Set<OrderStatus> = new Set(["completed", "cancelled", "refunded"]);
@@ -66,7 +88,10 @@ const CANCELLABLE_STATUSES: Set<OrderStatus> = new Set([
   "draft",
   "pending",
   "confirmed",
+  "picking",
   "packed",
+  "ready_for_dispatch",
+  "courier_assigned",
   "failed",
 ]);
 
@@ -74,6 +99,7 @@ const REFUNDABLE_STATUSES: Set<OrderStatus> = new Set(["returned"]);
 
 const REQUIRES_INVENTORY_RELEASE: Set<OrderStatus> = new Set([
   "confirmed",
+  "picking",
   "packed",
   "ready_for_dispatch",
   "courier_assigned",
@@ -155,6 +181,7 @@ export function getHumanLabel(status: OrderStatus): string {
     draft: "Draft",
     pending: "Pending",
     confirmed: "Confirmed",
+    picking: "Picking",
     packed: "Packed",
     ready_for_dispatch: "Ready for Dispatch",
     courier_assigned: "Courier Assigned",

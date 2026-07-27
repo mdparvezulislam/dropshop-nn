@@ -70,7 +70,7 @@ export function SiteHeader() {
 
       {/* Top Info Bar */}
       <div className="hidden sm:block bg-white border-b border-[hsl(0_0%_91%)] text-[10px] text-[hsl(215_16%_47%)]">
-        <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between gap-4">
+        <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8 py-2 flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <a
               href="tel:+8801700000000"
@@ -100,7 +100,7 @@ export function SiteHeader() {
             : "border-b border-[hsl(0_0%_91%)]",
         )}
       >
-        <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
           {/* Top Row: Logo + Search */}
           <div className="flex h-20 items-center justify-between gap-6">
             {/* Logo */}

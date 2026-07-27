@@ -9,10 +9,10 @@ import { Button } from "@/components/ui/button";
 export function CampaignBannerSection(): React.ReactElement {
   return (
     <section
-      className="py-12 lg:py-16 bg-white border-b border-slate-200"
+      className="py-8 sm:py-12 lg:py-16 bg-white border-b border-slate-200"
       aria-label="Business Opportunity Banners"
     >
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Left — Reseller program banner */}
           <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-amber-950 text-white p-6 sm:p-8 border border-slate-800 shadow-xl flex flex-col justify-between">

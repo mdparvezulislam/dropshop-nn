@@ -79,7 +79,7 @@ export function HeroSection(): React.ReactElement {
       {/* Background Soft Grid */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-40 pointer-events-none" />
 
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center min-h-[500px]">
           {/* Left Column — headline, feature pills, CTAs */}
           <div className="lg:col-span-7 space-y-5">

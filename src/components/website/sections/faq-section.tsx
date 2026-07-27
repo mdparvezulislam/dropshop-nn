@@ -88,7 +88,7 @@ export function FAQSection(): React.ReactElement {
 
   return (
     <section className="w-full py-16 lg:py-24 bg-[hsl(0_0%_96%)]" aria-labelledby="faq-heading">
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}

@@ -24,14 +24,16 @@ export function ProductGrid({
 
   if (products.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="flex flex-col items-center justify-center py-12 sm:py-16 text-center">
         <p className="text-sm font-bold text-slate-500">কোনো প্রোডাক্ট পাওয়া যায়নি</p>
       </div>
     );
   }
 
+  // Tighter gutter on mobile: at two columns on a 390px screen, every pixel of
+  // gap comes straight off the card (and therefore the product image).
   return (
-    <div className={cn("grid gap-4 sm:gap-5", gridCols[columns], className)}>
+    <div className={cn("grid gap-2.5 sm:gap-5", gridCols[columns], className)}>
       {products.map((product, index) => (
         <ProductCard key={product.id} product={product} priority={index < priorityCount} />
       ))}

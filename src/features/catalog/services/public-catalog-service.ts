@@ -66,6 +66,8 @@ export interface PublicProductDetail {
   stockStatus: PublicStockStatus;
   /** Summed available stock; null = untracked (dropship-sellable). */
   stockTotal: number | null;
+  /** Real published-review aggregate; count 0 means "no reviews yet". */
+  rating: { average: number; count: number };
 }
 
 /**
@@ -121,11 +123,15 @@ export class PublicCatalogService {
 
     const result = await this.products.findPublicCards(query);
 
-    const { brandMap, categoryMap } = await this.taxonomyMaps(result.items.map((r) => r.product));
+    const products = result.items.map((r) => r.product);
+    const [{ brandMap, categoryMap }, ratings] = await Promise.all([
+      this.taxonomyMaps(products),
+      this.ratingSummaries(products.map((p) => p.id)),
+    ]);
 
     return {
       items: result.items.map((row) =>
-        this.toCard(row.product, row.pricing, row.stockTotal, brandMap, categoryMap),
+        this.toCard(row.product, row.pricing, row.stockTotal, brandMap, categoryMap, ratings),
       ),
       totalCount: result.totalCount,
       page: result.page,
@@ -383,9 +389,10 @@ export class PublicCatalogService {
         : {}),
     };
 
-    const [taxonomy, stock] = await Promise.all([
+    const [taxonomy, stock, ratings] = await Promise.all([
       this.taxonomyMaps([product]),
       this.stockTotalFor(product.id),
+      this.ratingSummaries([product.id]),
     ]);
 
     return {
@@ -401,6 +408,7 @@ export class PublicCatalogService {
         : undefined,
       stockStatus: stockStatusOf(stock),
       stockTotal: stock,
+      rating: ratings.get(product.id) ?? { average: 0, count: 0 },
     };
   }
 
@@ -501,6 +509,7 @@ export class PublicCatalogService {
     stockTotal: number | null,
     brandMap: Map<string, { name: string; slug: string }>,
     categoryMap: Map<string, { name: string; slug: string }>,
+    ratings?: Map<string, { average: number; count: number }>,
   ): PublicProductCard {
     const media = [...(product.media ?? [])].sort(
       (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0),
@@ -533,6 +542,7 @@ export class PublicCatalogService {
 
     const brand = product.brandId ? brandMap.get(product.brandId) : undefined;
     const category = product.categoryId ? categoryMap.get(product.categoryId) : undefined;
+    const rating = ratings?.get(product.id);
 
     return {
       id: product.id,
@@ -551,7 +561,29 @@ export class PublicCatalogService {
       badges: product.badges ?? [],
       isNew: (product.badges ?? []).includes("new_arrival") || isRecent,
       isFlashSale: (product.badges ?? []).includes("flash_sale"),
+      // Real review data only — absent when the product has no reviews yet.
+      rating: rating && rating.count > 0 ? rating.average : undefined,
+      reviewCount: rating && rating.count > 0 ? rating.count : undefined,
     };
+  }
+
+  /** Batched published-review aggregates; failures degrade to "no ratings". */
+  private async ratingSummaries(
+    productIds: string[],
+  ): Promise<Map<string, { average: number; count: number }>> {
+    try {
+      const { ReviewService } = await import("@/features/reviews/services/review-service");
+      const summaries = await new ReviewService().getRatingSummaries(productIds);
+      return new Map(
+        [...summaries.entries()].map(([id, summary]) => [
+          id,
+          { average: summary.average, count: summary.count },
+        ]),
+      );
+    } catch (error) {
+      logger.error("PublicCatalogService ratingSummaries failed", error);
+      return new Map();
+    }
   }
 
   private async publicProductCounts(field: "categoryId" | "brandId"): Promise<Map<string, number>> {

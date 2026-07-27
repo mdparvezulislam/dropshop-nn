@@ -10,7 +10,7 @@ export async function exportOrdersCsvAction(): Promise<{
   error?: string;
 }> {
   const session = await auth();
-  checkPermission(session, "Order.Read");
+  checkPermission(session, "Order.View");
   try {
     const service = new ExportService();
     const csv = await service.exportOrdersCsv({});
@@ -26,7 +26,7 @@ export async function exportCodCsvAction(): Promise<{
   error?: string;
 }> {
   const session = await auth();
-  checkPermission(session, "Order.Read");
+  checkPermission(session, "Order.View");
   try {
     const service = new ExportService();
     const csv = await service.exportCodCsv({});
@@ -42,7 +42,7 @@ export async function exportCourierReportCsvAction(): Promise<{
   error?: string;
 }> {
   const session = await auth();
-  checkPermission(session, "Order.Read");
+  checkPermission(session, "Order.View");
   try {
     const service = new ExportService();
     const csv = await service.exportCourierReportCsv({});

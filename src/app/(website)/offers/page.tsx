@@ -52,7 +52,7 @@ export default async function OffersPage(): Promise<React.ReactElement> {
 
   return (
     <div className="min-h-screen bg-[hsl(0_0%_98%)] text-slate-900 py-8">
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         {/* Hero banner — no invented discount ceilings, brands, or scarcity claims */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 p-8 sm:p-12 mb-12 shadow-lg">
           <div className="relative z-10 max-w-2xl text-white">

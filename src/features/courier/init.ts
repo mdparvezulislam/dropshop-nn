@@ -8,98 +8,48 @@ export function registerCourierFeatureFlags(): void {
   if (registered) return;
   registered = true;
 
-  logger.info("Initializing Courier & Fulfillment Engine Feature Flags");
+  logger.info("Initializing Courier & Fulfillment Engine");
 
   try {
     FeatureFlags.register({
       key: "courier-management",
       name: "Courier & Fulfillment",
-      description: "Enterprise Logistics, Shipments, Pickups and Status Webhooks Sync",
+      description: "Shipments, courier assignment, package data and fulfillment status tracking",
       defaultState: "on",
     });
   } catch (err) {
-    logger.warn("Courier feature flags already registered or minor bootstrapping error occurred", {
-      error: err,
-    });
+    logger.warn("Courier feature flags already registered", { error: err });
   }
 
-  // Event Subscriptions
+  /**
+   * Note on what is deliberately NOT registered here: there is no
+   * `order.confirmed → auto-create shipment` subscriber any more.
+   *
+   * The previous one created a shipment for every confirmed order against a
+   * hardcoded courier with a guessed 500g / 15cm parcel — numbers nobody had
+   * weighed or chosen. It also wrote `status: "created"`, which the shipment
+   * schema does not allow, so every write it attempted was rejected.
+   *
+   * Shipment creation is now an explicit operator step, taken once the parcel
+   * is actually packed and the courier is actually chosen.
+   */
   try {
-    // 1. Subscriber: order.confirmed -> auto-generate shipment
-    EventRegistry.registerSyncSubscriber("order.confirmed", {
-      eventType: "order.confirmed",
+    EventRegistry.registerSyncSubscriber("courier.shipment_status_changed", {
+      eventType: "courier.shipment_status_changed",
       priority: 10,
       handle: async (event) => {
-        const { orderId } = event.data;
-        const { OrderRepository } = await import("@/features/order/repositories/order-repository");
-        const orderRepo = new OrderRepository();
-        const order = await orderRepo.findById(orderId as string);
-        if (order) {
-          const { CourierService } = await import("./services/courier-service");
-          const courierService = new CourierService();
-
-          // Auto-detect zone
-          const isInsideDhaka = order.shipping.division?.toLowerCase().includes("dhaka");
-          const deliveryZone = isInsideDhaka ? ("inside_city" as const) : ("outside_city" as const);
-
-          await courierService.createShipment({
-            orderId: order.id,
-            provider: "steadfast",
-            deliveryZone,
-            parcelType: "parcel",
-            parcelWeight: 500,
-            dimensions: { width: 15, height: 15, depth: 15 },
-          });
-        }
+        // Order-side status sync happens inside FulfillmentService, where the
+        // order state machine can veto an illegal edge. This subscriber exists
+        // for downstream listeners (finance, notifications) to hang off.
+        logger.info("Courier: shipment status changed", {
+          shipmentId: event.data.shipmentId,
+          orderId: event.data.orderId,
+          toStatus: event.data.toStatus,
+        });
       },
     });
 
-    // 2. Subscriber: courier.shipment_delivered -> order.delivered
-    EventRegistry.registerSyncSubscriber("courier.shipment_delivered", {
-      eventType: "courier.shipment_delivered",
-      priority: 10,
-      handle: async (event) => {
-        const { orderId } = event.data;
-        const { OrderService } = await import("@/features/order/services/order-service");
-        const orderService = new OrderService();
-
-        // Transition order status to delivered
-        await orderService.transitionStatus(
-          orderId as string,
-          "delivered",
-          { id: "courier-agent", role: "system" },
-          "Delivered via courier partner logistics",
-        );
-
-        // Also transition order status to completed to trigger finance profit releases!
-        await orderService.transitionStatus(
-          orderId as string,
-          "completed",
-          { id: "courier-agent", role: "system" },
-          "Auto-completed on delivery verification",
-        );
-      },
-    });
-
-    // 3. Subscriber: courier.shipment_returned -> order.returned
-    EventRegistry.registerSyncSubscriber("courier.shipment_returned", {
-      eventType: "courier.shipment_returned",
-      priority: 10,
-      handle: async (event) => {
-        const { orderId } = event.data;
-        const { OrderService } = await import("@/features/order/services/order-service");
-        const orderService = new OrderService();
-
-        await orderService.transitionStatus(
-          orderId as string,
-          "returned",
-          { id: "courier-agent", role: "system" },
-          "Returned via courier partner logistics",
-        );
-      },
-    });
-
-    logger.info("Courier Event Listeners Registered Successfully");
+    logger.info("Courier event listeners registered");
   } catch (err) {
     logger.error("Failed to register courier event subscribers", err);
   }

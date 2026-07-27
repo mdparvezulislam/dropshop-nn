@@ -48,5 +48,6 @@ const failedDeliverySchema = new Schema(
 failedDeliverySchema.index({ resolved: 1, createdAt: -1 });
 failedDeliverySchema.index({ courierName: 1 });
 
-export const FailedDeliveryModel = mongoose.model("FailedDelivery", failedDeliverySchema);
+export const FailedDeliveryModel =
+  mongoose.models.FailedDelivery || mongoose.model("FailedDelivery", failedDeliverySchema);
 export default FailedDeliveryModel;

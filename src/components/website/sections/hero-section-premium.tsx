@@ -65,7 +65,7 @@ export function HeroSectionPremium(): React.ReactElement {
 
   return (
     <section className="w-full py-0 bg-white relative overflow-hidden" aria-label="Hero section">
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center py-16 lg:py-24">
           {/* Left Column - Content */}
           <motion.div

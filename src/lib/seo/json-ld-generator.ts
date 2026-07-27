@@ -12,6 +12,8 @@ export interface ProductJsonLdInput {
   brandName?: string;
   /** Real availability from the inventory engine. */
   inStock: boolean;
+  /** Real published-review aggregate. Omitted entirely when count is 0. */
+  rating?: { average: number; count: number };
 }
 
 function absoluteUrl(url: string): string {
@@ -20,7 +22,7 @@ function absoluteUrl(url: string): string {
 }
 
 export function generateProductJsonLd(input: ProductJsonLdInput) {
-  const { product, price, currency = "BDT", brandName, inStock } = input;
+  const { product, price, currency = "BDT", brandName, inStock, rating } = input;
   const featuredMedia = product.media?.find((m) => m.isFeatured) || product.media?.[0];
   const imageUrl = featuredMedia ? absoluteUrl(featuredMedia.url) : "";
 
@@ -32,7 +34,18 @@ export function generateProductJsonLd(input: ProductJsonLdInput) {
     sku: product.sku,
     image: imageUrl ? [imageUrl] : undefined,
     brand: brandName ? { "@type": "Brand", name: brandName } : undefined,
-    // No aggregateRating/review blocks until a real review system exists.
+    // aggregateRating is emitted ONLY from real published reviews. Emitting it
+    // without reviews is a Google structured-data violation.
+    aggregateRating:
+      rating && rating.count > 0
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: rating.average,
+            reviewCount: rating.count,
+            bestRating: 5,
+            worstRating: 1,
+          }
+        : undefined,
     offers:
       price > 0
         ? {

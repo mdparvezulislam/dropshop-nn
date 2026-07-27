@@ -15,7 +15,9 @@ export interface LogisticsAuditLog extends BaseDBEntity {
     | "sync_executed"
     | "retry_executed"
     | "config_updated"
+    | "courier_assigned"
     | "courier_reassigned"
+    | "package_updated"
     | "manual_intervention";
   actorId: string;
   oldStatus?: ShipmentStatus;

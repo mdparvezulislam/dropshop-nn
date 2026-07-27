@@ -1,94 +1,92 @@
 import { ShipmentRepository } from "../repositories/shipment-repository";
-import { LogisticsAuditRepository } from "../repositories/logistics-audit-repository";
 import { WebhookEventRepository } from "../repositories/webhook-event-repository";
 import { CourierProviderRegistry } from "../adapters/provider-registry";
-import type { Shipment, ShipmentStatus } from "../domain/shipment-entity";
+import { FulfillmentService } from "./fulfillment-service";
+import { getCourierName } from "../domain/courier-catalog";
+import type { Shipment } from "../domain/shipment-entity";
+import { NotFoundError } from "@/lib/errors/app-error";
 import { logger } from "@/lib/utils/logger";
-import { EventBus } from "@/lib/event-bus/event-bus";
 
+export interface TrackingSyncResult {
+  shipment: Shipment;
+  /** True when the courier actually answered and the status moved. */
+  changed: boolean;
+  message: string;
+}
+
+/**
+ * Reads shipment status from the courier. Status *writes* always go through
+ * `FulfillmentService` so the shipment state machine and the order-side sync
+ * apply identically whether the trigger was a human, a poll or a webhook.
+ */
 export class TrackingService {
   private readonly shipmentRepository: ShipmentRepository;
-  private readonly auditRepository: LogisticsAuditRepository;
   private readonly webhookEventRepository: WebhookEventRepository;
+  private readonly fulfillment: FulfillmentService;
 
   constructor() {
     this.shipmentRepository = new ShipmentRepository();
-    this.auditRepository = new LogisticsAuditRepository();
     this.webhookEventRepository = new WebhookEventRepository();
+    this.fulfillment = new FulfillmentService();
   }
 
-  async syncShipmentTracking(shipmentId: string, actorId: string = "system"): Promise<Shipment> {
+  async syncShipmentTracking(
+    shipmentId: string,
+    actorId: string = "system",
+  ): Promise<TrackingSyncResult> {
     const shipment = await this.shipmentRepository.findById(shipmentId);
-    if (!shipment) {
-      throw new Error(`Shipment not found: ${shipmentId}`);
+    if (!shipment) throw new NotFoundError(`Shipment not found: ${shipmentId}`);
+
+    const courierName = getCourierName(shipment.provider);
+
+    if (!shipment.trackingCode) {
+      return {
+        shipment,
+        changed: false,
+        message: `No tracking number recorded yet for this shipment.`,
+      };
     }
 
     const adapter = CourierProviderRegistry.get(shipment.provider);
-    const trackingResult = await adapter.trackShipment(shipment.trackingCode);
+    const tracking = await adapter.trackShipment(shipment.trackingCode);
 
-    const oldStatus = shipment.status;
-    const newStatus = trackingResult.status;
-
-    const updatedHistory = [...shipment.history];
-    if (oldStatus !== newStatus || trackingResult.message) {
-      updatedHistory.push({
-        status: newStatus,
-        nativeStatus: trackingResult.nativeStatus,
-        timestamp: trackingResult.updatedAt || new Date(),
-        message: trackingResult.message || `Status updated via live sync to ${newStatus}`,
-        location: trackingResult.location,
-        actorId,
-      });
+    // Manual-mode providers cannot answer. Say so rather than writing a
+    // status the courier never reported.
+    if (!tracking) {
+      await this.shipmentRepository.update(shipmentId, { lastSyncedAt: new Date() });
+      return {
+        shipment,
+        changed: false,
+        message: `${courierName} has no live tracking integration. Update the status manually from the courier's panel.`,
+      };
     }
 
-    const updated = await this.shipmentRepository.update(shipmentId, {
-      status: newStatus,
-      nativeStatus: trackingResult.nativeStatus,
-      lastSyncedAt: new Date(),
-      history: updatedHistory,
-    } as any);
-
-    if (oldStatus !== newStatus) {
-      await this.auditRepository.create({
-        referenceNumber: shipment.shipmentNumber,
-        shipmentId,
-        orderId: shipment.orderId,
-        provider: shipment.provider,
-        action: "status_changed",
-        actorId,
-        oldStatus,
-        newStatus,
-        reason: trackingResult.message,
-      });
-
-      // Finance & Order Hooks
-      if (newStatus === "delivered") {
-        await EventBus.publish(
-          "courier.delivered",
-          { shipmentId, orderId: shipment.orderId, codAmount: shipment.codAmount },
-          { source: "tracking-service" },
-        );
-      } else if (newStatus === "returned") {
-        await EventBus.publish(
-          "courier.returned",
-          { shipmentId, orderId: shipment.orderId, returnCharge: shipment.returnCharge },
-          { source: "tracking-service" },
-        );
-      } else if (newStatus === "out_for_delivery") {
-        await EventBus.publish(
-          "courier.out_for_delivery",
-          { shipmentId, orderId: shipment.orderId },
-          { source: "tracking-service" },
-        );
-      }
+    if (tracking.status === shipment.status) {
+      const synced = await this.shipmentRepository.update(shipmentId, { lastSyncedAt: new Date() });
+      return { shipment: synced, changed: false, message: "Already up to date." };
     }
 
-    return updated;
+    const updated = await this.fulfillment.updateShipmentStatus(
+      shipmentId,
+      tracking.status,
+      { id: actorId, role: "system" },
+      {
+        message: tracking.message,
+        location: tracking.location,
+        nativeStatus: tracking.nativeStatus,
+      },
+    );
+
+    return { shipment: updated, changed: true, message: tracking.message };
   }
 
+  /**
+   * Records a courier callback and applies it. The adapter authenticates the
+   * payload first — an unsigned callback is logged and dropped.
+   */
   async processWebhookEvent(
     provider: string,
-    rawPayload: any,
+    rawPayload: unknown,
     actorId: string = "system",
   ): Promise<boolean> {
     const adapter = CourierProviderRegistry.get(provider);
@@ -96,21 +94,33 @@ export class TrackingService {
 
     await this.webhookEventRepository.create({
       provider,
-      event: parsed.status,
+      event: parsed.nativeStatus,
       payload: rawPayload,
       processed: false,
       retryCount: 0,
-    } as any);
+    } as never);
+
+    if (!parsed.trackingCode) {
+      logger.warn("TrackingService: webhook has no tracking code", { provider });
+      return false;
+    }
 
     const shipment = await this.shipmentRepository.findByTrackingCode(parsed.trackingCode);
     if (!shipment) {
-      logger.warn("TrackingService: webhook received for unknown tracking code", {
+      logger.warn("TrackingService: webhook for unknown tracking code", {
         trackingCode: parsed.trackingCode,
       });
       return false;
     }
 
-    await this.syncShipmentTracking(shipment.id, `webhook:${provider}`);
+    if (shipment.status === parsed.status) return true;
+
+    await this.fulfillment.updateShipmentStatus(
+      shipment.id,
+      parsed.status,
+      { id: `${actorId}:${provider}`, role: "system" },
+      { message: parsed.message, nativeStatus: parsed.nativeStatus },
+    );
     return true;
   }
 }

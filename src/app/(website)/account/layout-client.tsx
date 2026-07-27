@@ -45,7 +45,7 @@ export function AccountLayoutClient({ children }: { children: React.ReactNode })
           "md:pl-[var(--account-sidebar-w)]",
         )}
       >
-        <div className="mx-auto w-full max-w-(--content-max) px-4 sm:px-6 lg:px-8">{children}</div>
+        <div className="mx-auto w-full max-w-(--content-max) px-3 sm:px-6 lg:px-8">{children}</div>
       </main>
     </div>
   );

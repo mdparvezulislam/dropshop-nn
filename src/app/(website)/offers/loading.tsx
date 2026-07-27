@@ -1,7 +1,7 @@
 export default function OffersLoading(): React.ReactElement {
   return (
     <div className="min-h-screen bg-[hsl(0_0%_98%)] py-8" aria-busy="true" aria-label="লোড হচ্ছে">
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         {/* Hero skeleton */}
         <div className="rounded-3xl bg-slate-200 animate-pulse h-64 sm:h-72 mb-12" />
 

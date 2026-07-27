@@ -13,6 +13,7 @@ import {
   OrderStatusBadge,
   formatOrderDate,
 } from "@/components/website/orders/order-view";
+import { ShipmentCard } from "@/components/website/orders/shipment-card";
 
 export const metadata: Metadata = {
   title: "অর্ডারের বিস্তারিত",
@@ -90,6 +91,9 @@ export default async function OrderDetailPage({ params }: PageProps) {
         </div>
 
         <div className="space-y-5">
+          {/* Shipment — courier, tracking, ETA and shipment timeline */}
+          <ShipmentCard shipment={order.shipment} orderStatus={order.status} />
+
           {/* Delivery */}
           <section
             aria-labelledby="order-address-heading"
@@ -110,31 +114,6 @@ export default async function OrderDetailPage({ params }: PageProps) {
                 <div className="flex justify-between">
                   <dt>পেমেন্ট</dt>
                   <dd className="text-slate-900">{order.paymentMethodLabel}</dd>
-                </div>
-              )}
-              {order.courier?.name && (
-                <div className="flex justify-between">
-                  <dt>কুরিয়ার</dt>
-                  <dd className="text-slate-900">{order.courier.name}</dd>
-                </div>
-              )}
-              {order.courier?.trackingNumber && (
-                <div className="flex justify-between">
-                  <dt>ট্র্যাকিং নম্বর</dt>
-                  <dd className="text-slate-900 font-mono">
-                    {order.courier.trackingUrl ? (
-                      <a
-                        href={order.courier.trackingUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-amber-700 underline"
-                      >
-                        {order.courier.trackingNumber}
-                      </a>
-                    ) : (
-                      order.courier.trackingNumber
-                    )}
-                  </dd>
                 </div>
               )}
             </dl>

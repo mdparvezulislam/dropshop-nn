@@ -1,77 +1,70 @@
 import { ShipmentRepository } from "../repositories/shipment-repository";
-import { CourierService } from "./courier-service";
+import { FulfillmentService } from "./fulfillment-service";
 import { CourierProviderRegistry } from "../adapters/provider-registry";
 import { logger } from "@/lib/utils/logger";
 
 export class WebhookService {
   private readonly shipmentRepository: ShipmentRepository;
-  private readonly courierService: CourierService;
+  private readonly fulfillment: FulfillmentService;
 
   constructor() {
     this.shipmentRepository = new ShipmentRepository();
-    this.courierService = new CourierService();
+    this.fulfillment = new FulfillmentService();
   }
 
+  /**
+   * Handles a courier status callback.
+   *
+   * Manual-mode providers have no shared secret, so `verifyWebhookSignature`
+   * returns false and every payload is rejected. That is the correct posture:
+   * an unauthenticated endpoint that writes shipment statuses would let anyone
+   * who knows a tracking number mark an order delivered.
+   */
   async processProviderWebhook(
     providerName: string,
     signature: string,
     rawBody: string,
-    payload: any,
+    payload: unknown,
   ): Promise<{ success: boolean; error?: string }> {
-    logger.info("WebhookService: received external courier webhook callback log", {
-      providerName,
-      payload,
-    });
+    logger.info("WebhookService: courier webhook received", { providerName });
 
     try {
       const adapter = CourierProviderRegistry.get(providerName);
 
-      // 1. Authenticate Signature
-      const isValid = adapter.verifyWebhookSignature(signature, rawBody);
-      if (!isValid) {
-        logger.error("WebhookService: signature verification failed", { providerName });
-        return { success: false, error: "Invalid signature verification" };
+      if (!adapter.verifyWebhookSignature(signature, rawBody)) {
+        logger.warn("WebhookService: signature rejected", { providerName });
+        return { success: false, error: "Invalid webhook signature" };
       }
 
-      // 2. Parse Webhook Payload to unified properties
       const parsed = adapter.parseWebhookPayload(payload);
       if (!parsed.trackingCode) {
         return { success: false, error: "Missing tracking code in payload" };
       }
 
-      // 3. Retrieve Shipment
       const shipment = await this.shipmentRepository.findByTrackingCode(parsed.trackingCode);
       if (!shipment) {
-        logger.warn("WebhookService: shipment not found for tracking code", {
+        logger.warn("WebhookService: no shipment for tracking code", {
           trackingCode: parsed.trackingCode,
         });
         return { success: false, error: "Shipment not found" };
       }
 
-      // 4. Duplicate Check (State Idempotency Guard)
+      // Idempotency: couriers retry callbacks, often several times.
       if (shipment.status === parsed.status) {
-        logger.info(
-          "WebhookService: status already updated, skipping duplicate callback processing",
-          {
-            shipmentId: shipment.id,
-            status: parsed.status,
-          },
-        );
         return { success: true };
       }
 
-      // 5. Update Status
-      await this.courierService.transitionStatus(
+      await this.fulfillment.updateShipmentStatus(
         shipment.id,
         parsed.status,
-        parsed.message || `Status updated via ${providerName} webhook integration`,
-        "webhook-service",
+        { id: `webhook:${providerName}`, role: "system" },
+        { message: parsed.message, nativeStatus: parsed.nativeStatus },
       );
 
       return { success: true };
-    } catch (err: any) {
+    } catch (err) {
       logger.error("WebhookService: processing failure", err);
-      return { success: false, error: err.message };
+      return { success: false, error: "Webhook could not be processed" };
     }
   }
 }

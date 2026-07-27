@@ -33,23 +33,29 @@ export interface ShippingMethodConfig {
   enabled: boolean;
 }
 
+/**
+ * Delivery is priced by zone, the way every BD courier quotes it: one rate
+ * inside Dhaka city, another for the rest of the country. Checkout seeds the
+ * zone from the chosen district and lets the customer correct it.
+ */
 export const SHIPPING_METHODS: ShippingMethodConfig[] = [
   {
-    id: "standard",
-    label: "স্ট্যান্ডার্ড ডেলিভারি",
+    id: "inside_dhaka",
+    label: "ঢাকার ভিতরে",
+    cost: 60,
+    eta: "১-২ কার্যদিবস",
+    enabled: true,
+  },
+  {
+    id: "outside_dhaka",
+    label: "ঢাকার বাইরে",
     cost: 120,
     eta: "২-৩ কার্যদিবস",
     enabled: true,
   },
-  {
-    id: "express",
-    label: "এক্সপ্রেস ডেলিভারি",
-    cost: 200,
-    eta: "২৪ ঘণ্টা (ঢাকা)",
-    enabled: false,
-  },
-  { id: "pickup", label: "পিকআপ পয়েন্ট", cost: 0, eta: "নিজে সংগ্রহ", enabled: false },
 ];
+
+export const SHIPPING_METHOD_IDS = SHIPPING_METHODS.map((m) => m.id) as [string, ...string[]];
 
 /** Payment method ids — selection is stored; gateway integrations are a later phase. */
 export interface PaymentMethodConfig {
@@ -72,3 +78,12 @@ export const PAYMENT_METHODS: PaymentMethodConfig[] = [
   { id: "sslcommerz", label: "কার্ড পেমেন্ট (SSLCommerz)", hint: "শীঘ্রই আসছে", enabled: false },
   { id: "bank_transfer", label: "ব্যাংক ট্রান্সফার", hint: "শীঘ্রই আসছে", enabled: false },
 ];
+
+/**
+ * Product Q&A ships behind a flag: the domain/actions exist so the contract is
+ * stable, but the surface stays off until moderation staffing is in place.
+ */
+export const PRODUCT_QA_ENABLED = process.env.NEXT_PUBLIC_PRODUCT_QA_ENABLED === "true";
+
+/** Recently-viewed history cap (client-side, per browser). */
+export const RECENTLY_VIEWED_LIMIT = 12;

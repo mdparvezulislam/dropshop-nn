@@ -36,10 +36,10 @@ const TESTIMONIALS = [
 export function TestimonialsSection(): React.ReactElement {
   return (
     <section
-      className="py-12 lg:py-16 bg-white border-b border-slate-200"
+      className="py-8 sm:py-12 lg:py-16 bg-white border-b border-slate-200"
       aria-label="Client Testimonials"
     >
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between mb-8">
           <div>
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">

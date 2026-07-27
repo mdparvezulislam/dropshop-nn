@@ -1,6 +1,6 @@
 import { ShipmentRepository } from "../repositories/shipment-repository";
 import { WebhookEventRepository } from "../repositories/webhook-event-repository";
-import { LogisticsService } from "./logistics-service";
+import { FulfillmentService } from "./fulfillment-service";
 import { TrackingService } from "./tracking-service";
 import { logger } from "@/lib/utils/logger";
 
@@ -17,13 +17,13 @@ export interface RetryQueueItem {
 export class RetryQueueService {
   private readonly shipmentRepository: ShipmentRepository;
   private readonly webhookEventRepository: WebhookEventRepository;
-  private readonly logisticsService: LogisticsService;
+  private readonly fulfillment: FulfillmentService;
   private readonly trackingService: TrackingService;
 
   constructor() {
     this.shipmentRepository = new ShipmentRepository();
     this.webhookEventRepository = new WebhookEventRepository();
-    this.logisticsService = new LogisticsService();
+    this.fulfillment = new FulfillmentService();
     this.trackingService = new TrackingService();
   }
 
@@ -67,9 +67,15 @@ export class RetryQueueService {
   async retryTask(taskId: string, actorId: string = "system"): Promise<boolean> {
     if (taskId.startsWith("RETRY-SHP-")) {
       const shipmentId = taskId.replace("RETRY-SHP-", "");
-      await this.logisticsService.bookShipment(shipmentId, actorId);
-      logger.info("RetryQueueService: retried failed booking", { shipmentId });
-      return true;
+      const result = await this.fulfillment.bookShipment(shipmentId, {
+        id: actorId,
+        role: "system",
+      });
+      logger.info("RetryQueueService: retried failed booking", {
+        shipmentId,
+        booked: result.booked,
+      });
+      return result.booked;
     } else if (taskId.startsWith("RETRY-WH-")) {
       const webhookId = taskId.replace("RETRY-WH-", "");
       const webhook = await this.webhookEventRepository.findById(webhookId);

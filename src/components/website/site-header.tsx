@@ -10,6 +10,7 @@ import { MobileNav } from "./mobile-nav";
 import { SearchInput } from "./search-input";
 import { AccountMenu } from "./account-menu";
 import { CartButton } from "./cart-button";
+import { WishlistCounter } from "./wishlist/wishlist-counter";
 import { Button } from "@/components/ui/button";
 import type { PublicCategoryInfo } from "@/features/catalog/domain/public-catalog-types";
 
@@ -63,7 +64,7 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
           scrolled ? "border-b border-slate-200 shadow-xs" : "border-b border-slate-200/70",
         )}
       >
-        <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
           <div className="flex h-18 lg:h-20 items-center justify-between gap-4">
             {/* Mobile menu trigger */}
             <button
@@ -182,6 +183,8 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
               >
                 হোলসেলার হন
               </Link>
+
+              <WishlistCounter />
 
               <CartButton />
 

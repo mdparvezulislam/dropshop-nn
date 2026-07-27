@@ -47,5 +47,5 @@ const followUpSchema = new Schema(
 followUpSchema.index({ assignedTo: 1, status: 1 });
 followUpSchema.index({ status: 1, dueDate: 1 });
 
-export const FollowUpModel = mongoose.model("FollowUp", followUpSchema);
+export const FollowUpModel = mongoose.models.FollowUp || mongoose.model("FollowUp", followUpSchema);
 export default FollowUpModel;

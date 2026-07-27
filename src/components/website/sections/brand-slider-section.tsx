@@ -72,8 +72,11 @@ const itemVariants = {
 
 export function BrandSliderSection(): React.ReactElement {
   return (
-    <section className="w-full py-12 lg:py-16 bg-[hsl(0_0%_96%)]" aria-labelledby="brands-heading">
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+    <section
+      className="w-full py-8 sm:py-12 lg:py-16 bg-[hsl(0_0%_96%)]"
+      aria-labelledby="brands-heading"
+    >
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}

@@ -42,7 +42,7 @@ export default function CartPage() {
   if (!cart.hydrated) {
     return (
       <div className="min-h-screen bg-[hsl(0_0%_98%)] py-10" aria-busy="true">
-        <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
           <div className="h-8 w-48 bg-slate-200 rounded-lg animate-pulse mb-6" />
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             <div className="lg:col-span-2 space-y-4">
@@ -63,7 +63,7 @@ export default function CartPage() {
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-[hsl(0_0%_98%)] py-10">
-        <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
           <EmptyCart />
         </div>
       </div>
@@ -72,7 +72,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-[hsl(0_0%_98%)] text-foreground py-8">
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-6 pb-4 border-b border-border/80">
           <div>
             <h1 className="text-2xl sm:text-3xl font-black text-foreground">

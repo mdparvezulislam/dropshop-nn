@@ -16,7 +16,7 @@ export default async function BecomeWholesalePartnerPage() {
 
   return (
     <div className="min-h-screen bg-[hsl(0_0%_98%)] text-slate-900 py-10">
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <WholesalerApplicationPageClient initialData={statusData} />
       </div>
     </div>

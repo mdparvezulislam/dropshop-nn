@@ -1,260 +1,350 @@
-"use client";
-
 import * as React from "react";
-import { useSession } from "next-auth/react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
+import type { Metadata } from "next";
+import { Suspense } from "react";
 import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { listShipmentsAction } from "@/features/courier/actions/courier-actions";
-import { toast } from "sonner";
-import { Truck, MapPin, CheckCircle2, ClipboardList, Shield, RefreshCw } from "lucide-react";
+  AlertTriangle,
+  ClipboardCheck,
+  PackageCheck,
+  RotateCcw,
+  Truck,
+  Clock,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatCard } from "@/components/workspace/stat-card";
+import { ShipmentFilterBar } from "@/components/dashboard/fulfillment/shipment-filter-bar";
+import { ShipmentTable } from "@/components/dashboard/fulfillment/shipment-table";
+import {
+  getFulfillmentDashboardAction,
+  listShipmentsAction,
+} from "@/features/courier/actions/fulfillment-actions";
+import { DELAYED_SHIPMENT_HOURS } from "@/features/courier/services/fulfillment-service";
 
-export default function ResellerShipmentsPage() {
-  const { data: session } = useSession() as any;
+export const metadata: Metadata = {
+  title: "Fulfillment & Shipments",
+};
 
-  const [shipments, setShipments] = React.useState<any[]>([]);
-  const [loading, setLoading] = React.useState(false);
-  const [activeTab, setActiveTab] = React.useState<"list" | "rates">("list");
-  const [selectedShipment, setSelectedShipment] = React.useState<any | null>(null);
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const res = await listShipmentsAction();
-      if (res.success && res.data) {
-        setShipments(res.data);
-      } else {
-        toast.error("Failed to load shipments registry");
-      }
-    } catch (err) {
-      toast.error("API error loading courier data logs");
-    } finally {
-      setLoading(false);
-    }
-  };
+const first = (value: string | string[] | undefined): string | undefined =>
+  Array.isArray(value) ? value[0] : value;
 
-  React.useEffect(() => {
-    loadData();
-  }, []);
-
-  const formatCurrency = (amount: number) => {
-    return `৳${(amount / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
-  };
-
-  const getStatusVariant = (status: string) => {
-    switch (status) {
-      case "delivered":
-        return "success" as const;
-      case "pickup_requested":
-      case "in_transit":
-      case "out_for_delivery":
-        return "warning" as const;
-      case "returned":
-      case "failed":
-      case "cancelled":
-        return "destructive" as const;
-      default:
-        return "default" as const;
-    }
-  };
-
-  const BASE_RATES = [
-    { zone: "Inside Dhaka City", rate: 6000, cod: "0%" },
-    { zone: "Dhaka Sub-Cities", rate: 10000, cod: "1%" },
-    { zone: "Outside Dhaka Division", rate: 12000, cod: "1%" },
-    { zone: "Remote Bangladesh Area", rate: 15000, cod: "1%" },
-  ];
+/**
+ * The fulfillment console.
+ *
+ * Server-rendered and URL-driven: filters live in the querystring, the table
+ * is a plain server render, and only the filter bar and the bulk-action island
+ * ship JavaScript. The stats panel streams behind Suspense so an aggregation
+ * never blocks the shipment list.
+ */
+export default async function ShipmentsPage({ searchParams }: PageProps) {
+  const params = await searchParams;
 
   return (
-    <div className="min-h-screen bg-slate-950 p-4 sm:p-6 text-white space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 p-4 sm:p-6">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-            Shipment Deliveries & Invoicing
+          <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
+            Fulfillment &amp; Shipments
           </h1>
-          <p className="text-sm text-slate-400">
-            Track shipments statuses, transit timelines, and delivery fees
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+            Pack, assign a courier and track every parcel from one place.
           </p>
         </div>
-        <Button
-          onClick={loadData}
-          disabled={loading}
-          className="bg-slate-900 border-slate-800 text-xs"
+        <Link
+          href="/dashboard/orders?status=confirmed"
+          className="h-10 px-4 inline-flex items-center gap-1.5 rounded-lg border border-border bg-card text-xs font-bold text-foreground hover:border-primary/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
         >
-          <RefreshCw className="mr-2 h-3.5 w-3.5" /> Refresh tracking
-        </Button>
+          <ClipboardCheck className="h-3.5 w-3.5" aria-hidden />
+          Orders to pack
+        </Link>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <div className="md:col-span-2 space-y-6">
-          <Card className="border-slate-800 bg-slate-900/30 backdrop-blur-md">
-            <CardContent className="p-2 flex gap-2">
-              <button
-                onClick={() => setActiveTab("list")}
-                className={`flex items-center gap-2 px-4 h-9 rounded-md text-xs font-medium transition-colors ${
-                  activeTab === "list"
-                    ? "bg-indigo-600 text-white"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                All Shipments ({shipments.length})
-              </button>
-              <button
-                onClick={() => setActiveTab("rates")}
-                className={`flex items-center gap-2 px-4 h-9 rounded-md text-xs font-medium transition-colors ${
-                  activeTab === "rates"
-                    ? "bg-indigo-600 text-white"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                Logistics Charge Tables
-              </button>
-            </CardContent>
-          </Card>
+      <Suspense fallback={<QueuesSkeleton />}>
+        <FulfillmentQueues />
+      </Suspense>
 
-          <Card className="border-slate-800 bg-slate-900/30 overflow-hidden">
-            {activeTab === "list" && (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-slate-800 hover:bg-transparent">
-                      <TableHead className="text-slate-400">Tracking Code / Ref</TableHead>
-                      <TableHead className="text-slate-400">Order Number</TableHead>
-                      <TableHead className="text-slate-400">Carrier</TableHead>
-                      <TableHead className="text-slate-400">Delivery Fee</TableHead>
-                      <TableHead className="text-slate-400">Status</TableHead>
-                      <TableHead className="text-slate-400 text-right">Details</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {shipments.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={6} className="text-center py-6 text-slate-500 text-xs">
-                          No shipments created yet for confirmed orders
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      shipments.map((s) => (
-                        <TableRow key={s.id} className="border-slate-800">
-                          <TableCell className="font-mono text-xs text-indigo-400">
-                            {s.trackingCode}
-                            <span className="block text-[10px] text-slate-500 font-mono mt-0.5">
-                              Ref: {s.courierReference}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-xs text-slate-300">{s.orderNumber}</TableCell>
-                          <TableCell className="capitalize text-slate-200">{s.provider}</TableCell>
-                          <TableCell className="font-semibold text-white">
-                            {formatCurrency(s.deliveryCharge)}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant={getStatusVariant(s.status)}>{s.status}</Badge>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Button
-                              onClick={() => setSelectedShipment(s)}
-                              size="sm"
-                              className="bg-indigo-600 hover:bg-indigo-500 text-xs h-7"
-                            >
-                              Timeline
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
+      <Card className="border-border bg-card">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-bold">Shipments</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <ShipmentFilterBar />
+          <Suspense fallback={<TableSkeleton />}>
+            <ShipmentResults params={params} />
+          </Suspense>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
 
-            {activeTab === "rates" && (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-slate-800 hover:bg-transparent">
-                      <TableHead className="text-slate-400">Delivery Zone</TableHead>
-                      <TableHead className="text-slate-400">Base Weight Cap</TableHead>
-                      <TableHead className="text-slate-400">Base Rate</TableHead>
-                      <TableHead className="text-slate-400">COD Collected Charge</TableHead>
-                      <TableHead className="text-slate-400">Excess Weight Rate</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {BASE_RATES.map((r, idx) => (
-                      <TableRow key={idx} className="border-slate-800">
-                        <TableCell className="font-semibold text-slate-200">{r.zone}</TableCell>
-                        <TableCell className="text-xs text-slate-400">1000g (1kg)</TableCell>
-                        <TableCell className="font-mono text-emerald-400">
-                          {formatCurrency(r.rate)}
-                        </TableCell>
-                        <TableCell className="text-xs text-slate-300 font-mono">{r.cod}</TableCell>
-                        <TableCell className="text-xs text-slate-400">
-                          ৳20.00 per extra 500g
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </Card>
-        </div>
+// ── Queues ───────────────────────────────────────────────────────────────
 
-        <div>
-          <Card className="border-slate-800 bg-slate-900/50 min-h-[350px]">
-            <CardHeader>
-              <CardTitle className="text-sm font-semibold flex items-center gap-1.5">
-                <ClipboardList className="h-4 w-4" /> Live Tracking Timeline
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {!selectedShipment ? (
-                <div className="h-48 flex flex-col items-center justify-center text-center text-slate-500">
-                  <Truck className="h-8 w-8 mb-2 opacity-50" />
-                  <span className="text-xs">Select a shipment to track transit history logs</span>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="border-b border-slate-800 pb-3">
-                    <span className="text-xs text-slate-400 uppercase block font-mono">
-                      Consignment
-                    </span>
-                    <span className="text-sm font-bold text-indigo-400 font-mono">
-                      {selectedShipment.trackingCode}
-                    </span>
-                    <Badge variant={getStatusVariant(selectedShipment.status)} className="mt-1">
-                      {selectedShipment.status}
-                    </Badge>
-                  </div>
+async function FulfillmentQueues() {
+  const result = await getFulfillmentDashboardAction();
 
-                  <div className="relative border-l border-slate-800 ml-2.5 pl-4 space-y-4 pt-1">
-                    {selectedShipment.history.map((h: any, idx: number) => (
-                      <div key={idx} className="relative">
-                        <div className="absolute -left-[21.5px] top-1 h-3 w-3 rounded-full border border-slate-950 bg-indigo-500 shadow-sm shadow-indigo-500/50" />
-                        <span className="text-[10px] text-slate-500 font-mono block">
-                          {new Date(h.timestamp).toLocaleString()}
-                        </span>
-                        <span className="text-xs font-semibold text-slate-200 block capitalize">
-                          {h.status.replace("_", " ")}
-                        </span>
-                        <p className="text-xs text-slate-400 mt-0.5">{h.message}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+  if (!result.success) {
+    return (
+      <p role="alert" className="text-xs font-bold text-destructive">
+        Fulfillment statistics could not be loaded. {result.error}
+      </p>
+    );
+  }
+
+  const { queues, statistics, delayed } = result.data;
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+        <StatCard
+          label="Awaiting confirmation"
+          value={queues.awaitingConfirmation}
+          icon={Clock}
+          accent="warning"
+          hint="Pending orders"
+        />
+        <StatCard
+          label="Ready to pack"
+          value={queues.readyToPack}
+          icon={PackageCheck}
+          accent="info"
+          hint="Confirmed / picking"
+        />
+        <StatCard
+          label="Ready to ship"
+          value={queues.readyToShip}
+          icon={ClipboardCheck}
+          accent="info"
+          hint="Packed & dispatch-ready"
+        />
+        <StatCard
+          label="In transit"
+          value={queues.inTransit}
+          icon={Truck}
+          accent="primary"
+          hint="With the courier"
+        />
+        <StatCard
+          label="Delayed"
+          value={queues.delayed}
+          icon={AlertTriangle}
+          accent={queues.delayed > 0 ? "danger" : "default"}
+          hint={`No movement in ${DELAYED_SHIPMENT_HOURS}h`}
+        />
+        <StatCard
+          label="Returned"
+          value={queues.returned}
+          icon={RotateCcw}
+          accent={queues.returned > 0 ? "warning" : "default"}
+          hint="Back from courier"
+        />
       </div>
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Card className="border-border bg-card lg:col-span-2">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-bold">Courier performance</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {statistics.byProvider.length === 0 ? (
+              <p className="text-xs text-muted-foreground py-4">
+                No shipments recorded yet. Courier performance appears once parcels start moving.
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <caption className="sr-only">Shipments by courier</caption>
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th scope="col" className="py-2 font-bold uppercase tracking-wider text-muted-foreground text-[11px]">
+                        Courier
+                      </th>
+                      <th scope="col" className="py-2 font-bold uppercase tracking-wider text-muted-foreground text-[11px]">
+                        Shipments
+                      </th>
+                      <th scope="col" className="py-2 font-bold uppercase tracking-wider text-muted-foreground text-[11px]">
+                        Delivered
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {statistics.byProvider.map((row) => (
+                      <tr key={row.provider}>
+                        <td className="py-2 font-bold text-foreground">{row.providerName}</td>
+                        <td className="py-2 tabular-nums text-muted-foreground">{row.count}</td>
+                        <td className="py-2 tabular-nums text-muted-foreground">{row.delivered}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <p className="text-[11px] font-semibold text-muted-foreground mt-3">
+                  {statistics.deliverySuccessRate === null
+                    ? "Delivery success rate appears once shipments reach a final state."
+                    : `Delivery success rate: ${statistics.deliverySuccessRate}% of ${statistics.delivered + statistics.returned} resolved shipments.`}
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="border-border bg-card">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-bold flex items-center gap-1.5">
+              <AlertTriangle className="h-3.5 w-3.5 text-warning" aria-hidden />
+              Needs attention
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {delayed.length === 0 ? (
+              <p className="text-xs text-muted-foreground py-2">
+                Nothing is stalled. Every in-flight parcel moved within the last{" "}
+                {DELAYED_SHIPMENT_HOURS} hours.
+              </p>
+            ) : (
+              <ul className="space-y-2.5">
+                {delayed.map((item) => (
+                  <li key={item.id} className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <Link
+                        href={`/dashboard/shipments/${item.id}`}
+                        className="text-xs font-bold text-foreground hover:text-primary focus-visible:outline-2 focus-visible:outline-primary rounded truncate block"
+                      >
+                        {item.orderNumber}
+                      </Link>
+                      <span className="text-[10px] font-semibold text-muted-foreground">
+                        {item.providerName} • {item.statusLabel}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-bold text-destructive whitespace-nowrap">
+                      {item.stalledHours}h
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+// ── Results ──────────────────────────────────────────────────────────────
+
+async function ShipmentResults({
+  params,
+}: {
+  params: Record<string, string | string[] | undefined>;
+}) {
+  const page = Number(first(params.page) ?? "1");
+  const result = await listShipmentsAction({
+    search: first(params.search),
+    status: first(params.status),
+    provider: first(params.provider),
+    startDate: first(params.from),
+    endDate: first(params.to),
+    page: Number.isFinite(page) && page > 0 ? page : 1,
+    limit: 25,
+  });
+
+  if (!result.success) {
+    return (
+      <p role="alert" className="text-xs font-bold text-destructive py-6">
+        Shipments could not be loaded. {result.error}
+      </p>
+    );
+  }
+
+  const { items, total, totalPages } = result.data;
+  const currentPage = result.data.page;
+
+  return (
+    <div className="space-y-4">
+      <ShipmentTable shipments={items} />
+
+      {totalPages > 1 && (
+        <nav
+          className="flex items-center justify-between gap-3 pt-1"
+          aria-label="Shipment pagination"
+        >
+          <p className="text-[11px] font-semibold text-muted-foreground">
+            Page {currentPage} of {totalPages} — {total} shipments
+          </p>
+          <div className="flex gap-1.5">
+            <PageLink params={params} page={currentPage - 1} disabled={currentPage <= 1}>
+              Previous
+            </PageLink>
+            <PageLink params={params} page={currentPage + 1} disabled={currentPage >= totalPages}>
+              Next
+            </PageLink>
+          </div>
+        </nav>
+      )}
+    </div>
+  );
+}
+
+function PageLink({
+  params,
+  page,
+  disabled,
+  children,
+}: {
+  params: Record<string, string | string[] | undefined>;
+  page: number;
+  disabled: boolean;
+  children: React.ReactNode;
+}) {
+  if (disabled) {
+    return (
+      <span
+        aria-disabled="true"
+        className="h-9 px-3 inline-flex items-center rounded-lg border border-border text-xs font-bold text-muted-foreground opacity-50"
+      >
+        {children}
+      </span>
+    );
+  }
+
+  const query = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    const v = first(value);
+    if (v && key !== "page") query.set(key, v);
+  }
+  query.set("page", String(page));
+
+  return (
+    <Link
+      href={`/dashboard/shipments?${query.toString()}`}
+      className="h-9 px-3 inline-flex items-center rounded-lg border border-border bg-card text-xs font-bold text-foreground hover:border-primary/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+    >
+      {children}
+    </Link>
+  );
+}
+
+// ── Skeletons ────────────────────────────────────────────────────────────
+
+function QueuesSkeleton() {
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <StatCard key={i} label="" value="" loading />
+      ))}
+    </div>
+  );
+}
+
+function TableSkeleton() {
+  return (
+    <div className="space-y-2 py-2">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <Skeleton key={i} className="h-12 w-full rounded-lg" />
+      ))}
     </div>
   );
 }

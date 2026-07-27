@@ -61,7 +61,7 @@ export default async function CategoriesPage(): Promise<ReactElement> {
 
   return (
     <div className="min-h-screen bg-[hsl(0_0%_98%)] py-8 text-slate-900">
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <div className="mx-auto mb-10 max-w-2xl space-y-2 text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-xs font-black text-amber-900">
             <FolderTree className="h-3.5 w-3.5 text-amber-600" aria-hidden /> প্রোডাক্ট ডিরেক্টরি

@@ -28,9 +28,7 @@ type ActorIdentity = { userId: string; role: string; memberships: string[] };
  */
 async function requireActor(): Promise<ActorIdentity | null> {
   const session = await auth();
-  const user = session?.user as
-    | { id?: string; role?: string; memberships?: string[] }
-    | undefined;
+  const user = session?.user as { id?: string; role?: string; memberships?: string[] } | undefined;
   if (!user?.id) return null;
   return {
     userId: user.id,

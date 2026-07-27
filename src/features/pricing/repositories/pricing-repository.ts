@@ -98,6 +98,39 @@ export class PricingRepository extends BaseRepository<ProductPricingDocumentType
     }
   }
 
+  /**
+   * The product's base price row — what a shopper sees when no variant is
+   * selected.
+   *
+   * A row with no `variantSku` is the true product-level price and wins. But
+   * `ProductService.create` stamps the product's own SKU onto that row, so most
+   * simple products have exactly one row carrying a SKU and no variant-less row
+   * at all. Falling back to the lowest-sorting row picks that one deterministically
+   * — and matches how `ProductRepository.findPublicCards` chooses the price it
+   * shows on listing pages, so the card, the PDP and checkout can never disagree.
+   */
+  async findBaseByProduct(
+    productId: string,
+    options?: DatabaseQueryOptions,
+  ): Promise<ProductPricing | null> {
+    try {
+      const exact = await this.findByProductAndVariant(productId, undefined, options);
+      if (exact) return exact;
+
+      const rows = await this.find({ productId }, options);
+      if (rows.length === 0) return null;
+
+      const active = rows.filter((row) => row.status === "active");
+      const candidates = active.length > 0 ? active : rows;
+      return [...candidates].sort((a, b) =>
+        (a.variantSku ?? "").localeCompare(b.variantSku ?? ""),
+      )[0];
+    } catch (error) {
+      logger.error("PricingRepository findBaseByProduct failed", error, { productId });
+      throw new DatabaseError("Database search error", error);
+    }
+  }
+
   async findActiveByProduct(
     productId: string,
     options?: DatabaseQueryOptions,

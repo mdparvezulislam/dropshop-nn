@@ -37,4 +37,5 @@ timelineEntrySchema.index({ entityType: 1, entityId: 1, createdAt: -1 });
 timelineEntrySchema.index({ action: 1, createdAt: -1 });
 timelineEntrySchema.index({ correlationId: 1 });
 
-export const TimelineEntryModel = mongoose.model("TimelineEntry", timelineEntrySchema);
+export const TimelineEntryModel =
+  mongoose.models.TimelineEntry || mongoose.model("TimelineEntry", timelineEntrySchema);

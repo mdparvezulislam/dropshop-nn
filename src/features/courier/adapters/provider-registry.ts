@@ -1,40 +1,45 @@
 import type { CourierProvider } from "./provider-adapter";
-import { SteadfastAdapter } from "./steadfast-adapter";
-import { PathaoAdapter } from "./pathao-adapter";
-import { RedxAdapter } from "./redx-adapter";
-import { ECourierAdapter } from "./ecourier-adapter";
-import { PaperflyAdapter } from "./paperfly-adapter";
-import { SundarbanAdapter } from "./sundarban-adapter";
-import { CustomCourierAdapter } from "./custom-courier-adapter";
+import { createManualCourierAdapter } from "./manual-adapter";
+import { COURIER_PROVIDERS, getCourierProvider } from "../domain/courier-catalog";
+
+/**
+ * Provider lookup. Every entry in `COURIER_PROVIDERS` gets an adapter, so a new
+ * courier is one catalog row away. When a provider gains a real API, register
+ * its adapter in `API_ADAPTERS` below and nothing else in the codebase changes.
+ */
+const API_ADAPTERS = new Map<string, CourierProvider>();
+
+const ADAPTERS: Map<string, CourierProvider> = new Map(
+  COURIER_PROVIDERS.map((info) => [info.id, createManualCourierAdapter(info)]),
+);
 
 export class CourierProviderRegistry {
-  private static readonly providers: Map<string, CourierProvider> = new Map<
-    string,
-    CourierProvider
-  >([
-    ["steadfast", new SteadfastAdapter()],
-    ["pathao", new PathaoAdapter()],
-    ["redx", new RedxAdapter()],
-    ["ecourier", new ECourierAdapter()],
-    ["paperfly", new PaperflyAdapter()],
-    ["sundarban", new SundarbanAdapter()],
-    ["custom", new CustomCourierAdapter()],
-  ]);
-
   static get(name: string): CourierProvider {
-    const provider = this.providers.get(name.toLowerCase());
+    const key = name.toLowerCase();
+    const provider = API_ADAPTERS.get(key) ?? ADAPTERS.get(key);
     if (!provider) {
-      throw new Error(`Courier provider adapter not supported: ${name}`);
+      throw new Error(`Courier provider not supported: ${name}`);
     }
     return provider;
   }
 
   static list(): string[] {
-    return Array.from(this.providers.keys());
+    return Array.from(ADAPTERS.keys());
   }
 
   static isSupported(name: string): boolean {
-    return this.providers.has(name.toLowerCase());
+    return ADAPTERS.has(name.toLowerCase());
+  }
+
+  /** True only when a provider has a live API adapter — false for all today. */
+  static isApiEnabled(name: string): boolean {
+    const key = name.toLowerCase();
+    return API_ADAPTERS.has(key) && (API_ADAPTERS.get(key)?.isConfigured() ?? false);
+  }
+
+  static describe(name: string) {
+    return getCourierProvider(name);
   }
 }
+
 export default CourierProviderRegistry;

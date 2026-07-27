@@ -45,4 +45,4 @@ cartSchema.index({ userId: 1, status: 1 });
 cartSchema.index({ resellerId: 1, status: 1 });
 cartSchema.index({ wholesaleId: 1, status: 1 });
 
-export const CartModel = mongoose.model("Cart", cartSchema);
+export const CartModel = mongoose.models.Cart || mongoose.model("Cart", cartSchema);

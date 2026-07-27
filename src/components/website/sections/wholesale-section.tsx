@@ -42,7 +42,7 @@ export function WholesaleSection(): React.ReactElement {
       className="py-16 lg:py-24 bg-white border-b border-border/50"
       aria-label="Wholesale Solutions"
     >
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Column - Content */}
           <motion.div

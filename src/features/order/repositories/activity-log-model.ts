@@ -25,5 +25,6 @@ const activityLogSchema = new Schema(
 activityLogSchema.index({ entityType: 1, entityId: 1, createdAt: -1 });
 activityLogSchema.index({ createdAt: -1 });
 
-export const ActivityLogModel = mongoose.model("ActivityLog", activityLogSchema);
+export const ActivityLogModel =
+  mongoose.models.ActivityLog || mongoose.model("ActivityLog", activityLogSchema);
 export default ActivityLogModel;

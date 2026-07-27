@@ -147,7 +147,7 @@ export default async function CategoryPage({
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(breadcrumbJsonLd)} />
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(itemListJsonLd)} />
 
-      <div className="mx-auto max-w-(--content-max) space-y-6 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) space-y-6 px-3 sm:px-6 lg:px-8">
         <ProductListingHeader
           title={category.name}
           description={category.description}

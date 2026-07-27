@@ -131,7 +131,7 @@ export default async function BrandDetailPage({
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(breadcrumbJsonLd)} />
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdHtml(itemListJsonLd)} />
 
-      <div className="mx-auto max-w-(--content-max) space-y-6 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) space-y-6 px-3 sm:px-6 lg:px-8">
         <Breadcrumb items={[{ label: "ব্র্যান্ড", href: "/brands" }, { label: brand.name }]} />
 
         <div className="flex flex-col gap-6 rounded-3xl border border-slate-300 bg-white p-6 shadow-xs sm:p-8 md:flex-row md:items-center md:justify-between">

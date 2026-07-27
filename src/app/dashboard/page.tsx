@@ -29,6 +29,7 @@ import { StatCard } from "@/components/workspace/stat-card";
 import { SectionHeader } from "@/components/workspace/section-header";
 import { StatusChip } from "@/components/workspace/status-chip";
 import { QuickActionsWidget } from "@/components/workspace/widget-grid";
+import { FulfillmentOpsSection } from "@/components/dashboard/fulfillment/fulfillment-ops-section";
 import { cn } from "@/lib/utils/cn";
 
 interface DashboardData {
@@ -376,6 +377,9 @@ export default function WorkspaceHomePage(): React.ReactElement {
           loading={loading}
         />
       </div>
+
+      {/* Fulfillment Operations */}
+      <FulfillmentOpsSection />
 
       {/* Chart Section */}
       <Card className="border-border bg-card shadow-2xs">

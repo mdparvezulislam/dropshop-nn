@@ -7,11 +7,16 @@ import { ProductHero, type ProductHeroData } from "@/components/website/product-
 import { ProductTabsAndAccordions } from "@/components/website/product-tabs-and-accordions";
 import { RelatedSection, RelatedSectionSkeleton } from "@/components/website/related-section";
 import { RecentlyViewed } from "@/components/website/recently-viewed";
+import {
+  ProductReviewsSection,
+  ProductReviewsSkeleton,
+} from "@/components/website/reviews/product-reviews-section";
 import { generateBreadcrumbJsonLd, generateProductJsonLd } from "@/lib/seo/json-ld-generator";
 import { PRODUCT_IMAGE_PLACEHOLDER } from "@/config/site";
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
@@ -53,7 +58,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   };
 }
 
-export default async function PublicProductDetailsPage({ params }: ProductPageProps) {
+export default async function PublicProductDetailsPage({ params, searchParams }: ProductPageProps) {
   const { slug } = await params;
   const result = await getPublicProductBySlugAction(slug);
 
@@ -74,6 +79,10 @@ export default async function PublicProductDetailsPage({ params }: ProductPagePr
     stockStatus,
     stockTotal,
   } = result.data;
+
+  // Real rating only: `count === 0` means the hero renders no stars at all.
+  // Comes with the detail payload, so no extra query is issued here.
+  const rating = result.data.rating.count > 0 ? result.data.rating : undefined;
 
   const media = [...(product.media ?? [])]
     .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
@@ -101,6 +110,7 @@ export default async function PublicProductDetailsPage({ params }: ProductPagePr
     media,
     variants: (product.variants ?? []).filter((v) => v.isActive !== false),
     warranty: product.content?.warrantyInformation,
+    rating,
   };
 
   // Empty rows are hidden — a spec with no value is not information.
@@ -134,6 +144,8 @@ export default async function PublicProductDetailsPage({ params }: ProductPagePr
     currency: pricing.currency,
     brandName,
     inStock: stockStatus !== "out_of_stock",
+    // Emitted only when real published reviews exist (see generator).
+    rating,
   });
   const breadcrumbJsonLd = generateBreadcrumbJsonLd(breadcrumbItems);
 
@@ -142,7 +154,9 @@ export default async function PublicProductDetailsPage({ params }: ProductPagePr
   return (
     <div
       data-layout="public"
-      className="min-h-screen bg-[hsl(0_0%_98%)] text-slate-900 py-6 pb-28 md:pb-12"
+      // Mobile: minimal chrome and room for the sticky purchase bar (which is
+      // ~124px tall plus the iOS home-indicator inset).
+      className="min-h-screen bg-[hsl(0_0%_98%)] text-slate-900 py-3 sm:py-6 pb-[calc(9rem+env(safe-area-inset-bottom))] md:pb-12"
     >
       <script
         type="application/ld+json"
@@ -157,7 +171,7 @@ export default async function PublicProductDetailsPage({ params }: ProductPagePr
         }}
       />
 
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8 space-y-10">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8 space-y-6 sm:space-y-10">
         {/* Breadcrumbs */}
         <nav
           aria-label="Breadcrumb"
@@ -197,6 +211,15 @@ export default async function PublicProductDetailsPage({ params }: ProductPagePr
           returnPolicy={product.content?.returnPolicy}
           tags={product.tags ?? []}
         />
+
+        {/* Verified-purchase ratings & reviews — streamed */}
+        <Suspense fallback={<ProductReviewsSkeleton />}>
+          <ProductReviewsSection
+            productId={product.id}
+            productSlug={product.slug}
+            searchParams={searchParams}
+          />
+        </Suspense>
 
         {/* Related rails — streamed */}
         <Suspense fallback={<RelatedSectionSkeleton />}>

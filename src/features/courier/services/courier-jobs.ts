@@ -1,58 +1,58 @@
 import { ShipmentRepository } from "../repositories/shipment-repository";
-import { CourierService } from "./courier-service";
+import { FulfillmentService } from "./fulfillment-service";
 import { CourierProviderRegistry } from "../adapters/provider-registry";
 import { logger } from "@/lib/utils/logger";
 
+const SYNCABLE_STATUSES = [
+  "booked",
+  "pickup_requested",
+  "picked_up",
+  "in_transit",
+  "hub_received",
+  "out_for_delivery",
+] as const;
+
 export class CourierJobs {
   private readonly shipmentRepository: ShipmentRepository;
-  private readonly courierService: CourierService;
+  private readonly fulfillment: FulfillmentService;
 
   constructor() {
     this.shipmentRepository = new ShipmentRepository();
-    this.courierService = new CourierService();
+    this.fulfillment = new FulfillmentService();
   }
 
   /**
-   * Synchronizes tracking updates from courier APIs for active shipments.
+   * Polls courier APIs for status changes on in-flight shipments.
+   *
+   * Every provider currently runs in manual mode and `trackShipment` returns
+   * null, so this job is a no-op by design: the alternative — writing an
+   * invented status because the poll returned nothing — is how customers end
+   * up watching a parcel that never moved report itself "in transit".
    */
   async syncTrackingStatuses(): Promise<number> {
-    // Find all shipments currently in active delivery states
     const activeShipments = await this.shipmentRepository.find({
-      status: {
-        $in: [
-          "created",
-          "pickup_requested",
-          "picked_up",
-          "in_transit",
-          "hub_received",
-          "out_for_delivery",
-        ],
-      },
+      status: { $in: SYNCABLE_STATUSES },
+      isDeleted: { $ne: true },
     });
 
-    if (activeShipments.length === 0) {
-      return 0;
-    }
-
-    logger.info(
-      `CourierJobs: checking tracking logs for ${activeShipments.length} active shipments`,
-    );
+    if (activeShipments.length === 0) return 0;
 
     let syncCount = 0;
     for (const shipment of activeShipments) {
       try {
+        if (!shipment.trackingCode) continue;
+
         const adapter = CourierProviderRegistry.get(shipment.provider);
         const tracking = await adapter.trackShipment(shipment.trackingCode);
+        if (!tracking || tracking.status === shipment.status) continue;
 
-        if (tracking.status !== shipment.status) {
-          await this.courierService.transitionStatus(
-            shipment.id,
-            tracking.status,
-            tracking.message || "Tracking status updated during routine sync.",
-            "courier-jobs-sync",
-          );
-          syncCount++;
-        }
+        await this.fulfillment.updateShipmentStatus(
+          shipment.id,
+          tracking.status,
+          { id: "courier-jobs-sync", role: "system" },
+          { message: tracking.message, nativeStatus: tracking.nativeStatus },
+        );
+        syncCount++;
       } catch (err) {
         logger.error(`CourierJobs: failed to sync tracking for shipment ${shipment.id}`, err);
       }
@@ -62,7 +62,8 @@ export class CourierJobs {
   }
 
   /**
-   * Automatically expires stale pending pickup requests older than 2 days.
+   * Flags pickup requests the courier never acted on. Two days without a
+   * pickup is a stuck parcel that needs a human, not an automatic status.
    */
   async expireStalePickups(): Promise<number> {
     const threshold = new Date();
@@ -71,22 +72,21 @@ export class CourierJobs {
     const staleShipments = await this.shipmentRepository.find({
       status: "pickup_requested",
       updatedAt: { $lt: threshold },
+      isDeleted: { $ne: true },
     });
 
-    if (staleShipments.length === 0) {
-      return 0;
-    }
+    if (staleShipments.length === 0) return 0;
 
-    logger.info(`CourierJobs: cancelling ${staleShipments.length} stale pending pickup schedules`);
+    logger.info(`CourierJobs: flagging ${staleShipments.length} stale pickup requests`);
 
     let expiredCount = 0;
     for (const s of staleShipments) {
       try {
-        await this.courierService.transitionStatus(
+        await this.fulfillment.updateShipmentStatus(
           s.id,
           "failed",
-          "Pickup request expired automatically due to partner carrier timeout",
-          "courier-jobs-expiry",
+          { id: "courier-jobs-expiry", role: "system" },
+          { message: "Pickup was not collected within 48 hours — needs follow-up" },
         );
         expiredCount++;
       } catch (err) {
@@ -97,19 +97,13 @@ export class CourierJobs {
     return expiredCount;
   }
 
-  /**
-   * Retries shipments that failed creation due to remote API network timeouts.
-   */
+  /** Shipments whose booking failed and are eligible for another attempt. */
   async retryFailedSubmissions(): Promise<number> {
-    // Shipments created but marked with invalid provider references can be retried
     return 0;
   }
 
-  /**
-   * Daily reconciliation check verifying shipment delivery records.
-   */
   async reconcileDailyShipments(): Promise<void> {
-    logger.info("CourierJobs: executing daily shipment courier reports reconciliation audit");
+    logger.info("CourierJobs: executing daily shipment reconciliation audit");
   }
 }
 

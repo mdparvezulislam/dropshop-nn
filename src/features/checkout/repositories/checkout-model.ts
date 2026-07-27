@@ -111,5 +111,7 @@ const orderDraftSchema = new Schema(
   { ...baseSchemaOptions, collection: "order_drafts" },
 );
 
-export const CheckoutSessionModel = mongoose.model("CheckoutSession", checkoutSessionSchema);
-export const OrderDraftModel = mongoose.model("OrderDraft", orderDraftSchema);
+export const CheckoutSessionModel =
+  mongoose.models.CheckoutSession || mongoose.model("CheckoutSession", checkoutSessionSchema);
+export const OrderDraftModel =
+  mongoose.models.OrderDraft || mongoose.model("OrderDraft", orderDraftSchema);

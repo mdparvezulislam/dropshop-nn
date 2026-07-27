@@ -40,5 +40,5 @@ const exchangeSchema = new Schema(
 exchangeSchema.index({ orderId: 1, status: 1 });
 exchangeSchema.index({ createdAt: -1 });
 
-export const ExchangeModel = mongoose.model("Exchange", exchangeSchema);
+export const ExchangeModel = mongoose.models.Exchange || mongoose.model("Exchange", exchangeSchema);
 export default ExchangeModel;

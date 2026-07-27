@@ -56,7 +56,7 @@ export function LatestBlogsSection({
 
   return (
     <section className="py-16 lg:py-24 bg-white">
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <div className="mb-8 flex items-end justify-between">
           <div>
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-[hsl(222_47%_11%)]">

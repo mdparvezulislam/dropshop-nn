@@ -15,6 +15,7 @@ import {
   cancelOrderAction,
 } from "@/features/order/actions/order-actions";
 import { getOrderNotesAction, createOrderNoteAction } from "@/features/order/actions/note-actions";
+import { OrderFulfillmentPanel } from "@/components/dashboard/fulfillment/order-fulfillment-panel";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -464,79 +465,19 @@ export default function OrderDetailPage(): React.ReactElement {
             </Card>
           )}
 
-          {/* Courier Tab */}
+          {/* Courier / Fulfillment Tab */}
           {activeTab === "courier" && (
-            <div className="space-y-5">
-              {order.status === "ready_for_dispatch" && (
-                <Card className="border-border/50 bg-card">
-                  <CardHeader>
-                    <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                      <Truck className="h-4 w-4" /> কুরিয়ার অ্যাসাইন
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <form onSubmit={handleCourierAssign} className="space-y-3">
-                      <Input
-                        placeholder="কুরিয়ারের নাম (যেমন: Pathao)"
-                        value={courierName}
-                        onChange={(e) => setCourierName(e.target.value)}
-                        required
-                        className="h-9 text-sm"
-                      />
-                      <Input
-                        placeholder="কুরিয়ার আইডি"
-                        value={courierId}
-                        onChange={(e) => setCourierId(e.target.value)}
-                        required
-                        className="h-9 text-sm"
-                      />
-                      <Input
-                        placeholder="ট্র্যাকিং নম্বর (ঐচ্ছিক)"
-                        value={trackingNumber}
-                        onChange={(e) => setTrackingNumber(e.target.value)}
-                        className="h-9 text-sm"
-                      />
-                      <Button type="submit" className="w-full">
-                        কুরিয়ার অ্যাসাইন করুন
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
-              )}
-              {order.shippingInfo && (
-                <Card className="border-border/50 bg-card">
-                  <CardHeader>
-                    <CardTitle className="text-sm font-semibold">লজিস্টিক্স তথ্য</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">কুরিয়ার</span>
-                      <span>{order.shippingInfo.courierName}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">কুরিয়ার আইডি</span>
-                      <span>{order.shippingInfo.courierId}</span>
-                    </div>
-                    {order.shippingInfo.trackingNumber && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">ট্র্যাকিং #</span>
-                        <span className="font-mono">{order.shippingInfo.trackingNumber}</span>
-                      </div>
-                    )}
-                    {order.shippingInfo.trackingUrl && (
-                      <a
-                        href={order.shippingInfo.trackingUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-primary hover:underline text-xs block mt-2"
-                      >
-                        ট্র্যাক করুন →
-                      </a>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
-            </div>
+            <OrderFulfillmentPanel
+              orderId={orderId}
+              orderStatus={order.status}
+              items={(order.pricing?.items ?? []).map((item: any) => ({
+                productId: item.productId,
+                productName: item.productName,
+                variantSku: item.variantSku,
+                quantity: item.quantity,
+              }))}
+              onChanged={loadOrder}
+            />
           )}
 
           {/* Invoice Tab */}

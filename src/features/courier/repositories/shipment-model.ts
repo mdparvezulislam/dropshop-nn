@@ -1,5 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import { baseFieldsDefinition, baseSchemaOptions } from "@/lib/database/base-schema";
+import { SHIPMENT_STATUSES } from "../domain/shipment-state-machine";
 
 const { status: baseStatus, ...otherBaseFields } = baseFieldsDefinition;
 
@@ -34,47 +35,53 @@ const shipmentSchema = new Schema(
     orderNumber: { type: String, required: true, index: true },
     consignmentId: { type: String, default: null, index: true },
     courierReference: { type: String, default: null },
-    trackingCode: { type: String, required: true, index: true },
+    trackingCode: { type: String, default: null, index: true },
     trackingUrl: { type: String, default: null },
     provider: { type: String, required: true, index: true },
     status: {
       type: String,
-      enum: [
-        "draft",
-        "pending_booking",
-        "booked",
-        "pickup_requested",
-        "picked_up",
-        "in_transit",
-        "hub_received",
-        "out_for_delivery",
-        "delivered",
-        "partial_delivered",
-        "cancelled",
-        "returned",
-        "failed",
-        "lost",
-        "damage_reported",
-      ],
+      enum: SHIPMENT_STATUSES,
       default: "draft",
       index: true,
     },
     nativeStatus: { type: String, default: null },
     deliveryZone: { type: String, default: "inside_city" },
     parcelType: { type: String, default: "parcel" },
-    parcelWeight: { type: Number, default: 500 },
+
+    // Package
+    parcelWeight: { type: Number, default: 500, min: 0 },
     dimensions: {
-      width: { type: Number, default: 10 },
-      height: { type: Number, default: 10 },
-      depth: { type: Number, default: 10 },
+      length: { type: Number, default: 10, min: 0 },
+      width: { type: Number, default: 10, min: 0 },
+      height: { type: Number, default: 10, min: 0 },
+      // Legacy field: written before WEBSITE-009 renamed it to `length`.
+      depth: { type: Number, default: null },
     },
+    volumetricWeight: { type: Number, default: 0, min: 0 },
+    chargeableWeight: { type: Number, default: 0, min: 0 },
+    packageCount: { type: Number, default: 1, min: 1 },
+
+    // Money (minor units)
     codAmount: { type: Number, required: true, min: 0 },
     declaredValue: { type: Number, default: 0, min: 0 },
     deliveryCharge: { type: Number, default: 0, min: 0 },
     codCharge: { type: Number, default: 0, min: 0 },
     returnCharge: { type: Number, default: 0, min: 0 },
+
     recipient: { type: recipientSchema, required: true },
     pickupAddressId: { type: String, default: null },
+
+    // Milestones
+    pickupDate: { type: Date, default: null },
+    dispatchDate: { type: Date, default: null },
+    estimatedDeliveryDate: { type: Date, default: null },
+    deliveryDate: { type: Date, default: null },
+    returnDate: { type: Date, default: null },
+
+    // Notes
+    deliveryNotes: { type: String, default: null },
+    internalNotes: { type: String, default: null },
+
     retryCount: { type: Number, default: 0 },
     lastFailureReason: { type: String, default: null },
     lastSyncedAt: { type: Date, default: null },
@@ -87,6 +94,8 @@ const shipmentSchema = new Schema(
 shipmentSchema.index({ createdAt: -1 });
 shipmentSchema.index({ status: 1, provider: 1 });
 shipmentSchema.index({ "recipient.phone": 1 });
+// Search by tracking code must not scan: it is the customer-facing lookup key.
+shipmentSchema.index({ trackingCode: 1, isDeleted: 1 });
 
 export const ShipmentModel = mongoose.models.Shipment || mongoose.model("Shipment", shipmentSchema);
 export default ShipmentModel;

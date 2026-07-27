@@ -20,7 +20,7 @@ export function FooterCTASection(): React.ReactElement {
       className="w-full py-16 lg:py-24 bg-gradient-to-r from-accent via-white to-accent border-t border-border/50"
       aria-label="Support & Registration CTA"
     >
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <motion.div
           variants={containerVariants}
           initial="hidden"

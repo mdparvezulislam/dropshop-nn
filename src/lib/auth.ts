@@ -31,9 +31,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           // requires an explicit opt-in flag.
           if (process.env.NODE_ENV !== "production" && process.env.ENABLE_DEMO_SEED === "true") {
             try {
-              const { ensureDemoAdminSeeded } = await import(
-                "@/lib/database/seeds/demo-admin-seed"
-              );
+              const { ensureDemoAdminSeeded } =
+                await import("@/lib/database/seeds/demo-admin-seed");
               await ensureDemoAdminSeeded();
             } catch (seedError) {
               logger.warn("Admin seed skipped", {

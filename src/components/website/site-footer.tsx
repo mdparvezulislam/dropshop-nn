@@ -96,11 +96,13 @@ export function SiteFooter({ categories = [] }: SiteFooterProps): React.ReactEle
   ];
 
   return (
-    <footer className="bg-[#111827] text-white pt-12 pb-8 border-t border-white/10 relative overflow-hidden">
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 pb-12 border-b border-white/10">
-          {/* Logo & Tagline Column */}
-          <div className="lg:col-span-2 space-y-4">
+    <footer className="bg-[#111827] text-white pt-8 sm:pt-12 pb-6 sm:pb-8 border-t border-white/10 relative overflow-hidden">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
+        {/* Link columns sit two-across on mobile. Stacked, four short lists ran
+            to nearly a full screen of scrolling for four links each. */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-7 sm:gap-8 pb-8 sm:pb-12 border-b border-white/10">
+          {/* Logo & Tagline Column — full width on mobile, above the columns */}
+          <div className="col-span-2 md:col-span-3 lg:col-span-2 space-y-3.5 sm:space-y-4">
             <Link href="/" className="flex items-center gap-2.5 group w-fit">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-slate-950 font-black text-xl shadow-md">
                 D
@@ -138,11 +140,11 @@ export function SiteFooter({ categories = [] }: SiteFooterProps): React.ReactEle
 
           {/* Links Columns */}
           {columns.map((column) => (
-            <nav key={column.title} className="space-y-3" aria-label={column.title}>
+            <nav key={column.title} className="space-y-2.5 sm:space-y-3" aria-label={column.title}>
               <h3 className="text-xs font-bold uppercase tracking-wider text-amber-400">
                 {column.title}
               </h3>
-              <ul className="space-y-2">
+              <ul className="space-y-1.5 sm:space-y-2">
                 {column.links.map((link) => (
                   <li key={link.href}>
                     <Link

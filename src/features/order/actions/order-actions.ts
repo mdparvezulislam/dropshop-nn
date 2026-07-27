@@ -225,7 +225,7 @@ export async function getOrderAction(formData: unknown): Promise<{
   error?: string;
 }> {
   const session = await auth();
-  checkPermission(session, "Order.Read");
+  checkPermission(session, "Order.View");
   try {
     const validated = getOrderSchema.parse(formData);
     const service = new OrderService();
@@ -242,7 +242,7 @@ export async function getOrderByNumberAction(orderNumber: string): Promise<{
   error?: string;
 }> {
   const session = await auth();
-  checkPermission(session, "Order.Read");
+  checkPermission(session, "Order.View");
   try {
     const service = new OrderService();
     const result = await service.getOrderByNumber(orderNumber);
@@ -258,7 +258,7 @@ export async function listOrdersAction(formData: unknown): Promise<{
   error?: string;
 }> {
   const session = await auth();
-  checkPermission(session, "Order.Read");
+  checkPermission(session, "Order.View");
   try {
     const validated = orderListQuerySchema.parse(formData);
     const service = new OrderService();
@@ -316,11 +316,16 @@ export async function getOrderDashboardStatsAction(): Promise<{
   data?: Record<string, number>;
   error?: string;
 }> {
+  // Order volumes, COD exposure and per-status counts are commercially
+  // sensitive — this read was previously open to anyone who could call it.
+  const session = await auth();
+  checkPermission(session, "Order.View");
   try {
     const service = new OrderService();
     const stats = await service.getDashboardStats();
     return { success: true, data: stats };
   } catch (error: any) {
+    logger.error("getOrderDashboardStatsAction failed", error);
     return { success: false, error: error.message };
   }
 }

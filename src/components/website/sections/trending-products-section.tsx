@@ -19,10 +19,10 @@ export function TrendingProductsSection({
 
   return (
     <section
-      className="py-12 lg:py-16 bg-white border-b border-slate-200"
+      className="py-8 sm:py-12 lg:py-16 bg-white border-b border-slate-200"
       aria-labelledby="trending-products-heading"
     >
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between mb-8">
           <div>
             <div className="flex items-center gap-2">

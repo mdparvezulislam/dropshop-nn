@@ -47,5 +47,5 @@ taskSchema.index({ assignedTo: 1, status: 1 });
 taskSchema.index({ status: 1, priority: 1 });
 taskSchema.index({ dueDate: 1 });
 
-export const TaskModel = mongoose.model("InternalTask", taskSchema);
+export const TaskModel = mongoose.models.InternalTask || mongoose.model("InternalTask", taskSchema);
 export default TaskModel;

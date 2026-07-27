@@ -17,9 +17,9 @@ import { Button } from "@/components/ui/button";
 import {
   createShipmentAction,
   bookShipmentAction,
-  cancelShipmentAction,
-  bulkBookShipmentsAction,
   listShipmentsAction,
+} from "@/features/courier/actions/fulfillment-actions";
+import {
   saveCourierConfigAction,
   listCourierConfigsAction,
   testCourierConnectionAction,
@@ -453,29 +453,22 @@ export default function AdminCourierHubPage() {
 
   const handleCreateShipment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newOrderId || !newRecipientName || !newRecipientPhone || !newCodAmount) {
-      toast.error("Please fill in all mandatory shipment fields");
+    if (!newOrderId) {
+      toast.error("Enter the order ID to create a shipment for");
       return;
     }
     setSubmittingAction(true);
     try {
-      const codCents = Math.floor(parseFloat(newCodAmount) * 100);
+      // Recipient, COD amount and order number come from the order itself —
+      // retyping them here is how a parcel ends up addressed to the wrong
+      // person while the order says otherwise.
       const res = await createShipmentAction({
         orderId: newOrderId,
-        orderNumber: newOrderNum || newOrderId,
         provider: newProvider,
-        codAmount: codCents,
-        recipient: {
-          name: newRecipientName,
-          phone: newRecipientPhone,
-          address: newRecipientAddress,
-          district: newRecipientDistrict,
-          area: newRecipientArea,
-        },
       });
 
       if (res.success) {
-        toast.success(`Shipment created in draft! Number: ${res.data.shipmentNumber}`);
+        toast.success(`Shipment created: ${res.data.shipmentNumber}`);
         setShowCreateModal(false);
         setNewOrderId("");
         setNewOrderNum("");

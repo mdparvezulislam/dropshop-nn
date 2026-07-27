@@ -11,7 +11,7 @@ export const metadata = {
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-[hsl(0_0%_98%)] text-slate-900 py-8">
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <div className="text-center max-w-xl mx-auto mb-10 space-y-2">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 border border-amber-300 text-amber-900 text-xs font-black">
             <MessageSquare className="w-3.5 h-3.5 text-amber-600" /> সাপোর্ট & ইনকোয়ারি

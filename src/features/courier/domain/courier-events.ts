@@ -7,6 +7,7 @@ export const COURIER_EVENTS = {
   SHIPMENT_DELIVERED: "courier.shipment_delivered",
   SHIPMENT_RETURNED: "courier.shipment_returned",
   SHIPMENT_CANCELLED: "courier.shipment_cancelled",
+  SHIPMENT_STATUS_CHANGED: "courier.shipment_status_changed",
   TRACKING_UPDATED: "courier.tracking_updated",
 } as const;
 

@@ -89,10 +89,16 @@ export function SmartPricingPanel({
 
   return (
     <div className="space-y-4">
-      {/* Retail price — every viewer */}
+      {/* Retail price — every viewer. For resellers this same number is the
+          recommended selling price, so it is labelled as such rather than
+          duplicated into a separate (and inevitably divergent) figure. */}
       <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 space-y-1">
         <div className="flex items-baseline justify-between gap-3 flex-wrap">
-          <span className="text-xs font-bold text-slate-600">খুচরা বিক্রয় মূল্য:</span>
+          <span className="text-xs font-bold text-slate-600">
+            {resellerPrice !== undefined
+              ? "প্রস্তাবিত বিক্রয় মূল্য (MRP):"
+              : "খুচরা বিক্রয় মূল্য:"}
+          </span>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums">
               {formatBdt(currentPrice)}
@@ -111,6 +117,11 @@ export function SmartPricingPanel({
         </div>
         {campaignPrice !== undefined && (
           <p className="text-[11px] font-bold text-red-600">ক্যাম্পেইন মূল্য চলছে</p>
+        )}
+        {resellerPrice !== undefined && (
+          <p className="text-[11px] font-bold text-slate-600">
+            এই দামেই কাস্টমাররা প্রোডাক্টটি দেখছেন — আপনি চাইলে নিজের দাম নির্ধারণ করতে পারেন।
+          </p>
         )}
       </div>
 
@@ -161,33 +172,24 @@ export function SmartPricingPanel({
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-2 text-center">
-            <div className="p-2.5 rounded-xl bg-white border border-emerald-200">
-              <p className="text-[10px] font-bold text-slate-600">প্রতি ইউনিট প্রফিট</p>
-              <p
-                className={cn(
-                  "text-sm font-black tabular-nums flex items-center justify-center gap-1",
-                  profit >= 0 ? "text-emerald-700" : "text-red-600",
-                )}
-              >
-                <TrendingUp className="h-3.5 w-3.5" aria-hidden />
-                {formatBdt(profit)}
-              </p>
-            </div>
-            <div className="p-2.5 rounded-xl bg-white border border-emerald-200">
-              <p className="text-[10px] font-bold text-slate-600">মার্জিন</p>
-              <p className="text-sm font-black text-emerald-700 tabular-nums">{marginPercent}%</p>
-            </div>
+          {/* One profit line, not a two-card grid. Margin % is derivable from
+              the two prices already on screen, so it earns no vertical space —
+              on mobile that grid pushed the buy actions below the fold. */}
+          <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-white border border-emerald-200">
+            <span className="text-[11px] font-bold text-slate-600">
+              {quantity > 1 ? `${quantity} টি বিক্রিতে প্রফিট` : "আপনার প্রফিট"}
+            </span>
+            <span
+              className={cn(
+                "flex items-center gap-1 text-sm font-black tabular-nums",
+                profit >= 0 ? "text-emerald-700" : "text-red-600",
+              )}
+            >
+              <TrendingUp className="h-3.5 w-3.5" aria-hidden />
+              {formatBdt(profit * quantity)}
+              <span className="text-[11px] font-bold text-slate-500">({marginPercent}%)</span>
+            </span>
           </div>
-
-          {quantity > 1 && (
-            <p className="text-[11px] font-bold text-slate-700">
-              {quantity} টি বিক্রিতে মোট প্রফিট:{" "}
-              <span className="font-black text-emerald-700 tabular-nums">
-                {formatBdt(profit * quantity)}
-              </span>
-            </p>
-          )}
         </div>
       )}
 

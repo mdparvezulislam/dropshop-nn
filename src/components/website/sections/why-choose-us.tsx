@@ -37,7 +37,7 @@ const benefits = [
 export function WhyChooseUs() {
   return (
     <section className="py-16 lg:py-24 bg-[hsl(0_0%_96%)]">
-      <div className="mx-auto max-w-(--content-max) px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[hsl(222_47%_11%)]">
             Why Choose DropshopNN
