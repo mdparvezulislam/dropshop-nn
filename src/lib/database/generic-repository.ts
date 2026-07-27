@@ -42,7 +42,7 @@ export abstract class BaseRepository<
     try {
       await this.ensureConnected();
       const query = this.model.findById(id).session(options?.session || null);
-      if (options?.lean) {
+      if (options?.lean !== false) {
         query.lean();
       }
       if (options?.showDeleted) {
@@ -61,7 +61,7 @@ export abstract class BaseRepository<
     try {
       await this.ensureConnected();
       const query = this.model.findOne(filter).session(options?.session || null);
-      if (options?.lean) {
+      if (options?.lean !== false) {
         query.lean();
       }
       if (options?.showDeleted) {
@@ -80,7 +80,7 @@ export abstract class BaseRepository<
     try {
       await this.ensureConnected();
       const query = this.model.find(filter).session(options?.session || null);
-      if (options?.lean) {
+      if (options?.lean !== false) {
         query.lean();
       }
       if (options?.showDeleted) {
@@ -106,7 +106,7 @@ export abstract class BaseRepository<
       const { skip, limit, sort: parsedSort } = parsePaginationAndSort(pagination, sort);
 
       const query = this.model.find(filter).session(options?.session || null);
-      if (options?.lean) {
+      if (options?.lean !== false) {
         query.lean();
       }
       if (options?.showDeleted) {
@@ -168,8 +168,8 @@ export abstract class BaseRepository<
       }
       return this.toDomainEntity(doc as TDocument);
     } catch (error) {
-      logger.error("Repository update operation failed", error, { id, data });
       if (error instanceof NotFoundError) throw error;
+      logger.error("Repository update operation failed", error, { id, data });
       const originalMessage = error instanceof Error ? error.message : "Unknown error";
       throw new DatabaseError(`Database update error: ${originalMessage}`, error);
     }

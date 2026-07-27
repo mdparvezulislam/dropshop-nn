@@ -19,11 +19,10 @@ import type {
   PublicProductCard,
 } from "../domain/public-catalog-types";
 import { logger } from "@/lib/utils/logger";
+import { cachedQuery } from "@/lib/cache";
+import { CACHE_TAGS, CACHE_TTL } from "@/config/cache-tags";
 
 // ── Validation ───────────────────────────────────────────────────────────
-// Every public entry point validates its input here. Slugs are constrained
-// to slug charset so nothing user-controlled ever reaches a Mongo operator.
-
 const slugSchema = z
   .string()
   .trim()
@@ -60,24 +59,113 @@ function fail(context: string, error: unknown): { success: false; error: string 
 
 const service = () => new PublicCatalogService();
 
-// ── Request-deduped fetchers (generateMetadata + page share one fetch) ───
+// ── Enterprise Next.js 16 Data Cache + React Request Memoization ─────────
 
-const cachedCategories = cache(async () => service().getPublicCategories());
-const cachedBrands = cache(async () => service().getPublicBrands());
-const cachedCollections = cache(async () => service().getCollections());
-const cachedProductDetail = cache(async (slug: string, viewerKey: string) => {
-  const [isAdmin, isReseller, isWholesaler] = viewerKey.split(":").map((v) => v === "1");
-  return service().getProductDetail(slug, { isAdmin, isReseller, isWholesaler });
-});
+const getCategoriesDataCache = cachedQuery(
+  async () => service().getPublicCategories(),
+  ["public-categories-all"],
+  { tags: [CACHE_TAGS.CATEGORIES], revalidate: CACHE_TTL.TAXONOMY }
+);
+const cachedCategories = cache(async () => getCategoriesDataCache());
+
+const getBrandsDataCache = cachedQuery(
+  async () => service().getPublicBrands(),
+  ["public-brands-all"],
+  { tags: [CACHE_TAGS.BRANDS], revalidate: CACHE_TTL.TAXONOMY }
+);
+const cachedBrands = cache(async () => getBrandsDataCache());
+
+const getCollectionsDataCache = cachedQuery(
+  async () => service().getCollections(),
+  ["public-collections-all"],
+  { tags: [CACHE_TAGS.COLLECTIONS], revalidate: CACHE_TTL.TAXONOMY }
+);
+const cachedCollections = cache(async () => getCollectionsDataCache());
+
+const getBadgeSectionDataCache = (badge: "featured" | "trending" | "new_arrival" | "flash_sale", limit: number) =>
+  cachedQuery(
+    async () => service().listBadgeSection(badge, limit),
+    [`public-badge-section`, badge, String(limit)],
+    {
+      tags: [
+        CACHE_TAGS.PRODUCTS,
+        badge === "featured"
+          ? CACHE_TAGS.FEATURED_PRODUCTS
+          : badge === "flash_sale"
+            ? CACHE_TAGS.FLASH_DEALS
+            : badge === "new_arrival"
+              ? CACHE_TAGS.NEW_ARRIVALS
+              : CACHE_TAGS.TRENDING_PRODUCTS,
+      ],
+      revalidate: CACHE_TTL.MERCHANDISING,
+    }
+  )();
+
+const getCategoryPageDataCache = (slug: string, paramsKey: string) =>
+  cachedQuery(
+    async () => service().getCategoryPage(slug, JSON.parse(paramsKey) as PublicCatalogParams),
+    [`public-category-page`, slug, paramsKey],
+    {
+      tags: [CACHE_TAGS.CATEGORIES, CACHE_TAGS.CATEGORY(slug), CACHE_TAGS.PRODUCTS],
+      revalidate: CACHE_TTL.CATALOG,
+    }
+  )();
 const cachedCategoryPage = cache(async (slug: string, paramsKey: string) =>
-  service().getCategoryPage(slug, JSON.parse(paramsKey) as PublicCatalogParams),
+  getCategoryPageDataCache(slug, paramsKey)
 );
+
+const getBrandPageDataCache = (slug: string, paramsKey: string) =>
+  cachedQuery(
+    async () => service().getBrandPage(slug, JSON.parse(paramsKey) as PublicCatalogParams),
+    [`public-brand-page`, slug, paramsKey],
+    {
+      tags: [CACHE_TAGS.BRANDS, CACHE_TAGS.BRAND(slug), CACHE_TAGS.PRODUCTS],
+      revalidate: CACHE_TTL.CATALOG,
+    }
+  )();
 const cachedBrandPage = cache(async (slug: string, paramsKey: string) =>
-  service().getBrandPage(slug, JSON.parse(paramsKey) as PublicCatalogParams),
+  getBrandPageDataCache(slug, paramsKey)
 );
+
+const getCollectionPageDataCache = (slug: string, paramsKey: string) =>
+  cachedQuery(
+    async () => service().getCollectionPage(slug, JSON.parse(paramsKey) as PublicCatalogParams),
+    [`public-collection-page`, slug, paramsKey],
+    {
+      tags: [CACHE_TAGS.COLLECTIONS, CACHE_TAGS.COLLECTION(slug), CACHE_TAGS.PRODUCTS],
+      revalidate: CACHE_TTL.CATALOG,
+    }
+  )();
 const cachedCollectionPage = cache(async (slug: string, paramsKey: string) =>
-  service().getCollectionPage(slug, JSON.parse(paramsKey) as PublicCatalogParams),
+  getCollectionPageDataCache(slug, paramsKey)
 );
+
+const getProductDetailDataCache = (slug: string, viewerKey: string) =>
+  cachedQuery(
+    async () => {
+      const [isAdmin, isReseller, isWholesaler] = viewerKey.split(":").map((v) => v === "1");
+      return service().getProductDetail(slug, { isAdmin, isReseller, isWholesaler });
+    },
+    [`public-product-detail`, slug, viewerKey],
+    {
+      tags: [CACHE_TAGS.PRODUCTS, CACHE_TAGS.PRODUCT_SLUG(slug)],
+      revalidate: CACHE_TTL.CATALOG,
+    }
+  )();
+const cachedProductDetail = cache(async (slug: string, viewerKey: string) =>
+  getProductDetailDataCache(slug, viewerKey)
+);
+
+const getRelatedDataCache = (slug: string) =>
+  cachedQuery(
+    async () => service().getRelatedForProduct(slug),
+    [`public-product-related`, slug],
+    {
+      tags: [CACHE_TAGS.PRODUCTS, CACHE_TAGS.PRODUCT_SLUG(slug)],
+      revalidate: CACHE_TTL.CATALOG,
+    }
+  )();
+const cachedRelated = cache(async (slug: string) => getRelatedDataCache(slug));
 
 async function viewerKey(): Promise<string> {
   try {
@@ -103,7 +191,7 @@ async function badgeSection(
 ): Promise<PublicActionResult<PublicProductCard[]>> {
   try {
     const safeLimit = limitSchema.parse(limit);
-    const data = await service().listBadgeSection(badge, safeLimit);
+    const data = await getBadgeSectionDataCache(badge, safeLimit);
     return { success: true, data };
   } catch (error) {
     return fail(`badgeSection:${badge}`, error);
@@ -257,7 +345,7 @@ export async function searchAutocompleteAction(
   }
 }
 
-// ── Product detail (data layer only; PDP redesign is a later phase) ─────
+// ── Product detail ───────────────────────────────────────────────────────
 
 export async function getPublicProductBySlugAction(
   slug: string,
@@ -271,8 +359,6 @@ export async function getPublicProductBySlugAction(
     return fail("getPublicProductBySlugAction", error);
   }
 }
-
-const cachedRelated = cache(async (slug: string) => service().getRelatedForProduct(slug));
 
 export async function getPublicRelatedProductsAction(slug: string): Promise<
   PublicActionResult<{

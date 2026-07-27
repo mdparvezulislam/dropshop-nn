@@ -6,6 +6,8 @@ import { revalidatePath } from "next/cache";
 import { checkPermission, sessionActor } from "@/lib/check-permission";
 import { logger } from "@/lib/utils/logger";
 import { generateSlug } from "@/lib/utils/slug-utils";
+import { purgeTags } from "@/lib/cache";
+import { CACHE_TAGS } from "@/config/cache-tags";
 
 import { ClassificationService } from "../services/classification-service";
 import {
@@ -57,6 +59,7 @@ function revalidateTaxonomy(): void {
   revalidatePath("/dashboard/catalog/categories");
   revalidatePath("/dashboard/catalog/brands");
   revalidatePath("/dashboard/products");
+  purgeTags(CACHE_TAGS.CATEGORIES, CACHE_TAGS.BRANDS, CACHE_TAGS.PRODUCTS, CACHE_TAGS.HOMEPAGE);
 }
 
 /* ════════════════════════════════ Categories ═══════════════════════════════ */
@@ -332,6 +335,7 @@ export async function createCollectionAction(input: unknown): Promise<ActionResu
     });
 
     revalidatePath("/dashboard/catalog/collections");
+    purgeTags(CACHE_TAGS.COLLECTIONS, CACHE_TAGS.PRODUCTS, CACHE_TAGS.HOMEPAGE);
     return { success: true, data };
   } catch (error: unknown) {
     logger.error("createCollectionAction failed", error);
@@ -355,6 +359,7 @@ export async function updateCollectionAction(
     });
 
     revalidatePath("/dashboard/catalog/collections");
+    purgeTags(CACHE_TAGS.COLLECTIONS, CACHE_TAGS.PRODUCTS, CACHE_TAGS.HOMEPAGE);
     return { success: true, data };
   } catch (error: unknown) {
     logger.error("updateCollectionAction failed", error, { id });
@@ -379,6 +384,7 @@ export async function addProductToCollectionAction(
     }
 
     revalidatePath("/dashboard/catalog/collections");
+    purgeTags(CACHE_TAGS.COLLECTIONS, CACHE_TAGS.PRODUCTS, CACHE_TAGS.HOMEPAGE);
     return { success: true, data: null };
   } catch (error: unknown) {
     logger.error("addProductToCollectionAction failed", error);
@@ -403,6 +409,7 @@ export async function removeProductFromCollectionAction(
     });
 
     revalidatePath("/dashboard/catalog/collections");
+    purgeTags(CACHE_TAGS.COLLECTIONS, CACHE_TAGS.PRODUCTS, CACHE_TAGS.HOMEPAGE);
     return { success: true, data: null };
   } catch (error: unknown) {
     logger.error("removeProductFromCollectionAction failed", error);

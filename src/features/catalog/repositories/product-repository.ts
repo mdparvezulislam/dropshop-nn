@@ -574,13 +574,17 @@ export class ProductRepository extends BaseRepository<ProductDocument, Product> 
   }> {
     try {
       await this.ensureConnected();
-      const base = { isDeleted: { $ne: true } };
-      const [total, active, draft, archived] = await Promise.all([
-        this.model.countDocuments(base).exec(),
-        this.model.countDocuments({ ...base, status: "active" }).exec(),
-        this.model.countDocuments({ ...base, status: "draft" }).exec(),
-        this.model.countDocuments({ ...base, status: "archived" }).exec(),
+      const rows = await this.model.aggregate<{ _id: string; count: number }>([
+        { $match: { isDeleted: { $ne: true } } },
+        { $group: { _id: "$status", count: { $sum: 1 } } },
       ]);
+
+      const map = new Map<string, number>(rows.map((r) => [r._id, r.count]));
+      const active = map.get("active") ?? 0;
+      const draft = map.get("draft") ?? 0;
+      const archived = map.get("archived") ?? 0;
+      const total = Array.from(map.values()).reduce((sum, val) => sum + val, 0);
+
       return { total, active, draft, archived };
     } catch (error) {
       logger.error("ProductRepository countCatalogStatuses failed", error);

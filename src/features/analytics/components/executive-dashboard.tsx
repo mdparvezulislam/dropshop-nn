@@ -6,9 +6,17 @@ import { Download, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getExecutiveDashboardAction, exportAnalyticsAction } from "../actions/analytics-actions";
+import dynamic from "next/dynamic";
 import { MetricCard } from "./metric-card";
-import { AnalyticsChart } from "./analytics-chart";
 import { TimeRangeFilter, type AnalyticsPreset } from "./time-range-filter";
+
+const AnalyticsChart = dynamic(
+  () => import("./analytics-chart").then((m) => m.AnalyticsChart),
+  {
+    ssr: false,
+    loading: () => <div className="h-64 w-full animate-pulse bg-slate-100 dark:bg-slate-800 rounded-xl" />,
+  }
+);
 import type { ExecutiveDashboardData } from "../domain/analytics-entity";
 import { formatCurrency } from "@/lib/utils/currency-utils";
 

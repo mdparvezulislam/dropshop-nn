@@ -166,6 +166,7 @@ export function ProductGallery({ media, title, selectedImage }: ProductGalleryPr
                     alt={item.alt ?? title}
                     fill
                     priority={index === initialIndex}
+                    fetchPriority={index === initialIndex ? "high" : "auto"}
                     placeholder={isPlaceholder ? undefined : "blur"}
                     blurDataURL={PRODUCT_BLUR_DATA_URL}
                     className={cn(

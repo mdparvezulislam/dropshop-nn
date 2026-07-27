@@ -8,6 +8,8 @@ import { checkPermission } from "@/lib/check-permission";
 import { UnauthorizedError } from "@/lib/errors/app-error";
 import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
+import { purgeTags } from "@/lib/cache";
+import { CACHE_TAGS } from "@/config/cache-tags";
 
 function getSessionUser(session: any): { id: string; name?: string; role?: string } {
   if (!session?.user) throw new UnauthorizedError("Session expired or invalid");
@@ -31,6 +33,7 @@ export async function createProductAction(formData: unknown) {
     });
 
     revalidatePath("/dashboard/catalog/products");
+    purgeTags(CACHE_TAGS.PRODUCTS, CACHE_TAGS.FEATURED_PRODUCTS, CACHE_TAGS.FLASH_DEALS, CACHE_TAGS.NEW_ARRIVALS, CACHE_TAGS.HOMEPAGE);
     return { success: true, data: result };
   } catch (error: unknown) {
     logger.error("createProductAction failed", error);
@@ -58,6 +61,7 @@ export async function updateProductAction(id: string, formData: unknown) {
     });
 
     revalidatePath(`/dashboard/catalog/products/${id}`);
+    purgeTags(CACHE_TAGS.PRODUCTS, CACHE_TAGS.PRODUCT_ID(id), CACHE_TAGS.FEATURED_PRODUCTS, CACHE_TAGS.FLASH_DEALS, CACHE_TAGS.NEW_ARRIVALS, CACHE_TAGS.HOMEPAGE);
     return { success: true, data: result };
   } catch (error: unknown) {
     logger.error("updateProductAction failed", error, { id });
@@ -85,6 +89,7 @@ export async function publishProductAction(id: string) {
 
     revalidatePath(`/dashboard/catalog/products/${id}`);
     revalidatePath("/dashboard/catalog/products");
+    purgeTags(CACHE_TAGS.PRODUCTS, CACHE_TAGS.PRODUCT_ID(id), CACHE_TAGS.FEATURED_PRODUCTS, CACHE_TAGS.FLASH_DEALS, CACHE_TAGS.NEW_ARRIVALS, CACHE_TAGS.HOMEPAGE);
     return { success: true, data: result };
   } catch (error: unknown) {
     logger.error("publishProductAction failed", error, { id });
@@ -112,6 +117,7 @@ export async function archiveProductAction(id: string, reason?: string) {
 
     revalidatePath(`/dashboard/catalog/products/${id}`);
     revalidatePath("/dashboard/catalog/products");
+    purgeTags(CACHE_TAGS.PRODUCTS, CACHE_TAGS.PRODUCT_ID(id), CACHE_TAGS.FEATURED_PRODUCTS, CACHE_TAGS.FLASH_DEALS, CACHE_TAGS.NEW_ARRIVALS, CACHE_TAGS.HOMEPAGE);
     return { success: true, data: result };
   } catch (error: unknown) {
     logger.error("archiveProductAction failed", error, { id });
@@ -138,6 +144,7 @@ export async function deleteProductAction(id: string) {
     });
 
     revalidatePath("/dashboard/catalog/products");
+    purgeTags(CACHE_TAGS.PRODUCTS, CACHE_TAGS.PRODUCT_ID(id), CACHE_TAGS.FEATURED_PRODUCTS, CACHE_TAGS.FLASH_DEALS, CACHE_TAGS.NEW_ARRIVALS, CACHE_TAGS.HOMEPAGE);
     return { success: true, data: { deleted: result } };
   } catch (error: unknown) {
     logger.error("deleteProductAction failed", error, { id });
@@ -164,6 +171,7 @@ export async function duplicateProductAction(id: string) {
     });
 
     revalidatePath("/dashboard/catalog/products");
+    purgeTags(CACHE_TAGS.PRODUCTS, CACHE_TAGS.FEATURED_PRODUCTS, CACHE_TAGS.FLASH_DEALS, CACHE_TAGS.NEW_ARRIVALS, CACHE_TAGS.HOMEPAGE);
     return { success: true, data: result };
   } catch (error: unknown) {
     logger.error("duplicateProductAction failed", error, { id });
@@ -271,6 +279,7 @@ export async function changeVisibilityAction(id: string, visibility: string) {
     });
 
     revalidatePath(`/dashboard/catalog/products/${id}`);
+    purgeTags(CACHE_TAGS.PRODUCTS, CACHE_TAGS.PRODUCT_ID(id), CACHE_TAGS.FEATURED_PRODUCTS, CACHE_TAGS.FLASH_DEALS, CACHE_TAGS.NEW_ARRIVALS, CACHE_TAGS.HOMEPAGE);
     return { success: true, data: result };
   } catch (error: unknown) {
     return {

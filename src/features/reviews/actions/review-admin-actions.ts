@@ -5,8 +5,11 @@ import { revalidatePath } from "next/cache";
 import { requirePermission } from "@/lib/action-guard";
 import { ReviewService } from "../services/review-service";
 import { ReviewRepository } from "../repositories/review-repository";
+import { ReviewModel } from "../repositories/review-model";
 import type { Review, ReviewStatus } from "../domain/review-entity";
 import { logger } from "@/lib/utils/logger";
+import { purgeTags } from "@/lib/cache";
+import { CACHE_TAGS } from "@/config/cache-tags";
 
 type ActionResult<T> = { success: true; data: T } | { success: false; error: string };
 
@@ -99,6 +102,7 @@ export async function moderateReviewAction(
     await service.moderateReview(parsed.reviewId, parsed.status, actor.id, parsed.rejectionReason);
 
     revalidatePath("/dashboard/reviews");
+    purgeTags(CACHE_TAGS.REVIEWS, CACHE_TAGS.PRODUCT_REVIEWS(parsed.reviewId), CACHE_TAGS.PRODUCTS);
     return { success: true, data: null };
   } catch (error) {
     logger.error("moderateReviewAction failed", error);
@@ -115,13 +119,15 @@ export async function getReviewCountsAction(): Promise<
   try {
     await requirePermission("products.product.view");
 
-    const repo = new ReviewRepository();
-    const [published, pending, rejected, hidden] = await Promise.all([
-      repo.count({ status: "published", isDeleted: { $ne: true } }),
-      repo.count({ status: "pending", isDeleted: { $ne: true } }),
-      repo.count({ status: "rejected", isDeleted: { $ne: true } }),
-      repo.count({ status: "hidden", isDeleted: { $ne: true } }),
+    const rows = await ReviewModel.aggregate<{ _id: string; count: number }>([
+      { $match: { isDeleted: { $ne: true } } },
+      { $group: { _id: "$status", count: { $sum: 1 } } },
     ]);
+    const map = new Map<string, number>(rows.map((r: { _id: string; count: number }) => [r._id, r.count]));
+    const published = map.get("published") ?? 0;
+    const pending = map.get("pending") ?? 0;
+    const rejected = map.get("rejected") ?? 0;
+    const hidden = map.get("hidden") ?? 0;
 
     return { success: true, data: { published, pending, rejected, hidden } };
   } catch (error) {

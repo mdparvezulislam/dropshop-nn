@@ -1,18 +1,6 @@
-"use client";
-
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Phone, MessageSquare, Mail, Clock, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-
-const containerVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.4 },
-  },
-};
 
 export function FooterCTASection(): React.ReactElement {
   return (
@@ -21,13 +9,7 @@ export function FooterCTASection(): React.ReactElement {
       aria-label="Support & Registration CTA"
     >
       <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center"
-        >
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           <div className="lg:col-span-7 space-y-5">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-xs font-bold text-primary">
               <ShieldCheck className="h-4 w-4" />
@@ -119,7 +101,7 @@ export function FooterCTASection(): React.ReactElement {
               <span>Office Hours: Saturday – Thursday (9:00 AM – 9:00 PM)</span>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

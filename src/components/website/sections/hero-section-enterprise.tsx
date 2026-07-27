@@ -195,6 +195,7 @@ export function HeroSection(): React.ReactElement {
                   alt={slide.cardTitle}
                   fill
                   priority={current === 0}
+                  fetchPriority={current === 0 ? "high" : "auto"}
                   className="object-cover rounded-2xl"
                   sizes="(max-width: 1024px) 100vw, 40vw"
                 />

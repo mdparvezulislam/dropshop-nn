@@ -16,6 +16,8 @@ import {
 } from "../types/validation";
 import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
+import { purgeTags } from "@/lib/cache";
+import { CACHE_TAGS } from "@/config/cache-tags";
 
 export async function getAllSettingsAction(): Promise<{
   success: boolean;
@@ -76,6 +78,7 @@ export async function updateSettingAction(formData: unknown): Promise<{
       validated.reason,
     );
     revalidatePath("/dashboard/settings");
+    purgeTags(CACHE_TAGS.SETTINGS, CACHE_TAGS.HOMEPAGE);
     return { success: true, data: result };
   } catch (error: any) {
     logger.error("updateSettingAction failed", error);
@@ -101,6 +104,7 @@ export async function updateCategorySettingsAction(formData: unknown): Promise<{
     }
 
     revalidatePath("/dashboard/settings");
+    purgeTags(CACHE_TAGS.SETTINGS, CACHE_TAGS.HOMEPAGE);
     return { success: true };
   } catch (error: any) {
     logger.error("updateCategorySettingsAction failed", error);
@@ -126,6 +130,7 @@ export async function toggleFeatureFlagAction(formData: unknown): Promise<{
       session?.user?.name || session?.user?.id || "admin",
     );
     revalidatePath("/dashboard/settings");
+    purgeTags(CACHE_TAGS.SETTINGS, CACHE_TAGS.HOMEPAGE);
     return { success: true, data: result };
   } catch (error: any) {
     logger.error("toggleFeatureFlagAction failed", error);
@@ -167,6 +172,7 @@ export async function importSettingsAction(formData: unknown): Promise<{
       session?.user?.name || session?.user?.id || "admin",
     );
     revalidatePath("/dashboard/settings");
+    purgeTags(CACHE_TAGS.SETTINGS, CACHE_TAGS.HOMEPAGE);
     return { success: true, data: result };
   } catch (error: any) {
     logger.error("importSettingsAction failed", error);
@@ -188,6 +194,7 @@ export async function resetCategoryToDefaultAction(category: string): Promise<{
       session?.user?.name || session?.user?.id || "admin",
     );
     revalidatePath("/dashboard/settings");
+    purgeTags(CACHE_TAGS.SETTINGS, CACHE_TAGS.HOMEPAGE);
     return { success: true };
   } catch (error: any) {
     logger.error("resetCategoryToDefaultAction failed", error);

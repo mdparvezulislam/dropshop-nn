@@ -139,13 +139,17 @@ export class BusinessMembershipApplicationRepository extends BaseRepository<
     rejectionRate: number;
   }> {
     await this.ensureConnected();
-    const [total, pending, approved, rejected, needInfo] = await Promise.all([
-      BusinessMembershipApplicationModel.countDocuments({ deletedAt: null }),
-      BusinessMembershipApplicationModel.countDocuments({ deletedAt: null, status: "pending" }),
-      BusinessMembershipApplicationModel.countDocuments({ deletedAt: null, status: "approved" }),
-      BusinessMembershipApplicationModel.countDocuments({ deletedAt: null, status: "rejected" }),
-      BusinessMembershipApplicationModel.countDocuments({ deletedAt: null, status: "need_info" }),
+    const rows = await BusinessMembershipApplicationModel.aggregate<{ _id: string; count: number }>([
+      { $match: { deletedAt: null } },
+      { $group: { _id: "$status", count: { $sum: 1 } } },
     ]);
+
+    const map = new Map<string, number>(rows.map((r) => [r._id, r.count]));
+    const pending = map.get("pending") ?? 0;
+    const approved = map.get("approved") ?? 0;
+    const rejected = map.get("rejected") ?? 0;
+    const needInfo = map.get("need_info") ?? 0;
+    const total = Array.from(map.values()).reduce((sum, val) => sum + val, 0);
 
     const decided = approved + rejected;
     const approvalRate = decided > 0 ? Math.round((approved / decided) * 100) : 0;

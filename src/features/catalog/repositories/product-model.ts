@@ -215,6 +215,8 @@ productSchema.plugin(softDeletePlugin);
 
 // Compound & Performance Indexes
 productSchema.index({ status: 1, visibility: 1 });
+productSchema.index({ categoryId: 1, status: 1, visibility: 1 });
+productSchema.index({ brandId: 1, status: 1, visibility: 1 });
 productSchema.index({ badges: 1, status: 1 });
 productSchema.index({ featured: -1, status: 1 });
 productSchema.index({ createdAt: -1 });

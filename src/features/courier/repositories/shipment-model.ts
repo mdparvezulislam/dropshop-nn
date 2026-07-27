@@ -92,9 +92,10 @@ const shipmentSchema = new Schema(
 );
 
 shipmentSchema.index({ createdAt: -1 });
+shipmentSchema.index({ status: 1, createdAt: -1 });
 shipmentSchema.index({ status: 1, provider: 1 });
+shipmentSchema.index({ courierId: 1, status: 1 });
 shipmentSchema.index({ "recipient.phone": 1 });
-// Search by tracking code must not scan: it is the customer-facing lookup key.
 shipmentSchema.index({ trackingCode: 1, isDeleted: 1 });
 
 export const ShipmentModel = mongoose.models.Shipment || mongoose.model("Shipment", shipmentSchema);

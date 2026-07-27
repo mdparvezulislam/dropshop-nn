@@ -6,10 +6,18 @@ import { Download, Loader2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { exportAnalyticsAction, getAnalyticsOverviewAction } from "../actions/analytics-actions";
 import type { AnalyticsOverview } from "../domain/analytics-entity";
+import dynamic from "next/dynamic";
 import { MetricCard } from "./metric-card";
-import { AnalyticsChart } from "./analytics-chart";
 import { RankedTable } from "./ranked-table";
 import { TimeRangeFilter, type AnalyticsPreset } from "./time-range-filter";
+
+const AnalyticsChart = dynamic(
+  () => import("./analytics-chart").then((m) => m.AnalyticsChart),
+  {
+    ssr: false,
+    loading: () => <div className="h-64 w-full animate-pulse bg-slate-100 dark:bg-slate-800 rounded-xl" />,
+  }
+);
 
 export function AnalyticsDashboard(): React.ReactElement {
   const [preset, setPreset] = useState<AnalyticsPreset>("30d");

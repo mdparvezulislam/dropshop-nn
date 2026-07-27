@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/config/site";
 import { PublicCatalogService } from "@/features/catalog/services/public-catalog-service";
+import { cachedQuery } from "@/lib/cache";
+import { CACHE_TAGS, CACHE_TTL } from "@/config/cache-tags";
 
 const STATIC_ROUTES = [
   "",
@@ -35,14 +37,21 @@ function staticEntries(): MetadataRoute.Sitemap {
   }));
 }
 
+const getSitemapEntriesCache = cachedQuery(
+  async () => new PublicCatalogService().getSitemapEntries(),
+  ["sitemap-entries"],
+  {
+    tags: [CACHE_TAGS.PRODUCTS, CACHE_TAGS.CATEGORIES, CACHE_TAGS.BRANDS],
+    revalidate: CACHE_TTL.TAXONOMY,
+  }
+);
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const statics = staticEntries();
 
   try {
-    const { products, categories, brands } = await new PublicCatalogService().getSitemapEntries();
+    const { products, categories, brands } = await getSitemapEntriesCache();
 
-    // Real lastModified only — entries without updatedAt omit the field
-    // rather than stamping a fake freshness date.
     const productEntries: MetadataRoute.Sitemap = products.map((p) => ({
       url: `${SITE_URL}/product/${p.slug}`,
       ...(p.updatedAt ? { lastModified: p.updatedAt } : {}),
@@ -66,7 +75,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     return [...statics, ...productEntries, ...categoryEntries, ...brandEntries];
   } catch {
-    // DB unavailable — crawlers still get the static routes.
     return statics;
   }
 }

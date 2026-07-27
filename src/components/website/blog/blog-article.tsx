@@ -119,6 +119,7 @@ export function BlogArticle({ post, related }: BlogArticleProps): React.ReactEle
               alt={post.title}
               fill
               priority
+              fetchPriority="high"
               className="object-cover"
               sizes="(max-width: 1024px) 100vw, 896px"
             />

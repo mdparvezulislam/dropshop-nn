@@ -208,6 +208,8 @@ const orderSchema = new Schema(
 );
 
 orderSchema.index({ status: 1, type: 1 });
+orderSchema.index({ status: 1, createdAt: -1 });
+orderSchema.index({ "customer.customerId": 1, createdAt: -1 });
 orderSchema.index({ createdAt: -1 });
 orderSchema.index({ "customer.phone": 1 });
 orderSchema.index({ "shipping.division": 1, "shipping.district": 1 });
