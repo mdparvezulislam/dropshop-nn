@@ -113,6 +113,17 @@ const parseEnv = () => {
   const parsed = envSchema.safeParse(process.env);
 
   if (!parsed.success) {
+    if (process.env.NEXT_PHASE === "phase-production-build") {
+      return envSchema.parse({
+        MONGO_URI: process.env.MONGO_URI || "mongodb://localhost:27017/dropshop-nn-build",
+        AUTH_SECRET: process.env.AUTH_SECRET || "build_phase_placeholder_secret_32_chars_long",
+        IMAGEKIT_PUBLIC_KEY: process.env.IMAGEKIT_PUBLIC_KEY || "build_pk_placeholder",
+        IMAGEKIT_PRIVATE_KEY: process.env.IMAGEKIT_PRIVATE_KEY || "build_sk_placeholder",
+        IMAGEKIT_URL_ENDPOINT: process.env.IMAGEKIT_URL_ENDPOINT || "https://ik.imagekit.io/buildplaceholder",
+        ...process.env,
+      });
+    }
+
     console.error(
       "❌ Invalid environment variables:",
       JSON.stringify(parsed.error.flatten().fieldErrors, null, 2),
