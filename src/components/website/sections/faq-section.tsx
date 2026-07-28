@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { BRAND } from "@/config/brand";
 
 interface FAQItem {
   id: string;
@@ -15,9 +16,9 @@ const faqs: FAQItem[] = [
   {
     id: "1",
     category: "general",
-    question: "What is DropshopNN?",
+    question: `What is ${BRAND.publicName}?`,
     answer:
-      "DropshopNN is an enterprise commerce operating system designed for Bangladesh. It connects suppliers, resellers, wholesalers, and customers in one unified platform with automation, smart pricing, and growth tools.",
+      `${BRAND.publicName} is an enterprise commerce operating system designed for Bangladesh. It connects suppliers, resellers, wholesalers, and customers in one unified platform with automation, smart pricing, and growth tools.`,
   },
   {
     id: "2",
@@ -103,7 +104,7 @@ export function FAQSection(): React.ReactElement {
             Frequently Asked Questions
           </h2>
           <p className="text-lg text-muted-foreground">
-            Find answers to common questions about DropshopNN
+            Find answers to common questions about {BRAND.publicName}
           </p>
         </motion.div>
 

@@ -90,7 +90,7 @@ export function HeroSection(): React.ReactElement {
 
             <h1 className="text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-slate-900 leading-[1.15]">
               সোর্স করুন, বিক্রি করুন, <br />
-              ব্যবসা বাড়ান <span className="text-amber-500">DropshopNN</span> এর সাথে
+              ব্যবসা বাড়ান <span className="text-amber-500">NN Enterprise</span> এর সাথে
             </h1>
 
             <p className="text-sm sm:text-base text-slate-700 font-semibold leading-relaxed max-w-xl">

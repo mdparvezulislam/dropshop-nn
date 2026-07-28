@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { HelpCircle, ChevronDown, ShieldCheck, Truck, Percent, RefreshCw } from "lucide-react";
+import { BRAND } from "@/config/brand";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Frequently Asked Questions (FAQ) - DropshopNN",
+  title: `Frequently Asked Questions (FAQ) - ${BRAND.publicName}`,
   description:
     "Find answers to common questions about ordering, dropshipping, Pathao delivery, warranties, and wholesale MOQ.",
 };
@@ -19,7 +20,7 @@ const FAQS = [
       },
       {
         q: "Are all products original with warranty?",
-        a: "Yes! 100% of products listed on DropshopNN are sourced directly from authorized Bangladesh brand importers with 1 Year Official Replacement Warranty.",
+        a: `Yes! 100% of products listed on ${BRAND.publicName} are sourced directly from authorized Bangladesh brand importers with 1 Year Official Replacement Warranty.`,
       },
     ],
   },
@@ -27,8 +28,8 @@ const FAQS = [
     category: "Reseller & Wholesale",
     questions: [
       {
-        q: "How does DropshopNN reselling work?",
-        a: "Resellers can list our products on their own Facebook page or website at retail price. When an order comes in, place the order on DropshopNN with your customer's shipping address. We fulfill and ship directly to your customer, and credit your profit margin to your wallet.",
+        q: `How does ${BRAND.publicName} reselling work?`,
+        a: `Resellers can list our products on their own Facebook page or website at retail price. When an order comes in, place the order on ${BRAND.publicName} with your customer's shipping address. We fulfill and ship directly to your customer, and credit your profit margin to your wallet.`,
       },
       {
         q: "What is the Minimum Order Quantity (MOQ) for Wholesale Buyers?",

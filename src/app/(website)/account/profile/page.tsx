@@ -3,9 +3,10 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { UserRepository } from "@/features/auth/repositories/user-repository";
 import { ProfilePageContent } from "./profile-content";
+import { BRAND } from "@/config/brand";
 
 export const metadata: Metadata = {
-  title: "Profile - DropshopNN",
+  title: `Profile - ${BRAND.publicName}`,
   robots: { index: false },
 };
 

@@ -329,3 +329,54 @@ export async function getOrderDashboardStatsAction(): Promise<{
     return { success: false, error: error.message };
   }
 }
+
+export async function updateOrderPaymentAction(formData: {
+  orderId: string;
+  paymentStatus: "unpaid" | "partial" | "paid" | "refunded";
+  advancePaid?: number;
+  paymentMethod?: string;
+  deliveryCharge?: number;
+}): Promise<{
+  success: boolean;
+  data?: any;
+  error?: string;
+}> {
+  const session = await auth();
+  checkPermission(session, "Order.Update");
+  try {
+    const service = new OrderService();
+    const result = await service.updateOrderPayment(formData);
+    revalidatePath("/dashboard/orders");
+    return { success: true, data: result };
+  } catch (error: any) {
+    logger.error("updateOrderPaymentAction failed", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function updateOrderAddressAction(formData: {
+  orderId: string;
+  customerName?: string;
+  phone?: string;
+  division?: string;
+  district?: string;
+  upazila?: string;
+  address?: string;
+  deliveryNote?: string;
+}): Promise<{
+  success: boolean;
+  data?: any;
+  error?: string;
+}> {
+  const session = await auth();
+  checkPermission(session, "Order.Update");
+  try {
+    const service = new OrderService();
+    const result = await service.updateOrderAddress(formData);
+    revalidatePath("/dashboard/orders");
+    return { success: true, data: result };
+  } catch (error: any) {
+    logger.error("updateOrderAddressAction failed", error);
+    return { success: false, error: error.message };
+  }
+}

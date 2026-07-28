@@ -128,6 +128,7 @@ export interface Product extends BaseDBEntity {
 
   // Section 04: Media
   media: ProductMedia[];
+  videoUrl?: string;
 
   // Section 05: Variants
   hasVariants?: boolean;

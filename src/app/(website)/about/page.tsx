@@ -2,13 +2,14 @@ import Link from "next/link";
 import { getPublicContentBySlugAction } from "@/features/cms/actions/content-actions";
 import { Building2, ShieldCheck, Truck, Users } from "lucide-react";
 import { RichContentRenderer } from "@/components/editor/rich-content-renderer";
+import { BRAND } from "@/config/brand";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "About Us - DropshopNN Bangladesh",
+  title: `About Us - ${BRAND.publicName}`,
   description:
-    "Learn about DropshopNN, Bangladesh's enterprise commerce operating system connecting official importers, resellers, and wholesale traders.",
+    `Learn about ${BRAND.publicName}, Bangladesh's enterprise commerce platform connecting official importers, resellers, and wholesale traders.`,
 };
 
 export default async function AboutPage() {
@@ -20,7 +21,7 @@ export default async function AboutPage() {
       <div className="container mx-auto px-4 max-w-5xl">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-amber-400 text-xs font-semibold mb-3">
-            <Building2 className="w-3.5 h-3.5" /> About DropshopNN
+            <Building2 className="w-3.5 h-3.5" /> About {BRAND.publicName}
           </div>
           <h1 className="text-3xl sm:text-5xl font-extrabold text-white font-heading tracking-tight mb-4">
             Enterprise Commerce OS for Bangladesh

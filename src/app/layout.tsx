@@ -5,6 +5,8 @@ import "@/features/public/styles/public-theme.css";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { SITE_URL } from "@/config/site";
 
+import { BRAND } from "@/config/brand";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -20,8 +22,8 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "DropshopNN — বাংলাদেশের অনলাইন শপ",
-    template: "%s | DropshopNN",
+    default: `${BRAND.publicName} — ${BRAND.tagline}`,
+    template: `%s | ${BRAND.publicName}`,
   },
   description:
     "অরিজিনাল প্রোডাক্ট, পাইকারি ও খুচরা দামে — রিসেলার, হোলসেলার এবং ড্রপশিপারদের জন্য বাংলাদেশের অনলাইন শপ।",

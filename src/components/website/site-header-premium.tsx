@@ -106,11 +106,11 @@ export function SiteHeader() {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 shrink-0 group">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-lg shadow-sm group-hover:scale-105 transition-transform">
-                D
+                N
               </div>
               <div className="hidden sm:flex flex-col">
                 <span className="text-sm font-extrabold tracking-tight text-foreground leading-tight">
-                  Dropshop<span className="text-primary">NN</span>
+                  NN <span className="text-primary">Enterprise</span>
                 </span>
                 <span className="text-[10px] text-[hsl(215_16%_47%)] font-medium">Commerce OS</span>
               </div>

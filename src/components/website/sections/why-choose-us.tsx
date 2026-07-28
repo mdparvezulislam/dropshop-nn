@@ -1,4 +1,5 @@
 import { Shield, Zap, Users, BarChart3, Globe, Timer } from "lucide-react";
+import { BRAND } from "@/config/brand";
 
 const benefits = [
   {
@@ -40,7 +41,7 @@ export function WhyChooseUs() {
       <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[hsl(222_47%_11%)]">
-            Why Choose DropshopNN
+            Why Choose {BRAND.publicName}
           </h2>
           <p className="mt-3 text-lg text-[hsl(215_16%_47%)] max-w-2xl mx-auto">
             We provide everything you need to start and grow your dropshipping business

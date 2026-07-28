@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { getUserMembershipStatusAction } from "@/features/identity/actions/membership-application-actions";
 import { WholesalerApplicationPageClient } from "./wholesaler-client";
+import { BRAND } from "@/config/brand";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Become a Wholesale Partner - DropshopNN Bangladesh",
+  title: `Become a Wholesale Partner - ${BRAND.publicName}`,
   description:
     "বি২বি পাইকারি ও বাল্ক অর্ডারের জন্য হোলসেলার মেম্বারশিপ আবেদন করুন। সরাসরি ইম্পোর্টার রেট ও টিয়ার ডিসকাউন্ট।",
 };

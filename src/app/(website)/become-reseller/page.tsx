@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { getUserMembershipStatusAction } from "@/features/identity/actions/membership-application-actions";
 import { ResellerApplicationPageClient } from "./reseller-client";
+import { BRAND } from "@/config/brand";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Become a Reseller Partner - DropshopNN Bangladesh",
+  title: `Become a Reseller Partner - ${BRAND.publicName}`,
   description:
     "জিরো ইনভেস্টমেন্টে ড্রপশিপিং রিসেলিং শুরু করুন। ক্যাটালগ অ্যাক্সেস, ফাস্ট ডেলিভারি ও প্রফিট উইথড্র সুবিধা।",
 };

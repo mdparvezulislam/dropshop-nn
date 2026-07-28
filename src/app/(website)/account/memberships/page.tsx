@@ -5,9 +5,10 @@ import { businessMembershipRepository } from "@/features/identity/repositories/b
 import { businessMembershipApplicationRepository } from "@/features/identity/repositories/business-membership-application-repository";
 import { businessMembershipService } from "@/features/identity/services/business-membership-service";
 import { UserMembershipsClient } from "./memberships-client";
+import { BRAND } from "@/config/brand";
 
 export const metadata: Metadata = {
-  title: "বিজনেস মেম্বারশিপ হাব - DropshopNN Bangladesh",
+  title: `বিজনেস মেম্বারশিপ হাব - ${BRAND.publicName}`,
   description: "আপনার বিজনেস মেম্বারশিপ স্ট্যাটাস, লাইভ অ্যাপ্লিকেশন ট্র্যাকিং ও ইতিহাস দেখুন।",
 };
 

@@ -85,6 +85,7 @@ export interface StudioFormState {
   /* Collections & Media */
   variants: VariantRow[];
   media: MediaItem[];
+  videoUrl?: string;
   bulletFeatures: string[];
   selectedCollectionIds: string[];
   channels: string[];
@@ -521,6 +522,7 @@ function buildPayload(form: StudioFormState): Record<string, unknown> {
       isFeatured: m.isFeatured,
       altText: m.altText || undefined,
     })),
+    videoUrl: form.videoUrl || undefined,
     seo: {
       metaTitle: form.metaTitle || undefined,
       metaDescription: form.metaDescription || undefined,

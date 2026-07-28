@@ -14,19 +14,20 @@ import type {
 import { ProductsCatalogClient } from "@/components/website/products-catalog-client";
 import { ProductPagination } from "@/components/website/product-pagination";
 import { generateItemListJsonLd } from "@/lib/seo/json-ld-generator";
+import { BRAND } from "@/config/brand";
 
 export const dynamic = "force-dynamic";
 
 const PAGE_SIZE = 24;
 
 export const metadata: Metadata = {
-  title: "সব প্রোডাক্ট - DropshopNN Enterprise Commerce",
+  title: `সব প্রোডাক্ট - ${BRAND.publicName}`,
   description:
     "বাংলাদেশের সবচেয়ে বড় প্রোডাক্ট ক্যাটালগ। গ্যাজেট, চার্জার, অডিও গিয়ার এবং টেক অ্যাক্সেসরিজ সেরা পাইকারি ও রিসেলিং দামে।",
   alternates: { canonical: "/products" },
   openGraph: {
-    title: "সব প্রোডাক্ট - DropshopNN",
-    description: "সোর্স করুন, বিক্রি করুন, ব্যবসা বাড়ান DropshopNN এর সাথে।",
+    title: `সব প্রোডাক্ট - ${BRAND.publicName}`,
+    description: `সোর্স করুন, বিক্রি করুন, ব্যবসা বাড়ান ${BRAND.publicName} এর সাথে।`,
   },
 };
 
@@ -179,7 +180,7 @@ export default async function ProductsPage({ searchParams }: PageProps): Promise
   const brands = brandsRes.success ? brandsRes.data : null;
 
   const jsonLd = generateItemListJsonLd(
-    "সকল প্রোডাক্ট ক্যাটালগ - DropshopNN",
+    `সকল প্রোডাক্ট ক্যাটালগ - ${BRAND.publicName}`,
     catalog.items.map((p) => ({
       name: p.name,
       slug: p.slug,

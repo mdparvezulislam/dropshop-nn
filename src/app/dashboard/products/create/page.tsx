@@ -303,14 +303,16 @@ export default function CreateProductStudioPage(): React.ReactElement {
           <ParserBar onParse={handleMagicParse} isParsing={isParsing} summary={parseSummary} />
         }
       >
-        {/* ── Tab: Basic ── */}
+        {/* ── Tab 1: Product Details (Required All-In-One Form) ── */}
         <StudioTabPanel value="basic">
-          <div className="space-y-5">
+          <div className="space-y-6">
             <GeneralSection
               name={form.name}
               onNameChange={(v) => update("name", v)}
               sku={form.sku}
               onSkuChange={(v) => update("sku", v)}
+              stock={form.stock}
+              onStockChange={(v) => update("stock", v)}
               shortDescription={form.shortDescription}
               onShortDescriptionChange={(v) => update("shortDescription", v)}
               productModel={form.productModel}
@@ -318,6 +320,14 @@ export default function CreateProductStudioPage(): React.ReactElement {
               barcode={form.barcode}
               onBarcodeChange={(v) => update("barcode", v)}
               onAutoGenerateSKU={handleAutoGenerateSKU}
+            />
+            <LazyDescriptionSection
+              value={form.richDescription}
+              onChange={(v) => update("richDescription", v)}
+            />
+            <FeaturesEditor
+              features={form.bulletFeatures}
+              onChange={(features) => update("bulletFeatures", features)}
             />
             <CategorySection
               categoryId={form.categoryId}
@@ -327,58 +337,67 @@ export default function CreateProductStudioPage(): React.ReactElement {
             />
             <BrandSection brandId={form.brandId} onBrandChange={(id) => update("brandId", id)} />
             <BadgesStudioSection badges={form.badges} onChange={(b) => update("badges", b)} />
+            <InlineSpecEditor
+              specs={form.specifications}
+              onChange={(specs) => update("specifications", specs)}
+            />
           </div>
         </StudioTabPanel>
 
-        {/* ── Tab: Pricing ── */}
+        {/* ── Tab 2: Pricing & Stock (Financials & Inventory Engine) ── */}
         <StudioTabPanel value="pricing">
-          <PricingSection
-            costPrice={form.costPrice}
-            onCostPriceChange={(v) => update("costPrice", v)}
-            sellingPrice={form.sellingPrice}
-            onSellingPriceChange={(v) => update("sellingPrice", v)}
-            wholesalePrice={form.wholesalePrice}
-            onWholesalePriceChange={(v) => update("wholesalePrice", v)}
-            resellerPrice={form.resellerPrice}
-            onResellerPriceChange={(v) => update("resellerPrice", v)}
-            comparePrice={form.comparePrice}
-            onComparePriceChange={(v) => update("comparePrice", v)}
-            campaignPrice={form.campaignPrice}
-            onCampaignPriceChange={(v) => update("campaignPrice", v)}
-            onApplyAutoPricing={handleApplyAutoPricing}
-            showResetButton={Object.keys(form.manualPriceOverrides ?? {}).length > 0}
-            onResetAutoPricing={handleResetAutoPricing}
-          />
-        </StudioTabPanel>
-
-        {/* ── Tab: Images ── */}
-        <StudioTabPanel value="images">
-          <MediaSection items={form.media} onChange={(items) => update("media", items)} />
-        </StudioTabPanel>
-
-        {/* ── Tab: Description ── */}
-        <StudioTabPanel value="description">
-          <div className="space-y-5">
-            <LazyDescriptionSection
-              value={form.richDescription}
-              onChange={(v) => update("richDescription", v)}
+          <div className="space-y-6">
+            <PricingSection
+              costPrice={form.costPrice}
+              onCostPriceChange={(v) => update("costPrice", v)}
+              sellingPrice={form.sellingPrice}
+              onSellingPriceChange={(v) => update("sellingPrice", v)}
+              wholesalePrice={form.wholesalePrice}
+              onWholesalePriceChange={(v) => update("wholesalePrice", v)}
+              resellerPrice={form.resellerPrice}
+              onResellerPriceChange={(v) => update("resellerPrice", v)}
+              comparePrice={form.comparePrice}
+              onComparePriceChange={(v) => update("comparePrice", v)}
+              campaignPrice={form.campaignPrice}
+              onCampaignPriceChange={(v) => update("campaignPrice", v)}
+              onApplyAutoPricing={handleApplyAutoPricing}
+              showResetButton={Object.keys(form.manualPriceOverrides ?? {}).length > 0}
+              onResetAutoPricing={handleResetAutoPricing}
             />
-            <FeaturesEditor
-              features={form.bulletFeatures}
-              onChange={(features) => update("bulletFeatures", features)}
+            <InventorySection
+              sku={form.inventorySku || form.sku}
+              onSkuChange={(v) => update("inventorySku", v)}
+              barcode={form.inventoryBarcode || form.barcode}
+              onBarcodeChange={(v) => update("inventoryBarcode", v)}
+              stock={form.stock}
+              onStockChange={(v) => update("stock", v)}
+              lowStockThreshold={form.lowStockThreshold}
+              onLowStockThresholdChange={(v) => update("lowStockThreshold", v)}
+              reservedStock={form.reservedStock}
+              onReservedStockChange={(v) => update("reservedStock", v)}
+              incomingStock={form.incomingStock}
+              onIncomingStockChange={(v) => update("incomingStock", v)}
+              warehouseLocation={form.warehouseLocation}
+              onWarehouseLocationChange={(v) => update("warehouseLocation", v)}
+              weight={form.weight}
+              onWeightChange={(v) => update("weight", v)}
             />
           </div>
         </StudioTabPanel>
 
-        {/* ── Tab: Specifications ── */}
-        <StudioTabPanel value="specs">
-          <InlineSpecEditor
-            specs={form.specifications}
-            onChange={(specs) => update("specifications", specs)}
-          />
+        {/* ── Tab 3: Media & Video Studio (Gallery & YouTube Embed) ── */}
+        <StudioTabPanel value="media">
+          <div className="space-y-6">
+            <MediaSection
+              items={form.media}
+              onChange={(items) => update("media", items)}
+              youtubeUrl={form.videoUrl}
+              onYoutubeUrlChange={(url) => update("videoUrl", url)}
+            />
+          </div>
         </StudioTabPanel>
 
-        {/* ── Tab: Variants ── */}
+        {/* ── Tab 4: Variant Studio Matrix ── */}
         <StudioTabPanel value="variants">
           <VariantStudioSection
             variants={form.variants as any}
@@ -389,38 +408,28 @@ export default function CreateProductStudioPage(): React.ReactElement {
           />
         </StudioTabPanel>
 
-        {/* ── Tab: SEO ── */}
+        {/* ── Tab: SEO & Publishing (Search & Visibility) ── */}
         <StudioTabPanel value="seo">
-          <SEOAdvancedSection
-            name={form.name}
-            sku={form.sku}
-            barcode={form.barcode}
-            metaTitle={form.metaTitle}
-            onMetaTitleChange={(v) => update("metaTitle", v)}
-            metaDescription={form.metaDescription}
-            onMetaDescriptionChange={(v) => update("metaDescription", v)}
-            slug={form.slug}
-            onSlugChange={(v) => update("slug", v)}
-            ogImage={form.ogImage}
-            onOgImageChange={(v) => update("ogImage", v)}
-          />
-        </StudioTabPanel>
-
-        {/* ── Tab: Marketing ── */}
-        <StudioTabPanel value="marketing">
-          <div className="space-y-5">
+          <div className="space-y-6">
+            <SEOAdvancedSection
+              name={form.name}
+              sku={form.sku}
+              barcode={form.barcode}
+              metaTitle={form.metaTitle}
+              onMetaTitleChange={(v) => update("metaTitle", v)}
+              metaDescription={form.metaDescription}
+              onMetaDescriptionChange={(v) => update("metaDescription", v)}
+              slug={form.slug}
+              onSlugChange={(v) => update("slug", v)}
+              ogImage={form.ogImage}
+              onOgImageChange={(v) => update("ogImage", v)}
+            />
             <CollectionsChannelsSection
               visibility={form.visibility}
               onVisibilityChange={(v) => update("visibility", v)}
               selectedCollectionIds={form.selectedCollectionIds}
               onCollectionsChange={(ids) => update("selectedCollectionIds", ids)}
             />
-          </div>
-        </StudioTabPanel>
-
-        {/* ── Tab: Advanced ── */}
-        <StudioTabPanel value="advanced">
-          <div className="space-y-5">
             <LazySupplierStudioSection
               supplierId={form.supplierId}
               onSupplierIdChange={(v) => update("supplierId", v)}
@@ -451,7 +460,7 @@ export default function CreateProductStudioPage(): React.ReactElement {
           </div>
         </StudioTabPanel>
 
-        {/* ── Tab: Preview ── */}
+        {/* ── Tab: Live Preview ── */}
         <StudioTabPanel value="preview">
           <StudioLivePreview form={form} />
         </StudioTabPanel>

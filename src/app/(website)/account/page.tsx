@@ -1,9 +1,10 @@
 import { getAccountOverviewAction } from "@/features/identity/actions/account-actions";
 import { AccountOverviewContent } from "./overview-content";
 import type { Metadata } from "next";
+import { BRAND } from "@/config/brand";
 
 export const metadata: Metadata = {
-  title: "Account Overview - DropshopNN",
+  title: `Account Overview - ${BRAND.publicName}`,
   robots: { index: false },
 };
 

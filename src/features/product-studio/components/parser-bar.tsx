@@ -158,8 +158,75 @@ export function ParserBar({
               </span>
               <Button
                 type="button"
+                variant="outline"
                 size="sm"
-                className="gap-1.5 font-bold bg-amber-500 hover:bg-amber-600 text-amber-950 dark:text-amber-950 shadow-xs"
+                className="text-xs font-semibold h-8"
+                onClick={() => {
+                  setText(
+`Prestige 3L Multifunctional Electric Cooker with Steamer
+আপনি কি ব্যাচেলর লাইফ, অফিস কিংবা পরিবারের জন্য একটি অল-ইন-ওয়ান রান্নার সহায়ক খুঁজছেন? NN Enterprise নিয়ে এলো প্রিমিয়াম কোয়ালিটির Prestige 3L Multifunctional Electric Cooker with Steamer। এই একটি কুকার দিয়েই আপনি গ্যাস সিলিন্ডার বা চুলার ঝামেলা ছাড়াই ঝটপট ভাত, নুডলস, কারি রান্না করার পাশাপাশি স্টিম মোমো বা সবজি তৈরি করতে পারবেন অত্যন্ত সহজে!
+
+🔥 কেন নেবেন এই প্রোডাক্টটি? (Why Buy This Product?)
+3.0 Litre Capacity: ৩ লিটার বড় ক্যাপাসিটি যা ৪-৫ জনের পরিবারের রান্নার জন্য একদম নিখুঁত।
+
+2-in-1 Cook & Steam: নিচে মেইন পটে রান্না হওয়ার সাথে সাথেই ওপরের স্টিমার ট্রেইতে ডিম, মোমো কিংবা সবজি স্টিম করে নিতে পারবেন।
+
+Non-Stick Coated Inner Pot: প্রিমিয়াম নন-স্টিক কোটেট পটের কারণে খাবার পুড়ে বা নিচে লেগে যায় না, এবং সহজে পরিষ্কার করা যায়।
+
+1500W Powerful Heating: দ্রুত তাপ উৎপন্ন করে সময় ও বিদ্যুৎ দুটিই সাশ্রয় করে।
+
+Automatic Warmer Function: রান্না শেষ হওয়ার পর খাবার দীর্ঘক্ষণ গরম ও তাজা রাখে।
+
+⚙️ বিশেষ বৈশিষ্ট্য ও স্পেসিফিকেশন (Key Features & Specifications)
+Brand: Prestige
+
+Model: Multifunctional Cooker with Steamer
+
+Capacity: 3.0 Litre
+
+Power Consumption: 1500 Watts
+
+Inner Pot Material: High-Grade Non-Stick Coated Alloy
+
+Control Switch: Easy Dual Power Level Control (Cook & Warm)
+
+Lid Type: Heat-Resistant Tempered Glass Lid with Steam Vent
+
+Safety Feature: Overheat & Dry-Burn Protection
+
+📖 কীভাবে ব্যবহার করবেন (How to Use)
+কর্ড সংযোগ করে পাওয়ার সকেটে দিন।
+
+ইননার পটে চাল, পানি, নুডলস বা প্রয়োজনীয় উপাদান দিন।
+
+স্টিম করতে চাইলে ওপরের স্টিমার বসিয়ে ঢাকনা আটকে সুইচ 'Cook' মোডে দিন।
+
+রান্না শেষ হলে এটি অটোমেটিক 'Warm' মোডে চলে যাবে বা ম্যানুয়ালি সুইচ বন্ধ করে পরিবেশন করুন।
+
+📦 প্যাকেজে যা যা থাকছে (Package Includes)
+1 x Prestige 3.0L Multi-Cooker Body
+
+1 x Upper Steamer Basket
+
+1 x Tempered Glass Lid
+
+1 x Rice Measuring Cup
+
+1 x Non-Stick Friendly Serving Spatula
+
+1 x Power Cable & Manual
+
+✅ NN Enterprise Quality Assurance
+NN Enterprise দিচ্ছে ১০০% অরিজিনাল প্রডাক্টের গ্যারান্টি, ক্যাশ অন ডেলিভারি সুবিধা এবং 7 Days Replacement Warranty। পণ্য হাতে পেয়ে চেক করে পেমেন্ট করার নিশ্চিন্ত সুবিধা উপভোগ করুন!`
+                  );
+                }}
+              >
+                📋 Load Sample Template
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                className="gap-1.5 font-bold bg-amber-500 hover:bg-amber-600 text-amber-950 dark:text-amber-950 shadow-xs h-8"
                 onClick={handleParse}
                 disabled={isParsing || !text.trim()}
               >

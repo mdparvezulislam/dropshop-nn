@@ -183,14 +183,18 @@ export function ProductCard({
           className,
         )}
       >
-        <div className="relative w-full sm:w-48 aspect-square rounded-xl bg-slate-100 overflow-hidden shrink-0">
+        <Link
+          href={productUrl}
+          className="relative w-full sm:w-48 aspect-square rounded-xl bg-slate-100 overflow-hidden shrink-0 block focus-visible:outline-2 focus-visible:outline-amber-500"
+          aria-label={product.name}
+        >
           <CardImage
             product={product}
             sizes="(max-width: 640px) 100vw, 200px"
             priority={priority}
           />
           <CardBadges product={product} />
-        </div>
+        </Link>
 
         <div className="flex-1 space-y-2.5 w-full">
           <div className="flex items-center justify-between gap-2">
@@ -259,18 +263,27 @@ export function ProductCard({
     >
       <div>
         <div className="relative aspect-square rounded-xl bg-slate-100 overflow-hidden">
-          <CardImage
-            product={product}
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
-            priority={priority}
-          />
+          <Link
+            href={productUrl}
+            className="absolute inset-0 block focus-visible:outline-2 focus-visible:outline-amber-500"
+            aria-label={product.name}
+          >
+            <CardImage
+              product={product}
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 20vw"
+              priority={priority}
+            />
+          </Link>
 
           <CardBadges product={product} />
 
-          <div className="absolute top-2 right-2 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-all duration-200 z-10">
+          <div className="absolute top-2 right-2 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-all duration-200 z-20">
             <button
               type="button"
-              onClick={() => setIsWishlisted(!isWishlisted)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsWishlisted(!isWishlisted);
+              }}
               aria-pressed={isWishlisted}
               aria-label={
                 isWishlisted
@@ -290,7 +303,10 @@ export function ProductCard({
             {onQuickView && (
               <button
                 type="button"
-                onClick={() => onQuickView(product)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onQuickView(product);
+                }}
                 aria-label={`কুইক ভিউ: ${product.name}`}
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 border border-slate-300 text-slate-800 hover:text-amber-600 hover:bg-white transition-all shadow-xs backdrop-blur-xs focus-visible:outline-2 focus-visible:outline-amber-500"
               >
@@ -301,7 +317,10 @@ export function ProductCard({
             {onCompare && (
               <button
                 type="button"
-                onClick={() => onCompare(product)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCompare(product);
+                }}
                 aria-label={`তুলনা করুন: ${product.name}`}
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 border border-slate-300 text-slate-800 hover:text-amber-600 hover:bg-white transition-all shadow-xs backdrop-blur-xs focus-visible:outline-2 focus-visible:outline-amber-500"
               >
@@ -311,7 +330,7 @@ export function ProductCard({
           </div>
 
           {outOfStock && (
-            <div className="absolute inset-0 bg-white/80 backdrop-blur-xs flex items-center justify-center z-10">
+            <div className="absolute inset-0 bg-white/80 backdrop-blur-xs flex items-center justify-center z-10 pointer-events-none">
               <span className="text-xs font-black uppercase tracking-wider text-red-700 px-3 py-1 rounded-full bg-red-50 border border-red-200">
                 স্টক শেষ
               </span>

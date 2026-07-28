@@ -331,6 +331,93 @@ export class OrderService {
     } as any);
   }
 
+  async updateOrderPayment(input: {
+    orderId: string;
+    paymentStatus: string;
+    advancePaid?: number;
+    paymentMethod?: string;
+    deliveryCharge?: number;
+  }): Promise<Order> {
+    const order = await this.orderRepository.findById(input.orderId);
+    if (!order) {
+      throw new NotFoundError("Order not found");
+    }
+
+    const grandTotal = order.pricing?.grandTotal || 0;
+    const advancePaid = Math.max(0, Number(input.advancePaid || 0));
+    const dueAmount = input.paymentStatus === "paid" ? 0 : Math.max(0, grandTotal - advancePaid);
+
+    const updatePayload: Record<string, any> = {
+      paymentStatus: input.paymentStatus,
+      advancePaid,
+      dueAmount,
+      "metadata.advancePaid": advancePaid,
+      "metadata.paymentStatus": input.paymentStatus,
+    };
+
+    if (input.paymentMethod) {
+      updatePayload["shipping.paymentMethod"] = input.paymentMethod;
+    }
+    if (input.deliveryCharge !== undefined) {
+      updatePayload["shipping.deliveryCharge"] = input.deliveryCharge;
+    }
+
+    const updated = await this.orderRepository.update(input.orderId, updatePayload);
+
+    await this.timelineService.addEntry({
+      entityType: "order",
+      entityId: input.orderId,
+      eventType: "order.payment_updated",
+      action: "order.payment_updated" as any,
+      summary: `Payment updated: Status=${input.paymentStatus}, Advance=৳${advancePaid}, Due=৳${dueAmount}`,
+    });
+
+    return updated;
+  }
+
+  async updateOrderAddress(input: {
+    orderId: string;
+    customerName?: string;
+    phone?: string;
+    division?: string;
+    district?: string;
+    upazila?: string;
+    address?: string;
+    deliveryNote?: string;
+  }): Promise<Order> {
+    const order = await this.orderRepository.findById(input.orderId);
+    if (!order) {
+      throw new NotFoundError("Order not found");
+    }
+
+    const updates: Record<string, any> = {};
+    if (input.customerName) {
+      updates["customer.name"] = input.customerName;
+      updates["shipping.receiverName"] = input.customerName;
+    }
+    if (input.phone) {
+      updates["customer.phone"] = input.phone;
+      updates["shipping.phone"] = input.phone;
+    }
+    if (input.division) updates["shipping.division"] = input.division;
+    if (input.district) updates["shipping.district"] = input.district;
+    if (input.upazila !== undefined) updates["shipping.upazila"] = input.upazila;
+    if (input.address) updates["shipping.address"] = input.address;
+    if (input.deliveryNote !== undefined) updates["shipping.deliveryNote"] = input.deliveryNote;
+
+    const updated = await this.orderRepository.update(input.orderId, updates);
+
+    await this.timelineService.addEntry({
+      entityType: "order",
+      entityId: input.orderId,
+      eventType: "order.updated",
+      action: "order.updated" as any,
+      summary: `Address updated for ${input.customerName || order.customer.name}`,
+    });
+
+    return updated;
+  }
+
   async updateTracking(
     orderId: string,
     trackingNumber: string,

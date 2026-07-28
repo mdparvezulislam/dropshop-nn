@@ -1,17 +1,15 @@
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Phone, MessageSquare, Mail, Clock, ShieldCheck } from "lucide-react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, ShieldCheck, Phone, MessageSquare, Mail, Clock } from "lucide-react";
+import { BRAND } from "@/config/brand";
 
 export function FooterCTASection(): React.ReactElement {
   return (
-    <section
-      className="w-full py-16 lg:py-24 bg-gradient-to-r from-accent via-white to-accent border-t border-border/50"
-      aria-label="Support & Registration CTA"
-    >
-      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          <div className="lg:col-span-7 space-y-5">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-xs font-bold text-primary">
+    <section className="relative w-full py-16 lg:py-24 bg-gradient-to-b from-card via-card/90 to-background border-t border-border overflow-hidden">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+          <div className="lg:col-span-7 space-y-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold border border-primary/20">
               <ShieldCheck className="h-4 w-4" />
               <span>Dedicated Bangladeshi Business Support</span>
             </div>
@@ -22,8 +20,8 @@ export function FooterCTASection(): React.ReactElement {
             </h2>
 
             <p className="text-base text-muted-foreground leading-relaxed max-w-xl">
-              Join 5,000+ active resellers, retail store owners, and suppliers already growing with
-              DropshopNN enterprise automation across 64 districts.
+              Join 5,000+ active resellers, retail store owners, and suppliers already growing with{" "}
+              {BRAND.publicName} enterprise automation across 64 districts.
             </p>
 
             <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -55,20 +53,20 @@ export function FooterCTASection(): React.ReactElement {
 
             <div className="space-y-3 text-xs">
               <a
-                href="tel:+8801700000000"
+                href={`tel:${BRAND.supportPhone.replace(/[\s-]/g, "")}`}
                 className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 hover:bg-accent border border-border/60 transition-all group"
               >
                 <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:scale-110 transition-transform">
                   <Phone className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="font-bold text-foreground">+880 1700-000000</p>
+                  <p className="font-bold text-foreground">{BRAND.supportPhone}</p>
                   <p className="text-muted-foreground">Phone Hotline (24/7 Available)</p>
                 </div>
               </a>
 
               <a
-                href="https://wa.me/8801700000000"
+                href={`https://wa.me/${BRAND.supportPhone.replace(/[\s-+]/g, "")}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-all text-emerald-900 group"
@@ -83,14 +81,14 @@ export function FooterCTASection(): React.ReactElement {
               </a>
 
               <a
-                href="mailto:hello@dropshopnn.com"
+                href={`mailto:${BRAND.supportEmail}`}
                 className="flex items-center gap-3 p-3 rounded-xl bg-muted/40 hover:bg-accent border border-border/60 transition-all group"
               >
                 <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:scale-110 transition-transform">
                   <Mail className="h-4 w-4" />
                 </div>
                 <div>
-                  <p className="font-bold text-foreground">hello@dropshopnn.com</p>
+                  <p className="font-bold text-foreground">{BRAND.supportEmail}</p>
                   <p className="text-muted-foreground">Official Business & Partnership Email</p>
                 </div>
               </a>

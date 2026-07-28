@@ -113,15 +113,20 @@ export function useSmartParse(
           report.push(`${parsed.specifications.length} Specifications`);
         }
 
-        // ── 4. Tags (merge) ──
+        // ── 4. Tags & SEO Keywords (merge) ──
         if (parsed.keywords && parsed.keywords.length > 0) {
           const tagSet = new Set(form.tags || []);
           for (const kw of parsed.keywords) {
             const cleanKw = kw.trim().toLowerCase();
             if (cleanKw) tagSet.add(cleanKw);
           }
-          updates.tags = Array.from(tagSet);
-          report.push(`${parsed.keywords.length} Tags`);
+          const allKeywords = Array.from(tagSet);
+          updates.tags = allKeywords;
+          updates.metaKeywords = allKeywords;
+          if (!form.metaTitle && parsed.title) {
+            updates.metaTitle = `${parsed.title} - NN Enterprise`;
+          }
+          report.push(`${parsed.keywords.length} SEO Keywords`);
         }
 
         // ── 5. Features (replace) ──
@@ -145,7 +150,6 @@ export function useSmartParse(
         // ── 8. Rich description with feature HTML ──
         if (parsed.features && parsed.features.length > 0) {
           const currentDesc = form.richDescription || "";
-          // Only append if not already present
           if (
             !currentDesc.includes("<ul>") &&
             !currentDesc.toLowerCase().includes("key features")
@@ -153,7 +157,6 @@ export function useSmartParse(
             const featureHtml = `\n<h3>Key Features</h3>\n<ul>\n${parsed.features
               .map((f) => `  <li>${f}</li>`)
               .join("\n")}\n</ul>`;
-            // Use textToParse as fallback
             const baseText = currentDesc || text;
             updates.richDescription = `${baseText}\n${featureHtml}`;
           }
@@ -171,7 +174,25 @@ export function useSmartParse(
           }
         }
 
-        // ── 10. Warranty ──
+        // ── 10. How to Use (append to richDescription) ──
+        if (parsed.howToUse && parsed.howToUse.length > 0) {
+          const currentDesc = updates.richDescription || form.richDescription || "";
+          if (!currentDesc.toLowerCase().includes("how to use")) {
+            const useHtml = `\n<h3>How to Use</h3>\n<ol>\n${parsed.howToUse
+              .map((step) => `  <li>${step}</li>`)
+              .join("\n")}\n</ol>`;
+            updates.richDescription = `${currentDesc}\n${useHtml}`;
+            report.push(`${parsed.howToUse.length} Usage Steps`);
+          }
+        }
+
+        // ── 11. Notice & QA ──
+        if (parsed.notice) {
+          updates.notice = parsed.notice;
+          report.push("Quality Assurance Notice");
+        }
+
+        // ── 12. Warranty ──
         if (parsed.warranty && !form.warranty) {
           updates.warranty = parsed.warranty;
           report.push("Warranty Info");

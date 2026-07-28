@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { HelpCircle, Search, FileText, PhoneCall, MessageSquare, ArrowRight } from "lucide-react";
+import { BRAND } from "@/config/brand";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Help Center - DropshopNN Bangladesh",
-  description: "Find guides, FAQs, and support channels for DropshopNN e-commerce platform.",
+  title: `Help Center - ${BRAND.publicName}`,
+  description: `Find guides, FAQs, and support channels for ${BRAND.publicName} e-commerce platform.`,
 };
 
 export default function HelpPage() {
@@ -14,7 +15,7 @@ export default function HelpPage() {
       <div className="container mx-auto px-4 max-w-5xl">
         <div className="text-center max-w-xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-amber-400 text-xs font-semibold mb-3">
-            <HelpCircle className="w-3.5 h-3.5" /> DropshopNN Knowledge Base
+            <HelpCircle className="w-3.5 h-3.5" /> {BRAND.publicName} Knowledge Base
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-white font-heading tracking-tight mb-2">
             How Can We Help You?

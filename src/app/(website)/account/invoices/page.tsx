@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { FileText, Download, Printer, CheckCircle2, Clock } from "lucide-react";
+import { BRAND } from "@/config/brand";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Invoices & Billing - DropshopNN Account",
+  title: `Invoices & Billing - ${BRAND.publicName} Account`,
   description: "Download official tax invoices, billing statements, and VAT receipts.",
 };
 

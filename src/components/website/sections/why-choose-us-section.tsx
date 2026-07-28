@@ -1,4 +1,5 @@
 import { UserCheck, RefreshCw, RotateCcw, Image, ShieldCheck } from "lucide-react";
+import { BRAND } from "@/config/brand";
 
 const WHY_CHOOSE_ITEMS = [
   {
@@ -37,7 +38,7 @@ export function WhyChooseUsSection(): React.ReactElement {
       <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
-            কেন <span className="text-amber-500">DropshopNN</span> সেরা?
+            কেন <span className="text-amber-500">{BRAND.publicName}</span> সেরা?
           </h2>
           <p className="text-xs sm:text-sm text-slate-600 font-bold mt-1">
             আমাদের সাথে ব্যবসা করার সুবিধাসমূহ

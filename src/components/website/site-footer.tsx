@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BRAND } from "@/config/brand";
 import type { PublicCategoryInfo } from "@/features/catalog/domain/public-catalog-types";
 
 function FacebookIcon(props: React.SVGProps<SVGSVGElement>): React.ReactElement {
@@ -105,11 +106,11 @@ export function SiteFooter({ categories = [] }: SiteFooterProps): React.ReactEle
           <div className="col-span-2 md:col-span-3 lg:col-span-2 space-y-3.5 sm:space-y-4">
             <Link href="/" className="flex items-center gap-2.5 group w-fit">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-slate-950 font-black text-xl shadow-md">
-                D
+                N
               </div>
               <div className="flex flex-col">
                 <span className="text-lg font-black tracking-tight text-white leading-none">
-                  Dropshop<span className="text-amber-500">NN</span>
+                  NN <span className="text-amber-500">Enterprise</span>
                 </span>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
                   Commerce OS
@@ -200,7 +201,7 @@ export function SiteFooter({ categories = [] }: SiteFooterProps): React.ReactEle
 
         {/* Copyright Bar */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
-          <p>&copy; 2026 DropshopNN. সর্বস্বত্ব সংরক্ষিত।</p>
+          <p>{BRAND.copyright}</p>
           <div className="flex items-center gap-4">
             <Link href="/privacy" className="hover:text-amber-400 transition-colors">
               প্রাইভেসি পলিসি

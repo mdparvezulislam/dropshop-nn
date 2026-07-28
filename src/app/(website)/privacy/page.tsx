@@ -1,13 +1,14 @@
 import { getPublicContentBySlugAction } from "@/features/cms/actions/content-actions";
 import { ShieldCheck } from "lucide-react";
 import { RichContentRenderer } from "@/components/editor/rich-content-renderer";
+import { BRAND } from "@/config/brand";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Privacy Policy - DropshopNN Bangladesh",
+  title: `Privacy Policy - ${BRAND.publicName}`,
   description:
-    "DropshopNN privacy policy regarding customer data protection, order processing, and payment security.",
+    `${BRAND.publicName} privacy policy regarding customer data protection, order processing, and payment security.`,
 };
 
 export default async function PrivacyPage() {
@@ -32,7 +33,7 @@ export default async function PrivacyPage() {
             <div>
               <h2>1. Information We Collect</h2>
               <p>
-                DropshopNN collects user account details, shipping addresses, phone numbers, and
+                {BRAND.publicName} collects user account details, shipping addresses, phone numbers, and
                 transactional records to process e-commerce orders and courier delivery across
                 Bangladesh.
               </p>

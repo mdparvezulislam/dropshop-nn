@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { getNotificationPreferencesAction } from "@/features/identity/actions/account-actions";
 import { NotificationsPageContent } from "./notifications-content";
+import { BRAND } from "@/config/brand";
 
 export const metadata: Metadata = {
-  title: "Notifications - DropshopNN",
+  title: `Notifications - ${BRAND.publicName}`,
   robots: { index: false },
 };
 

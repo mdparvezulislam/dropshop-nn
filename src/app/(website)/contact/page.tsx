@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { Mail, Phone, MapPin, MessageSquare, Send } from "lucide-react";
+import { BRAND } from "@/config/brand";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "যোগাযোগ ও কাস্টমার সাপোর্ট - DropshopNN Bangladesh",
-  description: "ড্রপশপ এনএন কাস্টমার কেয়ার, রিসেলার সাপোর্ট ও করপোরেট এড্রেস।",
+  title: `যোগাযোগ ও কাস্টমার সাপোর্ট - ${BRAND.publicName}`,
+  description: `${BRAND.publicName} কাস্টমার কেয়ার, রিসেলার সাপোর্ট ও করপোরেট এড্রেস।`,
 };
 
 export default function ContactPage() {

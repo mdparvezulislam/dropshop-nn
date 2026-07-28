@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 import { BlogCard } from "./blog-card";
 import { useState } from "react";
+import { BRAND } from "@/config/brand";
 
 interface BlogListingProps {
   posts: CmsContent[];
@@ -57,7 +58,7 @@ export function BlogListing({
     >
       <div className="mx-auto max-w-2xl text-center space-y-2">
         <h1 className="text-3xl font-black tracking-tight sm:text-4xl text-slate-900">
-          DropshopNN ব্লগ ও আর্টিক্যালের ক্যাটালগ
+          {BRAND.publicName} ব্লগ ও আর্টিক্যালের ক্যাটালগ
         </h1>
         <p className="mt-2 text-xs sm:text-sm font-bold text-slate-600">
           বাংলাদেশে ড্রপশিপিং, ই-কমার্স ব্যবসা বৃদ্ধি ও পাইকারি কেনাকাটার জন্য সেরা গাইডলাইন।

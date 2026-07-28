@@ -20,6 +20,8 @@ export interface GeneralSectionProps {
   onProductModelChange: (v: string) => void;
   barcode: string;
   onBarcodeChange: (v: string) => void;
+  stock?: string;
+  onStockChange?: (v: string) => void;
   onAutoGenerateSKU?: () => void;
 }
 
@@ -34,6 +36,8 @@ export function GeneralSection({
   onProductModelChange,
   barcode,
   onBarcodeChange,
+  stock,
+  onStockChange,
   onAutoGenerateSKU,
 }: GeneralSectionProps): React.ReactElement {
   const [qrOpen, setQrOpen] = React.useState(false);
@@ -96,6 +100,20 @@ export function GeneralSection({
               className="font-mono text-xs"
             />
           </FormField>
+
+          {/* Available Stock Quantity (Main Tab Quick Input) */}
+          {onStockChange !== undefined && (
+            <FormField label="Available Stock Quantity (Pcs)" required hint="Central warehouse stock count">
+              <Input
+                type="number"
+                min={0}
+                value={stock ?? "0"}
+                onChange={(e) => onStockChange(e.target.value)}
+                placeholder="100"
+                className="font-mono font-bold text-xs"
+              />
+            </FormField>
+          )}
 
           {/* Barcode / GTIN with QR Code Modal Trigger */}
           <FormField label="Barcode / GTIN / UPC">

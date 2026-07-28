@@ -24,9 +24,23 @@ export interface MediaItem {
 export interface MediaSectionProps {
   items: MediaItem[];
   onChange: (items: MediaItem[]) => void;
+  youtubeUrl?: string;
+  onYoutubeUrlChange?: (url: string) => void;
 }
 
-export function MediaSection({ items, onChange }: MediaSectionProps): React.ReactElement {
+export function extractYoutubeId(url?: string): string | null {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return match && match[2].length === 11 ? match[2] : null;
+}
+
+export function MediaSection({
+  items,
+  onChange,
+  youtubeUrl,
+  onYoutubeUrlChange,
+}: MediaSectionProps): React.ReactElement {
   const [urlInput, setUrlInput] = React.useState("");
   const [zoomUrl, setZoomUrl] = React.useState<string | null>(null);
   const [editingAltId, setEditingAltId] = React.useState<string | null>(null);
@@ -110,19 +124,22 @@ export function MediaSection({ items, onChange }: MediaSectionProps): React.Reac
 
   return (
     <>
-      <StudioCollapsibleSection
-        id="media"
-        title={`Media Studio (${items.length})`}
-        description="ImageKit drag-and-drop studio, clipboard paste, WebP optimization, and gallery management"
-        defaultExpanded={true}
-        badge={
-          items.length > 0 ? (
-            <Badge variant="secondary" size="xs" className="font-bold">
-              {items.length} Assets
-            </Badge>
-          ) : null
-        }
-      >
+      <div id="media" className="rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-sm space-y-6">
+        <div>
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-bold tracking-tight text-foreground">
+              Media & Video Studio ({items.length})
+            </h2>
+            {items.length > 0 && (
+              <Badge variant="secondary" size="xs" className="font-bold">
+                {items.length} Assets
+              </Badge>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            ImageKit drag-and-drop studio, clipboard paste, WebP optimization, gallery management, and YouTube Video Showcase.
+          </p>
+        </div>
         <div className="space-y-4">
           {/* Drag & Drop Zone */}
           <div
@@ -264,8 +281,39 @@ export function MediaSection({ items, onChange }: MediaSectionProps): React.Reac
               Add URL
             </Button>
           </div>
+
+          {/* YouTube Video Studio Embed Field */}
+          {onYoutubeUrlChange !== undefined && (
+            <div className="mt-5 rounded-2xl border border-red-500/20 bg-red-500/5 p-4 space-y-3">
+              <div className="flex items-center gap-2 text-xs font-bold text-red-600 dark:text-red-400">
+                <span className="p-1 rounded-md bg-red-500 text-white font-mono text-[10px]">YT</span>
+                <span>Product Video Showcase (YouTube Embed)</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Paste any YouTube video link (e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ). Video ID will be extracted and embedded automatically.
+              </p>
+              <Input
+                value={youtubeUrl || ""}
+                onChange={(e) => onYoutubeUrlChange(e.target.value)}
+                placeholder="https://www.youtube.com/watch?v=..."
+                className="h-10 text-xs font-mono border-red-200 focus:border-red-500"
+              />
+
+              {youtubeUrl && extractYoutubeId(youtubeUrl) && (
+                <div className="rounded-xl overflow-hidden border border-border aspect-video max-w-md mt-2 shadow-md">
+                  <iframe
+                    className="w-full h-full"
+                    src={`https://www.youtube.com/embed/${extractYoutubeId(youtubeUrl)}`}
+                    title="YouTube video player"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      </StudioCollapsibleSection>
+      </div>
 
       <ImageZoomModal
         open={Boolean(zoomUrl)}

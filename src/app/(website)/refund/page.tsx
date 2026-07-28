@@ -1,11 +1,12 @@
 import { getPublicContentBySlugAction } from "@/features/cms/actions/content-actions";
 import { RefreshCcw } from "lucide-react";
 import { RichContentRenderer } from "@/components/editor/rich-content-renderer";
+import { BRAND } from "@/config/brand";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Refund & Return Policy - DropshopNN",
+  title: `Refund & Return Policy - ${BRAND.publicName}`,
   description: "Learn about 7-day replacement warranty and wallet refund guidelines in Bangladesh.",
 };
 
@@ -34,7 +35,7 @@ export default async function RefundPage() {
               <h2>7-Day Defective Item Replacement</h2>
               <p>
                 If a product delivered to your customer is physically damaged or non-functional upon
-                unboxing, DropshopNN provides a full replacement within 7 days of delivery.
+                unboxing, {BRAND.publicName} provides a full replacement within 7 days of delivery.
               </p>
               <h2>Wallet Refund Process</h2>
               <p>

@@ -1,4 +1,5 @@
 import { Building2, Users, Package, TrendingUp } from "lucide-react";
+import { BRAND } from "@/config/brand";
 
 interface BusinessJourneyStep {
   icon: React.ReactNode;
@@ -16,7 +17,7 @@ const steps: BusinessJourneyStep[] = [
   },
   {
     icon: <TrendingUp className="h-8 w-8" />,
-    title: "DropshopNN",
+    title: BRAND.publicName,
     description: "Our platform handles everything automatically",
     index: 2,
   },
@@ -46,7 +47,7 @@ export function BusinessJourneySection(): React.ReactElement {
             Simple Business Model
           </h2>
           <p className="text-lg text-muted-foreground mt-4 max-w-2xl mx-auto">
-            Four simple steps to grow your business on DropshopNN
+            Four simple steps to grow your business on {BRAND.publicName}
           </p>
         </div>
 

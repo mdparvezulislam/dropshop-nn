@@ -1,3 +1,5 @@
+import { BRAND } from "./brand";
+
 /**
  * Single source of truth for the storefront's public identity.
  *
@@ -6,10 +8,10 @@
  * Override per environment with NEXT_PUBLIC_SITE_URL.
  */
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://dropshop.com.bd"
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? BRAND.websiteUrl
 ).trim();
 
-export const SITE_NAME = "DropshopNN";
+export const SITE_NAME = BRAND.publicName;
 
 export const SITE_LOCALE = "bn_BD";
 

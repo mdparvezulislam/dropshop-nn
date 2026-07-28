@@ -32,6 +32,8 @@ export interface ParsedProductData {
   categoryCode?: string;
   warranty?: string;
   packageContents?: string[];
+  howToUse?: string[];
+  notice?: string;
 }
 
 // Stop words dictionary (English + Bengali)
@@ -316,12 +318,14 @@ export class SmartParserService {
     const specifications = this.extractSpecifications(cleanText);
     const features = this.extractFeatures(cleanText);
     const seoDescription = this.generateSeoDescription(cleanText, title);
-    const keywords = this.extractKeywords(cleanText);
+    const keywords = this.generateSeoKeywords(title, cleanText);
     const brand = this.extractBrand(cleanText);
     const model = this.extractModel(cleanText, brand);
     const category = this.extractCategory(cleanText);
     const warranty = this.extractWarranty(cleanText);
     const packageContents = this.extractPackageContents(cleanText);
+    const howToUse = this.extractHowToUse(cleanText);
+    const notice = this.extractNotice(cleanText);
 
     return {
       title,
@@ -335,6 +339,8 @@ export class SmartParserService {
       category,
       warranty,
       packageContents,
+      howToUse,
+      notice,
     };
   }
 
@@ -401,46 +407,60 @@ export class SmartParserService {
   }
 
   /**
-   * 3. Specification Extraction (Regex matching Key: Value, Key - Value, Key = Value)
+   * 3. Specification Extraction (Section-Aware + Regex matching Key: Value)
    */
   public static extractSpecifications(cleanText: string): ParsedSpecification[] {
     const specs: ParsedSpecification[] = [];
     const seenKeys = new Set<string>();
-
     const lines = cleanText.split("\n");
-    // Match Key: Value, Key - Value, Key = Value patterns
-    // Also supports Bangla colon (ঃ) and wider key characters
-    const specRegex = /^[\s\*\-\•\✓\➢\▪]*([A-Za-z0-9ঀ-৿\s_\-\/\.\(\)]{2,50}?)\s*[:=\-ঃ]\s*(.+)$/;
+
+    const specsHeader = /(বিশেষ\s*বৈশিষ্ট্য\s*ও\s*স্পেসিফিকেশন|specifications|স্পেসিফিকেশন|technical\s*specs)/i;
+    const nextHeader = /(কীভাবে\s*ব্যবহার\s*করবেন|how\s*to\s*use|প্যাকেজে\s*যা\s*যা\s*থাকছে|package\s*includes|quality\s*assurance|গ্যারান্টি)/i;
+
+    let inSpecsSection = false;
+    const specRegex = /^[\s\*\-\•\✓\➢\▪\⚙️]*([A-Za-z0-9ঀ-৿\s_\-\/\.\(\)]{2,50}?)\s*[:=\-ঃ]\s*(.+)$/;
 
     for (const line of lines) {
       const trimmed = line.trim();
-      if (!trimmed || trimmed.length < 4) continue;
+      if (!trimmed) continue;
 
-      const match = trimmed.match(specRegex);
-      if (match && match[1] && match[2]) {
-        const key = match[1].trim();
-        const value = match[2].trim();
+      if (specsHeader.test(trimmed)) {
+        inSpecsSection = true;
+        continue;
+      }
 
-        // Validation: key must not be a sentence, URL, or too long
-        if (
-          key.length >= 2 &&
-          key.length <= 40 &&
-          !key.includes("http") &&
-          !key.includes("www") &&
-          key.split(" ").length <= 7 &&
-          value.length >= 1 &&
-          value.length <= 250
-        ) {
-          const keyLower = key.toLowerCase();
-          if (!seenKeys.has(keyLower)) {
-            seenKeys.add(keyLower);
-            specs.push({
-              key,
-              label: key,
-              value,
-              group: "General",
-              type: "text",
-            });
+      if (inSpecsSection && nextHeader.test(trimmed)) {
+        inSpecsSection = false;
+        break;
+      }
+
+      // If we are in the dedicated specs section, OR if section headers don't exist in text at all
+      if (inSpecsSection || !cleanText.match(specsHeader)) {
+        const match = trimmed.match(specRegex);
+        if (match && match[1] && match[2]) {
+          const key = match[1].replace(/^[⚙️🔥📖📦✅\s]+/, "").trim();
+          const value = match[2].trim();
+
+          if (
+            key.length >= 2 &&
+            key.length <= 40 &&
+            !key.includes("http") &&
+            !key.includes("www") &&
+            key.split(" ").length <= 7 &&
+            value.length >= 1 &&
+            value.length <= 250
+          ) {
+            const keyLower = key.toLowerCase();
+            if (!seenKeys.has(keyLower)) {
+              seenKeys.add(keyLower);
+              specs.push({
+                key,
+                label: key,
+                value,
+                group: "General",
+                type: "text",
+              });
+            }
           }
         }
       }
@@ -450,25 +470,58 @@ export class SmartParserService {
   }
 
   /**
-   * 4. Feature Extraction (List Parsing): Extracts lines starting with bullets
+   * 4. Feature Extraction (Section-Aware: Why Buy / Features section)
    */
   public static extractFeatures(cleanText: string): string[] {
     const features: string[] = [];
     const lines = cleanText.split("\n");
 
-    // Matches bullets: -, *, •, ✓, ➢, ▪, ►, or numbered lists: 1., 2.
+    const featuresHeader = /(কেন\s*নেবেন\s*এই\s*প্রোডাক্টটি|why\s*buy\s*this\s*product|কেন\s*কিনবেন|key\s*highlights|features)/i;
+    const specsHeader = /(বিশেষ\s*বৈশিষ্ট্য\s*ও\s*স্পেসিফিকেশন|specifications|স্পেসিফিকেশন|technical\s*specs|কীভাবে\s*ব্যবহার\s*করবেন|how\s*to\s*use)/i;
+
+    let inFeaturesSection = false;
     const bulletRegex = /^[\s]*[\-\*\•\✓\➢\▪\►\d+\.]+\s*(.+)$/;
+
+    // Helper: test if line is a short key-value spec pair (e.g. Brand: Prestige, Model: XYZ)
+    const isSpecPair = (line: string): boolean => {
+      const parts = line.split(/[:=\-ঃ]/);
+      if (parts.length === 2) {
+        const key = parts[0].replace(/^[🔥⚙️📖📦✅\s\-\*\•\✓\➢\▪\►\d+\.]+\s*/, "").trim();
+        const val = parts[1].trim();
+        const isKnownSpecKey = /^(brand|model|capacity|power|consumption|pot|material|switch|lid|safety|warranty|origin|color|weight|size|sku)/i.test(key);
+        if (isKnownSpecKey || (key.length <= 25 && val.length <= 35)) {
+          return true;
+        }
+      }
+      return false;
+    };
 
     for (const line of lines) {
       const trimmed = line.trim();
       if (!trimmed) continue;
 
-      const match = trimmed.match(bulletRegex);
-      if (match && match[1]) {
-        const feat = match[1].trim();
-        // Discard if too short, or if it's a key-value spec, or duplicate
-        if (feat.length >= 4 && !feat.includes(":") && !features.includes(feat)) {
-          features.push(feat);
+      if (featuresHeader.test(trimmed)) {
+        inFeaturesSection = true;
+        continue;
+      }
+
+      if (inFeaturesSection && specsHeader.test(trimmed)) {
+        inFeaturesSection = false;
+        break;
+      }
+
+      if (inFeaturesSection) {
+        const cleanLine = trimmed.replace(/^[🔥⚙️📖📦✅\s\-\*\•\✓\➢\▪\►\d+\.]+\s*/, "").trim();
+        if (cleanLine.length >= 4 && !isSpecPair(cleanLine) && !features.includes(cleanLine)) {
+          features.push(cleanLine);
+        }
+      } else if (!cleanText.match(featuresHeader)) {
+        const match = trimmed.match(bulletRegex);
+        if (match && match[1]) {
+          const feat = match[1].trim();
+          if (feat.length >= 4 && !isSpecPair(feat) && !features.includes(feat)) {
+            features.push(feat);
+          }
         }
       }
     }
@@ -710,6 +763,118 @@ export class SmartParserService {
 
     // Limit to reasonable count
     return contents.slice(0, 15);
+  }
+
+  /**
+   * 12. Smart SEO Keywords Generator: Creates single-word & multi-word phrase keywords from product title & clean text
+   */
+  public static generateSeoKeywords(title: string, cleanText: string): string[] {
+    const keywordSet = new Set<string>();
+
+    if (title) {
+      const cleanTitle = title.trim().toLowerCase();
+      keywordSet.add(cleanTitle);
+
+      // Extract title words removing symbols
+      const words = cleanTitle
+        .replace(/[^\w\s]/g, " ")
+        .split(/\s+/)
+        .filter((w) => w.length >= 2 && !ENGLISH_STOP_WORDS.has(w) && !BENGALI_STOP_WORDS.has(w));
+
+      // Generate 2-word & 3-word phrase combinations from title
+      for (let i = 0; i < words.length - 1; i++) {
+        keywordSet.add(`${words[i]} ${words[i + 1]}`);
+        if (i < words.length - 2) {
+          keywordSet.add(`${words[i]} ${words[i + 1]} ${words[i + 2]}`);
+        }
+      }
+
+      // Add high-intent e-commerce search variations
+      if (words.length >= 2) {
+        keywordSet.add(`${words.slice(-2).join(" ")} price in bd`);
+        keywordSet.add(`${words[0]} ${words[words.length - 1]}`);
+      }
+    }
+
+    // Extract top frequent words from cleanText
+    const topWords = this.extractKeywords(cleanText, 10);
+    for (const w of topWords) {
+      if (w.length >= 3) keywordSet.add(w.toLowerCase());
+    }
+
+    return Array.from(keywordSet).slice(0, 15);
+  }
+
+  /**
+   * 13. How to Use Extraction: Extracts instructions under 'How to Use' / 'কীভাবে ব্যবহার করবেন'
+   */
+  public static extractHowToUse(cleanText: string): string[] {
+    if (!cleanText) return [];
+
+    const lines = cleanText.split("\n");
+    const steps: string[] = [];
+    let inSection = false;
+
+    const sectionHeader = /(how\s*to\s*use|কীভাবে\s*ব্যবহার\s*করবেন|ব্যবহারের\s*নিয়ম)/i;
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+
+      if (sectionHeader.test(trimmed)) {
+        inSection = true;
+        continue;
+      }
+
+      // Stop section if encountering another header emoji or section
+      if (inSection && /^(📦|⚙️|🔥|✅|📦|http|NN Enterprise Quality Assurance)/i.test(trimmed)) {
+        inSection = false;
+        break;
+      }
+
+      if (inSection) {
+        const step = trimmed.replace(/^[\s\-\*\•\✓\➢\▪\►\d+\.\]]+\s*/, "").trim();
+        if (step.length >= 4) {
+          steps.push(step);
+        }
+      }
+    }
+
+    return steps;
+  }
+
+  /**
+   * 14. Notice & Quality Assurance Extraction: Extracts QA & Warranty notice
+   */
+  public static extractNotice(cleanText: string): string | undefined {
+    if (!cleanText) return undefined;
+
+    const lines = cleanText.split("\n");
+    let inSection = false;
+    const noticeLines: string[] = [];
+
+    const sectionHeader = /(quality\s*assurance|ক্যাশ\s*অন\s*ডেলিভারি|৭\s*দিনের\s*রিপ্লেসমেন্ট|7\s*days\s*replacement|গ্যারান্টি)/i;
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+
+      if (sectionHeader.test(trimmed) || trimmed.includes("NN Enterprise Quality Assurance")) {
+        inSection = true;
+        noticeLines.push(trimmed.replace(/^[✅🔥📖📦⚙️\s]+/, "").trim());
+        continue;
+      }
+
+      if (inSection) {
+        noticeLines.push(trimmed);
+      }
+    }
+
+    if (noticeLines.length > 0) {
+      return noticeLines.join(" ");
+    }
+
+    return undefined;
   }
 }
 

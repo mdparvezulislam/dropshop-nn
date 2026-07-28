@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactElement } from "react";
 import Link from "next/link";
 import { PackageCheck, PencilLine, ShieldCheck, Star, Trash2 } from "lucide-react";
+import { BRAND } from "@/config/brand";
 
 /**
  * Review policy page.
@@ -15,7 +16,7 @@ import { PackageCheck, PencilLine, ShieldCheck, Star, Trash2 } from "lucide-reac
 export const metadata: Metadata = {
   title: "রিভিউ নীতিমালা — ভেরিফায়েড ক্রেতার মতামত",
   description:
-    "DropshopNN-এ রিভিউ দিতে পারেন শুধু সেই ক্রেতারা যাঁদের অর্ডার ডেলিভারি সম্পন্ন হয়েছে। রিভিউ কীভাবে কাজ করে তা জানুন।",
+    `${BRAND.publicName}-এ রিভিউ দিতে পারেন শুধু সেই ক্রেতারা যাঁদের অর্ডার ডেলিভারি সম্পন্ন হয়েছে। রিভিউ কীভাবে কাজ করে তা জানুন।`,
   alternates: { canonical: "/reviews" },
 };
 
@@ -77,7 +78,7 @@ export default function ReviewPolicyPage(): ReactElement {
           </span>
           <h1 className="mt-3 text-2xl font-black tracking-tight sm:text-3xl">রিভিউ নীতিমালা</h1>
           <p className="mt-3 text-sm font-medium leading-relaxed text-slate-600">
-            DropshopNN-এ কোনো সাজানো বা কেনা রিভিউ নেই। রিভিউ দিতে পারেন কেবল সেই ক্রেতারা, যাঁদের
+            {BRAND.publicName}-এ কোনো সাজানো বা কেনা রিভিউ নেই। রিভিউ দিতে পারেন কেবল সেই ক্রেতারা, যাঁদের
             অর্ডার সত্যিই ডেলিভারি হয়েছে। তাই প্রতিটি প্রোডাক্টের রেটিং যা দেখছেন, তা প্রকৃত
             ক্রেতার মতামত থেকেই তৈরি।
           </p>

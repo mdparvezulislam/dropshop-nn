@@ -1,11 +1,12 @@
 import { getPublicContentBySlugAction } from "@/features/cms/actions/content-actions";
 import { Scale } from "lucide-react";
 import { RichContentRenderer } from "@/components/editor/rich-content-renderer";
+import { BRAND } from "@/config/brand";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Terms & Conditions - DropshopNN Bangladesh",
+  title: `Terms & Conditions - ${BRAND.publicName}`,
   description: "User agreement, reseller code of conduct, and terms of service.",
 };
 
@@ -31,7 +32,7 @@ export default async function TermsPage() {
             <div>
               <h2>Platform Agreement</h2>
               <p>
-                By registering an account on DropshopNN, suppliers, reseller partners, wholesale
+                By registering an account on {BRAND.publicName}, suppliers, reseller partners, wholesale
                 buyers, and retail customers agree to follow fair trading practices and accurate
                 product descriptions.
               </p>

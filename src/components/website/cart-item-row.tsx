@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Trash2, Minus, Plus, Heart } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -47,22 +48,26 @@ export function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowPro
       transition={{ duration: 0.2 }}
       className="flex gap-4 p-4 rounded-xl border border-border/60 bg-card"
     >
-      <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg bg-muted shrink-0 overflow-hidden">
+      <Link
+        href={`/product/${item.slug}`}
+        className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg bg-muted shrink-0 overflow-hidden block focus-visible:outline-2 focus-visible:outline-amber-500"
+        aria-label={item.name}
+      >
         <div
-          className="w-full h-full bg-cover bg-center"
+          className="w-full h-full bg-cover bg-center transition-transform hover:scale-105"
           style={{ backgroundImage: item.image ? `url(${item.image})` : undefined }}
         />
-      </div>
+      </Link>
 
       <div className="flex-1 min-w-0 space-y-2">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <a
+            <Link
               href={`/product/${item.slug}`}
-              className="text-sm font-semibold text-foreground hover:text-primary transition-colors line-clamp-1"
+              className="text-sm font-semibold text-foreground hover:text-primary transition-colors line-clamp-1 block focus-visible:outline-2 focus-visible:outline-amber-500 rounded"
             >
               {item.name}
-            </a>
+            </Link>
             {item.variant && <p className="text-xs text-foreground/40 mt-0.5">{item.variant}</p>}
             {item.sku && (
               <p className="text-[11px] text-foreground/30 font-mono mt-0.5">SKU: {item.sku}</p>

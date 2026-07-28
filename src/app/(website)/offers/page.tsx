@@ -7,12 +7,14 @@ import { ProductCard } from "@/components/website/product-card";
 import type { PublicProductCard } from "@/features/catalog/domain/public-catalog-types";
 import { Zap, Sparkles, AlertTriangle } from "lucide-react";
 
+import { BRAND } from "@/config/brand";
+
 export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "অফার ও ফ্ল্যাশ সেল",
   description:
-    "DropshopNN-এ চলমান ফ্ল্যাশ ডিল এবং বাছাই করা প্রোডাক্ট দেখুন। অরিজিনাল প্রোডাক্ট, সারা বাংলাদেশে ক্যাশ অন ডেলিভারি।",
+    `${BRAND.publicName}-এ চলমান ফ্ল্যাশ ডিল এবং বাছাই করা প্রোডাক্ট দেখুন। অরিজিনাল প্রোডাক্ট, সারা বাংলাদেশে ক্যাশ অন ডেলিভারি।`,
 };
 
 function ErrorState({ message }: { message: string }): React.ReactElement {

@@ -145,6 +145,7 @@ export interface ProductDBFields {
   hasVariants?: boolean;
   variants: any[];
   media: any[];
+  videoUrl?: string;
   specifications?: any[];
   metaTitle?: string;
   metaDescription?: string;
@@ -198,6 +199,7 @@ const productSchema = new Schema<ProductDocument>(
     hasVariants: { type: Boolean, default: false },
     variants: [productVariantSchema],
     media: [productMediaSchema],
+    videoUrl: { type: String, required: false },
     specifications: [productSpecificationSchema],
     metaTitle: { type: String, required: false },
     metaDescription: { type: String, required: false },

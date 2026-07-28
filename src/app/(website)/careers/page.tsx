@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { Briefcase, ArrowRight, Sparkles, Heart } from "lucide-react";
+import { BRAND } from "@/config/brand";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Careers at DropshopNN Bangladesh",
+  title: `Careers at ${BRAND.publicName}`,
   description:
-    "Join the team building Bangladesh's next-generation e-commerce and logistics platform.",
+    `Join the team building Bangladesh's next-generation e-commerce and logistics platform.`,
 };
 
 const JOBS = [

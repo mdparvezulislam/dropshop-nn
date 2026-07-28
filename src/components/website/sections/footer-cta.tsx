@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { BRAND } from "@/config/brand";
 
 interface FooterCtaProps {
   title?: string;
@@ -10,7 +11,7 @@ interface FooterCtaProps {
 
 export function FooterCta({
   title = "Ready to Transform Your Business?",
-  description = "Join thousands of businesses across Bangladesh already growing with DropshopNN",
+  description = `Join thousands of businesses across Bangladesh already growing with ${BRAND.publicName}`,
   primaryCta = { label: "Get Started Free", href: "/products" },
   secondaryCta = { label: "Talk to Sales", href: "/contact" },
 }: FooterCtaProps) {

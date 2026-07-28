@@ -80,11 +80,11 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-slate-950 font-black text-xl shadow-md group-hover:scale-105 transition-transform">
-                D
+                N
               </div>
               <div className="flex flex-col">
                 <span className="text-lg font-black tracking-tight text-slate-900 leading-none">
-                  Dropshop<span className="text-amber-500">NN</span>
+                  NN <span className="text-amber-500">Enterprise</span>
                 </span>
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
                   Commerce OS

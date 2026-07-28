@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Star, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { BRAND } from "@/config/brand";
 
 const TESTIMONIALS = [
   {
@@ -13,7 +14,7 @@ const TESTIMONIALS = [
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
     rating: 5,
     content:
-      "DropshopNN এর সাথে কাজ করে আমি খুবই সন্তুষ্ট। প্রোডাক্ট কোয়ালিটি এবং ডেলিভারি সার্ভিস অসাধারণ!",
+      `${BRAND.publicName} এর সাথে কাজ করে আমি খুবই সন্তুষ্ট। প্রোডাক্ট কোয়ালিটি এবং ডেলিভারি সার্ভিস অসাধারণ!`,
   },
   {
     name: "ফারিয়া আক্তার",
@@ -29,7 +30,7 @@ const TESTIMONIALS = [
     avatar:
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
     rating: 5,
-    content: "স্টক ছাড়াই ব্যবসা শুরু করেছি। DropshopNN আমার জন্য গেম চেঞ্জার!",
+    content: `স্টক ছাড়াই ব্যবসা শুরু করেছি। ${BRAND.publicName} আমার জন্য গেম চেঞ্জার!`,
   },
 ];
 

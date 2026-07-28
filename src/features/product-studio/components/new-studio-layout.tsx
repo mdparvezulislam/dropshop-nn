@@ -32,16 +32,12 @@ import { StudioRightSidebar } from "./sidebar/studio-right-sidebar";
    ───────────────────────────────────────────────────────────────────────────── */
 
 export const STUDIO_TABS: StudioTabItem[] = [
-  { value: "basic", label: "Basic", icon: <Info className="h-4 w-4" /> },
-  { value: "pricing", label: "Pricing", icon: <DollarSign className="h-4 w-4" /> },
-  { value: "images", label: "Images", icon: <ImageIcon className="h-4 w-4" /> },
-  { value: "description", label: "Description", icon: <FileText className="h-4 w-4" /> },
-  { value: "specs", label: "Specifications", icon: <ListChecks className="h-4 w-4" /> },
-  { value: "variants", label: "Variants", icon: <LayoutGrid className="h-4 w-4" /> },
-  { value: "seo", label: "SEO", icon: <Search className="h-4 w-4" /> },
-  { value: "marketing", label: "Marketing", icon: <Tag className="h-4 w-4" /> },
-  { value: "advanced", label: "Advanced", icon: <Sparkles className="h-4 w-4" /> },
-  { value: "preview", label: "Preview", icon: <Eye className="h-4 w-4" /> },
+  { value: "basic", label: "Product Details", icon: <Info className="h-4 w-4" /> },
+  { value: "pricing", label: "Pricing & Stock", icon: <DollarSign className="h-4 w-4" /> },
+  { value: "media", label: "Media & Video Studio", icon: <ImageIcon className="h-4 w-4" /> },
+  { value: "variants", label: "Variant Studio Matrix", icon: <LayoutGrid className="h-4 w-4" /> },
+  { value: "seo", label: "SEO & Publishing", icon: <Search className="h-4 w-4" /> },
+  { value: "preview", label: "Live Preview", icon: <Eye className="h-4 w-4" /> },
 ];
 
 /** Tab indices for the mobile stepper (preview excluded) */

@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AlertTriangle, RotateCcw } from "lucide-react";
+import { BRAND } from "@/config/brand";
 import {
   getPublicBrandsAction,
   getPublicCategoriesAction,
@@ -76,10 +77,10 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
   const q = parseQuery(first(sp.q));
 
   return {
-    title: q ? `${q} - সার্চ ফলাফল - DropshopNN` : "প্রোডাক্ট অনুসন্ধান - DropshopNN",
+    title: q ? `${q} - সার্চ ফলাফল - ${BRAND.publicName}` : `প্রোডাক্ট অনুসন্ধান - ${BRAND.publicName}`,
     description: q
-      ? `DropshopNN ক্যাটালগে "${q}" এর সার্চ ফলাফল`
-      : "DropshopNN ক্যাটালগে প্রোডাক্ট, ব্র্যান্ড ও ক্যাটাগরি খুঁজুন",
+      ? `${BRAND.publicName} ক্যাটালগে "${q}" এর সার্চ ফলাফল`
+      : `${BRAND.publicName} ক্যাটালগে প্রোডাক্ট, ব্র্যান্ড ও ক্যাটাগরি খুঁজুন`,
     robots: q ? { index: false, follow: true } : { index: true, follow: true },
   };
 }

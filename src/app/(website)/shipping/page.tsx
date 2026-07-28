@@ -1,11 +1,12 @@
 import { getPublicContentBySlugAction } from "@/features/cms/actions/content-actions";
 import { Truck } from "lucide-react";
 import { RichContentRenderer } from "@/components/editor/rich-content-renderer";
+import { BRAND } from "@/config/brand";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Shipping & Courier Policy - DropshopNN",
+  title: `Shipping & Courier Policy - ${BRAND.publicName}`,
   description:
     "Pathao Express and Steadfast Courier delivery timelines, shipping rates, and Cash on Delivery guidelines across BD.",
 };

@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { Truck, ShieldCheck, ArrowRight, Store, DollarSign } from "lucide-react";
+import { BRAND } from "@/config/brand";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Become a Supplier Partner - DropshopNN Bangladesh",
+  title: `Become a Supplier Partner - ${BRAND.publicName}`,
   description:
-    "List your inventory on Bangladesh's leading dropshipping and wholesale platform. Reach 2,500+ active resellers.",
+    `List your inventory on Bangladesh's leading dropshipping and wholesale platform. Reach 2,500+ active resellers.`,
 };
 
 export default function BecomeSupplierPage() {

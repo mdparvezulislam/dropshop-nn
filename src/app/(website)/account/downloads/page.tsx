@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Download, Package, FileArchive, Sparkles } from "lucide-react";
+import { BRAND } from "@/config/brand";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Marketing Kits & Downloads - DropshopNN Account",
+  title: `Marketing Kits & Downloads - ${BRAND.publicName} Account`,
   description: "Download promotional banners, HD product photos, and product data sheets.",
 };
 

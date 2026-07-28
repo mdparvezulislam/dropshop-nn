@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Store, PackageCheck, Building2, CheckCircle2 } from "lucide-react";
+import { BRAND } from "@/config/brand";
 
 const roles = [
   {
@@ -61,7 +62,7 @@ export function RoleHighlights() {
             Partner Ecosystem
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-foreground">
-            Who Is DropshopNN Built For?
+            Who Is {BRAND.publicName} Built For?
           </h2>
           <p className="text-base text-muted-foreground max-w-2xl mx-auto">
             Select your commerce track to start sourcing, selling, or supplying products across

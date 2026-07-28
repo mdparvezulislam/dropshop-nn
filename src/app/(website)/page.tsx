@@ -6,6 +6,7 @@ import {
   getPublicCategoriesAction,
 } from "@/features/catalog/actions/public-actions";
 import { SITE_LOCALE } from "@/config/site";
+import { BRAND } from "@/config/brand";
 
 import {
   HeroSection,
@@ -24,8 +25,8 @@ export const metadata: Metadata = {
   description:
     "রিসেলার, হোলসেলার এবং ড্রপশিপারদের জন্য অল-ইন-ওয়ান প্রোডাক্ট সাপ্লাই প্ল্যাটফর্ম। অরিজিনাল প্রোডাক্ট, সারা বাংলাদেশে ক্যাশ অন ডেলিভারি।",
   openGraph: {
-    title: "DropshopNN — বাংলাদেশের অনলাইন শপ",
-    description: "সোর্স করুন, বিক্রি করুন, ব্যবসা বাড়ান DropshopNN এর সাথে।",
+    title: `${BRAND.publicName} — ${BRAND.tagline}`,
+    description: `সোর্স করুন, বিক্রি করুন, ব্যবসা বাড়ান ${BRAND.publicName} এর সাথে।`,
     type: "website",
     locale: SITE_LOCALE,
   },
