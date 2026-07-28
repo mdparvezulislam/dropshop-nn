@@ -1,12 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { useEditor, EditorContent } from "@tiptap/react";
+import { useEditor, EditorContent, Extension } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
+import TextAlign from "@tiptap/extension-text-align";
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
@@ -30,7 +31,56 @@ import {
   Heading2,
   Heading3,
   Table as TableIcon,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
+  Code,
+  RemoveFormatting,
 } from "lucide-react";
+
+// Tiptap Extension to preserve style and class attributes on all rich text elements
+const PreserveStyleAndClass = Extension.create({
+  name: "preserveStyleAndClass",
+  addGlobalAttributes() {
+    return [
+      {
+        types: [
+          "heading",
+          "paragraph",
+          "listItem",
+          "bulletList",
+          "orderedList",
+          "blockquote",
+          "table",
+          "tableRow",
+          "tableHeader",
+          "tableCell",
+          "image",
+          "link",
+        ],
+        attributes: {
+          style: {
+            default: null,
+            parseHTML: (element: HTMLElement) => element.getAttribute("style"),
+            renderHTML: (attributes: { style?: string }) => {
+              if (!attributes.style) return {};
+              return { style: attributes.style };
+            },
+          },
+          class: {
+            default: null,
+            parseHTML: (element: HTMLElement) => element.getAttribute("class"),
+            renderHTML: (attributes: { class?: string }) => {
+              if (!attributes.class) return {};
+              return { class: attributes.class };
+            },
+          },
+        },
+      },
+    ];
+  },
+});
 
 export interface RichTextEditorProps {
   value?: string;
@@ -44,18 +94,28 @@ export interface RichTextEditorProps {
 export function RichTextEditor({
   value = "",
   onChange,
-  placeholder = "Start writing…",
+  placeholder = "Start writing or paste HTML content…",
   className,
   editable = true,
   minHeight = "14rem",
 }: RichTextEditorProps): React.ReactElement {
+  const [showHtmlSource, setShowHtmlSource] = React.useState(false);
+
   const editor = useEditor({
     immediatelyRender: false,
+    parseOptions: {
+      preserveWhitespace: "full",
+    },
     extensions: [
       StarterKit.configure({
-        heading: { levels: [1, 2, 3] },
+        heading: { levels: [1, 2, 3, 4, 5, 6] },
       }),
+      PreserveStyleAndClass,
       Underline,
+      TextAlign.configure({
+        types: ["heading", "paragraph"],
+        alignments: ["left", "center", "right", "justify"],
+      }),
       Link.configure({
         openOnClick: false,
         HTMLAttributes: { rel: "noopener noreferrer", target: "_blank" },
@@ -74,7 +134,7 @@ export function RichTextEditor({
     },
     editorProps: {
       attributes: {
-        class: "tiptap focus:outline-none px-4 py-3",
+        class: "rich-content rich-content-editor tiptap focus:outline-none px-4 py-3",
         style: `min-height: ${minHeight}`,
       },
     },
@@ -179,6 +239,30 @@ export function RichTextEditor({
       active: editor.isActive("strike"),
     },
     {
+      icon: AlignLeft,
+      label: "Align Left",
+      action: () => editor.chain().focus().setTextAlign("left").run(),
+      active: editor.isActive({ textAlign: "left" }),
+    },
+    {
+      icon: AlignCenter,
+      label: "Align Center",
+      action: () => editor.chain().focus().setTextAlign("center").run(),
+      active: editor.isActive({ textAlign: "center" }),
+    },
+    {
+      icon: AlignRight,
+      label: "Align Right",
+      action: () => editor.chain().focus().setTextAlign("right").run(),
+      active: editor.isActive({ textAlign: "right" }),
+    },
+    {
+      icon: AlignJustify,
+      label: "Align Justify",
+      action: () => editor.chain().focus().setTextAlign("justify").run(),
+      active: editor.isActive({ textAlign: "justify" }),
+    },
+    {
       icon: List,
       label: "Bullet list",
       action: () => editor.chain().focus().toggleBulletList().run(),
@@ -204,6 +288,17 @@ export function RichTextEditor({
     { icon: Link2, label: "Link", action: setLink, active: editor.isActive("link") },
     { icon: ImageIcon, label: "Image", action: addImage },
     { icon: TableIcon, label: "Table", action: addTable },
+    {
+      icon: RemoveFormatting,
+      label: "Clear Formatting",
+      action: () => editor.chain().focus().unsetAllMarks().clearNodes().run(),
+    },
+    {
+      icon: Code,
+      label: "HTML Source",
+      action: () => setShowHtmlSource((prev) => !prev),
+      active: showHtmlSource,
+    },
   ];
 
   return (
@@ -229,7 +324,7 @@ export function RichTextEditor({
                 title={tool.label}
                 className={cn(
                   "h-7 w-7 text-muted-foreground",
-                  tool.active && "bg-primary/15 text-primary",
+                  tool.active && "bg-primary/15 text-primary font-bold",
                 )}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -238,7 +333,23 @@ export function RichTextEditor({
           })}
         </div>
       ) : null}
-      <EditorContent editor={editor} />
+      {showHtmlSource ? (
+        <div className="p-3">
+          <textarea
+            value={value}
+            onChange={(e) => {
+              const newHtml = e.target.value;
+              onChange?.(newHtml);
+              editor.commands.setContent(newHtml, { emitUpdate: false });
+            }}
+            placeholder="Edit raw HTML source code..."
+            className="w-full font-mono text-xs p-3 rounded-lg border border-border bg-muted/30 focus:outline-none focus:ring-1 focus:ring-primary"
+            style={{ minHeight }}
+          />
+        </div>
+      ) : (
+        <EditorContent editor={editor} />
+      )}
     </div>
   );
 }

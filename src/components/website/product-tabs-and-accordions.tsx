@@ -12,6 +12,7 @@ import {
   Tag,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { RichContentRenderer } from "@/components/editor/rich-content-renderer";
 
 interface ProductSpecification {
   key: string;
@@ -116,12 +117,7 @@ export function ProductTabsAndAccordions({
         icon: <FileText className="w-4 h-4" aria-hidden />,
         content: (
           <div className="space-y-4 text-sm text-slate-700 leading-relaxed">
-            {description && (
-              <div
-                className="prose prose-slate prose-sm max-w-none text-slate-700 [&_img]:rounded-xl [&_table]:text-xs"
-                dangerouslySetInnerHTML={{ __html: description }}
-              />
-            )}
+            {description && <RichContentRenderer content={description} />}
             {features.length > 0 && (
               <div className={cn("space-y-2", description && "pt-3 border-t border-slate-100")}>
                 <h3 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider">

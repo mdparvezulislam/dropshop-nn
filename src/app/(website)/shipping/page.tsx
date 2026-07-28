@@ -1,5 +1,6 @@
 import { getPublicContentBySlugAction } from "@/features/cms/actions/content-actions";
 import { Truck } from "lucide-react";
+import { RichContentRenderer } from "@/components/editor/rich-content-renderer";
 
 export const dynamic = "force-dynamic";
 
@@ -26,9 +27,9 @@ export default async function ShippingPage() {
           <p className="text-xs text-slate-400 mt-1">24h Dhaka Metro / 48h Nationwide Delivery</p>
         </div>
 
-        <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-8 backdrop-blur-md prose prose-invert max-w-none text-xs leading-relaxed text-slate-300">
+        <div className="bg-slate-900/60 border border-slate-800 rounded-3xl p-8 backdrop-blur-md">
           {content?.bodyHtml ? (
-            <div dangerouslySetInnerHTML={{ __html: content.bodyHtml }} />
+            <RichContentRenderer content={content.bodyHtml} />
           ) : (
             <div>
               <h2>Dhaka Metro Delivery</h2>

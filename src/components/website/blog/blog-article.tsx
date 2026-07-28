@@ -16,6 +16,7 @@ import {
 import { Breadcrumb } from "@/components/website/breadcrumb";
 import { useAnalytics } from "@/hooks/use-analytics";
 import { ANALYTICS_EVENT_NAMES } from "@/features/analytics/domain/analytics-entity";
+import { RichContentRenderer } from "@/components/editor/rich-content-renderer";
 import { BlogCard } from "./blog-card";
 import { BlogToc } from "./blog-toc";
 import { ReadingProgress } from "./reading-progress";
@@ -131,10 +132,7 @@ export function BlogArticle({ post, related }: BlogArticleProps): React.ReactEle
             <div className="mb-6 flex lg:hidden">
               <ShareButtons title={post.title} slug={post.slug} />
             </div>
-            <div
-              className="prose prose-neutral dark:prose-invert max-w-none prose-headings:scroll-mt-28 prose-a:text-primary prose-img:rounded-xl"
-              dangerouslySetInnerHTML={{ __html: bodyHtml }}
-            />
+            <RichContentRenderer content={bodyHtml} />
 
             {post.tags?.length > 0 && (
               <div className="mt-10 flex flex-wrap gap-2 border-t border-border/50 pt-6">

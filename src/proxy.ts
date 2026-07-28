@@ -25,9 +25,11 @@ export default auth(function proxy(
   const response = NextResponse.next();
   response.headers.set("x-nonce", nonce);
 
+  const isDev = process.env.NODE_ENV !== "production";
+
   const csp = [
     `default-src 'self'`,
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline' https:`,
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https:`,
     `style-src 'self' 'unsafe-inline'`,
     `img-src 'self' data: blob: https://*.imagekit.io https://images.unsplash.com`,
     `font-src 'self' data:`,

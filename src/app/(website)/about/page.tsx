@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getPublicContentBySlugAction } from "@/features/cms/actions/content-actions";
-import { Building2, ShieldCheck, Truck, Users, Award, ArrowRight } from "lucide-react";
+import { Building2, ShieldCheck, Truck, Users } from "lucide-react";
+import { RichContentRenderer } from "@/components/editor/rich-content-renderer";
 
 export const dynamic = "force-dynamic";
 
@@ -60,10 +61,9 @@ export default async function AboutPage() {
 
         {/* CMS Body */}
         {content?.bodyHtml && (
-          <div
-            className="prose prose-invert max-w-none bg-slate-900/40 border border-slate-800 rounded-3xl p-8 backdrop-blur-md text-xs leading-relaxed text-slate-300"
-            dangerouslySetInnerHTML={{ __html: content.bodyHtml }}
-          />
+          <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-8 backdrop-blur-md">
+            <RichContentRenderer content={content.bodyHtml} />
+          </div>
         )}
       </div>
     </div>

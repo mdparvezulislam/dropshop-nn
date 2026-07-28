@@ -1,0 +1,293 @@
+/* ============================================================
+   DropshopNN — Centralized Rich Content & WYSIWYG Stylesheet
+   Ensures 100% identical HTML rendering across Editor, Admin,
+   Product Pages, Blog Pages, and CMS Pages.
+   ============================================================ */
+
+.rich-content {
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  word-break: break-word;
+}
+
+/* ── Headings ── */
+.rich-content h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--foreground);
+}
+
+.rich-content h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+  margin-top: 1.35rem;
+  margin-bottom: 0.65rem;
+  color: var(--foreground);
+}
+
+.rich-content h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-top: 1.15rem;
+  margin-bottom: 0.5rem;
+  color: var(--foreground);
+}
+
+.rich-content h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.45;
+  margin-top: 1rem;
+  margin-bottom: 0.4rem;
+  color: var(--foreground);
+}
+
+.rich-content h5 {
+  font-size: 0.9375rem;
+  font-weight: 650;
+  margin-top: 0.85rem;
+  margin-bottom: 0.35rem;
+  color: var(--foreground);
+}
+
+.rich-content h6 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-top: 0.75rem;
+  margin-bottom: 0.3rem;
+  color: var(--muted-foreground);
+}
+
+/* ── Paragraphs & Inline Typography ── */
+.rich-content p {
+  margin-top: 0.5rem;
+  margin-bottom: 0.75rem;
+  line-height: 1.75;
+}
+
+.rich-content strong,
+.rich-content b {
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.rich-content em,
+.rich-content i {
+  font-style: italic;
+}
+
+.rich-content u {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.rich-content s,
+.rich-content strike,
+.rich-content del {
+  text-decoration: line-through;
+  opacity: 0.85;
+}
+
+.rich-content mark {
+  background-color: #fef08a;
+  color: #1e293b;
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+}
+
+.dark .rich-content mark {
+  background-color: #854d0e;
+  color: #fef08a;
+}
+
+/* ── Lists ── */
+.rich-content ul {
+  list-style-type: disc;
+  padding-left: 1.4rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.rich-content ol {
+  list-style-type: decimal;
+  padding-left: 1.4rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.rich-content li {
+  margin-bottom: 0.4rem;
+  line-height: 1.7;
+}
+
+.rich-content li p {
+  margin-top: 0.2rem;
+  margin-bottom: 0.2rem;
+}
+
+.rich-content ul ul,
+.rich-content ol ul {
+  list-style-type: circle;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.rich-content ul ul ul,
+.rich-content ol ul ul {
+  list-style-type: square;
+}
+
+.rich-content ol ol,
+.rich-content ul ol {
+  list-style-type: lower-alpha;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+/* ── Blockquotes ── */
+.rich-content blockquote {
+  border-left: 4px solid var(--primary);
+  background-color: var(--accent);
+  color: var(--foreground);
+  padding: 0.75rem 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0 0.5rem 0.5rem 0;
+  font-style: italic;
+}
+
+/* ── Tables ── */
+.rich-content-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.rich-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.rich-content th,
+.rich-content td {
+  border: 1px solid var(--border);
+  padding: 0.55rem 0.75rem;
+  line-height: 1.5;
+}
+
+.rich-content th {
+  background-color: var(--muted);
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.rich-content tr:nth-child(even) td {
+  background-color: var(--muted) / 0.3;
+}
+
+/* ── Code & Pre ── */
+.rich-content code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background-color: var(--muted);
+  color: var(--foreground);
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--border);
+}
+
+.rich-content pre {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  background-color: var(--muted);
+  color: var(--foreground);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  overflow-x: auto;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.rich-content pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* ── Horizontal Rules ── */
+.rich-content hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* ── Links ── */
+.rich-content a {
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s ease;
+}
+
+.rich-content a:hover {
+  opacity: 0.85;
+}
+
+/* ── Media (Images & Figures) ── */
+.rich-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+  margin-top: 0.85rem;
+  margin-bottom: 0.85rem;
+  display: block;
+}
+
+.rich-content figure {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.rich-content figcaption {
+  font-size: 0.8125rem;
+  color: var(--muted-foreground);
+  text-align: center;
+  margin-top: 0.4rem;
+}
+
+/* ── Editor Container (Tiptap Editable Area) ── */
+.rich-content-editor {
+  outline: none;
+  padding: 1rem;
+}
+
+.rich-content-editor .tiptap {
+  outline: none;
+  min-height: inherit;
+}
+
+.rich-content-editor .tiptap p.is-editor-empty:first-child::before {
+  color: var(--muted-foreground);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}

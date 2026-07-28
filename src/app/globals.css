@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @import "../features/public/styles/public-theme.css";
+@import "../styles/rich-content.css";
+
 
 /* Tailwind v4 defaults the `dark:` variant to `prefers-color-scheme`, which
    ignores an explicit user choice. Bind it to the `.dark` class written by the

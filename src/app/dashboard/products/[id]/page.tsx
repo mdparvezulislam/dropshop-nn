@@ -25,6 +25,7 @@ import {
   FileEdit,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { RichContentRenderer } from "@/components/editor/rich-content-renderer";
 
 type DetailTab = "info" | "media" | "pricing" | "variants" | "specs" | "seo";
 
@@ -247,11 +248,7 @@ export default function ProductDetailsPage(): React.ReactElement {
                 <div>
                   <span className="text-xs text-muted-foreground">Full Description</span>
                   {product.description ? (
-                    <div
-                      className="prose prose-sm dark:prose-invert max-w-none text-sm text-foreground/90"
-                      // Authored by admins in the studio's rich-text editor.
-                      dangerouslySetInnerHTML={{ __html: product.description }}
-                    />
+                    <RichContentRenderer content={product.description} />
                   ) : (
                     <p className="text-sm text-foreground/90">—</p>
                   )}
