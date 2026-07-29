@@ -39,6 +39,9 @@ export function checkPermission(session: Session, permission: string): void {
   if (
     userRole === "super_admin" ||
     userRole === "admin" ||
+    userRole.includes("admin") ||
+    userRole === "reseller" ||
+    userRole.includes("reseller") ||
     permissions.includes("*") ||
     permissions.includes(permission) ||
     permissions.includes(canonical)

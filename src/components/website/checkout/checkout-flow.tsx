@@ -28,6 +28,7 @@ import { SHIPPING_METHODS, PRODUCT_IMAGE_PLACEHOLDER } from "@/config/site";
 import type { BdDistrict } from "@/config/bd-districts";
 import { EmptyCart } from "@/components/website/empty-cart";
 import { DistrictSelect } from "./district-select";
+import { ThanaSelect } from "./thana-select";
 
 /**
  * Single-screen checkout.
@@ -49,6 +50,7 @@ interface CheckoutForm {
   email: string;
   districtId: string;
   district: string;
+  upazila: string;
   division: string;
   address: string;
   deliveryNote: string;
@@ -60,6 +62,7 @@ const EMPTY_FORM: CheckoutForm = {
   email: "",
   districtId: "",
   district: "",
+  upazila: "",
   division: "",
   address: "",
   deliveryNote: "",
@@ -192,12 +195,18 @@ export function CheckoutFlow() {
     }
     setQuoteLoading(true);
     setError(null);
-    const result = await quoteStorefrontCheckoutAction(cartLines);
-    setQuoteLoading(false);
-    if (result.success) setQuote(result.data);
-    else {
+    try {
+      const result = await quoteStorefrontCheckoutAction(cartLines);
+      if (result.success) setQuote(result.data);
+      else {
+        setQuote(null);
+        setError(result.error);
+      }
+    } catch {
       setQuote(null);
-      setError(result.error);
+      setError("কার্ট যাচাই করতে সমস্যা হয়েছে। অনুগ্রহ করে পেজ রিফ্রেশ করুন।");
+    } finally {
+      setQuoteLoading(false);
     }
   }, [cartLines]);
 
@@ -248,6 +257,7 @@ export function CheckoutFlow() {
           email: form.email || undefined,
           division: form.division,
           district: form.district,
+          upazila: form.upazila || undefined,
           address: form.address,
           deliveryNote: form.deliveryNote || undefined,
         },
@@ -373,14 +383,25 @@ export function CheckoutFlow() {
             />
           </Field>
 
-          <Field id="district" label="জেলা" required error={errors.districtId}>
-            <DistrictSelect
-              id="district"
-              value={form.districtId}
-              onChange={onDistrictChange}
-              error={Boolean(errors.districtId)}
-            />
-          </Field>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <Field id="district" label="জেলা" required error={errors.districtId}>
+              <DistrictSelect
+                id="district"
+                value={form.districtId}
+                onChange={onDistrictChange}
+                error={Boolean(errors.districtId)}
+              />
+            </Field>
+
+            <Field id="thana" label="থানা / উপজেলা (ঐচ্ছিক)">
+              <ThanaSelect
+                id="thana"
+                districtId={form.districtId}
+                value={form.upazila}
+                onChange={(thana) => set("upazila", thana)}
+              />
+            </Field>
+          </div>
 
           <Field
             id="address"

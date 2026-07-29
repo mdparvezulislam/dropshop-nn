@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Users, DollarSign, PackageCheck, Zap, ArrowRight, Store } from "lucide-react";
 import { MembershipApplicationForm } from "@/components/website/membership-application-form";
 import { MembershipStatusTimeline } from "@/components/website/membership-status-timeline";
@@ -16,6 +17,7 @@ interface ResellerClientProps {
 }
 
 export function ResellerApplicationPageClient({ initialData }: ResellerClientProps) {
+  const router = useRouter();
   const [editing, setEditing] = useState(false);
 
   const isLoggedIn = initialData?.isLoggedIn;
@@ -66,29 +68,24 @@ export function ResellerApplicationPageClient({ initialData }: ResellerClientPro
 
       {/* Main Content View Switcher */}
       {!isLoggedIn ? (
-        <div className="bg-white border border-slate-300 rounded-3xl p-8 text-center space-y-4 shadow-xs">
-          <Store className="w-12 h-12 text-amber-600 mx-auto" />
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900">
-            রিসেলার আবেদনের জন্য লগইন করুন
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-600 font-bold max-w-md mx-auto">
-            আপনার যদি পূর্বে কোনো অ্যাকাউন্ট থেকে থাকে তবে লগইন করুন, অথবা একটি নতুন অ্যাকাউন্ট তৈরি
-            করুন।
-          </p>
-          <div className="flex flex-wrap justify-center gap-3 pt-2">
+        <div className="space-y-6">
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-900">
+            <div className="flex items-center gap-2.5 text-xs sm:text-sm font-bold">
+              <Store className="w-5 h-5 text-amber-600 shrink-0" />
+              <span>পূর্বেই অ্যাকাউন্ট থেকে থাকলে সরাসরি লগইন করুন:</span>
+            </div>
             <Link
               href="/auth/login?redirect=/become-reseller"
-              className="inline-flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-black text-xs px-6 py-3 rounded-xl shadow-xs"
+              className="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs px-5 py-2.5 rounded-xl shadow-xs shrink-0"
             >
-              লগইন করুন <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href="/auth/register?redirect=/become-reseller"
-              className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs px-6 py-3 rounded-xl shadow-xs"
-            >
-              নতুন অ্যাকাউন্ট খুলুন
+              লগইন করুন <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
+          <MembershipApplicationForm
+            membershipType="reseller"
+            isLoggedIn={false}
+            onSuccess={() => router.refresh()}
+          />
         </div>
       ) : isMember ? (
         <div className="bg-emerald-50 border border-emerald-300 rounded-3xl p-8 text-center space-y-4">

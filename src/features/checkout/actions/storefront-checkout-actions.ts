@@ -50,10 +50,12 @@ const addressSchema = z.object({
     .or(z.literal("").transform(() => undefined)),
   division: z.string().trim().min(2, "বিভাগ নির্বাচন করুন").max(40),
   district: z.string().trim().min(2, "জেলা নির্বাচন করুন").max(40),
-  // Optional: checkout asks for district + full address only. A thana/upazila
-  // line the customer never filled in is not worth blocking an order over —
-  // the street address already carries it.
-
+  upazila: z
+    .string()
+    .trim()
+    .max(80)
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
   postalCode: z
     .string()
     .trim()
@@ -89,16 +91,19 @@ const placeOrderSchema = z.object({
 
 export type StorefrontAddressInput = z.input<typeof addressSchema>;
 
-async function resolveViewer(): Promise<{ userId?: string; type: CartType }> {
+async function resolveViewer(): Promise<{ userId?: string; type: CartType; name?: string; email?: string }> {
   try {
     const session = await auth();
     const user = session?.user as
-      { id?: string; role?: string; memberships?: string[] } | undefined;
+      | { id?: string; name?: string; email?: string; role?: string; memberships?: string[] }
+      | undefined;
     if (!user?.id) return { type: "guest" };
     const memberships = user.memberships ?? [];
-    if (memberships.includes("wholesaler")) return { userId: user.id, type: "wholesaler" };
-    if (memberships.includes("reseller")) return { userId: user.id, type: "reseller" };
-    return { userId: user.id, type: "customer" };
+    if (memberships.includes("wholesaler"))
+      return { userId: user.id, type: "wholesaler", name: user.name, email: user.email };
+    if (memberships.includes("reseller"))
+      return { userId: user.id, type: "reseller", name: user.name, email: user.email };
+    return { userId: user.id, type: "customer", name: user.name, email: user.email };
   } catch {
     return { type: "guest" };
   }

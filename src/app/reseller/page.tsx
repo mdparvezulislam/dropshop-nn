@@ -14,7 +14,10 @@ import {
   Image as ImageIcon,
   ArrowRight,
   Store,
-  Sparkles,
+  DollarSign,
+  Bell,
+  LifeBuoy,
+  LogOut,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,18 +25,21 @@ import { SectionHeader } from "@/components/workspace/section-header";
 import { StatCard } from "@/components/workspace/stat-card";
 import { StatusChip, statusToneFromValue } from "@/components/workspace/status-chip";
 import { QuickActionsWidget } from "@/components/workspace/widget-grid";
-import { cn } from "@/lib/utils/cn";
+import { ResellerStatusGuard } from "@/features/reseller-workspace/components/reseller-status-guard";
+import { ResellerOnboardingCard } from "@/features/reseller-workspace/components/reseller-onboarding-card";
+import { ResellerSalesChartWidget } from "@/features/reseller-workspace/components/reseller-sales-chart-widget";
 
 interface DashboardData {
   ordersToday: number;
   ordersPending: number;
-  ordersCompleted: number;
-  pendingProfit: number;
-  availableBalance: number;
-  productsTotal: number;
-  productsActive: number;
+  ordersDelivered: number;
+  walletBalance: number;
+  withdrawableBalance: number;
+  profitToday: number;
+  profitMonthly: number;
   customersTotal: number;
   shopName: string;
+  resellerStatus: string;
 }
 
 interface RecentOrder {
@@ -49,45 +55,46 @@ interface RecentOrder {
 const DEFAULT: DashboardData = {
   ordersToday: 0,
   ordersPending: 0,
-  ordersCompleted: 0,
-  pendingProfit: 0,
-  availableBalance: 0,
-  productsTotal: 0,
-  productsActive: 0,
+  ordersDelivered: 0,
+  walletBalance: 0,
+  withdrawableBalance: 0,
+  profitToday: 0,
+  profitMonthly: 0,
   customersTotal: 0,
-  shopName: "My Shop",
+  shopName: "My Reseller Shop",
+  resellerStatus: "active",
 };
 
 const QUICK_ACTIONS = [
   {
-    label: "New Order",
+    label: "Create Order",
     href: "/reseller/orders/create",
     icon: Plus,
     description: "Place customer order",
   },
   {
-    label: "My Products",
+    label: "Browse Products",
     href: "/reseller/products",
     icon: Package,
-    description: "Manage reseller catalog",
+    description: "View catalog & prices",
   },
   {
-    label: "Customers",
-    href: "/reseller/customers",
-    icon: Users,
-    description: "View customer database",
+    label: "View Orders",
+    href: "/reseller/orders",
+    icon: ShoppingCart,
+    description: "Track shipment status",
   },
   {
-    label: "Wallet",
-    href: "/reseller/wallet",
-    icon: Wallet,
-    description: "Earnings & withdrawals",
+    label: "Withdraw Profit",
+    href: "/reseller/withdraw",
+    icon: LogOut,
+    description: "Payout to bKash/Bank",
   },
   {
     label: "Marketing Kit",
     href: "/reseller/marketing-kit",
     icon: ImageIcon,
-    description: "Banners & promos",
+    description: "Promotional assets",
   },
 ];
 
@@ -128,56 +135,52 @@ export default function ResellerDashboardPage(): React.ReactElement {
         ]);
 
         const d = { ...DEFAULT };
-        const today = new Date().toDateString();
+        const todayStr = new Date().toDateString();
+        const currentMonth = new Date().getMonth();
 
         if (
           profileRes.status === "fulfilled" &&
           profileRes.value.success &&
           profileRes.value.data
         ) {
-          d.shopName = profileRes.value.data.businessName || "My Shop";
+          d.shopName = profileRes.value.data.businessName || "My Reseller Shop";
+          d.resellerStatus = profileRes.value.data.status || "active";
           setProfileError(null);
         } else if (profileRes.status === "fulfilled" && !profileRes.value.success) {
-          setProfileError(profileRes.value.error ?? "Reseller profile not linked");
-        }
-
-        if (dashRes.status === "fulfilled" && dashRes.value.success && dashRes.value.data) {
-          const stats = dashRes.value.data as {
-            totalProducts?: number;
-            activeProducts?: number;
-            hiddenProducts?: number;
-            favoriteProducts?: number;
-          };
-          d.productsTotal = stats.totalProducts ?? 0;
-          d.productsActive = stats.activeProducts ?? 0;
+          setProfileError(profileRes.value.error ?? "Reseller profile not active");
         }
 
         if (ordersRes.status === "fulfilled" && ordersRes.value.success) {
           const od = ordersRes.value.data as { items?: any[] } | any;
           const items = od?.items ?? (Array.isArray(od) ? od : []);
+
           d.ordersToday = items.filter(
-            (o: any) => new Date(o.createdAt).toDateString() === today,
+            (o: any) => new Date(o.createdAt).toDateString() === todayStr,
           ).length;
           d.ordersPending = items.filter(
             (o: any) =>
               !["completed", "cancelled", "delivered", "failed", "refunded"].includes(o.status),
           ).length;
-          d.ordersCompleted = items.filter((o: any) =>
+          d.ordersDelivered = items.filter((o: any) =>
             ["completed", "delivered"].includes(o.status),
           ).length;
-          d.pendingProfit = items.reduce(
-            (s: number, o: any) => s + (o.profitPreview?.totalProfit ?? o.profit ?? 0),
-            0,
-          );
+
+          d.profitToday = items
+            .filter((o: any) => new Date(o.createdAt).toDateString() === todayStr)
+            .reduce((s: number, o: any) => s + (o.profitPreview?.totalProfit ?? o.profit ?? 0), 0);
+
+          d.profitMonthly = items
+            .filter((o: any) => new Date(o.createdAt).getMonth() === currentMonth)
+            .reduce((s: number, o: any) => s + (o.profitPreview?.totalProfit ?? o.profit ?? 0), 0);
 
           setRecentOrders(
-            items.slice(0, 8).map((o: any) => ({
+            items.slice(0, 6).map((o: any) => ({
               id: o.id ?? o._id,
               orderNumber: o.orderNumber ?? o.id?.slice(0, 8) ?? "—",
-              customer: o.customer?.name ?? o.customerName ?? "—",
+              customer: o.customer?.name ?? o.customerName ?? "Customer",
               total: o.pricing?.grandTotal ?? o.total ?? 0,
               profit: o.profitPreview?.totalProfit ?? o.profit ?? 0,
-              status: o.status ?? "unknown",
+              status: o.status ?? "pending",
               createdAt: o.createdAt,
             })),
           );
@@ -185,7 +188,8 @@ export default function ResellerDashboardPage(): React.ReactElement {
 
         if (walletRes.status === "fulfilled" && walletRes.value.success) {
           const w = walletRes.value.data as any;
-          d.availableBalance = w?.balance ?? w?.availableBalance ?? 0;
+          d.walletBalance = w?.balance ?? w?.totalBalance ?? 0;
+          d.withdrawableBalance = w?.availableBalance ?? w?.balance ?? 0;
         }
 
         if (customersRes.status === "fulfilled" && customersRes.value.success) {
@@ -195,7 +199,7 @@ export default function ResellerDashboardPage(): React.ReactElement {
 
         setData(d);
       } catch {
-        // keep defaults
+        // keep fallback defaults
       } finally {
         setLoading(false);
       }
@@ -204,173 +208,224 @@ export default function ResellerDashboardPage(): React.ReactElement {
   }, []);
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Hero Header */}
-      <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-card p-6 sm:p-8 shadow-xs">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-40"
-          style={{
-            background:
-              "radial-gradient(ellipse 70% 70% at 100% 0%, hsl(var(--primary) / 0.18), transparent 60%)",
-          }}
+    <ResellerStatusGuard status={data.resellerStatus}>
+      <div className="space-y-6 animate-fade-in">
+        {/* Onboarding Welcome Card */}
+        <ResellerOnboardingCard
+          businessName={data.shopName}
+          isProfileComplete={Boolean(data.shopName && data.shopName !== "My Reseller Shop")}
+          hasOrders={recentOrders.length > 0}
         />
-        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold uppercase tracking-wider border border-primary/20">
-                <Store className="h-3 w-3" /> Reseller Portal
-              </span>
-              <span className="text-xs font-semibold text-muted-foreground">{data.shopName}</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-              {greeting()}, Partner
-            </h1>
-            <p className="max-w-xl text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              Track customer orders, manage product markups, and request profit withdrawals.
-            </p>
-            {profileError && (
-              <p className="mt-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
-                {profileError}
+
+        {/* Sales Hero Banner */}
+        <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-card p-6 sm:p-8 shadow-xs">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-40"
+            style={{
+              background:
+                "radial-gradient(ellipse 70% 70% at 100% 0%, hsl(var(--primary) / 0.18), transparent 60%)",
+            }}
+          />
+          <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-black uppercase tracking-wider border border-primary/20">
+                  <Store className="h-3.5 w-3.5" /> Sales Workspace
+                </span>
+                <span className="text-xs font-bold text-muted-foreground">{data.shopName}</span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
+                {greeting()}, Partner 👋
+              </h1>
+              <p className="max-w-xl text-xs sm:text-sm text-muted-foreground leading-relaxed font-semibold">
+                Manage your customer orders, track sales profit, and withdraw earnings.
               </p>
-            )}
-          </div>
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-            <Link href="/reseller/orders/create">
-              <Button size="sm" className="gap-1.5 shadow-sm">
-                <Plus className="h-3.5 w-3.5" />
-                New Order
-              </Button>
-            </Link>
+              {profileError && (
+                <p className="mt-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-bold text-amber-200">
+                  {profileError}
+                </p>
+              )}
+            </div>
+            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+              <Link href="/reseller/orders/create">
+                <Button size="lg" className="gap-2 font-black shadow-md">
+                  <Plus className="h-4 w-4 stroke-[3]" />
+                  Create Quick Order
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* KPI Stats Grid */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <StatCard
-          label="Today's Orders"
-          value={data.ordersToday}
-          icon={ShoppingCart}
-          accent="primary"
-          loading={loading}
-        />
-        <StatCard
-          label="Pending Orders"
-          value={data.ordersPending}
-          icon={Clock}
-          accent="warning"
-          loading={loading}
-        />
-        <StatCard
-          label="Completed"
-          value={data.ordersCompleted}
-          icon={CheckCircle2}
-          accent="success"
-          loading={loading}
-        />
-        <StatCard
-          label="Est. Profit"
-          value={formatCents(data.pendingProfit)}
-          icon={TrendingUp}
-          accent="info"
-          loading={loading}
-        />
-        <StatCard
-          label="Available Balance"
-          value={formatCents(data.availableBalance)}
-          icon={Wallet}
-          accent="success"
-          loading={loading}
-        />
-      </div>
+        {/* Primary Reseller KPI Stats Grid (8 Cards) */}
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4 lg:grid-cols-4">
+          <StatCard
+            label="Today's Orders"
+            value={data.ordersToday}
+            icon={ShoppingCart}
+            accent="primary"
+            loading={loading}
+          />
+          <StatCard
+            label="Pending Orders"
+            value={data.ordersPending}
+            icon={Clock}
+            accent="warning"
+            loading={loading}
+          />
+          <StatCard
+            label="Delivered Orders"
+            value={data.ordersDelivered}
+            icon={CheckCircle2}
+            accent="success"
+            loading={loading}
+          />
+          <StatCard
+            label="Active Customers"
+            value={data.customersTotal}
+            icon={Users}
+            accent="info"
+            loading={loading}
+          />
+          <StatCard
+            label="Wallet Balance"
+            value={formatCents(data.walletBalance)}
+            icon={Wallet}
+            accent="primary"
+            loading={loading}
+          />
+          <StatCard
+            label="Withdrawable"
+            value={formatCents(data.withdrawableBalance)}
+            icon={DollarSign}
+            accent="success"
+            loading={loading}
+          />
+          <StatCard
+            label="Today's Profit"
+            value={formatCents(data.profitToday)}
+            icon={TrendingUp}
+            accent="success"
+            loading={loading}
+          />
+          <StatCard
+            label="Monthly Profit"
+            value={formatCents(data.profitMonthly)}
+            icon={TrendingUp}
+            accent="info"
+            loading={loading}
+          />
+        </div>
 
-      {/* Catalog & Customer summary */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <StatCard
-          label="Catalog Products"
-          value={data.productsTotal}
-          icon={Package}
-          loading={loading}
-        />
-        <StatCard
-          label="Active Listings"
-          value={data.productsActive}
-          icon={Package}
-          accent="success"
-          loading={loading}
-        />
-        <StatCard
-          label="Total Customers"
-          value={data.customersTotal}
-          icon={Users}
-          accent="info"
-          loading={loading}
-        />
-      </div>
+        {/* Quick Actions Bar */}
+        <QuickActionsWidget title="Sales Quick Actions" actions={QUICK_ACTIONS} />
 
-      {/* Quick Actions */}
-      <QuickActionsWidget title="Quick actions" actions={QUICK_ACTIONS} />
-
-      {/* Recent Orders List */}
-      <section>
-        <SectionHeader
-          title="Recent Orders"
-          description="Latest customer transactions"
-          action={
-            <Link
-              href="/reseller/orders"
-              className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
-            >
-              View all <ArrowRight className="h-3 w-3" />
-            </Link>
-          }
-        />
-        <Card className="border-border/80 shadow-xs overflow-hidden">
-          <CardContent className="p-0">
-            {recentOrders.length === 0 ? (
-              <div className="px-6 py-10 text-center text-sm text-muted-foreground">
-                No customer orders yet.{" "}
+        {/* Chart & Recent Orders Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <ResellerSalesChartWidget />
+          </div>
+          <div>
+            <Card className="border-border/80 shadow-xs h-full flex flex-col justify-between">
+              <CardContent className="p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-black text-foreground flex items-center gap-2">
+                    <Bell className="w-4 h-4 text-primary" /> Notifications
+                  </h3>
+                  <Link
+                    href="/reseller/notifications"
+                    className="text-xs font-bold text-primary hover:underline"
+                  >
+                    View all
+                  </Link>
+                </div>
+                <div className="space-y-3 text-xs">
+                  <div className="p-3 rounded-xl bg-muted/50 border border-border/60 space-y-1">
+                    <p className="font-bold text-foreground">Application Approved 🎉</p>
+                    <p className="text-muted-foreground leading-snug">
+                      Your reseller workspace is active. Start creating customer orders now.
+                    </p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-muted/50 border border-border/60 space-y-1">
+                    <p className="font-bold text-foreground">Withdrawal Ready</p>
+                    <p className="text-muted-foreground leading-snug">
+                      Minimum payout threshold is ৳500. Request payouts anytime.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+              <div className="p-4 border-t border-border/60 bg-muted/20 text-center">
                 <Link
-                  href="/reseller/orders/create"
-                  className="text-primary font-semibold hover:underline"
+                  href="/reseller/support"
+                  className="text-xs font-bold text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5"
                 >
-                  Create your first order
+                  <LifeBuoy className="w-3.5 h-3.5 text-amber-500" /> Need help? Contact Reseller Support
                 </Link>
               </div>
-            ) : (
-              <div className="divide-y divide-border/60">
-                {recentOrders.map((o) => (
-                  <Link
-                    key={o.id}
-                    href={`/reseller/orders/${o.id}`}
-                    className="flex items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-muted/50 group"
-                  >
-                    <div className="min-w-0">
-                      <p className="truncate text-xs sm:text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-                        {o.orderNumber} · {o.customer}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">
-                        {o.createdAt ? new Date(o.createdAt).toLocaleString() : "—"}
-                      </p>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-4">
-                      <div className="text-right">
-                        <p className="text-xs sm:text-sm font-bold text-foreground tabular-nums">
-                          {formatCents(o.total)}
+            </Card>
+          </div>
+        </div>
+
+        {/* Recent Orders Table / List */}
+        <section className="space-y-3">
+          <SectionHeader
+            title="Recent Orders"
+            description="Latest customer transactions"
+            action={
+              <Link
+                href="/reseller/orders"
+                className="text-xs font-bold text-primary hover:underline inline-flex items-center gap-1"
+              >
+                All orders <ArrowRight className="h-3 w-3" />
+              </Link>
+            }
+          />
+          <Card className="border-border/80 shadow-xs overflow-hidden">
+            <CardContent className="p-0">
+              {recentOrders.length === 0 ? (
+                <div className="px-6 py-12 text-center text-sm text-muted-foreground space-y-3">
+                  <p>No customer orders placed yet.</p>
+                  <Link href="/reseller/orders/create">
+                    <Button size="sm" className="gap-2 font-bold shadow-xs">
+                      <Plus className="w-4 h-4" /> Place Your First Order
+                    </Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="divide-y divide-border/60">
+                  {recentOrders.map((o) => (
+                    <Link
+                      key={o.id}
+                      href={`/reseller/orders/${o.id}`}
+                      className="flex items-center justify-between gap-3 px-4 py-3.5 transition-colors hover:bg-muted/50 group"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate text-xs sm:text-sm font-bold text-foreground group-hover:text-primary transition-colors">
+                          {o.orderNumber} · {o.customer}
                         </p>
-                        <p className="text-[11px] font-semibold text-success tabular-nums">
-                          +{formatCents(o.profit)} profit
+                        <p className="text-[11px] text-muted-foreground mt-0.5">
+                          {o.createdAt ? new Date(o.createdAt).toLocaleString() : "—"}
                         </p>
                       </div>
-                      <StatusChip label={o.status} tone={statusToneFromValue(o.status)} size="sm" />
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </section>
-    </div>
+                      <div className="flex shrink-0 items-center gap-4">
+                        <div className="text-right">
+                          <p className="text-xs sm:text-sm font-bold text-foreground tabular-nums">
+                            {formatCents(o.total)}
+                          </p>
+                          <p className="text-[11px] font-bold text-success tabular-nums">
+                            +{formatCents(o.profit)} profit
+                          </p>
+                        </div>
+                        <StatusChip label={o.status} tone={statusToneFromValue(o.status)} size="sm" />
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </section>
+      </div>
+    </ResellerStatusGuard>
   );
 }

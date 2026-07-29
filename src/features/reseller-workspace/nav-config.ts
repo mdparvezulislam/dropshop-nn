@@ -10,6 +10,8 @@ import {
   Settings,
   Image,
   PlusCircle,
+  Bell,
+  LifeBuoy,
 } from "lucide-react";
 import { getWorkspaceBreadcrumbs, type NavSection } from "@/components/workspace/nav-config";
 
@@ -21,12 +23,27 @@ export const RESELLER_NAV: NavSection[] = [
   },
   {
     id: "catalog",
-    label: "Catalog",
+    label: "Catalog & Sales",
     items: [
       {
         label: "Products",
         href: "/reseller/products",
         icon: Package,
+      },
+      {
+        label: "Create Order",
+        href: "/reseller/orders/create",
+        icon: PlusCircle,
+      },
+      {
+        label: "Orders",
+        href: "/reseller/orders",
+        icon: ShoppingCart,
+      },
+      {
+        label: "Customers",
+        href: "/reseller/customers",
+        icon: Users,
       },
       {
         label: "Marketing Kit",
@@ -36,49 +53,28 @@ export const RESELLER_NAV: NavSection[] = [
     ],
   },
   {
-    id: "orders",
-    label: "Orders",
-    items: [
-      {
-        label: "Create Order",
-        href: "/reseller/orders/create",
-        icon: PlusCircle,
-      },
-      {
-        label: "All Orders",
-        href: "/reseller/orders",
-        icon: ShoppingCart,
-      },
-    ],
-  },
-  {
-    id: "customers",
-    label: "Customers",
-    items: [{ label: "My Customers", href: "/reseller/customers", icon: Users }],
-  },
-  {
     id: "finance",
-    label: "Finance",
+    label: "Finance & Reports",
     items: [
       { label: "Wallet", href: "/reseller/wallet", icon: Wallet },
       { label: "Withdraw", href: "/reseller/withdraw", icon: LogOut },
+      { label: "Reports", href: "/reseller/reports", icon: BarChart3 },
     ],
   },
   {
-    id: "insights",
-    label: "Insights",
-    items: [{ label: "Reports", href: "/reseller/reports", icon: BarChart3 }],
-  },
-  {
     id: "system",
-    label: "System",
-    items: [{ label: "Shop Settings", href: "/reseller/settings", icon: Settings }],
+    label: "System & Help",
+    items: [
+      { label: "Shop Settings", href: "/reseller/settings", icon: Settings },
+      { label: "Notifications", href: "/reseller/notifications", icon: Bell },
+      { label: "Support", href: "/reseller/support", icon: LifeBuoy },
+    ],
   },
 ];
 
 export function getResellerBreadcrumbs(pathname: string): { label: string; href?: string }[] {
   return getWorkspaceBreadcrumbs(pathname, {
-    rootLabel: "Reseller",
+    rootLabel: "Reseller Hub",
     rootHref: "/reseller",
     skipSegment: "reseller",
     labelMap: {
@@ -91,6 +87,8 @@ export function getResellerBreadcrumbs(pathname: string): { label: string; href?
       withdraw: "Withdraw",
       reports: "Reports",
       settings: "Shop Settings",
+      notifications: "Notifications",
+      support: "Support Center",
     },
   });
 }

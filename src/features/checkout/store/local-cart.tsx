@@ -93,8 +93,13 @@ export function LocalCartProvider({ children }: { children: ReactNode }): ReactN
   const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    setItems(readStorage());
-    setHydrated(true);
+    try {
+      setItems(readStorage());
+    } catch {
+      setItems([]);
+    } finally {
+      setHydrated(true);
+    }
   }, []);
 
   useEffect(() => {

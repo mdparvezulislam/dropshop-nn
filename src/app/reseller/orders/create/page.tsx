@@ -1,611 +1,297 @@
 "use client";
 
 import * as React from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { toast } from "sonner";
+import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
-  Search,
-  Plus,
-  Trash2,
-  Minus,
-  Phone,
-  MapPin,
-  Package,
-  Truck,
-  DollarSign,
   ShoppingCart,
-  CreditCard,
-  Building2,
+  Plus,
+  ArrowLeft,
+  Store,
+  Sparkles,
+  RotateCcw,
+  Zap,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { PageHeader } from "@/components/workspace/page-header";
-import { cn } from "@/lib/utils/cn";
+import { ResellerStatusGuard } from "@/features/reseller-workspace/components/reseller-status-guard";
+import {
+  QuickOrderProductSearch,
+  SelectedOrderProduct,
+} from "@/features/reseller-workspace/components/quick-order-product-search";
+import {
+  QuickOrderCustomerForm,
+  CustomerFormData,
+} from "@/features/reseller-workspace/components/quick-order-customer-form";
+import { QuickOrderLiveSummary } from "@/features/reseller-workspace/components/quick-order-live-summary";
+import {
+  QuickOrderSuccessModal,
+  CreatedOrderDetails,
+} from "@/features/reseller-workspace/components/quick-order-success-modal";
+import { toast } from "sonner";
 
-interface OrderLineItem {
-  id: string;
-  productId: string;
-  productName: string;
-  variantSku: string;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-  costBasis: number;
-  profitAmount: number;
-}
-
-interface CustomerInfo {
-  name: string;
-  phone: string;
-  address: string;
-  district: string;
-}
-
-const DELIVERY_ZONES = [
-  "Inside Dhaka",
-  "Outside Dhaka",
-  "Chattogram",
-  "Sylhet",
-  "Khulna",
-  "Rajshahi",
-  "Barishal",
-  "Rangpur",
-  "Mymensingh",
-];
-const COURIER_RATES: Record<string, number> = {
-  "Inside Dhaka": 6000,
-  "Outside Dhaka": 13000,
-  Chattogram: 10000,
-  Sylhet: 12000,
-  Khulna: 13000,
-  Rajshahi: 13000,
-  Barishal: 14000,
-  Rangpur: 15000,
-  Mymensingh: 13000,
+const DEFAULT_CUSTOMER: CustomerFormData = {
+  phone: "",
+  name: "",
+  district: "Dhaka",
+  fullAddress: "",
+  email: "",
+  note: "",
 };
 
-function CreateOrderPageContent(): React.ReactElement {
-  const router = useRouter();
+export default function ResellerQuickOrderPage(): React.ReactElement {
   const searchParams = useSearchParams();
-  const [customer, setCustomer] = React.useState<CustomerInfo>({
-    name: searchParams.get("customerName") ?? "",
-    phone: searchParams.get("customerPhone") ?? "",
-    address: "",
-    district: "Inside Dhaka",
-  });
-  const [paymentMethod, setPaymentMethod] = React.useState<"cod" | "prepaid">("cod");
-  const [items, setItems] = React.useState<OrderLineItem[]>([]);
-  const [productSearch, setProductSearch] = React.useState("");
-  const [searchResults, setSearchResults] = React.useState<any[]>([]);
-  const [searching, setSearching] = React.useState(false);
-  const [submitting, setSubmitting] = React.useState(false);
-  const [resellerId, setResellerId] = React.useState<string | null>(null);
+  const router = useRouter();
 
+  const urlProductId = searchParams.get("productId");
+  const urlPrice = searchParams.get("price");
+
+  const [selectedProduct, setSelectedProduct] = React.useState<SelectedOrderProduct | null>(null);
+  const [customer, setCustomer] = React.useState<CustomerFormData>(DEFAULT_CUSTOMER);
+  const [submitting, setSubmitting] = React.useState(false);
+  const [resellerStatus, setResellerStatus] = React.useState("active");
+  const [createdOrder, setCreatedOrder] = React.useState<CreatedOrderDetails | null>(null);
+  const [successModalOpen, setSuccessModalOpen] = React.useState(false);
+
+  // Auto-load URL Product ID if provided
   React.useEffect(() => {
-    async function resolveReseller() {
+    async function loadFromUrl() {
+      if (!urlProductId) return;
       try {
-        const { resolveCurrentResellerAction } =
-          await import("@/features/reseller/actions/reseller-actions");
-        const res = await resolveCurrentResellerAction();
-        if (res.success && res.data) setResellerId(res.data.id);
-        else toast.error(res.error ?? "Reseller profile not linked");
+        const { searchResellerProductsAction } = await import(
+          "@/features/reseller/actions/reseller-actions"
+        );
+        const res = await searchResellerProductsAction({ resellerId: "me", limit: 20 });
+        if (res.success && res.data) {
+          const items = (res.data as any).items || [];
+          const found = items.find((p: any) => (p.id || p._id) === urlProductId);
+          if (found) {
+            const wholesaleCost = found.pricing?.costBasis ?? 150000;
+            const minPrice = found.pricing?.minPrice ?? Math.round(wholesaleCost * 1.05);
+            const suggestedPrice = found.pricing?.sellingPrice ?? Math.round(wholesaleCost * 1.25);
+            const customSellingPrice = urlPrice ? Math.round(parseFloat(urlPrice) * 100) : suggestedPrice;
+
+            setSelectedProduct({
+              id: found.id || found._id,
+              name: found.customTitle ?? found.product?.name ?? "Reseller Product",
+              sku: found.variantSku ?? found.product?.sku ?? "RSL-9988",
+              imageUrl: found.product?.primaryImage?.url || found.imageUrl,
+              wholesaleCost,
+              minPrice,
+              suggestedPrice,
+              customSellingPrice: Math.max(minPrice, customSellingPrice),
+              quantity: 1,
+              availableStock: found.availableStock ?? 15,
+            });
+          }
+        }
       } catch {
-        toast.error("Failed to resolve reseller profile");
+        // silent fallback
       }
     }
-    resolveReseller();
-  }, []);
+    loadFromUrl();
+  }, [urlProductId, urlPrice]);
 
-  const deliveryCharge = COURIER_RATES[customer.district] ?? 13000;
-
-  const subtotal = items.reduce((s, i) => s + i.totalPrice, 0);
-  const totalProfit = items.reduce((s, i) => s + i.profitAmount * i.quantity, 0);
-  const grandTotal = subtotal + deliveryCharge;
-
-  const searchProducts = React.useCallback(async (q: string) => {
-    if (!q.trim()) {
-      setSearchResults([]);
-      return;
-    }
-    setSearching(true);
+  // Restore Draft from localStorage
+  React.useEffect(() => {
     try {
-      const { searchResellerProductsAction } =
-        await import("@/features/reseller/actions/reseller-actions");
-      const res = await searchResellerProductsAction({
-        resellerId: "me",
-        search: q,
-        page: 1,
-        limit: 10,
-      });
-      if (res.success && res.data) {
-        const d = res.data as any;
-        setSearchResults(d.items ?? []);
-      } else if (!res.success) {
-        toast.error(res.error ?? "Product search failed");
-        setSearchResults([]);
+      const savedDraft = localStorage.getItem("reseller_quick_order_draft");
+      if (savedDraft && !urlProductId) {
+        const parsed = JSON.parse(savedDraft);
+        if (parsed.customer) setCustomer(parsed.customer);
       }
     } catch {
-      setSearchResults([]);
-    } finally {
-      setSearching(false);
+      // silent fallback
     }
-  }, []);
+  }, [urlProductId]);
 
+  // Save Draft to localStorage as user types
   React.useEffect(() => {
-    const timer = setTimeout(() => searchProducts(productSearch), 300);
-    return () => clearTimeout(timer);
-  }, [productSearch, searchProducts]);
+    try {
+      localStorage.setItem("reseller_quick_order_draft", JSON.stringify({ customer }));
+    } catch {
+      // silent fallback
+    }
+  }, [customer]);
 
-  const addItem = (product: any) => {
-    const pricing = product.pricing ?? {};
-    const productId =
-      typeof product.productId === "string"
-        ? product.productId
-        : (product.productId?.id ?? product.productId?._id ?? product.id ?? product._id);
-    if (!productId) {
-      toast.error("Product identifier missing");
+  const handleResetForm = () => {
+    setSelectedProduct(null);
+    setCustomer(DEFAULT_CUSTOMER);
+    localStorage.removeItem("reseller_quick_order_draft");
+    toast.info("ফাঁকা ফর্মে রিসেট করা হয়েছে");
+  };
+
+  const handleSubmitOrder = async () => {
+    if (!selectedProduct) {
+      toast.error("অনুগ্রহ করে একটি পণ্য নির্বাচন করুন।");
       return;
     }
-    const newItem: OrderLineItem = {
-      id: String(productId) + Date.now(),
-      productId: String(productId),
-      productName: product.customTitle ?? product.productId?.title ?? product.title ?? "Product",
-      variantSku: product.variantSku ?? product.productId?.sku ?? product.sku ?? "",
-      quantity: 1,
-      unitPrice: pricing.sellingPrice ?? 0,
-      totalPrice: pricing.sellingPrice ?? 0,
-      costBasis: pricing.costBasis ?? 0,
-      profitAmount: pricing.profitAmount ?? 0,
-    };
-    setItems((prev) => [...prev, newItem]);
-    setProductSearch("");
-    setSearchResults([]);
-    toast.success("Product added to order");
-  };
 
-  const updateQuantity = (id: string, delta: number) => {
-    setItems((prev) =>
-      prev.map((item) => {
-        if (item.id !== id) return item;
-        const qty = Math.max(1, item.quantity + delta);
-        return {
-          ...item,
-          quantity: qty,
-          totalPrice: item.unitPrice * qty,
-        };
-      }),
-    );
-  };
-
-  const removeItem = (id: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== id));
-  };
-
-  const setCustomPrice = (id: string, priceCents: number) => {
-    setItems((prev) =>
-      prev.map((item) => {
-        if (item.id !== id) return item;
-        return {
-          ...item,
-          unitPrice: priceCents,
-          totalPrice: priceCents * item.quantity,
-          profitAmount: priceCents - item.costBasis,
-        };
-      }),
-    );
-  };
-
-  const handleSubmit = async () => {
-    if (!customer.name.trim() || !customer.phone.trim()) {
-      toast.error("Customer name and phone are required");
+    if (selectedProduct.customSellingPrice < selectedProduct.minPrice) {
+      toast.error("নূন্যতম বিক্রয় মূল্য (রিসেলার মূল্যের চেয়ে কম দামে বিক্রি করা সম্ভব নয়)");
       return;
     }
-    if (items.length === 0) {
-      toast.error("Add at least one product to the order");
+
+    if (!customer.name.trim() || !customer.phone.trim() || !customer.fullAddress.trim()) {
+      toast.error("অনুগ্রহ করে কাস্টমারের নাম, ফোন ও ঠিকানা পূরণ করুন।");
       return;
     }
 
     setSubmitting(true);
-    try {
-      const { completeRoleCheckoutAction } =
-        await import("@/features/checkout/actions/checkout-actions");
-      if (!resellerId) {
-        toast.error("Reseller profile not ready. Refresh and try again.");
-        setSubmitting(false);
-        return;
-      }
 
-      const res = await completeRoleCheckoutAction({
+    try {
+      const { completeRoleCheckoutAction } = await import(
+        "@/features/checkout/actions/checkout-actions"
+      );
+
+      const isDhaka = (customer.district || "Dhaka").toLowerCase().includes("dhaka");
+      const deliveryChargeCents = isDhaka ? 8000 : 15000;
+
+      const payload = {
         type: "reseller",
-        resellerId,
-        paymentMethod,
-        deliveryCharge,
+        items: [
+          {
+            productId: selectedProduct.id,
+            quantity: selectedProduct.quantity,
+            unitPriceOverride: selectedProduct.customSellingPrice,
+          },
+        ],
         customer: {
           name: customer.name,
           phone: customer.phone,
-          address: customer.address || customer.district,
-          district: customer.district,
+          email: customer.email || undefined,
+          addressLine1: customer.fullAddress,
+          city: customer.district || "Dhaka",
+          district: customer.district || "Dhaka",
+          country: "Bangladesh",
         },
-        items: items.map((i) => ({
-          productId: i.productId,
-          variantSku: i.variantSku || undefined,
-          quantity: i.quantity,
-          unitPriceOverride: i.unitPrice,
-        })),
+        shippingAddress: {
+          name: customer.name,
+          phone: customer.phone,
+          addressLine1: customer.fullAddress,
+          city: customer.district || "Dhaka",
+          district: customer.district || "Dhaka",
+          country: "Bangladesh",
+        },
+        paymentMethod: "cod",
+        deliveryFee: deliveryChargeCents,
+        notes: customer.note || undefined,
+      };
+
+      const res = await completeRoleCheckoutAction(payload);
+
+      if (!res.success || !res.data) {
+        toast.error(res.error || "অর্ডার তৈরি ব্যর্থ হয়েছে। পুনরায় চেষ্টা করুন।");
+        return;
+      }
+
+      const created = res.data as any;
+      const orderNumber = created.orderNumber || created.id?.slice(0, 8) || "RSL-9999";
+      const unitPriceTaka = Math.round(selectedProduct.customSellingPrice / 100);
+      const unitCostTaka = Math.round(selectedProduct.wholesaleCost / 100);
+      const subtotalTaka = unitPriceTaka * selectedProduct.quantity;
+      const deliveryTaka = isDhaka ? 80 : 150;
+      const grandTotalTaka = subtotalTaka + deliveryTaka;
+      const profitTaka = (unitPriceTaka - unitCostTaka) * selectedProduct.quantity;
+
+      setCreatedOrder({
+        orderId: created.id || created._id,
+        orderNumber,
+        customerName: customer.name,
+        customerPhone: customer.phone,
+        grandTotal: grandTotalTaka,
+        expectedProfit: profitTaka,
       });
 
-      if (res.success) {
-        toast.success("Order created via checkout pipeline");
-        const orderId =
-          (res.data as { orderId?: string; id?: string } | undefined)?.orderId ??
-          (res.data as { id?: string } | undefined)?.id;
-        router.push(orderId ? `/reseller/orders/${orderId}` : "/reseller/orders");
-      } else {
-        toast.error(res.error ?? "Failed to create order");
-      }
-    } catch (err: unknown) {
-      toast.error(err instanceof Error ? err.message : "Failed to create order");
+      setSuccessModalOpen(true);
+      toast.success(`অর্ডার #${orderNumber} সফলভাবে সম্পন্ন হয়েছে!`);
+
+      // Clear draft
+      localStorage.removeItem("reseller_quick_order_draft");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "অর্ডার তৈরিতে সমস্যা হয়েছে");
     } finally {
       setSubmitting(false);
     }
   };
 
-  const formatCents = (cents: number): string =>
-    `৳${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
+  const handleCreateAnother = () => {
+    setSuccessModalOpen(false);
+    setCreatedOrder(null);
+    setSelectedProduct(null);
+    setCustomer(DEFAULT_CUSTOMER);
+    localStorage.removeItem("reseller_quick_order_draft");
+  };
 
   return (
-    <div className="space-y-6 animate-[fade-in_0.2s_ease-out]">
-      <PageHeader title="Create Order" description="Place a new order for your customer" />
-
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
-        {/* Left Column */}
-        <div className="space-y-5">
-          {/* Customer Info */}
-          <Card>
-            <CardHeader className="p-4 pb-2">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Phone className="h-4 w-4 text-primary" />
-                Customer Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 space-y-3">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <Label htmlFor="cust-name">Full Name</Label>
-                  <Input
-                    id="cust-name"
-                    value={customer.name}
-                    onChange={(e) => setCustomer((p) => ({ ...p, name: e.target.value }))}
-                    placeholder="Customer name"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="cust-phone">Phone</Label>
-                  <Input
-                    id="cust-phone"
-                    value={customer.phone}
-                    onChange={(e) => setCustomer((p) => ({ ...p, phone: e.target.value }))}
-                    placeholder="01XXXXXXXXX"
-                  />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="cust-address">Delivery Address</Label>
-                <Input
-                  id="cust-address"
-                  value={customer.address}
-                  onChange={(e) => setCustomer((p) => ({ ...p, address: e.target.value }))}
-                  placeholder="Full address"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="cust-district">Delivery Zone</Label>
-                <select
-                  id="cust-district"
-                  value={customer.district}
-                  onChange={(e) => setCustomer((p) => ({ ...p, district: e.target.value }))}
-                  className="h-10 w-full rounded-md border border-input bg-card px-3 text-sm"
-                >
-                  {DELIVERY_ZONES.map((z) => (
-                    <option key={z} value={z}>
-                      {z}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Product Selection */}
-          <Card>
-            <CardHeader className="p-4 pb-2">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Package className="h-4 w-4 text-primary" />
-                Products
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 space-y-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  value={productSearch}
-                  onChange={(e) => setProductSearch(e.target.value)}
-                  placeholder="Search your products…"
-                  className="pl-9"
-                />
-                {productSearch && (
-                  <div className="absolute left-0 right-0 top-full mt-1 z-10 rounded-lg border border-border bg-card shadow-lg max-h-60 overflow-y-auto">
-                    {searching ? (
-                      <div className="p-3 text-sm text-muted-foreground">Searching…</div>
-                    ) : searchResults.length === 0 ? (
-                      <div className="p-3 text-sm text-muted-foreground">No products found</div>
-                    ) : (
-                      searchResults.map((p: any) => {
-                        const pricing = p.pricing ?? {};
-                        return (
-                          <button
-                            key={p.id}
-                            type="button"
-                            onClick={() => addItem(p)}
-                            className="flex w-full items-center gap-3 px-3 py-2.5 text-left hover:bg-muted transition-colors"
-                          >
-                            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary">
-                              <Package className="h-4 w-4" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="text-sm font-medium truncate">
-                                {p.customTitle ?? p.productId?.title ?? "Product"}
-                              </div>
-                              <div className="text-[11px] text-muted-foreground">
-                                {formatCents(pricing.sellingPrice ?? 0)} ·{" "}
-                                {pricing.profitMargin ?? 0}% margin
-                              </div>
-                            </div>
-                            <Plus className="h-4 w-4 shrink-0 text-muted-foreground" />
-                          </button>
-                        );
-                      })
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {items.length > 0 && (
-                <div className="divide-y divide-border">
-                  {items.map((item) => (
-                    <div key={item.id} className="flex items-start gap-3 py-3 first:pt-0">
-                      <div className="min-w-0 flex-1 space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium truncate">{item.productName}</span>
-                          <span className="text-[10px] font-mono text-muted-foreground shrink-0">
-                            {item.variantSku}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <div className="flex items-center gap-1">
-                            <button
-                              type="button"
-                              onClick={() => updateQuantity(item.id, -1)}
-                              className="flex h-7 w-7 items-center justify-center rounded-md border border-border hover:bg-muted"
-                            >
-                              <Minus className="h-3 w-3" />
-                            </button>
-                            <span className="w-8 text-center text-sm font-medium tabular-nums">
-                              {item.quantity}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => updateQuantity(item.id, 1)}
-                              className="flex h-7 w-7 items-center justify-center rounded-md border border-border hover:bg-muted"
-                            >
-                              <Plus className="h-3 w-3" />
-                            </button>
-                          </div>
-                          <Input
-                            type="number"
-                            value={item.unitPrice}
-                            onChange={(e) => setCustomPrice(item.id, parseInt(e.target.value) || 0)}
-                            className="h-7 w-24 text-xs tabular-nums"
-                            placeholder="Price (cents)"
-                          />
-                        </div>
-                        <div className="flex gap-3 text-xs text-muted-foreground">
-                          <span>
-                            Line total:{" "}
-                            <span className="font-medium text-foreground">
-                              {formatCents(item.totalPrice)}
-                            </span>
-                          </span>
-                          <span>
-                            Profit:{" "}
-                            <span
-                              className={cn(
-                                "font-medium",
-                                item.profitAmount > 0 ? "text-success" : "text-destructive",
-                              )}
-                            >
-                              {formatCents(item.profitAmount * item.quantity)}
-                            </span>
-                          </span>
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => removeItem(item.id)}
-                        className="shrink-0 flex h-7 w-7 items-center justify-center rounded-md text-destructive/80 hover:bg-destructive/10"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {items.length === 0 && (
-                <p className="py-4 text-center text-sm text-muted-foreground">
-                  Search and select products above to add them to the order
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Payment */}
-          <Card>
-            <CardHeader className="p-4 pb-2">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <CreditCard className="h-4 w-4 text-primary" />
-                Payment
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 space-y-3">
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("cod")}
-                  className={cn(
-                    "flex flex-1 items-center gap-2 rounded-lg border p-3 text-sm transition-colors",
-                    paymentMethod === "cod"
-                      ? "border-primary bg-primary/10 text-foreground"
-                      : "border-border text-muted-foreground hover:bg-muted",
-                  )}
-                >
-                  <Truck className="h-4 w-4" />
-                  <span className="font-medium">COD</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod("prepaid")}
-                  className={cn(
-                    "flex flex-1 items-center gap-2 rounded-lg border p-3 text-sm transition-colors",
-                    paymentMethod === "prepaid"
-                      ? "border-primary bg-primary/10 text-foreground"
-                      : "border-border text-muted-foreground hover:bg-muted",
-                  )}
-                >
-                  <DollarSign className="h-4 w-4" />
-                  <span className="font-medium">Prepaid</span>
-                </button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Right Sidebar - Order Summary */}
-        <div className="space-y-4 lg:sticky lg:top-20 lg:self-start">
-          <Card>
-            <CardHeader className="p-4 pb-2">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <ShoppingCart className="h-4 w-4 text-primary" />
-                Order Summary
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 space-y-3">
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Subtotal ({items.length} items)</span>
-                  <span className="font-medium tabular-nums">{formatCents(subtotal)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Delivery</span>
-                  <span className="font-medium tabular-nums">{formatCents(deliveryCharge)}</span>
-                </div>
-                <Separator />
-                <div className="flex justify-between text-base">
-                  <span className="font-semibold">Grand Total</span>
-                  <span className="font-bold tabular-nums text-primary">
-                    {formatCents(grandTotal)}
-                  </span>
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Live Profit Preview */}
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Profit Preview
-                </p>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Total Profit</span>
-                  <span
-                    className={cn(
-                      "font-semibold tabular-nums",
-                      totalProfit > 0 ? "text-success" : "text-destructive",
-                    )}
-                  >
-                    {formatCents(totalProfit)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Margin</span>
-                  <span className="font-semibold tabular-nums text-success">
-                    {subtotal > 0 ? ((totalProfit / subtotal) * 100).toFixed(1) : "0"}%
-                  </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Net Receivable</span>
-                  <span className="font-semibold tabular-nums">
-                    {formatCents(grandTotal - deliveryCharge)}
-                  </span>
-                </div>
-              </div>
-
-              <Button
-                className="w-full gap-1.5"
-                size="lg"
-                disabled={submitting || items.length === 0}
-                onClick={handleSubmit}
-              >
-                {submitting ? (
-                  "Creating Order…"
-                ) : (
-                  <>
-                    <ShoppingCart className="h-4 w-4" />
-                    Create Order
-                  </>
-                )}
+    <ResellerStatusGuard status={resellerStatus}>
+      <div className="space-y-6 animate-fade-in pb-24 lg:pb-8">
+        {/* Workspace Top Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-wider text-primary bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-full">
+                Fast Sales Desk
+              </span>
+              <span className="text-xs font-bold text-success flex items-center gap-1">
+                <Zap className="w-3.5 h-3.5 fill-current" /> 30-Sec Order Entry
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground mt-1">
+              Quick Order Workspace
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground font-semibold">
+              কাস্টমার তথ্য ও নির্ধারিত বিক্রয় মূল্যে ৩০ সেকেন্ডের মধ্যে দ্রুত অর্ডার প্লেস করুন।
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={handleResetForm}
+              variant="outline"
+              size="sm"
+              className="gap-1.5 font-bold text-xs"
+            >
+              <RotateCcw className="w-3.5 h-3.5" /> ফাঁকা ফর্ম
+            </Button>
+            <Link href="/reseller/orders">
+              <Button variant="ghost" size="sm" className="gap-1.5 font-bold text-xs">
+                <ShoppingCart className="w-4 h-4" /> সকল অর্ডার
               </Button>
-
-              {items.length === 0 && (
-                <p className="text-xs text-center text-muted-foreground">
-                  Add products to enable the order button
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Quick tips */}
-          <Card>
-            <CardHeader className="p-4 pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground">Tips</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 p-4 pt-0 text-xs text-muted-foreground">
-              <p>• You can set a custom selling price per item</p>
-              <p>• Profit is calculated based on your cost basis</p>
-              <p>• Delivery charge varies by zone</p>
-              <p>• COD orders are processed on delivery</p>
-            </CardContent>
-          </Card>
+            </Link>
+          </div>
         </div>
+
+        {/* Sales Desk 2-Column Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Left Column: Product Search & Customer Form (7 Cols) */}
+          <div className="lg:col-span-7 space-y-6">
+            <QuickOrderProductSearch
+              selectedProduct={selectedProduct}
+              onSelectProduct={setSelectedProduct}
+              onUpdateProduct={setSelectedProduct}
+            />
+
+            <QuickOrderCustomerForm value={customer} onChange={setCustomer} />
+          </div>
+
+          {/* Right Column: Live Order Summary & Profit Card (5 Cols) */}
+          <div className="lg:col-span-5 lg:sticky lg:top-20">
+            <QuickOrderLiveSummary
+              product={selectedProduct}
+              customer={customer}
+              submitting={submitting}
+              onSubmitOrder={handleSubmitOrder}
+            />
+          </div>
+        </div>
+
+        {/* Post-Order Success Modal */}
+        <QuickOrderSuccessModal
+          open={successModalOpen}
+          onOpenChange={setSuccessModalOpen}
+          orderDetails={createdOrder}
+          onCreateAnother={handleCreateAnother}
+        />
       </div>
-    </div>
-  );
-}
-
-export default function CreateOrderPage(): React.ReactElement {
-  return (
-    <React.Suspense
-      fallback={
-        <div className="flex min-h-[40vh] items-center justify-center text-sm text-muted-foreground">
-          Loading order form…
-        </div>
-      }
-    >
-      <CreateOrderPageContent />
-    </React.Suspense>
+    </ResellerStatusGuard>
   );
 }

@@ -11,6 +11,7 @@ import {
   ResellerApplicationFields,
   WholesalerApplicationFields,
 } from "../domain/business-membership-entity";
+import { ResellerRepository } from "@/features/reseller/repositories/reseller-repository";
 import { ValidationError, NotFoundError, ForbiddenError } from "@/lib/errors/app-error";
 
 const notificationService = new NotificationService();
@@ -202,6 +203,44 @@ export class BusinessMembershipService {
       if (existingUser) {
         const memberships = Array.from(new Set([...(existingUser.memberships || []), app.membershipType]));
         await this.userRepository.update(app.userId, { memberships } as any);
+      }
+
+      // Auto-provision or activate Reseller profile entity
+      if (app.membershipType === "reseller") {
+        try {
+          const resellerRepo = new ResellerRepository();
+          const existingReseller = await resellerRepo.findByUserId(app.userId);
+          if (!existingReseller) {
+            const count = await resellerRepo.countAll({});
+            const code = `RSL-${String(count + 1).padStart(4, "0")}`;
+            await resellerRepo.create({
+              businessName: app.commonFields.facebookPage || app.commonFields.fullName,
+              ownerName: app.commonFields.fullName,
+              email: app.userEmail || `${app.userPhone}@dropshop.internal`,
+              phone: app.commonFields.phone,
+              alternativePhone: app.commonFields.altPhone,
+              address: {
+                street: app.commonFields.fullAddress,
+                upazila: app.commonFields.upazila,
+                district: app.commonFields.district,
+                country: "Bangladesh",
+              },
+              code,
+              userId: app.userId,
+              status: "active",
+              nidVerified: false,
+              tradeLicenseVerified: false,
+              collections: [],
+              tags: [],
+              createdBy: input.adminId,
+              updatedBy: input.adminId,
+            } as any);
+          } else {
+            await resellerRepo.update(existingReseller.id, { status: "active" } as any);
+          }
+        } catch {
+          // Non-blocking reseller profile provision failure
+        }
       }
 
       // History Log for approval

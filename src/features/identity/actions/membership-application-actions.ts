@@ -112,3 +112,59 @@ export async function getUserMembershipStatusAction(membershipType: string) {
     };
   }
 }
+
+export async function submitApplicationWithRegistrationAction(input: {
+  email: string;
+  password?: string;
+  membershipType: string;
+  commonFields: CommonApplicationFields;
+  resellerFields?: ResellerApplicationFields;
+  wholesalerFields?: WholesalerApplicationFields;
+}) {
+  try {
+    const session = await auth();
+    let userId = (session?.user as { id?: string })?.id;
+    let userEmail = (session?.user as { email?: string })?.email || input.email;
+
+    if (!userId) {
+      if (!input.password || input.password.length < 6) {
+        return { success: false, error: "সর্বনিম্ন ৬ অক্ষরের একটি পাসওয়ার্ড লিখুন।" };
+      }
+      const { AuthService } = await import("@/features/auth/services/auth-service");
+      const authService = new AuthService();
+      const cleanEmail = input.email.trim().toLowerCase();
+      const baseUsername = cleanEmail.split("@")[0] || "reseller";
+      const username = `${baseUsername}_${Math.floor(1000 + Math.random() * 9000)}`;
+
+      const newUser = await authService.register({
+        username,
+        email: cleanEmail,
+        phone: input.commonFields.phone,
+        fullName: input.commonFields.fullName,
+        password: input.password,
+      });
+
+      userId = newUser.id;
+      userEmail = cleanEmail;
+    }
+
+    const app = await businessMembershipService.submitApplication({
+      userId,
+      userFullName: input.commonFields.fullName,
+      userPhone: input.commonFields.phone,
+      userEmail,
+      membershipType: input.membershipType,
+      commonFields: input.commonFields,
+      resellerFields: input.resellerFields,
+      wholesalerFields: input.wholesalerFields,
+    });
+
+    return { success: true, data: app, userId };
+  } catch (error: unknown) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "নিবন্ধন ও আবেদন প্রক্রিয়াকরণে সমস্যা হয়েছে",
+    };
+  }
+}
+

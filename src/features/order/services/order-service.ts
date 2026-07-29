@@ -111,6 +111,7 @@ export class OrderService {
         source: input.source,
         autoConfirmed: input.autoConfirmed,
         resellerId: input.resellerId,
+        resellerName: input.resellerName,
         wholesaleId: input.wholesaleId,
       };
 

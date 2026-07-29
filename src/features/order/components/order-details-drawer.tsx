@@ -43,6 +43,7 @@ import {
   Send,
   FileCheck,
   Edit2,
+  Store,
   Check,
 } from "lucide-react";
 
@@ -289,6 +290,35 @@ export function OrderDetailsDrawer({
                     </p>
                   </div>
                 </div>
+
+                {/* Reseller Partner Info Banner */}
+                {(order.type === "reseller" || order.resellerId || order.resellerName) && (
+                  <div className="rounded-2xl border border-amber-500/40 bg-amber-50/70 p-4 space-y-1.5 shadow-2xs">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-black uppercase text-amber-900 flex items-center gap-1.5">
+                        <Store className="h-4 w-4 text-amber-600" /> Reseller Partner Information
+                      </h4>
+                      {order.resellerId && (
+                        <span className="text-[11px] font-mono font-extrabold bg-amber-200 text-amber-950 px-2.5 py-0.5 rounded-full border border-amber-300">
+                          Reseller ID: {order.resellerId}
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between text-xs text-slate-800 font-bold pt-1">
+                      <span>
+                        Reseller Name:{" "}
+                        <strong className="text-slate-950 font-black">
+                          {order.resellerName || order.customer?.name || "Reseller Account"}
+                        </strong>
+                      </span>
+                      {order.customer?.phone && (
+                        <span>
+                          Contact: <strong className="text-slate-900 font-mono">{order.customer.phone}</strong>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Customer Info & Shipping Address Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

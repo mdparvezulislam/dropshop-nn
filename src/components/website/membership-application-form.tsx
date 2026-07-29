@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
   submitMembershipApplicationAction,
+  submitApplicationWithRegistrationAction,
   updateMembershipApplicationAction,
 } from "@/features/identity/actions/membership-application-actions";
 import { BusinessMembershipApplicationEntity } from "@/features/identity/domain/business-membership-entity";
@@ -27,6 +28,7 @@ import { BusinessMembershipApplicationEntity } from "@/features/identity/domain/
 interface MembershipApplicationFormProps {
   membershipType: string;
   existingApplication?: BusinessMembershipApplicationEntity | null;
+  isLoggedIn?: boolean;
   onSuccess?: () => void;
 }
 
@@ -42,10 +44,15 @@ const CATEGORY_OPTIONS = [
 export function MembershipApplicationForm({
   membershipType,
   existingApplication,
+  isLoggedIn = true,
   onSuccess,
 }: MembershipApplicationFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+
+  // Account Registration State (for non-logged in users)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   // Common Fields State
   const [fullName, setFullName] = useState(existingApplication?.commonFields?.fullName || "");
@@ -114,6 +121,17 @@ export function MembershipApplicationForm({
       return;
     }
 
+    if (!isLoggedIn && !existingApplication) {
+      if (!email.trim() || !password.trim()) {
+        toast.error("রেজিস্ট্রেশনের জন্য ইমেইল ও পাসওয়ার্ড প্রদান আবশ্যক।");
+        return;
+      }
+      if (password.length < 6) {
+        toast.error("পাসওয়ার্ড সর্বনিম্ন ৬ অক্ষরের হতে হবে।");
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
@@ -162,6 +180,23 @@ export function MembershipApplicationForm({
           toast.error(res.error || "আপডেট ব্যর্থ হয়েছে");
         } else {
           toast.success("আবেদনটি সফলভাবে সংশোধন করে জমা দেওয়া হয়েছে!");
+          if (onSuccess) onSuccess();
+          router.refresh();
+        }
+      } else if (!isLoggedIn) {
+        const res = await submitApplicationWithRegistrationAction({
+          email,
+          password,
+          membershipType,
+          commonFields,
+          resellerFields,
+          wholesalerFields,
+        });
+
+        if (!res.success) {
+          toast.error(res.error || "নিবন্ধন ও আবেদন জমাদানে সমস্যা হয়েছে");
+        } else {
+          toast.success("অভিনন্দন! আপনার অ্যাকাউন্ট তৈরি ও আবেদন জমা সম্পন্ন হয়েছে।");
           if (onSuccess) onSuccess();
           router.refresh();
         }
@@ -221,6 +256,45 @@ export function MembershipApplicationForm({
             placeholder="প্রশ্নটির বিস্তারিত উত্তর এখানে লিখুন..."
             className="w-full p-3 text-xs font-bold rounded-xl bg-white border border-blue-300 text-slate-900 outline-none focus:border-blue-500"
           />
+        </div>
+      )}
+
+      {/* Account Registration Section for Non-Logged-In Users */}
+      {!isLoggedIn && !existingApplication && (
+        <div className="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-4">
+          <div className="flex items-center gap-2 text-amber-950 font-black text-xs sm:text-sm">
+            <User className="w-4 h-4 text-amber-600" />
+            অ্যাকাউন্ট তৈরির তথ্য (নতুন রিসেলারদের জন্য)
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <label className="text-xs font-black text-slate-900">
+                ইমেইল এড্রেস <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="yourname@gmail.com"
+                className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-900 outline-none focus:border-amber-500"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-xs font-black text-slate-900">
+                পাসওয়ার্ড <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="সর্বনিম্ন ৬ অক্ষর"
+                className="w-full h-11 px-3.5 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-900 outline-none focus:border-amber-500"
+              />
+            </div>
+          </div>
         </div>
       )}
 

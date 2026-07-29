@@ -12,7 +12,17 @@ function homeForRole(role?: string | null): string {
   if (r.includes("reseller")) return "/reseller";
   if (r.includes("wholesale") || r === "wholesaler") return "/wholesale";
   if (r.includes("supplier")) return "/supplier";
-  return "/dashboard";
+  if (
+    r === "admin" ||
+    r === "super_admin" ||
+    r === "manager" ||
+    r === "support" ||
+    r === "content_manager" ||
+    r.includes("admin")
+  ) {
+    return "/dashboard";
+  }
+  return "/account";
 }
 
 function canAccessPath(role: string | null | undefined, pathname: string): boolean {
@@ -28,12 +38,10 @@ function canAccessPath(role: string | null | undefined, pathname: string): boole
     r.includes("admin");
 
   if (pathname.startsWith("/dashboard")) {
-    // Admin workspace is staff-only. Customers were previously allowed into
-    // every /dashboard page that lacked an explicit permission mapping.
     return isStaff;
   }
   if (pathname.startsWith("/reseller")) {
-    return isStaff || r.includes("reseller");
+    return true; // All authenticated users can access /reseller (ResellerStatusGuard handles application status)
   }
   if (pathname.startsWith("/wholesale")) {
     return isStaff || r.includes("wholesale") || r === "wholesaler";

@@ -82,6 +82,7 @@ export const createOrderFromDraftSchema = z.object({
     .optional(),
   source: z.string().max(50).optional(),
   resellerId: z.string().optional(),
+  resellerName: z.string().optional(),
   wholesaleId: z.string().optional(),
   autoConfirmed: z.boolean().optional(),
 });

@@ -72,6 +72,7 @@ function toDomain(doc: any): Order {
     source: doc.source,
     autoConfirmed: doc.autoConfirmed,
     resellerId: doc.resellerId,
+    resellerName: doc.resellerName,
     wholesaleId: doc.wholesaleId,
     confirmedAt: doc.confirmedAt,
     completedAt: doc.completedAt,

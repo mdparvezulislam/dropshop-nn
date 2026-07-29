@@ -73,8 +73,10 @@ export function SmartPricingPanel({
     onPriceChange?.(num);
 
     const floor = PricingValidationService.getResellerFloorPrice({ resellerPrice, minResellerPrice });
-    if (resellerPrice !== undefined && floor > 0 && num < floor) {
-      toast.error(`নূন্যতম বিক্রয় মূল্য ৳${floor} (রিসেলার মূল্যের চেয়ে কম দামে বিক্রি করা সম্ভব নয়)`);
+    if (resellerPrice !== undefined && (num < floor || num <= 0)) {
+      toast.error(`নূন্যতম বিক্রয় মূল্য ৳${floor} (রিসেলার মূল্যের চেয়ে কম দামে বিক্রি করা সম্ভব নয়)`, {
+        id: "reseller-min-price-toast",
+      });
     }
   };
 

@@ -134,6 +134,7 @@ export interface Order extends BaseDBEntity {
   source?: string;
   autoConfirmed?: boolean;
   resellerId?: string;
+  resellerName?: string;
   wholesaleId?: string;
   confirmedAt?: Date;
   completedAt?: Date;

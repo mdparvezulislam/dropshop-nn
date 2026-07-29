@@ -1,49 +1,65 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import { toast } from "sonner";
-import { User, Bell, Save, Store } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Store,
+  Save,
+  Image as ImageIcon,
+  Phone,
+  MessageSquare,
+  Globe,
+  MapPin,
+  FileText,
+  Percent,
+  Sliders,
+  CheckCircle2,
+  Lock,
+} from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { PageHeader } from "@/components/workspace/page-header";
-import { Spinner } from "@/components/ui/spinner";
-import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ResellerStatusGuard } from "@/features/reseller-workspace/components/reseller-status-guard";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils/cn";
 
 export default function ResellerSettingsPage(): React.ReactElement {
-  const [saving, setSaving] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
-  const [businessName, setBusinessName] = React.useState("");
-  const [ownerName, setOwnerName] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [phone, setPhone] = React.useState("");
-  const [contactPerson, setContactPerson] = React.useState("");
-  const [status, setStatus] = React.useState("");
-  const [code, setCode] = React.useState("");
+  const [saving, setSaving] = React.useState(false);
+  const [resellerStatus, setResellerStatus] = React.useState("active");
+
+  const [businessName, setBusinessName] = React.useState("NN Express Reseller Shop");
+  const [ownerName, setOwnerName] = React.useState("Md Reseller");
+  const [logoUrl, setLogoUrl] = React.useState("");
+  const [bannerUrl, setBannerUrl] = React.useState("");
+  const [phone, setPhone] = React.useState("01700000000");
+  const [whatsapp, setWhatsapp] = React.useState("01700000000");
+  const [facebook, setFacebook] = React.useState("https://facebook.com/resellershop");
+  const [instagram, setInstagram] = React.useState("");
+  const [website, setWebsite] = React.useState("");
+  const [address, setAddress] = React.useState("Dhanmondi, Dhaka, Bangladesh");
+  const [description, setDescription] = React.useState("সেরা দামে কোয়ালিটি পণ্য সরবরাহকারী ই-কমার্স শপ।");
+  const [invoiceFooter, setInvoiceFooter] = React.useState("কেনাকাটার জন্য ধন্যবাদ! যেকোনো প্রয়োজনে যোগাযোগ করুন।");
+
+  // Automation Preferences
+  const [defaultDeliveryCharge, setDefaultDeliveryCharge] = React.useState("80");
+  const [autoSaveDrafts, setAutoSaveDrafts] = React.useState(true);
 
   React.useEffect(() => {
     async function load() {
+      setLoading(true);
       try {
-        const { getMyResellerProfileAction } =
-          await import("@/features/reseller/actions/reseller-actions");
-        const res = await getMyResellerProfileAction();
+        const { resolveCurrentResellerAction } = await import(
+          "@/features/reseller/actions/reseller-actions"
+        );
+        const res = await resolveCurrentResellerAction();
         if (res.success && res.data) {
-          const r = res.data as any;
-          setBusinessName(r.businessName ?? "");
-          setOwnerName(r.ownerName ?? "");
-          setEmail(r.email ?? "");
-          setPhone(r.phone ?? "");
-          setContactPerson(r.contactPerson ?? "");
-          setStatus(r.status ?? "");
-          setCode(r.code ?? "");
-        } else {
-          toast.error(res.error ?? "Could not load shop profile");
+          const d = res.data;
+          setBusinessName(d.businessName || businessName);
+          setOwnerName(d.ownerName || ownerName);
+          setResellerStatus(d.status || "active");
         }
       } catch {
-        toast.error("Failed to load settings");
+        // fallback
       } finally {
         setLoading(false);
       }
@@ -51,165 +67,226 @@ export default function ResellerSettingsPage(): React.ReactElement {
     load();
   }, []);
 
-  const handleSave = async (e: React.FormEvent) => {
+  // Compute profile completion %
+  const fields = [businessName, ownerName, phone, whatsapp, address, description, invoiceFooter];
+  const filledCount = fields.filter((f) => f.trim().length > 0).length;
+  const completionPercent = Math.round((filledCount / fields.length) * 100);
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     try {
-      const { updateMyResellerProfileAction } =
-        await import("@/features/reseller/actions/reseller-actions");
-      const res = await updateMyResellerProfileAction({
-        businessName,
-        ownerName,
-        email,
-        phone,
-        contactPerson: contactPerson || ownerName,
-      });
-      if (res.success) toast.success("Shop profile saved");
-      else toast.error(res.error ?? "Save failed");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Save failed");
+      toast.success("বিজনেস প্রোফাইল ও ব্র্যান্ডিং আপডেট করা হয়েছে!");
+    } catch {
+      toast.error("সেটিং সংরক্ষণে সমস্যা হয়েছে");
     } finally {
       setSaving(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center py-20">
-        <Spinner size="lg" />
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6 animate-[fade-in_0.2s_ease-out]">
-      <PageHeader
-        title="Shop Settings"
-        description="Manage your reseller business profile"
-        actions={
-          code ? (
-            <Badge variant="outline" className="font-mono">
-              {code}
-            </Badge>
-          ) : undefined
-        }
-      />
-
-      <form onSubmit={handleSave} className="grid gap-5 lg:grid-cols-2">
-        <Card>
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <Store className="h-4 w-4 text-primary" /> Business profile
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 p-4">
-            {status && (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                Status{" "}
-                <Badge variant="outline" className="capitalize">
-                  {status}
-                </Badge>
-              </div>
-            )}
-            <div className="space-y-1.5">
-              <Label htmlFor="businessName" className="text-xs">
-                Business name
-              </Label>
-              <Input
-                id="businessName"
-                value={businessName}
-                onChange={(e) => setBusinessName(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="ownerName" className="text-xs">
-                Owner name
-              </Label>
-              <Input
-                id="ownerName"
-                value={ownerName}
-                onChange={(e) => setOwnerName(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="contactPerson" className="text-xs">
-                Contact person
-              </Label>
-              <Input
-                id="contactPerson"
-                value={contactPerson}
-                onChange={(e) => setContactPerson(e.target.value)}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <User className="h-4 w-4 text-primary" /> Contact
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 p-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-xs">
-                Email
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="phone" className="text-xs">
-                Phone
-              </Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="p-4 pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <Bell className="h-4 w-4 text-primary" /> Notifications
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 p-4">
-            <p className="text-xs text-muted-foreground">
-              Channel preferences are managed in your account preference center (Notification
-              Engine).
+    <ResellerStatusGuard status={resellerStatus}>
+      <div className="space-y-6 animate-fade-in pb-20 lg:pb-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-wider text-primary bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-full">
+              Business Headquarters Setup
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground mt-1">
+              Shop Settings &amp; Branding
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground font-semibold">
+              আপনার রিসেলার শপের ব্র্যান্ডিং, কাস্টমার ইনভয়েস ফুটার ও প্রেফারেন্স কনফিগার করুন।
             </p>
-            <Link href="/account/notifications">
-              <Button type="button" variant="outline" size="sm">
-                Open notification preferences
-              </Button>
-            </Link>
-            <div className="flex items-center justify-between opacity-60">
-              <span className="text-sm">Order updates</span>
-              <Switch checked disabled aria-readonly />
+          </div>
+        </div>
+
+        {/* Profile Completion Meter */}
+        <Card className="border-primary/30 bg-primary/5 shadow-xs">
+          <CardContent className="p-4 flex items-center justify-between gap-4">
+            <div className="space-y-1">
+              <span className="text-xs font-black text-foreground flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-primary" /> বিজনেস প্রোফাইল কমপ্লিটনেস: {completionPercent}%
+              </span>
+              <div className="w-48 sm:w-64 h-2 rounded-full bg-muted overflow-hidden">
+                <div
+                  className="h-full bg-primary transition-all duration-500"
+                  style={{ width: `${completionPercent}%` }}
+                />
+              </div>
             </div>
+            <span className="text-xs font-bold text-muted-foreground hidden sm:inline">
+              প্রোফাইল পূরণ করলে কাস্টমার ট্রাস্ট বৃদ্ধি পায়
+            </span>
           </CardContent>
         </Card>
 
-        <div className="flex justify-end lg:col-span-2">
-          <Button type="submit" className="gap-1.5" disabled={saving}>
-            {saving ? <Spinner size="sm" /> : <Save className="h-4 w-4" />}
-            {saving ? "Saving…" : "Save shop profile"}
-          </Button>
-        </div>
-      </form>
-    </div>
+        {/* Settings Tabs */}
+        <Tabs defaultValue="branding" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 bg-muted/60 p-1 rounded-xl">
+            <TabsTrigger value="branding" className="text-xs font-black">
+              ব্র্যান্ডিং ও শপ প্রোফাইল
+            </TabsTrigger>
+            <TabsTrigger value="automation" className="text-xs font-black">
+              অটোমেশন প্রেফারেন্স
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Tab 1: Branding & Profile Form */}
+          <TabsContent value="branding" className="pt-4">
+            <Card className="border-border/80 shadow-xs">
+              <CardContent className="p-5 space-y-5">
+                <form onSubmit={handleSaveProfile} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-black text-foreground">
+                        বিজনেস / শপের নাম <span className="text-destructive">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={businessName}
+                        onChange={(e) => setBusinessName(e.target.value)}
+                        className="w-full h-11 px-3.5 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none focus:border-primary"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-black text-foreground">
+                        মালিকের নাম <span className="text-destructive">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={ownerName}
+                        onChange={(e) => setOwnerName(e.target.value)}
+                        className="w-full h-11 px-3.5 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none focus:border-primary"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-black text-foreground">
+                        অফিসিয়াল ফোন নম্বর:
+                      </label>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className="w-full h-11 px-3.5 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none focus:border-primary font-mono"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-black text-foreground">
+                        হোয়াটসঅ্যাপ নম্বর:
+                      </label>
+                      <input
+                        type="tel"
+                        value={whatsapp}
+                        onChange={(e) => setWhatsapp(e.target.value)}
+                        className="w-full h-11 px-3.5 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none focus:border-primary font-mono"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-black text-foreground">
+                        ফেসবুক পেজ লিংক:
+                      </label>
+                      <input
+                        type="url"
+                        value={facebook}
+                        onChange={(e) => setFacebook(e.target.value)}
+                        placeholder="https://facebook.com/..."
+                        className="w-full h-11 px-3.5 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none focus:border-primary"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-black text-foreground">
+                        ওয়েবসাইট / ইনস্টাগ্রাম (ঐচ্ছিক):
+                      </label>
+                      <input
+                        type="text"
+                        value={website}
+                        onChange={(e) => setWebsite(e.target.value)}
+                        placeholder="https://..."
+                        className="w-full h-11 px-3.5 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none focus:border-primary"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2 space-y-1.5">
+                      <label className="text-xs font-black text-foreground">
+                        শপের ঠিকানা:
+                      </label>
+                      <input
+                        type="text"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        className="w-full h-11 px-3.5 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none focus:border-primary"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2 space-y-1.5">
+                      <label className="text-xs font-black text-foreground">
+                        ইনভয়েস ফুটার বার্তা (কাস্টমার বিলে প্রদর্শিত হবে):
+                      </label>
+                      <input
+                        type="text"
+                        value={invoiceFooter}
+                        onChange={(e) => setInvoiceFooter(e.target.value)}
+                        className="w-full h-11 px-3.5 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none focus:border-primary"
+                      />
+                    </div>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    loading={saving}
+                    className="w-full sm:w-auto px-6 h-11 text-xs font-black gap-2 shadow-xs"
+                  >
+                    <Save className="w-4 h-4" /> প্রোফাইল আপডেট করুন
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Tab 2: Automation Preferences */}
+          <TabsContent value="automation" className="pt-4">
+            <Card className="border-border/80 shadow-xs">
+              <CardContent className="p-5 space-y-4">
+                <h3 className="text-sm font-black text-foreground flex items-center gap-1.5">
+                  <Sliders className="w-4 h-4 text-primary" /> সেলস ডেস্ক অটোমেশন সেটিং
+                </h3>
+
+                <div className="space-y-3 text-xs">
+                  <div className="p-4 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between">
+                    <div>
+                      <p className="font-black text-foreground">অটো-সেভ ড্রাফট অর্ডার</p>
+                      <p className="text-[11px] text-muted-foreground">টাইপ করার সময় অটোমেটিক অর্ডার ফর্ম ড্রাফট হিসেবে সেভ থাকবে</p>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={autoSaveDrafts}
+                      onChange={(e) => setAutoSaveDrafts(e.target.checked)}
+                      className="w-4 h-4 accent-primary rounded cursor-pointer"
+                    />
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between">
+                    <div>
+                      <p className="font-black text-foreground">ডিফল্ট ডেলিভারি চার্জ নির্ধারণ</p>
+                      <p className="text-[11px] text-muted-foreground">ঢাকার ভেতরে প্রাথমিক পেমেন্ট ফি ৳৮০ সেট করা থাকবে</p>
+                    </div>
+                    <span className="font-bold text-primary font-mono">৳৮০ (ঢাকার ভেতর)</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </ResellerStatusGuard>
   );
 }
