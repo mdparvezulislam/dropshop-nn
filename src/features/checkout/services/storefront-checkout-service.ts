@@ -104,8 +104,7 @@ export class StorefrontCheckoutService {
 
       const product = await this.products.findOne({
         _id: item.productId,
-        status: "active",
-        visibility: "public",
+        status: { $in: ["active", "published"] },
         isDeleted: { $ne: true },
       });
       if (!product) {

@@ -89,8 +89,8 @@ export class PublicCatalogService {
     const limit = Math.min(MAX_PAGE_SIZE, Math.max(1, params.limit ?? DEFAULT_PAGE_SIZE));
 
     const filter: Record<string, unknown> = {
-      status: "active",
-      visibility: "public",
+      status: { $in: ["active", "published"] },
+      isDeleted: { $ne: true },
     };
 
     if (params.badge) filter.$or = badgeFilter(params.badge);
@@ -366,8 +366,7 @@ export class PublicCatalogService {
   async getProductDetail(slug: string, viewer: ViewerContext): Promise<PublicProductDetail | null> {
     const product = await this.products.findOne({
       slug: slug.toLowerCase().trim(),
-      status: "active",
-      visibility: "public",
+      status: { $in: ["active", "published"] },
       isDeleted: { $ne: true },
     });
     if (!product) return null;
@@ -440,8 +439,7 @@ export class PublicCatalogService {
   } | null> {
     const product = await this.products.findOne({
       slug: slug.toLowerCase().trim(),
-      status: "active",
-      visibility: "public",
+      status: { $in: ["active", "published"] },
       isDeleted: { $ne: true },
     });
     if (!product) return null;

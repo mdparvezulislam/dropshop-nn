@@ -341,7 +341,7 @@ export class ProductAssignmentService {
       const { ProductRepository } = await import("@/features/catalog/repositories/product-repository");
       const catalogRepo = new ProductRepository();
       const masterResult = await catalogRepo.findPublicCards({
-        filter: { status: "published" },
+        filter: { status: { $in: ["published", "active"] } },
         textQuery: params.search,
         page: params.page || 1,
         limit: params.limit || 10,
