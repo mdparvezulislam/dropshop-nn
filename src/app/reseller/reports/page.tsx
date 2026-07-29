@@ -169,7 +169,7 @@ export default function ResellerReportsPage(): React.ReactElement {
                       <th className="p-3">অর্ডার #</th>
                       <th className="p-3">পণ্য</th>
                       <th className="p-3">বিক্রয় মূল্য</th>
-                      <th className="p-3">কেনা খরচ</th>
+                      <th className="p-3">Resell Price</th>
                       <th className="p-3">রিটার্ন চার্জ</th>
                       <th className="p-3 text-right">নিট প্রফিট</th>
                       <th className="p-3 text-center">স্ট্যাটাস</th>

@@ -162,7 +162,7 @@ function WorkspaceShellInner({
           />
         )}
         <main className="flex-1">
-          <div className="mx-auto w-full max-w-[var(--content-max)] px-4 py-6 sm:px-6 lg:px-8 space-y-6">
+          <div className="mx-auto w-full max-w-[var(--content-max)] px-0 sm:px-6 py-2 sm:py-6 lg:px-8 space-y-3 sm:space-y-6">
             {children}
           </div>
         </main>

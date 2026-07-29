@@ -1,15 +1,20 @@
 "use client";
 
 import * as React from "react";
-import { User, Phone, MapPin, FileText, CheckCircle2, History, Loader2, Sparkles } from "lucide-react";
+import { User, Phone, MapPin, CheckCircle2, History, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils/cn";
+import { DistrictSelect } from "@/components/website/checkout/district-select";
+import { ThanaSelect } from "@/components/website/checkout/thana-select";
+import { BD_DISTRICTS, type BdDistrict } from "@/config/bd-districts";
 
 export interface CustomerFormData {
   phone: string;
   name: string;
+  districtId: string;
   district: string;
+  division: string;
+  upazila: string;
   fullAddress: string;
   email?: string;
   note?: string;
@@ -22,21 +27,6 @@ export interface QuickOrderCustomerFormProps {
   onChange: (data: CustomerFormData) => void;
 }
 
-const DISTRICT_OPTIONS = [
-  "Dhaka",
-  "Chittagong",
-  "Gazipur",
-  "Narayanganj",
-  "Sylhet",
-  "Rajshahi",
-  "Khulna",
-  "Barisal",
-  "Rangpur",
-  "Cumilla",
-  "Bogura",
-  "Other",
-];
-
 export function QuickOrderCustomerForm({
   value,
   onChange,
@@ -45,7 +35,7 @@ export function QuickOrderCustomerForm({
   const [recentCustomers, setRecentCustomers] = React.useState<any[]>([]);
   const [matchedCustomer, setMatchedCustomer] = React.useState<any | null>(null);
 
-  // Load Recent Customers
+  // Load Recent Customers on mount
   React.useEffect(() => {
     async function loadRecent() {
       try {
@@ -80,12 +70,19 @@ export function QuickOrderCustomerForm({
           const match = res.data[0];
           setMatchedCustomer(match);
           const defaultAddr = match.addresses?.[0] || {};
+          const distName = defaultAddr.city || defaultAddr.district || value.district || "Dhaka";
+          const matchedBdDist = BD_DISTRICTS.find(
+            (d) => d.name.toLowerCase() === distName.toLowerCase() || d.nameEn.toLowerCase() === distName.toLowerCase()
+          ) || BD_DISTRICTS[0];
 
           onChange({
             ...value,
             phone: phoneInput,
             name: match.name || value.name,
-            district: defaultAddr.city || defaultAddr.district || value.district || "Dhaka",
+            districtId: matchedBdDist.id,
+            district: matchedBdDist.name,
+            division: matchedBdDist.division,
+            upazila: defaultAddr.upazila || value.upazila || "",
             fullAddress: defaultAddr.addressLine1 || defaultAddr.fullAddress || value.fullAddress,
             email: match.email || value.email,
             customerId: match.id || match._id,
@@ -108,10 +105,18 @@ export function QuickOrderCustomerForm({
 
   const handlePickRecent = (c: any) => {
     const addr = c.addresses?.[0] || {};
+    const distName = addr.city || addr.district || "Dhaka";
+    const matchedBdDist = BD_DISTRICTS.find(
+      (d) => d.name.toLowerCase() === distName.toLowerCase() || d.nameEn.toLowerCase() === distName.toLowerCase()
+    ) || BD_DISTRICTS[0];
+
     onChange({
       phone: c.phone || "",
       name: c.name || "",
-      district: addr.city || addr.district || "Dhaka",
+      districtId: matchedBdDist.id,
+      district: matchedBdDist.name,
+      division: matchedBdDist.division,
+      upazila: addr.upazila || "",
       fullAddress: addr.addressLine1 || addr.fullAddress || "",
       email: c.email || "",
       customerId: c.id || c._id,
@@ -121,15 +126,25 @@ export function QuickOrderCustomerForm({
     toast.success(`কাস্টমার ফিলআপ সম্পন্ন: ${c.name}`);
   };
 
+  const handleDistrictChange = (bdDist: BdDistrict) => {
+    onChange({
+      ...value,
+      districtId: bdDist.id,
+      district: bdDist.name,
+      division: bdDist.division,
+      upazila: "", // reset upazila when district changes
+    });
+  };
+
   return (
     <Card className="border-border/80 shadow-xs">
-      <CardContent className="p-5 space-y-4">
+      <CardContent className="p-2.5 sm:p-5 space-y-2.5 sm:space-y-4">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-black text-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <User className="w-4 h-4 text-primary" /> ২. কাস্টমারের তথ্য (Step 4 &amp; 5)
+          <label className="text-[11px] sm:text-xs font-black text-foreground uppercase tracking-wider flex items-center gap-1.5">
+            <User className="w-3.5 h-3.5 text-primary" /> ২. কাস্টমারের ঠিকানা ও তথ্য
           </label>
           {matchedCustomer && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 border border-emerald-500/30 text-[10px] font-black uppercase">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 border border-emerald-500/30 text-[9px] font-black uppercase">
               <CheckCircle2 className="w-3 h-3" /> Repeat Customer
             </span>
           )}
@@ -137,17 +152,17 @@ export function QuickOrderCustomerForm({
 
         {/* Recent Customers Quick Selectors */}
         {recentCustomers.length > 0 && (
-          <div className="space-y-1.5">
-            <span className="text-[11px] font-bold text-muted-foreground flex items-center gap-1">
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold text-muted-foreground flex items-center gap-1">
               <History className="w-3 h-3 text-primary" /> রিসেন্ট কাস্টমার নির্বাচন করুন:
             </span>
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
               {recentCustomers.map((c) => (
                 <button
                   key={c.id || c._id}
                   type="button"
                   onClick={() => handlePickRecent(c)}
-                  className="px-3 py-1 rounded-xl text-xs font-bold border border-border bg-muted/40 hover:bg-muted text-foreground whitespace-nowrap transition-colors"
+                  className="px-2.5 py-1 rounded-lg text-[11px] font-bold border border-border bg-muted/40 hover:bg-muted text-foreground whitespace-nowrap transition-colors"
                 >
                   {c.name || "Customer"} ({c.phone?.slice(-4)})
                 </button>
@@ -156,62 +171,87 @@ export function QuickOrderCustomerForm({
           </div>
         )}
 
-        {/* Phone Input with Live Lookup */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="space-y-1.5">
-            <label className="text-xs font-black text-foreground flex items-center justify-between">
-              <span>মোবাইল নম্বর <span className="text-destructive">*</span></span>
-              {lookingUp && <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+          {/* Phone Input */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-black text-slate-800 flex items-center justify-between">
+              <span>মোবাইল নম্বর <span className="text-rose-500">*</span></span>
+              {lookingUp && <Loader2 className="w-3 h-3 text-amber-500 animate-spin" />}
             </label>
             <div className="relative">
-              <Phone className="w-4 h-4 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Phone className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="tel"
                 required
                 value={value.phone}
                 onChange={(e) => handlePhoneChange(e.target.value)}
                 placeholder="017XXXXXXXX"
-                className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-border bg-muted/40 text-xs font-bold text-foreground outline-none focus:border-primary"
+                className="w-full h-10 sm:h-11 pl-9 pr-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-900 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
               />
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-black text-foreground">
-              কাস্টমারের নাম <span className="text-destructive">*</span>
+          {/* Customer Name */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-black text-slate-800">
+              কাস্টমারের নাম <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
-              <User className="w-4 h-4 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <User className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 required
                 value={value.name}
                 onChange={(e) => onChange({ ...value, name: e.target.value })}
                 placeholder="যেমন: মোহাম্মদ রহিম"
-                className="w-full h-11 pl-10 pr-3.5 rounded-xl border border-border bg-muted/40 text-xs font-bold text-foreground outline-none focus:border-primary"
+                className="w-full h-10 sm:h-11 pl-9 pr-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-900 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
               />
             </div>
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-black text-foreground">
-              জেলা / Delivery District <span className="text-destructive">*</span>
+          {/* District Searchable Select (64 Districts) */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-black text-slate-800">
+              জেলা (District) <span className="text-rose-500">*</span>
             </label>
-            <select
-              value={value.district || "Dhaka"}
-              onChange={(e) => onChange({ ...value, district: e.target.value })}
-              className="w-full h-11 px-3.5 rounded-xl border border-border bg-card text-xs font-black text-foreground outline-none focus:border-primary"
-            >
-              {DISTRICT_OPTIONS.map((d) => (
-                <option key={d} value={d}>
-                  {d} {d === "Dhaka" ? "(ঢাকার ভেতরে ৳৮০)" : "(ঢাকার বাইরে ৳১৫০)"}
-                </option>
-              ))}
-            </select>
+            <DistrictSelect
+              value={value.districtId || "dhaka"}
+              onChange={handleDistrictChange}
+              placeholder="জেলা খুঁজুন বা নির্বাচন করুন..."
+            />
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-xs font-black text-foreground">
+          {/* Thana / Upazila Select */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-black text-slate-800">
+              থানা / উপজেলা (Upazila) <span className="text-slate-400 font-normal">(ঐচ্ছিক)</span>
+            </label>
+            <ThanaSelect
+              districtId={value.districtId || "dhaka"}
+              value={value.upazila || ""}
+              onChange={(thana) => onChange({ ...value, upazila: thana })}
+              placeholder="থানা / উপজেলা নির্বাচন করুন..."
+            />
+          </div>
+
+          {/* Full Delivery Address Textarea */}
+          <div className="sm:col-span-2 space-y-1">
+            <label className="text-[11px] font-black text-slate-800 flex items-center gap-1">
+              <MapPin className="w-3 h-3 text-amber-600" /> সম্পূর্ণ ডেলিভারি ঠিকানা <span className="text-rose-500">*</span>
+            </label>
+            <textarea
+              required
+              rows={2}
+              value={value.fullAddress}
+              onChange={(e) => onChange({ ...value, fullAddress: e.target.value })}
+              placeholder="বাসা নং, রোড নং, এলাকা ও ল্যান্ডমার্ক লিখুন..."
+              className="w-full p-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-900 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+            />
+          </div>
+
+          {/* Email & Note */}
+          <div className="space-y-1">
+            <label className="text-[11px] font-black text-slate-800">
               ইমেইল (ঐচ্ছিক)
             </label>
             <input
@@ -219,34 +259,20 @@ export function QuickOrderCustomerForm({
               value={value.email || ""}
               onChange={(e) => onChange({ ...value, email: e.target.value })}
               placeholder="customer@gmail.com"
-              className="w-full h-11 px-3.5 rounded-xl border border-border bg-muted/40 text-xs font-bold text-foreground outline-none focus:border-primary"
+              className="w-full h-10 px-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-900 outline-none focus:border-amber-500"
             />
           </div>
 
-          <div className="sm:col-span-2 space-y-1.5">
-            <label className="text-xs font-black text-foreground flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5 text-primary" /> সম্পূর্ণ ডেলিভারি ঠিকানা <span className="text-destructive">*</span>
-            </label>
-            <textarea
-              required
-              rows={2}
-              value={value.fullAddress}
-              onChange={(e) => onChange({ ...value, fullAddress: e.target.value })}
-              placeholder="বাসা নং, রোড নং, এলাকা ও থানা লিখুন..."
-              className="w-full p-3.5 rounded-xl border border-border bg-muted/40 text-xs font-bold text-foreground outline-none focus:border-primary"
-            />
-          </div>
-
-          <div className="sm:col-span-2 space-y-1.5">
-            <label className="text-xs font-black text-foreground">
+          <div className="space-y-1">
+            <label className="text-[11px] font-black text-slate-800">
               অর্ডার নোট (ঐচ্ছিক)
             </label>
             <input
               type="text"
               value={value.note || ""}
               onChange={(e) => onChange({ ...value, note: e.target.value })}
-              placeholder="যেমন: কালকের মধ্যে ডেলিভারি চাই / কল দিয়ে পণ্য হস্তান্তর করতে হবে"
-              className="w-full h-11 px-3.5 rounded-xl border border-border bg-muted/40 text-xs font-bold text-foreground outline-none focus:border-primary"
+              placeholder="যেমন: কল দিয়ে ডেলিভারি দিন"
+              className="w-full h-10 px-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-900 outline-none focus:border-amber-500"
             />
           </div>
         </div>

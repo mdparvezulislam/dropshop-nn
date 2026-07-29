@@ -93,6 +93,151 @@ export async function listUsersAdminAction(query: unknown = {}): Promise<{
   }
 }
 
+export async function getUserByIdAdminAction(userId: string): Promise<{
+  success: boolean;
+  data?: Omit<User, "passwordHash"> & { resellerProfile?: any };
+  error?: string;
+}> {
+  try {
+    const session = await auth();
+    checkPermission(session, "User.View");
+    const repo = new UserRepository();
+    let user = await repo.findById(userId);
+    if (!user) {
+      user = await repo.findOne({ $or: [{ email: userId }, { username: userId }] });
+    }
+    if (!user) {
+      return { success: false, error: "User not found" };
+    }
+
+    let resellerProfile: any = null;
+    try {
+      const { ResellerRepository } = await import(
+        "@/features/reseller/repositories/reseller-repository"
+      );
+      const resellerRepo = new ResellerRepository();
+      resellerProfile = await resellerRepo.findByUserId(user.id);
+      if (!resellerProfile) {
+        resellerProfile = await resellerRepo.findByEmail(user.email);
+      }
+    } catch {}
+
+    return {
+      success: true,
+      data: {
+        ...stripUser(user),
+        resellerProfile,
+      },
+    };
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to fetch user",
+    };
+  }
+}
+
+const updateUserProfileSchema = z.object({
+  userId: z.string().min(1),
+  fullName: z.string().trim().min(2),
+  email: z.string().trim().email(),
+  phone: z.string().trim().min(6),
+  status: z.enum(["active", "pending", "suspended", "blocked"]),
+  roles: z.array(z.string()).min(1),
+});
+
+export async function updateUserProfileAdminAction(payload: unknown): Promise<{
+  success: boolean;
+  data?: Omit<User, "passwordHash">;
+  error?: string;
+}> {
+  try {
+    const session = await auth();
+    checkPermission(session, "User.Update");
+    const validated = updateUserProfileSchema.parse(payload);
+    const actor = sessionActor(session);
+    const repo = new UserRepository();
+
+    const existing = await repo.findById(validated.userId);
+    if (!existing) return { success: false, error: "User not found" };
+
+    const primaryRole = validated.roles[0] || "customer";
+    const memberships = Array.from(
+      new Set([
+        "customer",
+        ...(existing.memberships || []),
+        ...(validated.roles.includes("reseller") ? ["reseller"] : []),
+        ...(validated.roles.includes("wholesaler") ? ["wholesaler"] : []),
+      ]),
+    );
+
+    // If reseller role is assigned, sync or create reseller profile
+    if (validated.roles.includes("reseller")) {
+      try {
+        const { ResellerRepository } = await import(
+          "@/features/reseller/repositories/reseller-repository"
+        );
+        const resellerRepo = new ResellerRepository();
+        let r = await resellerRepo.findByUserId(existing.id);
+        if (!r) r = await resellerRepo.findByEmail(validated.email);
+        if (!r) {
+          const count = await resellerRepo.countAll({});
+          const code = `RSL-${String(count + 1).padStart(4, "0")}`;
+          await resellerRepo.create({
+            code,
+            businessName: `${validated.fullName}'s Store`,
+            ownerName: validated.fullName,
+            email: validated.email,
+            phone: validated.phone,
+            userId: existing.id,
+            status: "active",
+            nidVerified: true,
+          } as any);
+        } else {
+          await resellerRepo.update(r.id, {
+            ownerName: validated.fullName,
+            email: validated.email,
+            phone: validated.phone,
+            status: "active",
+            userId: existing.id,
+          } as any);
+        }
+      } catch {}
+    }
+
+    const updated = await repo.update(validated.userId, {
+      fullName: validated.fullName,
+      email: validated.email,
+      phone: validated.phone,
+      status: validated.status,
+      role: primaryRole,
+      roles: validated.roles,
+      memberships,
+    } as any);
+
+    await AuditLogger.record({
+      action: "user.profile_updated",
+      entityType: "user",
+      entityId: validated.userId,
+      actor: { id: actor.id, name: actor.name, role: actor.role },
+      changes: [
+        { field: "fullName", oldValue: existing.fullName, newValue: validated.fullName },
+        { field: "email", oldValue: existing.email, newValue: validated.email },
+        { field: "roles", oldValue: existing.roles, newValue: validated.roles },
+      ],
+    });
+
+    revalidatePath(`/dashboard/identity/users/${validated.userId}`);
+    revalidatePath("/dashboard/identity/users");
+    return { success: true, data: stripUser(updated) };
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to update profile",
+    };
+  }
+}
+
 export async function updateUserStatusAdminAction(payload: unknown): Promise<{
   success: boolean;
   data?: Omit<User, "passwordHash">;

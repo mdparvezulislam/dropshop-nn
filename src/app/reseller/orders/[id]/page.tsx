@@ -254,7 +254,7 @@ export default function ResellerOrderDetailPage(): React.ReactElement {
                   <TrendingUp className="w-4 h-4 text-success" /> ফাইনান্সিয়াল হিসাব:
                 </h3>
                 <div className="space-y-1.5 text-muted-foreground font-semibold">
-                  <p>• হোলসেল কেনা খরচ: <span className="text-foreground font-bold">৳{Math.round(order.unitCost / 100 * order.quantity)}</span></p>
+                  <p>• Resell Price: <span className="text-foreground font-bold">৳{Math.round(order.unitCost / 100 * order.quantity)}</span></p>
                   <p>• কাস্টমারের নিকট বিক্রয় মূল্য: <span className="text-foreground font-bold">৳{Math.round(order.unitPrice / 100 * order.quantity)}</span></p>
                   <p>• ডেলিভারি চার্জ: <span className="text-foreground font-bold">৳{Math.round(order.deliveryFee / 100)}</span></p>
                   <p>• মোট বিল (Grand Total): <span className="text-primary font-black">৳{sellingPriceTaka}</span></p>
@@ -328,7 +328,7 @@ export default function ResellerOrderDetailPage(): React.ReactElement {
             <CardContent className="p-5 space-y-3 text-xs font-semibold">
               <h3 className="text-sm font-black text-success">প্রফিট বিবরণী:</h3>
               <p>• কাস্টমার সেলస్ সাবটোটাল: ৳{Math.round(order.unitPrice / 100 * order.quantity)}</p>
-              <p>• হোলসেল কেনা খরচ: ৳{Math.round(order.unitCost / 100 * order.quantity)}</p>
+              <p>• Resell Price: ৳{Math.round(order.unitCost / 100 * order.quantity)}</p>
               <p className="text-sm font-black text-success pt-2 border-t border-border/60">
                 • আপনার নিট প্রফিট: +৳{profitTaka}
               </p>

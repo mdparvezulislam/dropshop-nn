@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Search, Package, Plus, Minus, X, Loader2, Check, AlertTriangle, ShieldAlert } from "lucide-react";
+import { Search, Package, Plus, Minus, Loader2, ShieldAlert, Trash2, ShoppingBag } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "sonner";
@@ -20,22 +20,24 @@ export interface SelectedOrderProduct {
 }
 
 export interface QuickOrderProductSearchProps {
-  selectedProduct: SelectedOrderProduct | null;
-  onSelectProduct: (product: SelectedOrderProduct | null) => void;
-  onUpdateProduct: (product: SelectedOrderProduct) => void;
+  selectedProducts: SelectedOrderProduct[];
+  onAddProduct: (product: SelectedOrderProduct) => void;
+  onUpdateProduct: (index: number, updated: SelectedOrderProduct) => void;
+  onRemoveProduct: (index: number) => void;
 }
 
 export function QuickOrderProductSearch({
-  selectedProduct,
-  onSelectProduct,
+  selectedProducts,
+  onAddProduct,
   onUpdateProduct,
+  onRemoveProduct,
 }: QuickOrderProductSearchProps): React.ReactElement {
   const [query, setQuery] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [results, setResults] = React.useState<any[]>([]);
   const [isOpen, setIsOpen] = React.useState(false);
 
-  // Load products on mount & on search query
+  // Search Products
   React.useEffect(() => {
     const timer = setTimeout(async () => {
       setLoading(true);
@@ -46,7 +48,7 @@ export function QuickOrderProductSearch({
         const res = await searchResellerProductsAction({
           resellerId: "me",
           search: query.trim() || undefined,
-          limit: 8,
+          limit: 10,
         });
 
         if (res.success && res.data) {
@@ -64,237 +66,271 @@ export function QuickOrderProductSearch({
   }, [query]);
 
   const handlePickProduct = (p: any) => {
-    const wholesaleCost = p.pricing?.costBasis ?? 150000;
-    const minPrice = p.pricing?.minPrice ?? Math.round(wholesaleCost * 1.05);
-    const suggestedPrice = p.pricing?.sellingPrice ?? Math.round(wholesaleCost * 1.25);
+    const productId = p.id || p._id;
+    const existingIndex = selectedProducts.findIndex((sp) => sp.id === productId);
 
-    const item: SelectedOrderProduct = {
-      id: p.id || p._id,
-      name: p.customTitle ?? p.product?.name ?? p.productName ?? "Reseller Product",
-      sku: p.variantSku ?? p.product?.sku ?? p.sku ?? "RSL-9988",
-      imageUrl: p.product?.primaryImage?.url || p.imageUrl || p.product?.images?.[0]?.url,
-      wholesaleCost,
-      minPrice,
-      suggestedPrice,
-      customSellingPrice: suggestedPrice,
-      quantity: 1,
-      availableStock: p.availableStock ?? 15,
-    };
+    if (existingIndex >= 0) {
+      const existing = selectedProducts[existingIndex];
+      const newQty = Math.min(existing.quantity + 1, existing.availableStock);
+      onUpdateProduct(existingIndex, { ...existing, quantity: newQty });
+      toast.info(`"${existing.name}" কার্টে ২য় বার যোগ করা হয়েছে (${newQty} টি)`);
+    } else {
+      const wholesaleCost = p.pricing?.costBasis ?? p.pricing?.resellerPrice ?? 150000;
+      const minPrice = p.pricing?.minPrice ?? wholesaleCost;
+      const suggestedPrice = p.pricing?.sellingPrice ?? Math.round(wholesaleCost * 1.25);
 
-    onSelectProduct(item);
+      const item: SelectedOrderProduct = {
+        id: productId,
+        name: p.customTitle ?? p.product?.name ?? p.productName ?? "Reseller Product",
+        sku: p.variantSku ?? p.product?.sku ?? p.sku ?? "RSL-9988",
+        imageUrl: p.product?.primaryImage?.url || p.imageUrl || p.product?.images?.[0]?.url,
+        wholesaleCost,
+        minPrice,
+        suggestedPrice,
+        customSellingPrice: Math.max(minPrice, suggestedPrice),
+        quantity: 1,
+        availableStock: p.availableStock ?? 15,
+      };
+
+      onAddProduct(item);
+      toast.success(`"${item.name}" অর্ডারে যোগ করা হয়েছে!`);
+    }
+
     setQuery("");
     setIsOpen(false);
   };
 
-  const handleQuantityChange = (delta: number) => {
-    if (!selectedProduct) return;
-    const newQty = Math.max(1, selectedProduct.quantity + delta);
-    if (newQty > selectedProduct.availableStock) {
-      toast.error(`স্টক সীমাবদ্ধতা: সর্বোচ্চ ${selectedProduct.availableStock} টি এভেলেবল`);
+  const handleQuantityChange = (index: number, delta: number) => {
+    const target = selectedProducts[index];
+    if (!target) return;
+    const newQty = Math.max(1, target.quantity + delta);
+    if (newQty > target.availableStock) {
+      toast.error(`স্টক সীমাবদ্ধতা: সর্বোচ্চ ${target.availableStock} টি এভেলেবল`);
       return;
     }
-    onUpdateProduct({ ...selectedProduct, quantity: newQty });
+    onUpdateProduct(index, { ...target, quantity: newQty });
   };
 
-  const handlePriceInputChange = (val: string) => {
-    if (!selectedProduct) return;
+  const handlePriceChange = (index: number, val: string) => {
+    const target = selectedProducts[index];
+    if (!target) return;
     const taka = parseFloat(val) || 0;
     const cents = Math.round(taka * 100);
-    onUpdateProduct({ ...selectedProduct, customSellingPrice: cents });
+    onUpdateProduct(index, { ...target, customSellingPrice: cents });
   };
-
-  const currentPriceTaka = selectedProduct ? Math.round(selectedProduct.customSellingPrice / 100) : 0;
-  const minPriceTaka = selectedProduct ? Math.round(selectedProduct.minPrice / 100) : 0;
-  const costTaka = selectedProduct ? Math.round(selectedProduct.wholesaleCost / 100) : 0;
-  const isPriceValid = selectedProduct ? selectedProduct.customSellingPrice >= selectedProduct.minPrice : true;
 
   return (
     <Card className="border-border/80 shadow-xs">
-      <CardContent className="p-5 space-y-4">
+      <CardContent className="p-2.5 sm:p-5 space-y-2.5 sm:space-y-4">
         <div className="flex items-center justify-between">
-          <label className="text-xs font-black text-foreground uppercase tracking-wider flex items-center gap-1.5">
-            <Package className="w-4 h-4 text-primary" /> ১. পণ্য নির্বাচন ও প্রাইসিং (Step 1 &amp; 2)
+          <label className="text-[11px] sm:text-xs font-black text-foreground uppercase tracking-wider flex items-center gap-1.5">
+            <Package className="w-3.5 h-3.5 text-primary" /> ১. পণ্য খুঁজুন ও যোগ করুন (মাল্টি-প্রোডাক্ট)
           </label>
-          {selectedProduct && (
-            <button
-              onClick={() => onSelectProduct(null)}
-              className="text-xs font-bold text-destructive hover:underline inline-flex items-center gap-1"
-            >
-              <X className="w-3.5 h-3.5" /> পণ্য পরিবর্তন করুন
-            </button>
-          )}
+          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">
+            {selectedProducts.length} টি আইটেম
+          </span>
         </div>
 
-        {/* Product Autocomplete Input */}
-        {!selectedProduct && (
+        {/* Autocomplete Search Input */}
+        <div className="relative z-50">
           <div className="relative">
-            <div className="relative">
-              <Search className="w-4 h-4 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={query}
-                onFocus={() => setIsOpen(true)}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  setIsOpen(true);
-                }}
-                placeholder="পণ্য বা SKU ক্লিক বা টাইপ করুন (যেমন: Smart Watch / RSL-102)..."
-                className="w-full h-12 pl-10 pr-10 rounded-xl border border-border bg-muted/40 text-xs sm:text-sm font-semibold text-foreground outline-none focus:border-primary"
-                autoFocus
-              />
-              {loading && (
-                <Loader2 className="w-4 h-4 text-primary animate-spin absolute right-3.5 top-1/2 -translate-y-1/2" />
-              )}
-            </div>
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={query}
+              onFocus={() => setIsOpen(true)}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setIsOpen(true);
+              }}
+              placeholder="পণ্য বা SKU টাইপ করুন (যেমন: Smart Watch / RSL-102)..."
+              className="w-full h-10 sm:h-12 pl-9 pr-9 rounded-xl border border-slate-300 bg-slate-50 text-xs sm:text-sm font-bold text-slate-900 outline-none focus:bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+            />
+            {loading && (
+              <Loader2 className="w-4 h-4 text-amber-500 animate-spin absolute right-3 top-1/2 -translate-y-1/2" />
+            )}
+          </div>
 
-            {/* Dropdown Results */}
-            {isOpen && (
-              <div className="absolute top-full left-0 right-0 z-30 mt-1 bg-card border border-border rounded-xl shadow-xl max-h-60 overflow-y-auto divide-y divide-border/60">
+          {/* Dropdown Results Overlay */}
+          {isOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+              <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border border-slate-300 rounded-xl shadow-2xl max-h-64 overflow-y-auto divide-y divide-slate-100 text-slate-900">
                 {results.length === 0 ? (
-                  <div className="p-4 text-center text-xs font-semibold text-muted-foreground">
+                  <div className="p-3 text-center text-xs font-semibold text-slate-500">
                     কোনো প্রোডাক্ট পাওয়া যায়নি
                   </div>
                 ) : (
-                  results.map((p) => (
-                    <button
-                      key={p.id || p._id}
-                      onClick={() => handlePickProduct(p)}
-                      className="w-full flex items-center justify-between p-3 text-left hover:bg-muted/60 transition-colors group"
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-10 h-10 rounded-lg bg-muted overflow-hidden shrink-0 border border-border/60">
-                          {p.product?.primaryImage?.url || p.imageUrl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={p.product?.primaryImage?.url || p.imageUrl}
-                              alt=""
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <Package className="w-5 h-5 text-muted-foreground m-auto" />
-                          )}
+                  results.map((p) => {
+                    const costBdt = Math.round((p.pricing?.costBasis ?? p.pricing?.resellerPrice ?? 150000) / 100);
+                    const mrpBdt = Math.round((p.pricing?.sellingPrice ?? Math.round(costBdt * 1.25 * 100)) / 100);
+                    return (
+                      <button
+                        key={p.id || p._id}
+                        onClick={() => handlePickProduct(p)}
+                        className="w-full flex items-center justify-between p-2.5 text-left hover:bg-amber-50/60 transition-colors group"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden shrink-0">
+                            {p.product?.primaryImage?.url || p.imageUrl ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={p.product?.primaryImage?.url || p.imageUrl}
+                                alt=""
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <Package className="w-4 h-4 text-slate-400 m-auto mt-2.5" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-black text-slate-900 truncate group-hover:text-amber-600 transition-colors">
+                              {p.customTitle ?? p.product?.name ?? "Product"}
+                            </p>
+                            <p className="text-[10px] font-mono text-slate-500">
+                              SKU: {p.variantSku ?? p.product?.sku ?? "—"} • Stock: {p.availableStock ?? 10}
+                            </p>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <p className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
-                            {p.customTitle ?? p.product?.name ?? "Product"}
+                        <div className="text-right shrink-0">
+                          <p className="text-xs font-black text-amber-600">
+                            ৳{mrpBdt} <span className="text-[9px] text-slate-400 font-normal">MRP</span>
                           </p>
-                          <p className="text-[10px] font-mono text-muted-foreground">
-                            SKU: {p.variantSku ?? p.product?.sku ?? "—"} • Stock: {p.availableStock ?? 10}
+                          <p className="text-[9px] font-bold text-slate-700 bg-amber-100 px-1 py-0.5 rounded border border-amber-200">
+                            Resell: ৳{costBdt}
                           </p>
                         </div>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <p className="text-xs font-black text-primary">
-                          ৳{((p.pricing?.sellingPrice ?? 180000) / 100).toFixed(0)}
-                        </p>
-                        <p className="text-[10px] text-muted-foreground font-bold">
-                          Cost: ৳{((p.pricing?.costBasis ?? 150000) / 100).toFixed(0)}
-                        </p>
-                      </div>
-                    </button>
-                  ))
+                      </button>
+                    );
+                  })
                 )}
               </div>
-            )}
-          </div>
-        )}
+            </>
+          )}
+        </div>
 
-        {/* Selected Product Controls */}
-        {selectedProduct && (
-          <div className="p-4 rounded-xl border border-primary/30 bg-primary/5 space-y-4 animate-fade-in">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="w-14 h-14 rounded-xl bg-card overflow-hidden shrink-0 border border-border/80">
-                  {selectedProduct.imageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={selectedProduct.imageUrl}
-                      alt={selectedProduct.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <Package className="w-6 h-6 text-muted-foreground m-auto" />
+        {/* Selected Products List */}
+        {selectedProducts.length === 0 ? (
+          <div className="p-6 text-center border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 text-slate-500 space-y-1">
+            <ShoppingBag className="w-6 h-6 text-slate-400 mx-auto" />
+            <p className="text-xs font-extrabold text-slate-700">এখনো কোনো প্রোডাক্ট যোগ করা হয়নি</p>
+            <p className="text-[10px] text-slate-500">উপরের সার্চ বক্স থেকে এক বা একাধিক প্রোডাক্ট যোগ করুন।</p>
+          </div>
+        ) : (
+          <div className="space-y-2.5">
+            {selectedProducts.map((item, index) => {
+              const currentPriceTaka = Math.round(item.customSellingPrice / 100);
+              const costTaka = Math.round(item.wholesaleCost / 100);
+              const minPriceTaka = Math.round(item.minPrice / 100);
+              const isPriceValid = item.customSellingPrice >= item.minPrice;
+              const lineProfitTaka = (currentPriceTaka - costTaka) * item.quantity;
+
+              return (
+                <div
+                  key={`${item.id}-${index}`}
+                  className="p-3 rounded-xl border border-amber-200 bg-amber-50/30 space-y-2.5 relative shadow-2xs"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 overflow-hidden shrink-0 shadow-2xs">
+                        {item.imageUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <Package className="w-4 h-4 text-slate-400 m-auto mt-2.5" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[9px] font-black px-1.5 py-0.2 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            In Stock ({item.availableStock} টি)
+                          </span>
+                        </div>
+                        <h4 className="text-xs font-black text-slate-900 truncate mt-0.5">
+                          {item.name}
+                        </h4>
+                        <p className="text-[10px] font-mono text-slate-600">
+                          SKU: {item.sku} • Resell Price: ৳{costTaka}/টি
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => onRemoveProduct(index)}
+                      className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors shrink-0"
+                      title="রিমুভ করুন"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-amber-200/60">
+                    {/* Quantity counter */}
+                    <div className="space-y-0.5">
+                      <label className="text-[10px] font-extrabold text-slate-800">পরিমাণ:</label>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => handleQuantityChange(index, -1)}
+                          className="w-8 h-8 rounded-lg bg-white border border-slate-300 text-slate-900 font-black flex items-center justify-center hover:bg-slate-100 shadow-2xs"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <input
+                          type="number"
+                          min={1}
+                          max={item.availableStock}
+                          value={item.quantity}
+                          onChange={(e) => {
+                            const q = parseInt(e.target.value) || 1;
+                            onUpdateProduct(index, { ...item, quantity: Math.min(q, item.availableStock) });
+                          }}
+                          className="w-11 h-8 text-center rounded-lg border border-slate-300 bg-white text-xs font-black text-slate-900 outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleQuantityChange(index, 1)}
+                          className="w-8 h-8 rounded-lg bg-white border border-slate-300 text-slate-900 font-black flex items-center justify-center hover:bg-slate-100 shadow-2xs"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Custom Selling Price */}
+                    <div className="space-y-0.5">
+                      <label className="text-[10px] font-extrabold text-slate-800 flex items-center justify-between">
+                        <span>বিক্রয় মূল্য ৳:</span>
+                        <span className="text-[9px] text-emerald-700 font-bold">প্রফিট: +৳{lineProfitTaka}</span>
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-2 top-1/2 -translate-y-1/2 font-black text-xs text-slate-700">
+                          ৳
+                        </span>
+                        <input
+                          type="number"
+                          min={minPriceTaka}
+                          value={currentPriceTaka}
+                          onChange={(e) => handlePriceChange(index, e.target.value)}
+                          className={cn(
+                            "w-full h-8 pl-5 pr-2 rounded-lg border bg-white text-xs font-black text-slate-900 outline-none shadow-2xs",
+                            !isPriceValid ? "border-rose-500 ring-1 ring-rose-500 text-rose-600" : "border-slate-300 focus:border-amber-500",
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {!isPriceValid && (
+                    <div className="p-1.5 rounded-lg bg-rose-50 border border-rose-300 text-rose-700 text-[10px] font-extrabold flex items-center gap-1">
+                      <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
+                      <span>নূন্যতম বিক্রয় মূল্য ৳{minPriceTaka}</span>
+                    </div>
                   )}
                 </div>
-                <div className="min-w-0">
-                  <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-success/15 text-success border border-success/30">
-                    In Stock ({selectedProduct.availableStock})
-                  </span>
-                  <h4 className="text-xs sm:text-sm font-black text-foreground truncate mt-1">
-                    {selectedProduct.name}
-                  </h4>
-                  <p className="text-[11px] font-mono text-muted-foreground">
-                    SKU: {selectedProduct.sku}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Quantity & Selling Price Inputs */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-primary/20">
-              {/* Quantity Counter */}
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-foreground">পরিমাণ (Quantity):</label>
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() => handleQuantityChange(-1)}
-                    className="w-10 h-10 rounded-xl bg-card border border-border text-foreground font-black flex items-center justify-center hover:bg-muted active:scale-95"
-                  >
-                    <Minus className="w-4 h-4" />
-                  </button>
-                  <input
-                    type="number"
-                    min={1}
-                    max={selectedProduct.availableStock}
-                    value={selectedProduct.quantity}
-                    onChange={(e) => {
-                      const q = parseInt(e.target.value) || 1;
-                      onUpdateProduct({ ...selectedProduct, quantity: q });
-                    }}
-                    className="w-16 h-10 text-center rounded-xl border border-border bg-card text-sm font-black text-foreground outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleQuantityChange(1)}
-                    className="w-10 h-10 rounded-xl bg-card border border-border text-foreground font-black flex items-center justify-center hover:bg-muted active:scale-95"
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Selling Price Input */}
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-foreground flex items-center justify-between">
-                  <span>বিক্রয় মূল্য ৳ (প্রতি টি):</span>
-                  <span className="text-[10px] text-muted-foreground">নূন্যতম ৳{minPriceTaka}</span>
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 font-black text-xs text-foreground">
-                    ৳
-                  </span>
-                  <input
-                    type="number"
-                    min={minPriceTaka}
-                    value={currentPriceTaka}
-                    onChange={(e) => handlePriceInputChange(e.target.value)}
-                    className={cn(
-                      "w-full h-10 pl-7 pr-3 rounded-xl border bg-card text-xs sm:text-sm font-black text-foreground outline-none",
-                      !isPriceValid ? "border-destructive text-destructive" : "border-border focus:border-primary",
-                    )}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Price Validation Alert */}
-            {!isPriceValid && (
-              <div className="p-2.5 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive text-xs font-black flex items-center gap-2">
-                <ShieldAlert className="w-4 h-4 shrink-0" />
-                <span>নূন্যতম বিক্রয় মূল্য (রিসেলার মূল্যের চেয়ে কম দামে বিক্রি করা সম্ভব নয়)</span>
-              </div>
-            )}
+              );
+            })}
           </div>
         )}
       </CardContent>

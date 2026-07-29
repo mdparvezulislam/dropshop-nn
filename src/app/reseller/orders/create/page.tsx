@@ -5,10 +5,6 @@ import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   ShoppingCart,
-  Plus,
-  ArrowLeft,
-  Store,
-  Sparkles,
   RotateCcw,
   Zap,
 } from "lucide-react";
@@ -32,7 +28,10 @@ import { toast } from "sonner";
 const DEFAULT_CUSTOMER: CustomerFormData = {
   phone: "",
   name: "",
+  districtId: "dhaka",
   district: "Dhaka",
+  division: "Dhaka",
+  upazila: "",
   fullAddress: "",
   email: "",
   note: "",
@@ -45,7 +44,7 @@ export default function ResellerQuickOrderPage(): React.ReactElement {
   const urlProductId = searchParams.get("productId");
   const urlPrice = searchParams.get("price");
 
-  const [selectedProduct, setSelectedProduct] = React.useState<SelectedOrderProduct | null>(null);
+  const [selectedProducts, setSelectedProducts] = React.useState<SelectedOrderProduct[]>([]);
   const [customer, setCustomer] = React.useState<CustomerFormData>(DEFAULT_CUSTOMER);
   const [submitting, setSubmitting] = React.useState(false);
   const [resellerStatus, setResellerStatus] = React.useState("active");
@@ -70,18 +69,20 @@ export default function ResellerQuickOrderPage(): React.ReactElement {
             const suggestedPrice = found.pricing?.sellingPrice ?? Math.round(wholesaleCost * 1.25);
             const customSellingPrice = urlPrice ? Math.round(parseFloat(urlPrice) * 100) : suggestedPrice;
 
-            setSelectedProduct({
-              id: found.id || found._id,
-              name: found.customTitle ?? found.product?.name ?? "Reseller Product",
-              sku: found.variantSku ?? found.product?.sku ?? "RSL-9988",
-              imageUrl: found.product?.primaryImage?.url || found.imageUrl,
-              wholesaleCost,
-              minPrice,
-              suggestedPrice,
-              customSellingPrice: Math.max(minPrice, customSellingPrice),
-              quantity: 1,
-              availableStock: found.availableStock ?? 15,
-            });
+            setSelectedProducts([
+              {
+                id: found.id || found._id,
+                name: found.customTitle ?? found.product?.name ?? "Reseller Product",
+                sku: found.variantSku ?? found.product?.sku ?? "RSL-9988",
+                imageUrl: found.product?.primaryImage?.url || found.imageUrl,
+                wholesaleCost,
+                minPrice,
+                suggestedPrice,
+                customSellingPrice: Math.max(minPrice, customSellingPrice),
+                quantity: 1,
+                availableStock: found.availableStock ?? 15,
+              },
+            ]);
           }
         }
       } catch {
@@ -113,22 +114,41 @@ export default function ResellerQuickOrderPage(): React.ReactElement {
     }
   }, [customer]);
 
+  const handleAddProduct = (product: SelectedOrderProduct) => {
+    setSelectedProducts((prev) => [...prev, product]);
+  };
+
+  const handleUpdateProduct = (index: number, updated: SelectedOrderProduct) => {
+    setSelectedProducts((prev) => {
+      const next = [...prev];
+      next[index] = updated;
+      return next;
+    });
+  };
+
+  const handleRemoveProduct = (index: number) => {
+    setSelectedProducts((prev) => prev.filter((_, i) => i !== index));
+    toast.info("প্রোডাক্ট রিমুভ করা হয়েছে");
+  };
+
   const handleResetForm = () => {
-    setSelectedProduct(null);
+    setSelectedProducts([]);
     setCustomer(DEFAULT_CUSTOMER);
     localStorage.removeItem("reseller_quick_order_draft");
     toast.info("ফাঁকা ফর্মে রিসেট করা হয়েছে");
   };
 
   const handleSubmitOrder = async () => {
-    if (!selectedProduct) {
-      toast.error("অনুগ্রহ করে একটি পণ্য নির্বাচন করুন।");
+    if (selectedProducts.length === 0) {
+      toast.error("অনুগ্রহ করে অন্তত ১টি পণ্য যোগ করুন।");
       return;
     }
 
-    if (selectedProduct.customSellingPrice < selectedProduct.minPrice) {
-      toast.error("নূন্যতম বিক্রয় মূল্য (রিসেলার মূল্যের চেয়ে কম দামে বিক্রি করা সম্ভব নয়)");
-      return;
+    for (const p of selectedProducts) {
+      if (p.customSellingPrice < p.minPrice) {
+        toast.error(`"${p.name}" পণ্যের বিক্রয় মূল্য নূন্যতম খরচের চেয়ে কম রাখা যাবে না!`);
+        return;
+      }
     }
 
     if (!customer.name.trim() || !customer.phone.trim() || !customer.fullAddress.trim()) {
@@ -148,13 +168,11 @@ export default function ResellerQuickOrderPage(): React.ReactElement {
 
       const payload = {
         type: "reseller",
-        items: [
-          {
-            productId: selectedProduct.id,
-            quantity: selectedProduct.quantity,
-            unitPriceOverride: selectedProduct.customSellingPrice,
-          },
-        ],
+        items: selectedProducts.map((p) => ({
+          productId: p.id,
+          quantity: p.quantity,
+          unitPriceOverride: p.customSellingPrice,
+        })),
         customer: {
           name: customer.name,
           phone: customer.phone,
@@ -162,6 +180,7 @@ export default function ResellerQuickOrderPage(): React.ReactElement {
           addressLine1: customer.fullAddress,
           city: customer.district || "Dhaka",
           district: customer.district || "Dhaka",
+          upazila: customer.upazila || undefined,
           country: "Bangladesh",
         },
         shippingAddress: {
@@ -170,6 +189,7 @@ export default function ResellerQuickOrderPage(): React.ReactElement {
           addressLine1: customer.fullAddress,
           city: customer.district || "Dhaka",
           district: customer.district || "Dhaka",
+          upazila: customer.upazila || undefined,
           country: "Bangladesh",
         },
         paymentMethod: "cod",
@@ -186,12 +206,19 @@ export default function ResellerQuickOrderPage(): React.ReactElement {
 
       const created = res.data as any;
       const orderNumber = created.orderNumber || created.id?.slice(0, 8) || "RSL-9999";
-      const unitPriceTaka = Math.round(selectedProduct.customSellingPrice / 100);
-      const unitCostTaka = Math.round(selectedProduct.wholesaleCost / 100);
-      const subtotalTaka = unitPriceTaka * selectedProduct.quantity;
+      let subtotalTaka = 0;
+      let costSubtotalTaka = 0;
+
+      for (const p of selectedProducts) {
+        const unitSelling = Math.round(p.customSellingPrice / 100);
+        const unitCost = Math.round(p.wholesaleCost / 100);
+        subtotalTaka += unitSelling * p.quantity;
+        costSubtotalTaka += unitCost * p.quantity;
+      }
+
       const deliveryTaka = isDhaka ? 80 : 150;
       const grandTotalTaka = subtotalTaka + deliveryTaka;
-      const profitTaka = (unitPriceTaka - unitCostTaka) * selectedProduct.quantity;
+      const profitTaka = subtotalTaka - costSubtotalTaka;
 
       setCreatedOrder({
         orderId: created.id || created._id,
@@ -217,30 +244,30 @@ export default function ResellerQuickOrderPage(): React.ReactElement {
   const handleCreateAnother = () => {
     setSuccessModalOpen(false);
     setCreatedOrder(null);
-    setSelectedProduct(null);
+    setSelectedProducts([]);
     setCustomer(DEFAULT_CUSTOMER);
     localStorage.removeItem("reseller_quick_order_draft");
   };
 
   return (
     <ResellerStatusGuard status={resellerStatus}>
-      <div className="space-y-6 animate-fade-in pb-24 lg:pb-8">
-        {/* Workspace Top Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
+      <div className="space-y-3 sm:space-y-6 animate-fade-in pb-24 lg:pb-8 max-w-7xl mx-auto px-0 sm:px-4">
+        {/* Compact Mobile Workspace Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-border pb-3">
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-black uppercase tracking-wider text-primary bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-full">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full">
                 Fast Sales Desk
               </span>
-              <span className="text-xs font-bold text-success flex items-center gap-1">
-                <Zap className="w-3.5 h-3.5 fill-current" /> 30-Sec Order Entry
+              <span className="text-[11px] sm:text-xs font-bold text-emerald-600 flex items-center gap-1">
+                <Zap className="w-3 h-3 fill-current" /> Quick Entry
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground mt-1">
+            <h1 className="text-xl sm:text-3xl font-black tracking-tight text-foreground mt-0.5">
               Quick Order Workspace
             </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground font-semibold">
-              কাস্টমার তথ্য ও নির্ধারিত বিক্রয় মূল্যে ৩০ সেকেন্ডের মধ্যে দ্রুত অর্ডার প্লেস করুন।
+            <p className="text-[11px] sm:text-xs text-muted-foreground font-semibold line-clamp-1">
+              কাস্টমারের তথ্য ও নির্ধারিত বিক্রয় মূল্যে দ্রুত অর্ডার সম্পন্ন করুন।
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -248,26 +275,27 @@ export default function ResellerQuickOrderPage(): React.ReactElement {
               onClick={handleResetForm}
               variant="outline"
               size="sm"
-              className="gap-1.5 font-bold text-xs"
+              className="gap-1 font-bold text-xs h-8 px-2.5"
             >
-              <RotateCcw className="w-3.5 h-3.5" /> ফাঁকা ফর্ম
+              <RotateCcw className="w-3.5 h-3.5" /> রিসেট
             </Button>
             <Link href="/reseller/orders">
-              <Button variant="ghost" size="sm" className="gap-1.5 font-bold text-xs">
-                <ShoppingCart className="w-4 h-4" /> সকল অর্ডার
+              <Button variant="ghost" size="sm" className="gap-1 font-bold text-xs h-8 px-2.5">
+                <ShoppingCart className="w-3.5 h-3.5" /> সকল অর্ডার
               </Button>
             </Link>
           </div>
         </div>
 
         {/* Sales Desk 2-Column Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column: Product Search & Customer Form (7 Cols) */}
-          <div className="lg:col-span-7 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
+          {/* Left Column: Multi-Product Search & Customer Form (7 Cols) */}
+          <div className="lg:col-span-7 space-y-4 sm:space-y-6">
             <QuickOrderProductSearch
-              selectedProduct={selectedProduct}
-              onSelectProduct={setSelectedProduct}
-              onUpdateProduct={setSelectedProduct}
+              selectedProducts={selectedProducts}
+              onAddProduct={handleAddProduct}
+              onUpdateProduct={handleUpdateProduct}
+              onRemoveProduct={handleRemoveProduct}
             />
 
             <QuickOrderCustomerForm value={customer} onChange={setCustomer} />
@@ -276,7 +304,7 @@ export default function ResellerQuickOrderPage(): React.ReactElement {
           {/* Right Column: Live Order Summary & Profit Card (5 Cols) */}
           <div className="lg:col-span-5 lg:sticky lg:top-20">
             <QuickOrderLiveSummary
-              product={selectedProduct}
+              products={selectedProducts}
               customer={customer}
               submitting={submitting}
               onSubmitOrder={handleSubmitOrder}

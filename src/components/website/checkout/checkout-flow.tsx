@@ -14,6 +14,9 @@ import {
   Truck,
   User,
   Wallet,
+  Minus,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
@@ -514,25 +517,73 @@ export function CheckoutFlow() {
           {cart.items.map((line) => (
             <li
               key={`${line.productId}-${line.variantSku ?? ""}`}
-              className="flex items-center gap-3 py-2.5"
+              className="flex items-center justify-between gap-3 py-3"
             >
-              <div className="relative h-12 w-12 rounded-xl bg-slate-100 overflow-hidden shrink-0">
-                <Image
-                  src={line.image || PRODUCT_IMAGE_PLACEHOLDER}
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes="48px"
-                />
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="relative h-12 w-12 rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0">
+                  <Image
+                    src={line.image || PRODUCT_IMAGE_PLACEHOLDER}
+                    alt=""
+                    fill
+                    className="object-cover"
+                    sizes="48px"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-black text-slate-900 line-clamp-2 leading-snug">
+                    {line.name}
+                  </p>
+                  <p className="text-[11px] font-bold text-slate-500 mt-0.5">
+                    {line.variantLabel ? `${line.variantLabel} • ` : ""}
+                    {formatBdt(line.unitPrice)}/টি
+                  </p>
+                </div>
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-black text-slate-900 line-clamp-2 leading-snug">
-                  {line.name}
-                </p>
-                <p className="text-[11px] font-bold text-slate-500 mt-0.5">
-                  {line.variantLabel ? `${line.variantLabel} • ` : ""}
-                  {line.quantity} × {formatBdt(line.unitPrice)}
-                </p>
+
+              {/* Interactive Quantity Controls & Delete Action */}
+              <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200 shadow-2xs">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (line.quantity <= 1) {
+                        cart.removeItem(line.productId, line.variantSku);
+                        toast.info(`"${line.name}" কার্ট থেকে রিমুভ করা হয়েছে`);
+                      } else {
+                        cart.setQuantity(line.productId, line.variantSku, line.quantity - 1);
+                      }
+                    }}
+                    className="w-6 h-6 rounded-lg bg-white border border-slate-200 text-slate-900 font-black flex items-center justify-center hover:bg-slate-100 active:scale-95 transition-all text-xs"
+                    title="পরিমাণ কমান"
+                  >
+                    <Minus className="w-3 h-3" />
+                  </button>
+                  <span className="w-6 text-center text-xs font-black text-slate-900 tabular-nums">
+                    {line.quantity}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      cart.setQuantity(line.productId, line.variantSku, line.quantity + 1);
+                    }}
+                    className="w-6 h-6 rounded-lg bg-white border border-slate-200 text-slate-900 font-black flex items-center justify-center hover:bg-slate-100 active:scale-95 transition-all text-xs"
+                    title="পরিমাণ বাড়ান"
+                  >
+                    <Plus className="w-3 h-3" />
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    cart.removeItem(line.productId, line.variantSku);
+                    toast.info(`"${line.name}" কার্ট থেকে রিমুভ করা হয়েছে`);
+                  }}
+                  className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                  title="রিমুভ করুন"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
             </li>
           ))}
