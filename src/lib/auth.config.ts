@@ -180,6 +180,8 @@ export const authConfig = {
     jwt({ token, user }) {
       if (user) {
         token.role = (user as { role?: string }).role;
+        token.roles = (user as { roles?: string[] }).roles || [(user as { role?: string }).role || "customer"];
+        token.memberships = (user as { memberships?: string[] }).memberships || [];
         token.permissions = (user as { permissions?: string[] }).permissions;
       }
       return token;
@@ -187,6 +189,8 @@ export const authConfig = {
     session({ session, token }) {
       if (session.user) {
         (session.user as { role?: string }).role = token.role as string;
+        (session.user as { roles?: string[] }).roles = (token.roles as string[]) || [(token.role as string) || "customer"];
+        (session.user as { memberships?: string[] }).memberships = (token.memberships as string[]) || [];
         (session.user as { permissions?: string[] }).permissions = token.permissions as string[];
         if (token.sub) {
           session.user.id = token.sub;

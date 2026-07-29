@@ -146,10 +146,53 @@ export async function updateUserRolesAdminAction(payload: unknown): Promise<{
       return { success: false, error: "User not found" };
     }
 
-    const primaryRole = validated.roles[0] || "viewer";
+    const primaryRole = validated.roles[0] || "customer";
+    const memberships = Array.from(
+      new Set([
+        "customer",
+        ...(user.memberships || []),
+        ...(validated.roles.includes("reseller") ? ["reseller"] : []),
+        ...(validated.roles.includes("wholesaler") ? ["wholesaler"] : []),
+      ]),
+    );
+
+    // Auto-resolve or activate Reseller profile if reseller role was added
+    if (validated.roles.includes("reseller")) {
+      try {
+        const { ResellerRepository } = await import(
+          "@/features/reseller/repositories/reseller-repository"
+        );
+        const resellerRepo = new ResellerRepository();
+        let r = await resellerRepo.findByUserId(user.id);
+        if (!r) {
+          r = await resellerRepo.findByEmail(user.email);
+        }
+        if (!r) {
+          const count = await resellerRepo.countAll({});
+          const code = `RSL-${String(count + 1).padStart(4, "0")}`;
+          await resellerRepo.create({
+            code,
+            businessName: `${user.fullName}'s Store`,
+            ownerName: user.fullName,
+            email: user.email,
+            phone: user.phone || "01700000000",
+            userId: user.id,
+            status: "active",
+            nidVerified: true,
+            tradeLicenseVerified: false,
+          } as any);
+        } else if (r.status !== "active") {
+          await resellerRepo.update(r.id, { status: "active", userId: user.id } as any);
+        }
+      } catch (rErr) {
+        // Ignore non-fatal background profile syncing errors
+      }
+    }
+
     const updated = await repo.update(validated.userId, {
       role: primaryRole,
       roles: validated.roles,
+      memberships,
     } as any);
 
     await AuditLogger.record({
@@ -170,6 +213,150 @@ export async function updateUserRolesAdminAction(payload: unknown): Promise<{
     return {
       success: false,
       error: err instanceof Error ? err.message : "Failed to update user roles",
+    };
+  }
+}
+
+export async function softDeleteUserAdminAction(userId: string): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    const session = await auth();
+    checkPermission(session, "User.Delete");
+    const actor = sessionActor(session);
+    const repo = new UserRepository();
+
+    const user = await repo.findById(userId);
+    if (!user) return { success: false, error: "User not found" };
+
+    await repo.update(userId, {
+      isDeleted: true,
+      status: "suspended",
+      deletedAt: new Date(),
+    } as any);
+
+    await AuditLogger.record({
+      action: "user.soft_deleted",
+      entityType: "user",
+      entityId: userId,
+      actor: { id: actor.id, name: actor.name, role: actor.role },
+      changes: [{ field: "isDeleted", oldValue: false, newValue: true }],
+    });
+
+    revalidatePath("/dashboard/identity/users");
+    return { success: true };
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to delete user",
+    };
+  }
+}
+
+export async function checkUserDependenciesAdminAction(userId: string): Promise<{
+  success: boolean;
+  data?: {
+    orderCount: number;
+    walletBalanceBdt: number;
+    hasResellerProfile: boolean;
+    hasWholesaleProfile: boolean;
+  };
+  error?: string;
+}> {
+  try {
+    const session = await auth();
+    checkPermission(session, "User.View");
+
+    let orderCount = 0;
+    try {
+      const { OrderModel } = await import("@/features/order/repositories/order-model");
+      orderCount = await OrderModel.countDocuments({
+        customerId: userId,
+        isDeleted: { $ne: true },
+      });
+    } catch {}
+
+    let walletBalanceBdt = 0;
+    try {
+      const { WalletRepository } = await import(
+        "@/features/finance/repositories/wallet-repository"
+      );
+      const { WalletService } = await import(
+        "@/features/finance/services/wallet-service"
+      );
+      const walletRepo = new WalletRepository();
+      const wallet = await walletRepo.findByWorkspaceId(userId);
+      if (wallet) {
+        const balances = await new WalletService().getBalances(wallet.id);
+        walletBalanceBdt = (balances.currentBalance || 0) / 100;
+      }
+    } catch {}
+
+    let hasResellerProfile = false;
+    try {
+      const { ResellerRepository } = await import(
+        "@/features/reseller/repositories/reseller-repository"
+      );
+      const res = await new ResellerRepository().findByUserId(userId);
+      if (res) hasResellerProfile = true;
+    } catch {}
+
+    return {
+      success: true,
+      data: {
+        orderCount,
+        walletBalanceBdt,
+        hasResellerProfile,
+        hasWholesaleProfile: false,
+      },
+    };
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to check user dependencies",
+    };
+  }
+}
+
+export async function permanentlyDeleteUserAdminAction(payload: {
+  userId: string;
+  confirmText: string;
+}): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    const session = await auth();
+    checkPermission(session, "User.Delete");
+    if (payload.confirmText !== "DELETE") {
+      return {
+        success: false,
+        error: 'স্থায়ী মোছার নিশ্চায়ন নিশ্চিত করতে "DELETE" টাইপ করুন',
+      };
+    }
+
+    const actor = sessionActor(session);
+    const repo = new UserRepository();
+    const user = await repo.findById(payload.userId);
+    if (!user) return { success: false, error: "User not found" };
+
+    await repo.delete(payload.userId);
+
+    await AuditLogger.record({
+      action: "user.permanently_deleted",
+      entityType: "user",
+      entityId: payload.userId,
+      actor: { id: actor.id, name: actor.name, role: actor.role },
+      changes: [{ field: "user", oldValue: user.email, newValue: null }],
+    });
+
+    revalidatePath("/dashboard/identity/users");
+    return { success: true };
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to permanently delete user",
     };
   }
 }

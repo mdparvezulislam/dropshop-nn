@@ -58,11 +58,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const authorizationService = new AuthorizationService();
           const permissions = await authorizationService.getPermissionsForRole(user.role);
 
+          const userRoles = Array.isArray(user.roles) && user.roles.length > 0 ? user.roles : [user.role || "customer"];
+          const userMemberships = Array.isArray(user.memberships) ? user.memberships : ["customer"];
+
           return {
             id: String(user.id),
             name: String(user.fullName || ""),
             email: String(user.email || ""),
-            role: String(user.role || ""),
+            role: String(user.role || "customer"),
+            roles: userRoles,
+            memberships: userMemberships,
             permissions: Array.from(permissions || []).map(String),
           };
         } catch (error) {
