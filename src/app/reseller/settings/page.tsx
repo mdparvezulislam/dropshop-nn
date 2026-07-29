@@ -33,6 +33,7 @@ export default function ResellerSettingsPage(): React.ReactElement {
   const [bannerUrl, setBannerUrl] = React.useState("");
   const [phone, setPhone] = React.useState("01700000000");
   const [whatsapp, setWhatsapp] = React.useState("01700000000");
+  const [email, setEmail] = React.useState("support@dropshopnn.com");
   const [facebook, setFacebook] = React.useState("https://facebook.com/resellershop");
   const [instagram, setInstagram] = React.useState("");
   const [website, setWebsite] = React.useState("");
@@ -41,21 +42,29 @@ export default function ResellerSettingsPage(): React.ReactElement {
   const [invoiceFooter, setInvoiceFooter] = React.useState("কেনাকাটার জন্য ধন্যবাদ! যেকোনো প্রয়োজনে যোগাযোগ করুন।");
 
   // Automation Preferences
-  const [defaultDeliveryCharge, setDefaultDeliveryCharge] = React.useState("80");
+  const [defaultDeliveryCharge, setDefaultDeliveryCharge] = React.useState("60");
   const [autoSaveDrafts, setAutoSaveDrafts] = React.useState(true);
 
   React.useEffect(() => {
     async function load() {
       setLoading(true);
       try {
-        const { resolveCurrentResellerAction } = await import(
+        const { getResellerShopSettingsAction } = await import(
           "@/features/reseller/actions/reseller-actions"
         );
-        const res = await resolveCurrentResellerAction();
+        const res = await getResellerShopSettingsAction();
         if (res.success && res.data) {
           const d = res.data;
-          setBusinessName(d.businessName || businessName);
-          setOwnerName(d.ownerName || ownerName);
+          setBusinessName(d.businessName || "");
+          setOwnerName(d.ownerName || "");
+          setPhone(d.phone || "");
+          setWhatsapp(d.whatsapp || "");
+          setEmail(d.email || "");
+          setLogoUrl(d.logo || "");
+          setBannerUrl(d.coverImage || "");
+          setAddress(d.address || "");
+          setDescription(d.description || "");
+          setInvoiceFooter(d.invoiceFooter || "");
           setResellerStatus(d.status || "active");
         }
       } catch {
@@ -76,7 +85,27 @@ export default function ResellerSettingsPage(): React.ReactElement {
     e.preventDefault();
     setSaving(true);
     try {
-      toast.success("বিজনেস প্রোফাইল ও ব্র্যান্ডিং আপডেট করা হয়েছে!");
+      const { saveResellerShopSettingsAction } = await import(
+        "@/features/reseller/actions/reseller-actions"
+      );
+      const res = await saveResellerShopSettingsAction({
+        businessName: businessName.trim(),
+        ownerName: ownerName.trim(),
+        phone: phone.trim(),
+        whatsapp: whatsapp.trim(),
+        email: email.trim(),
+        logo: logoUrl.trim(),
+        coverImage: bannerUrl.trim(),
+        address: address.trim(),
+        description: description.trim(),
+        invoiceFooter: invoiceFooter.trim(),
+      });
+
+      if (res.success) {
+        toast.success("বিজনেস প্রোফাইল ও ইনভয়েস ব্র্যান্ডিং সফলভাবে সংরক্ষণ করা হয়েছে!");
+      } else {
+        toast.error(res.error || "সেটিং সংরক্ষণে সমস্যা হয়েছে");
+      }
     } catch {
       toast.error("সেটিং সংরক্ষণে সমস্যা হয়েছে");
     } finally {

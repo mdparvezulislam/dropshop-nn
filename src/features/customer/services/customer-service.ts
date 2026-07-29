@@ -312,35 +312,81 @@ export class CustomerService {
    */
   async createOrAttachCustomer(order: any, options?: { session?: any }): Promise<void> {
     const execute = async (session: any) => {
-      const workspaceId = order.resellerId || "admin-platform";
-      const phone = order.customer.phone;
+      const workspaceId = order.resellerId || order.createdBy || "admin-platform";
+      const phone = order.customer?.phone || order.shipping?.phone;
+      if (!phone) return;
+
+      const customerName = order.shipping?.receiverName || order.customer?.name || "Customer";
+      const customerEmail = order.customer?.email || order.shipping?.email;
+      const district = order.shipping?.district || order.shipping?.division || "Dhaka";
+      const upazila = order.shipping?.upazila || order.shipping?.area || "";
+      const addressText = order.shipping?.address || "";
 
       let customer = await this.customerRepository.findByPhone(phone, workspaceId, { session });
+      if (!customer) {
+        const globalDocs = await this.customerRepository.find({ phone }, { session });
+        if (globalDocs.length > 0) {
+          customer = globalDocs[0];
+        }
+      }
+
       if (!customer) {
         customer = await this.createCustomer(
           {
             workspaceId,
-            name: order.customer.name,
-            phone: order.customer.phone,
-            email: order.customer.email || undefined,
-            source: "guest_checkout",
+            name: customerName,
+            phone,
+            email: customerEmail || undefined,
+            source: order.type || "reseller_order",
           },
           "system",
           { session },
         );
       }
 
+      const addresses = [...(customer.addresses || [])];
+      const existingAddrIdx = addresses.findIndex(
+        (a) => a.district?.toLowerCase() === district.toLowerCase(),
+      );
+
+      const newAddr: CustomerAddress = {
+        id: `ADR-${Date.now()}`,
+        type: "home",
+        division: order.shipping?.division || district,
+        district,
+        upazila: upazila || district,
+        area: upazila || district,
+        postalCode: addressText,
+        landmark: addressText,
+        isDefault: true,
+      };
+
+      if (existingAddrIdx >= 0) {
+        addresses[existingAddrIdx] = { ...addresses[existingAddrIdx], ...newAddr };
+      } else {
+        addresses.push(newAddr);
+      }
+
       const timeline = [
-        ...customer.timeline,
+        ...(customer.timeline || []),
         {
           eventType: "customer.order_created",
           timestamp: new Date(),
-          message: `Order reference ${order.orderNumber} logged on guest checkout`,
+          message: `Order #${order.orderNumber || order.id} logged`,
           actorId: "system",
         },
       ];
 
-      await this.customerRepository.update(customer.id, { timeline }, { session });
+      await this.customerRepository.update(
+        customer.id,
+        {
+          name: customerName || customer.name,
+          email: customerEmail || customer.email,
+          addresses,
+          timeline,
+        },
+        { session },
+      );
 
       // Re-trigger stats update to account for the new order count
       await this.refreshStatistics(order.id, { session });

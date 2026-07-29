@@ -25,6 +25,9 @@ import {
 } from "@/features/reseller-workspace/components/quick-order-success-modal";
 import { toast } from "sonner";
 
+import { ResellerInvoiceModal } from "@/features/reseller-workspace/components/reseller-invoice-modal";
+import type { ResellerOrderDTO } from "@/features/reseller/actions/reseller-order-actions";
+
 const DEFAULT_CUSTOMER: CustomerFormData = {
   phone: "",
   name: "",
@@ -46,10 +49,37 @@ export default function ResellerQuickOrderPage(): React.ReactElement {
 
   const [selectedProducts, setSelectedProducts] = React.useState<SelectedOrderProduct[]>([]);
   const [customer, setCustomer] = React.useState<CustomerFormData>(DEFAULT_CUSTOMER);
+  const [deliveryChargeTaka, setDeliveryChargeTaka] = React.useState(60);
+  const [advancePaidTaka, setAdvancePaidTaka] = React.useState(0);
   const [submitting, setSubmitting] = React.useState(false);
   const [resellerStatus, setResellerStatus] = React.useState("active");
   const [createdOrder, setCreatedOrder] = React.useState<CreatedOrderDetails | null>(null);
   const [successModalOpen, setSuccessModalOpen] = React.useState(false);
+  const [selectedOrderForInvoice, setSelectedOrderForInvoice] = React.useState<ResellerOrderDTO | null>(null);
+  const [invoiceModalOpen, setInvoiceModalOpen] = React.useState(false);
+
+  const handlePrintInvoice = async (orderId: string) => {
+    try {
+      const { getResellerOrderDetailAction } = await import(
+        "@/features/reseller/actions/reseller-order-actions"
+      );
+      const res = await getResellerOrderDetailAction(orderId);
+      if (res.success && res.data) {
+        setSelectedOrderForInvoice(res.data);
+        setInvoiceModalOpen(true);
+      } else {
+        toast.error("ইনভয়েস তথ্য লোড করা যায়নি");
+      }
+    } catch {
+      toast.error("ইনভয়েস লোড করতে সমস্যা হয়েছে");
+    }
+  };
+
+  // Auto-update delivery charge when customer district changes
+  React.useEffect(() => {
+    const isDhaka = (customer.district || "Dhaka").toLowerCase().includes("dhaka");
+    setDeliveryChargeTaka(isDhaka ? 60 : 120);
+  }, [customer.district]);
 
   // Auto-load URL Product ID if provided
   React.useEffect(() => {
@@ -164,7 +194,8 @@ export default function ResellerQuickOrderPage(): React.ReactElement {
       );
 
       const isDhaka = (customer.district || "Dhaka").toLowerCase().includes("dhaka");
-      const deliveryChargeCents = isDhaka ? 8000 : 15000;
+      const deliveryChargeCents = Math.round(deliveryChargeTaka * 100);
+      const advancePaidCents = Math.round(advancePaidTaka * 100);
 
       const payload = {
         type: "reseller",
@@ -184,6 +215,7 @@ export default function ResellerQuickOrderPage(): React.ReactElement {
         },
         paymentMethod: "cod",
         deliveryCharge: deliveryChargeCents,
+        advancePaid: advancePaidCents,
         notes: customer.note || undefined,
       };
 
@@ -206,9 +238,9 @@ export default function ResellerQuickOrderPage(): React.ReactElement {
         costSubtotalTaka += unitCost * p.quantity;
       }
 
-      const deliveryTaka = isDhaka ? 80 : 150;
-      const grandTotalTaka = subtotalTaka + deliveryTaka;
-      const profitTaka = subtotalTaka - costSubtotalTaka;
+      const standardCourierCostTaka = isDhaka ? 60 : 120;
+      const grandTotalTaka = subtotalTaka + deliveryChargeTaka;
+      const profitTaka = (subtotalTaka - costSubtotalTaka) + (deliveryChargeTaka - standardCourierCostTaka);
 
       setCreatedOrder({
         orderId: created.id || created._id,
@@ -296,6 +328,10 @@ export default function ResellerQuickOrderPage(): React.ReactElement {
             <QuickOrderLiveSummary
               products={selectedProducts}
               customer={customer}
+              deliveryChargeTaka={deliveryChargeTaka}
+              onDeliveryChargeChange={setDeliveryChargeTaka}
+              advancePaidTaka={advancePaidTaka}
+              onAdvancePaidChange={setAdvancePaidTaka}
               submitting={submitting}
               onSubmitOrder={handleSubmitOrder}
             />
@@ -308,6 +344,14 @@ export default function ResellerQuickOrderPage(): React.ReactElement {
           onOpenChange={setSuccessModalOpen}
           orderDetails={createdOrder}
           onCreateAnother={handleCreateAnother}
+          onPrintInvoice={handlePrintInvoice}
+        />
+
+        {/* Printable/Downloadable Invoice Modal */}
+        <ResellerInvoiceModal
+          open={invoiceModalOpen}
+          onOpenChange={setInvoiceModalOpen}
+          order={selectedOrderForInvoice}
         />
       </div>
     </ResellerStatusGuard>

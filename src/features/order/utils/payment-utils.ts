@@ -19,15 +19,29 @@ export interface PaymentDetails {
   dueCls: string;
 }
 
+function parseAdvancePaidFromNotes(notesStr?: string): number {
+  if (!notesStr) return 0;
+  const match = String(notesStr).match(/advancePaid:(\d+)/i);
+  return match ? parseInt(match[1], 10) : 0;
+}
+
 export function getOrderPaymentDetails(order: any): PaymentDetails {
-  const grandTotal = Math.max(0, Number(order?.pricing?.grandTotal ?? order?.total ?? 0));
+  const rawTotal = Math.max(0, Number(order?.pricing?.grandTotal ?? order?.total ?? order?.sellingPriceCents ?? 0));
+  
+  // Convert minor cents to major Taka if value exceeds 10,000 cents (৳100)
+  const grandTotal = rawTotal > 10000 ? Math.round(rawTotal / 100) : rawTotal;
+
   const paymentMethodRaw = String(order?.shipping?.paymentMethod || order?.paymentMethod || "cod").toLowerCase();
   const isCod = paymentMethodRaw.includes("cod") || paymentMethodRaw.includes("cash");
 
-  // Extract advance paid if stored in order model or metadata
-  const advancePaid = Math.max(0, Number(order?.advancePaid ?? order?.metadata?.advancePaid ?? order?.paidAmount ?? 0));
-  
-  // Explicit payment status if set
+  let rawAdvance =
+    order?.pricing?.advancePaid ??
+    order?.advancePaid ??
+    order?.metadata?.advancePaid ??
+    order?.paidAmount ??
+    parseAdvancePaidFromNotes(order?.shipping?.deliveryNote || order?.notes);
+
+  const advancePaid = Math.max(0, Number(rawAdvance > 10000 ? Math.round(rawAdvance / 100) : rawAdvance));
   const rawStatus = String(order?.paymentStatus || order?.metadata?.paymentStatus || "").toLowerCase();
 
   let dueAmount = grandTotal;

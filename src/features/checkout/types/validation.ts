@@ -108,6 +108,8 @@ export const completeRoleCheckoutSchema = z.object({
     )
     .min(1),
   deliveryCharge: z.coerce.number().int().nonnegative().default(0),
+  advancePaid: z.coerce.number().int().nonnegative().optional().default(0),
+  notes: z.string().optional(),
 });
 
 export type CompleteRoleCheckoutInput = z.infer<typeof completeRoleCheckoutSchema>;

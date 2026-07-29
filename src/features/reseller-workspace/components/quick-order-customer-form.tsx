@@ -53,27 +53,30 @@ export function QuickOrderCustomerForm({
     loadRecent();
   }, []);
 
-  // Phone Lookup
+  // Phone Lookup & Auto-fill
   const handlePhoneChange = async (phoneInput: string) => {
     const nextData = { ...value, phone: phoneInput };
     onChange(nextData);
 
     const cleanDigits = phoneInput.replace(/\D/g, "");
-    if (cleanDigits.length >= 11) {
+    if (cleanDigits.length >= 10) {
       setLookingUp(true);
       try {
-        const { listCustomersAction } = await import(
+        const { lookupCustomerByPhoneAction } = await import(
           "@/features/customer/actions/customer-actions"
         );
-        const res = await listCustomersAction(phoneInput, 1, 3);
-        if (res.success && res.data && res.data.length > 0) {
-          const match = res.data[0];
+        const res = await lookupCustomerByPhoneAction(phoneInput);
+        if (res.success && res.data) {
+          const match = res.data;
           setMatchedCustomer(match);
-          const defaultAddr = match.addresses?.[0] || {};
-          const distName = defaultAddr.city || defaultAddr.district || value.district || "Dhaka";
-          const matchedBdDist = BD_DISTRICTS.find(
-            (d) => d.name.toLowerCase() === distName.toLowerCase() || d.nameEn.toLowerCase() === distName.toLowerCase()
-          ) || BD_DISTRICTS[0];
+
+          const distName = match.district || value.district || "Dhaka";
+          const matchedBdDist =
+            BD_DISTRICTS.find(
+              (d) =>
+                d.name.toLowerCase() === distName.toLowerCase() ||
+                d.nameEn.toLowerCase() === distName.toLowerCase(),
+            ) || BD_DISTRICTS[0];
 
           onChange({
             ...value,
@@ -82,14 +85,14 @@ export function QuickOrderCustomerForm({
             districtId: matchedBdDist.id,
             district: matchedBdDist.name,
             division: matchedBdDist.division,
-            upazila: defaultAddr.upazila || value.upazila || "",
-            fullAddress: defaultAddr.addressLine1 || defaultAddr.fullAddress || value.fullAddress,
+            upazila: match.upazila || value.upazila || "",
+            fullAddress: match.address || value.fullAddress || "",
             email: match.email || value.email,
-            customerId: match.id || match._id,
+            customerId: match.id,
             isRepeatCustomer: true,
           });
 
-          toast.success(`পুনরাবৃত্তি কাস্টমার পাওয়া গেছে: ${match.name}`);
+          toast.success(`কাস্টমারের তথ্য অটো-ফিল করা হয়েছে: ${match.name}`);
         } else {
           setMatchedCustomer(null);
         }

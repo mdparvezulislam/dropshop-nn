@@ -249,6 +249,15 @@ export async function updateUserStatusAdminAction(payload: unknown): Promise<{
     const validated = updateUserStatusSchema.parse(payload);
     const actor = sessionActor(session);
     const repo = new UserRepository();
+    const PROTECTED_SUPER_ADMIN_EMAIL = "flparvez23@gmail.com";
+    const user = await repo.findById(validated.userId);
+    if (user && user.email.toLowerCase() === PROTECTED_SUPER_ADMIN_EMAIL.toLowerCase() && validated.status !== "active") {
+      return {
+        success: false,
+        error: "প্রাইমারি সুপার এডমিন (flparvez23@gmail.com) অ্যাকাউন্ট ডিএক্টিভেট বা সাসপেন্ড করা যাবে না।",
+      };
+    }
+
     const updated = await repo.update(validated.userId, { status: validated.status } as any);
 
     await AuditLogger.record({
@@ -291,7 +300,17 @@ export async function updateUserRolesAdminAction(payload: unknown): Promise<{
       return { success: false, error: "User not found" };
     }
 
-    const primaryRole = validated.roles[0] || "customer";
+    const PROTECTED_SUPER_ADMIN_EMAIL = "flparvez23@gmail.com";
+    if (user.email.toLowerCase() === PROTECTED_SUPER_ADMIN_EMAIL.toLowerCase()) {
+      if (!validated.roles.includes("super_admin")) {
+        validated.roles.unshift("super_admin");
+      }
+    }
+
+    let primaryRole = validated.roles[0] || "customer";
+    if (user.email.toLowerCase() === PROTECTED_SUPER_ADMIN_EMAIL.toLowerCase()) {
+      primaryRole = "super_admin";
+    }
     const memberships = Array.from(
       new Set([
         "customer",
@@ -374,6 +393,14 @@ export async function softDeleteUserAdminAction(userId: string): Promise<{
 
     const user = await repo.findById(userId);
     if (!user) return { success: false, error: "User not found" };
+
+    const PROTECTED_SUPER_ADMIN_EMAIL = "flparvez23@gmail.com";
+    if (user.email.toLowerCase() === PROTECTED_SUPER_ADMIN_EMAIL.toLowerCase()) {
+      return {
+        success: false,
+        error: "প্রাইমারি সুপার এডমিন (flparvez23@gmail.com) অ্যাকাউন্ট মুছে ফেলা সম্ভব নয়।",
+      };
+    }
 
     await repo.update(userId, {
       isDeleted: true,

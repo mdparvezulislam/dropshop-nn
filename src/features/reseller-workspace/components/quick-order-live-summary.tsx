@@ -10,6 +10,10 @@ import { CustomerFormData } from "./quick-order-customer-form";
 export interface QuickOrderLiveSummaryProps {
   products: SelectedOrderProduct[];
   customer: CustomerFormData;
+  deliveryChargeTaka: number;
+  onDeliveryChargeChange: (val: number) => void;
+  advancePaidTaka: number;
+  onAdvancePaidChange: (val: number) => void;
   submitting: boolean;
   onSubmitOrder: () => void;
 }
@@ -17,11 +21,15 @@ export interface QuickOrderLiveSummaryProps {
 export function QuickOrderLiveSummary({
   products,
   customer,
+  deliveryChargeTaka,
+  onDeliveryChargeChange,
+  advancePaidTaka,
+  onAdvancePaidChange,
   submitting,
   onSubmitOrder,
 }: QuickOrderLiveSummaryProps): React.ReactElement {
   const isDhaka = (customer.district || "Dhaka").toLowerCase().includes("dhaka");
-  const deliveryChargeTaka = isDhaka ? 80 : 150;
+  const standardCourierCostTaka = isDhaka ? 60 : 120;
 
   let subtotalTaka = 0;
   let costSubtotalTaka = 0;
@@ -43,7 +51,9 @@ export function QuickOrderLiveSummary({
   }
 
   const grandTotalTaka = subtotalTaka > 0 ? subtotalTaka + deliveryChargeTaka : 0;
-  const profitTaka = subtotalTaka - costSubtotalTaka;
+  const dueTaka = Math.max(0, grandTotalTaka - advancePaidTaka);
+
+  const profitTaka = (subtotalTaka - costSubtotalTaka) + (deliveryChargeTaka - standardCourierCostTaka);
 
   const marginPercent = subtotalTaka > 0 ? Math.round((profitTaka / subtotalTaka) * 100) : 0;
   const roiPercent = costSubtotalTaka > 0 ? Math.round((profitTaka / costSubtotalTaka) * 100) : 0;
@@ -95,8 +105,39 @@ export function QuickOrderLiveSummary({
           </div>
         )}
 
+        {/* Editable Delivery Charge & Advance Payment Inputs */}
+        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200">
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-slate-700 flex items-center justify-between">
+              <span>ডেলিভারি ফি (৳)</span>
+              <span className="text-[9px] text-muted-foreground">({isDhaka ? "ডিফল্ট ৬০" : "ডিফল্ট ১২০"})</span>
+            </label>
+            <input
+              type="number"
+              min={0}
+              value={deliveryChargeTaka}
+              onChange={(e) => onDeliveryChargeChange(parseFloat(e.target.value) || 0)}
+              className="w-full h-8 px-2 rounded-lg border border-slate-300 bg-white font-mono font-bold text-slate-900 text-xs outline-none focus:border-amber-500"
+            />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-slate-700 block">
+              এডভান্স জমা (৳)
+            </label>
+            <input
+              type="number"
+              min={0}
+              value={advancePaidTaka}
+              onChange={(e) => onAdvancePaidChange(parseFloat(e.target.value) || 0)}
+              placeholder="0 (COD)"
+              className="w-full h-8 px-2 rounded-lg border border-slate-300 bg-white font-mono font-bold text-slate-900 text-xs outline-none focus:border-amber-500"
+            />
+          </div>
+        </div>
+
         {/* Financial Breakdown */}
-        <div className="space-y-1.5 text-xs">
+        <div className="space-y-1.5 text-xs pt-1 border-t border-slate-200">
           <div className="flex items-center justify-between text-slate-600 font-semibold">
             <span>পণ্যের সাবটোটাল ({totalItemsCount} টি আইটেম):</span>
             <span className="text-slate-900 font-bold tabular-nums">৳{subtotalTaka}</span>
@@ -104,24 +145,41 @@ export function QuickOrderLiveSummary({
 
           <div className="flex items-center justify-between text-slate-600 font-semibold">
             <span className="flex items-center gap-1">
-              <Truck className="w-3.5 h-3.5 text-amber-600" /> ডেলিভারি চার্জ ({customer.district ? customer.district : "জেলা"}: {isDhaka ? "৳৮০" : "৳১৫০"}):
+              <Truck className="w-3.5 h-3.5 text-amber-600" /> কুরিয়ার ফি (স্ট্যান্ডার্ড {isDhaka ? "৳৬০" : "৳১২০"}):
             </span>
             <span className="text-slate-900 font-bold tabular-nums">৳{deliveryChargeTaka}</span>
           </div>
 
-          <div className="flex items-center justify-between pt-1.5 border-t border-slate-200">
-            <span className="font-black text-slate-900 text-xs sm:text-sm">কাস্টমার পরিশোধ করবে:</span>
+          <div className="flex items-center justify-between pt-1 border-t border-slate-200">
+            <span className="font-black text-slate-900 text-xs sm:text-sm">সর্বমোট কাস্টমার বিল:</span>
             <span className="font-black text-amber-600 text-lg sm:text-xl tabular-nums">৳{grandTotalTaka}</span>
+          </div>
+
+          <div className="flex items-center justify-between text-slate-600 text-xs">
+            <span>অগ্রিম পরিশোধ (Paid):</span>
+            <span className="font-mono font-bold text-emerald-600">৳{advancePaidTaka}</span>
+          </div>
+
+          <div className="flex items-center justify-between pt-1 border-t border-dashed border-slate-200">
+            <span className="font-black text-slate-900 text-xs">বাকি বকেয়া (Due Collection):</span>
+            <span className="font-black text-rose-600 text-base tabular-nums">৳{dueTaka}</span>
           </div>
         </div>
 
         {/* Reseller Earnings & Profit Card */}
         <div className="p-3 sm:p-4 rounded-xl bg-emerald-50 border border-emerald-300 space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] sm:text-xs font-black uppercase text-emerald-900 tracking-wider flex items-center gap-1">
-              <TrendingUp className="w-3.5 h-3.5 text-emerald-600" /> আপনার নিট প্রফিট
-            </span>
-            <span className="text-[10px] font-black text-emerald-800 bg-emerald-100 border border-emerald-300 px-2 py-0.2 rounded-full">
+            <div className="flex flex-col">
+              <span className="text-[11px] sm:text-xs font-black uppercase text-emerald-900 tracking-wider flex items-center gap-1">
+                <TrendingUp className="w-3.5 h-3.5 text-emerald-600" /> আপনার নিট প্রফিট
+              </span>
+              {deliveryChargeTaka !== standardCourierCostTaka && (
+                <span className="text-[9px] font-bold text-emerald-800">
+                  ({deliveryChargeTaka < standardCourierCostTaka ? `কুরিয়ার খরচ ৳${standardCourierCostTaka - deliveryChargeTaka} লাভ থেকে বাদ` : `অতিরিক্ত ৳${deliveryChargeTaka - standardCourierCostTaka} লাভে যোগ`})
+                </span>
+              )}
+            </div>
+            <span className="text-[10px] font-black text-emerald-800 bg-emerald-100 border border-emerald-300 px-2 py-0.5 rounded-full">
               {marginPercent}% MARGIN
             </span>
           </div>

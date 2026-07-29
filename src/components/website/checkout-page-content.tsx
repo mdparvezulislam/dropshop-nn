@@ -72,7 +72,8 @@ export function CheckoutPageContent({
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
 
-  const [shippingCost] = useState(120);
+  const isDhaka = (shipping.district || "Dhaka").toLowerCase().includes("dhaka");
+  const shippingCost = isDhaka ? 60 : 120;
 
   const cartType =
     userRole === "wholesaler" ? "wholesaler" : userRole === "reseller" ? "reseller" : "guest";

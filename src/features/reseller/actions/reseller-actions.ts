@@ -488,3 +488,165 @@ export async function hideResellerProductAction(id: string): Promise<{
   revalidatePath(RESELLERS_PATH);
   return { success: true, data: result };
 }
+
+export async function getResellerShopSettingsAction(): Promise<{
+  success: boolean;
+  data?: {
+    businessName: string;
+    ownerName: string;
+    phone: string;
+    whatsapp: string;
+    email: string;
+    logo: string;
+    coverImage: string;
+    address: string;
+    description: string;
+    invoiceFooter: string;
+    defaultDeliveryCharge: number;
+    status: string;
+  };
+  error?: string;
+}> {
+  const session = (await auth()) as any;
+  const userId = session?.user?.id;
+  if (!userId) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    const { ResellerModel } = await import("../repositories/reseller-model");
+    const { UserModel } = await import("@/features/auth/repositories/user-model");
+
+    let resellerDoc = await ResellerModel.findOne({ userId }).exec();
+    const userDoc = await UserModel.findById(userId).exec();
+
+    if (!resellerDoc && userDoc) {
+      resellerDoc = await ResellerModel.findOne({ phone: userDoc.phone }).exec();
+    }
+
+    return {
+      success: true,
+      data: {
+        businessName: resellerDoc?.businessName || (userDoc as any)?.shopName || session.user.name || "DropshopNN Reseller Store",
+        ownerName: resellerDoc?.ownerName || userDoc?.name || "Md Reseller",
+        phone: resellerDoc?.phone || userDoc?.phone || "01700000000",
+        whatsapp: (userDoc as any)?.whatsapp || resellerDoc?.alternativePhone || resellerDoc?.phone || "01700000000",
+        email: resellerDoc?.email || userDoc?.email || "",
+        logo: resellerDoc?.logo || "",
+        coverImage: resellerDoc?.coverImage || "",
+        address: resellerDoc?.address?.fullAddress || "Dhanmondi, Dhaka, Bangladesh",
+        description: resellerDoc?.notes || "সেরা দামে কোয়ালিটি পণ্য সরবরাহকারী ই-কমার্স শপ।",
+        invoiceFooter: (userDoc as any)?.invoiceFooter || resellerDoc?.notes || "কেনাকাটার জন্য ধন্যবাদ! যেকোনো প্রয়োজনে যোগাযোগ করুন।",
+        defaultDeliveryCharge: 80,
+        status: resellerDoc?.status || "active",
+      },
+    };
+  } catch (error: any) {
+    logger.error("getResellerShopSettingsAction failed", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function saveResellerShopSettingsAction(data: {
+  businessName: string;
+  ownerName?: string;
+  phone?: string;
+  whatsapp?: string;
+  email?: string;
+  logo?: string;
+  coverImage?: string;
+  address?: string;
+  description?: string;
+  invoiceFooter?: string;
+  defaultDeliveryCharge?: number;
+}): Promise<{
+  success: boolean;
+  data?: any;
+  error?: string;
+}> {
+  const session = (await auth()) as any;
+  const userId = session?.user?.id;
+  if (!userId) {
+    return { success: false, error: "অনুমোদিত নয়। অনুগ্রহ করে লগইন করুন।" };
+  }
+
+  try {
+    const { ResellerModel } = await import("../repositories/reseller-model");
+    const { UserModel } = await import("@/features/auth/repositories/user-model");
+
+    let resellerDoc = await ResellerModel.findOne({ userId });
+    if (!resellerDoc && session.user.phone) {
+      resellerDoc = await ResellerModel.findOne({ phone: session.user.phone });
+    }
+
+    if (!resellerDoc) {
+      const code = `RS-${Date.now().toString().slice(-6)}`;
+      resellerDoc = await ResellerModel.create({
+        code,
+        businessName: data.businessName || session.user.name || "Reseller Store",
+        ownerName: data.ownerName || session.user.name || "Reseller Owner",
+        contactPerson: data.ownerName || session.user.name || "Reseller",
+        email: data.email || session.user.email || `${code.toLowerCase()}@dropshop.nn`,
+        phone: data.phone || session.user.phone || "01700000000",
+        logo: data.logo || "",
+        coverImage: data.coverImage || "",
+        businessType: "e_commerce",
+        address: {
+          country: "Bangladesh",
+          division: "Dhaka",
+          district: "Dhaka",
+          upazila: "Dhaka",
+          area: "Dhaka",
+          postalCode: "1200",
+          fullAddress: data.address || "Dhaka, Bangladesh",
+        },
+        status: "active",
+        userId,
+        notes: data.invoiceFooter || "কেনাকাটার জন্য ধন্যবাদ!",
+      });
+    } else {
+      resellerDoc.businessName = data.businessName || resellerDoc.businessName;
+      if (data.ownerName) resellerDoc.ownerName = data.ownerName;
+      if (data.phone) resellerDoc.phone = data.phone;
+      if (data.logo !== undefined) resellerDoc.logo = data.logo;
+      if (data.coverImage !== undefined) resellerDoc.coverImage = data.coverImage;
+      if (data.address) {
+        resellerDoc.address = {
+          ...resellerDoc.address,
+          fullAddress: data.address,
+        };
+      }
+      if (data.invoiceFooter !== undefined) resellerDoc.notes = data.invoiceFooter;
+
+      await resellerDoc.save();
+    }
+
+    await UserModel.findByIdAndUpdate(userId, {
+      $set: {
+        name: data.ownerName || session.user.name,
+        shopName: data.businessName,
+        whatsapp: data.whatsapp,
+        invoiceFooter: data.invoiceFooter,
+      },
+    });
+
+    revalidatePath("/reseller/settings");
+    revalidatePath("/reseller/orders");
+    return {
+      success: true,
+      data: {
+        id: String(resellerDoc._id),
+        businessName: resellerDoc.businessName,
+        ownerName: resellerDoc.ownerName,
+        phone: resellerDoc.phone,
+        email: resellerDoc.email,
+        address: resellerDoc.address?.fullAddress || "",
+        invoiceFooter: resellerDoc.notes || "",
+      },
+    };
+  } catch (error: any) {
+    logger.error("saveResellerShopSettingsAction failed", error);
+    return { success: false, error: error.message };
+  }
+}
+

@@ -41,6 +41,7 @@ export function EditPaymentModal({
   const [paymentMethod, setPaymentMethod] = useState<string>("cod");
   const [paymentStatus, setPaymentStatus] = useState<"unpaid" | "partial" | "paid" | "refunded">("unpaid");
   const [advancePaid, setAdvancePaid] = useState<number>(0);
+  const [deliveryCharge, setDeliveryCharge] = useState<number>(60);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
@@ -49,6 +50,7 @@ export function EditPaymentModal({
       setPaymentMethod((order.shipping?.paymentMethod || "cod").toLowerCase());
       setPaymentStatus(payDetails.paymentStatus);
       setAdvancePaid(payDetails.advancePaid);
+      setDeliveryCharge(order.shipping?.deliveryCharge ?? order.shippingCost ?? 60);
     }
   }, [order]);
 
@@ -70,6 +72,7 @@ export function EditPaymentModal({
         paymentStatus,
         advancePaid: currentAdvance,
         paymentMethod,
+        deliveryCharge: Number(deliveryCharge || 0),
       });
 
       if (res.success) {
@@ -187,6 +190,24 @@ export function EditPaymentModal({
             />
             <p className="text-[11px] text-muted-foreground">
               কাস্টমার যদি ২০০ বা ৫০০ টাকা অ্যাডভান্স পেমেন্ট করে থাকেন, এখানে বসান।
+            </p>
+          </div>
+
+          {/* Delivery Charge */}
+          <div className="space-y-1">
+            <label className="font-bold text-foreground">
+              Delivery Charge (৳)
+            </label>
+            <Input
+              type="number"
+              min={0}
+              value={deliveryCharge}
+              onChange={(e) => setDeliveryCharge(Number(e.target.value))}
+              placeholder="e.g. 60 or 120"
+              className="h-10 text-xs font-mono font-bold"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              ঢাকার ভেতরে সাধারণত ৬০ টাকা এবং ঢাকার বাইরে ১২০ টাকা ডেলিভারি চার্জ।
             </p>
           </div>
         </div>

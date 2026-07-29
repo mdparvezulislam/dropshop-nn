@@ -15,6 +15,7 @@ function homeForRole(role?: string | null): string {
   if (
     r === "admin" ||
     r === "super_admin" ||
+    r === "super admin" ||
     r === "manager" ||
     r === "support" ||
     r === "content_manager" ||
@@ -32,6 +33,7 @@ function canAccessPath(role: string | null | undefined, pathname: string): boole
   const isStaff =
     r === "admin" ||
     r === "super_admin" ||
+    r === "super admin" ||
     r === "manager" ||
     r === "support" ||
     r === "content_manager" ||
@@ -41,7 +43,7 @@ function canAccessPath(role: string | null | undefined, pathname: string): boole
     return isStaff;
   }
   if (pathname.startsWith("/reseller")) {
-    return true; // All authenticated users can access /reseller (ResellerStatusGuard handles application status)
+    return true; // All authenticated users can access /reseller
   }
   if (pathname.startsWith("/wholesale")) {
     return isStaff || r.includes("wholesale") || r === "wholesaler";
@@ -55,8 +57,6 @@ function canAccessPath(role: string | null | undefined, pathname: string): boole
 /**
  * Route-level permission mapping.
  * Maps path prefixes to required permissions.
- * If a path is listed, the user must have at least ONE of the listed permissions.
- * If not listed, only authentication is required.
  */
 const ROUTE_PERMISSIONS: Record<string, string[]> = {
   "/dashboard/products": ["products.product.view", "products.product.create"],
@@ -120,17 +120,29 @@ function getRoutePermissions(pathname: string): string[] | null {
 }
 
 function hasRequiredPermission(
+  role: string | null | undefined,
   permissions: string[] | undefined,
   requiredPermissions: string[],
 ): boolean {
+  const r = normalizeRole(role);
+  const isStaff =
+    r === "admin" ||
+    r === "super_admin" ||
+    r === "super admin" ||
+    r === "manager" ||
+    r === "support" ||
+    r === "content_manager" ||
+    r.includes("admin");
+
+  if (isStaff) return true; // Super admin & Admin ALWAYS pass permission check
   if (!permissions || permissions.length === 0) return false;
   if (permissions.includes("*")) return true;
   return requiredPermissions.some((p) => permissions.includes(p));
 }
 
 /**
- * Edge-compatible auth config (no Node-only imports: mongoose, bcrypt, etc.).
- * Used by middleware. Full providers live in auth.ts.
+ * Edge-compatible auth config.
+ * Used by middleware & NextAuth.
  */
 export const authConfig = {
   providers: [],
@@ -144,7 +156,6 @@ export const authConfig = {
         pathname.startsWith("/reseller") ||
         pathname.startsWith("/wholesale") ||
         pathname.startsWith("/supplier");
-      // Account area: any authenticated user, but never anonymous.
       const isAccountArea = pathname.startsWith("/account");
 
       const role = (auth?.user as { role?: string } | undefined)?.role;
@@ -159,7 +170,10 @@ export const authConfig = {
         }
 
         const requiredPermissions = getRoutePermissions(pathname);
-        if (requiredPermissions && !hasRequiredPermission(permissions, requiredPermissions)) {
+        if (
+          requiredPermissions &&
+          !hasRequiredPermission(role, permissions, requiredPermissions)
+        ) {
           return Response.redirect(new URL("/auth/unauthorized", request.nextUrl));
         }
 
@@ -179,19 +193,43 @@ export const authConfig = {
     },
     jwt({ token, user }) {
       if (user) {
-        token.role = (user as { role?: string }).role;
-        token.roles = (user as { roles?: string[] }).roles || [(user as { role?: string }).role || "customer"];
+        const role = (user as { role?: string }).role || "customer";
+        token.role = role;
+        token.roles = (user as { roles?: string[] }).roles || [role];
         token.memberships = (user as { memberships?: string[] }).memberships || [];
-        token.permissions = (user as { permissions?: string[] }).permissions;
+        const perms = (user as { permissions?: string[] }).permissions || [];
+        const norm = normalizeRole(role);
+        if (
+          norm === "super_admin" ||
+          norm === "admin" ||
+          norm === "super admin" ||
+          norm.includes("admin")
+        ) {
+          if (!perms.includes("*")) perms.push("*");
+        }
+        token.permissions = perms;
       }
       return token;
     },
     session({ session, token }) {
       if (session.user) {
-        (session.user as { role?: string }).role = token.role as string;
-        (session.user as { roles?: string[] }).roles = (token.roles as string[]) || [(token.role as string) || "customer"];
+        const role = (token.role as string) || "customer";
+        (session.user as { role?: string }).role = role;
+        (session.user as { roles?: string[] }).roles = (token.roles as string[]) || [role];
         (session.user as { memberships?: string[] }).memberships = (token.memberships as string[]) || [];
-        (session.user as { permissions?: string[] }).permissions = token.permissions as string[];
+
+        const perms = (token.permissions as string[]) || [];
+        const norm = normalizeRole(role);
+        if (
+          norm === "super_admin" ||
+          norm === "admin" ||
+          norm === "super admin" ||
+          norm.includes("admin")
+        ) {
+          if (!perms.includes("*")) perms.push("*");
+        }
+        (session.user as { permissions?: string[] }).permissions = perms;
+
         if (token.sub) {
           session.user.id = token.sub;
         }

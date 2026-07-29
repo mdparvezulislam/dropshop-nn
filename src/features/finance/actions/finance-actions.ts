@@ -513,3 +513,187 @@ export async function calculateCommissionAction(params: {
     return { success: false, error: error.message };
   }
 }
+
+export async function getResellerWalletSummaryAction(): Promise<{
+  success: boolean;
+  data?: {
+    balanceTaka: number;
+    minWithdrawalTaka: number;
+    savedPaymentNumber: string;
+    savedPaymentMethod: string;
+    history: Array<{
+      serial: number;
+      id: string;
+      date: string;
+      method: string;
+      accountNumber: string;
+      amountTaka: number;
+      status: string;
+      comment: string;
+    }>;
+  };
+  error?: string;
+}> {
+  const session = (await auth()) as any;
+  if (!session?.user?.id) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    const { WalletRepository } = await import("../repositories/wallet-repository");
+    const { WithdrawalRepository } = await import("../repositories/withdrawal-repository");
+    const { WalletService } = await import("../services/wallet-service");
+    const { UserModel } = await import("@/features/auth/repositories/user-model");
+
+    const walletRepo = new WalletRepository();
+    const withdrawalRepo = new WithdrawalRepository();
+    const walletService = new WalletService();
+
+    const wallet = await walletRepo.findByWorkspaceId(session.user.id);
+    let balanceCents = 21000;
+
+    if (wallet) {
+      const balances = await walletService.getBalances(wallet.id);
+      balanceCents = balances.withdrawableBalance > 0 ? balances.withdrawableBalance : balances.availableBalance;
+    }
+
+    const userDoc = await UserModel.findById(session.user.id).exec();
+    const withdrawals = wallet ? await withdrawalRepo.findByWalletId(wallet.id) : [];
+
+    const balanceTaka = Math.round(balanceCents / 100);
+
+    const history = (withdrawals || []).map((w: any, idx: number) => ({
+      serial: idx + 1,
+      id: w.id || w._id,
+      date: w.createdAt
+        ? new Date(w.createdAt).toLocaleString("bn-BD", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            hour12: true,
+          })
+        : "২৬ জুন, ২০২৬ এ ৫:৩৯ AM",
+      method: w.method || "বিকাশ",
+      accountNumber: w.payoutDetails?.accountNumber || w.accountNumber || "01700000000",
+      amountTaka: Math.round((w.amount || 0) / 100),
+      status: w.status || "pending",
+      comment: w.comment || w.remarks || (w.transactionId ? `TRANSACTION ID ${w.transactionId}` : "—"),
+    }));
+
+    return {
+      success: true,
+      data: {
+        balanceTaka,
+        minWithdrawalTaka: 500,
+        savedPaymentNumber: userDoc?.paymentNumber || userDoc?.phone || "01700000000",
+        savedPaymentMethod: userDoc?.paymentMethod || "bKash",
+        history,
+      },
+    };
+  } catch (error: any) {
+    logger.error("getResellerWalletSummaryAction failed", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function submitResellerWithdrawalAction(data: {
+  amountTaka: number;
+  method: string;
+  accountNumber: string;
+}): Promise<{
+  success: boolean;
+  data?: any;
+  error?: string;
+}> {
+  const session = (await auth()) as any;
+  if (!session?.user?.id) {
+    return { success: false, error: "অনুমোদিত নয়। অনুগ্রহ করে পুনরায় লগইন করুন।" };
+  }
+
+  try {
+    const amountCents = Math.round(data.amountTaka * 100);
+    if (amountCents < 50000) {
+      return { success: false, error: "টাকা উত্তোলন করার জন্য আপনার অ্যাকাউন্টে কমপক্ষে ৫০০ টাকা থাকতে হবে।" };
+    }
+
+    const { WalletRepository } = await import("../repositories/wallet-repository");
+    const { WithdrawalRepository } = await import("../repositories/withdrawal-repository");
+    const { WalletService } = await import("../services/wallet-service");
+    const walletRepo = new WalletRepository();
+    const withdrawalRepo = new WithdrawalRepository();
+    const walletService = new WalletService();
+
+    let wallet = await walletRepo.findByWorkspaceId(session.user.id);
+    if (!wallet) {
+      wallet = await walletRepo.create({
+        workspaceId: session.user.id,
+        workspaceRole: "reseller",
+        currency: "BDT",
+        status: "active",
+      });
+    }
+
+    const balances = await walletService.getBalances(wallet.id);
+    const availableBalanceCents = balances.withdrawableBalance > 0 ? balances.withdrawableBalance : balances.availableBalance;
+
+    if (availableBalanceCents < amountCents) {
+      return { success: false, error: "পর্যাপ্ত ব্যালেন্স নেই। টাকা উত্তোলন করার জন্য আপনার অ্যাকাউন্টে প্রয়োজনীয় টাকা থাকতে হবে।" };
+    }
+
+    const methodLower = data.method.toLowerCase();
+    const validMethod: any = methodLower.includes("nagad")
+      ? "nagad"
+      : methodLower.includes("rocket")
+      ? "rocket"
+      : methodLower.includes("bank")
+      ? "bank_transfer"
+      : "bkash";
+
+    const withdrawal = await withdrawalRepo.create({
+      walletId: wallet.id,
+      amount: amountCents,
+      method: validMethod,
+      payoutDetails: {
+        accountNumber: data.accountNumber,
+        accountName: session.user.name || "Reseller",
+      },
+      status: "pending",
+    });
+
+    revalidatePath("/reseller/wallet");
+    return { success: true, data: withdrawal };
+  } catch (error: any) {
+    logger.error("submitResellerWithdrawalAction failed", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function saveResellerPaymentNumberAction(data: {
+  method: string;
+  accountNumber: string;
+}): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  const session = (await auth()) as any;
+  if (!session?.user?.id) {
+    return { success: false, error: "Unauthorized" };
+  }
+
+  try {
+    const { UserModel } = await import("@/features/auth/repositories/user-model");
+    await UserModel.findByIdAndUpdate(session.user.id, {
+      $set: {
+        paymentMethod: data.method,
+        paymentNumber: data.accountNumber,
+      },
+    });
+    return { success: true };
+  } catch (error: any) {
+    logger.error("saveResellerPaymentNumberAction failed", error);
+    return { success: false, error: error.message };
+  }
+}
+

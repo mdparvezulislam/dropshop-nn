@@ -19,6 +19,7 @@ import { OrderDetailsDrawer } from "./order-details-drawer";
 import { PickupRequestModal } from "./pickup-request-modal";
 import { EditPaymentModal } from "./edit-payment-modal";
 import { EditAddressModal } from "./edit-address-modal";
+import { EditResellerOrderModal } from "@/features/reseller-workspace/components/edit-reseller-order-modal";
 import { OrderQuickActionMenu } from "./order-quick-action-menu";
 import { printOrderInvoice, printShippingLabel } from "../utils/print-utils";
 import { getHumanLabel } from "../domain/state-machine";
@@ -88,6 +89,8 @@ export function OrderManagementWorkspace({
   const [isAddressModalOpen, setIsAddressModalOpen] = useState<boolean>(false);
   const [selectedOrderForMenu, setSelectedOrderForMenu] = useState<any | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [selectedOrderForEdit, setSelectedOrderForEdit] = useState<any | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
 
   // Data Fetching
   const fetchOrders = useCallback(async () => {
@@ -232,7 +235,7 @@ export function OrderManagementWorkspace({
   };
 
   // Quick Actions Menu Handler
-  const handleQuickAction = (action: string, targetOrder: any) => {
+  const handleQuickAction = async (action: string, targetOrder: any) => {
     if (action === "pickup" || action === "courier") {
       setSelectedOrderForPickup(targetOrder);
       setIsPickupModalOpen(true);
@@ -242,10 +245,31 @@ export function OrderManagementWorkspace({
     } else if (action === "edit_address") {
       setSelectedOrderForAddress(targetOrder);
       setIsAddressModalOpen(true);
+    } else if (action === "edit" || action === "edit_order") {
+      setSelectedOrderForEdit(targetOrder);
+      setIsEditModalOpen(true);
     } else if (action === "print_invoice") {
       printOrderInvoice(targetOrder);
     } else if (action === "print_slip") {
       printShippingLabel(targetOrder);
+    } else if (action === "cancel") {
+      if (confirm(`আপনি কি নিশ্চিত যে #${targetOrder.orderNumber || "অর্ডারটি"} ক্যানসেল করতে চান?`)) {
+        try {
+          const { cancelOrderAction } = await import("../actions/order-actions");
+          const res = await cancelOrderAction({
+            orderId: targetOrder.id || targetOrder._id,
+            reason: "Cancelled by Admin",
+          });
+          if (res.success) {
+            toast.success("অর্ডারটি সফলভাবে বাতিল করা হয়েছে!");
+            fetchOrders();
+          } else {
+            toast.error(res.error || "অর্ডার বাতিল করতে সমস্যা হয়েছে।");
+          }
+        } catch {
+          toast.error("সার্ভার ত্রুটি ঘটেছে");
+        }
+      }
     } else if (action === "menu") {
       setSelectedOrderForMenu(targetOrder);
       setIsMenuOpen(true);
@@ -257,14 +281,14 @@ export function OrderManagementWorkspace({
 
   // Preset Filters Config
   const PRESET_TABS = [
-    { id: "all", label: "All Orders", status: "all" },
-    { id: "pending", label: "Pending", status: "pending" },
-    { id: "confirmed", label: "Confirmed", status: "confirmed" },
-    { id: "processing", label: "Processing", status: "processing" },
-    { id: "shipped", label: "In Courier", status: "shipped" },
-    { id: "delivered", label: "Delivered", status: "delivered" },
-    { id: "cancelled", label: "Cancelled", status: "cancelled" },
-    { id: "returned", label: "Returned", status: "returned" },
+    { id: "all", label: "All Orders", status: "all", countKey: "all" },
+    { id: "pending", label: "Pending", status: "pending", countKey: "pending" },
+    { id: "confirmed", label: "Confirmed", status: "confirmed", countKey: "confirmed" },
+    { id: "processing", label: "Packaging", status: "processing", countKey: "processing" },
+    { id: "shipped", label: "In Courier", status: "shipped", countKey: "shipped" },
+    { id: "delivered", label: "Delivered", status: "delivered", countKey: "delivered" },
+    { id: "cancelled", label: "Cancelled", status: "cancelled", countKey: "cancelled" },
+    { id: "returned", label: "Returned", status: "returned", countKey: "returned" },
   ];
 
   return (
@@ -378,6 +402,7 @@ export function OrderManagementWorkspace({
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
           {PRESET_TABS.map((tab) => {
             const isActive = activeTabPreset === tab.id;
+            const count = tab.countKey === "all" ? totalCount : stats[tab.countKey] ?? 0;
             return (
               <button
                 key={tab.id}
@@ -387,13 +412,20 @@ export function OrderManagementWorkspace({
                   setStatusFilter(tab.status);
                   setPage(1);
                 }}
-                className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all shrink-0 border ${
+                className={`px-3.5 py-2 rounded-xl text-xs font-extrabold transition-all shrink-0 border flex items-center gap-1.5 ${
                   isActive
                     ? "bg-amber-500 text-slate-950 border-amber-500 shadow-xs"
                     : "bg-card text-muted-foreground border-border hover:border-slate-300"
                 }`}
               >
-                {tab.label}
+                <span>{tab.label}</span>
+                <span
+                  className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                    isActive ? "bg-slate-950/20 text-slate-950" : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  {count}
+                </span>
               </button>
             );
           })}
@@ -584,6 +616,14 @@ export function OrderManagementWorkspace({
         isOpen={isAddressModalOpen}
         onClose={() => setIsAddressModalOpen(false)}
         order={selectedOrderForAddress}
+        onSuccess={fetchOrders}
+      />
+
+      {/* Full Order Edit Modal */}
+      <EditResellerOrderModal
+        open={isEditModalOpen}
+        onOpenChange={setIsEditModalOpen}
+        order={selectedOrderForEdit}
         onSuccess={fetchOrders}
       />
 

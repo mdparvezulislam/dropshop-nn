@@ -25,6 +25,7 @@ import {
   Check,
   FileCheck,
   Lock,
+  Trash2,
 } from "lucide-react";
 import { getHumanLabel, type OrderStatus } from "../domain/state-machine";
 import { getOrderPaymentDetails, formatAmount } from "../utils/payment-utils";
@@ -130,7 +131,8 @@ export function OrderTableDesktop({
               const riskScore = order.riskScore ?? 76;
               const isHighRisk = riskScore < 50;
               const hasCourierSlip = Boolean(order.courierInfo?.trackingNumber || order.pickupRequested);
-              const deliveryCharge = order.shipping?.deliveryCharge ?? order.shippingCost ?? 120;
+              const rawDeliveryCharge = order.shipping?.deliveryCharge ?? order.shipping?.deliveryFee ?? order.deliveryChargeCents ?? order.shippingCost ?? 60;
+              const deliveryCharge = rawDeliveryCharge > 1000 ? Math.round(rawDeliveryCharge / 100) : rawDeliveryCharge;
 
               return (
                 <tr
@@ -248,7 +250,11 @@ export function OrderTableDesktop({
                               {items[0].productName || items[0].name || "Product Item"}
                             </p>
                             <p className="text-[10px] font-mono text-muted-foreground">
-                              (৳{formatAmount(items[0].unitSellingPrice || items[0].unitPrice || 0)} × {items[0].quantity})
+                              {(() => {
+                                const rawUnitPrice = items[0].unitSellingPrice ?? items[0].unitPrice ?? 0;
+                                const itemUnitPriceTaka = rawUnitPrice > 5000 ? Math.round(rawUnitPrice / 100) : rawUnitPrice;
+                                return `(৳${formatAmount(itemUnitPriceTaka)} × ${items[0].quantity || 1})`;
+                              })()}
                             </p>
                           </div>
                         </div>
@@ -349,6 +355,15 @@ export function OrderTableDesktop({
                       <Button
                         size="icon"
                         variant="ghost"
+                        className="h-8 w-8 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40"
+                        onClick={() => onQuickAction("edit_order", order)}
+                        title="Edit Full Order (অর্ডার এডিট)"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
                         className="h-8 w-8 text-muted-foreground hover:text-foreground"
                         onClick={() => printOrderInvoice(order)}
                         title="Print / Download Tax Invoice"
@@ -367,8 +382,18 @@ export function OrderTableDesktop({
                       <Button
                         size="icon"
                         variant="ghost"
+                        className="h-8 w-8 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                        onClick={() => onQuickAction("cancel", order)}
+                        title="Cancel Order"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
                         className="h-8 w-8 text-muted-foreground hover:text-foreground"
                         onClick={() => onQuickAction("menu", order)}
+                        title="More Actions"
                       >
                         <MoreVertical className="h-4 w-4" />
                       </Button>

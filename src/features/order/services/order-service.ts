@@ -352,6 +352,8 @@ export class OrderService {
       paymentStatus: input.paymentStatus,
       advancePaid,
       dueAmount,
+      "pricing.advancePaid": advancePaid,
+      "pricing.dueAmount": dueAmount,
       "metadata.advancePaid": advancePaid,
       "metadata.paymentStatus": input.paymentStatus,
     };
@@ -361,6 +363,7 @@ export class OrderService {
     }
     if (input.deliveryCharge !== undefined) {
       updatePayload["shipping.deliveryCharge"] = input.deliveryCharge;
+      updatePayload["shipping.deliveryFee"] = input.deliveryCharge * 100;
     }
 
     const updated = await this.orderRepository.update(input.orderId, updatePayload);
@@ -712,39 +715,69 @@ export class OrderService {
     const now = new Date();
     const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    const [counts, todayOrders, codOrders] = await Promise.all([
-      this.orderRepository.countByStatus(),
-      this.orderRepository.count({ createdAt: { $gte: todayStart } } as any),
-      this.orderRepository.count({
-        "pricing.grandTotal": { $gt: 0 },
-        status: { $nin: ["cancelled", "refunded"] },
-      } as any),
-    ]);
+    try {
+      const { OrderModel } = await import("../repositories/order-model");
+      const { CheckoutSessionRepository } = await import("@/features/checkout/repositories/checkout-repository");
+      const checkoutRepo = new CheckoutSessionRepository();
 
-    const allStatuses = [
-      "draft",
-      "pending",
-      "confirmed",
-      "packed",
-      "ready_for_dispatch",
-      "courier_assigned",
-      "shipped",
-      "out_for_delivery",
-      "delivered",
-      "completed",
-      "cancelled",
-      "return_requested",
-      "return_initiated",
-      "returned",
-      "refunded",
-      "failed",
-    ];
+      const [orderList, checkouts] = await Promise.all([
+        OrderModel.find({}).select("status pricing createdAt").lean(),
+        checkoutRepo.findPaginated({ type: "reseller" }, { page: 1, limit: 1000 }),
+      ]);
 
-    const result: Record<string, number> = { today: todayOrders, total_cod: codOrders };
-    for (const s of allStatuses) {
-      result[s] = counts[s] ?? 0;
+      const checkoutList = checkouts?.items || [];
+
+      const result: Record<string, number> = {
+        pending: 0,
+        confirmed: 0,
+        processing: 0,
+        shipped: 0,
+        delivered: 0,
+        cancelled: 0,
+        returned: 0,
+        today: 0,
+        total_cod: orderList.length + checkoutList.length,
+      };
+
+      orderList.forEach((o: any) => {
+        const st = String(o.status || "pending").toLowerCase();
+        if (["draft", "pending", "new", "wfp"].includes(st)) result.pending++;
+        else if (["confirmed"].includes(st)) result.confirmed++;
+        else if (["processing", "packed"].includes(st)) result.processing++;
+        else if (["shipped", "in_courier", "ready_for_dispatch", "courier_assigned", "shipment"].includes(st)) result.shipped++;
+        else if (["delivered", "completed"].includes(st)) result.delivered++;
+        else if (["cancelled", "cancel"].includes(st)) result.cancelled++;
+        else if (["returned", "wfr", "return_requested"].includes(st)) result.returned++;
+
+        if (o.createdAt && new Date(o.createdAt) >= todayStart) {
+          result.today++;
+        }
+      });
+
+      checkoutList.forEach((c: any) => {
+        const st = String(c.status || "pending").toLowerCase();
+        if (["draft", "pending", "new", "wfp"].includes(st)) result.pending++;
+        else if (["completed", "confirmed"].includes(st)) result.confirmed++;
+
+        if (c.createdAt && new Date(c.createdAt) >= todayStart) {
+          result.today++;
+        }
+      });
+
+      return result;
+    } catch {
+      return {
+        pending: 0,
+        confirmed: 0,
+        processing: 0,
+        shipped: 0,
+        delivered: 0,
+        cancelled: 0,
+        returned: 0,
+        today: 0,
+        total_cod: 0,
+      };
     }
-    return result;
   }
 
   async getStatusSummary(): Promise<Record<string, number>> {

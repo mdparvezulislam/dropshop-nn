@@ -20,6 +20,7 @@ import {
   Phone,
   MessageCircle,
   Copy,
+  Edit2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -67,6 +68,24 @@ export function OrderQuickActionMenu({
             <div>
               <p className="font-extrabold text-sm">View Full Order Details</p>
               <p className="text-[11px] text-muted-foreground">Open multi-tab drawer & customer signals</p>
+            </div>
+          </button>
+
+          {/* Full Edit Order */}
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              onSelectAction("edit_order", order);
+            }}
+            className="flex items-center gap-3 p-3 rounded-2xl border border-border hover:border-amber-500 hover:bg-amber-500/10 transition-colors text-left font-bold text-foreground"
+          >
+            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-600">
+              <Edit2 className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="font-extrabold text-sm">Full Edit Order (অর্ডার এডিট)</p>
+              <p className="text-[11px] text-muted-foreground">Modify products, pricing, delivery fee & advance paid</p>
             </div>
           </button>
 

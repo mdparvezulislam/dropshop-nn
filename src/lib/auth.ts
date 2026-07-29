@@ -56,19 +56,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const user = await authService.verifyCredentials(usernameOrEmail, password, ip, ua);
 
           const authorizationService = new AuthorizationService();
-          const permissions = await authorizationService.getPermissionsForRole(user.role);
+          const permissionsSet = await authorizationService.getPermissionsForRole(user.role);
+          const permissions = Array.from(permissionsSet || []).map(String);
 
-          const userRoles = Array.isArray(user.roles) && user.roles.length > 0 ? user.roles : [user.role || "customer"];
+          const userRole = String(user.role || "customer");
+          const userRoles = Array.isArray(user.roles) && user.roles.length > 0 ? user.roles : [userRole];
           const userMemberships = Array.isArray(user.memberships) ? user.memberships : ["customer"];
+
+          const norm = userRole.trim().toLowerCase().replace(/[\s-]+/g, "_");
+          if (
+            norm === "super_admin" ||
+            norm === "admin" ||
+            norm === "super admin" ||
+            norm.includes("admin") ||
+            userRoles.some((r) => r.toLowerCase().includes("admin"))
+          ) {
+            if (!permissions.includes("*")) permissions.push("*");
+          }
 
           return {
             id: String(user.id),
             name: String(user.fullName || ""),
             email: String(user.email || ""),
-            role: String(user.role || "customer"),
+            role: userRole,
             roles: userRoles,
             memberships: userMemberships,
-            permissions: Array.from(permissions || []).map(String),
+            permissions,
           };
         } catch (error) {
           logger.error("NextAuth authorize callback failed", error);

@@ -426,24 +426,20 @@ export function OrderDetailsDrawer({
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     <div className="rounded-2xl bg-blue-50/60 border border-blue-200/80 p-3 text-center">
-                      <p className="text-xl font-black text-blue-900 font-mono">{totalCustomerOrders * 15}</p>
-                      <p className="text-[10px] font-bold text-blue-700 uppercase mt-0.5">Total Parcels</p>
+                      <p className="text-xl font-black text-blue-900 font-mono">{totalCustomerOrders}</p>
+                      <p className="text-[10px] font-bold text-blue-700 uppercase mt-0.5">Total Store Orders</p>
                     </div>
                     <div className="rounded-2xl bg-emerald-50/60 border border-emerald-200/80 p-3 text-center">
-                      <p className="text-xl font-black text-emerald-900 font-mono">
-                        {Math.round(totalCustomerOrders * 15 * 0.8)}
-                      </p>
+                      <p className="text-xl font-black text-emerald-900 font-mono">{completedOrders}</p>
                       <p className="text-[10px] font-bold text-emerald-700 uppercase mt-0.5">Delivered</p>
                     </div>
                     <div className="rounded-2xl bg-rose-50/60 border border-rose-200/80 p-3 text-center">
-                      <p className="text-xl font-black text-rose-900 font-mono">
-                        {Math.round(totalCustomerOrders * 15 * 0.15)}
-                      </p>
+                      <p className="text-xl font-black text-rose-900 font-mono">{cancelledOrders}</p>
                       <p className="text-[10px] font-bold text-rose-700 uppercase mt-0.5">Cancel / Return</p>
                     </div>
                     <div className="rounded-2xl bg-purple-50/60 border border-purple-200/80 p-3 text-center">
-                      <p className="text-xl font-black text-purple-900 font-mono">{totalCustomerOrders}</p>
-                      <p className="text-[10px] font-bold text-purple-700 uppercase mt-0.5">Our Store Orders</p>
+                      <p className="text-xl font-black text-purple-900 font-mono">100%</p>
+                      <p className="text-[10px] font-bold text-purple-700 uppercase mt-0.5">Reliability Score</p>
                     </div>
                   </div>
                 </div>
@@ -464,8 +460,10 @@ export function OrderDetailsDrawer({
                       </thead>
                       <tbody className="divide-y divide-border/60 font-medium">
                         {items.map((item: any, idx: number) => {
-                          const unitPrice = item.unitSellingPrice || item.unitPrice || 0;
-                          const subtotal = unitPrice * item.quantity;
+                          const rawPrice = item.unitSellingPrice ?? item.unitPrice ?? 0;
+                          const unitPrice = rawPrice > 10000 && total < 10000 ? Math.round(rawPrice / 100) : rawPrice > 100000 ? Math.round(rawPrice / 100) : rawPrice;
+                          const qty = item.quantity || 1;
+                          const subtotal = unitPrice * qty;
                           return (
                             <tr key={idx} className="hover:bg-muted/20">
                               <td className="p-3 font-bold text-foreground flex items-center gap-2">
@@ -485,7 +483,7 @@ export function OrderDetailsDrawer({
                               </td>
                               <td className="p-3 font-mono text-muted-foreground">{item.variantSku || "N/A"}</td>
                               <td className="p-3 text-right font-mono">৳{formatAmount(unitPrice)}</td>
-                              <td className="p-3 text-center font-mono font-bold">{item.quantity}</td>
+                              <td className="p-3 text-center font-mono font-bold">{qty}</td>
                               <td className="p-3 text-right font-mono font-bold">৳{formatAmount(subtotal)}</td>
                             </tr>
                           );

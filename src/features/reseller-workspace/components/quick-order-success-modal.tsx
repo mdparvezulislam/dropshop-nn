@@ -5,6 +5,7 @@ import Link from "next/link";
 import {
   CheckCircle2,
   Printer,
+  Download,
   Copy,
   Share2,
   Plus,
@@ -30,6 +31,7 @@ export interface QuickOrderSuccessModalProps {
   onOpenChange: (open: boolean) => void;
   orderDetails: CreatedOrderDetails | null;
   onCreateAnother: () => void;
+  onPrintInvoice?: (orderId: string) => void;
 }
 
 export function QuickOrderSuccessModal({
@@ -37,6 +39,7 @@ export function QuickOrderSuccessModal({
   onOpenChange,
   orderDetails,
   onCreateAnother,
+  onPrintInvoice,
 }: QuickOrderSuccessModalProps): React.ReactElement {
   if (!orderDetails) return <></>;
 
@@ -52,7 +55,11 @@ export function QuickOrderSuccessModal({
   };
 
   const handlePrint = () => {
-    window.print();
+    if (onPrintInvoice && orderDetails.orderId) {
+      onPrintInvoice(orderDetails.orderId);
+    } else {
+      window.print();
+    }
   };
 
   return (
@@ -100,8 +107,13 @@ export function QuickOrderSuccessModal({
             <Button onClick={handleCopyOrder} variant="outline" size="sm" className="gap-1.5 font-bold text-xs">
               <Copy className="w-4 h-4" /> Copy Order
             </Button>
-            <Button onClick={handlePrint} variant="outline" size="sm" className="gap-1.5 font-bold text-xs">
-              <Printer className="w-4 h-4" /> Print Invoice
+            <Button
+              onClick={handlePrint}
+              variant="outline"
+              size="sm"
+              className="gap-1.5 font-bold text-xs bg-rose-50 dark:bg-rose-950/40 text-rose-600 hover:bg-rose-100 border-rose-200 dark:border-rose-900"
+            >
+              <Download className="w-4 h-4" /> Print / Download Invoice
             </Button>
           </div>
 

@@ -482,17 +482,46 @@ export async function completeRoleCheckoutAction(formData: unknown): Promise<{
       upazila: validated.customer.upazila || validated.customer.district,
       area: validated.customer.area || validated.customer.address.slice(0, 100),
       address: validated.customer.address,
-      deliveryNote: `payment:${validated.paymentMethod};deliveryCharge:${validated.deliveryCharge}`,
+      deliveryNote: `payment:${validated.paymentMethod};deliveryCharge:${validated.deliveryCharge};advancePaid:${validated.advancePaid || 0}`,
     };
 
     const result = await checkoutService.fullCheckout(cart.id, shipping, sessionUser?.id);
+
+    const orderId = result.draft?.id || result.checkout?.id || "";
+    if (orderId) {
+      try {
+        const { OrderModel } = await import("@/features/order/repositories/order-model");
+        const savedOrder = await OrderModel.findById(orderId);
+        if (savedOrder) {
+          const isDhaka = (validated.customer.district || "Dhaka").toLowerCase().includes("dhaka");
+          const standardCourierCostCents = isDhaka ? 6000 : 12000;
+          const subtotal = savedOrder.pricing?.subtotal || 0;
+          const totalCostBasis = savedOrder.profitPreview?.totalCostBasis || 0;
+          const grandTotal = subtotal + validated.deliveryCharge;
+          const advancePaid = validated.advancePaid || 0;
+          const dueAmount = Math.max(0, grandTotal - advancePaid);
+          const totalProfit = (subtotal - totalCostBasis) + (validated.deliveryCharge - standardCourierCostCents);
+
+          await OrderModel.findByIdAndUpdate(orderId, {
+            $set: {
+              "pricing.grandTotal": grandTotal,
+              "pricing.advancePaid": advancePaid,
+              "pricing.dueAmount": dueAmount,
+              "profitPreview.totalProfit": totalProfit,
+              "shipping.deliveryFee": validated.deliveryCharge,
+            },
+          });
+        }
+      } catch (err) {
+        logger.error("Failed to update OrderModel delivery/advance settings", err as Error);
+      }
+    }
 
     revalidatePath("/reseller/orders");
     revalidatePath("/wholesale/orders");
     revalidatePath("/dashboard/orders");
 
     const plainData = JSON.parse(JSON.stringify(result));
-    const orderId = result.draft?.id || result.checkout?.id || "";
     const orderNumber = (result.draft as any)?.orderNumber || (result.checkout as any)?.orderNumber || (orderId ? `ORD-${orderId.slice(-6)}` : "RSL-9999");
 
     return {
