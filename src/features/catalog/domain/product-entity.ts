@@ -138,6 +138,21 @@ export interface Product extends BaseDBEntity {
   metaTitle?: string;
   metaDescription?: string;
 
+  // Stock & Pricing Fields
+  stock?: number;
+  stockQuantity?: number;
+  costPrice?: number;
+  sellingPrice?: number;
+  resellerPrice?: number;
+  record?: any;
+  pricing?: {
+    sellingPrice?: number;
+    comparePrice?: number;
+    costPrice?: number;
+    resellerPrice?: number;
+    currency?: string;
+  };
+
   // Legacy Fields (kept with optional access & backward compatibility)
   gtin?: string;
   productType?: ProductType;

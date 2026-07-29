@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "crypto";
+import { env } from "@/config/env";
 
 /**
  * Signed order-access tokens.
@@ -14,9 +15,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 const DEFAULT_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
 
 function secret(): string {
-  const value = process.env.AUTH_SECRET;
-  if (!value) throw new Error("AUTH_SECRET is required for order access tokens");
-  return value;
+  return env.AUTH_SECRET;
 }
 
 function sign(payload: string): Buffer {

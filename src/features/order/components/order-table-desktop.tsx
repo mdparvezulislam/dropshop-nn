@@ -88,7 +88,7 @@ export function OrderTableDesktop({
   return (
     <div className="w-full overflow-x-auto rounded-2xl border border-border bg-card shadow-xs">
       <table className="w-full text-left text-xs border-collapse">
-        <thead className="bg-muted/50 text-muted-foreground uppercase tracking-wider font-extrabold text-[11px] border-b border-border/80">
+        <thead className="sticky top-0 z-10 bg-card/95 backdrop-blur-md text-muted-foreground uppercase tracking-wider font-extrabold text-[11px] border-b border-border/80 shadow-2xs">
           <tr>
             <th className="p-3.5 w-10 text-center">
               <Checkbox checked={isAllSelected} onCheckedChange={onToggleSelectAll} />

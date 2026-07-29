@@ -50,7 +50,7 @@ export default function ContactPage() {
                 <div>
                   <h3 className="text-xs font-black text-slate-500 uppercase">ইমেইল</h3>
                   <p className="text-sm font-black text-slate-900 mt-0.5">
-                    support@dropshop.com.bd
+                    {BRAND.supportEmail}
                   </p>
                   <p className="text-[11px] font-bold text-slate-600">
                     ২ ঘন্টার মধ্যে দ্রুত রেসপন্স

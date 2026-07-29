@@ -8,8 +8,8 @@ export class ExportService {
     this.orderRepository = new OrderRepository();
   }
 
-  async exportOrdersCsv(filter: Record<string, unknown>): Promise<string> {
-    const orders = await this.orderRepository.find(filter, { sort: { createdAt: -1 } } as any);
+  async exportOrdersCsv(filter: Record<string, unknown>, maxLimit = 1000): Promise<string> {
+    const orders = await this.orderRepository.find(filter, { sort: { createdAt: -1 }, limit: maxLimit } as any);
     const header =
       "Order#,Customer,Phone,Division,District,Items,Subtotal,Discount,Tax,Grand Total,Profit,Status,Source,Courier,Tracking,Created At";
     const rows = orders.map((o: Order) =>
@@ -35,9 +35,9 @@ export class ExportService {
     return [header, ...rows].join("\n");
   }
 
-  async exportCodCsv(filter: Record<string, unknown>): Promise<string> {
+  async exportCodCsv(filter: Record<string, unknown>, maxLimit = 1000): Promise<string> {
     const header = "Order#,Courier,Tracking,Expected,Received,Difference,Status,Date";
-    const orders = await this.orderRepository.find(filter, { sort: { createdAt: -1 } } as any);
+    const orders = await this.orderRepository.find(filter, { sort: { createdAt: -1 }, limit: maxLimit } as any);
     const rows = orders
       .filter((o: Order) => o.pricing?.grandTotal > 0)
       .map((o: Order) =>
@@ -55,9 +55,9 @@ export class ExportService {
     return [header, ...rows].join("\n");
   }
 
-  async exportCourierReportCsv(filter: Record<string, unknown>): Promise<string> {
+  async exportCourierReportCsv(filter: Record<string, unknown>, maxLimit = 1000): Promise<string> {
     const header = "Order#,Courier,Tracking,Status,District,Amount,Weight";
-    const orders = await this.orderRepository.find(filter, { sort: { createdAt: -1 } } as any);
+    const orders = await this.orderRepository.find(filter, { sort: { createdAt: -1 }, limit: maxLimit } as any);
     const rows = orders
       .filter((o: Order) => o.shippingInfo?.courierName)
       .map((o: Order) =>

@@ -122,9 +122,62 @@ export function OrderManagementWorkspace({
     }
   }, [page, statusFilter, typeFilter, search, dateFilter, districtFilter]);
 
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
+
+  // Keyboard Shortcuts Listener (ORDER-004)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isCmdOrCtrl = e.metaKey || e.ctrlKey;
+      const target = e.target as HTMLElement;
+      const isInput = target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable;
+
+      // Cmd+F or Ctrl+F -> Focus Search
+      if (isCmdOrCtrl && e.key.toLowerCase() === "f") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+
+      // Shift+A -> Select All (when not typing in an input)
+      if (e.shiftKey && e.key.toUpperCase() === "A" && !isInput) {
+        e.preventDefault();
+        if (orders.length > 0) {
+          if (selectedIds.size === orders.length) {
+            setSelectedIds(new Set());
+          } else {
+            setSelectedIds(new Set(orders.map((o) => o.id || o._id)));
+          }
+        }
+      }
+
+      // Cmd+P or Ctrl+P -> Print selected invoices (when not typing)
+      if (isCmdOrCtrl && e.key.toLowerCase() === "p" && !isInput) {
+        e.preventDefault();
+        if (selectedIds.size > 0) {
+          const firstSelected = orders.find((o) => selectedIds.has(o.id || o._id));
+          if (firstSelected) printOrderInvoice(firstSelected);
+        } else {
+          toast.info("প্রিন্ট করতে একটি অর্ডার সিলেক্ট করুন");
+        }
+      }
+
+      // Esc -> Close Modals/Drawers
+      if (e.key === "Escape") {
+        setIsDrawerOpen(false);
+        setIsPickupModalOpen(false);
+        setIsPaymentModalOpen(false);
+        setIsAddressModalOpen(false);
+        setIsMenuOpen(false);
+        setShowFiltersModal(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [orders, selectedIds]);
 
   // Selection Logic
   const handleToggleSelectAll = () => {
@@ -351,7 +404,8 @@ export function OrderManagementWorkspace({
           <div className="relative w-full sm:max-w-md">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search by Order ID, Phone, Customer, Tracking, Invoice..."
+              ref={searchInputRef}
+              placeholder="Search by Order ID, Phone, Customer, Tracking (Cmd+F to focus)..."
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);

@@ -19,6 +19,7 @@ import {
   Building2,
   Factory,
   Crown,
+  Loader2,
 } from "lucide-react";
 import { usePermissions } from "@/hooks/use-permissions";
 
@@ -41,16 +42,23 @@ export function AccountMenu() {
   const { data: session, status } = useSession();
   const { isSuperAdmin } = usePermissions();
   const isLoggedIn = status === "authenticated" && !!session?.user;
+  const isLoading = status === "loading";
 
   return (
     <div className="relative">
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-center h-9 w-9 rounded-xl bg-slate-100 border border-slate-300 text-slate-800 hover:text-amber-600 hover:border-amber-400 transition-colors shadow-2xs"
+        disabled={isLoading}
+        className="flex items-center justify-center h-9 w-9 rounded-xl bg-slate-100 border border-slate-300 text-slate-800 hover:text-amber-600 hover:border-amber-400 transition-colors shadow-2xs disabled:opacity-60"
         aria-label="Account menu"
+        aria-expanded={open}
       >
-        <User className="h-4.5 w-4.5" />
+        {isLoading ? (
+          <Loader2 className="h-4 w-4 animate-spin text-slate-500" />
+        ) : (
+          <User className="h-4.5 w-4.5" />
+        )}
       </button>
 
       <AnimatePresence>

@@ -1,10 +1,5 @@
 import type { Metadata } from "next";
-import {
-  getPublicFeaturedProductsAction,
-  getPublicNewArrivalsAction,
-  getPublicFlashDealsAction,
-  getPublicCategoriesAction,
-} from "@/features/catalog/actions/public-actions";
+import { getPublicHomepageDataAction } from "@/features/storefront/actions/storefront-actions";
 import { SITE_LOCALE } from "@/config/site";
 import { BRAND } from "@/config/brand";
 
@@ -33,18 +28,21 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage(): Promise<React.ReactElement> {
-  const [flashDealsRes, newArrivalsRes, featuredRes, categoriesRes] = await Promise.all([
-    getPublicFlashDealsAction(10),
-    getPublicNewArrivalsAction(12),
-    getPublicFeaturedProductsAction(8),
-    getPublicCategoriesAction(),
-  ]);
+  const result = await getPublicHomepageDataAction();
+  const data = result.data ?? {
+    categories: [],
+    featuredProducts: [],
+    flashDeals: [],
+    newArrivals: [],
+    trendingProducts: [],
+    brands: [],
+    collections: [],
+    blogPosts: [],
+    siteSettings: { brandName: BRAND.publicName, tagline: BRAND.tagline },
+    telemetry: { builtAt: new Date().toISOString(), buildDurationMs: 0 },
+  };
 
-  // A failed fetch omits its section — no fake fallback data, ever.
-  const flashDeals = flashDealsRes.success ? flashDealsRes.data : [];
-  const newArrivals = newArrivalsRes.success ? newArrivalsRes.data : [];
-  const featured = featuredRes.success ? featuredRes.data : [];
-  const categories = categoriesRes.success ? categoriesRes.data : [];
+  const { flashDeals, newArrivals, featuredProducts, categories } = data;
 
   // The first product section actually rendered gets LCP priority on its first row.
   const firstProductSection: "flash" | "new" | "featured" =
@@ -59,7 +57,7 @@ export default async function HomePage(): Promise<React.ReactElement> {
       <CampaignBannerSection />
       <NewArrivalsSection products={newArrivals} priorityFirstRow={firstProductSection === "new"} />
       <FeaturedProductsSection
-        products={featured}
+        products={featuredProducts}
         priorityFirstRow={firstProductSection === "featured"}
       />
       <WhyChooseUsSection />

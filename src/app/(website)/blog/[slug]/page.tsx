@@ -5,6 +5,9 @@ import type { CmsContent } from "@/features/cms/domain/content-entity";
 import { buildArticleJsonLd, buildBreadcrumbJsonLd } from "@/features/cms/utils/blog-utils";
 import { BlogArticle } from "@/components/website/blog/blog-article";
 
+import { SITE_URL } from "@/config/site";
+import { BRAND } from "@/config/brand";
+
 export const dynamic = "force-dynamic";
 
 interface BlogPostPageProps {
@@ -17,7 +20,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   const post = (result.success ? result.data?.post : null) as CmsContent | null;
 
   if (!post) {
-    return { title: "Article Not Found - DropshopNN" };
+    return { title: `Article Not Found - ${BRAND.publicName}` };
   }
 
   const title = post.seo?.metaTitle || post.title;
@@ -71,9 +74,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     });
 
   const breadcrumbLd = buildBreadcrumbJsonLd([
-    { name: "Home", url: "https://dropshopnn.com/" },
-    { name: "Blog", url: "https://dropshopnn.com/blog" },
-    { name: post.title, url: `https://dropshopnn.com/blog/${post.slug}` },
+    { name: "Home", url: `${SITE_URL}/` },
+    { name: "Blog", url: `${SITE_URL}/blog` },
+    { name: post.title, url: `${SITE_URL}/blog/${post.slug}` },
   ]);
 
   return (

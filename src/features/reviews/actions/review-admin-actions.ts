@@ -5,7 +5,6 @@ import { revalidatePath } from "next/cache";
 import { requirePermission } from "@/lib/action-guard";
 import { ReviewService } from "../services/review-service";
 import { ReviewRepository } from "../repositories/review-repository";
-import { ReviewModel } from "../repositories/review-model";
 import type { Review, ReviewStatus } from "../domain/review-entity";
 import { logger } from "@/lib/utils/logger";
 import { purgeTags } from "@/lib/cache";
@@ -118,18 +117,9 @@ export async function getReviewCountsAction(): Promise<
 > {
   try {
     await requirePermission("products.product.view");
-
-    const rows = await ReviewModel.aggregate<{ _id: string; count: number }>([
-      { $match: { isDeleted: { $ne: true } } },
-      { $group: { _id: "$status", count: { $sum: 1 } } },
-    ]);
-    const map = new Map<string, number>(rows.map((r: { _id: string; count: number }) => [r._id, r.count]));
-    const published = map.get("published") ?? 0;
-    const pending = map.get("pending") ?? 0;
-    const rejected = map.get("rejected") ?? 0;
-    const hidden = map.get("hidden") ?? 0;
-
-    return { success: true, data: { published, pending, rejected, hidden } };
+    const repo = new ReviewRepository();
+    const counts = await repo.getStatusCounts();
+    return { success: true, data: counts };
   } catch (error) {
     logger.error("getReviewCountsAction failed", error);
     return { success: false, error: "পরিসংখ্যান লোড করা যায়নি" };

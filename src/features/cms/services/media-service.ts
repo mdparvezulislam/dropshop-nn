@@ -1,6 +1,7 @@
 import { MediaAssetRepository, type MediaFilter } from "../repositories/media-repository";
 import type { MediaAsset } from "../domain/media-entity";
 import type { CreateMediaInput } from "../types/validation";
+import { env } from "@/config/env";
 import { getImageKitClient } from "@/lib/imagekit";
 import { NotFoundError } from "@/lib/errors/app-error";
 import { logger } from "@/lib/utils/logger";
@@ -16,7 +17,7 @@ export class MediaService {
       token: auth.token,
       expire: auth.expire,
       signature: auth.signature,
-      publicKey: process.env.IMAGEKIT_PUBLIC_KEY || "",
+      publicKey: env.IMAGEKIT_PUBLIC_KEY,
     };
   }
 

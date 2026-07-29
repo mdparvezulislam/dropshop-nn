@@ -85,7 +85,7 @@ export class PasswordResetService {
       userId: user.id,
       email: user.email,
       ipAddress,
-      token: process.env.NODE_ENV === "development" ? token : undefined,
+      token: env.NODE_ENV === "development" ? token : undefined,
     });
 
     return { success: true, message: "Password reset instructions sent to your email." };

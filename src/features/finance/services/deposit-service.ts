@@ -220,6 +220,28 @@ export class DepositService {
       return updated;
     });
   }
+
+  async processAutomatedPaymentCallback(
+    depositId: string,
+    providerId: string,
+    transactionId: string,
+    gatewayPayload?: unknown,
+  ): Promise<Deposit> {
+    const { PaymentGatewayRegistry } = await import("../adapters/payment-gateway-registry");
+    const provider = PaymentGatewayRegistry.get(providerId);
+    const verification = await provider.verifyPayment(transactionId);
+
+    if (!verification.success || verification.status !== "paid") {
+      await this.rejectDeposit(depositId, `gateway_${providerId}`, verification.error || "Payment verification failed");
+      throw new Error(`Automated payment verification failed: ${verification.error || "Unverified"}`);
+    }
+
+    return this.approveDeposit(
+      depositId,
+      `gateway_${providerId}`,
+      `Automated verification via ${provider.name}. TrxID: ${verification.transactionId || transactionId}`,
+    );
+  }
 }
 
 export default DepositService;

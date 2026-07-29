@@ -1,5 +1,4 @@
 import { RiskRepository, type RiskFlagEntity } from "../repositories/risk-repository";
-import { RiskModel } from "../repositories/risk-model";
 import { OrderRepository } from "../repositories/order-repository";
 import { OrderTimelineService } from "./order-timeline-service";
 import { EventBus } from "@/lib/event-bus";
@@ -198,12 +197,7 @@ export class RiskService {
 
   async getStats(): Promise<RiskStats> {
     const byLevel = await this.riskRepository.countByRiskLevel();
-    const pipeline = [{ $group: { _id: "$category", count: { $sum: 1 } } }];
-    const byCatResults = await (RiskModel as any).aggregate(pipeline);
-    const byCategory: Record<string, number> = {};
-    for (const r of byCatResults) {
-      byCategory[r._id] = r.count;
-    }
+    const byCategory = await this.riskRepository.countByCategory();
     const total = Object.values(byLevel).reduce((a, b) => a + b, 0);
     const open = await this.riskRepository.count({ resolved: false });
     const resolved = await this.riskRepository.count({ resolved: true });

@@ -1,8 +1,8 @@
 import { businessMembershipRepository } from "../repositories/business-membership-repository";
 import { businessMembershipApplicationRepository } from "../repositories/business-membership-application-repository";
-import { BusinessMembershipHistoryModel } from "../repositories/business-membership-history-model";
-import { ApplicationNotesModel } from "../repositories/application-notes-model";
-import { UserModel } from "@/features/auth/repositories/user-model";
+import { businessMembershipHistoryRepository } from "../repositories/business-membership-history-repository";
+import { applicationNotesRepository } from "../repositories/application-notes-repository";
+import { UserRepository } from "@/features/auth/repositories/user-repository";
 import NotificationService from "@/features/notification/services/notification-service";
 import {
   BusinessMembershipApplicationEntity,
@@ -16,6 +16,7 @@ import { ValidationError, NotFoundError, ForbiddenError } from "@/lib/errors/app
 const notificationService = new NotificationService();
 
 export class BusinessMembershipService {
+  private readonly userRepository = new UserRepository();
   /**
    * Submit a new membership application (Reseller or Wholesaler)
    */
@@ -59,7 +60,7 @@ export class BusinessMembershipService {
     });
 
     // History Log
-    await BusinessMembershipHistoryModel.create({
+    await businessMembershipHistoryRepository.create({
       userId: input.userId,
       applicationId: app.id,
       membershipType: input.membershipType,
@@ -125,7 +126,7 @@ export class BusinessMembershipService {
     if (!updated) throw new NotFoundError("আবেদন আপডেট করা যায়নি");
 
     // History Log
-    await BusinessMembershipHistoryModel.create({
+    await businessMembershipHistoryRepository.create({
       userId: input.userId,
       applicationId: input.applicationId,
       membershipType: app.membershipType,
@@ -187,6 +188,7 @@ export class BusinessMembershipService {
     const typeLabel = app.membershipType === "reseller" ? "রিসেলার" : "হোলসেলার";
 
     // If Approved, assign membership & update user record
+    // If Approved, assign membership & update user record
     if (input.action === "approve") {
       await businessMembershipRepository.upsertMembership(
         app.userId,
@@ -195,13 +197,15 @@ export class BusinessMembershipService {
         "active",
       );
 
-      // Add to user's memberships array in UserModel
-      await UserModel.findByIdAndUpdate(app.userId, {
-        $addToSet: { memberships: app.membershipType },
-      });
+      // Add to user's memberships array via userRepository
+      const existingUser = await this.userRepository.findById(app.userId);
+      if (existingUser) {
+        const memberships = Array.from(new Set([...(existingUser.memberships || []), app.membershipType]));
+        await this.userRepository.update(app.userId, { memberships } as any);
+      }
 
       // History Log for approval
-      await BusinessMembershipHistoryModel.create({
+      await businessMembershipHistoryRepository.create({
         userId: app.userId,
         applicationId: app.id,
         membershipType: app.membershipType,
@@ -213,7 +217,7 @@ export class BusinessMembershipService {
         note: input.reviewNotes || `${typeLabel} আবেদন অনুমোদন করা হয়েছে`,
       });
 
-      await BusinessMembershipHistoryModel.create({
+      await businessMembershipHistoryRepository.create({
         userId: app.userId,
         applicationId: app.id,
         membershipType: app.membershipType,
@@ -237,7 +241,7 @@ export class BusinessMembershipService {
         // Non-blocking
       }
     } else if (input.action === "reject") {
-      await BusinessMembershipHistoryModel.create({
+      await businessMembershipHistoryRepository.create({
         userId: app.userId,
         applicationId: app.id,
         membershipType: app.membershipType,
@@ -261,7 +265,7 @@ export class BusinessMembershipService {
         // Non-blocking
       }
     } else if (input.action === "need_info") {
-      await BusinessMembershipHistoryModel.create({
+      await businessMembershipHistoryRepository.create({
         userId: app.userId,
         applicationId: app.id,
         membershipType: app.membershipType,
@@ -285,7 +289,7 @@ export class BusinessMembershipService {
         // Non-blocking
       }
     } else {
-      await BusinessMembershipHistoryModel.create({
+      await businessMembershipHistoryRepository.create({
         userId: app.userId,
         applicationId: app.id,
         membershipType: app.membershipType,
@@ -311,7 +315,7 @@ export class BusinessMembershipService {
     adminRole: string;
     actionNote?: string;
   }): Promise<{ userId: string; updatedMemberships: string[] }> {
-    const user = await UserModel.findById(input.targetUserId);
+    const user = await this.userRepository.findById(input.targetUserId);
     if (!user) {
       throw new NotFoundError("ব্যবহারকারীকে পাওয়া যায়নি");
     }
@@ -322,8 +326,7 @@ export class BusinessMembershipService {
     );
 
     // Update User Document
-    user.memberships = newMemberships;
-    await user.save();
+    await this.userRepository.update(input.targetUserId, { memberships: newMemberships } as any);
 
     // Sync BusinessMembership DB Records
     for (const type of newMemberships) {
@@ -336,7 +339,7 @@ export class BusinessMembershipService {
     }
 
     // Log History
-    await BusinessMembershipHistoryModel.create({
+    await businessMembershipHistoryRepository.create({
       userId: input.targetUserId,
       membershipType: newMemberships.join(", "),
       action: "membership_assigned",
@@ -376,7 +379,7 @@ export class BusinessMembershipService {
     note: string;
     isInternal?: boolean;
   }) {
-    return await ApplicationNotesModel.create({
+    return await applicationNotesRepository.create({
       applicationId: input.applicationId,
       authorId: input.authorId,
       authorName: input.authorName,
@@ -389,14 +392,14 @@ export class BusinessMembershipService {
    * Fetch application notes
    */
   public async getApplicationNotes(applicationId: string) {
-    return await ApplicationNotesModel.find({ applicationId }).sort({ createdAt: 1 }).lean();
+    return await applicationNotesRepository.findByApplication(applicationId);
   }
 
   /**
    * Fetch membership history for user
    */
   public async getUserMembershipHistory(userId: string) {
-    return await BusinessMembershipHistoryModel.find({ userId }).sort({ createdAt: -1 }).lean();
+    return await businessMembershipHistoryRepository.findByUser(userId);
   }
 }
 

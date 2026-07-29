@@ -18,6 +18,7 @@ import { WishlistButton } from "@/components/website/wishlist/wishlist-button";
 import { ShareMenu } from "@/components/website/share/share-menu";
 import { useLocalCart } from "@/features/checkout/store/local-cart";
 import { usePermissions } from "@/hooks/use-permissions";
+import { PricingValidationService } from "@/features/pricing/services/pricing-validation-service";
 import type { ProductVariantEntity } from "@/features/catalog/domain/product-dto";
 import type {
   PublicProductPricing,
@@ -119,11 +120,40 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
   const featuredImage =
     data.media.find((m) => m.isFeatured)?.url ?? data.media[0]?.url ?? PRODUCT_IMAGE_PLACEHOLDER;
 
+  const [resellerCustomPrice, setResellerCustomPrice] = React.useState<number | null>(null);
+
+  const effectiveUnitPrice =
+    isReseller && resellerCustomPrice !== null && resellerCustomPrice > 0
+      ? resellerCustomPrice
+      : unitPrice;
+
+  const validation = PricingValidationService.validateResellerSellingPrice({
+    customSellingPrice: effectiveUnitPrice,
+    resellerPrice: pricing.resellerPrice,
+    minResellerPrice: pricing.minResellerPrice,
+    retailPrice: unitPrice > 0 ? unitPrice : pricing.retailPrice,
+  });
+
+  const effectiveResellerMinPrice = validation.floorPrice;
+  const isResellerInvalidPrice = isReseller && pricing.resellerPrice !== undefined && !validation.isValid;
+
   // ── Actions ──────────────────────────────────────────────────────────
   const addToCart = React.useCallback((): boolean => {
     if (outOfStock) return false;
-    if (unitPrice <= 0) {
+    if (effectiveUnitPrice <= 0) {
       toast.error("এই প্রোডাক্টের মূল্য এখনো নির্ধারিত হয়নি। অর্ডারের জন্য যোগাযোগ করুন।");
+      return false;
+    }
+    if (isReseller && isResellerInvalidPrice) {
+      toast.error(
+        validation.error ??
+          `নূন্যতম বিক্রয় মূল্য ৳${effectiveResellerMinPrice} (রিসেলার মূল্যের চেয়ে কম দামে বিক্রি করা সম্ভব নয়)`,
+      );
+      const inputEl = document.getElementById("reseller-selling-price");
+      if (inputEl) {
+        inputEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        inputEl.focus();
+      }
       return false;
     }
     cart.addItem(
@@ -132,7 +162,9 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
         slug: data.slug,
         name: data.name,
         image: variant?.image || featuredImage,
-        unitPrice,
+        unitPrice: effectiveUnitPrice,
+        resellerPrice: pricing.resellerPrice,
+        customSellingPrice: isReseller ? effectiveUnitPrice : undefined,
         variantSku: variant?.sku,
         variantLabel,
         maxQuantity,
@@ -145,7 +177,11 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
     return true;
   }, [
     outOfStock,
-    unitPrice,
+    effectiveUnitPrice,
+    isReseller,
+    isResellerInvalidPrice,
+    effectiveResellerMinPrice,
+    pricing.resellerPrice,
     cart,
     data,
     variant,
@@ -316,6 +352,7 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
               comparePrice={pricing.comparePrice}
               currency={pricing.currency}
               quantity={quantity}
+              onPriceChange={(customPrice) => setResellerCustomPrice(customPrice)}
             />
           )}
 
@@ -378,7 +415,7 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
               <Button
                 size="lg"
                 onClick={addToCart}
-                disabled={outOfStock}
+                disabled={outOfStock || isResellerInvalidPrice}
                 className="flex-1 min-h-12 text-xs font-black bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-md active:scale-[0.98] disabled:opacity-40"
               >
                 <ShoppingBag className="h-4 w-4 mr-2" aria-hidden />
@@ -387,7 +424,7 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
               <Button
                 size="lg"
                 onClick={buyNow}
-                disabled={outOfStock}
+                disabled={outOfStock || isResellerInvalidPrice}
                 className="flex-1 min-h-12 text-xs font-black bg-slate-900 hover:bg-slate-800 text-white shadow-md active:scale-[0.98] disabled:opacity-40"
               >
                 <Zap className="h-4 w-4 mr-2 text-amber-400" aria-hidden />
@@ -523,7 +560,7 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
           <Button
             type="button"
             onClick={addToCart}
-            disabled={outOfStock}
+            disabled={outOfStock || isResellerInvalidPrice}
             className="flex-1 h-12 text-sm font-black bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-slate-950 rounded-xl shadow-sm transition-transform disabled:opacity-40"
           >
             <ShoppingBag className="w-4 h-4 mr-1.5" aria-hidden />
@@ -532,7 +569,7 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
           <Button
             type="button"
             onClick={buyNow}
-            disabled={outOfStock}
+            disabled={outOfStock || isResellerInvalidPrice}
             aria-label="এখনই কিনুন"
             className="h-12 px-4 text-sm font-black bg-slate-900 hover:bg-slate-800 active:scale-[0.98] text-white rounded-xl shadow-sm transition-transform disabled:opacity-40"
           >

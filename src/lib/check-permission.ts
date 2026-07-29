@@ -10,6 +10,21 @@ export interface SessionUser {
 
 export type Session = { user?: SessionUser } | null;
 
+const LEGACY_PERMISSION_MAP: Record<string, string> = {
+  "Product.View": "products.product.view",
+  "Product.Read": "products.product.view",
+  "Product.Create": "products.product.create",
+  "Product.Update": "products.product.update",
+  "Product.Delete": "products.product.delete",
+  "Product.Publish": "products.product.publish",
+  "Product.Archive": "products.product.archive",
+  "Identity.View": "identity.identity.view",
+  "Identity.Manage": "identity.identity.manage",
+  "Order.View": "orders.order.view",
+  "Order.Update": "orders.order.update",
+  "Customer.View": "customers.customer.view",
+};
+
 /**
  * Check if the session has a specific permission. Super admin & Admin bypass all restrictions. Throws on failure.
  */
@@ -19,11 +34,14 @@ export function checkPermission(session: Session, permission: string): void {
   }
   const userRole = session.user?.role ? normalize(session.user.role) : "";
   const permissions = session.user?.permissions || [];
+  const canonical = LEGACY_PERMISSION_MAP[permission] || permission.toLowerCase();
+
   if (
     userRole === "super_admin" ||
     userRole === "admin" ||
     permissions.includes("*") ||
-    permissions.includes(permission)
+    permissions.includes(permission) ||
+    permissions.includes(canonical)
   ) {
     return;
   }
@@ -40,7 +58,11 @@ export function checkAnyPermission(session: Session, permissions: string[]): voi
   const userRole = session.user?.role ? normalize(session.user.role) : "";
   const userPermissions = session.user?.permissions || [];
   if (userRole === "super_admin" || userRole === "admin" || userPermissions.includes("*")) return;
-  const hasAny = permissions.some((p) => userPermissions.includes(p));
+  const hasAny = permissions.some(
+    (p) =>
+      userPermissions.includes(p) ||
+      userPermissions.includes(LEGACY_PERMISSION_MAP[p] || p.toLowerCase()),
+  );
   if (!hasAny) {
     throw new ForbiddenError(`Missing required permissions: ${permissions.join(" or ")}`);
   }

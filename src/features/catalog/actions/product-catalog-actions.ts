@@ -13,6 +13,8 @@ import { InventoryRepository } from "@/features/inventory/repositories/inventory
 import { checkPermission, sessionActor } from "@/lib/check-permission";
 import { logger } from "@/lib/utils/logger";
 import { revalidatePath } from "next/cache";
+import { purgeTags } from "@/lib/cache";
+import { CACHE_TAGS } from "@/config/cache-tags";
 
 export interface CatalogSummaryStats {
   total: number;
@@ -490,6 +492,17 @@ const bulkIdsWithStatusSchema = z.object({
 
 // --- Bulk actions ---
 
+function purgePublicCatalogCache(): void {
+  purgeTags(
+    CACHE_TAGS.PRODUCTS,
+    CACHE_TAGS.FEATURED_PRODUCTS,
+    CACHE_TAGS.FLASH_DEALS,
+    CACHE_TAGS.NEW_ARRIVALS,
+    CACHE_TAGS.TRENDING_PRODUCTS,
+    CACHE_TAGS.HOMEPAGE,
+  );
+}
+
 export async function bulkPublishProductsAction(ids: string[]): Promise<{
   success: boolean;
   data?: { processed: number; failed: number };
@@ -497,7 +510,7 @@ export async function bulkPublishProductsAction(ids: string[]): Promise<{
 }> {
   try {
     const session = await auth();
-    checkPermission(session, "Product.Update");
+    checkPermission(session, "products.product.update");
     const validated = bulkIdsSchema.parse({ ids });
     const service = new ProductService();
     const actor = sessionActor(session);
@@ -514,6 +527,7 @@ export async function bulkPublishProductsAction(ids: string[]): Promise<{
     }
 
     revalidatePath("/dashboard/products");
+    purgePublicCatalogCache();
     return { success: true, data: { processed, failed } };
   } catch (err: unknown) {
     logger.error("Failed bulk publish products", err);
@@ -531,7 +545,7 @@ export async function bulkArchiveProductsAction(
 }> {
   try {
     const session = await auth();
-    checkPermission(session, "Product.Update");
+    checkPermission(session, "products.product.update");
     const validated = bulkIdsOptionalReasonSchema.parse({ ids, reason });
     const service = new ProductService();
     const actor = sessionActor(session);
@@ -548,6 +562,7 @@ export async function bulkArchiveProductsAction(
     }
 
     revalidatePath("/dashboard/products");
+    purgePublicCatalogCache();
     return { success: true, data: { processed, failed } };
   } catch (err: unknown) {
     logger.error("Failed bulk archive products", err);
@@ -562,7 +577,7 @@ export async function bulkDeleteProductsAction(ids: string[]): Promise<{
 }> {
   try {
     const session = await auth();
-    checkPermission(session, "Product.Delete");
+    checkPermission(session, "products.product.delete");
     const validated = bulkIdsSchema.parse({ ids });
     const service = new ProductService();
     const actor = sessionActor(session);
@@ -579,6 +594,7 @@ export async function bulkDeleteProductsAction(ids: string[]): Promise<{
     }
 
     revalidatePath("/dashboard/products");
+    purgePublicCatalogCache();
     return { success: true, data: { processed, failed } };
   } catch (err: unknown) {
     logger.error("Failed bulk delete products", err);
@@ -593,11 +609,9 @@ export async function bulkRestoreProductsAction(ids: string[]): Promise<{
 }> {
   try {
     const session = await auth();
-    checkPermission(session, "Product.Update");
+    checkPermission(session, "products.product.update");
     const validated = bulkIdsSchema.parse({ ids });
 
-    // Routed through the service so restores are audited and versioned like every
-    // other lifecycle transition, instead of writing to the Mongoose model directly.
     const service = new ProductService();
     const actor = sessionActor(session);
 
@@ -613,6 +627,7 @@ export async function bulkRestoreProductsAction(ids: string[]): Promise<{
     }
 
     revalidatePath("/dashboard/products");
+    purgePublicCatalogCache();
     return { success: true, data: { processed, failed } };
   } catch (err: unknown) {
     logger.error("Failed bulk restore products", err);
@@ -630,7 +645,7 @@ export async function bulkCategoryChangeAction(
 }> {
   try {
     const session = await auth();
-    checkPermission(session, "Product.Update");
+    checkPermission(session, "products.product.update");
     const validated = bulkIdsWithCategorySchema.parse({ ids, categoryId });
     const service = new ProductService();
     const actor = sessionActor(session);
@@ -647,6 +662,7 @@ export async function bulkCategoryChangeAction(
     }
 
     revalidatePath("/dashboard/products");
+    purgePublicCatalogCache();
     return { success: true, data: { processed, failed } };
   } catch (err: unknown) {
     logger.error("Failed bulk category change", err);
@@ -667,7 +683,7 @@ export async function bulkBrandChangeAction(
 }> {
   try {
     const session = await auth();
-    checkPermission(session, "Product.Update");
+    checkPermission(session, "products.product.update");
     const validated = bulkIdsWithBrandSchema.parse({ ids, brandId });
     const service = new ProductService();
     const actor = sessionActor(session);
@@ -684,6 +700,7 @@ export async function bulkBrandChangeAction(
     }
 
     revalidatePath("/dashboard/products");
+    purgePublicCatalogCache();
     return { success: true, data: { processed, failed } };
   } catch (err: unknown) {
     logger.error("Failed bulk brand change", err);
@@ -704,7 +721,7 @@ export async function bulkStatusChangeAction(
 }> {
   try {
     const session = await auth();
-    checkPermission(session, "Product.Update");
+    checkPermission(session, "products.product.update");
     const validated = bulkIdsWithStatusSchema.parse({ ids, status });
     const service = new ProductService();
     const actor = sessionActor(session);
@@ -713,8 +730,6 @@ export async function bulkStatusChangeAction(
     let failed = 0;
     for (const id of validated.ids) {
       try {
-        // Service-routed: the direct model write skipped validation, audit trail,
-        // version history and the catalog event bus.
         await service.update(id, { status: validated.status }, actor);
         processed++;
       } catch {
@@ -723,6 +738,7 @@ export async function bulkStatusChangeAction(
     }
 
     revalidatePath("/dashboard/products");
+    purgePublicCatalogCache();
     return { success: true, data: { processed, failed } };
   } catch (err: unknown) {
     logger.error("Failed bulk status change", err);

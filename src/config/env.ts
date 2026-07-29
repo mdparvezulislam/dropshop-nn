@@ -100,6 +100,63 @@ const envSchema = z.object({
   // Recovery Token Settings
   RECOVERY_TOKEN_EXPIRATION_HOURS: z.coerce.number().default(24),
   PASSWORD_RESET_TOKEN_EXPIRATION_HOURS: z.coerce.number().default(1),
+
+  // ==========================================================================
+  // Courier Provider Credentials
+  // ==========================================================================
+  STEADFAST_API_KEY: z.string().optional().default(""),
+  STEADFAST_SECRET_KEY: z.string().optional().default(""),
+  STEADFAST_BASE_URL: z.string().url().optional().default("https://portal.packzy.com/api/v1"),
+
+  PATHAO_CLIENT_ID: z.string().optional().default(""),
+  PATHAO_CLIENT_SECRET: z.string().optional().default(""),
+  PATHAO_USERNAME: z.string().optional().default(""),
+  PATHAO_PASSWORD: z.string().optional().default(""),
+  PATHAO_BASE_URL: z.string().url().optional().default("https://api.pathao.com"),
+
+  REDX_API_TOKEN: z.string().optional().default(""),
+  REDX_BASE_URL: z.string().url().optional().default("https://openapi.redx.com.bd/v1.0.0"),
+
+  PAPERFLY_USERNAME: z.string().optional().default(""),
+  PAPERFLY_PASSWORD: z.string().optional().default(""),
+  PAPERFLY_KEY: z.string().optional().default(""),
+  PAPERFLY_BASE_URL: z.string().url().optional().default("https://api.paperfly.com.bd"),
+
+  ECOURIER_API_KEY: z.string().optional().default(""),
+  ECOURIER_API_SECRET: z.string().optional().default(""),
+  ECOURIER_USER_ID: z.string().optional().default(""),
+  ECOURIER_BASE_URL: z.string().url().optional().default("https://backoffice.ecourier.com.bd/api"),
+
+  SUNDARBAN_API_KEY: z.string().optional().default(""),
+  SUNDARBAN_SECRET_KEY: z.string().optional().default(""),
+  SUNDARBAN_BASE_URL: z.string().url().optional().default("https://api.sundarban.com.bd/v1"),
+
+  // ==========================================================================
+  // Payment Gateway Credentials
+  // ==========================================================================
+  BKASH_APP_KEY: z.string().optional().default(""),
+  BKASH_APP_SECRET: z.string().optional().default(""),
+  BKASH_USERNAME: z.string().optional().default(""),
+  BKASH_PASSWORD: z.string().optional().default(""),
+  BKASH_BASE_URL: z.string().url().optional().default("https://checkout.sandbox.bka.sh/v1.2.0-beta"),
+
+  NAGAD_MERCHANT_ID: z.string().optional().default(""),
+  NAGAD_PUBLIC_KEY: z.string().optional().default(""),
+  NAGAD_PRIVATE_KEY: z.string().optional().default(""),
+  NAGAD_BASE_URL: z.string().url().optional().default("https://sandbox.mynagad.com:10080/remote-payment-gateway-1.0/api/dfs"),
+
+  ROCKET_MERCHANT_ID: z.string().optional().default(""),
+  ROCKET_PASSWORD: z.string().optional().default(""),
+  ROCKET_BASE_URL: z.string().url().optional().default("https://rocket.dutchbanglabank.com/api"),
+
+  SSLCOMMERZ_STORE_ID: z.string().optional().default(""),
+  SSLCOMMERZ_STORE_PASSWORD: z.string().optional().default(""),
+  SSLCOMMERZ_BASE_URL: z.string().url().optional().default("https://sandbox.sslcommerz.com"),
+  SSLCOMMERZ_IS_SANDBOX: z
+    .enum(["true", "false", "1", "0"])
+    .optional()
+    .transform((v) => v === "true" || v === "1")
+    .default(true),
 });
 
 const parseEnv = () => {

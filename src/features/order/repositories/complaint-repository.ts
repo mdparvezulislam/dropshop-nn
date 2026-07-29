@@ -91,6 +91,26 @@ export class ComplaintRepository extends BaseRepository<ComplaintDocument, Custo
     return counts;
   }
 
+  async countByType(): Promise<Record<string, number>> {
+    const pipeline = [{ $group: { _id: "$type", count: { $sum: 1 } } }];
+    const results = await (ComplaintModel as any).aggregate(pipeline);
+    const counts: Record<string, number> = {};
+    for (const r of results) {
+      counts[r._id] = r.count;
+    }
+    return counts;
+  }
+
+  async countByPriority(): Promise<Record<string, number>> {
+    const pipeline = [{ $group: { _id: "$priority", count: { $sum: 1 } } }];
+    const results = await (ComplaintModel as any).aggregate(pipeline);
+    const counts: Record<string, number> = {};
+    for (const r of results) {
+      counts[r._id] = r.count;
+    }
+    return counts;
+  }
+
   async search(query: string): Promise<CustomerComplaint[]> {
     const regex = new RegExp(query, "i");
     return this.find({

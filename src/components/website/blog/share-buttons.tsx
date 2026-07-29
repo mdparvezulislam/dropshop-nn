@@ -22,7 +22,7 @@ export function ShareButtons({
   const url =
     typeof window !== "undefined"
       ? `${window.location.origin}/blog/${slug}`
-      : `https://dropshopnn.com/blog/${slug}`;
+      : `https://nnenterprise.com.bd/blog/${slug}`;
 
   const share = async (network?: "twitter" | "facebook" | "linkedin"): Promise<void> => {
     if (!network && typeof navigator !== "undefined" && navigator.share) {

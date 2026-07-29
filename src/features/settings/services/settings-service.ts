@@ -46,12 +46,12 @@ export const DEFAULT_PLATFORM_SETTINGS: Array<
   {
     category: "general",
     key: "general.support_email",
-    value: "support@dropshop.com.bd",
+    value: "support@nnenterprise.com.bd",
     dataType: "string",
     name: "Support Email",
     description: "Official support email address",
     scope: "global",
-    defaultValue: "support@dropshop.com.bd",
+    defaultValue: "support@nnenterprise.com.bd",
     isPublic: true,
   },
   {

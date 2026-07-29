@@ -25,6 +25,7 @@ const lineSchema = z.object({
   productId: productIdSchema,
   variantSku: z.string().trim().min(1).max(80).optional(),
   quantity: z.coerce.number().int().min(1).max(99),
+  customSellingPriceBdt: z.coerce.number().min(0).optional(),
 });
 
 const itemsSchema = z.array(lineSchema).min(1, "কার্ট খালি").max(30);

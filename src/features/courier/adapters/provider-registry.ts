@@ -1,13 +1,25 @@
 import type { CourierProvider } from "./provider-adapter";
 import { createManualCourierAdapter } from "./manual-adapter";
 import { COURIER_PROVIDERS, getCourierProvider } from "../domain/courier-catalog";
+import { steadfastAdapter } from "./steadfast-adapter";
+import { pathaoAdapter } from "./pathao-adapter";
+import { redxAdapter } from "./redx-adapter";
+import { paperflyAdapter } from "./paperfly-adapter";
+import { ecourierAdapter } from "./ecourier-adapter";
+import { sundarbanAdapter } from "./sundarban-adapter";
 
 /**
- * Provider lookup. Every entry in `COURIER_PROVIDERS` gets an adapter, so a new
- * courier is one catalog row away. When a provider gains a real API, register
- * its adapter in `API_ADAPTERS` below and nothing else in the codebase changes.
+ * Provider lookup. Every entry in `COURIER_PROVIDERS` gets an adapter.
+ * Real API adapters are registered in `API_ADAPTERS`.
  */
-const API_ADAPTERS = new Map<string, CourierProvider>();
+const API_ADAPTERS = new Map<string, CourierProvider>([
+  ["steadfast", steadfastAdapter],
+  ["pathao", pathaoAdapter],
+  ["redx", redxAdapter],
+  ["paperfly", paperflyAdapter],
+  ["ecourier", ecourierAdapter],
+  ["sundarban", sundarbanAdapter],
+]);
 
 const ADAPTERS: Map<string, CourierProvider> = new Map(
   COURIER_PROVIDERS.map((info) => [info.id, createManualCourierAdapter(info)]),

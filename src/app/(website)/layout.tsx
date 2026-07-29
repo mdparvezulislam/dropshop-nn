@@ -8,16 +8,16 @@ import { CookieBanner } from "@/components/website/cookie-banner";
 import { FloatingActions } from "@/components/website/floating-actions";
 import { StorefrontJsonLd } from "@/components/website/storefront-json-ld";
 import { SkipNavLink } from "@/components/website/skip-nav-link";
-import { getPublicCategoriesAction } from "@/features/catalog/actions/public-actions";
+import { getStorefrontNavigationAction } from "@/features/storefront/actions/storefront-actions";
 
 export default async function WebsiteLayout({
   children,
 }: {
   children: React.ReactNode;
 }): Promise<React.ReactElement> {
-  // One taxonomy fetch feeds the header mega menu, mobile drawer, and footer.
-  const categoriesRes = await getPublicCategoriesAction();
-  const categories = categoriesRes.success ? categoriesRes.data : [];
+  // Storefront Gateway Navigation fetch feeds the header mega menu, mobile drawer, and footer.
+  const navRes = await getStorefrontNavigationAction();
+  const categories = navRes.success ? navRes.data.categories : [];
 
   return (
     // Bangla-first storefront; the root layout stays lang="en" for the admin side.

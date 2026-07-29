@@ -100,6 +100,7 @@ export interface Shipment extends BaseDBEntity {
   deliveryNotes?: string;
   /** Staff-only. Never leaves the server in a customer DTO. */
   internalNotes?: string;
+  notes?: string;
 
   retryCount?: number;
   lastFailureReason?: string;

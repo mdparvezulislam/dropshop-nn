@@ -197,13 +197,18 @@ export async function getCustomerAction(customerId: string): Promise<{
   }
 }
 
-export async function listCustomersAction(searchQuery?: string): Promise<{
+export async function listCustomersAction(
+  searchQuery?: string,
+  page: number = 1,
+  limit: number = 50,
+): Promise<{
   success: boolean;
   data?: any[];
+  totalCount?: number;
   error?: string;
 }> {
   const session = (await auth()) as any;
-  checkPermission(session, "Customer.View");
+  checkPermission(session, "customers.customer.view");
 
   try {
     const repo = new CustomerRepository();
@@ -224,12 +229,15 @@ export async function listCustomersAction(searchQuery?: string): Promise<{
       ];
     }
 
-    const results = await repo.find(filter);
-    // Sort in-memory by newest first
-    results.sort(
-      (a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime(),
+    const safePage = Math.max(1, page);
+    const safeLimit = Math.min(100, Math.max(1, limit));
+    const result = await repo.findPaginated(
+      filter,
+      { page: safePage, limit: safeLimit },
+      { sortBy: "createdAt", sortOrder: "desc" },
     );
-    return { success: true, data: results };
+
+    return { success: true, data: result.items, totalCount: result.totalCount };
   } catch (error: any) {
     logger.error("listCustomersAction failed", error);
     return { success: false, error: error.message };

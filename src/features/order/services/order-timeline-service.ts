@@ -1,6 +1,6 @@
 import { generateUUID } from "@/lib/utils/id-utils";
 import { logger } from "@/lib/utils/logger";
-import { TimelineEntryModel } from "../repositories/timeline-model";
+import { OrderTimelineRepository } from "../repositories/timeline-repository";
 import { EventBus } from "@/lib/event-bus";
 import type {
   OrderTimeline,
@@ -24,14 +24,15 @@ export interface AddTimelineEntryInput {
 }
 
 export class OrderTimelineService {
+  private readonly repo = new OrderTimelineRepository();
+
   async addEntry(input: AddTimelineEntryInput): Promise<OrderTimeline> {
     logger.info("OrderTimelineService: adding entry", {
       entityId: input.entityId,
       action: input.action,
     });
 
-    const entry: OrderTimeline = {
-      id: generateUUID(),
+    const created = await this.repo.create({
       entityType: input.entityType,
       entityId: input.entityId,
       eventType: input.eventType,
@@ -43,13 +44,7 @@ export class OrderTimelineService {
       changes: input.changes,
       metadata: input.metadata,
       correlationId: input.correlationId,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      isDeleted: false,
-      status: "active",
-    };
-
-    await TimelineEntryModel.create([entry] as any);
+    } as any);
 
     await EventBus.publish(
       "order.timeline_entry_added",
@@ -62,7 +57,7 @@ export class OrderTimelineService {
       { source: "order", correlationId: input.correlationId },
     );
 
-    return entry;
+    return created;
   }
 
   async getTimeline(
@@ -71,13 +66,13 @@ export class OrderTimelineService {
     limit: number = 50,
     offset: number = 0,
   ): Promise<OrderTimeline[]> {
-    const docs = await TimelineEntryModel.find({ entityType, entityId })
-      .sort({ createdAt: -1 })
-      .skip(offset)
-      .limit(limit)
-      .exec();
-
-    return docs.map((doc: any) => this.toDomain(doc));
+    const page = Math.floor(offset / limit) + 1;
+    const res = await this.repo.findPaginated(
+      { entityType, entityId },
+      { page, limit },
+      { sortBy: "createdAt", sortOrder: "desc" },
+    );
+    return res.items;
   }
 
   async getTimelineByAction(
@@ -85,36 +80,12 @@ export class OrderTimelineService {
     action: TimelineAction,
     limit: number = 10,
   ): Promise<OrderTimeline[]> {
-    const docs = await TimelineEntryModel.find({ entityId, action })
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .exec();
-
-    return docs.map((doc: any) => this.toDomain(doc));
-  }
-
-  private toDomain(doc: any): OrderTimeline {
-    return {
-      id: doc.id ?? doc._id.toString(),
-      entityType: doc.entityType,
-      entityId: doc.entityId,
-      eventType: doc.eventType,
-      action: doc.action,
-      summary: doc.summary,
-      fromStatus: doc.fromStatus,
-      toStatus: doc.toStatus,
-      actor: doc.actor,
-      changes: doc.changes,
-      metadata: doc.metadata,
-      correlationId: doc.correlationId,
-      createdAt: doc.createdAt,
-      updatedAt: doc.updatedAt,
-      createdBy: doc.createdBy,
-      updatedBy: doc.updatedBy,
-      deletedAt: doc.deletedAt,
-      isDeleted: doc.isDeleted,
-      status: doc.status ?? "active",
-    };
+    const res = await this.repo.findPaginated(
+      { entityId, action },
+      { page: 1, limit },
+      { sortBy: "createdAt", sortOrder: "desc" },
+    );
+    return res.items;
   }
 }
 

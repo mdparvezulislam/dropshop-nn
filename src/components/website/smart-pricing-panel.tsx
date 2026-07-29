@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { TrendingUp, AlertTriangle, Building2, Store, Info } from "lucide-react";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils/cn";
+import { PricingValidationService } from "@/features/pricing/services/pricing-validation-service";
 
 /**
  * Role-aware pricing block for the product detail panel.
@@ -69,6 +71,11 @@ export function SmartPricingPanel({
     const num = Number.isNaN(parsed) ? 0 : parsed;
     setCustomSellingPrice(num);
     onPriceChange?.(num);
+
+    const floor = PricingValidationService.getResellerFloorPrice({ resellerPrice, minResellerPrice });
+    if (resellerPrice !== undefined && floor > 0 && num < floor) {
+      toast.error(`নূন্যতম বিক্রয় মূল্য ৳${floor} (রিসেলার মূল্যের চেয়ে কম দামে বিক্রি করা সম্ভব নয়)`);
+    }
   };
 
   if (currentPrice <= 0) {
@@ -82,10 +89,14 @@ export function SmartPricingPanel({
     );
   }
 
-  const profit = resellerPrice !== undefined ? customSellingPrice - resellerPrice : 0;
-  const isBelowFloor = minResellerPrice !== undefined && customSellingPrice < minResellerPrice;
-  const marginPercent =
-    customSellingPrice > 0 ? Math.round((profit / customSellingPrice) * 100) : 0;
+  const validation = PricingValidationService.validateResellerSellingPrice({
+    customSellingPrice,
+    resellerPrice,
+    minResellerPrice,
+  });
+
+  const { isValid, floorPrice: effectiveMinPrice, profit, marginPercent, error: validationError } = validation;
+  const isBelowFloor = resellerPrice !== undefined && !isValid;
 
   return (
     <div className="space-y-4">
@@ -125,20 +136,19 @@ export function SmartPricingPanel({
         )}
       </div>
 
-      {/* Admin cost row — present only when the server sent it */}
-      {costPrice !== undefined && (
-        <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700">
-          <span>কস্ট প্রাইস (অ্যাডমিন)</span>
-          <span className="font-black tabular-nums">{formatBdt(costPrice)}</span>
-        </div>
-      )}
-
       {/* Reseller pricing tools — real reseller price only */}
       {resellerPrice !== undefined && (
-        <div className="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-200 space-y-3">
+        <div
+          className={cn(
+            "p-4 rounded-2xl border space-y-3 transition-colors",
+            isBelowFloor
+              ? "bg-red-50/50 border-red-300"
+              : "bg-emerald-50/50 border-emerald-200",
+          )}
+        >
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-1.5 text-xs font-black text-emerald-900">
-              <Store className="h-4 w-4" aria-hidden /> রিসেলার মূল্য
+              <Store className="h-4 w-4 text-emerald-700" aria-hidden /> রিসেলার মূল্য
             </span>
             <span className="text-lg font-black text-emerald-900 tabular-nums">
               {formatBdt(resellerPrice)}
@@ -156,39 +166,48 @@ export function SmartPricingPanel({
               id="reseller-selling-price"
               type="number"
               inputMode="numeric"
-              min={0}
+              min={effectiveMinPrice ?? resellerPrice}
               value={customSellingPrice || ""}
               onChange={(e) => handlePriceInput(e.target.value)}
-              className="w-full h-10 px-3 rounded-xl border border-emerald-300 bg-white text-sm font-black text-slate-900 tabular-nums focus-visible:outline-2 focus-visible:outline-emerald-500"
+              className={cn(
+                "w-full h-10 px-3 rounded-xl border bg-white text-sm font-black tabular-nums transition-colors",
+                isBelowFloor
+                  ? "border-red-500 text-red-900 bg-red-50/30 focus-visible:outline-2 focus-visible:outline-red-500 ring-2 ring-red-500/20"
+                  : "border-emerald-300 text-slate-900 focus-visible:outline-2 focus-visible:outline-emerald-500",
+              )}
             />
             {isBelowFloor && (
               <p
-                className="flex items-center gap-1 text-[11px] font-bold text-red-600"
+                className="flex items-center gap-1.5 text-[11px] font-bold text-red-600 bg-red-100/80 px-2.5 py-1.5 rounded-lg border border-red-200"
                 role="alert"
               >
-                <AlertTriangle className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                সর্বনিম্ন বিক্রয় মূল্য {formatBdt(minResellerPrice)}
+                <AlertTriangle className="h-4 w-4 shrink-0 text-red-600" aria-hidden />
+                নূন্যতম বিক্রয় মূল্য {formatBdt(effectiveMinPrice ?? resellerPrice)} (রিসেলার মূল্যের চেয়ে কম দামে বিক্রি করা সম্ভব নয়)
               </p>
             )}
           </div>
 
-          {/* One profit line, not a two-card grid. Margin % is derivable from
-              the two prices already on screen, so it earns no vertical space —
-              on mobile that grid pushed the buy actions below the fold. */}
-          <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-white border border-emerald-200">
+          <div
+            className={cn(
+              "flex items-center justify-between gap-2 px-3 py-2 rounded-xl border bg-white",
+              isBelowFloor ? "border-red-200" : "border-emerald-200",
+            )}
+          >
             <span className="text-[11px] font-bold text-slate-600">
               {quantity > 1 ? `${quantity} টি বিক্রিতে প্রফিট` : "আপনার প্রফিট"}
             </span>
-            <span
-              className={cn(
-                "flex items-center gap-1 text-sm font-black tabular-nums",
-                profit >= 0 ? "text-emerald-700" : "text-red-600",
-              )}
-            >
-              <TrendingUp className="h-3.5 w-3.5" aria-hidden />
-              {formatBdt(profit * quantity)}
-              <span className="text-[11px] font-bold text-slate-500">({marginPercent}%)</span>
-            </span>
+            {isBelowFloor ? (
+              <span className="flex items-center gap-1 text-xs font-black tabular-nums text-red-600">
+                <AlertTriangle className="h-3.5 w-3.5" aria-hidden />
+                ৳০ (লস সম্ভব নয়)
+              </span>
+            ) : (
+              <span className="flex items-center gap-1 text-sm font-black tabular-nums text-emerald-700">
+                <TrendingUp className="h-3.5 w-3.5" aria-hidden />
+                {formatBdt(profit * quantity)}
+                <span className="text-[11px] font-bold text-slate-500">({marginPercent}%)</span>
+              </span>
+            )}
           </div>
         </div>
       )}

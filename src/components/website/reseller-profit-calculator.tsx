@@ -10,6 +10,7 @@ import {
   Percent,
   ShieldCheck,
 } from "lucide-react";
+import { PricingValidationService } from "@/features/pricing/services/pricing-validation-service";
 
 interface ResellerProfitCalculatorProps {
   resellerPrice: number; // Base reseller cost (BDT)
@@ -24,8 +25,7 @@ export function ResellerProfitCalculator({
   comparePrice,
   minResellerPrice,
 }: ResellerProfitCalculatorProps) {
-  // Floor and Ceiling limits
-  const floorPrice = minResellerPrice || Math.round(resellerPrice * 1.15);
+  const floorPrice = PricingValidationService.getResellerFloorPrice({ resellerPrice, minResellerPrice });
   const ceilingPrice =
     comparePrice && comparePrice > suggestedRetailPrice
       ? comparePrice
@@ -34,23 +34,22 @@ export function ResellerProfitCalculator({
   const [sellingPriceInput, setSellingPriceInput] = React.useState<string>(
     suggestedRetailPrice > 0
       ? String(suggestedRetailPrice)
-      : String(Math.round(resellerPrice * 1.25)),
+      : String(resellerPrice),
   );
 
   const currentVal = parseFloat(sellingPriceInput) || 0;
 
-  // Zod Boundary Validation
-  const priceValidationSchema = z
-    .number()
-    .min(floorPrice, `Selling Price cannot be lower than floor limit ৳${floorPrice}`)
-    .max(ceilingPrice, `Selling Price cannot exceed maximum MSRP ceiling ৳${ceilingPrice}`);
+  const validation = PricingValidationService.validateResellerSellingPrice({
+    customSellingPrice: currentVal,
+    resellerPrice,
+    minResellerPrice,
+  });
 
-  const validationResult = priceValidationSchema.safeParse(currentVal);
-  const isValid = validationResult.success;
-  const errorMessage = !isValid ? validationResult.error.issues[0]?.message : null;
+  const isValid = validation.isValid;
+  const errorMessage = validation.error ?? (currentVal > ceilingPrice ? `Selling Price cannot exceed maximum MSRP ceiling ৳${ceilingPrice}` : null);
 
-  const netProfit = Math.max(0, currentVal - resellerPrice);
-  const profitMarginPercent = currentVal > 0 ? Math.round((netProfit / currentVal) * 100) : 0;
+  const netProfit = validation.profit;
+  const profitMarginPercent = validation.marginPercent;
   const roiPercent = resellerPrice > 0 ? Math.round((netProfit / resellerPrice) * 100) : 0;
 
   return (

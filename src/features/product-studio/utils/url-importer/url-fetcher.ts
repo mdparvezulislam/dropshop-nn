@@ -131,7 +131,7 @@ export async function fetchPageHtml(
     timeout = 15000,
     maxSize = 5 * 1024 * 1024,
     maxRedirects = 5,
-    userAgent = "Mozilla/5.0 (compatible; DropshopNN/1.0; +https://dropshopnn.com/bot) AppleWebKit/537.36 (KHTML, like Gecko)",
+    userAgent = "Mozilla/5.0 (compatible; NNEnterprise/1.0; +https://nnenterprise.com.bd/bot) AppleWebKit/537.36 (KHTML, like Gecko)",
   } = options;
 
   const url = await assertFetchable(rawUrl);

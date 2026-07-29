@@ -134,6 +134,8 @@ export interface PublicProductPricing {
   campaignPrice?: number;
   /** Only present for sessions with the reseller membership (or admin). */
   resellerPrice?: number;
+  /** Real reseller floor price, when configured. */
+  minResellerPrice?: number;
   /** Only present for sessions with the wholesaler membership (or admin). */
   wholesalePrice?: number;
   /** Only present for admin sessions. */

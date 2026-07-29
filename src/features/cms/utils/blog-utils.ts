@@ -1,3 +1,5 @@
+import { BRAND } from "@/config/brand";
+
 export function estimateReadingTime(html?: string, wpm = 200): number {
   if (!html) return 1;
   const text = html
@@ -72,7 +74,7 @@ export function buildArticleJsonLd(input: {
   updatedAt?: Date | string | null;
   baseUrl?: string;
 }): Record<string, unknown> {
-  const base = input.baseUrl ?? "https://dropshopnn.com";
+  const base = input.baseUrl ?? BRAND.websiteUrl;
   return {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -81,7 +83,7 @@ export function buildArticleJsonLd(input: {
     image: input.coverImage ? [input.coverImage] : undefined,
     author: input.authorName
       ? { "@type": "Person", name: input.authorName }
-      : { "@type": "Organization", name: "DropshopNN" },
+      : { "@type": "Organization", name: BRAND.publicName },
     datePublished: input.publishedAt ? new Date(input.publishedAt).toISOString() : undefined,
     dateModified: input.updatedAt
       ? new Date(input.updatedAt).toISOString()

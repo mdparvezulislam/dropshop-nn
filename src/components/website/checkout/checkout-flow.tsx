@@ -180,6 +180,7 @@ export function CheckoutFlow() {
         productId: line.productId,
         variantSku: line.variantSku,
         quantity: line.quantity,
+        customSellingPriceBdt: line.customSellingPrice ?? line.unitPrice,
       })),
     [cart.items],
   );

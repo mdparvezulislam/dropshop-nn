@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, Search, ChevronDown, Store } from "lucide-react";
+import { Menu, Search, ChevronDown, Store, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { AnnouncementBar } from "./announcement-bar";
 import { MegaMenu } from "./mega-menu";
@@ -179,8 +179,9 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
 
               <Link
                 href="/become-wholesale-partner"
-                className="hidden md:inline-block text-xs font-extrabold text-slate-800 hover:text-amber-600 transition-colors px-2 py-1 focus-visible:outline-2 focus-visible:outline-amber-500 rounded"
+                className="hidden md:inline-flex items-center h-9 px-3.5 text-xs font-extrabold text-slate-800 bg-slate-100 border border-slate-300 hover:bg-slate-200 hover:border-slate-400 hover:text-slate-950 rounded-xl transition-all shadow-2xs focus-visible:outline-2 focus-visible:outline-amber-500"
               >
+                <Building2 className="h-3.5 w-3.5 mr-1.5 text-slate-600" aria-hidden />
                 হোলসেলার হন
               </Link>
 

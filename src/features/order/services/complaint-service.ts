@@ -1,5 +1,4 @@
 import { ComplaintRepository, type ComplaintDocument } from "../repositories/complaint-repository";
-import { ComplaintModel } from "../repositories/complaint-model";
 import { OrderRepository } from "../repositories/order-repository";
 import { OrderTimelineService } from "./order-timeline-service";
 import { COMPLAINT_VALID_TRANSITIONS, type CustomerComplaint } from "../domain/complaint-entity";
@@ -217,20 +216,8 @@ export class ComplaintService {
 
   async getStats(): Promise<ComplaintStats> {
     const byStatus = await this.complaintRepository.countByStatus();
-
-    const byTypePipeline = [{ $group: { _id: "$type", count: { $sum: 1 } } }];
-    const byTypeResults = await (ComplaintModel as any).aggregate(byTypePipeline);
-    const byType: Record<string, number> = {};
-    for (const r of byTypeResults) {
-      byType[r._id] = r.count;
-    }
-
-    const byPriorityPipeline = [{ $group: { _id: "$priority", count: { $sum: 1 } } }];
-    const byPriorityResults = await (ComplaintModel as any).aggregate(byPriorityPipeline);
-    const byPriority: Record<string, number> = {};
-    for (const r of byPriorityResults) {
-      byPriority[r._id] = r.count;
-    }
+    const byType = await this.complaintRepository.countByType();
+    const byPriority = await this.complaintRepository.countByPriority();
 
     const total = Object.values(byStatus).reduce((a, b) => a + b, 0);
     return { byStatus, byType, byPriority, total };

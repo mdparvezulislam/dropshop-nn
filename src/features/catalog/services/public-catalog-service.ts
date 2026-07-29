@@ -141,12 +141,22 @@ export class PublicCatalogService {
   }
 
   async listBadgeSection(badge: PublicBadgeSection, limit: number): Promise<PublicProductCard[]> {
-    const result = await this.listCards({ badge, limit, page: 1, sort: "newest" });
-    if (result.items.length === 0) {
-      const fallback = await this.listCards({ limit, page: 1, sort: "newest" });
-      return fallback.items;
+    try {
+      const result = await this.listCards({ badge, limit, page: 1, sort: "newest" });
+      if (result.items.length === 0) {
+        const fallback = await this.listCards({ limit, page: 1, sort: "newest" });
+        return fallback.items;
+      }
+      return result.items;
+    } catch (error) {
+      logger.error(`PublicCatalogService listBadgeSection failed for badge: ${badge}`, error);
+      try {
+        const fallback = await this.listCards({ limit, page: 1, sort: "newest" });
+        return fallback.items;
+      } catch {
+        return [];
+      }
     }
-    return result.items;
   }
 
   /** Catalog listing with slug-based filters (the /products and /search entry point). */

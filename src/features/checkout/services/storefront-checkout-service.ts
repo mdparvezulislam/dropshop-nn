@@ -11,6 +11,7 @@ import type { CheckoutShippingInfo } from "../domain/checkout-entity";
 import { SHIPPING_METHODS } from "@/config/site";
 import { logger } from "@/lib/utils/logger";
 import { ConflictError } from "@/lib/errors/app-error";
+import { PricingValidationService } from "@/features/pricing/services/pricing-validation-service";
 
 /**
  * Storefront checkout orchestration. The SERVER is the price and stock
@@ -24,6 +25,7 @@ export interface StorefrontCheckoutLineInput {
   productId: string;
   variantSku?: string;
   quantity: number;
+  customSellingPriceBdt?: number;
 }
 
 export interface QuotedLine {
@@ -171,6 +173,40 @@ export class StorefrontCheckoutService {
           });
           continue;
         }
+
+        let finalUnitPriceBdt = Math.round(resolved.unitPrice) / 100;
+
+        // Server-Side Security Guard for Reseller Orders:
+        // Enforce that reseller selling price is >= reseller purchase cost (resellerPrice)
+        if (type === "reseller") {
+          const resellerCostBdt = product.resellerPrice
+            ? product.resellerPrice
+            : product.record?.resellerPrice
+              ? product.record.resellerPrice / 100
+              : finalUnitPriceBdt;
+
+          const customPriceToValidate = item.customSellingPriceBdt ?? finalUnitPriceBdt;
+
+          const validation = PricingValidationService.validateResellerSellingPrice({
+            customSellingPrice: customPriceToValidate,
+            resellerPrice: resellerCostBdt,
+          });
+
+          if (!validation.isValid) {
+            rejected.push({
+              productId: item.productId,
+              variantSku: item.variantSku,
+              name: product.name,
+              reason:
+                validation.error ??
+                `নূন্যতম বিক্রয় মূল্য ৳${resellerCostBdt} (রিসেলার মূল্যের চেয়ে কম দামে বিক্রি করা সম্ভব নয়)`,
+            });
+            continue;
+          }
+
+          finalUnitPriceBdt = validation.validatedSellingPrice;
+        }
+
         const featured = product.media?.find((m) => m.isFeatured) ?? product.media?.[0];
         lines.push({
           productId: product.id,
@@ -178,8 +214,8 @@ export class StorefrontCheckoutService {
           name: product.name,
           image: variantImage || featured?.url || "",
           quantity,
-          unitPrice: Math.round(resolved.unitPrice) / 100,
-          totalPrice: Math.round(resolved.unitPrice * quantity) / 100,
+          unitPrice: finalUnitPriceBdt,
+          totalPrice: Math.round(finalUnitPriceBdt * quantity * 100) / 100,
         });
       } catch (error) {
         logger.error("StorefrontCheckoutService quote price resolution failed", error, {
@@ -256,9 +292,6 @@ export class StorefrontCheckoutService {
 
     const shippingInfo: CheckoutShippingInfo = {
       ...input.shipping,
-      // upazila and area are optional in the schema — pass null when not provided
-    
-
       shippingMethod: method.id,
       deliveryCharge: Math.round(method.cost * 100),
       paymentMethod: input.paymentMethod,
@@ -277,18 +310,28 @@ export class StorefrontCheckoutService {
         "ORD-" + Date.now().toString().slice(-6) + Math.floor(Math.random() * 100).toString();
 
       const itemsMapped = await Promise.all(
-        draft.resolvedPrices.map(async (priceItem) => {
+        draft.resolvedPrices.map(async (priceItem, index) => {
           let productName = "Product Item";
-          const unitCostBasis = Math.floor(priceItem.unitPrice * 0.7);
+          let unitCostBasis = Math.floor(priceItem.unitPrice * 0.7);
 
           try {
             const p = await this.products.findById(priceItem.productId);
-            if (p) productName = p.name;
+            if (p) {
+              productName = p.name;
+              const resellerCost = p.resellerPrice ?? p.record?.resellerPrice;
+              if (draft.type === "reseller" && resellerCost) {
+                unitCostBasis = Math.round(resellerCost < 1000 ? resellerCost * 100 : resellerCost);
+              }
+            }
           } catch {}
 
-          const totalSellingPrice = priceItem.totalPrice;
+          const quotedLine = quote.lines[index];
+          const finalSellingPriceBdt = quotedLine ? quotedLine.unitPrice : Math.round(priceItem.unitPrice) / 100;
+          const finalSellingPriceMinor = Math.round(finalSellingPriceBdt * 100);
+
+          const totalSellingPrice = finalSellingPriceMinor * priceItem.quantity;
           const totalCostBasis = unitCostBasis * priceItem.quantity;
-          const totalProfit = totalSellingPrice - totalCostBasis;
+          const totalProfit = Math.max(0, totalSellingPrice - totalCostBasis);
           const marginPercent = totalSellingPrice > 0 ? (totalProfit / totalSellingPrice) * 100 : 0;
 
           return {
@@ -296,7 +339,7 @@ export class StorefrontCheckoutService {
             variantSku: priceItem.variantSku || "SKU-DEFAULT",
             productName,
             quantity: priceItem.quantity,
-            unitSellingPrice: priceItem.unitPrice,
+            unitSellingPrice: finalSellingPriceMinor,
             unitCostBasis,
             totalSellingPrice,
             totalCostBasis,
@@ -311,7 +354,9 @@ export class StorefrontCheckoutService {
 
       const subtotal = itemsMapped.reduce((acc, curr) => acc + curr.totalSellingPrice, 0);
       const totalCostBasis = itemsMapped.reduce((acc, curr) => acc + curr.totalCostBasis, 0);
-      const totalProfit = subtotal - totalCostBasis;
+      const totalProfit = Math.max(0, subtotal - totalCostBasis);
+      const deliveryChargeMinor = Math.round(method.cost * 100);
+      const calculatedGrandTotalMinor = subtotal + deliveryChargeMinor;
 
       try {
         order = await orderService.createFromDraft({
@@ -334,10 +379,10 @@ export class StorefrontCheckoutService {
           pricing: {
             items: itemsMapped,
             subtotal,
-            discountTotal: draft.totals.discountTotal ?? 0,
-            taxTotal: draft.totals.taxTotal ?? 0,
-            grandTotal: draft.totals.grandTotal ?? subtotal,
-            currency: draft.totals.currency ?? "BDT",
+            discountTotal: 0,
+            taxTotal: 0,
+            grandTotal: calculatedGrandTotalMinor,
+            currency: "BDT",
           },
           profitPreview: {
             totalCostBasis,
@@ -361,12 +406,13 @@ export class StorefrontCheckoutService {
     }
 
     const orderNumber = order.orderNumber;
+    const finalSubtotalBdt = quote.lines.reduce((sum, l) => sum + l.totalPrice, 0);
 
     return {
       orderNumber,
       accessToken: createOrderAccessToken(orderNumber),
-      grandTotal: Math.round(draft.totals.grandTotal) / 100,
-      subtotal: Math.round(draft.totals.subtotal) / 100,
+      grandTotal: finalSubtotalBdt + method.cost,
+      subtotal: finalSubtotalBdt,
       shippingCost: method.cost,
       itemCount: quote.lines.reduce((sum, l) => sum + l.quantity, 0),
     };

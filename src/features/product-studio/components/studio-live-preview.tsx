@@ -108,7 +108,7 @@ export function StudioLivePreview({ form, className = "" }: StudioLivePreviewPro
           <div className="bg-primary/10 text-foreground px-4 py-2 text-xs flex justify-between items-center border-b border-border">
             <span className="font-bold tracking-wide text-amber-400">DropshopNN Store</span>
             <span className="text-muted-foreground">
-              bd.dropshop.com/products/{form.slug || "sample-slug"}
+              nnenterprise.com.bd/products/{form.slug || "sample-slug"}
             </span>
           </div>
 

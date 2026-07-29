@@ -57,6 +57,118 @@ export class ProductRepository extends BaseRepository<ProductDocument, Product> 
     super(ProductModel, ProductRepository.mapToDomain);
   }
 
+  async getDashboardStats(): Promise<{
+    totalProducts: number;
+    recentlyCreated: number;
+    recentlyUpdated: number;
+    draftProducts: number;
+    scheduledProducts: number;
+    activeProducts: number;
+    archivedProducts: number;
+    missingImages: number;
+    missingSEO: number;
+    lowHealthProducts: number;
+    lowStockProducts: number;
+    outOfStockProducts: number;
+    hasVariants: number;
+    noCategory: number;
+  }> {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    const [
+      totalProducts,
+      recentlyCreated,
+      recentlyUpdated,
+      draftProducts,
+      activeProducts,
+      archivedProducts,
+      missingImages,
+      missingSEO,
+      lowHealthProducts,
+      lowStockProducts,
+      outOfStockProducts,
+      hasVariants,
+      noCategory,
+      scheduledProducts,
+    ] = await Promise.all([
+      this.count({ isDeleted: { $ne: true } }),
+      this.count({ createdAt: { $gte: sevenDaysAgo }, isDeleted: { $ne: true } }),
+      this.count({ updatedAt: { $gte: sevenDaysAgo }, isDeleted: { $ne: true } }),
+      this.count({ status: "draft", isDeleted: { $ne: true } }),
+      this.count({ status: "active", isDeleted: { $ne: true } }),
+      this.count({ status: "archived", isDeleted: { $ne: true } }),
+      ProductModel.countDocuments({
+        isDeleted: { $ne: true },
+        $or: [{ media: { $exists: false } }, { media: { $size: 0 } }],
+      }).exec(),
+      ProductModel.countDocuments({
+        isDeleted: { $ne: true },
+        $or: [
+          { "seo.metaTitle": { $exists: false } },
+          { "seo.metaTitle": "" },
+          { "seo.metaTitle": null },
+          { "seo.metaDescription": { $exists: false } },
+          { "seo.metaDescription": "" },
+          { "seo.metaDescription": null },
+        ],
+      }).exec(),
+      ProductModel.countDocuments({
+        isDeleted: { $ne: true },
+        $and: [
+          {
+            $or: [{ media: { $exists: false } }, { media: { $size: 0 } }],
+          },
+          {
+            $or: [
+              { "seo.metaTitle": { $exists: false } },
+              { "seo.metaTitle": "" },
+              { "seo.metaTitle": null },
+              { "seo.metaDescription": { $exists: false } },
+              { "seo.metaDescription": "" },
+              { "seo.metaDescription": null },
+            ],
+          },
+        ],
+      }).exec(),
+      this.count({
+        isDeleted: { $ne: true },
+        $expr: {
+          $and: [
+            { $gte: [{ $ifNull: ["$stockQuantity", "$stock", 0] }, 1] },
+            { $lte: [{ $ifNull: ["$stockQuantity", "$stock", 0] }, 10] },
+          ],
+        },
+      }),
+      this.count({
+        isDeleted: { $ne: true },
+        $expr: { $lte: [{ $ifNull: ["$stockQuantity", "$stock", 0] }, 0] },
+      }),
+      this.count({ variants: { $not: { $size: 0 } }, isDeleted: { $ne: true } }),
+      this.count({ categoryId: { $exists: false }, isDeleted: { $ne: true } }),
+      ProductModel.countDocuments({
+        isDeleted: { $ne: true },
+        publishSchedule: { $exists: true, $ne: null },
+      }).exec(),
+    ]);
+
+    return {
+      totalProducts,
+      recentlyCreated,
+      recentlyUpdated,
+      draftProducts,
+      scheduledProducts,
+      activeProducts,
+      archivedProducts,
+      missingImages,
+      missingSEO,
+      lowHealthProducts,
+      lowStockProducts,
+      outOfStockProducts,
+      hasVariants,
+      noCategory,
+    };
+  }
+
   public static mapToDomain(doc: ProductDocument): Product {
     const rawBadges = Array.isArray(doc.badges) && doc.badges.length > 0 ? doc.badges : [];
     const inferredBadges: string[] = [...rawBadges];

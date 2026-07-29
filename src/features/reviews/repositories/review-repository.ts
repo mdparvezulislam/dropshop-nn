@@ -188,6 +188,26 @@ export class ReviewRepository extends BaseRepository<ReviewDocumentType, Review>
       throw new DatabaseError("Database query error", error);
     }
   }
+
+  async getStatusCounts(): Promise<{ published: number; pending: number; rejected: number; hidden: number }> {
+    try {
+      await this.ensureConnected();
+      const rows = await this.model.aggregate<{ _id: string; count: number }>([
+        { $match: { isDeleted: { $ne: true } } },
+        { $group: { _id: "$status", count: { $sum: 1 } } },
+      ]);
+      const map = new Map<string, number>(rows.map((r) => [r._id, r.count]));
+      return {
+        published: map.get("published") ?? 0,
+        pending: map.get("pending") ?? 0,
+        rejected: map.get("rejected") ?? 0,
+        hidden: map.get("hidden") ?? 0,
+      };
+    } catch (error) {
+      logger.error("ReviewRepository getStatusCounts failed", error);
+      return { published: 0, pending: 0, rejected: 0, hidden: 0 };
+    }
+  }
 }
 
 export class ProductQuestionRepository extends BaseRepository<

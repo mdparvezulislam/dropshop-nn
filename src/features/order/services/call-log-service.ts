@@ -1,5 +1,4 @@
 import { CallLogRepository } from "../repositories/call-log-repository";
-import { ComplaintModel } from "../repositories/complaint-model";
 import { OrderRepository } from "../repositories/order-repository";
 import { OrderTimelineService } from "./order-timeline-service";
 import type { CallLogEntry } from "../domain/call-log-entity";

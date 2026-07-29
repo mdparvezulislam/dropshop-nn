@@ -31,6 +31,10 @@ export interface LocalCartItem {
   variantLabel?: string;
   /** Stock ceiling at add time; undefined = untracked. */
   maxQuantity?: number;
+  /** Reseller wholesale cost (BDT) when added by a reseller. */
+  resellerPrice?: number;
+  /** Custom reseller selling price (BDT). */
+  customSellingPrice?: number;
 }
 
 interface LocalCartContextValue {
@@ -39,10 +43,13 @@ interface LocalCartContextValue {
   count: number;
   /** BDT display subtotal. */
   subtotal: number;
+  /** Total reseller profit preview in BDT across lines. */
+  totalProfit: number;
   /** False until localStorage has been read — render cart UI only after this. */
   hydrated: boolean;
   addItem: (item: Omit<LocalCartItem, "quantity">, quantity?: number) => void;
   setQuantity: (productId: string, variantSku: string | undefined, quantity: number) => void;
+  updateItemPrice: (productId: string, variantSku: string | undefined, newPrice: number) => void;
   removeItem: (productId: string, variantSku: string | undefined) => void;
   clear: () => void;
 }
@@ -141,6 +148,23 @@ export function LocalCartProvider({ children }: { children: ReactNode }): ReactN
     [],
   );
 
+  const updateItemPrice = useCallback(
+    (productId: string, variantSku: string | undefined, newPrice: number) => {
+      setItems((prev) =>
+        prev.map((line) =>
+          lineKey(line.productId, line.variantSku) === lineKey(productId, variantSku)
+            ? {
+                ...line,
+                unitPrice: newPrice,
+                customSellingPrice: newPrice,
+              }
+            : line,
+        ),
+      );
+    },
+    [],
+  );
+
   const removeItem = useCallback((productId: string, variantSku: string | undefined) => {
     setItems((prev) =>
       prev.filter(
@@ -154,8 +178,26 @@ export function LocalCartProvider({ children }: { children: ReactNode }): ReactN
   const value = useMemo<LocalCartContextValue>(() => {
     const count = items.reduce((sum, line) => sum + line.quantity, 0);
     const subtotal = items.reduce((sum, line) => sum + line.unitPrice * line.quantity, 0);
-    return { items, count, subtotal, hydrated, addItem, setQuantity, removeItem, clear };
-  }, [items, hydrated, addItem, setQuantity, removeItem, clear]);
+    const totalProfit = items.reduce((sum, line) => {
+      if (line.resellerPrice !== undefined) {
+        const profitPerUnit = Math.max(0, line.unitPrice - line.resellerPrice);
+        return sum + profitPerUnit * line.quantity;
+      }
+      return sum;
+    }, 0);
+    return {
+      items,
+      count,
+      subtotal,
+      totalProfit,
+      hydrated,
+      addItem,
+      setQuantity,
+      updateItemPrice,
+      removeItem,
+      clear,
+    };
+  }, [items, hydrated, addItem, setQuantity, updateItemPrice, removeItem, clear]);
 
   return <LocalCartContext.Provider value={value}>{children}</LocalCartContext.Provider>;
 }

@@ -97,6 +97,16 @@ export class RiskRepository extends BaseRepository<RiskFlagDocument, RiskFlagEnt
     return counts;
   }
 
+  async countByCategory(): Promise<Record<string, number>> {
+    const pipeline = [{ $group: { _id: "$category", count: { $sum: 1 } } }];
+    const results = await (RiskModel as any).aggregate(pipeline);
+    const counts: Record<string, number> = {};
+    for (const r of results) {
+      counts[r._id] = r.count;
+    }
+    return counts;
+  }
+
   async resolve(id: string, resolution: string, resolvedBy: string): Promise<RiskFlagEntity> {
     return this.update(id, {
       resolved: true,
