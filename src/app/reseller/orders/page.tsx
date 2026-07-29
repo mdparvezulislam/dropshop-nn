@@ -53,48 +53,39 @@ export default function ResellerOrdersPage(): React.ReactElement {
   const loadOrders = React.useCallback(async () => {
     setLoading(true);
     try {
-      const { listCheckoutsAction } = await import(
-        "@/features/checkout/actions/checkout-actions"
+      const { getResellerOrdersAction } = await import(
+        "@/features/reseller/actions/reseller-order-actions"
       );
 
-      const res = await listCheckoutsAction({
-        type: "reseller",
+      const res = await getResellerOrdersAction({
         status: statusFilter === "all" ? undefined : statusFilter,
+        search: search.trim() || undefined,
         page,
         limit: pageSize,
       });
 
       if (res.success && res.data) {
-        const d = res.data as any;
-        const items = d.items || d.checkouts || (Array.isArray(d) ? d : []);
+        const items = res.data.items || [];
 
-        const mapped: ResellerOrderItem[] = items.map((o: any) => {
-          const item = o.items?.[0] || {};
-          const unitPrice = item.unitPriceOverride || item.resolvedPrice || 180000;
-          const unitCost = item.profitPreview?.costBasis || Math.round(unitPrice * 0.7);
-          const qty = item.quantity || 1;
-          const profit = (unitPrice - unitCost) * qty;
-
-          return {
-            id: o.id || o._id,
-            orderNumber: o.checkoutNumber || o.orderNumber || o.id?.slice(0, 8) || "ORD-99",
-            customerName: o.customer?.name || o.shippingAddress?.name || "Customer",
-            customerPhone: o.customer?.phone || o.shippingAddress?.phone || "01700000000",
-            district: o.customer?.city || o.shippingAddress?.city || "Dhaka",
-            productName: item.name || item.productName || "Reseller Product",
-            quantity: qty,
-            imageUrl: item.imageUrl || item.image,
-            sellingPrice: (unitPrice * qty) + (o.deliveryFee || 8000),
-            profit,
-            status: o.status || "confirmed",
-            courierName: o.courier?.name || (o.status === "shipped" ? "SteadFast Courier" : undefined),
-            trackingNumber: o.courierTrackingId || (o.status === "shipped" ? "SF-88991" : undefined),
-            createdAt: o.createdAt || new Date().toISOString(),
-          };
-        });
+        const mapped: ResellerOrderItem[] = items.map((o) => ({
+          id: o.id,
+          orderNumber: o.orderNumber,
+          customerName: o.customerName,
+          customerPhone: o.customerPhone,
+          district: o.district,
+          productName: o.productName,
+          quantity: o.quantity,
+          imageUrl: o.imageUrl,
+          sellingPrice: o.sellingPriceCents,
+          profit: o.profitCents,
+          status: o.status,
+          courierName: o.courierName,
+          trackingNumber: o.trackingNumber,
+          createdAt: o.createdAt,
+        }));
 
         setOrders(mapped);
-        setTotalCount(d.totalCount ?? mapped.length);
+        setTotalCount(res.data.totalCount ?? mapped.length);
       } else {
         setOrders([]);
         setTotalCount(0);
@@ -104,7 +95,7 @@ export default function ResellerOrdersPage(): React.ReactElement {
     } finally {
       setLoading(false);
     }
-  }, [page, statusFilter]);
+  }, [page, statusFilter, search]);
 
   React.useEffect(() => {
     loadOrders();

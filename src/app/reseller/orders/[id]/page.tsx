@@ -41,48 +41,45 @@ export default function ResellerOrderDetailPage(): React.ReactElement {
     async function load() {
       setLoading(true);
       try {
-        const { listCheckoutsAction } = await import(
-          "@/features/checkout/actions/checkout-actions"
+        const { getResellerOrderDetailAction } = await import(
+          "@/features/reseller/actions/reseller-order-actions"
         );
-        const res = await listCheckoutsAction({ type: "reseller", limit: 20 });
+        const res = await getResellerOrderDetailAction(orderId);
         if (res.success && res.data) {
-          const items = (res.data as any).items || (res.data as any).checkouts || [];
-          const found = items.find((o: any) => (o.id || o._id) === orderId) || items[0];
+          const d = res.data;
+          const grandTotal = Math.round(d.sellingPriceCents / 100);
+          const costBasis = Math.round(d.costBasisCents / 100);
+          const deliveryFee = Math.round(d.deliveryChargeCents / 100);
+          const profit = Math.round(d.profitCents / 100);
 
-          if (found) {
-            const item = found.items?.[0] || {};
-            const unitPrice = item.unitPriceOverride || item.resolvedPrice || 180000;
-            const unitCost = item.profitPreview?.costBasis || Math.round(unitPrice * 0.7);
-            const qty = item.quantity || 1;
-            const profit = (unitPrice - unitCost) * qty;
-
-            setOrder({
-              id: found.id || found._id,
-              orderNumber: found.checkoutNumber || found.orderNumber || found.id?.slice(0, 8) || "ORD-99",
-              customerName: found.customer?.name || found.shippingAddress?.name || "Customer Name",
-              customerPhone: found.customer?.phone || found.shippingAddress?.phone || "01700000000",
-              customerEmail: found.customer?.email || "customer@example.com",
-              fullAddress: found.shippingAddress?.addressLine1 || "Dhanmondi 32, Dhaka",
-              district: found.customer?.city || found.shippingAddress?.city || "Dhaka",
-              productName: item.name || item.productName || "Reseller Product",
-              quantity: qty,
-              unitPrice,
-              unitCost,
-              deliveryFee: found.deliveryFee || 8000,
-              sellingPriceTotal: (unitPrice * qty) + (found.deliveryFee || 8000),
-              profit,
-              status: found.status || "confirmed",
-              courierName: found.courier?.name || "SteadFast Courier",
-              trackingNumber: found.courierTrackingId || "SF-881923",
-              notes: found.notes || "কাস্টমার ডেলিভারির সময় রিসিভ করবে",
-              createdAt: found.createdAt || new Date().toISOString(),
-              timeline: [
-                { status: "Created", title: "Order Created by Reseller", date: found.createdAt || new Date().toISOString() },
-                { status: "Confirmed", title: "Order Confirmed & Sent to Processing", date: found.createdAt || new Date().toISOString() },
-                { status: "Shipped", title: "Handed over to SteadFast Courier", date: new Date().toISOString() },
-              ],
-            });
-          }
+          setOrder({
+            id: d.id,
+            orderNumber: d.orderNumber,
+            customerName: d.customerName,
+            customerPhone: d.customerPhone,
+            customerEmail: d.customerEmail || "",
+            fullAddress: d.fullAddress,
+            district: d.district,
+            upazila: d.upazila,
+            productName: d.productName,
+            quantity: d.quantity,
+            items: d.items,
+            unitPrice: d.items?.[0]?.unitSellingPrice || 0,
+            unitCost: d.items?.[0]?.unitCostBasis || 0,
+            deliveryFee,
+            grandTotal,
+            costBasis,
+            profit,
+            status: d.status,
+            courierName: d.courierName || "Courier Assigned Pending",
+            trackingNumber: d.trackingNumber || "N/A",
+            trackingUrl: d.trackingUrl,
+            notes: d.notes || "",
+            createdAt: d.createdAt,
+            timeline: d.timeline || [],
+          });
+        } else {
+          toast.error(res.error || "Order not found");
         }
       } catch {
         toast.error("Failed to load order details");
@@ -90,7 +87,7 @@ export default function ResellerOrderDetailPage(): React.ReactElement {
         setLoading(false);
       }
     }
-    load();
+    if (orderId) load();
   }, [orderId]);
 
   if (loading) {
@@ -194,158 +191,237 @@ export default function ResellerOrderDetailPage(): React.ReactElement {
               <Button onClick={handleDuplicateOrder} variant="outline" size="sm" className="gap-1 text-xs font-bold">
                 Duplicate Order
               </Button>
-            </div>
-          </div>
-
-          {/* Quick Stat Summary */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
-            <div className="p-3 rounded-xl bg-muted/40 border border-border/60 text-center">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase">মোট বিক্রীত মূল্য</span>
-              <p className="text-base font-black text-foreground tabular-nums">৳{sellingPriceTaka}</p>
+                <span className="text-[10px] font-bold text-muted-foreground uppercase">Grand Total Bill</span>
+              <p className="text-base font-black text-foreground tabular-nums">৳{order.grandTotal || Math.round((order.sellingPriceTotal || 0) / 100)}</p>
             </div>
             <div className="p-3 rounded-xl bg-success/10 border border-success/30 text-center">
-              <span className="text-[10px] font-bold text-success uppercase">আপনার প্রফিট</span>
-              <p className="text-base font-black text-success tabular-nums">+৳{profitTaka}</p>
+              <span className="text-[10px] font-bold text-success uppercase">Your Net Profit</span>
+              <p className="text-base font-black text-success tabular-nums">+৳{order.profit || Math.round((order.profit || 0) / 100)}</p>
             </div>
             <div className="p-3 rounded-xl bg-muted/40 border border-border/60 text-center">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase">কুরিয়ার স্ট্যাটাস</span>
-              <p className="text-xs font-black text-primary truncate">{order.courierName}</p>
+              <span className="text-[10px] font-bold text-muted-foreground uppercase">Courier Service</span>
+              <p className="text-xs font-black text-primary truncate">{order.courierName || "Pending"}</p>
             </div>
             <div className="p-3 rounded-xl bg-muted/40 border border-border/60 text-center">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase">ট্র্যাকিং কোড</span>
-              <p className="text-xs font-mono font-black text-foreground truncate">{order.trackingNumber}</p>
+              <span className="text-[10px] font-bold text-muted-foreground uppercase">Tracking Code</span>
+              <p className="text-xs font-mono font-black text-foreground truncate">{order.trackingNumber || "N/A"}</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Tabs Layout */}
+      {/* Streamlined 3 Tabs Layout */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 sm:grid-cols-7 bg-muted/60 p-1 rounded-xl">
-          <TabsTrigger value="overview" className="text-xs font-bold">Overview</TabsTrigger>
-          <TabsTrigger value="customer" className="text-xs font-bold">Customer</TabsTrigger>
-          <TabsTrigger value="products" className="text-xs font-bold">Products</TabsTrigger>
-          <TabsTrigger value="timeline" className="text-xs font-bold">Timeline</TabsTrigger>
-          <TabsTrigger value="courier" className="text-xs font-bold">Courier</TabsTrigger>
-          <TabsTrigger value="profit" className="text-xs font-bold">Profit</TabsTrigger>
-          <TabsTrigger value="notes" className="text-xs font-bold">Notes</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 bg-muted/60 p-1 rounded-xl">
+          <TabsTrigger value="overview" className="text-xs font-extrabold gap-1">
+            <Package className="w-3.5 h-3.5" /> Overview & Customer
+          </TabsTrigger>
+          <TabsTrigger value="courier" className="text-xs font-extrabold gap-1">
+            <Truck className="w-3.5 h-3.5" /> Courier & History
+          </TabsTrigger>
+          <TabsTrigger value="profit" className="text-xs font-extrabold gap-1">
+            <TrendingUp className="w-3.5 h-3.5" /> Profit & Notes
+          </TabsTrigger>
         </TabsList>
 
-        {/* Tab 1: Overview */}
+        {/* Tab 1: Overview & Customer & Products */}
         <TabsContent value="overview" className="pt-4 space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card className="border-border/80 shadow-2xs">
               <CardContent className="p-4 space-y-3 text-xs">
-                <h3 className="font-black text-foreground flex items-center gap-1.5 text-sm">
-                  <User className="w-4 h-4 text-primary" /> কাস্টমার ও ডেলিভারি বিবরণ:
+                <h3 className="font-black text-foreground flex items-center gap-1.5 text-sm border-b border-border/60 pb-2">
+                  <User className="w-4 h-4 text-primary" /> Customer & Delivery Details:
                 </h3>
-                <div className="space-y-1.5 text-muted-foreground font-semibold">
-                  <p>• নাম: <span className="text-foreground font-bold">{order.customerName}</span></p>
-                  <p>• মোবাইল: <span className="text-foreground font-bold font-mono">{order.customerPhone}</span></p>
-                  <p>• জেলা: <span className="text-foreground font-bold">{order.district}</span></p>
-                  <p>• সম্পূর্ণ ঠিকানা: <span className="text-foreground font-bold">{order.fullAddress}</span></p>
+                <div className="space-y-2 text-muted-foreground font-semibold">
+                  <div className="flex justify-between">
+                    <span>Name:</span>
+                    <span className="text-foreground font-bold">{order.customerName}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Phone:</span>
+                    <span className="text-foreground font-bold font-mono">{order.customerPhone}</span>
+                  </div>
+                  {order.customerEmail && (
+                    <div className="flex justify-between">
+                      <span>Email:</span>
+                      <span className="text-foreground font-bold">{order.customerEmail}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span>District / Area:</span>
+                    <span className="text-foreground font-bold">{order.district} {order.upazila ? `(${order.upazila})` : ''}</span>
+                  </div>
+                  <div className="pt-1">
+                    <span className="block mb-0.5">Full Address:</span>
+                    <p className="text-foreground font-bold p-2.5 rounded-lg bg-muted/40 border border-border/60">
+                      {order.fullAddress}
+                    </p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card className="border-border/80 shadow-2xs">
               <CardContent className="p-4 space-y-3 text-xs">
-                <h3 className="font-black text-foreground flex items-center gap-1.5 text-sm">
-                  <TrendingUp className="w-4 h-4 text-success" /> ফাইনান্সিয়াল হিসাব:
+                <h3 className="font-black text-foreground flex items-center gap-1.5 text-sm border-b border-border/60 pb-2">
+                  <TrendingUp className="w-4 h-4 text-success" /> Financial Calculation:
                 </h3>
-                <div className="space-y-1.5 text-muted-foreground font-semibold">
-                  <p>• Resell Price: <span className="text-foreground font-bold">৳{Math.round(order.unitCost / 100 * order.quantity)}</span></p>
-                  <p>• কাস্টমারের নিকট বিক্রয় মূল্য: <span className="text-foreground font-bold">৳{Math.round(order.unitPrice / 100 * order.quantity)}</span></p>
-                  <p>• ডেলিভারি চার্জ: <span className="text-foreground font-bold">৳{Math.round(order.deliveryFee / 100)}</span></p>
-                  <p>• মোট বিল (Grand Total): <span className="text-primary font-black">৳{sellingPriceTaka}</span></p>
+                <div className="space-y-2 text-muted-foreground font-semibold">
+                  <div className="flex justify-between">
+                    <span>Resell Price (Cost Basis):</span>
+                    <span className="text-foreground font-bold">৳{order.costBasis || Math.round((order.unitCost || 0) / 100 * (order.quantity || 1))}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Customer Selling Price:</span>
+                    <span className="text-foreground font-bold">৳{order.grandTotal ? order.grandTotal - (order.deliveryFee || 0) : Math.round((order.unitPrice || 0) / 100 * (order.quantity || 1))}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Delivery Charge:</span>
+                    <span className="text-foreground font-bold">৳{order.deliveryFee || 80}</span>
+                  </div>
+                  <div className="flex justify-between pt-2 border-t border-border/60">
+                    <span className="font-black text-foreground">Grand Total Bill:</span>
+                    <span className="text-primary font-black text-sm">৳{order.grandTotal || Math.round((order.sellingPriceTotal || 0) / 100)}</span>
+                  </div>
+                  <div className="flex justify-between p-2 rounded-lg bg-success/10 border border-success/30 text-success">
+                    <span className="font-bold">Net Sales Profit:</span>
+                    <span className="font-black">+৳{order.profit || Math.round((order.profit || 0) / 100)}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Product Items Breakdown Card */}
+          <Card className="border-border/80 shadow-2xs">
+            <CardContent className="p-4 space-y-3 text-xs">
+              <h3 className="font-black text-foreground flex items-center gap-1.5 text-sm border-b border-border/60 pb-2">
+                <Package className="w-4 h-4 text-amber-500" /> Ordered Items List:
+              </h3>
+              <div className="divide-y divide-border/40">
+                {order.items && order.items.length > 0 ? (
+                  order.items.map((item: any, idx: number) => (
+                    <div key={idx} className="py-2.5 flex items-center justify-between gap-3">
+                      <div>
+                        <p className="font-extrabold text-foreground text-sm">{item.productName}</p>
+                        {item.variantSku && (
+                          <span className="text-[11px] font-mono text-muted-foreground">SKU: {item.variantSku}</span>
+                        )}
+                        <p className="text-muted-foreground font-semibold">Quantity: {item.quantity} pcs</p>
+                      </div>
+                      <div className="text-right font-semibold">
+                        <p className="font-black text-primary text-sm">৳{Math.round(item.totalSellingPrice / 100)}</p>
+                        <span className="text-success text-[11px] font-bold">+৳{Math.round(item.totalProfit / 100)} Profit</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-2 flex items-center justify-between">
+                    <div>
+                      <p className="font-bold text-foreground">{order.productName}</p>
+                      <p className="text-muted-foreground">Quantity: {order.quantity} pcs</p>
+                    </div>
+                    <p className="font-black text-primary text-sm">৳{order.grandTotal ? order.grandTotal - (order.deliveryFee || 80) : Math.round((order.unitPrice || 0) / 100 * (order.quantity || 1))}</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tab 2: Courier & Timeline */}
+        <TabsContent value="courier" className="pt-4 space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Card className="border-border/80 shadow-2xs">
+              <CardContent className="p-4 space-y-3 text-xs font-semibold">
+                <h3 className="text-sm font-black text-foreground flex items-center gap-1.5 border-b border-border/60 pb-2">
+                  <Truck className="w-4 h-4 text-primary" /> Courier Tracking Details:
+                </h3>
+                <div className="space-y-2">
+                  <p className="flex justify-between">
+                    <span className="text-muted-foreground">Courier Service:</span>
+                    <span className="text-foreground font-extrabold">{order.courierName}</span>
+                  </p>
+                  <p className="flex justify-between">
+                    <span className="text-muted-foreground">Tracking Number:</span>
+                    <span className="text-primary font-mono font-extrabold">{order.trackingNumber}</span>
+                  </p>
+                  <p className="flex justify-between">
+                    <span className="text-muted-foreground">Current Status:</span>
+                    <span className="text-foreground font-bold uppercase">{order.status}</span>
+                  </p>
+                  {order.trackingUrl && (
+                    <a
+                      href={order.trackingUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline pt-2"
+                    >
+                      Live Tracking Link &rarr;
+                    </a>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/80 shadow-2xs">
+              <CardContent className="p-4 space-y-3">
+                <h3 className="text-sm font-black text-foreground flex items-center gap-1.5 border-b border-border/60 pb-2">
+                  <Clock className="w-4 h-4 text-amber-500" /> Order History & Timeline:
+                </h3>
+                <div className="space-y-3 border-l-2 border-primary/30 pl-4">
+                  {order.timeline && order.timeline.length > 0 ? (
+                    order.timeline.map((t: any, i: number) => (
+                      <div key={i} className="space-y-0.5 text-xs">
+                        <p className="font-bold text-foreground">{t.title || t.status}</p>
+                        <p className="text-[10px] text-muted-foreground font-mono">{new Date(t.date).toLocaleString()}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-xs text-muted-foreground font-semibold">No timeline history recorded yet.</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
           </div>
         </TabsContent>
 
-        {/* Tab 2: Customer */}
-        <TabsContent value="customer" className="pt-4">
-          <Card className="border-border/80 shadow-2xs">
-            <CardContent className="p-5 space-y-3 text-xs font-semibold">
-              <h3 className="text-sm font-black text-foreground">কাস্টমার প্রোফাইল:</h3>
-              <p>• নাম: {order.customerName}</p>
-              <p>• মোবাইল: {order.customerPhone}</p>
-              <p>• ইমেইল: {order.customerEmail}</p>
-              <p>• ঠিকানা: {order.fullAddress}, {order.district}</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Tab 3: Products */}
-        <TabsContent value="products" className="pt-4">
-          <Card className="border-border/80 shadow-2xs">
-            <CardContent className="p-5 space-y-3 text-xs font-semibold">
-              <h3 className="text-sm font-black text-foreground">অর্ডারকৃত পণ্য:</h3>
-              <div className="p-3 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between">
-                <div>
-                  <p className="font-bold text-foreground">{order.productName}</p>
-                  <p className="text-muted-foreground">পরিমাণ: {order.quantity} টি</p>
+        {/* Tab 3: Profit & Notes */}
+        <TabsContent value="profit" className="pt-4 space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Card className="border-border/80 shadow-2xs">
+              <CardContent className="p-4 space-y-3 text-xs font-semibold">
+                <h3 className="text-sm font-black text-success flex items-center gap-1.5 border-b border-border/60 pb-2">
+                  <TrendingUp className="w-4 h-4" /> Profit Statement:
+                </h3>
+                <div className="space-y-2">
+                  <p className="flex justify-between">
+                    <span className="text-muted-foreground">Customer Sales Subtotal:</span>
+                    <span>৳{order.grandTotal ? order.grandTotal - (order.deliveryFee || 80) : Math.round((order.unitPrice || 0) / 100 * (order.quantity || 1))}</span>
+                  </p>
+                  <p className="flex justify-between">
+                    <span className="text-muted-foreground">Resell Wholesale Cost:</span>
+                    <span>৳{order.costBasis || Math.round((order.unitCost || 0) / 100 * (order.quantity || 1))}</span>
+                  </p>
+                  <p className="text-sm font-black text-success pt-2 border-t border-border/60 flex justify-between">
+                    <span>Net Sales Profit:</span>
+                    <span>+৳{order.profit || Math.round((order.profit || 0) / 100)}</span>
+                  </p>
                 </div>
-                <p className="font-black text-primary text-sm">৳{Math.round(order.unitPrice / 100 * order.quantity)}</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+              </CardContent>
+            </Card>
 
-        {/* Tab 4: Timeline */}
-        <TabsContent value="timeline" className="pt-4">
-          <Card className="border-border/80 shadow-2xs">
-            <CardContent className="p-5 space-y-4">
-              <h3 className="text-sm font-black text-foreground">অর্ডার হিস্ট্রি ও টাইমলাইন:</h3>
-              <div className="space-y-3 border-l-2 border-primary/30 pl-4">
-                {order.timeline?.map((t: any, i: number) => (
-                  <div key={i} className="space-y-0.5">
-                    <p className="text-xs font-bold text-foreground">{t.title}</p>
-                    <p className="text-[10px] text-muted-foreground font-mono">{new Date(t.date).toLocaleString()}</p>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Tab 5: Courier */}
-        <TabsContent value="courier" className="pt-4">
-          <Card className="border-border/80 shadow-2xs">
-            <CardContent className="p-5 space-y-3 text-xs font-semibold">
-              <h3 className="text-sm font-black text-foreground">কুরিয়ার ট্র্যাকিং:</h3>
-              <p>• কুরিয়ার: {order.courierName}</p>
-              <p>• ট্র্যাকিং নম্বর: {order.trackingNumber}</p>
-              <p>• বর্তমান স্ট্যাটাস: In Transit</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Tab 6: Profit */}
-        <TabsContent value="profit" className="pt-4">
-          <Card className="border-border/80 shadow-2xs">
-            <CardContent className="p-5 space-y-3 text-xs font-semibold">
-              <h3 className="text-sm font-black text-success">প্রফিট বিবরণী:</h3>
-              <p>• কাস্টমার সেলస్ সাবটোটাল: ৳{Math.round(order.unitPrice / 100 * order.quantity)}</p>
-              <p>• Resell Price: ৳{Math.round(order.unitCost / 100 * order.quantity)}</p>
-              <p className="text-sm font-black text-success pt-2 border-t border-border/60">
-                • আপনার নিট প্রফিট: +৳{profitTaka}
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Tab 7: Notes */}
-        <TabsContent value="notes" className="pt-4">
-          <Card className="border-border/80 shadow-2xs">
-            <CardContent className="p-5 space-y-3 text-xs font-semibold">
-              <h3 className="text-sm font-black text-foreground">অর্ডার নোটস:</h3>
-              <p className="p-3 rounded-xl bg-muted/40 border border-border/60 text-muted-foreground">
-                {order.notes || "কোনো বিশেষ নোট নেই।"}
-              </p>
-            </CardContent>
-          </Card>
+            <Card className="border-border/80 shadow-2xs">
+              <CardContent className="p-4 space-y-3 text-xs font-semibold">
+                <h3 className="text-sm font-black text-foreground flex items-center gap-1.5 border-b border-border/60 pb-2">
+                  <FileText className="w-4 h-4 text-primary" /> Delivery Notes & Remarks:
+                </h3>
+                <p className="p-3 rounded-xl bg-muted/40 border border-border/60 text-muted-foreground font-normal leading-relaxed">
+                  {order.notes || "No special instructions provided."}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

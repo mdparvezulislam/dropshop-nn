@@ -261,7 +261,23 @@ export async function submitCheckoutAction(formData: unknown): Promise<{
       session?.user?.id,
     );
     revalidatePath("/dashboard/orders");
-    return { success: true, data: result };
+
+    const plainData = JSON.parse(JSON.stringify(result));
+    const orderId = result.draft?.id || result.checkout?.id || "";
+    const orderNumber = (result.draft as any)?.orderNumber || (result.checkout as any)?.orderNumber || (orderId ? `ORD-${orderId.slice(-6)}` : "RSL-9999");
+
+    return {
+      success: true,
+      data: {
+        id: orderId,
+        orderId,
+        orderNumber,
+        checkoutId: result.checkout?.id,
+        draftId: result.draft?.id,
+        checkout: plainData.checkout,
+        draft: plainData.draft,
+      } as any,
+    };
   } catch (error: any) {
     logger.error("submitCheckoutAction failed", error);
     return { success: false, error: error.message };
@@ -359,13 +375,17 @@ export async function completeRoleCheckoutAction(formData: unknown): Promise<{
   error?: string;
 }> {
   try {
+    const rawCustomer = (formData as { customer?: Record<string, unknown> })?.customer ?? {};
+    const address = String(
+      rawCustomer.address || rawCustomer.addressLine1 || rawCustomer.fullAddress || "",
+    ).trim();
+
     const validated = completeRoleCheckoutSchema.parse({
       ...(formData as object),
       customer: {
-        ...((formData as { customer?: object })?.customer ?? {}),
-        phone: normalizePhone(
-          String((formData as { customer?: { phone?: string } })?.customer?.phone ?? ""),
-        ),
+        ...rawCustomer,
+        address,
+        phone: normalizePhone(String(rawCustomer.phone ?? "")),
       },
     });
 
@@ -470,9 +490,44 @@ export async function completeRoleCheckoutAction(formData: unknown): Promise<{
     revalidatePath("/reseller/orders");
     revalidatePath("/wholesale/orders");
     revalidatePath("/dashboard/orders");
-    return { success: true, data: result };
+
+    const plainData = JSON.parse(JSON.stringify(result));
+    const orderId = result.draft?.id || result.checkout?.id || "";
+    const orderNumber = (result.draft as any)?.orderNumber || (result.checkout as any)?.orderNumber || (orderId ? `ORD-${orderId.slice(-6)}` : "RSL-9999");
+
+    return {
+      success: true,
+      data: {
+        id: orderId,
+        orderId,
+        orderNumber,
+        checkoutId: result.checkout?.id,
+        draftId: result.draft?.id,
+        checkout: plainData.checkout,
+        draft: plainData.draft,
+      } as any,
+    };
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : "Checkout failed";
+    let message = "অর্ডার প্রক্রিয়াকরণে সমস্যা হয়েছে।";
+    if (
+      error &&
+      typeof error === "object" &&
+      "issues" in error &&
+      Array.isArray((error as { issues?: unknown[] }).issues)
+    ) {
+      const issues = (error as { issues: Array<{ path?: string[]; message?: string }> }).issues;
+      const formattedErrors = issues.map((issue) => {
+        const field = issue.path ? issue.path.join(".") : "";
+        if (field.includes("address")) return "কাস্টমারের ডেলিভারি ঠিকানা প্রদান করা আবশ্যক।";
+        if (field.includes("name")) return "কাস্টমারের নাম প্রদান করা আবশ্যক।";
+        if (field.includes("phone")) return "সঠিক মোবাইল নম্বর লিখুন।";
+        if (field.includes("items")) return "কমপক্ষে ১টি পণ্য নির্বাচন করুন।";
+        return issue.message || "তথ্যাদিতে সমস্যা রয়েছে";
+      });
+      message = Array.from(new Set(formattedErrors)).join(" ");
+    } else if (error instanceof Error) {
+      message = error.message;
+    }
     logger.error("completeRoleCheckoutAction failed", error as Error);
     return { success: false, error: message };
   }

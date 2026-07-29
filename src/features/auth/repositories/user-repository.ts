@@ -100,5 +100,24 @@ export class UserRepository extends BaseRepository<UserDocument, User> {
       throw new DatabaseError("Database update error", error);
     }
   }
+
+  async findAdminUsers(options?: DatabaseQueryOptions): Promise<User[]> {
+    try {
+      return this.find(
+        {
+          $or: [
+            { role: { $in: ["admin", "super_admin", "manager"] } },
+            { roles: { $in: ["admin", "super_admin", "manager"] } },
+            { memberships: { $in: ["admin", "super_admin", "manager"] } },
+          ],
+          isDeleted: { $ne: true },
+        },
+        options,
+      );
+    } catch (error) {
+      logger.error("UserRepository findAdminUsers failed", error);
+      return [];
+    }
+  }
 }
 export default UserRepository;

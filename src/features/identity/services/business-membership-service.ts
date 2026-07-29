@@ -82,6 +82,21 @@ export class BusinessMembershipService {
         body: `আপনার ${typeLabel} মেম্বারশিপ আবেদনটি সফলভাবে জমা নেওয়া হয়েছে। পর্যালোচনা শেষে জানানো হবে।`,
         channels: ["in_app"],
       });
+
+      // Admin & Super Admin Notifications
+      const adminUsers = await this.userRepository.findAdminUsers();
+      const applicantName = input.userFullName || input.commonFields.fullName;
+      for (const admin of adminUsers) {
+        await notificationService.notify({
+          userId: admin.id,
+          type: "membership.application_submitted",
+          title: `নতুন ${typeLabel} মেম্বারশিপ আবেদন জমা হয়েছে`,
+          body: `${applicantName} (${input.commonFields.phone}) একটি নতুন ${typeLabel} মেম্বারশিপ আবেদন জমা দিয়েছেন।`,
+          href: "/dashboard/identity/applications",
+          category: "account",
+          channels: ["in_app"],
+        });
+      }
     } catch {
       // Non-blocking notification failure
     }
@@ -138,6 +153,34 @@ export class BusinessMembershipService {
       newStatus: "pending",
       note: "আবেদন সংশোধন করে পুনঃজমাদান করা হয়েছে",
     });
+
+    // User & Admin Notifications
+    const typeLabel = app.membershipType === "reseller" ? "রিসেলার" : "হোলসেলার";
+    const applicantName = input.commonFields.fullName || app.userFullName;
+    try {
+      await notificationService.notify({
+        userId: input.userId,
+        type: "membership.updated",
+        title: `${typeLabel} আবেদন সংশোধিত হয়েছে`,
+        body: `আপনার ${typeLabel} মেম্বারশিপ আবেদনটি সংশোধন করে পুনঃজমা নেওয়া হয়েছে।`,
+        channels: ["in_app"],
+      });
+
+      const adminUsers = await this.userRepository.findAdminUsers();
+      for (const admin of adminUsers) {
+        await notificationService.notify({
+          userId: admin.id,
+          type: "membership.application_updated",
+          title: `${typeLabel} মেম্বারশিপ আবেদন সংশোধিত হয়েছে`,
+          body: `${applicantName} (${input.commonFields.phone}) তার ${typeLabel} মেম্বারশিপ আবেদনটি সংশোধন করে পুনঃজমা দিয়েছেন।`,
+          href: "/dashboard/identity/applications",
+          category: "account",
+          channels: ["in_app"],
+        });
+      }
+    } catch {
+      // Non-blocking notification failure
+    }
 
     return updated;
   }

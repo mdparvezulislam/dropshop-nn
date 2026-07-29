@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
-import { ApprovalsQueue } from "@/features/identity/components/approvals-queue";
+import { BusinessMembershipApprovalCenter } from "@/features/identity/components/business-membership-approval-center";
 
 export const metadata: Metadata = {
-  title: "Approvals - DropshopNN",
+  title: "Membership Application Approvals - DropshopNN",
   robots: { index: false },
 };
 
 export default function ApprovalsPage() {
-  return <ApprovalsQueue />;
+  return (
+    <div className="min-h-screen bg-background p-4 sm:p-6">
+      <BusinessMembershipApprovalCenter />
+    </div>
+  );
 }
