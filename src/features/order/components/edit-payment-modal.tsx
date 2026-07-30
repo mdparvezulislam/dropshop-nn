@@ -50,7 +50,19 @@ export function EditPaymentModal({
       setPaymentMethod((order.shipping?.paymentMethod || "cod").toLowerCase());
       setPaymentStatus(payDetails.paymentStatus);
       setAdvancePaid(payDetails.advancePaid);
-      setDeliveryCharge(order.shipping?.deliveryCharge ?? order.shippingCost ?? 60);
+
+      const rawDeliv =
+        order.deliveryChargeCents ??
+        (order.pricing?.grandTotal && order.pricing?.subtotal && order.pricing.grandTotal > order.pricing.subtotal
+          ? order.pricing.grandTotal - order.pricing.subtotal
+          : undefined) ??
+        order.shipping?.deliveryFee ??
+        order.shipping?.deliveryCharge ??
+        order.shippingCost ??
+        60;
+
+      const delivTaka = rawDeliv > 1000 ? Math.round(rawDeliv / 100) : rawDeliv;
+      setDeliveryCharge(delivTaka);
     }
   }, [order]);
 
@@ -58,7 +70,8 @@ export function EditPaymentModal({
 
   const orderId = order.id || order._id;
   const orderNumber = order.orderNumber || `#${orderId.slice(-6)}`;
-  const grandTotal = order.pricing?.grandTotal || order.total || 0;
+  const payDetails = getOrderPaymentDetails(order);
+  const grandTotal = payDetails.grandTotal;
 
   // Real-time calculation
   const currentAdvance = Math.max(0, Number(advancePaid || 0));

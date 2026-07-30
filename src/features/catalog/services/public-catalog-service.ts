@@ -90,6 +90,7 @@ export class PublicCatalogService {
 
     const filter: Record<string, unknown> = {
       status: { $in: ["active", "published"] },
+      visibility: { $ne: "hidden" },
       isDeleted: { $ne: true },
     };
 
@@ -386,13 +387,20 @@ export class PublicCatalogService {
         ? minorToBdt(record.comparePrice)
         : undefined;
 
+    const minResellerBdt = (record as any)?.minResellerPrice
+      ? minorToBdt((record as any).minResellerPrice)
+      : undefined;
+
     const pricing: PublicProductPricing = {
       retailPrice: sellingBdt,
       campaignPrice: promoBdt,
       comparePrice: compareBdt,
       currency: record?.currency && record.currency !== "USD" ? record.currency : "BDT",
       ...(viewer.isReseller || viewer.isAdmin
-        ? { resellerPrice: record?.resellerPrice ? minorToBdt(record.resellerPrice) : undefined }
+        ? {
+            resellerPrice: record?.resellerPrice ? minorToBdt(record.resellerPrice) : undefined,
+            minResellerPrice: minResellerBdt,
+          }
         : {}),
       ...(viewer.isWholesaler || viewer.isAdmin
         ? { wholesalePrice: record?.wholesalePrice ? minorToBdt(record.wholesalePrice) : undefined }

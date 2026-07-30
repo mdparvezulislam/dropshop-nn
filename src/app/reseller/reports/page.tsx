@@ -40,38 +40,57 @@ export default function ResellerReportsPage(): React.ReactElement {
   const [rows, setRows] = React.useState<ProfitTableRow[]>([]);
   const [resellerStatus, setResellerStatus] = React.useState("active");
 
+  const handleExportCSV = async () => {
+    try {
+      const { exportAnalyticsAction } = await import(
+        "@/features/analytics/actions/analytics-actions"
+      );
+      const res = await exportAnalyticsAction({ format: "csv", type: "orders" });
+      if (res.success && res.data) {
+        const blob = new Blob([res.data.content], { type: res.data.mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = res.data.filename || `reseller-report-${Date.now()}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("Reseller report exported successfully!");
+      } else {
+        toast.error(res.error || "Failed to export report");
+      }
+    } catch {
+      toast.error("Export failed");
+    }
+  };
+
   React.useEffect(() => {
     async function load() {
       setLoading(true);
       try {
-        const { listCheckoutsAction } = await import(
-          "@/features/checkout/actions/checkout-actions"
+        const { getResellerOrdersAction } = await import(
+          "@/features/reseller/actions/reseller-order-actions"
         );
-        const res = await listCheckoutsAction({ type: "reseller", limit: 20 });
+        const res = await getResellerOrdersAction({ limit: 50 });
 
         if (res.success && res.data) {
-          const items = (res.data as any).items || (res.data as any).checkouts || [];
-          const mapped: ProfitTableRow[] = items.map((o: any, idx: number) => {
-            const item = o.items?.[0] || {};
-            const unitPrice = item.unitPriceOverride || item.resolvedPrice || 180000;
-            const unitCost = item.profitPreview?.costBasis || Math.round(unitPrice * 0.7);
-            const qty = item.quantity || 1;
-            const isReturned = idx === 3 || o.status === "returned";
-            const grossProfit = (unitPrice - unitCost) * qty;
-            const deliveryFee = o.deliveryFee || 8000;
-            const returnCost = isReturned ? 12000 : 0;
-            const netProfit = isReturned ? -returnCost : grossProfit;
+          const items = (res.data as any).orders || (Array.isArray(res.data) ? res.data : []);
+          const mapped: ProfitTableRow[] = items.map((o: any) => {
+            const isReturned = o.status === "returned" || o.status === "return_received";
+            const sellingPriceCents = o.sellingPriceCents || 0;
+            const costBasisCents = o.costBasisCents || 0;
+            const deliveryChargeCents = o.deliveryChargeCents || 8000;
+            const profitCents = isReturned ? -12000 : (o.profitCents || Math.max(0, sellingPriceCents - costBasisCents));
 
             return {
-              id: o.id || o._id,
-              orderNumber: o.checkoutNumber || o.orderNumber || o.id?.slice(0, 8) || "RSL-901",
-              productName: item.name || item.productName || "Gimbal Stabilizer",
-              sellingPrice: (unitPrice * qty) + deliveryFee,
-              wholesaleCost: unitCost * qty,
-              deliveryCost: deliveryFee,
-              returnCost,
-              netProfit,
-              status: isReturned ? "returned" : (o.status || "delivered"),
+              id: o.id || o.orderNumber,
+              orderNumber: o.orderNumber,
+              productName: o.productName || "Reseller Product",
+              sellingPrice: sellingPriceCents,
+              wholesaleCost: costBasisCents,
+              deliveryCost: deliveryChargeCents,
+              returnCost: isReturned ? 12000 : 0,
+              netProfit: profitCents,
+              status: isReturned ? "returned" : o.status,
               date: o.createdAt ? new Date(o.createdAt).toLocaleDateString() : new Date().toLocaleDateString(),
             };
           });
@@ -87,7 +106,7 @@ export default function ResellerReportsPage(): React.ReactElement {
     load();
   }, []);
 
-  const totalDeliveredProfit = rows.filter((r) => r.status === "delivered").reduce((s, r) => s + r.netProfit, 0);
+  const totalDeliveredProfit = rows.filter((r) => r.status === "delivered" || r.status === "completed").reduce((s, r) => s + r.netProfit, 0);
   const totalReturnedLoss = rows.filter((r) => r.status === "returned").reduce((s, r) => s + Math.abs(r.netProfit), 0);
   const withdrawableBalance = Math.max(0, totalDeliveredProfit - totalReturnedLoss);
 
@@ -108,6 +127,14 @@ export default function ResellerReportsPage(): React.ReactElement {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <Button
+              onClick={handleExportCSV}
+              variant="outline"
+              size="sm"
+              className="gap-1.5 font-bold"
+            >
+              <Download className="w-4 h-4 text-primary" /> Export CSV
+            </Button>
             <Link href="/reseller/wallet">
               <Button size="sm" className="gap-1.5 font-black shadow-xs">
                 <Wallet className="w-4 h-4" /> Wallet &amp; Withdraw

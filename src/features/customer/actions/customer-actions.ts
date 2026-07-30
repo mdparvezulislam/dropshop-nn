@@ -215,18 +215,30 @@ export async function listCustomersAction(
     const filter: any = {};
 
     // Force workspace isolation boundary constraints for resellers
-    if (session.user.role === "Reseller") {
-      filter.workspaceId = session.user.id;
+    const userRole = (session?.user?.role || "").toLowerCase();
+    if (userRole.includes("reseller")) {
+      filter.$or = [
+        { workspaceId: session.user.id },
+        { resellerId: session.user.id },
+        { createdBy: session.user.id },
+      ];
     }
 
     if (searchQuery?.trim()) {
       const searchRegex = new RegExp(searchQuery.trim(), "i");
-      filter.$or = [
+      const searchConditions = [
         { name: searchRegex },
         { phone: searchRegex },
         { email: searchRegex },
         { tags: searchRegex },
       ];
+
+      if (filter.$or) {
+        filter.$and = [{ $or: filter.$or }, { $or: searchConditions }];
+        delete filter.$or;
+      } else {
+        filter.$or = searchConditions;
+      }
     }
 
     const safePage = Math.max(1, page);

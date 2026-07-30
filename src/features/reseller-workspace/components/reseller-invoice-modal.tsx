@@ -19,7 +19,7 @@ export function ResellerInvoiceModal({
   open,
   onOpenChange,
   order,
-  shopName = "DropshopNN Reseller Store",
+  shopName = "Unique Store Bd",
   shopPhone = "01700000000",
   shopAddress = "Dhaka, Bangladesh",
   invoiceFooter = "আমাদের সাথে কেনাকাটা করার জন্য ধন্যবাদ!",
@@ -29,6 +29,28 @@ export function ResellerInvoiceModal({
   const handlePrint = () => {
     window.print();
   };
+
+  const o: any = order;
+  const actualShopName =
+    o.resellerShopName ||
+    o.resellerStoreName ||
+    o.storeName ||
+    o.shopName ||
+    (o.resellerName ? `${o.resellerName} Store` : undefined) ||
+    "Unique Store Bd";
+
+  const actualShopPhone =
+    o.resellerPhone ||
+    o.resellerContact ||
+    o.shopPhone ||
+    shopPhone ||
+    "01608257877";
+
+  const actualShopAddress =
+    o.resellerAddress ||
+    o.shopAddress ||
+    shopAddress ||
+    "Dhanmondi, Dhaka, Bangladesh";
 
   const itemsSubtotalTaka =
     order.items && order.items.length > 0
@@ -67,9 +89,16 @@ export function ResellerInvoiceModal({
             <Button
               onClick={handlePrint}
               size="sm"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold gap-1 text-xs shadow-sm"
+            >
+              <Download className="w-4 h-4" /> Download Invoice
+            </Button>
+            <Button
+              onClick={handlePrint}
+              size="sm"
               className="bg-rose-600 hover:bg-rose-700 text-white font-bold gap-1 text-xs shadow-sm"
             >
-              <Printer className="w-4 h-4" /> প্রিন্ট ইনভয়েস
+              <Printer className="w-4 h-4" /> Print Invoice
             </Button>
             <button
               onClick={() => onOpenChange(false)}
@@ -87,10 +116,10 @@ export function ResellerInvoiceModal({
             <div>
               <div className="flex items-center gap-2 text-rose-600">
                 <Store className="w-6 h-6 stroke-[2.5]" />
-                <span className="text-xl font-black tracking-tight">{shopName}</span>
+                <span className="text-xl font-black tracking-tight">{actualShopName}</span>
               </div>
               <p className="text-xs text-slate-500 font-semibold mt-1">
-                ফোন: {shopPhone} | ইমেইল: support@dropshopnn.com
+                ফোন: {actualShopPhone} | ঠিকানা: {actualShopAddress}
               </p>
             </div>
 

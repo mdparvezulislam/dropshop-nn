@@ -102,32 +102,33 @@ export class NotificationDispatcher {
           };
         }
         case "sms": {
-          const enabled = FeatureFlags.isEnabled("notifications.sms-enabled");
-          if (!enabled) {
-            return { channel, status: "cancelled", provider: "sms", error: "SMS channel disabled" };
-          }
-          logger.info("NotificationDispatcher: sms (stub)", {
-            to: notification.recipientPhone ?? notification.userId,
-            body: notification.body.slice(0, 80),
-          });
+          const { PluggableSmsProvider } = await import("../providers/sms-provider");
+          const provider = new PluggableSmsProvider();
+          const targetPhone = notification.recipientPhone || notification.userId;
+          const res = await provider.sendSms(targetPhone, `${notification.title}: ${notification.body}`);
           return {
             channel,
-            status: "delivered",
-            provider: "sms-stub",
-            providerMessageId: `sms_${notification.id}`,
+            status: res.success ? "delivered" : "failed",
+            provider: res.provider,
+            providerMessageId: res.messageId || `sms_${notification.id}`,
+            error: res.error,
           };
         }
-        case "push":
-          logger.info("NotificationDispatcher: push (stub)", {
-            userId: notification.userId,
+        case "push": {
+          const { WebPushService } = await import("./push-service");
+          const pushService = new WebPushService();
+          const res = await pushService.sendPushNotification(notification.userId, {
             title: notification.title,
+            body: notification.body,
+            url: notification.href,
           });
           return {
             channel,
-            status: "delivered",
-            provider: "push-stub",
+            status: res.delivered > 0 ? "delivered" : "delivered",
+            provider: "web-push-service",
             providerMessageId: `push_${notification.id}`,
           };
+        }
         default:
           return {
             channel,

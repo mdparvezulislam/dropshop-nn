@@ -69,9 +69,10 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
             {/* Mobile menu trigger */}
             <button
               type="button"
-              className="lg:hidden -ml-1 p-2 text-slate-800 hover:text-slate-900 transition-colors focus-visible:outline-2 focus-visible:outline-amber-500 rounded-lg"
+              className="lg:hidden -ml-1 p-2 text-slate-800 hover:text-slate-900 transition-colors touch-manipulation active:scale-95 focus-visible:outline-2 focus-visible:outline-amber-500 rounded-lg"
               onClick={() => setMobileOpen(true)}
               aria-label="মেনু খুলুন"
+              aria-expanded={mobileOpen}
               aria-haspopup="dialog"
             >
               <Menu className="h-5 w-5" aria-hidden />

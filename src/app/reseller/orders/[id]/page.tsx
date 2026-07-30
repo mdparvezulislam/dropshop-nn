@@ -331,16 +331,26 @@ export default function ResellerOrderDetailPage(): React.ReactElement {
 
         {/* Tab 2: Courier & Timeline */}
         <TabsContent value="courier" className="pt-4 space-y-4">
+          {/* READ-ONLY Notice */}
+          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between text-xs text-amber-700 dark:text-amber-300">
+            <span className="flex items-center gap-1.5 font-bold">
+              <Truck className="w-4 h-4 text-amber-500" /> Managed by Steadfast Courier Engine
+            </span>
+            <span className="font-semibold text-[11px] bg-amber-500/20 px-2 py-0.5 rounded-md">
+              READ ONLY Mode
+            </span>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card className="border-border/80 shadow-2xs">
               <CardContent className="p-4 space-y-3 text-xs font-semibold">
                 <h3 className="text-sm font-black text-foreground flex items-center gap-1.5 border-b border-border/60 pb-2">
-                  <Truck className="w-4 h-4 text-primary" /> Courier Tracking Details:
+                  <Truck className="w-4 h-4 text-primary" /> Steadfast Live Tracking:
                 </h3>
                 <div className="space-y-2">
                   <p className="flex justify-between">
                     <span className="text-muted-foreground">Courier Service:</span>
-                    <span className="text-foreground font-extrabold">{order.courierName}</span>
+                    <span className="text-foreground font-extrabold">{order.courierName || "Steadfast Courier"}</span>
                   </p>
                   <p className="flex justify-between">
                     <span className="text-muted-foreground">Tracking Number:</span>
@@ -350,14 +360,14 @@ export default function ResellerOrderDetailPage(): React.ReactElement {
                     <span className="text-muted-foreground">Current Status:</span>
                     <span className="text-foreground font-bold uppercase">{order.status}</span>
                   </p>
-                  {order.trackingUrl && (
+                  {order.trackingNumber && order.trackingNumber !== "N/A" && (
                     <a
-                      href={order.trackingUrl}
+                      href={`https://steadfast.com.bd/t/${order.trackingNumber}`}
                       target="_blank"
                       rel="noreferrer"
                       className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline pt-2"
                     >
-                      Live Tracking Link &rarr;
+                      View Live Steadfast Portal &rarr;
                     </a>
                   )}
                 </div>
@@ -367,14 +377,14 @@ export default function ResellerOrderDetailPage(): React.ReactElement {
             <Card className="border-border/80 shadow-2xs">
               <CardContent className="p-4 space-y-3">
                 <h3 className="text-sm font-black text-foreground flex items-center gap-1.5 border-b border-border/60 pb-2">
-                  <Clock className="w-4 h-4 text-amber-500" /> Order History & Timeline:
+                  <Clock className="w-4 h-4 text-amber-500" /> Synchronized Timeline:
                 </h3>
                 <div className="space-y-3 border-l-2 border-primary/30 pl-4">
                   {order.timeline && order.timeline.length > 0 ? (
                     order.timeline.map((t: any, i: number) => (
                       <div key={i} className="space-y-0.5 text-xs">
-                        <p className="font-bold text-foreground">{t.title || t.status}</p>
-                        <p className="text-[10px] text-muted-foreground font-mono">{new Date(t.date).toLocaleString()}</p>
+                        <p className="font-bold text-foreground">{t.title || t.summary || t.status}</p>
+                        <p className="text-[10px] text-muted-foreground font-mono">{new Date(t.date || t.timestamp || Date.now()).toLocaleString()}</p>
                       </div>
                     ))
                   ) : (

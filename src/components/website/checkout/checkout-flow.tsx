@@ -495,6 +495,24 @@ export function CheckoutFlow() {
               </p>
             </div>
           </div>
+
+          {/* Mobile direct submit action (< lg screens) */}
+          <div className="pt-2 lg:hidden">
+            <Button
+              type="submit"
+              disabled={placing || quoteLoading || !quote || quote.lines.length === 0}
+              className="w-full h-13 text-sm font-black bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-slate-950 rounded-xl shadow-md transition-transform disabled:opacity-50 touch-manipulation"
+            >
+              {placing ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" aria-hidden />
+                  অর্ডার হচ্ছে...
+                </>
+              ) : (
+                `অর্ডার কনফার্ম করুন — ${formatBdt(grandTotal)}`
+              )}
+            </Button>
+          </div>
         </div>
 
         <Link

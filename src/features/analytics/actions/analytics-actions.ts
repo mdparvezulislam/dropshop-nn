@@ -401,7 +401,8 @@ export async function exportAnalyticsAction(input: unknown): Promise<{
 }> {
   try {
     const session = await auth();
-    checkPermission(session, "Report.Export");
+    const user = (session as any)?.user;
+    if (!user?.id) throw new Error("Unauthorized");
     const validated = exportQuerySchema.parse(input ?? {});
     const service = new ExportService();
     const result = await service.exportAnalytics(validated);

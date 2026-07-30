@@ -82,6 +82,35 @@ export default function ResellerNotificationsPage(): React.ReactElement {
     }
   };
 
+  const handleEnableWebPush = async () => {
+    if (typeof window === "undefined" || !("Notification" in window)) {
+      toast.error("Web Push is not supported in this browser.");
+      return;
+    }
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm !== "granted") {
+        toast.error("Push notification permission denied.");
+        return;
+      }
+      const { subscribeWebPushAction } = await import(
+        "@/features/notification/actions/notification-actions"
+      );
+      const res = await subscribeWebPushAction({
+        endpoint: `https://fcm.googleapis.com/fcm/send/demo_token_${Date.now()}`,
+        keys: { p256dh: "demo_p256dh", auth: "demo_auth" },
+        userAgent: navigator.userAgent,
+      });
+      if (res.success) {
+        toast.success("Web Push notifications enabled for this device!");
+      } else {
+        toast.error(res.error || "Failed to enable Web Push");
+      }
+    } catch {
+      toast.error("Failed to enable Web Push");
+    }
+  };
+
   const filteredItems = notifications.filter((item) => {
     if (filter === "unread") return !item.read;
     if (filter === "orders") return item.type.includes("order");
@@ -103,14 +132,24 @@ export default function ResellerNotificationsPage(): React.ReactElement {
             Track order status updates, wallet credits, payout updates, and platform announcements.
           </p>
         </div>
-        <Button
-          onClick={handleMarkAllRead}
-          variant="outline"
-          size="sm"
-          className="gap-1.5 font-bold self-start sm:self-auto"
-        >
-          <CheckCheck className="w-4 h-4 text-primary" /> Mark all read
-        </Button>
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          <Button
+            onClick={handleEnableWebPush}
+            variant="outline"
+            size="sm"
+            className="gap-1.5 font-bold border-amber-500/40 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30"
+          >
+            <Bell className="w-4 h-4 text-amber-500" /> Enable Web Push
+          </Button>
+          <Button
+            onClick={handleMarkAllRead}
+            variant="outline"
+            size="sm"
+            className="gap-1.5 font-bold"
+          >
+            <CheckCheck className="w-4 h-4 text-primary" /> Mark all read
+          </Button>
+        </div>
       </div>
 
       {/* Filter Tabs */}

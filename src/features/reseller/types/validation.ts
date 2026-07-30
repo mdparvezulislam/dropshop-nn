@@ -38,6 +38,8 @@ export const createResellerSchema = z.object({
   collections: z.array(z.string()).default([]),
   tags: z.array(z.string()).default([]),
   notes: z.string().optional().or(z.literal("")),
+  resellerMarkupPercent: z.coerce.number().min(0).max(100).optional(),
+  wholesaleMarkupPercent: z.coerce.number().min(0).max(100).optional(),
 });
 
 export type CreateResellerInput = z.infer<typeof createResellerSchema>;

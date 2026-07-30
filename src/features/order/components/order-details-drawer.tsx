@@ -95,7 +95,33 @@ export function OrderDetailsDrawer({
   const items = order.items || order.pricing?.items || [];
   const riskScore = order.riskScore ?? 85;
   const isHighRisk = riskScore < 50;
-  const deliveryCharge = order.shipping?.deliveryCharge ?? order.shippingCost ?? 120;
+
+  const rawDeliveryCharge =
+    order.deliveryChargeCents ??
+    (order.pricing?.grandTotal && order.pricing?.subtotal && order.pricing.grandTotal > order.pricing.subtotal
+      ? order.pricing.grandTotal - order.pricing.subtotal
+      : undefined) ??
+    order.shipping?.deliveryFee ??
+    order.shipping?.deliveryCharge ??
+    order.shippingCost ??
+    60;
+
+  const deliveryCharge = rawDeliveryCharge > 1000 ? Math.round(rawDeliveryCharge / 100) : rawDeliveryCharge;
+
+  const rawProfit =
+    order.resellerProfit ??
+    order.profit ??
+    order.estimatedProfit ??
+    order.profitPreview?.totalProfit ??
+    items.reduce((sum: number, i: any) => {
+      const rawPrice = i.unitSellingPrice ?? i.unitPrice ?? i.price ?? 0;
+      const priceTaka = rawPrice > 5000 ? Math.round(rawPrice / 100) : rawPrice;
+      const rawCost = i.unitCostBasis ?? i.costBasis ?? 0;
+      const costTaka = rawCost > 5000 ? Math.round(rawCost / 100) : rawCost;
+      return sum + (priceTaka - costTaka) * (i.quantity || 1);
+    }, 0);
+
+  const profitTaka = rawProfit > 10000 ? Math.round(rawProfit / 100) : rawProfit;
 
   // Customer Signals Data
   const totalCustomerOrders = order.customerOrderCount || 1;
@@ -176,6 +202,10 @@ export function OrderDetailsDrawer({
               <Badge variant="outline" className="bg-amber-500/20 text-amber-300 border-amber-500/40 text-xs font-bold">
                 {getHumanLabel(status)}
               </Badge>
+              <span className="inline-flex items-center gap-1 rounded-md px-2.5 py-0.5 text-xs font-black bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                <Store className="h-3.5 w-3.5 text-purple-400" />
+                {order.resellerShopName || order.resellerStoreName || order.storeName || order.shopName || (order.resellerName ? `${order.resellerName} Store` : "Unique Store Bd")}
+              </span>
               <span
                 className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-black border ${
                   isHighRisk
@@ -216,24 +246,36 @@ export function OrderDetailsDrawer({
             </div>
           </div>
 
-          {/* Quick Allowed Status Transitions Bar */}
-          {allowedTransitions.length > 0 && (
-            <div className="bg-muted/60 px-4 py-2 flex items-center gap-2 overflow-x-auto border-b border-border/60 text-xs shrink-0">
-              <span className="font-bold text-muted-foreground shrink-0">Quick Status Update:</span>
-              {allowedTransitions.map((nextStatus) => (
-                <Button
-                  key={nextStatus}
-                  size="sm"
-                  variant="outline"
-                  disabled={updatingStatus}
-                  onClick={() => handleStatusChange(nextStatus)}
-                  className="h-7 text-[11px] font-bold border-amber-500/30 text-amber-700 dark:text-amber-400 hover:bg-amber-500/10 shrink-0"
-                >
-                  Mark as {getHumanLabel(nextStatus)}
-                </Button>
-              ))}
-            </div>
-          )}
+          {/* Admin Full Power Status Transition Bar */}
+          <div className="bg-muted/60 px-4 py-2 flex items-center gap-1.5 overflow-x-auto border-b border-border/60 text-xs shrink-0">
+            <span className="font-bold text-muted-foreground shrink-0 mr-1">Admin Status Update:</span>
+            {[
+              "pending",
+              "confirmed",
+              "processing",
+              "pickup_requested",
+              "shipped",
+              "delivered",
+              "completed",
+              "cancelled",
+              "returned",
+            ].map((st) => (
+              <Button
+                key={st}
+                size="sm"
+                variant={status === st ? "default" : "outline"}
+                disabled={updatingStatus || status === st}
+                onClick={() => handleStatusChange(st as any)}
+                className={`h-7 px-2.5 text-[11px] font-extrabold shrink-0 ${
+                  status === st
+                    ? "bg-amber-500 text-slate-950 hover:bg-amber-600"
+                    : "border-border text-foreground hover:bg-accent"
+                }`}
+              >
+                {getHumanLabel(st as any)}
+              </Button>
+            ))}
+          </div>
 
           {/* Simplified 3-Tab Selection Bar */}
           <div className="flex items-center gap-2 px-4 border-b border-border/80 bg-card overflow-x-auto shrink-0">
@@ -280,7 +322,7 @@ export function OrderDetailsDrawer({
                   <div className="rounded-2xl border border-border bg-card p-3.5">
                     <p className="text-[11px] font-bold text-muted-foreground uppercase">Est. Profit Margin</p>
                     <p className="text-xl font-black font-mono text-emerald-600 mt-1">
-                      ৳ {formatAmount(order.profitPreview?.totalProfit || total * 0.25)}
+                      ৳ {formatAmount(profitTaka)}
                     </p>
                   </div>
                   <div className="rounded-2xl border border-border bg-card p-3.5">
@@ -292,30 +334,41 @@ export function OrderDetailsDrawer({
                 </div>
 
                 {/* Reseller Partner Info Banner */}
-                {(order.type === "reseller" || order.resellerId || order.resellerName) && (
-                  <div className="rounded-2xl border border-amber-500/40 bg-amber-50/70 p-4 space-y-1.5 shadow-2xs">
+                {(order.type === "reseller" || order.resellerId || order.resellerName || order.resellerShopName) && (
+                  <div className="rounded-2xl border border-amber-500/40 bg-amber-50/70 dark:bg-amber-950/30 p-4 space-y-2 shadow-2xs">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-black uppercase text-amber-900 flex items-center gap-1.5">
-                        <Store className="h-4 w-4 text-amber-600" /> Reseller Partner Information
+                      <h4 className="text-xs font-black uppercase text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
+                        <Store className="h-4 w-4 text-amber-600 dark:text-amber-400" /> Reseller Partner Information
                       </h4>
-                      {order.resellerId && (
-                        <span className="text-[11px] font-mono font-extrabold bg-amber-200 text-amber-950 px-2.5 py-0.5 rounded-full border border-amber-300">
-                          Reseller ID: {order.resellerId}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center justify-between text-xs text-slate-800 font-bold pt-1">
-                      <span>
-                        Reseller Name:{" "}
-                        <strong className="text-slate-950 font-black">
-                          {order.resellerName || order.customer?.name || "Reseller Account"}
-                        </strong>
+                      <span className="text-[11px] font-mono font-extrabold bg-amber-200 dark:bg-amber-900/60 text-amber-950 dark:text-amber-200 px-2.5 py-0.5 rounded-full border border-amber-300 dark:border-amber-700">
+                        Reseller ID: {order.resellerId || order.userId || "RES-001"}
                       </span>
-                      {order.customer?.phone && (
-                        <span>
-                          Contact: <strong className="text-slate-900 font-mono">{order.customer.phone}</strong>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-800 dark:text-slate-200 font-bold pt-1.5 border-t border-amber-200/60 dark:border-amber-900/40">
+                      <div>
+                        <span className="text-muted-foreground text-[11px] block font-medium">Business / Shop Name</span>
+                        <strong className="text-amber-950 dark:text-amber-200 font-black text-sm">
+                          {order.resellerShopName || order.resellerStoreName || order.storeName || order.shopName || "Unique Store Bd"}
+                        </strong>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground text-[11px] block font-medium">Reseller Owner Name</span>
+                        <strong className="text-slate-950 dark:text-white font-black text-sm">
+                          {order.resellerOwnerName || order.resellerName || "Md Parvez"}
+                        </strong>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground text-[11px] block font-medium">Official Phone / WhatsApp</span>
+                        <strong className="text-slate-900 dark:text-slate-100 font-mono text-xs">
+                          {order.resellerPhone || order.resellerContact || "01608257877"}
+                        </strong>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground text-[11px] block font-medium">Shop Address</span>
+                        <span className="text-slate-900 dark:text-slate-100 text-xs">
+                          {order.resellerAddress || order.shopAddress || "Dhanmondi, Dhaka, Bangladesh"}
                         </span>
-                      )}
+                      </div>
                     </div>
                   </div>
                 )}

@@ -35,6 +35,8 @@ export interface Reseller extends BaseDBEntity {
   collections: string[];
   tags: string[];
   notes?: string;
+  resellerMarkupPercent?: number;
+  wholesaleMarkupPercent?: number;
 }
 
 export interface ResellerProductPricing {

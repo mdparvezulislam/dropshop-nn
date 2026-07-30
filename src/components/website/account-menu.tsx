@@ -69,13 +69,9 @@ export function AccountMenu() {
     };
   }, [open]);
 
-  const handleIconClick = () => {
-    // If not logged in and clicking user icon directly on mobile, open menu or navigate to login
-    if (!isLoggedIn) {
-      setOpen((prev) => !prev);
-    } else {
-      setOpen((prev) => !prev);
-    }
+  const handleIconClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setOpen((prev) => !prev);
   };
 
   return (
@@ -83,7 +79,7 @@ export function AccountMenu() {
       <button
         type="button"
         onClick={handleIconClick}
-        className={`flex items-center justify-center h-10 w-10 sm:h-9 sm:w-9 rounded-xl border transition-all shadow-2xs focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
+        className={`flex items-center justify-center h-10 w-10 sm:h-9 sm:w-9 rounded-xl border transition-all shadow-2xs touch-manipulation active:scale-95 focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
           open || isLoggedIn
             ? "bg-amber-50 border-amber-400 text-amber-700 dark:bg-amber-950 dark:text-amber-300"
             : "bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:text-amber-600 hover:border-amber-400"
@@ -99,11 +95,14 @@ export function AccountMenu() {
           {/* Backdrop overlay for reliable outside tap handling */}
           <div
             className="fixed inset-0 z-40 bg-black/10 backdrop-blur-[1px] md:hidden"
-            onClick={() => setOpen(false)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setOpen(false);
+            }}
           />
 
           <div
-            className="absolute right-0 top-full mt-2 z-50 w-72 sm:w-64 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden text-slate-900 dark:text-slate-100 animate-in fade-in slide-in-from-top-2 duration-150"
+            className="absolute right-0 top-full mt-2 z-50 w-72 sm:w-64 max-w-[calc(100vw-2rem)] rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden text-slate-900 dark:text-slate-100 animate-in fade-in slide-in-from-top-2 duration-150"
           >
             {isLoggedIn ? (
               <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60">

@@ -24,22 +24,16 @@ import {
 } from "../actions/settings-actions";
 import { toast } from "sonner";
 import {
-  Settings,
-  Shield,
   Sliders,
   Database,
   Globe,
-  Palette,
   Scale,
   DollarSign,
   Package,
   Truck,
-  Bell,
   Lock,
   Flag,
-  Wrench,
   HardDrive,
-  Mail,
   Activity,
   History,
   Download,
@@ -47,7 +41,6 @@ import {
   RefreshCw,
   Search,
   CheckCircle2,
-  AlertTriangle,
   ChevronLeft,
   ChevronRight,
   Server,
@@ -99,8 +92,8 @@ export function SettingsCenterUI(): React.ReactElement {
       } else {
         toast.error(res.error || "Failed to load platform settings");
       }
-    } catch (err: any) {
-      toast.error(err.message || "Error loading settings");
+    } catch {
+      toast.error("Failed to fetch settings from server");
     } finally {
       setLoading(false);
     }
@@ -111,12 +104,13 @@ export function SettingsCenterUI(): React.ReactElement {
   }, [loadAllData]);
 
   const handleSaveSetting = async (key: string) => {
-    const value = editValues[key];
+    const val = editValues[key];
+    if (val === undefined) return;
     setSavingKey(key);
     try {
-      const res = await updateSettingAction({ key, value });
+      const res = await updateSettingAction({ key, value: val });
       if (res.success) {
-        toast.success(`Setting [${key}] updated successfully`);
+        toast.success(`Setting '${key}' updated successfully`);
         loadAllData();
       } else {
         toast.error(res.error || "Failed to update setting");
@@ -133,7 +127,7 @@ export function SettingsCenterUI(): React.ReactElement {
     try {
       const res = await toggleFeatureFlagAction({ key, state: nextState });
       if (res.success) {
-        toast.success(`Feature Flag [${key}] set to ${nextState.toUpperCase()}`);
+        toast.success(`Feature flag '${key}' set to ${nextState.toUpperCase()}`);
         loadAllData();
       } else {
         toast.error(res.error || "Failed to toggle flag");
@@ -150,53 +144,51 @@ export function SettingsCenterUI(): React.ReactElement {
         const jsonStr = JSON.stringify(res.data, null, 2);
         const blob = new Blob([jsonStr], { type: "application/json" });
         const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `dropshop_platform_config_backup_${new Date().toISOString().slice(0, 10)}.json`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        toast.success("Platform configuration exported to JSON backup file");
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `dropshopnn-settings-${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success("Settings exported successfully");
       } else {
-        toast.error(res.error || "Export failed");
+        toast.error(res.error || "Failed to export settings");
       }
-    } catch (err: any) {
-      toast.error(err.message || "Export error");
+    } catch {
+      toast.error("Export error");
     }
   };
 
-  const handleImportJSON = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = async (evt) => {
       try {
-        const payload = JSON.parse(evt.target?.result as string);
-        const res = await importSettingsAction({ payload });
+        const content = evt.target?.result as string;
+        const parsed = JSON.parse(content);
+        const res = await importSettingsAction(parsed);
         if (res.success) {
-          toast.success(
-            `Import finished: ${res.data.importedSettings} settings & ${res.data.importedFlags} flags restored`,
-          );
+          toast.success("Settings imported successfully");
           loadAllData();
         } else {
-          toast.error(res.error || "Import failed");
+          toast.error(res.error || "Failed to import settings");
         }
-      } catch (err: any) {
-        toast.error("Invalid JSON configuration backup file");
+      } catch {
+        toast.error("Invalid JSON file format");
       }
     };
     reader.readAsText(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleResetCategory = async (cat: string) => {
     try {
       const res = await resetCategoryToDefaultAction(cat);
       if (res.success) {
-        toast.success(`Category [${cat}] settings reset to default`);
+        toast.success(`Category '${cat}' reset to default settings`);
         loadAllData();
       } else {
-        toast.error(res.error || "Reset failed");
+        toast.error(res.error || "Failed to reset category");
       }
     } catch (err: any) {
       toast.error(err.message || "Reset error");
@@ -214,52 +206,51 @@ export function SettingsCenterUI(): React.ReactElement {
   const getCategorySettings = (cat: string) => filteredSettings.filter((s) => s.category === cat);
 
   return (
-    <div className="min-h-screen bg-slate-950 p-4 sm:p-6 text-white space-y-6">
+    <div className="space-y-6 animate-fade-in">
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-slate-800 pb-5">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-border pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-              Platform Configuration & Business Rules Center
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
+              Platform Configuration &amp; Settings
             </h1>
             <Badge
               variant="outline"
-              className="border-emerald-500/30 text-emerald-400 bg-emerald-950/40 text-[10px]"
+              className="border-primary/30 text-primary bg-primary/10 text-[10px] font-bold"
             >
               SETTINGS-CENTER-001
             </Badge>
           </div>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Single Source of Truth for Platform Configurations, Business Rules, Feature Flags,
-            Maintenance & System Health
+          <p className="text-xs sm:text-sm text-muted-foreground font-semibold mt-1">
+            Single Source of Truth for Platform Configurations, Business Rules, Feature Flags, Maintenance &amp; System Health
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative w-48 sm:w-64">
-            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
+            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
             <Input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search all settings..."
-              className="pl-8 text-xs bg-slate-900 border-slate-800"
+              className="pl-8 text-xs bg-background border-border text-foreground"
             />
           </div>
           <Button
             onClick={handleExportJSON}
             size="sm"
             variant="outline"
-            className="border-slate-800 text-xs bg-slate-900 gap-1.5"
+            className="text-xs gap-1.5 font-bold"
           >
-            <Download className="h-3.5 w-3.5 text-emerald-400" /> Export JSON
+            <Download className="h-3.5 w-3.5 text-primary" /> Export JSON
           </Button>
           <Button
             onClick={() => fileInputRef.current?.click()}
             size="sm"
             variant="outline"
-            className="border-slate-800 text-xs bg-slate-900 gap-1.5"
+            className="text-xs gap-1.5 font-bold"
           >
-            <Upload className="h-3.5 w-3.5 text-sky-400" /> Import JSON
+            <Upload className="h-3.5 w-3.5 text-sky-500" /> Import JSON
           </Button>
           <input
             ref={fileInputRef}
@@ -273,7 +264,7 @@ export function SettingsCenterUI(): React.ReactElement {
             size="sm"
             variant="ghost"
             disabled={loading}
-            className="text-slate-400 hover:text-white"
+            className="text-muted-foreground hover:text-foreground"
           >
             <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
           </Button>
@@ -281,10 +272,10 @@ export function SettingsCenterUI(): React.ReactElement {
       </div>
 
       {/* Navigation Sub-Tabs Slider */}
-      <div className="relative flex items-center border-b border-slate-800 pb-2 group">
+      <div className="relative flex items-center border-b border-border pb-3 group">
         <button
           onClick={() => scrollTabs("left")}
-          className="absolute left-0 z-10 p-1.5 rounded-full bg-slate-900/90 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 shadow-md backdrop-blur transition-all"
+          className="absolute left-0 z-10 p-1.5 rounded-full bg-card border border-border text-foreground hover:bg-muted shadow-xs transition-all"
           title="Scroll Left"
           type="button"
         >
@@ -297,109 +288,109 @@ export function SettingsCenterUI(): React.ReactElement {
         >
           <button
             onClick={() => setActiveTab("overview")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
               activeTab === "overview"
-                ? "bg-emerald-600 text-white font-semibold"
-                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
             <Activity className="h-3.5 w-3.5" /> Dashboard Summary
           </button>
           <button
             onClick={() => setActiveTab("general")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
               activeTab === "general"
-                ? "bg-emerald-600 text-white font-semibold"
-                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
-            <Globe className="h-3.5 w-3.5 text-sky-400" /> General & Branding
+            <Globe className="h-3.5 w-3.5 text-sky-500" /> General &amp; Branding
           </button>
           <button
             onClick={() => setActiveTab("business_rules")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
               activeTab === "business_rules"
-                ? "bg-emerald-600 text-white font-semibold"
-                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
-            <Scale className="h-3.5 w-3.5 text-amber-400" /> Business Rules
+            <Scale className="h-3.5 w-3.5 text-amber-500" /> Business Rules
           </button>
           <button
             onClick={() => setActiveTab("pricing")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
               activeTab === "pricing"
-                ? "bg-emerald-600 text-white font-semibold"
-                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
-            <DollarSign className="h-3.5 w-3.5 text-emerald-400" /> Pricing & Markup
+            <DollarSign className="h-3.5 w-3.5 text-emerald-500" /> Pricing &amp; Markup
           </button>
           <button
             onClick={() => setActiveTab("order_product")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
               activeTab === "order_product"
-                ? "bg-emerald-600 text-white font-semibold"
-                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
-            <Package className="h-3.5 w-3.5 text-purple-400" /> Order & Product
+            <Package className="h-3.5 w-3.5 text-purple-500" /> Order &amp; Product
           </button>
           <button
             onClick={() => setActiveTab("logistics_finance")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
               activeTab === "logistics_finance"
-                ? "bg-emerald-600 text-white font-semibold"
-                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
-            <Truck className="h-3.5 w-3.5 text-indigo-400" /> Logistics & Finance
+            <Truck className="h-3.5 w-3.5 text-indigo-500" /> Logistics &amp; Finance
           </button>
           <button
             onClick={() => setActiveTab("security_access")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
               activeTab === "security_access"
-                ? "bg-emerald-600 text-white font-semibold"
-                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
-            <Lock className="h-3.5 w-3.5 text-rose-400" /> Security & Policy
+            <Lock className="h-3.5 w-3.5 text-rose-500" /> Security &amp; Policy
           </button>
           <button
             onClick={() => setActiveTab("feature_flags")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
               activeTab === "feature_flags"
-                ? "bg-emerald-600 text-white font-semibold"
-                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
-            <Flag className="h-3.5 w-3.5 text-yellow-400" /> Feature Flags ({flagsList.length})
+            <Flag className="h-3.5 w-3.5 text-amber-500" /> Feature Flags ({flagsList.length})
           </button>
           <button
             onClick={() => setActiveTab("system_health")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
               activeTab === "system_health"
-                ? "bg-emerald-600 text-white font-semibold"
-                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
-            <Server className="h-3.5 w-3.5 text-emerald-400" /> System Health
+            <Server className="h-3.5 w-3.5 text-emerald-500" /> System Health
           </button>
           <button
             onClick={() => setActiveTab("history_audit")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
               activeTab === "history_audit"
-                ? "bg-emerald-600 text-white font-semibold"
-                : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
-            <History className="h-3.5 w-3.5 text-slate-300" /> Configuration History
+            <History className="h-3.5 w-3.5 text-muted-foreground" /> Configuration History
           </button>
         </div>
 
         <button
           onClick={() => scrollTabs("right")}
-          className="absolute right-0 z-10 p-1.5 rounded-full bg-slate-900/90 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 shadow-md backdrop-blur transition-all"
+          className="absolute right-0 z-10 p-1.5 rounded-full bg-card border border-border text-foreground hover:bg-muted shadow-xs transition-all"
           title="Scroll Right"
           type="button"
         >
@@ -411,77 +402,77 @@ export function SettingsCenterUI(): React.ReactElement {
       {activeTab === "overview" && (
         <div className="space-y-6">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <Card className="bg-slate-900/80 border-slate-800">
+            <Card className="border-border/80 shadow-2xs">
               <CardContent className="p-4 space-y-1">
-                <p className="text-[11px] font-medium text-slate-400">Platform Status</p>
+                <p className="text-[11px] font-bold text-muted-foreground uppercase">Platform Status</p>
                 <div className="flex items-center justify-between">
-                  <p className="text-xl font-bold text-emerald-400">OPERATIONAL</p>
-                  <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                  <p className="text-lg sm:text-xl font-black text-emerald-500">OPERATIONAL</p>
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-slate-900/80 border-slate-800">
+            <Card className="border-border/80 shadow-2xs">
               <CardContent className="p-4 space-y-1">
-                <p className="text-[11px] font-medium text-slate-400">Registered Settings</p>
+                <p className="text-[11px] font-bold text-muted-foreground uppercase">Registered Settings</p>
                 <div className="flex items-center justify-between">
-                  <p className="text-xl font-bold text-white">{settingsList.length}</p>
-                  <Sliders className="h-4 w-4 text-sky-400" />
+                  <p className="text-lg sm:text-xl font-black text-foreground">{settingsList.length}</p>
+                  <Sliders className="h-4 w-4 text-sky-500" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-slate-900/80 border-slate-800">
+            <Card className="border-border/80 shadow-2xs">
               <CardContent className="p-4 space-y-1">
-                <p className="text-[11px] font-medium text-slate-400">Centralized Flags</p>
+                <p className="text-[11px] font-bold text-muted-foreground uppercase">Centralized Flags</p>
                 <div className="flex items-center justify-between">
-                  <p className="text-xl font-bold text-amber-400">{flagsList.length}</p>
-                  <Flag className="h-4 w-4 text-amber-400" />
+                  <p className="text-lg sm:text-xl font-black text-amber-500">{flagsList.length}</p>
+                  <Flag className="h-4 w-4 text-amber-500" />
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="bg-slate-900/80 border-slate-800">
+            <Card className="border-border/80 shadow-2xs">
               <CardContent className="p-4 space-y-1">
-                <p className="text-[11px] font-medium text-slate-400">Database Engine</p>
+                <p className="text-[11px] font-bold text-muted-foreground uppercase">Database Engine</p>
                 <div className="flex items-center justify-between">
-                  <p className="text-xl font-bold text-emerald-400">MongoDB Connected</p>
-                  <Database className="h-4 w-4 text-emerald-400" />
+                  <p className="text-lg sm:text-xl font-black text-emerald-500">MongoDB Connected</p>
+                  <Database className="h-4 w-4 text-emerald-500" />
                 </div>
               </CardContent>
             </Card>
           </div>
 
-          <Card className="bg-slate-900/80 border-slate-800">
-            <CardHeader>
-              <CardTitle className="text-sm font-semibold text-white">
+          <Card className="border-border/80 shadow-2xs">
+            <CardHeader className="border-b border-border/60 pb-3">
+              <CardTitle className="text-sm font-black text-foreground">
                 All Platform Settings Overview
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-0">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-slate-800 hover:bg-transparent">
-                    <TableHead className="text-xs">Category</TableHead>
-                    <TableHead className="text-xs">Setting Key</TableHead>
-                    <TableHead className="text-xs">Setting Name</TableHead>
-                    <TableHead className="text-xs">Current Value</TableHead>
-                    <TableHead className="text-xs">Scope</TableHead>
+                  <TableRow className="border-border bg-muted/40 hover:bg-transparent">
+                    <TableHead className="text-xs font-bold text-muted-foreground">Category</TableHead>
+                    <TableHead className="text-xs font-bold text-muted-foreground">Setting Key</TableHead>
+                    <TableHead className="text-xs font-bold text-muted-foreground">Setting Name</TableHead>
+                    <TableHead className="text-xs font-bold text-muted-foreground">Current Value</TableHead>
+                    <TableHead className="text-xs font-bold text-muted-foreground">Scope</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredSettings.slice(0, 15).map((s) => (
-                    <TableRow key={s.key} className="border-slate-800 hover:bg-slate-800/40">
-                      <TableCell className="text-xs capitalize font-medium text-sky-400">
+                    <TableRow key={s.key} className="border-border/60 hover:bg-muted/40">
+                      <TableCell className="text-xs capitalize font-bold text-sky-600 dark:text-sky-400">
                         {s.category}
                       </TableCell>
-                      <TableCell className="text-xs font-mono text-slate-400">{s.key}</TableCell>
-                      <TableCell className="text-xs font-semibold text-white">{s.name}</TableCell>
-                      <TableCell className="text-xs font-mono font-bold text-emerald-400">
+                      <TableCell className="text-xs font-mono text-muted-foreground">{s.key}</TableCell>
+                      <TableCell className="text-xs font-extrabold text-foreground">{s.name}</TableCell>
+                      <TableCell className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 truncate max-w-[200px]">
                         {String(s.value)}
                       </TableCell>
                       <TableCell className="text-xs">
-                        <Badge variant="outline" className="capitalize border-slate-700">
+                        <Badge variant="outline" className="capitalize font-bold border-border text-foreground">
                           {s.scope}
                         </Badge>
                       </TableCell>
@@ -496,44 +487,44 @@ export function SettingsCenterUI(): React.ReactElement {
 
       {/* TAB 2: GENERAL & BRANDING */}
       {activeTab === "general" && (
-        <Card className="bg-slate-900/80 border-slate-800">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base font-semibold text-white flex items-center gap-2">
-              <Globe className="h-4 w-4 text-sky-400" /> General & Branding Configuration
+        <Card className="border-border/80 shadow-2xs">
+          <CardHeader className="flex flex-row items-center justify-between border-b border-border/60 pb-3">
+            <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
+              <Globe className="h-4 w-4 text-sky-500" /> General &amp; Branding Configuration
             </CardTitle>
             <Button
               onClick={() => handleResetCategory("general")}
               size="sm"
               variant="outline"
-              className="text-xs border-slate-800 text-slate-300"
+              className="text-xs font-bold gap-1"
             >
-              <RotateCcw className="h-3.5 w-3.5 mr-1" /> Reset General
+              <RotateCcw className="h-3.5 w-3.5" /> Reset General
             </Button>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-4">
             {getCategorySettings("general")
               .concat(getCategorySettings("branding"))
               .map((s) => (
                 <div
                   key={s.key}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded bg-slate-950 border border-slate-800 gap-3"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-muted/40 border border-border/60 gap-3"
                 >
                   <div>
-                    <p className="text-xs font-semibold text-white">{s.name}</p>
-                    <p className="text-[11px] text-slate-400">{s.description}</p>
-                    <p className="text-[10px] font-mono text-slate-500">{s.key}</p>
+                    <p className="text-xs font-bold text-foreground">{s.name}</p>
+                    <p className="text-[11px] text-muted-foreground">{s.description}</p>
+                    <p className="text-[10px] font-mono text-muted-foreground/70">{s.key}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Input
                       value={editValues[s.key] !== undefined ? String(editValues[s.key]) : ""}
                       onChange={(e) => setEditValues({ ...editValues, [s.key]: e.target.value })}
-                      className="h-8 text-xs bg-slate-900 border-slate-700 w-48 sm:w-64"
+                      className="h-8 text-xs bg-background border-border w-48 sm:w-64"
                     />
                     <Button
                       onClick={() => handleSaveSetting(s.key)}
                       disabled={savingKey === s.key}
                       size="sm"
-                      className="h-8 text-xs bg-emerald-600 hover:bg-emerald-500"
+                      className="h-8 text-xs font-bold shadow-xs"
                     >
                       Save
                     </Button>
@@ -546,30 +537,30 @@ export function SettingsCenterUI(): React.ReactElement {
 
       {/* TAB 3: BUSINESS RULES */}
       {activeTab === "business_rules" && (
-        <Card className="bg-slate-900/80 border-slate-800">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-base font-semibold text-white flex items-center gap-2">
-              <Scale className="h-4 w-4 text-amber-400" /> Business Rule Engine Settings
+        <Card className="border-border/80 shadow-2xs">
+          <CardHeader className="flex flex-row items-center justify-between border-b border-border/60 pb-3">
+            <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
+              <Scale className="h-4 w-4 text-amber-500" /> Business Rule Engine Settings
             </CardTitle>
             <Button
               onClick={() => handleResetCategory("business_rules")}
               size="sm"
               variant="outline"
-              className="text-xs border-slate-800 text-slate-300"
+              className="text-xs font-bold gap-1"
             >
-              <RotateCcw className="h-3.5 w-3.5 mr-1" /> Reset Rules
+              <RotateCcw className="h-3.5 w-3.5" /> Reset Rules
             </Button>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-4">
             {getCategorySettings("business_rules").map((s) => (
               <div
                 key={s.key}
-                className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded bg-slate-950 border border-slate-800 gap-3"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-muted/40 border border-border/60 gap-3"
               >
                 <div>
-                  <p className="text-xs font-semibold text-white">{s.name}</p>
-                  <p className="text-[11px] text-slate-400">{s.description}</p>
-                  <p className="text-[10px] font-mono text-slate-500">{s.key}</p>
+                  <p className="text-xs font-bold text-foreground">{s.name}</p>
+                  <p className="text-[11px] text-muted-foreground">{s.description}</p>
+                  <p className="text-[10px] font-mono text-muted-foreground/70">{s.key}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Input
@@ -584,13 +575,13 @@ export function SettingsCenterUI(): React.ReactElement {
                             : e.target.value,
                       })
                     }
-                    className="h-8 text-xs bg-slate-900 border-slate-700 w-48"
+                    className="h-8 text-xs bg-background border-border w-48"
                   />
                   <Button
                     onClick={() => handleSaveSetting(s.key)}
                     disabled={savingKey === s.key}
                     size="sm"
-                    className="h-8 text-xs bg-emerald-600 hover:bg-emerald-500"
+                    className="h-8 text-xs font-bold shadow-xs"
                   >
                     Save Rule
                   </Button>
@@ -603,22 +594,22 @@ export function SettingsCenterUI(): React.ReactElement {
 
       {/* TAB 4: PRICING & MARKUP */}
       {activeTab === "pricing" && (
-        <Card className="bg-slate-900/80 border-slate-800">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold text-white flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-emerald-400" /> Global Pricing & Markup Defaults
+        <Card className="border-border/80 shadow-2xs">
+          <CardHeader className="border-b border-border/60 pb-3">
+            <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-emerald-500" /> Global Pricing &amp; Markup Defaults
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-4">
             {getCategorySettings("pricing").map((s) => (
               <div
                 key={s.key}
-                className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded bg-slate-950 border border-slate-800 gap-3"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-muted/40 border border-border/60 gap-3"
               >
                 <div>
-                  <p className="text-xs font-semibold text-white">{s.name}</p>
-                  <p className="text-[11px] text-slate-400">{s.description}</p>
-                  <p className="text-[10px] font-mono text-slate-500">{s.key}</p>
+                  <p className="text-xs font-bold text-foreground">{s.name}</p>
+                  <p className="text-[11px] text-muted-foreground">{s.description}</p>
+                  <p className="text-[10px] font-mono text-muted-foreground/70">{s.key}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Input
@@ -627,13 +618,13 @@ export function SettingsCenterUI(): React.ReactElement {
                     onChange={(e) =>
                       setEditValues({ ...editValues, [s.key]: parseFloat(e.target.value) || 0 })
                     }
-                    className="h-8 text-xs bg-slate-900 border-slate-700 w-36"
+                    className="h-8 text-xs bg-background border-border w-36"
                   />
                   <Button
                     onClick={() => handleSaveSetting(s.key)}
                     disabled={savingKey === s.key}
                     size="sm"
-                    className="h-8 text-xs bg-emerald-600 hover:bg-emerald-500"
+                    className="h-8 text-xs font-bold shadow-xs"
                   >
                     Update
                   </Button>
@@ -646,24 +637,24 @@ export function SettingsCenterUI(): React.ReactElement {
 
       {/* TAB 5: ORDER & PRODUCT */}
       {activeTab === "order_product" && (
-        <Card className="bg-slate-900/80 border-slate-800">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold text-white flex items-center gap-2">
-              <Package className="h-4 w-4 text-purple-400" /> Order Engine & Product Configuration
+        <Card className="border-border/80 shadow-2xs">
+          <CardHeader className="border-b border-border/60 pb-3">
+            <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
+              <Package className="h-4 w-4 text-purple-500" /> Order Engine &amp; Product Configuration
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-4">
             {getCategorySettings("order")
               .concat(getCategorySettings("product"))
               .map((s) => (
                 <div
                   key={s.key}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded bg-slate-950 border border-slate-800 gap-3"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-muted/40 border border-border/60 gap-3"
                 >
                   <div>
-                    <p className="text-xs font-semibold text-white">{s.name}</p>
-                    <p className="text-[11px] text-slate-400">{s.description}</p>
-                    <p className="text-[10px] font-mono text-slate-500">{s.key}</p>
+                    <p className="text-xs font-bold text-foreground">{s.name}</p>
+                    <p className="text-[11px] text-muted-foreground">{s.description}</p>
+                    <p className="text-[10px] font-mono text-muted-foreground/70">{s.key}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {typeof s.value === "boolean" ? (
@@ -681,13 +672,13 @@ export function SettingsCenterUI(): React.ReactElement {
                           onChange={(e) =>
                             setEditValues({ ...editValues, [s.key]: e.target.value })
                           }
-                          className="h-8 text-xs bg-slate-900 border-slate-700 w-44"
+                          className="h-8 text-xs bg-background border-border w-44"
                         />
                         <Button
                           onClick={() => handleSaveSetting(s.key)}
                           disabled={savingKey === s.key}
                           size="sm"
-                          className="h-8 text-xs bg-purple-600 hover:bg-purple-500"
+                          className="h-8 text-xs font-bold shadow-xs"
                         >
                           Save
                         </Button>
@@ -702,36 +693,36 @@ export function SettingsCenterUI(): React.ReactElement {
 
       {/* TAB 6: LOGISTICS & FINANCE */}
       {activeTab === "logistics_finance" && (
-        <Card className="bg-slate-900/80 border-slate-800">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold text-white flex items-center gap-2">
-              <Truck className="h-4 w-4 text-indigo-400" /> Logistics Hub & Finance Configuration
+        <Card className="border-border/80 shadow-2xs">
+          <CardHeader className="border-b border-border/60 pb-3">
+            <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
+              <Truck className="h-4 w-4 text-indigo-500" /> Logistics Hub &amp; Finance Configuration
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-4">
             {getCategorySettings("logistics")
               .concat(getCategorySettings("finance"))
               .map((s) => (
                 <div
                   key={s.key}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded bg-slate-950 border border-slate-800 gap-3"
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-muted/40 border border-border/60 gap-3"
                 >
                   <div>
-                    <p className="text-xs font-semibold text-white">{s.name}</p>
-                    <p className="text-[11px] text-slate-400">{s.description}</p>
-                    <p className="text-[10px] font-mono text-slate-500">{s.key}</p>
+                    <p className="text-xs font-bold text-foreground">{s.name}</p>
+                    <p className="text-[11px] text-muted-foreground">{s.description}</p>
+                    <p className="text-[10px] font-mono text-muted-foreground/70">{s.key}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <Input
                       value={editValues[s.key] !== undefined ? String(editValues[s.key]) : ""}
                       onChange={(e) => setEditValues({ ...editValues, [s.key]: e.target.value })}
-                      className="h-8 text-xs bg-slate-900 border-slate-700 w-44"
+                      className="h-8 text-xs bg-background border-border w-44"
                     />
                     <Button
                       onClick={() => handleSaveSetting(s.key)}
                       disabled={savingKey === s.key}
                       size="sm"
-                      className="h-8 text-xs bg-indigo-600 hover:bg-indigo-500"
+                      className="h-8 text-xs font-bold shadow-xs"
                     >
                       Save
                     </Button>
@@ -744,22 +735,22 @@ export function SettingsCenterUI(): React.ReactElement {
 
       {/* TAB 7: SECURITY & POLICY */}
       {activeTab === "security_access" && (
-        <Card className="bg-slate-900/80 border-slate-800">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold text-white flex items-center gap-2">
-              <Lock className="h-4 w-4 text-rose-400" /> Security, Policy & Session Settings
+        <Card className="border-border/80 shadow-2xs">
+          <CardHeader className="border-b border-border/60 pb-3">
+            <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
+              <Lock className="h-4 w-4 text-rose-500" /> Security, Policy &amp; Session Settings
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-4">
             {getCategorySettings("security").map((s) => (
               <div
                 key={s.key}
-                className="flex flex-col sm:flex-row sm:items-center justify-between p-3 rounded bg-slate-950 border border-slate-800 gap-3"
+                className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-muted/40 border border-border/60 gap-3"
               >
                 <div>
-                  <p className="text-xs font-semibold text-white">{s.name}</p>
-                  <p className="text-[11px] text-slate-400">{s.description}</p>
-                  <p className="text-[10px] font-mono text-slate-500">{s.key}</p>
+                  <p className="text-xs font-bold text-foreground">{s.name}</p>
+                  <p className="text-[11px] text-muted-foreground">{s.description}</p>
+                  <p className="text-[10px] font-mono text-muted-foreground/70">{s.key}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Input
@@ -768,13 +759,13 @@ export function SettingsCenterUI(): React.ReactElement {
                     onChange={(e) =>
                       setEditValues({ ...editValues, [s.key]: parseInt(e.target.value) || 0 })
                     }
-                    className="h-8 text-xs bg-slate-900 border-slate-700 w-36"
+                    className="h-8 text-xs bg-background border-border w-36"
                   />
                   <Button
                     onClick={() => handleSaveSetting(s.key)}
                     disabled={savingKey === s.key}
                     size="sm"
-                    className="h-8 text-xs bg-rose-600 hover:bg-rose-500"
+                    className="h-8 text-xs font-bold shadow-xs"
                   >
                     Save Policy
                   </Button>
@@ -787,38 +778,38 @@ export function SettingsCenterUI(): React.ReactElement {
 
       {/* TAB 8: FEATURE FLAGS */}
       {activeTab === "feature_flags" && (
-        <Card className="bg-slate-900/80 border-slate-800">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold text-white flex items-center gap-2">
-              <Flag className="h-4 w-4 text-yellow-400" /> Centralized Feature Flag Management
+        <Card className="border-border/80 shadow-2xs">
+          <CardHeader className="border-b border-border/60 pb-3">
+            <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
+              <Flag className="h-4 w-4 text-amber-500" /> Centralized Feature Flag Management
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             <Table>
               <TableHeader>
-                <TableRow className="border-slate-800 hover:bg-transparent">
-                  <TableHead className="text-xs">Flag Name</TableHead>
-                  <TableHead className="text-xs">Key</TableHead>
-                  <TableHead className="text-xs">Description</TableHead>
-                  <TableHead className="text-xs">State</TableHead>
-                  <TableHead className="text-xs text-right">Toggle</TableHead>
+                <TableRow className="border-border bg-muted/40 hover:bg-transparent">
+                  <TableHead className="text-xs font-bold text-muted-foreground">Flag Name</TableHead>
+                  <TableHead className="text-xs font-bold text-muted-foreground">Key</TableHead>
+                  <TableHead className="text-xs font-bold text-muted-foreground">Description</TableHead>
+                  <TableHead className="text-xs font-bold text-muted-foreground">State</TableHead>
+                  <TableHead className="text-xs font-bold text-muted-foreground text-right">Toggle</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {flagsList.map((f) => (
-                  <TableRow key={f.key} className="border-slate-800 hover:bg-slate-800/40">
-                    <TableCell className="text-xs font-semibold text-white">{f.name}</TableCell>
-                    <TableCell className="text-xs font-mono text-slate-400">{f.key}</TableCell>
-                    <TableCell className="text-xs text-slate-300">{f.description}</TableCell>
+                  <TableRow key={f.key} className="border-border/60 hover:bg-muted/40">
+                    <TableCell className="text-xs font-black text-foreground">{f.name}</TableCell>
+                    <TableCell className="text-xs font-mono text-muted-foreground">{f.key}</TableCell>
+                    <TableCell className="text-xs text-muted-foreground font-semibold">{f.description}</TableCell>
                     <TableCell className="text-xs">
                       <Badge
                         variant="outline"
-                        className={`capitalize ${
+                        className={`capitalize font-bold ${
                           f.state === "on"
-                            ? "border-emerald-500/40 text-emerald-400 bg-emerald-950/30"
+                            ? "border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
                             : f.state === "beta"
-                              ? "border-yellow-500/40 text-yellow-400 bg-yellow-950/30"
-                              : "border-slate-700 text-slate-400"
+                              ? "border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-500/10"
+                              : "border-border text-muted-foreground"
                         }`}
                       >
                         {f.state}
@@ -840,43 +831,42 @@ export function SettingsCenterUI(): React.ReactElement {
 
       {/* TAB 9: SYSTEM HEALTH */}
       {activeTab === "system_health" && (
-        <Card className="bg-slate-900/80 border-slate-800">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold text-white flex items-center gap-2">
-              <Server className="h-4 w-4 text-emerald-400" /> Platform System Health &
-              Infrastructure
+        <Card className="border-border/80 shadow-2xs">
+          <CardHeader className="border-b border-border/60 pb-3">
+            <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
+              <Server className="h-4 w-4 text-emerald-500" /> Platform System Health &amp; Infrastructure
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 pt-4">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <div className="p-4 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between">
+              <div className="p-4 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-slate-400">Database Engine (MongoDB)</p>
-                  <p className="text-lg font-bold text-emerald-400 capitalize">
+                  <p className="text-xs font-bold text-muted-foreground">Database Engine (MongoDB)</p>
+                  <p className="text-lg font-black text-emerald-600 dark:text-emerald-400 capitalize">
                     {healthStatus?.database || "Healthy"}
                   </p>
                 </div>
-                <Database className="h-6 w-6 text-emerald-400" />
+                <Database className="h-6 w-6 text-emerald-500" />
               </div>
 
-              <div className="p-4 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between">
+              <div className="p-4 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-slate-400">BullMQ & Redis Queue</p>
-                  <p className="text-lg font-bold text-emerald-400 capitalize">
+                  <p className="text-xs font-bold text-muted-foreground">BullMQ &amp; Redis Queue</p>
+                  <p className="text-lg font-black text-emerald-600 dark:text-emerald-400 capitalize">
                     {healthStatus?.redis || "Healthy"}
                   </p>
                 </div>
-                <Zap className="h-6 w-6 text-yellow-400" />
+                <Zap className="h-6 w-6 text-amber-500" />
               </div>
 
-              <div className="p-4 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between">
+              <div className="p-4 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-slate-400">Asset Storage (ImageKit)</p>
-                  <p className="text-lg font-bold text-emerald-400 capitalize">
+                  <p className="text-xs font-bold text-muted-foreground">Asset Storage (ImageKit)</p>
+                  <p className="text-lg font-black text-emerald-600 dark:text-emerald-400 capitalize">
                     {healthStatus?.storage || "Healthy"}
                   </p>
                 </div>
-                <HardDrive className="h-6 w-6 text-sky-400" />
+                <HardDrive className="h-6 w-6 text-sky-500" />
               </div>
             </div>
           </CardContent>
@@ -885,50 +875,50 @@ export function SettingsCenterUI(): React.ReactElement {
 
       {/* TAB 10: CONFIGURATION HISTORY */}
       {activeTab === "history_audit" && (
-        <Card className="bg-slate-900/80 border-slate-800">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold text-white flex items-center gap-2">
-              <History className="h-4 w-4 text-slate-300" /> Configuration Change Audit Log
+        <Card className="border-border/80 shadow-2xs">
+          <CardHeader className="border-b border-border/60 pb-3">
+            <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
+              <History className="h-4 w-4 text-muted-foreground" /> Configuration Change Audit Log
             </CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             <Table>
               <TableHeader>
-                <TableRow className="border-slate-800 hover:bg-transparent">
-                  <TableHead className="text-xs">Timestamp</TableHead>
-                  <TableHead className="text-xs">Setting Key</TableHead>
-                  <TableHead className="text-xs">Category</TableHead>
-                  <TableHead className="text-xs">Old Value</TableHead>
-                  <TableHead className="text-xs">New Value</TableHead>
-                  <TableHead className="text-xs">Changed By</TableHead>
+                <TableRow className="border-border bg-muted/40 hover:bg-transparent">
+                  <TableHead className="text-xs font-bold text-muted-foreground">Timestamp</TableHead>
+                  <TableHead className="text-xs font-bold text-muted-foreground">Setting Key</TableHead>
+                  <TableHead className="text-xs font-bold text-muted-foreground">Category</TableHead>
+                  <TableHead className="text-xs font-bold text-muted-foreground">Old Value</TableHead>
+                  <TableHead className="text-xs font-bold text-muted-foreground">New Value</TableHead>
+                  <TableHead className="text-xs font-bold text-muted-foreground">Changed By</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {auditLogs.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-6 text-slate-400 text-xs">
+                    <TableCell colSpan={6} className="text-center py-6 text-muted-foreground text-xs font-semibold">
                       No setting mutations recorded in audit trail yet.
                     </TableCell>
                   </TableRow>
                 ) : (
                   auditLogs.map((a) => (
-                    <TableRow key={a.id} className="border-slate-800 hover:bg-slate-800/40">
-                      <TableCell className="text-xs text-slate-400">
+                    <TableRow key={a.id} className="border-border/60 hover:bg-muted/40">
+                      <TableCell className="text-xs text-muted-foreground font-mono">
                         {new Date(a.timestamp).toLocaleString()}
                       </TableCell>
-                      <TableCell className="text-xs font-mono font-semibold text-indigo-400">
+                      <TableCell className="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">
                         {a.settingKey}
                       </TableCell>
-                      <TableCell className="text-xs capitalize text-slate-300">
+                      <TableCell className="text-xs capitalize font-semibold text-foreground">
                         {a.category}
                       </TableCell>
-                      <TableCell className="text-xs font-mono text-rose-400">
+                      <TableCell className="text-xs font-mono text-rose-600 dark:text-rose-400">
                         {String(a.oldValue ?? "N/A")}
                       </TableCell>
-                      <TableCell className="text-xs font-mono font-bold text-emerald-400">
+                      <TableCell className="text-xs font-mono font-black text-emerald-600 dark:text-emerald-400">
                         {String(a.newValue)}
                       </TableCell>
-                      <TableCell className="text-xs text-slate-300 font-medium">
+                      <TableCell className="text-xs text-foreground font-bold">
                         {a.changedBy}
                       </TableCell>
                     </TableRow>

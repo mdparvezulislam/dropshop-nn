@@ -118,6 +118,51 @@ export class NotificationPublisher {
           entityId: String(data.orderId ?? ""),
           href: "/account/orders",
         };
+      case "wallet.credited":
+        return {
+          userId: String(data.userId ?? actor?.id ?? ""),
+          type: "wallet.credited",
+          templateKey: "wallet.credited",
+          category: "finance",
+          title: "Wallet Balance Credited",
+          body: `৳${String(data.amount ?? 0)} has been credited to your wallet balance.`,
+          entityType: "wallet",
+          href: "/reseller/wallet",
+        };
+      case "withdrawal.approved":
+      case "withdrawal.paid":
+        return {
+          userId: String(data.userId ?? actor?.id ?? ""),
+          type: "withdrawal.paid",
+          templateKey: "withdrawal.paid",
+          category: "finance",
+          title: "Withdrawal Request Processed",
+          body: `Your payout request of ৳${String(data.amount ?? 0)} has been processed.`,
+          entityType: "withdrawal",
+          href: "/reseller/withdraw",
+        };
+      case "reseller.approved":
+        return {
+          userId: String(data.userId ?? actor?.id ?? ""),
+          type: "reseller.approved",
+          templateKey: "reseller.approved",
+          category: "account",
+          title: "Reseller Business Approved",
+          body: "Congratulations! Your reseller business membership application has been approved.",
+          entityType: "reseller",
+          href: "/reseller",
+        };
+      case "system.announcement":
+      case "marketing.update":
+        return {
+          userId: String(data.userId ?? actor?.id ?? ""),
+          type: "system.announcement",
+          templateKey: "system.announcement",
+          category: "system",
+          title: String(data.title ?? "System Announcement"),
+          body: String(data.body ?? "Important notification update from NN Enterprise Commerce OS."),
+          href: String(data.href ?? "/reseller/notifications"),
+        };
       case "cms.content.published":
         return {
           userId: String(data.authorId ?? actor?.id ?? ""),

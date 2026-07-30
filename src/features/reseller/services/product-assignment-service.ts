@@ -348,11 +348,25 @@ export class ProductAssignmentService {
         sort: "newest",
       });
 
+      // Resolve per-user custom markup percent override if configured by Admin
+      let customMarkupPercent: number | undefined;
+      try {
+        const { ResellerRepository } = await import("../repositories/reseller-repository");
+        const resellerRepo = new ResellerRepository();
+        const resellerObj = await resellerRepo.findById(params.resellerId);
+        if (resellerObj?.resellerMarkupPercent !== undefined && resellerObj.resellerMarkupPercent > 0) {
+          customMarkupPercent = resellerObj.resellerMarkupPercent;
+        }
+      } catch {
+        // default fallback
+      }
+
       const mappedItems = masterResult.items.map((m) => {
-        const wholesaleCost = m.pricing?.sellingPrice || 150000;
-        const mrp = Math.round(wholesaleCost * 1.5);
-        const minPrice = Math.round(wholesaleCost * 1.05);
-        const suggestedPrice = Math.round(wholesaleCost * 1.25);
+        const baseSelling = m.pricing?.sellingPrice || 150000;
+        const marginRate = customMarkupPercent !== undefined ? customMarkupPercent / 100 : 0.22;
+        const wholesaleCost = Math.round(baseSelling * (1 - marginRate));
+        const mrp = Math.round(baseSelling * 1.35);
+        const suggestedPrice = baseSelling;
 
         return {
           id: m.product.id,

@@ -599,6 +599,29 @@ export class FulfillmentService {
       { source: "fulfillment" },
     );
 
+    if (toStatus === "in_transit" || toStatus === "picked_up") {
+      await EventBus.publish("order.shipped", {
+        orderId: shipment.orderId,
+        trackingNumber: shipment.trackingCode,
+        customerId: shipment.recipient?.phone,
+      });
+    } else if (toStatus === "delivered") {
+      await EventBus.publish("order.delivered", {
+        orderId: shipment.orderId,
+        customerId: shipment.recipient?.phone,
+      });
+    } else if (toStatus === "returned") {
+      await EventBus.publish("order.returned", {
+        orderId: shipment.orderId,
+        customerId: shipment.recipient?.phone,
+      });
+    } else if (toStatus === "cancelled") {
+      await EventBus.publish("order.cancelled", {
+        orderId: shipment.orderId,
+        customerId: shipment.recipient?.phone,
+      });
+    }
+
     return updated;
   }
 

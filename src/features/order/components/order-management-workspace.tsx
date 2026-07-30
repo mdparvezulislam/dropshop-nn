@@ -20,6 +20,7 @@ import { PickupRequestModal } from "./pickup-request-modal";
 import { EditPaymentModal } from "./edit-payment-modal";
 import { EditAddressModal } from "./edit-address-modal";
 import { EditResellerOrderModal } from "@/features/reseller-workspace/components/edit-reseller-order-modal";
+import { ResellerInvoiceModal } from "@/features/reseller-workspace/components/reseller-invoice-modal";
 import { OrderQuickActionMenu } from "./order-quick-action-menu";
 import { printOrderInvoice, printShippingLabel } from "../utils/print-utils";
 import { getHumanLabel } from "../domain/state-machine";
@@ -91,6 +92,8 @@ export function OrderManagementWorkspace({
   const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
   const [selectedOrderForEdit, setSelectedOrderForEdit] = useState<any | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
+  const [selectedOrderForInvoice, setSelectedOrderForInvoice] = useState<any | null>(null);
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState<boolean>(false);
 
   // Data Fetching
   const fetchOrders = useCallback(async () => {
@@ -209,12 +212,13 @@ export function OrderManagementWorkspace({
       return;
     }
     try {
-      const res = await bulkOrderActionAction({
+      const { bulkUpdateOrderStatusAction } = await import("../actions/order-actions");
+      const res = await bulkUpdateOrderStatusAction({
         orderIds: Array.from(selectedIds),
-        action: action as any,
+        status: action,
       });
       if (res.success) {
-        toast.success(`${res.data?.successCount}টি অর্ডার সফলভাবে আপডেটেড হয়েছে!`);
+        toast.success(`${res.count || selectedIds.size}টি অর্ডারের স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে!`);
         setSelectedIds(new Set());
         fetchOrders();
       } else {
@@ -249,7 +253,8 @@ export function OrderManagementWorkspace({
       setSelectedOrderForEdit(targetOrder);
       setIsEditModalOpen(true);
     } else if (action === "print_invoice") {
-      printOrderInvoice(targetOrder);
+      setSelectedOrderForInvoice(targetOrder);
+      setIsInvoiceModalOpen(true);
     } else if (action === "print_slip") {
       printShippingLabel(targetOrder);
     } else if (action === "cancel") {
@@ -625,6 +630,13 @@ export function OrderManagementWorkspace({
         onOpenChange={setIsEditModalOpen}
         order={selectedOrderForEdit}
         onSuccess={fetchOrders}
+      />
+
+      {/* Printable & Downloadable Invoice Modal */}
+      <ResellerInvoiceModal
+        open={isInvoiceModalOpen}
+        onOpenChange={setIsInvoiceModalOpen}
+        order={selectedOrderForInvoice}
       />
 
       {/* 3-Dots Quick Action Menu */}

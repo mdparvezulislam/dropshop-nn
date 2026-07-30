@@ -43,6 +43,7 @@ export interface ProductHeroData {
   media: GalleryMedia[];
   variants: ProductVariantEntity[];
   warranty?: string;
+  highlights?: string[];
   /** Real published-review aggregate; omitted entirely when there are none. */
   rating?: { average: number; count: number };
 }
@@ -252,7 +253,7 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
                 </span>
               )}
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 leading-tight">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-[40px] font-black text-slate-900 leading-tight tracking-tight">
               {data.name}
             </h1>
             {/* Only rendered when real published reviews exist — never a default. */}
@@ -266,9 +267,23 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
               />
             )}
             {data.shortDescription && (
-              <p className="text-sm text-slate-600 font-medium leading-relaxed">
+              <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed">
                 {data.shortDescription}
               </p>
+            )}
+            {/* Product Highlights pills (max 6 items above the fold) */}
+            {data.highlights && data.highlights.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {data.highlights.slice(0, 6).map((item, idx) => (
+                  <span
+                    key={idx}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 text-xs font-extrabold border border-amber-200 dark:border-amber-900 shadow-2xs"
+                  >
+                    <Zap className="h-3 w-3 text-amber-600 fill-amber-500 shrink-0" aria-hidden />
+                    {item}
+                  </span>
+                ))}
+              </div>
             )}
           </div>
 
@@ -298,15 +313,15 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
           <div className="space-y-1.5">
             {unitPrice > 0 ? (
               <div className="flex items-baseline gap-3 flex-wrap">
-                <span className="text-3xl font-black text-slate-900 tabular-nums">
+                <span className="text-3xl sm:text-4xl lg:text-5xl xl:text-[44px] font-black text-slate-900 tabular-nums tracking-tight">
                   {formatBdt(unitPrice)}
                 </span>
                 {strikePrice !== undefined && savings !== undefined && (
                   <>
-                    <span className="text-base font-bold line-through text-slate-400 tabular-nums">
+                    <span className="text-base sm:text-lg font-bold line-through text-slate-400 tabular-nums">
                       {formatBdt(strikePrice)}
                     </span>
-                    <span className="text-xs font-black text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded-full">
+                    <span className="text-xs font-black text-red-600 bg-red-50 border border-red-200 px-2.5 py-0.5 rounded-full shadow-2xs">
                       -{discountPercent}% • {formatBdt(savings)} সাশ্রয়
                     </span>
                   </>
@@ -441,6 +456,18 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
                 className="flex-1"
               />
             </div>
+
+            {/* In-page Order Now primary button (middle section non-sticky extra button) */}
+            <Button
+              type="button"
+              size="lg"
+              onClick={buyNow}
+              disabled={outOfStock || isResellerInvalidPrice}
+              className="w-full min-h-12 text-sm font-black bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-slate-950 rounded-2xl shadow-md transition-transform disabled:opacity-40"
+            >
+              <Zap className="h-4.5 w-4.5 mr-2 text-slate-950 fill-slate-950" aria-hidden />
+              {outOfStock ? "স্টক শেষ" : `অর্ডার করুন — ${unitPrice > 0 ? formatBdt(unitPrice * quantity) : ""}`}
+            </Button>
           </div>
 
           {/* B2B tools for logged-in memberships with real tier prices */}
@@ -507,75 +534,82 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
           in-page stepper sits far above the fold on a phone. Same state and the
           same validation as the desktop controls; nothing is duplicated but the
           layout. Bottom padding respects the iOS home indicator. */}
+      {/* Ultra-compact single-row mobile sticky purchase bar */}
       <div
-        className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-[0_-4px_16px_rgba(15,23,42,0.08)] px-3 pt-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))]"
+        className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] px-3.5 pt-2.5 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
         role="region"
         aria-label="ক্রয় অপশন"
       >
-        <div className="flex items-center justify-between gap-3 mb-2">
-          <div className="min-w-0">
-            <p className="text-lg font-black text-slate-900 tabular-nums leading-none">
-              {unitPrice > 0 ? formatBdt(unitPrice * quantity) : "দাম আসছে"}
-            </p>
-            {unitPrice > 0 && quantity > 1 && (
-              <p className="text-[10px] font-bold text-slate-500 mt-0.5">
-                {quantity} × {formatBdt(unitPrice)}
+        <div className="flex items-center justify-between gap-2.5">
+          {/* Price + Compact Stepper */}
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="min-w-0">
+              <p className="text-base font-black text-slate-900 tabular-nums leading-none">
+                {unitPrice > 0 ? formatBdt(unitPrice * quantity) : "দাম আসছে"}
               </p>
-            )}
+              {unitPrice > 0 && quantity > 1 && (
+                <p className="text-[10px] font-bold text-slate-500 mt-0.5">
+                  {quantity}×{formatBdt(unitPrice)}
+                </p>
+              )}
+            </div>
+
+            {/* Compact Quantity Stepper */}
+            <div
+              className="flex items-center border border-slate-300 rounded-lg bg-slate-50 shrink-0 overflow-hidden"
+              role="group"
+              aria-label="পরিমাণ নির্বাচন"
+            >
+              <button
+                type="button"
+                onClick={decreaseQty}
+                disabled={quantity <= 1}
+                aria-label="পরিমাণ কমান"
+                className="h-8.5 w-7 flex items-center justify-center text-slate-800 active:bg-slate-200 disabled:opacity-30"
+              >
+                <Minus className="h-3 w-3" aria-hidden />
+              </button>
+              <span
+                className="w-6 text-center text-xs font-black text-slate-900 tabular-nums"
+                aria-live="polite"
+              >
+                {quantity}
+              </span>
+              <button
+                type="button"
+                onClick={increaseQty}
+                disabled={maxQuantity !== undefined && quantity >= maxQuantity}
+                aria-label="পরিমাণ বাড়ান"
+                className="h-8.5 w-7 flex items-center justify-center text-slate-800 active:bg-slate-200 disabled:opacity-30"
+              >
+                <Plus className="h-3 w-3" aria-hidden />
+              </button>
+            </div>
           </div>
 
-          <div
-            className="flex items-center border border-slate-300 rounded-xl bg-white shrink-0 overflow-hidden"
-            role="group"
-            aria-label="পরিমাণ নির্বাচন"
-          >
+          {/* Action CTAs: Add to Cart Icon Button + Main Order Now Button */}
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
-              onClick={decreaseQty}
-              disabled={quantity <= 1}
-              aria-label="পরিমাণ কমান"
-              className="h-10 w-10 flex items-center justify-center text-slate-800 active:bg-slate-100 disabled:opacity-30 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-amber-500"
+              onClick={addToCart}
+              disabled={outOfStock || isResellerInvalidPrice}
+              aria-label="কার্টে যোগ করুন"
+              title="কার্টে যোগ করুন"
+              className="h-11 w-11 flex items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800 active:scale-95 transition-all disabled:opacity-40"
             >
-              <Minus className="h-4 w-4" aria-hidden />
+              <ShoppingBag className="h-5 w-5 text-amber-700 dark:text-amber-400" aria-hidden />
             </button>
-            <span
-              className="w-9 text-center text-sm font-black text-slate-900 tabular-nums"
-              aria-live="polite"
-            >
-              {quantity}
-            </span>
-            <button
-              type="button"
-              onClick={increaseQty}
-              disabled={maxQuantity !== undefined && quantity >= maxQuantity}
-              aria-label="পরিমাণ বাড়ান"
-              className="h-10 w-10 flex items-center justify-center text-slate-800 active:bg-slate-100 disabled:opacity-30 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-amber-500"
-            >
-              <Plus className="h-4 w-4" aria-hidden />
-            </button>
-          </div>
-        </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            onClick={addToCart}
-            disabled={outOfStock || isResellerInvalidPrice}
-            className="flex-1 h-12 text-sm font-black bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-slate-950 rounded-xl shadow-sm transition-transform disabled:opacity-40"
-          >
-            <ShoppingBag className="w-4 h-4 mr-1.5" aria-hidden />
-            {outOfStock ? "স্টক শেষ" : "কার্টে যোগ করুন"}
-          </Button>
-          <Button
-            type="button"
-            onClick={buyNow}
-            disabled={outOfStock || isResellerInvalidPrice}
-            aria-label="এখনই কিনুন"
-            className="h-12 px-4 text-sm font-black bg-slate-900 hover:bg-slate-800 active:scale-[0.98] text-white rounded-xl shadow-sm transition-transform disabled:opacity-40"
-          >
-            <Zap className="w-4 h-4 mr-1.5" aria-hidden />
-            কিনুন
-          </Button>
+            <Button
+              type="button"
+              onClick={buyNow}
+              disabled={outOfStock || isResellerInvalidPrice}
+              className="h-10 px-4 text-xs font-black bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-slate-950 rounded-xl shadow-xs transition-transform disabled:opacity-40"
+            >
+              <Zap className="w-3.5 h-3.5 mr-1 text-slate-950" aria-hidden />
+              {outOfStock ? "স্টক শেষ" : "অর্ডার করুন"}
+            </Button>
+          </div>
         </div>
       </div>
     </>

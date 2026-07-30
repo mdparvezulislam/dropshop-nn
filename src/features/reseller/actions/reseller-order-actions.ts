@@ -38,6 +38,10 @@ export interface ResellerOrderDTO {
   trackingNumber?: string;
   trackingUrl?: string;
   notes?: string;
+  resellerName?: string;
+  resellerShopName?: string;
+  resellerPhone?: string;
+  resellerAddress?: string;
   createdAt: string;
   timeline: Array<{ title: string; date: string; note?: string }>;
 }
@@ -96,7 +100,7 @@ export async function getResellerOrdersAction(params: {
     const { CheckoutSessionModel } = await import("@/features/checkout/repositories/checkout-model");
 
     const resellerFilter = {
-      $or: [{ createdBy: userId }, { resellerId: userId }, { type: "reseller" }],
+      $or: [{ createdBy: userId }, { resellerId: userId }],
     };
 
     const statusCounts: ResellerStatusCounts = {
@@ -161,7 +165,7 @@ export async function getResellerOrdersAction(params: {
       { sortBy: "createdAt", sortOrder: "desc" },
     );
 
-    let ordersList = paginated.items || [];
+    const ordersList = paginated.items || [];
 
     if (ordersList.length === 0) {
       const checkoutRepo = new CheckoutSessionRepository();
@@ -241,6 +245,10 @@ export async function getResellerOrdersAction(params: {
           courierName: c.courier?.name,
           trackingNumber: c.courierTrackingId,
           notes: c.notes,
+          resellerName: c.resellerOwnerName || c.resellerName || "Md Parvez",
+          resellerShopName: c.resellerShopName || c.storeName || c.shopName || "Unique Store Bd",
+          resellerPhone: c.resellerPhone || c.whatsapp || "01608257877",
+          resellerAddress: c.resellerAddress || "Dhanmondi, Dhaka, Bangladesh",
           createdAt: c.createdAt ? new Date(c.createdAt).toISOString() : new Date().toISOString(),
           timeline: [
             {
@@ -324,6 +332,10 @@ export async function getResellerOrdersAction(params: {
         trackingNumber: o.courier?.trackingNumber,
         trackingUrl: o.courier?.trackingUrl,
         notes: o.shipping?.deliveryNote || o.notes,
+        resellerName: o.resellerOwnerName || o.resellerName || "Md Parvez",
+        resellerShopName: o.resellerShopName || o.storeName || o.shopName || "Unique Store Bd",
+        resellerPhone: o.resellerPhone || o.whatsapp || "01608257877",
+        resellerAddress: o.resellerAddress || "Dhanmondi, Dhaka, Bangladesh",
         createdAt: o.createdAt ? new Date(o.createdAt).toISOString() : new Date().toISOString(),
         timeline: (o.timeline || []).map((t: any) => ({
           title: t.title || t.action || t.status || "Status Event",
@@ -800,7 +812,7 @@ export async function searchProductsForOrderEditAction(query: string): Promise<{
     const { ProductModel } = await import("@/features/catalog/repositories/product-model");
     const { ProductPricingModel } = await import("@/features/pricing/repositories/pricing-model");
 
-    let filter: any = { isDeleted: { $ne: true } };
+    const filter: any = { isDeleted: { $ne: true } };
     const qStr = (query || "").trim();
     if (qStr) {
       filter.$or = [

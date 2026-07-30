@@ -42,13 +42,26 @@ export class HomepageService {
     ]);
 
     const categories = categoriesResult.status === "fulfilled" ? categoriesResult.value : [];
-    const featuredProducts = featuredResult.status === "fulfilled" ? featuredResult.value : [];
+    let featuredProducts = featuredResult.status === "fulfilled" ? featuredResult.value : [];
     const flashDeals = flashDealsResult.status === "fulfilled" ? flashDealsResult.value : [];
-    const newArrivals = newArrivalsResult.status === "fulfilled" ? newArrivalsResult.value : [];
+    let newArrivals = newArrivalsResult.status === "fulfilled" ? newArrivalsResult.value : [];
     const trendingProducts = trendingResult.status === "fulfilled" ? trendingResult.value : [];
     const brands = brandsResult.status === "fulfilled" ? brandsResult.value : [];
     const collections = collectionsResult.status === "fulfilled" ? collectionsResult.value : [];
     const blogPosts = blogResult.status === "fulfilled" ? blogResult.value : [];
+
+    // Fallback: If badge-specific lists return empty, fetch general public products so homepage sections stay populated
+    if (featuredProducts.length === 0 && newArrivals.length === 0) {
+      try {
+        const fallbackList = await this.catalogService.listCards({ limit: 12, page: 1, sort: "newest" });
+        if (fallbackList.items.length > 0) {
+          featuredProducts = fallbackList.items.slice(0, 6);
+          newArrivals = fallbackList.items.slice(0, 12);
+        }
+      } catch (err) {
+        logger.error("HomepageService: fallback product list fetch failed", err);
+      }
+    }
 
     if (categoriesResult.status === "rejected") {
       logger.error("HomepageService: categories fetch failed", categoriesResult.reason);

@@ -67,6 +67,30 @@ export async function updateResellerAction(
   return { success: true, data: result };
 }
 
+export async function updateResellerMarkupAction(
+  id: string,
+  resellerMarkupPercent?: number,
+  wholesaleMarkupPercent?: number,
+): Promise<{
+  success: boolean;
+  data?: any;
+  error?: string;
+}> {
+  const session = await auth();
+  checkPermission(session, "Reseller.Update");
+
+  const service = new ResellerService();
+  const result = await service.updateReseller(
+    id,
+    { resellerMarkupPercent, wholesaleMarkupPercent },
+    session?.user?.id,
+  );
+
+  revalidatePath(RESELLERS_PATH);
+  revalidatePath(`${RESELLERS_PATH}/${id}`);
+  return { success: true, data: result };
+}
+
 export async function updateResellerStatusAction(
   id: string,
   status: unknown,

@@ -6,7 +6,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -87,10 +86,19 @@ function readStorage(): LocalCartItem[] {
   }
 }
 
+function writeStorage(data: LocalCartItem[]): void {
+  try {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    }
+  } catch {
+    // Storage full/blocked
+  }
+}
+
 export function LocalCartProvider({ children }: { children: ReactNode }): ReactNode {
   const [items, setItems] = useState<LocalCartItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
-  const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     try {
@@ -104,25 +112,16 @@ export function LocalCartProvider({ children }: { children: ReactNode }): ReactN
 
   useEffect(() => {
     if (!hydrated) return;
-    if (persistTimer.current) clearTimeout(persistTimer.current);
-    persistTimer.current = setTimeout(() => {
-      try {
-        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-      } catch {
-        // Storage full/blocked — cart continues in memory.
-      }
-    }, 150);
-    return () => {
-      if (persistTimer.current) clearTimeout(persistTimer.current);
-    };
+    writeStorage(items);
   }, [items, hydrated]);
 
   const addItem = useCallback((item: Omit<LocalCartItem, "quantity">, quantity = 1) => {
     setItems((prev) => {
       const key = lineKey(item.productId, item.variantSku);
       const existing = prev.find((line) => lineKey(line.productId, line.variantSku) === key);
+      let next: LocalCartItem[];
       if (existing) {
-        return prev.map((line) =>
+        next = prev.map((line) =>
           lineKey(line.productId, line.variantSku) === key
             ? {
                 ...line,
@@ -131,32 +130,38 @@ export function LocalCartProvider({ children }: { children: ReactNode }): ReactN
               }
             : line,
         );
+      } else {
+        next = [...prev, { ...item, quantity: clampQuantity(quantity, item.maxQuantity) }];
       }
-      return [...prev, { ...item, quantity: clampQuantity(quantity, item.maxQuantity) }];
+      writeStorage(next);
+      return next;
     });
   }, []);
 
   const setQuantity = useCallback(
     (productId: string, variantSku: string | undefined, quantity: number) => {
-      setItems((prev) =>
-        quantity <= 0
-          ? prev.filter(
-              (line) => lineKey(line.productId, line.variantSku) !== lineKey(productId, variantSku),
-            )
-          : prev.map((line) =>
-              lineKey(line.productId, line.variantSku) === lineKey(productId, variantSku)
-                ? { ...line, quantity: clampQuantity(quantity, line.maxQuantity) }
-                : line,
-            ),
-      );
+      setItems((prev) => {
+        const next =
+          quantity <= 0
+            ? prev.filter(
+                (line) => lineKey(line.productId, line.variantSku) !== lineKey(productId, variantSku),
+              )
+            : prev.map((line) =>
+                lineKey(line.productId, line.variantSku) === lineKey(productId, variantSku)
+                  ? { ...line, quantity: clampQuantity(quantity, line.maxQuantity) }
+                  : line,
+              );
+        writeStorage(next);
+        return next;
+      });
     },
     [],
   );
 
   const updateItemPrice = useCallback(
     (productId: string, variantSku: string | undefined, newPrice: number) => {
-      setItems((prev) =>
-        prev.map((line) =>
+      setItems((prev) => {
+        const next = prev.map((line) =>
           lineKey(line.productId, line.variantSku) === lineKey(productId, variantSku)
             ? {
                 ...line,
@@ -164,21 +169,28 @@ export function LocalCartProvider({ children }: { children: ReactNode }): ReactN
                 customSellingPrice: newPrice,
               }
             : line,
-        ),
-      );
+        );
+        writeStorage(next);
+        return next;
+      });
     },
     [],
   );
 
   const removeItem = useCallback((productId: string, variantSku: string | undefined) => {
-    setItems((prev) =>
-      prev.filter(
+    setItems((prev) => {
+      const next = prev.filter(
         (line) => lineKey(line.productId, line.variantSku) !== lineKey(productId, variantSku),
-      ),
-    );
+      );
+      writeStorage(next);
+      return next;
+    });
   }, []);
 
-  const clear = useCallback(() => setItems([]), []);
+  const clear = useCallback(() => {
+    writeStorage([]);
+    setItems([]);
+  }, []);
 
   const value = useMemo<LocalCartContextValue>(() => {
     const count = items.reduce((sum, line) => sum + line.quantity, 0);

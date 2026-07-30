@@ -180,6 +180,13 @@ export function ProductGallery({ media, title, selectedImage }: ProductGalleryPr
             ))}
           </div>
 
+          {/* Image Counter Badge */}
+          {items.length > 1 && (
+            <span className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-full bg-slate-900/75 backdrop-blur-sm text-white text-[11px] font-black tracking-wider shadow-sm pointer-events-none">
+              {selected + 1} / {items.length}
+            </span>
+          )}
+
           {/* Desktop hover zoom overlay (progressive enhancement over the real <Image>) */}
           {zoomed && current.type !== "video" && !isPlaceholder && (
             <div

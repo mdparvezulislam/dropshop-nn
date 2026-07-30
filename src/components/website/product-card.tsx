@@ -3,10 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Heart, Eye, ArrowLeftRight, ShoppingBag } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { PRODUCT_IMAGE_PLACEHOLDER } from "@/config/site";
 import { CompactRating } from "@/components/website/reviews/rating-stars";
+import { useWishlist } from "@/components/website/wishlist/wishlist-provider";
 import type { PublicProductCard } from "@/features/catalog/domain/public-catalog-types";
 
 export interface ProductCardProps {
@@ -170,10 +173,27 @@ export function ProductCard({
   onQuickView,
   onCompare,
 }: ProductCardProps) {
-  // Wishlist is a visual placeholder until the wishlist engine ships in a later phase.
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const wishlist = useWishlist();
+  const router = useRouter();
+  const isWishlisted = wishlist.has(product.id);
   const productUrl = `/product/${product.slug}`;
   const outOfStock = product.stockStatus === "out_of_stock";
+
+  const handleWishlistToggle = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const res = await wishlist.toggle(product.id);
+    if (res.status === "unauthenticated") {
+      toast.error("উইশলিস্টে যোগ করতে লগইন করুন");
+      router.push(`/auth/login?callbackUrl=${encodeURIComponent(window.location.pathname)}`);
+    } else if (res.status === "added") {
+      toast.success("উইশলিস্টে যোগ করা হয়েছে");
+    } else if (res.status === "removed") {
+      toast.info("উইশলিস্ট থেকে সরানো হয়েছে");
+    } else if (res.status === "error") {
+      toast.error(res.error || "উইশলিস্ট আপডেট ব্যর্থ হয়েছে");
+    }
+  };
 
   if (viewMode === "list") {
     return (
@@ -280,10 +300,7 @@ export function ProductCard({
           <div className="absolute top-2 right-2 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-all duration-200 z-20">
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsWishlisted(!isWishlisted);
-              }}
+              onClick={handleWishlistToggle}
               aria-pressed={isWishlisted}
               aria-label={
                 isWishlisted

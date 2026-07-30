@@ -36,12 +36,24 @@ export function getOrderPaymentDetails(order: any): PaymentDetails {
 
   let rawAdvance =
     order?.pricing?.advancePaid ??
+    order?.advancePaidCents ??
     order?.advancePaid ??
     order?.metadata?.advancePaid ??
     order?.paidAmount ??
     parseAdvancePaidFromNotes(order?.shipping?.deliveryNote || order?.notes);
 
-  const advancePaid = Math.max(0, Number(rawAdvance > 10000 ? Math.round(rawAdvance / 100) : rawAdvance));
+  let advancePaid = 0;
+  if (rawAdvance > 0) {
+    const numAdv = Number(rawAdvance);
+    if (numAdv >= 1000 && grandTotal < 10000) {
+      advancePaid = Math.round(numAdv / 100);
+    } else if (numAdv >= 10000) {
+      advancePaid = Math.round(numAdv / 100);
+    } else {
+      advancePaid = numAdv;
+    }
+  }
+
   const rawStatus = String(order?.paymentStatus || order?.metadata?.paymentStatus || "").toLowerCase();
 
   let dueAmount = grandTotal;

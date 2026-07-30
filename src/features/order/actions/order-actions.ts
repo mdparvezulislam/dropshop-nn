@@ -380,3 +380,70 @@ export async function updateOrderAddressAction(formData: {
     return { success: false, error: error.message };
   }
 }
+
+export async function bulkUpdateOrderStatusAction(input: {
+  orderIds: string[];
+  status: string;
+}): Promise<{
+  success: boolean;
+  count?: number;
+  error?: string;
+}> {
+  const session = await auth();
+  checkPermission(session, "Order.Update");
+  try {
+    const { OrderModel } = await import("../repositories/order-model");
+    const { CheckoutSessionModel } = await import("@/features/checkout/repositories/checkout-model");
+
+    const statusMap: Record<string, string> = {
+      confirm: "confirmed",
+      confirmed: "confirmed",
+      processing: "processing",
+      packaging: "processing",
+      pickup: "pickup_requested",
+      pickup_requested: "pickup_requested",
+      book_courier: "pickup_requested",
+      ship: "shipped",
+      shipped: "shipped",
+      deliver: "delivered",
+      delivered: "delivered",
+      complete: "completed",
+      completed: "completed",
+      cancel: "cancelled",
+      cancelled: "cancelled",
+    };
+
+    const targetStatus = statusMap[input.status] || input.status;
+
+    const res1 = await OrderModel.updateMany(
+      { _id: { $in: input.orderIds } },
+      {
+        $set: { status: targetStatus },
+        $push: {
+          timeline: {
+            id: new Date().getTime().toString(),
+            eventType: "order_updated",
+            action: "status_change",
+            summary: `Status Updated to ${targetStatus.toUpperCase()}`,
+            title: `Status Updated to ${targetStatus.toUpperCase()}`,
+            date: new Date(),
+            timestamp: new Date(),
+            note: "Bulk status update executed by Admin",
+          },
+        },
+      }
+    );
+
+    const res2 = await CheckoutSessionModel.updateMany(
+      { _id: { $in: input.orderIds } },
+      { $set: { status: targetStatus } }
+    );
+
+    revalidatePath("/dashboard/orders");
+    const count = (res1.modifiedCount || 0) + (res2.modifiedCount || 0);
+    return { success: true, count: count || input.orderIds.length };
+  } catch (error: any) {
+    logger.error("bulkUpdateOrderStatusAction failed", error);
+    return { success: false, error: error.message };
+  }
+}

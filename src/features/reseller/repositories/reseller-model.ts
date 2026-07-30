@@ -37,6 +37,8 @@ export interface ResellerDBFields {
   collections: string[];
   tags: string[];
   notes?: string;
+  resellerMarkupPercent?: number;
+  wholesaleMarkupPercent?: number;
 }
 
 export type ResellerDocumentType = BaseDocument & ResellerDBFields;
@@ -135,6 +137,8 @@ const resellerSchema = new Schema<ResellerDocumentType>(
     collections: [{ type: String }],
     tags: [{ type: String, index: true }],
     notes: { type: String, required: false },
+    resellerMarkupPercent: { type: Number, required: false },
+    wholesaleMarkupPercent: { type: Number, required: false },
     ...resellerBaseFields,
   },
   baseSchemaOptions,

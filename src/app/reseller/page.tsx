@@ -118,10 +118,10 @@ export default function ResellerDashboardPage(): React.ReactElement {
   React.useEffect(() => {
     async function load() {
       try {
-        const [profileMod, dashMod, ordersMod, walletMod, customersMod] = await Promise.all([
+        const [profileMod, dashMod, resellerOrdersMod, walletMod, customersMod] = await Promise.all([
           import("@/features/reseller/actions/reseller-actions"),
           import("@/features/reseller/actions/reseller-actions"),
-          import("@/features/order/actions/order-actions"),
+          import("@/features/reseller/actions/reseller-order-actions"),
           import("@/features/finance/actions/finance-actions"),
           import("@/features/customer/actions/customer-actions"),
         ]);
@@ -129,7 +129,7 @@ export default function ResellerDashboardPage(): React.ReactElement {
         const [profileRes, dashRes, ordersRes, walletRes, customersRes] = await Promise.allSettled([
           profileMod.resolveCurrentResellerAction(),
           dashMod.getResellerDashboardAction(),
-          ordersMod.listOrdersAction({ type: "reseller", page: 1, limit: 50 }),
+          resellerOrdersMod.getResellerOrdersAction({ limit: 50 }),
           walletMod.getOrCreateUserWalletAction(),
           customersMod.listCustomersAction(""),
         ]);
@@ -151,11 +151,11 @@ export default function ResellerDashboardPage(): React.ReactElement {
         }
 
         if (ordersRes.status === "fulfilled" && ordersRes.value.success) {
-          const od = ordersRes.value.data as { items?: any[] } | any;
-          const items = od?.items ?? (Array.isArray(od) ? od : []);
+          const od = ordersRes.value.data as any;
+          const items = od?.orders ?? od?.items ?? (Array.isArray(od) ? od : []);
 
           d.ordersToday = items.filter(
-            (o: any) => new Date(o.createdAt).toDateString() === todayStr,
+            (o: any) => o.createdAt && new Date(o.createdAt).toDateString() === todayStr,
           ).length;
           d.ordersPending = items.filter(
             (o: any) =>
@@ -166,20 +166,20 @@ export default function ResellerDashboardPage(): React.ReactElement {
           ).length;
 
           d.profitToday = items
-            .filter((o: any) => new Date(o.createdAt).toDateString() === todayStr)
-            .reduce((s: number, o: any) => s + (o.profitPreview?.totalProfit ?? o.profit ?? 0), 0);
+            .filter((o: any) => o.createdAt && new Date(o.createdAt).toDateString() === todayStr)
+            .reduce((s: number, o: any) => s + (o.profitCents ?? o.profitPreview?.totalProfit ?? o.profit ?? 0), 0);
 
           d.profitMonthly = items
-            .filter((o: any) => new Date(o.createdAt).getMonth() === currentMonth)
-            .reduce((s: number, o: any) => s + (o.profitPreview?.totalProfit ?? o.profit ?? 0), 0);
+            .filter((o: any) => o.createdAt && new Date(o.createdAt).getMonth() === currentMonth)
+            .reduce((s: number, o: any) => s + (o.profitCents ?? o.profitPreview?.totalProfit ?? o.profit ?? 0), 0);
 
           setRecentOrders(
             items.slice(0, 6).map((o: any) => ({
               id: o.id ?? o._id,
               orderNumber: o.orderNumber ?? o.id?.slice(0, 8) ?? "—",
-              customer: o.customer?.name ?? o.customerName ?? "Customer",
-              total: o.pricing?.grandTotal ?? o.total ?? 0,
-              profit: o.profitPreview?.totalProfit ?? o.profit ?? 0,
+              customer: o.customerName ?? o.customer?.name ?? "Customer",
+              total: o.sellingPriceCents ?? o.pricing?.grandTotal ?? o.total ?? 0,
+              profit: o.profitCents ?? o.profitPreview?.totalProfit ?? o.profit ?? 0,
               status: o.status ?? "pending",
               createdAt: o.createdAt,
             })),

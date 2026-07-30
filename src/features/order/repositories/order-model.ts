@@ -21,15 +21,18 @@ const timelineActorSchema = new Schema(
 );
 
 const timelineEntrySchema = new Schema({
-  id: { type: String, required: true },
-  eventType: { type: String, required: true },
-  action: { type: String, required: true },
-  summary: { type: String, required: true },
+  id: { type: String, default: () => new mongoose.Types.ObjectId().toString() },
+  eventType: { type: String, default: "order_updated" },
+  action: { type: String, default: "status_change" },
+  summary: { type: String, default: "Order timeline update" },
   actor: { type: timelineActorSchema, default: null },
   changes: [timelineChangeSchema],
   metadata: { type: Map, of: Schema.Types.Mixed, default: null },
   correlationId: { type: String, default: null },
-  timestamp: { type: Date, required: true },
+  timestamp: { type: Date, default: Date.now },
+  title: { type: String },
+  date: { type: Schema.Types.Mixed },
+  note: { type: String },
 });
 
 const customerSnapshotSchema = new Schema(

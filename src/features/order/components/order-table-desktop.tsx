@@ -131,7 +131,15 @@ export function OrderTableDesktop({
               const riskScore = order.riskScore ?? 76;
               const isHighRisk = riskScore < 50;
               const hasCourierSlip = Boolean(order.courierInfo?.trackingNumber || order.pickupRequested);
-              const rawDeliveryCharge = order.shipping?.deliveryCharge ?? order.shipping?.deliveryFee ?? order.deliveryChargeCents ?? order.shippingCost ?? 60;
+              const rawDeliveryCharge =
+                order.deliveryChargeCents ??
+                (order.pricing?.grandTotal && order.pricing?.subtotal && order.pricing.grandTotal > order.pricing.subtotal
+                  ? order.pricing.grandTotal - order.pricing.subtotal
+                  : undefined) ??
+                order.shipping?.deliveryFee ??
+                order.shipping?.deliveryCharge ??
+                order.shippingCost ??
+                60;
               const deliveryCharge = rawDeliveryCharge > 1000 ? Math.round(rawDeliveryCharge / 100) : rawDeliveryCharge;
 
               return (
@@ -217,15 +225,26 @@ export function OrderTableDesktop({
                     </div>
                   </td>
 
-                  {/* Channel Source */}
+                  {/* Channel Source / Reseller Shop Name */}
                   <td className="p-3.5">
-                    <span
-                      className={`inline-flex px-2 py-0.5 rounded-md text-[10px] font-bold border ${
-                        channelBadgeMap[channel]?.cls || "bg-slate-100 text-slate-700"
-                      }`}
-                    >
-                      {channelBadgeMap[channel]?.label || channel}
-                    </span>
+                    {order.type === "reseller" || order.resellerId || order.resellerName || order.resellerShopName ? (
+                      <div className="flex flex-col gap-0.5">
+                        <span className="inline-flex px-2 py-0.5 rounded-md text-[10px] font-black bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
+                          {order.resellerShopName || order.resellerStoreName || order.storeName || order.shopName || (order.resellerName ? `${order.resellerName} Store` : "Unique Store Bd")}
+                        </span>
+                        <span className="text-[9px] font-extrabold text-purple-600 dark:text-purple-400 pl-0.5">
+                          Reseller Order
+                        </span>
+                      </div>
+                    ) : (
+                      <span
+                        className={`inline-flex px-2 py-0.5 rounded-md text-[10px] font-bold border ${
+                          channelBadgeMap[channel]?.cls || "bg-slate-100 text-slate-700"
+                        }`}
+                      >
+                        {channelBadgeMap[channel]?.label || channel}
+                      </span>
+                    )}
                   </td>
 
                   {/* Items Summary with Product Thumbnail & Delivery Charge */}

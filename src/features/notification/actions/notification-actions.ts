@@ -252,3 +252,43 @@ export async function getUnreadNotificationCountAction(): Promise<{
     };
   }
 }
+
+export async function subscribeWebPushAction(subscription: {
+  endpoint: string;
+  keys: { p256dh: string; auth: string };
+  userAgent?: string;
+}): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    const session = await auth();
+    const userId = requireUserId(session);
+    const { WebPushService } = await import("../services/push-service");
+    const pushService = new WebPushService();
+    const ok = await pushService.registerSubscription(userId, subscription, subscription.userAgent);
+    return { success: ok };
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to subscribe push",
+    };
+  }
+}
+
+export async function unsubscribeWebPushAction(endpoint: string): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    const { WebPushService } = await import("../services/push-service");
+    const pushService = new WebPushService();
+    const ok = await pushService.unregisterSubscription(endpoint);
+    return { success: ok };
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "Failed to unsubscribe push",
+    };
+  }
+}

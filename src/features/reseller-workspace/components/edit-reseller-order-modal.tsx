@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils/cn";
 interface EditResellerOrderModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  order: ResellerOrderDTO | null;
+  order: any;
   onSuccess: () => void;
 }
 
@@ -67,38 +67,76 @@ export function EditResellerOrderModal({
 
   React.useEffect(() => {
     if (order) {
-      setCustomerName(order.customerName || "");
-      setCustomerPhone(order.customerPhone || "");
-      setDistrict(order.district || "Dhaka");
-      setUpazila(order.upazila || "");
-      setFullAddress(order.fullAddress || "");
-      const isDhakaOrder = (order.district || "Dhaka").toLowerCase().includes("dhaka");
-      setDeliveryChargeTaka(Math.round(order.deliveryChargeCents / 100) || (isDhakaOrder ? 60 : 120));
-      setAdvancePaidTaka(Math.round((order.advancePaidCents || 0) / 100));
-      setNotes(order.notes || "");
+      const o: any = order;
+      setCustomerName(o.customerName || o.customer?.name || o.shipping?.name || "");
+      setCustomerPhone(o.customerPhone || o.customer?.phone || o.shipping?.phone || "");
 
-      const mappedItems = (order.items || []).map((i) => ({
-        productId: i.productId || "prod-1",
-        productName: i.productName || "Reseller Product",
-        variantSku: i.variantSku,
-        quantity: i.quantity || 1,
-        unitSellingPriceTaka: Math.round((i.unitSellingPrice || 0) / 100),
-        unitCostBasisTaka: Math.round((i.unitCostBasis || 0) / 100),
-      }));
+      const currentDistrict = o.district || o.shipping?.city || o.shipping?.district || "Dhaka";
+      setDistrict(currentDistrict);
+      setUpazila(o.upazila || o.shipping?.area || o.shipping?.upazila || "");
+      setFullAddress(o.fullAddress || o.shipping?.streetAddress || o.shipping?.address || "");
 
-      setItems(
-        mappedItems.length > 0
-          ? mappedItems
-          : [
-              {
-                productId: "prod-1",
-                productName: order.productName || "Product Item",
-                quantity: order.quantity || 1,
-                unitSellingPriceTaka: Math.round(order.sellingPriceCents / 100),
-                unitCostBasisTaka: Math.round(order.costBasisCents / 100),
-              },
-            ],
-      );
+      const isDhakaOrder = currentDistrict.toLowerCase().includes("dhaka");
+      const rawDeliv =
+        o.deliveryChargeCents ??
+        (o.pricing?.grandTotal && o.pricing?.subtotal && o.pricing.grandTotal > o.pricing.subtotal
+          ? o.pricing.grandTotal - o.pricing.subtotal
+          : undefined) ??
+        o.shipping?.deliveryFee ??
+        o.shipping?.deliveryCharge ??
+        o.shippingCost ??
+        (isDhakaOrder ? 6000 : 12000);
+
+      const delivTaka = rawDeliv > 1000 ? Math.round(rawDeliv / 100) : rawDeliv;
+      setDeliveryChargeTaka(delivTaka);
+
+      const rawAdv =
+        o.advancePaidCents ??
+        o.pricing?.advancePaid ??
+        o.advancePaid ??
+        o.metadata?.advancePaid ??
+        0;
+      const advTaka = rawAdv > 1000 ? Math.round(rawAdv / 100) : rawAdv;
+      setAdvancePaidTaka(advTaka);
+
+      setNotes(o.notes || o.shipping?.deliveryNote || "");
+
+      const mappedItems = (o.items || []).map((i: any) => {
+        const rawPrice = i.unitSellingPrice ?? i.unitPrice ?? i.price ?? i.sellingPriceCents ?? 0;
+        const priceTaka = rawPrice > 1000 ? Math.round(rawPrice / 100) : rawPrice;
+
+        const rawCost = i.unitCostBasis ?? i.costBasis ?? i.costBasisCents ?? i.wholesalePrice ?? 0;
+        const costTaka = rawCost > 1000 ? Math.round(rawCost / 100) : rawCost;
+
+        return {
+          productId: i.productId || i.id || "prod-1",
+          productName: i.productName || i.name || "Reseller Product",
+          variantSku: i.variantSku || i.sku,
+          quantity: i.quantity || i.qty || 1,
+          unitSellingPriceTaka: priceTaka,
+          unitCostBasisTaka: costTaka,
+        };
+      });
+
+      if (mappedItems.length > 0) {
+        setItems(mappedItems);
+      } else {
+        const rawSinglePrice = o.sellingPriceCents ?? o.pricing?.subtotal ?? 0;
+        const singlePriceTaka = rawSinglePrice > 1000 ? Math.round(rawSinglePrice / 100) : rawSinglePrice;
+
+        const rawSingleCost = o.costBasisCents ?? 0;
+        const singleCostTaka = rawSingleCost > 1000 ? Math.round(rawSingleCost / 100) : rawSingleCost;
+
+        setItems([
+          {
+            productId: "prod-1",
+            productName: o.productName || "Product Item",
+            quantity: o.quantity || 1,
+            unitSellingPriceTaka: singlePriceTaka,
+            unitCostBasisTaka: singleCostTaka,
+          },
+        ]);
+      }
     }
   }, [order]);
 

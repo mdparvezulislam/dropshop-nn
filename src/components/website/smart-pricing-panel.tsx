@@ -44,7 +44,6 @@ export function SmartPricingPanel({
   retailPrice,
   campaignPrice,
   comparePrice,
-  costPrice,
   resellerPrice,
   wholesalePrice,
   minResellerPrice,
@@ -97,7 +96,7 @@ export function SmartPricingPanel({
     minResellerPrice,
   });
 
-  const { isValid, floorPrice: effectiveMinPrice, profit, marginPercent, error: validationError } = validation;
+  const { isValid, floorPrice: effectiveMinPrice, profit, marginPercent } = validation;
   const isBelowFloor = resellerPrice !== undefined && !isValid;
 
   return (
@@ -214,22 +213,28 @@ export function SmartPricingPanel({
         </div>
       )}
 
-      {/* Wholesale pricing — real wholesale price only; no synthetic tier matrix */}
+      {/* Wholesale pricing — real wholesale price & MOQ */}
       {wholesalePrice !== undefined && (
-        <div className="p-4 rounded-2xl bg-blue-50/50 border border-blue-200 space-y-2">
+        <div className="p-4 rounded-2xl bg-blue-50/50 border border-blue-200 space-y-3">
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-1.5 text-xs font-black text-blue-900">
-              <Building2 className="h-4 w-4" aria-hidden /> পাইকারি মূল্য
+              <Building2 className="h-4 w-4 text-blue-700" aria-hidden /> পাইকারি মূল্য (Wholesale Price)
             </span>
             <span className="text-lg font-black text-blue-900 tabular-nums">
               {formatBdt(wholesalePrice)}
             </span>
           </div>
-          {moq !== undefined && moq > 1 && (
-            <p className="text-[11px] font-bold text-slate-700">
-              সর্বনিম্ন অর্ডার পরিমাণ (MOQ): <span className="font-black">{moq} পিস</span>
-            </p>
-          )}
+
+          <div className="grid grid-cols-2 gap-2 text-xs pt-1">
+            <div className="p-2 rounded-xl bg-white border border-blue-100 flex flex-col">
+              <span className="text-[10px] font-bold text-slate-500">সর্বনিম্ন পরিমাণ (MOQ)</span>
+              <span className="font-black text-slate-900">{moq && moq > 1 ? moq : 20} পিস</span>
+            </div>
+            <div className="p-2 rounded-xl bg-white border border-blue-100 flex flex-col">
+              <span className="text-[10px] font-bold text-slate-500">মোট মূল্য ({Math.max(quantity, moq && moq > 1 ? moq : 20)} পিস)</span>
+              <span className="font-black text-blue-700">{formatBdt(wholesalePrice * Math.max(quantity, moq && moq > 1 ? moq : 20))}</span>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -55,8 +55,8 @@ export function OrderBulkActionBar({
         <Button
           size="sm"
           variant="secondary"
-          onClick={() => onBulkAction("confirm")}
-          className="h-8 px-2.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white border-0 shrink-0"
+          onClick={() => onBulkAction("confirmed")}
+          className="h-8 px-2.5 text-xs font-extrabold bg-emerald-600 hover:bg-emerald-700 text-white border-0 shrink-0 shadow-xs"
         >
           Confirm
         </Button>
@@ -64,8 +64,17 @@ export function OrderBulkActionBar({
         <Button
           size="sm"
           variant="secondary"
-          onClick={() => onBulkAction("book_courier")}
-          className="h-8 px-2.5 text-xs font-bold bg-blue-600 hover:bg-blue-700 text-white border-0 shrink-0"
+          onClick={() => onBulkAction("processing")}
+          className="h-8 px-2.5 text-xs font-extrabold bg-indigo-600 hover:bg-indigo-700 text-white border-0 shrink-0 shadow-xs"
+        >
+          Packaging
+        </Button>
+
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => onBulkAction("pickup_requested")}
+          className="h-8 px-2.5 text-xs font-extrabold bg-purple-600 hover:bg-purple-700 text-white border-0 shrink-0 shadow-xs"
         >
           <Truck className="h-3.5 w-3.5 mr-1" /> Courier
         </Button>
@@ -73,28 +82,28 @@ export function OrderBulkActionBar({
         <Button
           size="sm"
           variant="secondary"
-          onClick={() => onBulkAction("print_invoice")}
-          className="h-8 px-2.5 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 shrink-0"
+          onClick={() => onBulkAction("shipped")}
+          className="h-8 px-2.5 text-xs font-extrabold bg-blue-600 hover:bg-blue-700 text-white border-0 shrink-0 shadow-xs"
         >
-          <Printer className="h-3.5 w-3.5 mr-1" /> Invoice
+          Shipped
         </Button>
 
         <Button
           size="sm"
           variant="secondary"
-          onClick={() => onBulkAction("export")}
-          className="h-8 px-2.5 text-xs font-bold bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 shrink-0"
+          onClick={() => onBulkAction("delivered")}
+          className="h-8 px-2.5 text-xs font-extrabold bg-teal-600 hover:bg-teal-700 text-white border-0 shrink-0 shadow-xs"
         >
-          <Download className="h-3.5 w-3.5 mr-1" /> Export
+          Delivered
         </Button>
 
         <Button
           size="sm"
           variant="secondary"
-          onClick={() => onBulkAction("cancel")}
-          className="h-8 px-2 text-xs font-bold bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/60 shrink-0"
+          onClick={() => onBulkAction("cancelled")}
+          className="h-8 px-2.5 text-xs font-extrabold bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800/60 shrink-0 shadow-xs"
         >
-          <Ban className="h-3.5 w-3.5" />
+          <Ban className="h-3.5 w-3.5 mr-1" /> Cancel
         </Button>
 
         <button

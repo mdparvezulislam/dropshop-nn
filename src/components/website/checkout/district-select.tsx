@@ -181,11 +181,11 @@ export function DistrictSelect({
                   data-index={index}
                   role="option"
                   aria-selected={isSelected}
-                  // Pointer down beats blur, so the click lands before the list closes.
-                  onMouseDown={(e) => {
+                  onPointerDown={(e) => {
                     e.preventDefault();
                     pick(district);
                   }}
+                  onClick={() => pick(district)}
                   onMouseEnter={() => setActiveIndex(index)}
                   className={cn(
                     "flex items-center justify-between gap-2 px-3.5 py-2.5 cursor-pointer",
