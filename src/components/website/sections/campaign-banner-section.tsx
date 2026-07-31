@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 export function CampaignBannerSection(): React.ReactElement {
   return (
     <section
-      className="py-8 sm:py-12 lg:py-16 bg-white border-b border-slate-200"
+      className="py-6 sm:py-10 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800"
       aria-label="Business Opportunity Banners"
     >
       <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">

@@ -338,6 +338,38 @@ export class SettingsService {
     return val as T;
   }
 
+  async getGlobalPricingDefaults(): Promise<{
+    retailMarkup: number;
+    wholesaleMarkup: number;
+    resellerMarkup: number;
+  }> {
+    const [retail, wholesale, reseller] = await Promise.all([
+      this.getValue<number>("pricing.retail_markup_percent", 40),
+      this.getValue<number>("pricing.wholesale_markup_percent", 30),
+      this.getValue<number>("pricing.reseller_markup_percent", 22),
+    ]);
+    return {
+      retailMarkup: typeof retail === "number" ? retail : parseFloat(String(retail)) || 40,
+      wholesaleMarkup: typeof wholesale === "number" ? wholesale : parseFloat(String(wholesale)) || 30,
+      resellerMarkup: typeof reseller === "number" ? reseller : parseFloat(String(reseller)) || 22,
+    };
+  }
+
+  getGlobalPricingDefaultsSync(): {
+    retailMarkup: number;
+    wholesaleMarkup: number;
+    resellerMarkup: number;
+  } {
+    const retail = SETTING_CACHE.get("pricing.retail_markup_percent") ?? 40;
+    const wholesale = SETTING_CACHE.get("pricing.wholesale_markup_percent") ?? 30;
+    const reseller = SETTING_CACHE.get("pricing.reseller_markup_percent") ?? 22;
+    return {
+      retailMarkup: typeof retail === "number" ? retail : parseFloat(String(retail)) || 40,
+      wholesaleMarkup: typeof wholesale === "number" ? wholesale : parseFloat(String(wholesale)) || 30,
+      resellerMarkup: typeof reseller === "number" ? reseller : parseFloat(String(reseller)) || 22,
+    };
+  }
+
   async setSetting(
     key: string,
     value: any,

@@ -50,7 +50,7 @@ export default function ResellerProductsPage(): React.ReactElement {
   const [products, setProducts] = React.useState<ResellerProductCardItem[]>([]);
   const [totalCount, setTotalCount] = React.useState(0);
   const [resellerStatus, setResellerStatus] = React.useState("active");
-  const pageSize = 12;
+  const pageSize = 48;
 
   const loadProducts = React.useCallback(async () => {
     setLoading(true);
@@ -77,10 +77,10 @@ export default function ResellerProductsPage(): React.ReactElement {
         const rawItems = d.items ?? (Array.isArray(d) ? d : []);
 
         const mapped: ResellerProductCardItem[] = rawItems.map((p: any) => {
-          const wholesaleCost = p.pricing?.costBasis ?? p.costBasis ?? p.wholesalePrice ?? 150000; // cents
-          const mrp = p.pricing?.recommendedPrice ?? p.product?.mrp ?? wholesaleCost * 1.5;
-          const minPrice = p.pricing?.minPrice ?? Math.round(wholesaleCost * 1.05);
-          const suggestedPrice = p.pricing?.sellingPrice ?? Math.round(wholesaleCost * 1.25);
+          const wholesaleCost = p.pricing?.costBasis ?? p.costBasis ?? p.wholesalePrice ?? 90000; // cents
+          const mrp = p.pricing?.recommendedPrice ?? p.pricing?.sellingPrice ?? 105000;
+          const minPrice = p.pricing?.minPrice ?? wholesaleCost;
+          const suggestedPrice = p.pricing?.sellingPrice ?? 105000;
 
           return {
             id: p.id || p._id,
@@ -117,6 +117,22 @@ export default function ResellerProductsPage(): React.ReactElement {
     loadProducts();
   }, [loadProducts]);
 
+  const categories = React.useMemo(() => {
+    const set = new Set<string>();
+    products.forEach((p) => {
+      if (p.category) set.add(p.category);
+    });
+    return Array.from(set).sort();
+  }, [products]);
+
+  const brands = React.useMemo(() => {
+    const set = new Set<string>();
+    products.forEach((p) => {
+      if (p.brand) set.add(p.brand);
+    });
+    return Array.from(set).sort();
+  }, [products]);
+
   const handleFavoriteToggle = async (id: string, isFavorite: boolean) => {
     try {
       const { favoriteResellerProductAction } =
@@ -132,6 +148,12 @@ export default function ResellerProductsPage(): React.ReactElement {
   // Client-side filtering & sorting
   const filteredProducts = products
     .filter((p) => {
+      if (selectedCategory !== "all" && p.category?.toLowerCase() !== selectedCategory.toLowerCase()) {
+        return false;
+      }
+      if (selectedBrand !== "all" && p.brand?.toLowerCase() !== selectedBrand.toLowerCase()) {
+        return false;
+      }
       if (badgeFilter === "low_stock") return p.status === "low_stock" || p.availableStock <= 5;
       if (badgeFilter === "flash_sale") return p.badge === "flash_sale";
       if (badgeFilter === "best_seller") return p.badge === "best_seller";
@@ -156,31 +178,39 @@ export default function ResellerProductsPage(): React.ReactElement {
 
   return (
     <ResellerStatusGuard status={resellerStatus}>
-      <div className="space-y-6 animate-fade-in">
-        {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
-          <div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-primary bg-primary/10 border border-primary/20 px-2.5 py-0.5 rounded-full">
-              Sales Catalog &amp; Pricing Workspace
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground mt-1">
+      <div className="space-y-2.5 sm:space-y-4 animate-fade-in pt-0 sm:pt-1">
+        {/* Desktop-only Page Header (Hidden on Mobile because top header already shows Products) */}
+        <div className="hidden sm:flex items-center justify-between gap-3 border-b border-border pb-2.5">
+          <div className="min-w-0 flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
               Reseller Products
             </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground font-semibold">
-              Browse products, calculate profit, customize selling price, and place quick customer orders.
-            </p>
+            <span className="text-[10px] font-black uppercase tracking-wider text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded-full shrink-0">
+              Live Stock Catalog ({totalCount})
+            </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <Link href="/reseller/orders/create">
-              <Button size="sm" className="gap-1.5 font-black shadow-xs">
-                <Plus className="w-4 h-4 stroke-[3]" /> Create Order
+              <Button size="sm" className="h-8 text-xs font-black gap-1.5 shadow-xs px-3">
+                <Plus className="w-3.5 h-3.5 stroke-[3]" /> Create Order
               </Button>
             </Link>
           </div>
         </div>
 
-        {/* Stats Summary Bar */}
-        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4">
+        {/* Mobile Micro-Stats Strip */}
+        <div className="flex sm:hidden items-center justify-between bg-card border border-border/80 rounded-xl px-3 py-1.5 text-[11px] font-bold text-muted-foreground shadow-2xs">
+          <span>Products: <strong className="text-foreground">{totalCount}</strong></span>
+          <span className="text-border">•</span>
+          <span>In Stock: <strong className="text-emerald-600 dark:text-emerald-400">{products.filter((p) => p.status === "in_stock").length}</strong></span>
+          <span className="text-border">•</span>
+          <span>Low Stock: <strong className="text-amber-500">{products.filter((p) => p.status === "low_stock").length}</strong></span>
+          <span className="text-border">•</span>
+          <span>Wishlist: <strong className="text-sky-500">{products.filter((p) => p.isFavorite).length}</strong></span>
+        </div>
+
+        {/* Desktop Stats Summary Bar */}
+        <div className="hidden sm:grid grid-cols-2 gap-2.5 sm:gap-3.5 sm:grid-cols-4">
           <StatCard label="Total Products" value={totalCount} icon={Package} loading={loading} />
           <StatCard
             label="In Stock Items"
@@ -205,11 +235,11 @@ export default function ResellerProductsPage(): React.ReactElement {
 
         {/* Filter & Toolbar Box */}
         <Card className="border-border/80 shadow-2xs">
-          <CardContent className="p-4 space-y-4">
-            <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+          <CardContent className="p-2 sm:p-3.5 space-y-2 sm:space-y-3">
+            <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-2">
               {/* Search Bar */}
-              <div className="relative flex-1 min-w-[240px]">
-                <Search className="w-4 h-4 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <div className="relative flex-1 min-w-[180px]">
+                <Search className="w-3.5 h-3.5 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={search}
@@ -218,19 +248,41 @@ export default function ResellerProductsPage(): React.ReactElement {
                     setPage(1);
                   }}
                   placeholder="Search products by name, SKU, brand, category..."
-                  className="w-full h-10 pl-9 pr-4 rounded-xl border border-border bg-muted/40 text-xs font-semibold text-foreground outline-none focus:border-primary"
+                  className="w-full h-8.5 sm:h-10 pl-8.5 pr-3 rounded-xl border border-border bg-muted/40 text-xs font-semibold text-foreground outline-none focus:border-primary"
                 />
               </div>
 
-              {/* Sort & View Mode Controls */}
-              <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground">
-                  <SlidersHorizontal className="w-3.5 h-3.5" /> Sort:
-                </div>
+              {/* Sort & Filter Select Controls */}
+              <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none shrink-0">
+                {/* Category Dropdown Filter */}
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="h-8 sm:h-10 px-2 sm:px-2.5 rounded-xl border border-border bg-card text-[11px] sm:text-xs font-bold text-foreground outline-none focus:border-primary"
+                >
+                  <option value="all">All Categories</option>
+                  {categories.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+
+                {/* Brand Dropdown Filter */}
+                <select
+                  value={selectedBrand}
+                  onChange={(e) => setSelectedBrand(e.target.value)}
+                  className="h-8 sm:h-10 px-2 sm:px-2.5 rounded-xl border border-border bg-card text-[11px] sm:text-xs font-bold text-foreground outline-none focus:border-primary"
+                >
+                  <option value="all">All Brands</option>
+                  {brands.map((b) => (
+                    <option key={b} value={b}>{b}</option>
+                  ))}
+                </select>
+
+                {/* Sort Dropdown */}
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="h-10 px-3 rounded-xl border border-border bg-card text-xs font-bold text-foreground outline-none focus:border-primary"
+                  className="h-8 sm:h-10 px-2 sm:px-2.5 rounded-xl border border-border bg-card text-[11px] sm:text-xs font-bold text-foreground outline-none focus:border-primary"
                 >
                   <option value="newest">Newest First</option>
                   <option value="highest_profit">Highest Profit (৳)</option>
@@ -244,29 +296,29 @@ export default function ResellerProductsPage(): React.ReactElement {
                   <button
                     onClick={() => setViewMode("grid")}
                     className={cn(
-                      "p-1.5 rounded-lg transition-colors",
+                      "p-1 sm:p-1.5 rounded-lg transition-colors",
                       viewMode === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
                     )}
                     title="Grid View"
                   >
-                    <Grid className="w-4 h-4" />
+                    <Grid className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </button>
                   <button
                     onClick={() => setViewMode("list")}
                     className={cn(
-                      "p-1.5 rounded-lg transition-colors",
+                      "p-1 sm:p-1.5 rounded-lg transition-colors",
                       viewMode === "list" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
                     )}
                     title="List View"
                   >
-                    <ListIcon className="w-4 h-4" />
+                    <ListIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </button>
                 </div>
               </div>
             </div>
 
             {/* Badge Filters Row */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            <div className="flex items-center gap-1 overflow-x-auto pb-0.5 scrollbar-none">
               {BADGE_FILTERS.map((b) => {
                 const isActive = badgeFilter === b.id;
                 return (
@@ -274,7 +326,7 @@ export default function ResellerProductsPage(): React.ReactElement {
                     key={b.id}
                     onClick={() => setBadgeFilter(b.id)}
                     className={cn(
-                      "px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap transition-all border",
+                      "px-2.5 py-0.5 sm:py-1 rounded-xl text-[11px] sm:text-xs font-bold whitespace-nowrap transition-all border",
                       isActive
                         ? "bg-primary text-primary-foreground border-primary shadow-2xs"
                         : "bg-muted/50 text-muted-foreground border-border/60 hover:text-foreground hover:bg-muted",
@@ -288,7 +340,7 @@ export default function ResellerProductsPage(): React.ReactElement {
           </CardContent>
         </Card>
 
-        {/* Product Cards Container */}
+        {/* Product Cards Container: optimized 2-cols on mobile! */}
         {loading ? (
           <div className="p-16 text-center text-sm font-semibold text-muted-foreground">
             Loading sales catalog...
@@ -299,7 +351,7 @@ export default function ResellerProductsPage(): React.ReactElement {
             <p>No products found matching your filters.</p>
           </div>
         ) : viewMode === "grid" ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-4">
             {filteredProducts.map((p) => (
               <ResellerProductCard
                 key={p.id}
@@ -310,7 +362,7 @@ export default function ResellerProductsPage(): React.ReactElement {
             ))}
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {filteredProducts.map((p) => (
               <ResellerProductCard
                 key={p.id}

@@ -7,13 +7,11 @@ import { CartItemRow, type CartItemData } from "@/components/website/cart-item-r
 import { CartSummary } from "@/components/website/cart-summary";
 import { EmptyCart } from "@/components/website/empty-cart";
 import { CartCouponSection, type CouponInfo } from "@/components/website/cart-coupon-section";
-import { CartDeliveryEstimator, type DeliveryZone } from "@/components/website/cart-delivery-estimator";
 import { useLocalCart } from "@/features/checkout/store/local-cart";
 
 export default function CartPage() {
   const cart = useLocalCart();
   const [appliedCoupon, setAppliedCoupon] = useState<CouponInfo | null>(null);
-  const [deliveryZone, setDeliveryZone] = useState<DeliveryZone>("inside_dhaka");
 
   // Map the store lines into row DTO shape
   const items: CartItemData[] = cart.items.map((line, index) => ({
@@ -41,8 +39,6 @@ export default function CartPage() {
     if (!line) return;
     cart.removeItem(line.productId, line.variantSku);
   };
-
-  const deliveryCharge = deliveryZone === "inside_dhaka" ? 60 : 120;
 
   const calculateDiscount = (): number => {
     if (!appliedCoupon) return 0;
@@ -123,18 +119,13 @@ export default function CartPage() {
               ))}
             </div>
 
-            {/* Mobile / Tablet Coupon & Delivery Estimator Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+            {/* Coupon Section */}
+            <div className="pt-2">
               <CartCouponSection
                 subtotal={cart.subtotal}
                 appliedCoupon={appliedCoupon}
                 onApplyCoupon={setAppliedCoupon}
                 onRemoveCoupon={() => setAppliedCoupon(null)}
-              />
-
-              <CartDeliveryEstimator
-                zone={deliveryZone}
-                onZoneChange={setDeliveryZone}
               />
             </div>
 
@@ -156,7 +147,7 @@ export default function CartPage() {
               currency="BDT"
               itemCount={cart.count}
               discountAmount={discountAmount}
-              deliveryCharge={deliveryCharge}
+              deliveryCharge={0}
               couponCode={appliedCoupon?.code}
             />
 

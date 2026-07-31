@@ -53,14 +53,37 @@ export class ProductAssignmentService {
   ): Promise<{ costBasis: number; recommendedPrice: number; currency: string }> {
     try {
       const { PricingService } = await import("@/features/pricing/services/pricing-service");
+      const { SettingsService } = await import("@/features/settings/services/settings-service");
+      const { UnifiedPricingEngine } = await import("@/features/pricing/services/unified-pricing-engine");
+
       const pricingService = new PricingService();
       const platform = await pricingService.getPricingByProduct(productId, variantSku);
       if (platform) {
+        const costBasisMinor = platform.baseCostPrice || platform.purchasePrice || platform.supplierPrice || 0;
+        if (costBasisMinor > 0) {
+          const syncDefaults = new SettingsService().getGlobalPricingDefaultsSync();
+          const calculated = UnifiedPricingEngine.calculatePrices(
+            costBasisMinor,
+            {
+              useOverrides: (platform as any).useProductOverrides,
+              retailMarkup: (platform as any).overrideRetailMarkup,
+              wholesaleMarkup: (platform as any).overrideWholesaleMarkup,
+              resellerMarkup: (platform as any).overrideResellerMarkup,
+            },
+            syncDefaults,
+          );
+
+          return {
+            costBasis: calculated.resellerBasePrice,
+            recommendedPrice: calculated.retailPrice,
+            currency: platform.currency || "BDT",
+          };
+        }
+
         return {
-          costBasis:
-            platform.resellerPrice || platform.wholesalePrice || platform.baseCostPrice || 0,
+          costBasis: platform.resellerPrice || platform.wholesalePrice || platform.baseCostPrice || 0,
           recommendedPrice: platform.resellerPrice || platform.sellingPrice || 0,
-          currency: platform.currency || "USD",
+          currency: platform.currency || "BDT",
         };
       }
     } catch {
@@ -68,7 +91,7 @@ export class ProductAssignmentService {
         productId,
       });
     }
-    return { costBasis: 0, recommendedPrice: 0, currency: "USD" };
+    return { costBasis: 0, recommendedPrice: 0, currency: "BDT" };
   }
 
   async assignProduct(data: AssignProductInput, actorId?: string): Promise<ResellerProduct> {
@@ -361,12 +384,19 @@ export class ProductAssignmentService {
         // default fallback
       }
 
+      const { SettingsService } = await import("@/features/settings/services/settings-service");
+      const { UnifiedPricingEngine } = await import("@/features/pricing/services/unified-pricing-engine");
+      const syncDefaults = new SettingsService().getGlobalPricingDefaultsSync();
+
       const mappedItems = masterResult.items.map((m) => {
-        const baseSelling = m.pricing?.sellingPrice || 150000;
-        const marginRate = customMarkupPercent !== undefined ? customMarkupPercent / 100 : 0.22;
-        const wholesaleCost = Math.round(baseSelling * (1 - marginRate));
-        const mrp = Math.round(baseSelling * 1.35);
-        const suggestedPrice = baseSelling;
+        const costBasisMinor = m.pricing?.baseCostPrice ?? 0;
+        const computed = costBasisMinor > 0
+          ? UnifiedPricingEngine.calculatePrices(costBasisMinor, undefined, syncDefaults)
+          : null;
+
+        const wholesaleCost = computed ? computed.resellerBasePrice : (m.pricing?.resellerPrice || 90000);
+        const suggestedPrice = computed ? computed.retailPrice : (m.pricing?.sellingPrice || 105000);
+        const mrp = computed ? computed.retailPrice : (m.pricing?.sellingPrice || 105000);
 
         return {
           id: m.product.id,

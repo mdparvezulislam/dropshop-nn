@@ -49,7 +49,7 @@ export class InventoryValidationService {
       };
     }
 
-    const available = inventory.availableStock - inventory.reservedStock;
+    const available = inventory.availableStock;
 
     if (inventory.status === "frozen") {
       return {

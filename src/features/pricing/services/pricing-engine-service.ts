@@ -1,4 +1,6 @@
 import { PricingService } from "./pricing-service";
+import { UnifiedPricingEngine } from "./unified-pricing-engine";
+import { SettingsService } from "@/features/settings/services/settings-service";
 import { ProfitCalculationService } from "./profit-calculation-service";
 import {
   GlobalPricingRuleRepository,
@@ -466,13 +468,45 @@ export class PricingEngineService {
   }
 
   private getPriceByRole(pricing: ProductPricing, role: string): number {
+    const cost = pricing.baseCostPrice || pricing.purchasePrice || pricing.supplierPrice || 0;
+    if (cost > 0) {
+      const syncDefaults = new SettingsService().getGlobalPricingDefaultsSync();
+      const calculated = UnifiedPricingEngine.calculatePrices(
+        cost,
+        {
+          useOverrides: (pricing as any).useProductOverrides,
+          retailMarkup: (pricing as any).overrideRetailMarkup,
+          wholesaleMarkup: (pricing as any).overrideWholesaleMarkup,
+          resellerMarkup: (pricing as any).overrideResellerMarkup,
+        },
+        syncDefaults,
+      );
+
+      if ((pricing as any).useProductOverrides) {
+        if (role === "wholesaler" || role === "distributor") {
+          return pricing.wholesalePrice > 0 ? pricing.wholesalePrice : calculated.wholesalePrice;
+        }
+        if (role === "reseller") {
+          return pricing.resellerPrice > 0 ? pricing.resellerPrice : calculated.resellerBasePrice;
+        }
+        return pricing.sellingPrice > 0 ? pricing.sellingPrice : calculated.retailPrice;
+      }
+
+      if (role === "wholesaler" || role === "distributor") {
+        return calculated.wholesalePrice;
+      }
+      if (role === "reseller") {
+        return calculated.resellerBasePrice;
+      }
+      return calculated.retailPrice;
+    }
+
     switch (role) {
       case "wholesaler":
+      case "distributor":
         return pricing.wholesalePrice || pricing.sellingPrice;
       case "reseller":
         return pricing.resellerPrice || pricing.sellingPrice;
-      case "distributor":
-        return pricing.wholesalePrice || pricing.sellingPrice;
       default:
         return pricing.sellingPrice;
     }

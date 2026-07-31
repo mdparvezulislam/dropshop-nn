@@ -22,7 +22,10 @@ export interface PaginatedCatalogResult<T> {
 }
 
 export interface PublicCardPricingRow {
+  baseCostPrice?: number;
   sellingPrice?: number;
+  wholesalePrice?: number;
+  resellerPrice?: number;
   comparePrice?: number;
   promotionalPrice?: number;
   currency?: string;
@@ -545,7 +548,10 @@ export class ProductRepository extends BaseRepository<ProductDocument, Product> 
               {
                 $project: {
                   _id: 0,
+                  baseCostPrice: 1,
                   sellingPrice: 1,
+                  wholesalePrice: 1,
+                  resellerPrice: 1,
                   comparePrice: 1,
                   promotionalPrice: 1,
                   currency: 1,

@@ -141,26 +141,26 @@ export default async function ProductsPage({ searchParams }: PageProps): Promise
   ]);
 
   const header = (
-    <div className="mb-6 space-y-1">
+    <div className="mb-4 space-y-1">
       <nav
         aria-label="ব্রেডক্রাম্ব"
-        className="flex items-center gap-2 text-xs font-bold text-slate-600"
+        className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400"
       >
         <Link
           href="/"
-          className="rounded transition-colors hover:text-amber-700 focus-visible:outline-2 focus-visible:outline-amber-600"
+          className="rounded transition-colors hover:text-amber-600 dark:hover:text-amber-400 focus-visible:outline-2 focus-visible:outline-amber-600"
         >
           হোম
         </Link>
         <span aria-hidden>/</span>
-        <span aria-current="page" className="font-black text-slate-900">
+        <span aria-current="page" className="font-black text-slate-900 dark:text-slate-100">
           ক্যাটালগ
         </span>
       </nav>
-      <h1 className="text-2xl font-black tracking-tight text-slate-900 sm:text-4xl">
+      <h1 className="text-lg sm:text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100">
         {q ? `"${q}" এর অনুসন্ধান ফলাফল` : "সকল প্রোডাক্ট ক্যাটালগ"}
       </h1>
-      <p className="text-xs font-bold text-slate-700 sm:text-sm">
+      <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
         সারা বাংলাদেশে দ্রুত ডেলিভারি সুবিধা সহ সেরা পাইকারি ও রিসেলিং রেটে প্রোডাক্ট কিনুন।
       </p>
     </div>
@@ -168,7 +168,7 @@ export default async function ProductsPage({ searchParams }: PageProps): Promise
 
   if (!catalogRes.success) {
     return (
-      <div className="min-h-screen bg-[hsl(0_0%_98%)] py-8 text-slate-900">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-4 sm:py-6 text-slate-900 dark:text-slate-100">
         <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
           {header}
           <CatalogErrorState message={catalogRes.error} />
@@ -206,7 +206,7 @@ export default async function ProductsPage({ searchParams }: PageProps): Promise
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(0_0%_98%)] py-8 text-slate-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-4 sm:py-6 text-slate-900 dark:text-slate-100">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}

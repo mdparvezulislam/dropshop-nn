@@ -75,9 +75,9 @@ export function QuickOrderProductSearch({
       onUpdateProduct(existingIndex, { ...existing, quantity: newQty });
       toast.info(`"${existing.name}" কার্টে ২য় বার যোগ করা হয়েছে (${newQty} টি)`);
     } else {
-      const wholesaleCost = p.pricing?.costBasis ?? p.pricing?.resellerPrice ?? 150000;
+      const wholesaleCost = p.pricing?.costBasis ?? p.pricing?.resellerPrice ?? 90000;
       const minPrice = p.pricing?.minPrice ?? wholesaleCost;
-      const suggestedPrice = p.pricing?.sellingPrice ?? Math.round(wholesaleCost * 1.25);
+      const suggestedPrice = p.pricing?.sellingPrice ?? Math.round(wholesaleCost * 1.1667);
 
       const item: SelectedOrderProduct = {
         id: productId,

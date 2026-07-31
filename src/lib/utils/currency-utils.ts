@@ -1,8 +1,11 @@
 export function formatCurrency(
   amount: number,
-  currency: string = "USD",
-  locale: string = "en-US",
+  currency: string = "BDT",
+  locale: string = "bn-BD",
 ): string {
+  if (currency.toUpperCase() === "BDT") {
+    return `৳ ${Math.round(amount).toLocaleString("bn-BD")}`;
+  }
   return new Intl.NumberFormat(locale, {
     style: "currency",
     currency: currency,
@@ -11,8 +14,8 @@ export function formatCurrency(
 
 export function formatCentsToCurrency(
   cents: number,
-  currency: string = "USD",
-  locale: string = "en-US",
+  currency: string = "BDT",
+  locale: string = "bn-BD",
 ): string {
   return formatCurrency(cents / 100, currency, locale);
 }

@@ -57,7 +57,7 @@ export function CartSummary({
           <div className="flex items-center justify-between text-slate-600 dark:text-slate-400">
             <span>ডেলিভারি চার্জ</span>
             <span className="font-bold text-slate-900 dark:text-slate-100 tabular-nums">
-              {deliveryCharge > 0 ? formatPrice(deliveryCharge) : "ফ্রি ডেলিভারি"}
+              {deliveryCharge > 0 ? formatPrice(deliveryCharge) : "চেকআউটে হিসাব হবে"}
             </span>
           </div>
 

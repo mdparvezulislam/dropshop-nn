@@ -73,56 +73,56 @@ export function HeroSection(): React.ReactElement {
 
   return (
     <section
-      className="w-full pt-4 pb-8 lg:pt-6 lg:pb-12 bg-white relative overflow-hidden"
+      className="w-full pt-4 pb-8 lg:pt-6 lg:pb-12 bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 relative overflow-hidden"
       aria-label="Hero"
     >
       {/* Background Soft Grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-40 pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e5e5_1px,transparent_1px),linear-gradient(to_bottom,#e5e5e5_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1e293b_1px,transparent_1px),linear-gradient(to_bottom,#1e293b_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-30 pointer-events-none" />
 
       <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center min-h-[500px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center min-h-[420px] sm:min-h-[480px]">
           {/* Left Column — headline, feature pills, CTAs */}
-          <div className="lg:col-span-7 space-y-5">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-300 text-xs font-black text-amber-800 shadow-2xs">
-              <Zap className="h-3.5 w-3.5 text-amber-600 fill-amber-500" aria-hidden />
+          <div className="lg:col-span-7 space-y-4 sm:space-y-5">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 text-xs font-black text-amber-800 dark:text-amber-300 shadow-2xs">
+              <Zap className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 fill-amber-500" aria-hidden />
               <span>বাংলাদেশের ড্রপশিপিং ও হোলসেল প্ল্যাটফর্ম</span>
             </div>
 
-            <h1 className="text-3xl sm:text-5xl lg:text-5xl font-black tracking-tight text-slate-900 leading-[1.15]">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-slate-100 leading-[1.15]">
               সোর্স করুন, বিক্রি করুন, <br />
               ব্যবসা বাড়ান <span className="text-amber-500">NN Enterprise</span> এর সাথে
             </h1>
 
-            <p className="text-sm sm:text-base text-slate-700 font-semibold leading-relaxed max-w-xl">
+            <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300 font-semibold leading-relaxed max-w-xl">
               রিসেলার, হোলসেলার এবং ড্রপশিপারদের জন্য অল-ইন-ওয়ান প্রোডাক্ট সাপ্লাই প্ল্যাটফর্ম।
             </p>
 
             {/* Feature pills */}
             <div className="flex flex-wrap items-center gap-2 pt-1">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-slate-300 text-xs font-bold text-slate-800 shadow-2xs">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-800 dark:text-slate-200 shadow-2xs">
                 <ShieldCheck className="h-3.5 w-3.5 text-amber-500" aria-hidden />
                 <span>প্রিমিয়াম কোয়ালিটি</span>
               </div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-slate-300 text-xs font-bold text-slate-800 shadow-2xs">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-800 dark:text-slate-200 shadow-2xs">
                 <Truck className="h-3.5 w-3.5 text-amber-500" aria-hidden />
                 <span>ফাস্ট ডেলিভারি</span>
               </div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-slate-300 text-xs font-bold text-slate-800 shadow-2xs">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-800 dark:text-slate-200 shadow-2xs">
                 <RotateCcw className="h-3.5 w-3.5 text-amber-500" aria-hidden />
                 <span>সহজ রিটার্ন</span>
               </div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white border border-slate-300 text-xs font-bold text-slate-800 shadow-2xs">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-800 dark:text-slate-200 shadow-2xs">
                 <Award className="h-3.5 w-3.5 text-amber-500" aria-hidden />
                 <span>মার্কেটিং সাপোর্ট</span>
               </div>
             </div>
 
             {/* CTA buttons */}
-            <div className="flex flex-wrap items-center gap-3 pt-2">
+            <div className="flex flex-wrap items-center gap-2.5 pt-2">
               <Link href="/products">
                 <Button
                   size="lg"
-                  className="h-11 px-6 text-sm font-extrabold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-md active:scale-[0.98]"
+                  className="h-10 sm:h-11 px-5 sm:px-6 text-xs sm:text-sm font-extrabold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-md active:scale-[0.98]"
                 >
                   প্রোডাক্ট দেখুন
                   <ArrowRight className="h-4 w-4 ml-1.5" aria-hidden />
@@ -131,7 +131,7 @@ export function HeroSection(): React.ReactElement {
               <Link href="/become-reseller">
                 <Button
                   size="lg"
-                  className="h-11 px-6 text-sm font-extrabold bg-slate-900 hover:bg-slate-800 text-white shadow-md"
+                  className="h-10 sm:h-11 px-5 sm:px-6 text-xs sm:text-sm font-extrabold bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-slate-200 text-white dark:text-slate-950 shadow-md"
                 >
                   রিসেলার হন
                 </Button>
@@ -140,42 +140,40 @@ export function HeroSection(): React.ReactElement {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="h-11 px-6 text-sm font-extrabold border-slate-300 text-slate-900 hover:bg-slate-100"
+                  className="h-10 sm:h-11 px-5 sm:px-6 text-xs sm:text-sm font-extrabold border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
                   হোলসেলার হন
                 </Button>
               </Link>
             </div>
 
-            {/* Qualitative trust points — replaces the old fabricated stats row */}
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-4 border-t border-slate-200 max-w-xl">
+            {/* Qualitative trust points */}
+            <div className="flex flex-wrap items-center gap-x-6 gap-y-2.5 pt-4 border-t border-slate-200 dark:border-slate-800 max-w-xl">
               {TRUST_POINTS.map((point) => {
                 const Icon = point.icon;
                 return (
-                  <div key={point.label} className="flex items-center gap-2.5">
-                    <div className="p-2 rounded-lg bg-amber-50 text-amber-600 shrink-0">
-                      <Icon className="h-4 w-4" aria-hidden />
+                  <div key={point.label} className="flex items-center gap-2">
+                    <div className="p-1.5 rounded-lg bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 shrink-0">
+                      <Icon className="h-3.5 w-3.5" aria-hidden />
                     </div>
-                    <p className="text-xs sm:text-sm font-black text-slate-900">{point.label}</p>
+                    <p className="text-xs font-black text-slate-900 dark:text-slate-100">{point.label}</p>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          {/* Right Column — slide card. The first frame is server-rendered fully
-              visible (no animation wrapper), so the LCP image never starts at
-              opacity 0. Slide changes swap content with no entrance animation. */}
+          {/* Right Column — slide card */}
           <div className="lg:col-span-5 relative">
-            <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-amber-100/80 via-orange-50 to-amber-50 p-6 sm:p-8 border border-amber-200/60 shadow-lg min-h-[380px] flex flex-col justify-between">
-              <div className="space-y-3 relative z-10">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 text-xs font-black text-amber-800 shadow-2xs">
+            <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-amber-100/80 dark:from-slate-900 via-orange-50 dark:via-slate-900/90 to-amber-50 dark:to-slate-900 p-5 sm:p-7 border border-amber-200/60 dark:border-slate-800 shadow-lg min-h-[320px] sm:min-h-[360px] flex flex-col justify-between">
+              <div className="space-y-2.5 relative z-10">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 dark:bg-slate-800/90 text-xs font-black text-amber-800 dark:text-amber-300 shadow-2xs">
                   {slide.badge}
                 </span>
-                <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+                <h2 className="text-xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-tight">
                   {slide.cardTitle}
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-700 font-bold">{slide.cardSubtitle}</p>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-bold">{slide.cardSubtitle}</p>
                 <div className="pt-1">
                   <Link href={slide.cardCtaHref}>
                     <Button

@@ -31,26 +31,26 @@ const TRUST_ITEMS = [
 export function TrustSection(): React.ReactElement {
   return (
     <section
-      className="w-full py-6 lg:py-8 bg-white border-y border-slate-200"
+      className="w-full py-5 lg:py-7 bg-white dark:bg-slate-950 border-y border-slate-200 dark:border-slate-800"
       aria-label="Trust Bar"
     >
       <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 lg:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3 lg:gap-4">
           {TRUST_ITEMS.map((item) => {
             const Icon = item.icon;
             return (
               <div
                 key={item.label}
-                className="flex items-center gap-3 p-3.5 rounded-2xl bg-white border border-slate-300 hover:border-amber-400 hover:shadow-xs transition-all duration-300 group"
+                className="flex items-center gap-2.5 p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500 hover:shadow-xs transition-all duration-300 group"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-50 text-amber-600 shrink-0 group-hover:scale-110 transition-transform">
-                  <Icon className="h-5 w-5" aria-hidden />
+                <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 shrink-0 group-hover:scale-110 transition-transform">
+                  <Icon className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden />
                 </div>
                 <div>
-                  <h3 className="text-xs sm:text-sm font-black text-slate-900 leading-snug">
+                  <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 leading-snug">
                     {item.label}
                   </h3>
-                  <p className="text-[11px] font-bold text-slate-600 leading-tight mt-0.5">
+                  <p className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 leading-tight mt-0.5">
                     {item.description}
                   </p>
                 </div>

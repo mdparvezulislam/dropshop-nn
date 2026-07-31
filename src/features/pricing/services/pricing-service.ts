@@ -1,6 +1,7 @@
 import { PricingRepository } from "../repositories/pricing-repository";
 import { ProductPricing, PricingRuleType } from "../domain/pricing-entity";
 import { ProfitCalculationService } from "./profit-calculation-service";
+import { UnifiedPricingEngine } from "./unified-pricing-engine";
 import { ValidationError, NotFoundError } from "@/lib/errors/app-error";
 import { logger } from "@/lib/utils/logger";
 import { PaginationParams, SortParams, PaginatedResult } from "@/types";
@@ -29,68 +30,16 @@ export class PricingService {
     wholesalePrice: number;
     resellerPrice: number;
   } {
-    const rule: PricingRuleType = data.pricingRule || existing?.pricingRule || "fixed";
     const baseCost = data.baseCostPrice ?? existing?.baseCostPrice ?? 0;
     const purchase = data.purchasePrice ?? existing?.purchasePrice ?? 0;
     const supplier = data.supplierPrice ?? existing?.supplierPrice ?? 0;
-    const config = data.ruleConfig || existing?.ruleConfig;
+    const costPrice = baseCost || purchase || supplier;
 
-    let sellingPrice = data.sellingPrice ?? existing?.sellingPrice ?? 0;
-    let wholesalePrice = data.wholesalePrice ?? existing?.wholesalePrice ?? 0;
-    let resellerPrice = data.resellerPrice ?? existing?.resellerPrice ?? 0;
+    const computed = UnifiedPricingEngine.calculatePrices(costPrice);
 
-    if (rule === "fixed") {
-      return { sellingPrice, wholesalePrice, resellerPrice };
-    }
-
-    if (rule === "percentage" && config?.percentage !== undefined) {
-      const baseField = config.baseField || "baseCostPrice";
-      const baseMap: Record<string, number> = {
-        baseCostPrice: baseCost,
-        purchasePrice: purchase,
-        supplierPrice: supplier,
-        sellingPrice: sellingPrice,
-      };
-      const base = baseMap[baseField] ?? baseCost;
-      const computed = Math.round(base * (1 + config.percentage / 100));
-      if (data.sellingPrice === undefined) sellingPrice = computed;
-      if (data.wholesalePrice === undefined) {
-        wholesalePrice = Math.round(base * (1 + (config.percentage * 0.7) / 100));
-      }
-      if (data.resellerPrice === undefined) {
-        resellerPrice = Math.round(base * (1 + (config.percentage * 0.5) / 100));
-      }
-    }
-
-    if (rule === "supplier_based") {
-      const base = supplier || purchase || baseCost;
-      const markup = config?.percentage ?? 20;
-      if (data.sellingPrice === undefined) {
-        sellingPrice = Math.round(base * (1 + markup / 100));
-      }
-      if (data.wholesalePrice === undefined) {
-        wholesalePrice = Math.round(base * (1 + (markup * 0.6) / 100));
-      }
-      if (data.resellerPrice === undefined) {
-        resellerPrice = Math.round(base * (1 + (markup * 0.4) / 100));
-      }
-    }
-
-    if (rule === "category_based" || rule === "brand_based" || rule === "dynamic") {
-      const base = baseCost || purchase || supplier;
-      const markup = config?.percentage ?? 25;
-      if (data.sellingPrice === undefined && base > 0) {
-        sellingPrice = Math.round(base * (1 + markup / 100));
-      }
-    }
-
-    if (config?.minMargin !== undefined && sellingPrice > 0) {
-      const cost = baseCost || purchase || supplier;
-      const minSelling = Math.ceil(cost / (1 - config.minMargin / 100));
-      if (sellingPrice < minSelling) {
-        sellingPrice = minSelling;
-      }
-    }
+    const sellingPrice = data.sellingPrice ?? existing?.sellingPrice ?? computed.retailPrice;
+    const wholesalePrice = data.wholesalePrice ?? existing?.wholesalePrice ?? computed.wholesalePrice;
+    const resellerPrice = data.resellerPrice ?? existing?.resellerPrice ?? computed.resellerBasePrice;
 
     return { sellingPrice, wholesalePrice, resellerPrice };
   }

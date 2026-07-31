@@ -94,9 +94,9 @@ export default function ResellerQuickOrderPage(): React.ReactElement {
           const items = (res.data as any).items || [];
           const found = items.find((p: any) => (p.id || p._id) === urlProductId);
           if (found) {
-            const wholesaleCost = found.pricing?.costBasis ?? 150000;
-            const minPrice = found.pricing?.minPrice ?? Math.round(wholesaleCost * 1.05);
-            const suggestedPrice = found.pricing?.sellingPrice ?? Math.round(wholesaleCost * 1.25);
+            const wholesaleCost = found.pricing?.costBasis ?? 90000;
+            const minPrice = found.pricing?.minPrice ?? wholesaleCost;
+            const suggestedPrice = found.pricing?.sellingPrice ?? Math.round(wholesaleCost * 1.1667);
             const customSellingPrice = urlPrice ? Math.round(parseFloat(urlPrice) * 100) : suggestedPrice;
 
             setSelectedProducts([

@@ -221,22 +221,24 @@ export function ResellerProductCard({
           </div>
 
           {/* Pricing Grid Box */}
-          <div className="p-2.5 rounded-xl bg-muted/40 border border-border/60 space-y-1.5 text-xs">
-            <div className="flex items-center justify-between text-muted-foreground font-medium text-[11px]">
-              <span>MRP (Retail):</span>
-              <span className="line-through">৳{(product.mrp / 100).toFixed(0)}</span>
-            </div>
-            <div className="flex items-center justify-between font-bold">
+          <div className="p-2.5 rounded-xl bg-muted/40 border border-border/60 space-y-1 text-xs">
+            <div className="flex items-center justify-between font-bold text-[11px] sm:text-xs">
               <span className="text-muted-foreground">Reseller Cost:</span>
-              <span className="text-foreground">৳{(product.wholesaleCost / 100).toFixed(0)}</span>
+              <span className="text-foreground font-black">৳{(product.wholesaleCost / 100).toFixed(0)}</span>
             </div>
-            <div className="flex items-center justify-between pt-1 border-t border-border/40">
+            <div className="flex items-center justify-between pt-1 border-t border-border/40 text-[11px] sm:text-xs">
               <span className="font-extrabold text-foreground">Suggested Price:</span>
-              <span className="font-black text-primary text-sm">৳{(product.suggestedPrice / 100).toFixed(0)}</span>
+              <span className="font-black text-primary text-xs sm:text-sm">৳{(product.suggestedPrice / 100).toFixed(0)}</span>
             </div>
-            <div className="flex items-center justify-between text-[11px] font-black text-success pt-0.5">
+            <div className="flex items-center justify-between text-[10px] sm:text-[11px] font-black text-emerald-600 dark:text-emerald-400 pt-0.5">
               <span>Expected Profit:</span>
               <span>+৳{(expectedProfitCents / 100).toFixed(0)} ({marginPercent}%)</span>
+            </div>
+            <div className="flex items-center justify-between text-[10px] sm:text-[11px] font-bold border-t border-border/40 pt-1">
+              <span className="text-muted-foreground">Real Stock:</span>
+              <span className={cn("font-black font-mono", product.availableStock > 5 ? "text-emerald-600 dark:text-emerald-400" : product.availableStock > 0 ? "text-amber-500" : "text-destructive")}>
+                {product.availableStock > 0 ? `${product.availableStock} pcs` : "Out of Stock"}
+              </span>
             </div>
           </div>
         </div>

@@ -229,8 +229,12 @@ export class OrderService {
 
       await this.publishStatusEvent(order, fromStatus, toStatus, actor, reason);
 
-      if (requiresInventoryRelease(fromStatus) && toStatus === "cancelled") {
+      if (toStatus === "confirmed" || toStatus === "packed" || toStatus === "shipped" || toStatus === "completed") {
+        await this.confirmOrderInventory(order);
+      } else if (toStatus === "cancelled") {
         await this.requestInventoryRelease(order);
+      } else if (toStatus === "returned") {
+        await this.restockReturnedOrder(order);
       }
 
       logger.info("OrderService: status transitioned", {
@@ -914,6 +918,78 @@ export class OrderService {
       );
     } catch (err) {
       logger.error("OrderService: inventory release service unavailable", err);
+    }
+  }
+
+  private async confirmOrderInventory(order: Order): Promise<void> {
+    try {
+      const { InventoryService } = await import("@/features/inventory/services/inventory-service");
+      const inventoryService = new InventoryService();
+
+      for (const item of order.items) {
+        try {
+          const inventory = await inventoryService.getInventoryByProduct(
+            item.productId,
+            item.variantSku,
+          );
+          if (inventory) {
+            await inventoryService.markSold(inventory.id, item.quantity, order.id);
+          }
+        } catch (err) {
+          logger.warn("OrderService: inventory markSold failed for item", {
+            productId: item.productId,
+            error: err,
+          });
+        }
+      }
+
+      await EventBus.publish(
+        "order.inventory_confirmed",
+        {
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          action: "sold",
+        },
+        { source: "order" },
+      );
+    } catch (err) {
+      logger.error("OrderService: inventory confirmation service unavailable", err);
+    }
+  }
+
+  private async restockReturnedOrder(order: Order): Promise<void> {
+    try {
+      const { InventoryService } = await import("@/features/inventory/services/inventory-service");
+      const inventoryService = new InventoryService();
+
+      for (const item of order.items) {
+        try {
+          const inventory = await inventoryService.getInventoryByProduct(
+            item.productId,
+            item.variantSku,
+          );
+          if (inventory) {
+            await inventoryService.markReturned(inventory.id, item.quantity, "Customer return restock", order.id);
+          }
+        } catch (err) {
+          logger.warn("OrderService: inventory return restock failed for item", {
+            productId: item.productId,
+            error: err,
+          });
+        }
+      }
+
+      await EventBus.publish(
+        "order.inventory_restocked",
+        {
+          orderId: order.id,
+          orderNumber: order.orderNumber,
+          action: "restock",
+        },
+        { source: "order" },
+      );
+    } catch (err) {
+      logger.error("OrderService: inventory restock service unavailable", err);
     }
   }
 }

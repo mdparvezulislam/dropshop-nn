@@ -76,6 +76,7 @@ export class StockCalculationService {
     });
 
     return {
+      currentStock: inventory.availableStock + inventory.reservedStock,
       onHand: this.calculateOnHand(inventory),
       available: inventory.availableStock,
       reserved: inventory.reservedStock,

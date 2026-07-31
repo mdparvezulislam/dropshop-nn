@@ -594,45 +594,98 @@ export function SettingsCenterUI(): React.ReactElement {
 
       {/* TAB 4: PRICING & MARKUP */}
       {activeTab === "pricing" && (
-        <Card className="border-border/80 shadow-2xs">
-          <CardHeader className="border-b border-border/60 pb-3">
-            <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-emerald-500" /> Global Pricing &amp; Markup Defaults
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 pt-4">
-            {getCategorySettings("pricing").map((s) => (
-              <div
-                key={s.key}
-                className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-muted/40 border border-border/60 gap-3"
-              >
-                <div>
-                  <p className="text-xs font-bold text-foreground">{s.name}</p>
-                  <p className="text-[11px] text-muted-foreground">{s.description}</p>
-                  <p className="text-[10px] font-mono text-muted-foreground/70">{s.key}</p>
+        <div className="space-y-6">
+          <Card className="border-border/80 shadow-2xs">
+            <CardHeader className="border-b border-border/60 pb-3">
+              <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-emerald-500" /> Global Pricing &amp; Markup Defaults
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-4">
+              {getCategorySettings("pricing").map((s) => (
+                <div
+                  key={s.key}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-muted/40 border border-border/60 gap-3"
+                >
+                  <div>
+                    <p className="text-xs font-bold text-foreground">{s.name}</p>
+                    <p className="text-[11px] text-muted-foreground">{s.description}</p>
+                    <p className="text-[10px] font-mono text-muted-foreground/70">{s.key}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      value={editValues[s.key] !== undefined ? String(editValues[s.key]) : ""}
+                      onChange={(e) =>
+                        setEditValues({ ...editValues, [s.key]: parseFloat(e.target.value) || 0 })
+                      }
+                      className="h-8 text-xs bg-background border-border w-36"
+                    />
+                    <Button
+                      onClick={() => handleSaveSetting(s.key)}
+                      disabled={savingKey === s.key}
+                      size="sm"
+                      className="h-8 text-xs font-bold shadow-xs"
+                    >
+                      Update
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    value={editValues[s.key] !== undefined ? String(editValues[s.key]) : ""}
-                    onChange={(e) =>
-                      setEditValues({ ...editValues, [s.key]: parseFloat(e.target.value) || 0 })
-                    }
-                    className="h-8 text-xs bg-background border-border w-36"
-                  />
-                  <Button
-                    onClick={() => handleSaveSetting(s.key)}
-                    disabled={savingKey === s.key}
-                    size="sm"
-                    className="h-8 text-xs font-bold shadow-xs"
-                  >
-                    Update
-                  </Button>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Live Pricing Engine Preview Card */}
+          <Card className="border-emerald-500/30 bg-emerald-500/5 shadow-2xs">
+            <CardHeader className="border-b border-emerald-500/20 pb-3">
+              <CardTitle className="text-sm font-black text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
+                <Zap className="h-4 w-4 text-amber-500" /> Live Pricing Engine Calculator Preview
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4 space-y-4">
+              <p className="text-xs text-muted-foreground">
+                Formula: <span className="font-mono font-bold text-foreground">Selling Price = Cost Price + (Cost Price × Markup %)</span>
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="p-3 rounded-xl bg-background border border-border/60 space-y-1">
+                  <p className="text-[11px] font-bold text-muted-foreground">Sample Cost Price (BDT)</p>
+                  <p className="text-lg font-black text-foreground">৳ 750</p>
+                  <p className="text-[10px] text-muted-foreground">Base product cost</p>
+                </div>
+
+                <div className="p-3 rounded-xl bg-background border border-border/60 space-y-1">
+                  <p className="text-[11px] font-bold text-sky-600 dark:text-sky-400">Retail Tier ({editValues["pricing.retail_markup_percent"] ?? 40}%)</p>
+                  <p className="text-lg font-black text-sky-600 dark:text-sky-400">
+                    ৳ {Math.round(750 * (1 + ((editValues["pricing.retail_markup_percent"] ?? 40) / 100)))}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    Profit: ৳ {Math.round(750 * ((editValues["pricing.retail_markup_percent"] ?? 40) / 100))}
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-xl bg-background border border-border/60 space-y-1">
+                  <p className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400">Wholesale Tier ({editValues["pricing.wholesale_markup_percent"] ?? 30}%)</p>
+                  <p className="text-lg font-black text-indigo-600 dark:text-indigo-400">
+                    ৳ {Math.round(750 * (1 + ((editValues["pricing.wholesale_markup_percent"] ?? 30) / 100)))}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    Profit: ৳ {Math.round(750 * ((editValues["pricing.wholesale_markup_percent"] ?? 30) / 100))}
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-xl bg-background border border-border/60 space-y-1">
+                  <p className="text-[11px] font-bold text-amber-600 dark:text-amber-400">Reseller Base Tier ({editValues["pricing.reseller_markup_percent"] ?? 22}%)</p>
+                  <p className="text-lg font-black text-amber-600 dark:text-amber-400">
+                    ৳ {Math.round(750 * (1 + ((editValues["pricing.reseller_markup_percent"] ?? 22) / 100)))}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    Profit: ৳ {Math.round(750 * ((editValues["pricing.reseller_markup_percent"] ?? 22) / 100))}
+                  </p>
                 </div>
               </div>
-            ))}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       )}
 
       {/* TAB 5: ORDER & PRODUCT */}

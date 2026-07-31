@@ -20,6 +20,7 @@ export interface ProductInventory extends BaseDBEntity {
   productId: string;
   variantSku?: string;
   warehouseId?: string | null;
+  currentStock?: number;
   availableStock: number;
   reservedStock: number;
   incomingStock: number;
@@ -68,6 +69,7 @@ export interface SupplierInventory extends BaseDBEntity {
 }
 
 export interface StockLevels {
+  currentStock: number;
   onHand: number;
   available: number;
   reserved: number;

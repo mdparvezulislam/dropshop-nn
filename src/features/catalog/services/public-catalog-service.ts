@@ -9,6 +9,8 @@ import {
   CollectionRepository,
 } from "../repositories/classification-repository";
 import { PricingService } from "@/features/pricing/services/pricing-service";
+import { UnifiedPricingEngine } from "@/features/pricing/services/unified-pricing-engine";
+import { SettingsService } from "@/features/settings/services/settings-service";
 import type { Product } from "../domain/product-entity";
 import type { Brand, Category, Collection } from "../domain/classification-entity";
 import type {
@@ -94,12 +96,52 @@ export class PublicCatalogService {
       isDeleted: { $ne: true },
     };
 
-    if (params.badge) filter.$or = badgeFilter(params.badge);
-    if (params.brandId) filter.brandId = params.brandId;
-    if (params.categoryIds?.length) {
-      filter.categoryId =
-        params.categoryIds.length === 1 ? params.categoryIds[0] : { $in: params.categoryIds };
+    const andConditions: Record<string, unknown>[] = [];
+
+    if (params.badge) {
+      andConditions.push({ $or: badgeFilter(params.badge) });
     }
+
+    if (params.categoryIds?.length || params.categorySlug) {
+      const catConditions: Record<string, unknown>[] = [];
+      if (params.categoryIds?.length) {
+        catConditions.push({
+          categoryId: params.categoryIds.length === 1 ? params.categoryIds[0] : { $in: params.categoryIds },
+        });
+      }
+      if (params.categorySlug) {
+        const rawSlug = params.categorySlug.toLowerCase().trim();
+        const rawName = rawSlug.replace(/-/g, " ");
+        catConditions.push({ categoryId: rawSlug });
+        catConditions.push({ categorySlug: rawSlug });
+        catConditions.push({ categoryName: { $regex: new RegExp(escapeRegExp(rawName), "i") } });
+      }
+      if (catConditions.length > 0) {
+        andConditions.push({ $or: catConditions });
+      }
+    }
+
+    if (params.brandId || params.brandSlug) {
+      const brandConditions: Record<string, unknown>[] = [];
+      if (params.brandId) brandConditions.push({ brandId: params.brandId });
+      if (params.brandSlug) {
+        const rawSlug = params.brandSlug.toLowerCase().trim();
+        const rawName = rawSlug.replace(/-/g, " ");
+        brandConditions.push({ brandId: rawSlug });
+        brandConditions.push({ brandSlug: rawSlug });
+        brandConditions.push({ brandName: { $regex: new RegExp(escapeRegExp(rawName), "i") } });
+      }
+      if (brandConditions.length > 0) {
+        andConditions.push({ $or: brandConditions });
+      }
+    }
+
+    if (andConditions.length === 1) {
+      Object.assign(filter, andConditions[0]);
+    } else if (andConditions.length > 1) {
+      filter.$and = andConditions;
+    }
+
     if (params.productIds) {
       if (params.productIds.length === 0) {
         return { items: [], totalCount: 0, page, pageSize: limit, totalPages: 0 };
@@ -173,33 +215,51 @@ export class PublicCatalogService {
     };
 
     let categoryIds: string[] | undefined;
+    let categorySlug: string | undefined;
     if (params.categorySlug) {
+      const slugClean = params.categorySlug.toLowerCase().trim();
+      const rawName = slugClean.replace(/-/g, " ");
       const category = await this.categories.findOne({
-        slug: params.categorySlug.toLowerCase().trim(),
+        $or: [
+          { slug: slugClean },
+          { name: { $regex: new RegExp(`^${escapeRegExp(rawName)}$`, "i") } },
+        ],
         isActive: { $ne: false },
         isDeleted: { $ne: true },
       });
-      if (!category) return empty;
-      const children = await this.categories.find({
-        parentCategoryId: category.id,
-        isActive: { $ne: false },
-        isDeleted: { $ne: true },
-      });
-      categoryIds = [category.id, ...children.map((c) => c.id)];
+      if (category) {
+        const children = await this.categories.find({
+          parentCategoryId: category.id,
+          isActive: { $ne: false },
+          isDeleted: { $ne: true },
+        });
+        categoryIds = [category.id, ...children.map((c) => c.id)];
+        categorySlug = category.slug;
+      } else {
+        categorySlug = slugClean;
+      }
     }
 
     let brandId: string | undefined;
+    let brandSlug: string | undefined;
     if (params.brandSlug) {
+      const slugClean = params.brandSlug.toLowerCase().trim();
       const brand = await this.brands.findOne({
-        slug: params.brandSlug.toLowerCase().trim(),
+        $or: [
+          { slug: slugClean },
+          { name: { $regex: new RegExp(`^${escapeRegExp(slugClean)}$`, "i") } },
+        ],
         isActive: { $ne: false },
         isDeleted: { $ne: true },
       });
-      if (!brand) return empty;
-      brandId = brand.id;
+      if (brand) {
+        brandId = brand.id;
+      } else {
+        brandSlug = slugClean;
+      }
     }
 
-    return this.listCards({ ...params, categoryIds, brandId });
+    return this.listCards({ ...params, categoryIds, categorySlug, brandId, brandSlug });
   }
 
   /** Slugs + timestamps for the XML sitemap — active/public entries only. */
@@ -373,9 +433,30 @@ export class PublicCatalogService {
     if (!product) return null;
 
     const pricingService = new PricingService();
-    const record = await pricingService.getPricingByProduct(product.id).catch(() => null);
+    const settingsService = new SettingsService();
+    const [record, defaults] = await Promise.all([
+      pricingService.getPricingByProduct(product.id).catch(() => null),
+      settingsService.getGlobalPricingDefaults(),
+    ]);
 
-    const sellingBdt = record?.sellingPrice ? minorToBdt(record.sellingPrice) : 0;
+    const costBdt = record?.baseCostPrice ? minorToBdt(record.baseCostPrice) : record?.purchasePrice ? minorToBdt(record.purchasePrice) : record?.supplierPrice ? minorToBdt(record.supplierPrice) : 0;
+    const computedEngine = costBdt > 0
+      ? UnifiedPricingEngine.calculatePrices(
+          costBdt,
+          {
+            useOverrides: (record as any)?.useProductOverrides,
+            retailMarkup: (record as any)?.overrideRetailMarkup,
+            wholesaleMarkup: (record as any)?.overrideWholesaleMarkup,
+            resellerMarkup: (record as any)?.overrideResellerMarkup,
+          },
+          defaults,
+        )
+      : null;
+
+    const sellingBdt = computedEngine ? computedEngine.retailPrice : (record?.sellingPrice ? minorToBdt(record.sellingPrice) : 0);
+    const wholesaleBdt = computedEngine ? computedEngine.wholesalePrice : (record?.wholesalePrice ? minorToBdt(record.wholesalePrice) : sellingBdt);
+    const resellerBdt = computedEngine ? computedEngine.resellerBasePrice : (record?.resellerPrice ? minorToBdt(record.resellerPrice) : sellingBdt);
+
     const promoBdt =
       record?.promotionalPrice &&
       record.promotionalPrice > 0 &&
@@ -387,10 +468,6 @@ export class PublicCatalogService {
         ? minorToBdt(record.comparePrice)
         : undefined;
 
-    const minResellerBdt = (record as any)?.minResellerPrice
-      ? minorToBdt((record as any).minResellerPrice)
-      : undefined;
-
     const pricing: PublicProductPricing = {
       retailPrice: sellingBdt,
       campaignPrice: promoBdt,
@@ -398,15 +475,15 @@ export class PublicCatalogService {
       currency: record?.currency && record.currency !== "USD" ? record.currency : "BDT",
       ...(viewer.isReseller || viewer.isAdmin
         ? {
-            resellerPrice: record?.resellerPrice ? minorToBdt(record.resellerPrice) : undefined,
-            minResellerPrice: minResellerBdt,
+            resellerPrice: resellerBdt,
+            minResellerPrice: resellerBdt,
           }
         : {}),
       ...(viewer.isWholesaler || viewer.isAdmin
-        ? { wholesalePrice: record?.wholesalePrice ? minorToBdt(record.wholesalePrice) : undefined }
+        ? { wholesalePrice: wholesaleBdt }
         : {}),
       ...(viewer.isAdmin
-        ? { costPrice: record?.baseCostPrice ? minorToBdt(record.baseCostPrice) : undefined }
+        ? { costPrice: costBdt > 0 ? costBdt : undefined }
         : {}),
     };
 
@@ -537,19 +614,22 @@ export class PublicCatalogService {
     const featured = media.find((m) => m.isFeatured) ?? media[0];
     const hover = media.find((m) => m !== featured && m.type !== "video");
 
-    const selling = pricing?.sellingPrice ?? 0;
+    const costBdt = pricing?.baseCostPrice ? minorToBdt(pricing.baseCostPrice) : 0;
+    const syncDefaults = new SettingsService().getGlobalPricingDefaultsSync();
+    const computedEngine = costBdt > 0 ? UnifiedPricingEngine.calculatePrices(costBdt, undefined, syncDefaults) : null;
+    const sellingBdt = computedEngine ? computedEngine.retailPrice : (pricing?.sellingPrice ? minorToBdt(pricing.sellingPrice) : 0);
+
     const promoValid =
       pricing?.promotionalPrice !== undefined &&
       pricing.promotionalPrice > 0 &&
-      pricing.promotionalPrice < selling;
+      pricing.promotionalPrice < (pricing?.sellingPrice ? minorToBdt(pricing.sellingPrice) : sellingBdt);
 
-    const price = promoValid ? minorToBdt(pricing.promotionalPrice!) : minorToBdt(selling);
-    const compareMinor = promoValid
-      ? selling
-      : pricing?.comparePrice && pricing.comparePrice > selling
-        ? pricing.comparePrice
+    const price = promoValid ? minorToBdt(pricing!.promotionalPrice!) : sellingBdt;
+    const comparePrice = promoValid
+      ? sellingBdt
+      : pricing?.comparePrice && minorToBdt(pricing.comparePrice) > sellingBdt
+        ? minorToBdt(pricing.comparePrice)
         : undefined;
-    const comparePrice = compareMinor !== undefined ? minorToBdt(compareMinor) : undefined;
     const discountPercent =
       comparePrice !== undefined && comparePrice > 0 && price > 0
         ? Math.round(((comparePrice - price) / comparePrice) * 100)
