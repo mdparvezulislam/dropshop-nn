@@ -59,11 +59,11 @@ export function SEOAdvancedSection({
     categoryName,
   );
 
-  const displayTitle = metaTitle || `${name || "Product Name"} | DropshopNN`;
+  const displayTitle = metaTitle || `${name || "Product Name"} | NN Enterprise`;
   const displaySlug = slug ? slug.toLowerCase().replace(/[^a-z0-9]+/g, "-") : "product-slug";
   const displayDesc =
     metaDescription ||
-    "Buy authentic products with fast delivery across Bangladesh on DropshopNN. Premium quality and best market prices.";
+    "Buy authentic products with fast delivery across Bangladesh on NN Enterprise. Premium quality and best market prices.";
 
   const keywordFound =
     focusKeyword &&

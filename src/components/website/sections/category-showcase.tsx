@@ -52,27 +52,27 @@ export function CategoryShowcase({ categories }: CategoryShowcaseProps): React.R
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3.5">
+        <div className="flex sm:grid sm:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-3.5 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar pb-2 -mx-3 px-3 sm:mx-0 sm:px-0">
           {topLevel.map((category) => (
             <Link
               key={category.id}
               href={`/category/${category.slug}`}
-              className="group flex flex-col items-center text-center p-3.5 rounded-2xl bg-white border border-slate-300 hover:border-amber-400 hover:shadow-md transition-all duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500"
+              className="group flex flex-col items-center text-center p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500 hover:shadow-md transition-all duration-200 shrink-0 w-28 sm:w-auto snap-start focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 active:scale-95 touch-manipulation"
             >
-              <div className="relative w-14 h-14 rounded-xl bg-slate-100 group-hover:bg-amber-50 flex items-center justify-center mb-2.5 overflow-hidden transition-colors">
+              <div className="relative w-14 h-14 rounded-xl bg-slate-100 dark:bg-slate-800 group-hover:bg-amber-50 dark:group-hover:bg-amber-950/40 flex items-center justify-center mb-2 overflow-hidden transition-colors">
                 {category.image ? (
                   <Image src={category.image} alt="" fill className="object-cover" sizes="56px" />
                 ) : (
                   <Shapes
-                    className="h-6 w-6 text-slate-700 group-hover:text-amber-600 transition-colors"
+                    className="h-6 w-6 text-slate-700 dark:text-slate-300 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors"
                     aria-hidden
                   />
                 )}
               </div>
-              <h3 className="text-xs font-black text-slate-900 leading-snug line-clamp-1 group-hover:text-amber-600 transition-colors">
+              <h3 className="text-xs font-black text-slate-900 dark:text-slate-100 leading-snug line-clamp-1 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
                 {category.name}
               </h3>
-              <p className="text-[10px] font-bold text-slate-600 mt-1">
+              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-0.5">
                 {toBanglaDigits(category.productCount)} প্রোডাক্ট
               </p>
             </Link>

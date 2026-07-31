@@ -21,10 +21,12 @@ export interface ShopToolbarProps {
 
 const BASE_SORT_OPTIONS: ReadonlyArray<{ value: string; label: string }> = [
   { value: "newest", label: "নতুন আগে" },
+  { value: "featured", label: "ফিচার্ড ও জনপ্রিয়" },
   { value: "price_asc", label: "দাম: কম থেকে বেশি" },
   { value: "price_desc", label: "দাম: বেশি থেকে কম" },
-  { value: "featured", label: "ফিচার্ড" },
-  { value: "name_asc", label: "নাম: A-Z" },
+  { value: "discount_desc", label: "সর্বোচ্চ ডিসকাউন্ট" },
+  { value: "best_selling", label: "বেস্ট সেলিং" },
+  { value: "trending", label: "ট্রেন্ডিং" },
 ];
 
 export function ShopToolbar({
@@ -40,6 +42,16 @@ export function ShopToolbar({
   const searchParams = useSearchParams();
   const sortId = useId();
   const searchId = useId();
+
+  const activeFilterCount = [
+    searchParams.get("category"),
+    searchParams.get("brand"),
+    searchParams.get("minPrice"),
+    searchParams.get("maxPrice"),
+    searchParams.get("inStock"),
+    searchParams.get("onSale"),
+    searchParams.get("isNew"),
+  ].filter(Boolean).length;
 
   const sortOptions =
     defaultSort === "relevance"
@@ -80,35 +92,40 @@ export function ShopToolbar({
   ];
 
   return (
-    <div className="sticky top-18 lg:top-20 z-30 mb-6 w-full rounded-2xl border border-slate-300 bg-white/95 px-4 py-3 shadow-xs backdrop-blur-md sm:px-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
+    <div className="sticky top-12 lg:top-20 z-30 mb-4 lg:mb-6 w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 px-3 sm:px-6 py-2.5 shadow-xs backdrop-blur-md">
+      <div className="flex flex-wrap items-center justify-between gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-3">
           {onMobileFilterToggle && (
             <button
               type="button"
               onClick={onMobileFilterToggle}
-              className="flex h-9 items-center gap-1.5 rounded-xl border border-slate-300 px-3 text-xs font-bold text-slate-800 transition-colors hover:border-amber-400 hover:bg-amber-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600 lg:hidden"
+              className="flex h-9 items-center gap-1.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-xs font-bold text-slate-800 dark:text-slate-200 transition-colors hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 focus-visible:outline-2 focus-visible:outline-amber-600 lg:hidden active:scale-95 touch-manipulation"
             >
               <SlidersHorizontal className="h-3.5 w-3.5 text-amber-500" aria-hidden />
-              ফিল্টার
+              <span>ফিল্টার</span>
+              {activeFilterCount > 0 && (
+                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-black text-slate-950 px-1">
+                  {activeFilterCount}
+                </span>
+              )}
             </button>
           )}
 
-          <span className="text-xs font-bold text-slate-600">
+          <span className="text-xs font-bold text-slate-600 dark:text-slate-400">
             মোট{" "}
-            <span className="font-black text-slate-900 tabular-nums">
+            <span className="font-black text-slate-900 dark:text-slate-100 tabular-nums">
               {totalCount.toLocaleString("en-BD")}
             </span>{" "}
             টি প্রোডাক্ট
           </span>
         </div>
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="ml-auto flex items-center gap-2 sm:gap-3">
           {showSearchBox && (
             <form
               role="search"
               onSubmit={handleSearchSubmit}
-              className="relative hidden w-44 sm:block lg:w-56"
+              className="relative hidden sm:block w-44 lg:w-56"
             >
               <label htmlFor={searchId} className="sr-only">
                 ক্যাটালগে প্রোডাক্ট খুঁজুন
@@ -120,16 +137,16 @@ export function ShopToolbar({
                 name="q"
                 defaultValue={currentQuery}
                 placeholder="প্রোডাক্ট খুঁজুন..."
-                className="h-9 w-full rounded-xl border border-slate-300 bg-slate-100 pl-8 pr-3 text-xs font-bold text-slate-900 transition-colors placeholder:text-slate-500 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500"
+                className="h-9 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 pl-8 pr-3 text-xs font-bold text-slate-900 dark:text-slate-100 transition-colors placeholder:text-slate-400 focus-visible:outline-2 focus-visible:outline-amber-500"
               />
               <Search
-                className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-500"
+                className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-slate-400"
                 aria-hidden
               />
             </form>
           )}
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             <ArrowUpDown className="hidden h-3.5 w-3.5 text-amber-500 sm:inline" aria-hidden />
             <label htmlFor={sortId} className="sr-only">
               সাজানোর ক্রম
@@ -138,7 +155,7 @@ export function ShopToolbar({
               id={sortId}
               value={currentSort}
               onChange={(e) => handleSortChange(e.target.value)}
-              className="h-9 cursor-pointer rounded-xl border border-slate-300 bg-white px-3 text-xs font-black text-slate-900 shadow-2xs focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500"
+              className="h-9 cursor-pointer rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1 text-xs font-black text-slate-900 dark:text-slate-100 shadow-2xs focus-visible:outline-2 focus-visible:outline-amber-500"
             >
               {sortOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -148,7 +165,7 @@ export function ShopToolbar({
             </select>
           </div>
 
-          <div className="hidden items-center gap-1 rounded-xl border border-slate-300 bg-slate-100 p-1 sm:flex">
+          <div className="hidden items-center gap-1 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 p-1 sm:flex">
             {viewButtons.map(({ mode, label, icon }) => (
               <button
                 key={mode}
@@ -159,8 +176,8 @@ export function ShopToolbar({
                 className={cn(
                   "rounded-lg p-1.5 transition-colors focus-visible:outline-2 focus-visible:outline-amber-600",
                   viewMode === mode
-                    ? "bg-white font-bold text-amber-600 shadow-2xs"
-                    : "text-slate-600 hover:text-slate-900",
+                    ? "bg-white dark:bg-slate-900 font-bold text-amber-600 dark:text-amber-400 shadow-2xs"
+                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100",
                 )}
               >
                 {icon}

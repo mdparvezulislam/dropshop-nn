@@ -43,20 +43,27 @@ export class HomepageService {
 
     const categories = categoriesResult.status === "fulfilled" ? categoriesResult.value : [];
     let featuredProducts = featuredResult.status === "fulfilled" ? featuredResult.value : [];
-    const flashDeals = flashDealsResult.status === "fulfilled" ? flashDealsResult.value : [];
+    let flashDeals = flashDealsResult.status === "fulfilled" ? flashDealsResult.value : [];
     let newArrivals = newArrivalsResult.status === "fulfilled" ? newArrivalsResult.value : [];
-    const trendingProducts = trendingResult.status === "fulfilled" ? trendingResult.value : [];
+    let trendingProducts = trendingResult.status === "fulfilled" ? trendingResult.value : [];
     const brands = brandsResult.status === "fulfilled" ? brandsResult.value : [];
     const collections = collectionsResult.status === "fulfilled" ? collectionsResult.value : [];
     const blogPosts = blogResult.status === "fulfilled" ? blogResult.value : [];
 
-    // Fallback: If badge-specific lists return empty, fetch general public products so homepage sections stay populated
-    if (featuredProducts.length === 0 && newArrivals.length === 0) {
+    // Fallback: If badge-specific lists return empty, fetch general public products so ALL homepage sections stay populated
+    if (
+      featuredProducts.length === 0 ||
+      flashDeals.length === 0 ||
+      newArrivals.length === 0 ||
+      trendingProducts.length === 0
+    ) {
       try {
-        const fallbackList = await this.catalogService.listCards({ limit: 12, page: 1, sort: "newest" });
+        const fallbackList = await this.catalogService.listCards({ limit: 16, page: 1, sort: "newest" });
         if (fallbackList.items.length > 0) {
-          featuredProducts = fallbackList.items.slice(0, 6);
-          newArrivals = fallbackList.items.slice(0, 12);
+          if (featuredProducts.length === 0) featuredProducts = fallbackList.items.slice(0, 8);
+          if (flashDeals.length === 0) flashDeals = fallbackList.items.slice(0, 10);
+          if (newArrivals.length === 0) newArrivals = fallbackList.items.slice(0, 12);
+          if (trendingProducts.length === 0) trendingProducts = fallbackList.items.slice(0, 8);
         }
       } catch (err) {
         logger.error("HomepageService: fallback product list fetch failed", err);

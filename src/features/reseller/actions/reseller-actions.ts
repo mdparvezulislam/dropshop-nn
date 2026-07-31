@@ -551,7 +551,7 @@ export async function getResellerShopSettingsAction(): Promise<{
     return {
       success: true,
       data: {
-        businessName: resellerDoc?.businessName || (userDoc as any)?.shopName || session.user.name || "DropshopNN Reseller Store",
+        businessName: resellerDoc?.businessName || (userDoc as any)?.shopName || session.user.name || "NN Enterprise Reseller Store",
         ownerName: resellerDoc?.ownerName || userDoc?.name || "Md Reseller",
         phone: resellerDoc?.phone || userDoc?.phone || "01700000000",
         whatsapp: (userDoc as any)?.whatsapp || resellerDoc?.alternativePhone || resellerDoc?.phone || "01700000000",

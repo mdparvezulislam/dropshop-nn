@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   const { product, brandName } = result.data;
   const featuredMedia = product.media?.find((m) => m.isFeatured) || product.media?.[0];
   const description =
-    product.metaDescription || product.shortDescription || `${product.name} — DropshopNN বাংলাদেশ।`;
+    product.metaDescription || product.shortDescription || `${product.name} — NN Enterprise বাংলাদেশ।`;
   // Stored SEO overrides (Product Studio SEO tab / parser) win over derived values.
   const seo = product.seo;
   const ogImage = seo?.ogImage || featuredMedia?.url;

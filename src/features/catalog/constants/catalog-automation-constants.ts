@@ -1,6 +1,6 @@
 /**
  * Catalog Automation Constants
- * Project: DropshopNN Enterprise Commerce Operating System
+ * Project: NN Enterprise Enterprise Commerce Operating System
  *
  * All configurable thresholds, markups, and limits for the Product Automation Engine.
  * Centralised here to avoid hardcoding magic numbers deep in business logic.

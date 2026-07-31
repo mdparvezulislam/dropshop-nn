@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import {
   User,
@@ -17,7 +16,6 @@ import {
   Shield,
   Store,
   Building2,
-  Factory,
   Crown,
   ChevronRight,
 } from "lucide-react";
@@ -38,7 +36,6 @@ const userItems = [
 ];
 
 export function AccountMenu() {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const { data: session, status } = useSession();
   const { isSuperAdmin, hasRole } = usePermissions();
@@ -69,7 +66,7 @@ export function AccountMenu() {
     };
   }, [open]);
 
-  const handleIconClick = (e: React.MouseEvent) => {
+  const handleIconClick = (e: React.SyntheticEvent) => {
     e.stopPropagation();
     setOpen((prev) => !prev);
   };
@@ -79,6 +76,8 @@ export function AccountMenu() {
       <button
         type="button"
         onClick={handleIconClick}
+        onPointerDown={(e) => e.stopPropagation()}
+        onTouchStart={(e) => e.stopPropagation()}
         className={`flex items-center justify-center h-10 w-10 sm:h-9 sm:w-9 rounded-xl border transition-all shadow-2xs touch-manipulation active:scale-95 focus:outline-none focus:ring-2 focus:ring-amber-500/30 ${
           open || isLoggedIn
             ? "bg-amber-50 border-amber-400 text-amber-700 dark:bg-amber-950 dark:text-amber-300"

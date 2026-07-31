@@ -197,7 +197,7 @@ const SUPPLIER_EXTRA: CommandItem[] = [
 export const WORKSPACE_SHELLS: Record<WorkspaceId, WorkspaceShellConfig> = {
   admin: {
     id: "admin",
-    label: "DropshopNN",
+    label: "NN Enterprise",
     description: "Commerce OS",
     basePath: "/dashboard",
     homeHref: "/dashboard",

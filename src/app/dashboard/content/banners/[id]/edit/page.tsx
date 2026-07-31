@@ -4,7 +4,7 @@ import { ContentService } from "@/features/cms/services/content-service";
 import { ContentEditor } from "@/features/cms/components/content-editor";
 
 export const metadata: Metadata = {
-  title: "Edit Banner - CMS - DropshopNN",
+  title: "Edit Banner - CMS - NN Enterprise",
   robots: { index: false },
 };
 

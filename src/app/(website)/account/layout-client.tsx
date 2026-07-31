@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { AccountSidebar } from "@/components/account/account-sidebar";
-import { AccountMobileNav } from "@/components/account/account-mobile-nav";
+import { CustomerHeader } from "@/components/account/customer-header";
+import { CustomerBottomNav } from "@/components/account/customer-bottom-nav";
 import { cn } from "@/lib/utils/cn";
 import { Loader2 } from "lucide-react";
 
@@ -34,14 +35,19 @@ export function AccountLayoutClient({ children }: { children: React.ReactNode })
   if (!session) return null;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pb-16 md:pb-12">
+      {/* Desktop Sidebar */}
       <div className="hidden md:block">
         <AccountSidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
       </div>
-      <AccountMobileNav />
+
+      {/* Mobile Header & Dedicated Customer Bottom Navigation */}
+      <CustomerHeader />
+      <CustomerBottomNav />
+
       <main
         className={cn(
-          "min-h-screen transition-[padding] duration-200 ease-out pt-6 pb-12",
+          "min-h-[calc(100vh-3.5rem)] transition-[padding] duration-200 ease-out py-4 sm:py-6",
           "md:pl-[var(--account-sidebar-w)]",
         )}
       >

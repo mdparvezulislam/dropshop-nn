@@ -90,83 +90,83 @@ export function HeroSection() {
       <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-primary/[0.02] rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 pt-12 pb-16 lg:pt-20 lg:pb-24 items-center">
+        <div className="grid lg:grid-cols-2 gap-6 lg:gap-16 pt-6 pb-8 lg:pt-20 lg:pb-24 items-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex flex-col gap-8"
+            transition={{ duration: 0.4 }}
+            className="flex flex-col gap-5 sm:gap-8"
           >
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={current}
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.25 }}
                 >
-                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-wider uppercase w-fit mb-4">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-[11px] sm:text-xs font-extrabold tracking-wider uppercase w-fit mb-2.5 sm:mb-4">
                     <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
                     </span>
                     {HERO_SLIDES[current].badge}
                   </div>
 
-                  <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] text-[hsl(222_47%_11%)]">
+                  <h1 className="text-3xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.15] text-slate-900 dark:text-slate-100">
                     {HERO_SLIDES[current].title}
                   </h1>
 
-                  <p className="mt-6 text-lg sm:text-xl text-[hsl(215_16%_47%)] leading-relaxed max-w-xl">
+                  <p className="mt-3 sm:mt-6 text-sm sm:text-xl text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl font-medium">
                     {HERO_SLIDES[current].subtitle}
                   </p>
                 </motion.div>
               </AnimatePresence>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 py-4 border-t border-b border-[hsl(0_0%_91%)]">
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-4 py-3 sm:py-4 border-t border-b border-slate-200 dark:border-slate-800">
               {trustItems.map((item) => (
-                <div key={item.label} className="flex items-start gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0 mt-0.5">
-                    <item.icon className="h-4 w-4" />
+                <div key={item.label} className="flex items-start gap-2.5">
+                  <div className="p-1.5 sm:p-2 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5">
+                    <item.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </div>
                   <div className="text-left">
-                    <p className="text-sm font-semibold text-[hsl(222_47%_11%)]">{item.label}</p>
-                    <p className="text-xs text-[hsl(215_16%_47%)]">{item.sub}</p>
+                    <p className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100">{item.label}</p>
+                    <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-bold">{item.sub}</p>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
               {businessStats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="rounded-xl bg-white border border-[hsl(0_0%_91%)] p-4 text-center hover:border-primary/20 hover:shadow-md transition-all"
+                  className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-2.5 sm:p-4 text-center hover:border-amber-400 transition-all"
                 >
-                  <div className="inline-flex items-center justify-center h-10 w-10 rounded-lg bg-primary/10 text-primary mb-2 mx-auto">
-                    <stat.icon className="h-5 w-5" />
+                  <div className="inline-flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 mb-1.5 mx-auto">
+                    <stat.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                   </div>
-                  <p className="text-lg sm:text-xl font-bold text-[hsl(222_47%_11%)]">
+                  <p className="text-base sm:text-xl font-black text-slate-900 dark:text-slate-100">
                     {stat.value}
                   </p>
-                  <p className="text-xs text-[hsl(215_16%_47%)]">{stat.label}</p>
+                  <p className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400">{stat.label}</p>
                 </div>
               ))}
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-3 pt-2 sm:pt-4">
               <Link
                 href={HERO_SLIDES[current].href}
-                className="inline-flex items-center justify-center gap-2 h-14 rounded-xl bg-primary text-primary-foreground font-bold px-8 shadow-lg shadow-primary/20 hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/30 transition-all active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl bg-amber-500 text-slate-950 font-black px-6 shadow-md hover:bg-amber-600 transition-all active:scale-[0.98] touch-manipulation"
               >
                 {HERO_SLIDES[current].cta}
-                <ArrowRight className="h-5 w-5" />
+                <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
               </Link>
               <Link
                 href="/products"
-                className="inline-flex items-center justify-center gap-2 h-14 rounded-xl border-2 border-[hsl(0_0%_91%)] text-[hsl(222_47%_11%)] font-bold px-8 hover:bg-[hsl(0_0%_96%)] hover:border-primary/30 transition-all"
+                className="inline-flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-bold px-6 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all active:scale-[0.98] touch-manipulation"
               >
                 Browse All Products
               </Link>

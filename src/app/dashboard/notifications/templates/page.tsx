@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { TemplatesManager } from "@/features/notification/components/templates-manager";
 
 export const metadata: Metadata = {
-  title: "Notification Templates - DropshopNN",
+  title: "Notification Templates - NN Enterprise",
   robots: { index: false },
 };
 

@@ -3,7 +3,7 @@ import { ContentService } from "@/features/cms/services/content-service";
 import { ContentList } from "@/features/cms/components/content-list";
 
 export const metadata: Metadata = {
-  title: "Homepage Builder - CMS - DropshopNN",
+  title: "Homepage Builder - CMS - NN Enterprise",
   robots: { index: false },
 };
 

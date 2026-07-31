@@ -1,7 +1,7 @@
 /**
  * Centralized Single Source of Truth for Public Customer-Facing Branding.
  *
- * Internal Engineering Identity = DropshopNN (Developer codebase, DB, APIs)
+ * Internal Engineering Identity = NN Enterprise (Developer codebase, DB, APIs)
  * Public Customer Brand = NN Enterprise (Storefront, SEO, Receipts, Notifications)
  *
  * Never hardcode company/brand names in public UI or metadata.

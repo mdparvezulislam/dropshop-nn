@@ -89,7 +89,7 @@ export class PublicCatalogService {
     const limit = Math.min(MAX_PAGE_SIZE, Math.max(1, params.limit ?? DEFAULT_PAGE_SIZE));
 
     const filter: Record<string, unknown> = {
-      status: { $in: ["active", "published"] },
+      status: { $nin: ["archived", "inactive", "draft"] },
       visibility: { $ne: "hidden" },
       isDeleted: { $ne: true },
     };

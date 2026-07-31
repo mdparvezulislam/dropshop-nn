@@ -21,7 +21,7 @@ export class PluggableSmsProvider implements ISmsProvider {
 
   constructor() {
     this.apiKey = process.env.SMS_API_KEY || "";
-    this.senderId = process.env.SMS_SENDER_ID || "DropshopNN";
+    this.senderId = process.env.SMS_SENDER_ID || "NN Enterprise";
     this.apiUrl = process.env.SMS_API_URL || "https://api.sms-gateway.com/send";
   }
 

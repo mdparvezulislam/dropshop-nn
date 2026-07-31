@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { BusinessMembershipApprovalCenter } from "@/features/identity/components/business-membership-approval-center";
 
 export const metadata: Metadata = {
-  title: "Membership Application Approvals - DropshopNN",
+  title: "Membership Application Approvals - NN Enterprise",
   robots: { index: false },
 };
 

@@ -106,7 +106,7 @@ export function StudioLivePreview({ form, className = "" }: StudioLivePreviewPro
         >
           {/* Mock Header Navbar */}
           <div className="bg-primary/10 text-foreground px-4 py-2 text-xs flex justify-between items-center border-b border-border">
-            <span className="font-bold tracking-wide text-amber-400">DropshopNN Store</span>
+            <span className="font-bold tracking-wide text-amber-400">NN Enterprise Store</span>
             <span className="text-muted-foreground">
               nnenterprise.com.bd/products/{form.slug || "sample-slug"}
             </span>

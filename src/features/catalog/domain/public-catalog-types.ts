@@ -46,7 +46,15 @@ export interface PublicListResult {
 }
 
 export type PublicCatalogSort =
-  "newest" | "price_asc" | "price_desc" | "featured" | "name_asc" | "relevance";
+  | "newest"
+  | "price_asc"
+  | "price_desc"
+  | "featured"
+  | "name_asc"
+  | "relevance"
+  | "discount_desc"
+  | "best_selling"
+  | "trending";
 
 export type PublicBadgeSection = "featured" | "trending" | "new_arrival" | "flash_sale";
 

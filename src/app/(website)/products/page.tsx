@@ -65,6 +65,10 @@ const CATALOG_SORTS: readonly PublicCatalogSort[] = [
   "price_desc",
   "featured",
   "name_asc",
+  "discount_desc",
+  "best_selling",
+  "trending",
+  "relevance",
 ];
 
 function parseSort(value: string | undefined): PublicCatalogSort | undefined {

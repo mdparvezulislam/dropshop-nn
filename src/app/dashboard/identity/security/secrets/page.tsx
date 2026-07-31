@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SecretManagerUI } from "@/features/security/components/SecretManagerUI";
 
 export const metadata: Metadata = {
-  title: "Secrets Management - DropshopNN",
+  title: "Secrets Management - NN Enterprise",
   robots: { index: false },
 };
 

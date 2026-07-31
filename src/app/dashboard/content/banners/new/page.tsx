@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ContentEditor } from "@/features/cms/components/content-editor";
 
 export const metadata: Metadata = {
-  title: "New Banner - CMS - DropshopNN",
+  title: "New Banner - CMS - NN Enterprise",
   robots: { index: false },
 };
 

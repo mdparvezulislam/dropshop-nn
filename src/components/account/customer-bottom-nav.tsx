@@ -1,0 +1,67 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { LayoutDashboard, Package, Bell, User, MoreHorizontal } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
+
+const NAV_ITEMS = [
+  { href: "/account", label: "ড্যাশবোর্ড", icon: LayoutDashboard },
+  { href: "/account/orders", label: "অর্ডারসমূহ", icon: Package },
+  { href: "/account/notifications", label: "নোটিফিকেশন", icon: Bell },
+  { href: "/account/profile", label: "প্রোফাইল", icon: User },
+  { href: "/account/more", label: "আরও", icon: MoreHorizontal },
+];
+
+export function CustomerBottomNav(): React.ReactElement {
+  const pathname = usePathname();
+
+  return (
+    <div className="fixed bottom-0 inset-x-0 z-40 md:hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 shadow-[0_-6px_25px_rgba(0,0,0,0.08)] pb-[max(0.25rem,env(safe-area-inset-bottom))]">
+      <nav aria-label="গ্রাহক নেভিগেশন" className="flex items-center justify-around h-12 max-w-md mx-auto px-1">
+        {NAV_ITEMS.map((item) => {
+          const isActive =
+            item.href === "/account"
+              ? pathname === "/account"
+              : pathname.startsWith(item.href);
+
+          const Icon = item.icon;
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "relative flex flex-col items-center justify-center flex-1 h-full py-1 transition-all touch-manipulation active:scale-95",
+                isActive
+                  ? "text-amber-600 dark:text-amber-400 font-bold"
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 font-medium",
+              )}
+            >
+              {/* Top Accent Active Line Indicator */}
+              {isActive && (
+                <span className="absolute top-0 w-6 h-0.5 bg-amber-500 rounded-full animate-in fade-in zoom-in-50 duration-200" />
+              )}
+
+              {/* Active Background Pill */}
+              <div
+                className={cn(
+                  "flex items-center justify-center p-1 rounded-xl transition-all",
+                  isActive ? "bg-amber-500/10 dark:bg-amber-500/20" : "bg-transparent",
+                )}
+              >
+                <Icon className={cn("h-5 w-5 stroke-[1.75]", isActive && "stroke-[2.25]")} aria-hidden />
+              </div>
+
+              <span className="text-[10px] tracking-tight truncate leading-none mt-0.5">
+                {item.label}
+              </span>
+            </Link>
+          );
+        })}
+      </nav>
+    </div>
+  );
+}
+
+export default CustomerBottomNav;

@@ -3,8 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Trash2, Minus, Plus, Heart } from "lucide-react";
-import { cn } from "@/lib/utils/cn";
+import { Trash2, Minus, Plus, Bookmark } from "lucide-react";
+import { StockChip } from "@/shared/components/mobile/stock-chip";
 import { PriceDisplay } from "@/components/website/price-display";
 
 export interface CartItemData {
@@ -35,22 +35,26 @@ interface CartItemRowProps {
 
 export function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowProps) {
   const [removing, setRemoving] = useState(false);
+  const [savedForLater, setSavedForLater] = useState(false);
 
   const handleRemove = () => {
     setRemoving(true);
-    setTimeout(() => onRemove(item.index), 300);
+    setTimeout(() => onRemove(item.index), 250);
   };
+
+  const itemStockStatus = item.stockStatus ?? "in_stock";
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: removing ? 0 : 1, x: removing ? 20 : 0 }}
+      animate={{ opacity: removing ? 0 : 1, x: removing ? -30 : 0, scale: removing ? 0.95 : 1 }}
       transition={{ duration: 0.2 }}
-      className="flex gap-4 p-4 rounded-xl border border-border/60 bg-card"
+      className="relative flex gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs"
     >
+      {/* 1:1 Square Product Image */}
       <Link
         href={`/product/${item.slug}`}
-        className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg bg-muted shrink-0 overflow-hidden block focus-visible:outline-2 focus-visible:outline-amber-500"
+        className="relative aspect-square w-20 sm:w-24 rounded-xl bg-slate-100 dark:bg-slate-800 shrink-0 overflow-hidden block focus-visible:outline-2 focus-visible:outline-amber-500 active:scale-95 transition-transform"
         aria-label={item.name}
       >
         <div
@@ -59,54 +63,68 @@ export function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowPro
         />
       </Link>
 
-      <div className="flex-1 min-w-0 space-y-2">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
+      {/* Item Information */}
+      <div className="flex-1 min-w-0 flex flex-col justify-between space-y-2">
+        <div className="space-y-1">
+          <div className="flex items-start justify-between gap-2">
             <Link
               href={`/product/${item.slug}`}
-              className="text-sm font-semibold text-foreground hover:text-primary transition-colors line-clamp-1 block focus-visible:outline-2 focus-visible:outline-amber-500 rounded"
+              className="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 hover:text-amber-600 dark:hover:text-amber-400 transition-colors line-clamp-2 leading-snug"
             >
               {item.name}
             </Link>
-            {item.variant && <p className="text-xs text-foreground/40 mt-0.5">{item.variant}</p>}
-            {item.sku && (
-              <p className="text-[11px] text-foreground/30 font-mono mt-0.5">SKU: {item.sku}</p>
-            )}
+
+            {/* Remove Action Button */}
+            <button
+              type="button"
+              onClick={handleRemove}
+              className="touch-target h-8 w-8 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors shrink-0 active:scale-90"
+              aria-label={`কার্ট থেকে ${item.name} মুছে ফেলুন`}
+            >
+              <Trash2 className="h-4 w-4" aria-hidden />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={handleRemove}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-foreground/30 hover:text-destructive hover:bg-destructive/10 transition-colors shrink-0"
-            aria-label={`Remove ${item.name} from cart`}
-          >
-            <Trash2 className="h-4 w-4" />
-          </button>
+
+          {/* Variant & Stock Chips */}
+          <div className="flex flex-wrap items-center gap-2 pt-0.5">
+            {item.variant && (
+              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md">
+                {item.variant}
+              </span>
+            )}
+            <StockChip status={itemStockStatus} />
+          </div>
         </div>
 
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center border border-border/60 rounded-lg">
+        {/* Quantity Controls & Price Display */}
+        <div className="flex flex-wrap items-end justify-between gap-3 pt-1 border-t border-slate-100 dark:border-slate-800/80">
+          {/* 40px Touch Target Quantity Controls */}
+          <div className="flex items-center rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 p-0.5">
             <button
               type="button"
               onClick={() => onQuantityChange(item.index, item.quantity - 1)}
               disabled={item.quantity <= 1}
-              className="flex h-8 w-8 items-center justify-center text-foreground/50 hover:text-foreground hover:bg-muted/60 transition-colors disabled:opacity-30"
-              aria-label="Decrease quantity"
+              className="h-9 w-9 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 hover:text-slate-950 transition-all disabled:opacity-30 disabled:hover:bg-transparent active:scale-90 touch-manipulation"
+              aria-label="পরিমাণ কমান"
             >
-              <Minus className="h-3 w-3" />
+              <Minus className="h-3.5 w-3.5" aria-hidden />
             </button>
-            <span className="flex h-8 w-10 items-center justify-center text-sm font-semibold tabular-nums">
+
+            <span className="flex h-9 w-9 min-w-[36px] items-center justify-center text-xs font-black text-slate-900 dark:text-slate-100 tabular-nums">
               {item.quantity}
             </span>
+
             <button
               type="button"
               onClick={() => onQuantityChange(item.index, item.quantity + 1)}
-              className="flex h-8 w-8 items-center justify-center text-foreground/50 hover:text-foreground hover:bg-muted/60 transition-colors"
-              aria-label="Increase quantity"
+              className="h-9 w-9 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-lg text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 hover:text-slate-950 transition-all active:scale-90 touch-manipulation"
+              aria-label="পরিমাণ বাড়ান"
             >
-              <Plus className="h-3 w-3" />
+              <Plus className="h-3.5 w-3.5" aria-hidden />
             </button>
           </div>
 
+          {/* Pricing & Subtotal */}
           <div className="text-right">
             <PriceDisplay
               retailPrice={item.resolvedPrice}
@@ -117,13 +135,30 @@ export function CartItemRow({ item, onQuantityChange, onRemove }: CartItemRowPro
               currency={item.currency}
               showLabel={false}
             />
-            <p className="text-[11px] text-foreground/40 mt-0.5">
-              Subtotal: {item.currency === "BDT" ? "৳" : "$"}
-              {(item.resolvedPrice * item.quantity).toLocaleString("en-BD")}
+            <p className="text-[11px] font-extrabold text-slate-500 dark:text-slate-400 mt-0.5">
+              সাবটোটাল: ৳{(item.resolvedPrice * item.quantity).toLocaleString("en-BD")}
             </p>
           </div>
+        </div>
+
+        {/* Save for later future-ready toggle */}
+        <div className="flex items-center justify-end pt-0.5">
+          <button
+            type="button"
+            onClick={() => setSavedForLater(!savedForLater)}
+            className={`flex items-center gap-1 text-[11px] font-bold transition-colors ${
+              savedForLater
+                ? "text-amber-600 dark:text-amber-400"
+                : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+            }`}
+          >
+            <Bookmark className={`h-3 w-3 ${savedForLater ? "fill-amber-500" : ""}`} aria-hidden />
+            <span>{savedForLater ? "পরে কেনার জন্য সংরক্ষিত" : "পরে কিনবো (Save for later)"}</span>
+          </button>
         </div>
       </div>
     </motion.div>
   );
 }
+
+export default CartItemRow;

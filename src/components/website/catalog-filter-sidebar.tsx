@@ -233,30 +233,42 @@ export function CatalogFilterSidebar({
           )}
         </div>
 
-        <div className="space-y-2.5 border-t border-slate-200 pt-2">
-          <h4 className="text-xs font-black uppercase tracking-wider text-slate-600">
+        <div className="space-y-2.5 border-t border-slate-200 dark:border-slate-800 pt-3">
+          <h4 className="text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400">
             প্রাপ্যতা ও অফার
           </h4>
 
-          <label className="flex cursor-pointer items-center gap-2.5 text-xs font-bold text-slate-800">
-            <input
-              type="checkbox"
-              checked={inStockOnly}
-              onChange={(e) => updateParams({ inStock: e.target.checked ? "1" : null })}
-              className="h-4 w-4 rounded border-slate-300 text-amber-500 focus-visible:outline-2 focus-visible:outline-amber-600"
-            />
-            <span>শুধুমাত্র স্টকে থাকা প্রোডাক্ট</span>
-          </label>
+          <div className="space-y-2">
+            <label className="flex cursor-pointer items-center gap-2.5 text-xs font-bold text-slate-800 dark:text-slate-200 hover:text-amber-600 transition-colors">
+              <input
+                type="checkbox"
+                checked={inStockOnly}
+                onChange={(e) => updateParams({ inStock: e.target.checked ? "1" : null })}
+                className="h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-amber-500 focus-visible:outline-2 focus-visible:outline-amber-600"
+              />
+              <span>শুধুমাত্র স্টকে থাকা প্রোডাক্ট</span>
+            </label>
 
-          <label className="flex cursor-pointer items-center gap-2.5 text-xs font-bold text-slate-800">
-            <input
-              type="checkbox"
-              checked={onSaleOnly}
-              onChange={(e) => updateParams({ onSale: e.target.checked ? "1" : null })}
-              className="h-4 w-4 rounded border-slate-300 text-amber-500 focus-visible:outline-2 focus-visible:outline-amber-600"
-            />
-            <span>শুধুমাত্র ডিসকাউন্ট প্রোডাক্ট</span>
-          </label>
+            <label className="flex cursor-pointer items-center gap-2.5 text-xs font-bold text-slate-800 dark:text-slate-200 hover:text-amber-600 transition-colors">
+              <input
+                type="checkbox"
+                checked={onSaleOnly}
+                onChange={(e) => updateParams({ onSale: e.target.checked ? "1" : null })}
+                className="h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-amber-500 focus-visible:outline-2 focus-visible:outline-amber-600"
+              />
+              <span>শুধুমাত্র ডিসকাউন্ট প্রোডাক্ট</span>
+            </label>
+
+            <label className="flex cursor-pointer items-center gap-2.5 text-xs font-bold text-slate-800 dark:text-slate-200 hover:text-amber-600 transition-colors">
+              <input
+                type="checkbox"
+                checked={searchParams.get("isNew") === "1"}
+                onChange={(e) => updateParams({ isNew: e.target.checked ? "1" : null })}
+                className="h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-amber-500 focus-visible:outline-2 focus-visible:outline-amber-600"
+              />
+              <span>নতুন অ্যারাইভাল (New Arrival)</span>
+            </label>
+          </div>
         </div>
       </div>
     </aside>

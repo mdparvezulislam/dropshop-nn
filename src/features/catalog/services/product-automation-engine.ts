@@ -1,6 +1,6 @@
 /**
  * ProductAutomationEngine
- * Project: DropshopNN Enterprise Commerce Operating System
+ * Project: NN Enterprise Enterprise Commerce Operating System
  *
  * Stateless enterprise catalog automation engine that auto-generates:
  *  1. Unique slugs (collision-proof)

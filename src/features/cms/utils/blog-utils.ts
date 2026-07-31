@@ -96,7 +96,7 @@ export function buildArticleJsonLd(input: {
     },
     publisher: {
       "@type": "Organization",
-      name: "DropshopNN",
+      name: "NN Enterprise",
     },
   };
 }

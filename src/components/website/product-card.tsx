@@ -276,13 +276,13 @@ export function ProductCard({
   return (
     <article
       className={cn(
-        "group relative rounded-2xl border border-slate-300 bg-white overflow-hidden transition-shadow duration-300 hover:shadow-xl hover:border-amber-400 flex flex-col justify-between",
-        viewMode === "compact" ? "p-2.5" : "",
+        "group relative rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden transition-all duration-300 hover:shadow-xl hover:border-amber-400 dark:hover:border-amber-500 flex flex-col justify-between active:scale-[0.99] touch-manipulation",
+        viewMode === "compact" ? "p-2" : "",
         className,
       )}
     >
       <div>
-        <div className="relative aspect-square rounded-xl bg-slate-100 overflow-hidden">
+        <div className="relative aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 overflow-hidden">
           <Link
             href={productUrl}
             className="absolute inset-0 block focus-visible:outline-2 focus-visible:outline-amber-500"
@@ -297,7 +297,7 @@ export function ProductCard({
 
           <CardBadges product={product} />
 
-          <div className="absolute top-2 right-2 flex flex-col gap-1.5 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-all duration-200 z-20">
+          <div className="absolute top-2 right-2 flex flex-col gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100 transition-all duration-200 z-20">
             <button
               type="button"
               onClick={handleWishlistToggle}
@@ -308,13 +308,13 @@ export function ProductCard({
                   : `উইশলিস্টে যোগ করুন: ${product.name}`
               }
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-full border shadow-xs transition-all backdrop-blur-xs focus-visible:outline-2 focus-visible:outline-amber-500",
+                "flex h-9 w-9 items-center justify-center rounded-full border shadow-xs transition-all backdrop-blur-xs focus-visible:outline-2 focus-visible:outline-amber-500 active:scale-95",
                 isWishlisted
-                  ? "bg-red-50 border-red-200 text-red-600"
-                  : "bg-white/90 border-slate-300 text-slate-800 hover:text-red-600 hover:bg-white",
+                  ? "bg-red-50 dark:bg-red-950/80 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400"
+                  : "bg-white/90 dark:bg-slate-900/90 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:text-red-600 hover:bg-white",
               )}
             >
-              <Heart className={cn("h-4 w-4", isWishlisted && "fill-red-600")} aria-hidden />
+              <Heart className={cn("h-4 w-4", isWishlisted && "fill-red-600 text-red-600")} aria-hidden />
             </button>
 
             {onQuickView && (
@@ -325,7 +325,7 @@ export function ProductCard({
                   onQuickView(product);
                 }}
                 aria-label={`কুইক ভিউ: ${product.name}`}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 border border-slate-300 text-slate-800 hover:text-amber-600 hover:bg-white transition-all shadow-xs backdrop-blur-xs focus-visible:outline-2 focus-visible:outline-amber-500"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:text-amber-600 hover:bg-white transition-all shadow-xs backdrop-blur-xs focus-visible:outline-2 focus-visible:outline-amber-500 active:scale-95"
               >
                 <Eye className="h-4 w-4" aria-hidden />
               </button>
@@ -339,7 +339,7 @@ export function ProductCard({
                   onCompare(product);
                 }}
                 aria-label={`তুলনা করুন: ${product.name}`}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 border border-slate-300 text-slate-800 hover:text-amber-600 hover:bg-white transition-all shadow-xs backdrop-blur-xs focus-visible:outline-2 focus-visible:outline-amber-500"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:text-amber-600 hover:bg-white transition-all shadow-xs backdrop-blur-xs focus-visible:outline-2 focus-visible:outline-amber-500 active:scale-95"
               >
                 <ArrowLeftRight className="h-4 w-4" aria-hidden />
               </button>
@@ -347,20 +347,20 @@ export function ProductCard({
           </div>
 
           {outOfStock && (
-            <div className="absolute inset-0 bg-white/80 backdrop-blur-xs flex items-center justify-center z-10 pointer-events-none">
-              <span className="text-xs font-black uppercase tracking-wider text-red-700 px-3 py-1 rounded-full bg-red-50 border border-red-200">
+            <div className="absolute inset-0 bg-white/85 dark:bg-slate-900/85 backdrop-blur-xs flex items-center justify-center z-10 pointer-events-none">
+              <span className="text-[11px] font-black uppercase tracking-wider text-red-700 dark:text-red-400 px-2.5 py-1 rounded-full bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-800">
                 স্টক শেষ
               </span>
             </div>
           )}
         </div>
 
-        <div className="p-2.5 sm:p-3.5 space-y-1.5 sm:space-y-2">
+        <div className="p-2 sm:p-3.5 space-y-1 sm:space-y-2">
           <div className="flex items-center justify-between gap-1">
             {product.brandName ? (
               <Link
                 href={product.brandSlug ? `/brands/${product.brandSlug}` : productUrl}
-                className="text-[10px] font-extrabold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-amber-500"
+                className="text-[10px] font-extrabold uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded-md hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-amber-500 truncate"
               >
                 {product.brandName}
               </Link>
@@ -374,7 +374,7 @@ export function ProductCard({
             href={productUrl}
             className="block focus-visible:outline-2 focus-visible:outline-amber-500 rounded"
           >
-            <h3 className="text-xs sm:text-sm font-black text-slate-900 leading-snug line-clamp-2 group-hover:text-amber-600 transition-colors">
+            <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 leading-snug line-clamp-2 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
               {product.name}
             </h3>
           </Link>
@@ -385,10 +385,10 @@ export function ProductCard({
         </div>
       </div>
 
-      <div className="px-2.5 sm:px-3.5 pb-2.5 sm:pb-3.5 pt-0.5 sm:pt-1">
+      <div className="px-2 sm:px-3.5 pb-2 sm:pb-3.5 pt-0.5">
         <Link
           href={productUrl}
-          className="flex items-center justify-center gap-2 w-full h-9 rounded-xl text-xs font-extrabold transition-all duration-150 bg-amber-500 text-slate-950 shadow-xs hover:bg-amber-600 hover:shadow-md active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
+          className="flex items-center justify-center gap-1.5 w-full h-10 sm:h-9 rounded-xl text-xs font-black transition-all duration-150 bg-amber-500 text-slate-950 shadow-xs hover:bg-amber-600 hover:shadow-md active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
         >
           <ShoppingBag className="h-3.5 w-3.5" aria-hidden />
           {outOfStock ? "বিস্তারিত দেখুন" : "অর্ডার করুন"}

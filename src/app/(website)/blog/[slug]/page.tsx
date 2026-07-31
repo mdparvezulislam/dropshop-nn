@@ -25,11 +25,11 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
 
   const title = post.seo?.metaTitle || post.title;
   const description =
-    post.seo?.metaDescription || post.excerpt || `Read ${post.title} on DropshopNN`;
+    post.seo?.metaDescription || post.excerpt || `Read ${post.title} on NN Enterprise`;
   const image = post.seo?.ogImage || post.coverImage;
 
   return {
-    title: `${title} - DropshopNN`,
+    title: `${title} - NN Enterprise`,
     description,
     robots: post.seo?.robots || undefined,
     alternates: {

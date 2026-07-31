@@ -22,7 +22,7 @@ export interface AppConfig {
 
 export const appConfig: AppConfig = {
   env: env.NODE_ENV,
-  appName: "DropshopNN",
+  appName: "NN Enterprise",
   appUrl: env.NEXT_PUBLIC_APP_URL,
   logLevel: env.LOG_LEVEL,
   upload: {

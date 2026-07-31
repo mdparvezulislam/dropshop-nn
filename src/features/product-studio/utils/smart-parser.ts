@@ -1,6 +1,6 @@
 /**
  * SmartParserService — 100% Offline Regex & Traditional NLP Text Extraction Utility
- * Project: DropshopNN Enterprise Commerce Operating System
+ * Project: NN Enterprise Enterprise Commerce Operating System
  *
  * V2-002 Enhancements:
  * - extractBrand: First known brand word from clean text

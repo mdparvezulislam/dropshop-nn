@@ -490,7 +490,7 @@ export function Sidebar({
               {currentWorkspace?.label ?? "Workspace"}
             </p>
             <p className="text-[10px] text-muted-foreground truncate">
-              {currentWorkspace?.description ?? "DropshopNN OS"}
+              {currentWorkspace?.description ?? "NN Enterprise OS"}
             </p>
           </div>
         ) : (

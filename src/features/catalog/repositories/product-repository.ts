@@ -28,6 +28,8 @@ export interface PublicCardPricingRow {
   currency?: string;
 }
 
+import type { PublicCatalogSort } from "@/features/catalog/domain/public-catalog-types";
+
 export interface PublicCardQueryParams {
   filter: Record<string, unknown>;
   textQuery?: string;
@@ -35,7 +37,7 @@ export interface PublicCardQueryParams {
   maxPriceMinor?: number;
   onSale?: boolean;
   inStock?: boolean;
-  sort: "newest" | "price_asc" | "price_desc" | "featured" | "name_asc" | "relevance";
+  sort: PublicCatalogSort;
   page: number;
   limit: number;
 }
@@ -632,11 +634,15 @@ export class ProductRepository extends BaseRepository<ProductDocument, Product> 
             ? { publicEffectivePrice: 1, _id: 1 }
             : params.sort === "price_desc"
               ? { publicEffectivePrice: -1, _id: -1 }
-              : params.sort === "featured"
+              : params.sort === "featured" || params.sort === "trending"
                 ? { featured: -1, createdAt: -1, _id: -1 }
-                : params.sort === "name_asc"
-                  ? { name: 1, _id: 1 }
-                  : { createdAt: -1, _id: -1 };
+                : params.sort === "best_selling"
+                  ? { orderCount: -1, createdAt: -1, _id: -1 }
+                  : params.sort === "discount_desc"
+                    ? { "publicPricing.comparePrice": -1, publicEffectivePrice: 1 }
+                    : params.sort === "name_asc"
+                      ? { name: 1, _id: 1 }
+                      : { createdAt: -1, _id: -1 };
 
       const page = Math.max(1, params.page);
       const limit = params.limit;

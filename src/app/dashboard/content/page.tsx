@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { FileText, Image, BookOpen, Megaphone, PanelTop, Navigation } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "CMS Overview - DropshopNN",
+  title: "CMS Overview - NN Enterprise",
   robots: { index: false },
 };
 

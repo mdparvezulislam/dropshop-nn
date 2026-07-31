@@ -254,34 +254,41 @@ export default function UserDirectoryPage(): React.ReactElement {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6 space-y-5">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-3 sm:p-6 space-y-4">
+      {/* Header Container */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 shadow-xs">
+        <div className="flex items-center gap-3 min-w-0">
           <Link
             href="/dashboard/identity"
-            className="p-2 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground"
+            className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors shrink-0 touch-manipulation"
+            aria-label="পিছনে যান"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4" />
           </Link>
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">ব্যবহারকারী ডিরেক্টরি (Unified Identity)</h1>
-            <p className="text-sm text-muted-foreground">{total} জন ব্যবহারকারী · মাল্টি-রোল ও পারমিশন সিস্টেম</p>
+          <div className="min-w-0">
+            <h1 className="text-sm sm:text-lg font-black text-slate-900 dark:text-slate-100 tracking-tight leading-snug truncate">
+              ব্যবহারকারী ডিরেক্টরি <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 font-mono">(Unified Identity)</span>
+            </h1>
+            <p className="text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 truncate mt-0.5">
+              {total} জন ব্যবহারকারী · মাল্টি-রোল ও পারমিশন সিস্টেম
+            </p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-1" /> Export
+        <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+          <Button variant="outline" size="sm" onClick={handleExport} className="h-9 text-xs font-bold gap-1 rounded-xl">
+            <Download className="h-3.5 w-3.5" /> Export
           </Button>
-          <Button variant="ghost" onClick={load}>
-            <RefreshCw className="h-4 w-4" />
+          <Button variant="ghost" size="sm" onClick={load} className="h-9 w-9 p-0 rounded-xl">
+            <RefreshCw className="h-3.5 w-3.5" />
           </Button>
         </div>
       </div>
 
-      <Card className="border-border/50 bg-card/50">
-        <CardContent className="p-3 flex flex-col sm:flex-row gap-3">
+      {/* Filter Controls */}
+      <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs rounded-2xl">
+        <CardContent className="p-3 flex flex-col sm:flex-row gap-2.5">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
             <Input
               placeholder="নাম, ইমেইল, ফোন খুঁজুন..."
               value={search}
@@ -289,7 +296,7 @@ export default function UserDirectoryPage(): React.ReactElement {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              className="pl-9 h-9"
+              className="pl-10 h-11 text-xs rounded-xl border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-medium"
             />
           </div>
           <select
@@ -298,7 +305,7 @@ export default function UserDirectoryPage(): React.ReactElement {
               setRoleFilter(e.target.value);
               setPage(1);
             }}
-            className="h-9 rounded-md border border-border bg-background px-3 text-sm"
+            className="h-11 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-xs font-bold text-slate-900 dark:text-slate-100"
           >
             <option value="">সব রোল</option>
             {AVAILABLE_ROLES.map((r) => (
@@ -313,7 +320,7 @@ export default function UserDirectoryPage(): React.ReactElement {
               setStatusFilter(e.target.value);
               setPage(1);
             }}
-            className="h-9 rounded-md border border-border bg-background px-3 text-sm"
+            className="h-11 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-xs font-bold text-slate-900 dark:text-slate-100"
           >
             <option value="">সব স্ট্যাটাস</option>
             <option value="active">Active</option>
@@ -325,129 +332,132 @@ export default function UserDirectoryPage(): React.ReactElement {
       </Card>
 
       {selectedIds.size > 0 && (
-        <Card className="border-primary/30 bg-accent/50">
+        <Card className="border-amber-500/30 bg-amber-500/10 rounded-2xl">
           <CardContent className="p-3 flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">{selectedIds.size} জন নির্বাচিত</span>
-            <Button size="sm" variant="outline" onClick={() => handleBulkAction("active")}>
-              <CheckCircle className="h-3.5 w-3.5 mr-1" /> Activate
+            <span className="text-xs font-bold text-amber-600 dark:text-amber-400">{selectedIds.size} জন নির্বাচিত</span>
+            <Button size="sm" variant="outline" onClick={() => handleBulkAction("active")} className="h-8 text-xs font-bold rounded-lg">
+              <CheckCircle className="h-3.5 w-3.5 mr-1 text-emerald-600" /> Activate
             </Button>
-            <Button size="sm" variant="destructive" onClick={() => handleBulkAction("suspended")}>
+            <Button size="sm" variant="destructive" onClick={() => handleBulkAction("suspended")} className="h-8 text-xs font-bold rounded-lg">
               <Ban className="h-3.5 w-3.5 mr-1" /> Suspend
             </Button>
           </CardContent>
         </Card>
       )}
 
-      <Card className="border-border/50 bg-card">
+      {/* Users Table Container with Scroll Wrapper */}
+      <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-xs">
         <CardContent className="p-0">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border/50 bg-muted/30">
-                <th className="p-3 w-8">
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.size === users.length && users.length > 0}
-                    onChange={toggleSelectAll}
-                    className="rounded border-border"
-                  />
-                </th>
-                <th className="p-3 text-left text-xs font-semibold text-muted-foreground">নাম ও যোগাযোগ</th>
-                <th className="p-3 text-left text-xs font-semibold text-muted-foreground">রোলস (Multi-Role)</th>
-                <th className="p-3 text-left text-xs font-semibold text-muted-foreground">স্ট্যাটাস</th>
-                <th className="p-3 text-left text-xs font-semibold text-muted-foreground">শেষ লগইন</th>
-                <th className="p-3 text-right text-xs font-semibold text-muted-foreground">অ্যাকশন</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={6} className="p-12 text-center text-muted-foreground">
-                    লোড হচ্ছে...
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[640px] text-left">
+              <thead>
+                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60">
+                  <th className="p-3.5 w-10 text-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.size === users.length && users.length > 0}
+                      onChange={toggleSelectAll}
+                      className="rounded border-slate-300 dark:border-slate-700 accent-amber-500"
+                    />
+                  </th>
+                  <th className="p-3.5 text-xs font-black text-slate-700 dark:text-slate-300">নাম ও যোগাযোগ</th>
+                  <th className="p-3.5 text-xs font-black text-slate-700 dark:text-slate-300">রোলস (Multi-Role)</th>
+                  <th className="p-3.5 text-xs font-black text-slate-700 dark:text-slate-300">স্ট্যাটাস</th>
+                  <th className="p-3.5 text-xs font-black text-slate-700 dark:text-slate-300">শেষ লগইন</th>
+                  <th className="p-3.5 text-right text-xs font-black text-slate-700 dark:text-slate-300">অ্যাকশন</th>
                 </tr>
-              ) : users.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="p-12 text-center text-muted-foreground">
-                    কোনো ব্যবহারকারী নেই
-                  </td>
-                </tr>
-              ) : (
-                users.map((u) => {
-                  const rolesList: string[] =
-                    Array.isArray(u.roles) && u.roles.length > 0 ? u.roles : [u.role || "customer"];
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80">
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="p-12 text-center text-xs font-bold text-slate-400">
+                      লোড হচ্ছে...
+                    </td>
+                  </tr>
+                ) : users.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="p-12 text-center text-xs font-bold text-slate-400">
+                      কোনো ব্যবহারকারী পাওয়া যায়নি
+                    </td>
+                  </tr>
+                ) : (
+                  users.map((u) => {
+                    const rawRolesList: string[] =
+                      Array.isArray(u.roles) && u.roles.length > 0 ? u.roles : [u.role || "customer"];
+                    const rolesList = Array.from(new Set(rawRolesList));
 
-                  return (
-                    <tr key={u.id} className="border-b border-border/30 hover:bg-muted/20">
-                      <td className="p-3">
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.has(u.id)}
-                          onChange={() => toggleSelect(u.id)}
-                          className="rounded border-border"
-                        />
-                      </td>
-                      <td className="p-3">
-                        <Link
-                          href={`/dashboard/identity/users/${u.id}`}
-                          className="text-sm font-medium hover:text-primary"
-                        >
-                          {u.fullName}
-                        </Link>
-                        <p className="text-xs text-muted-foreground">
-                          {u.email} · {u.phone}
-                        </p>
-                      </td>
-                      <td className="p-3">
-                        <div className="flex flex-wrap gap-1 items-center">
-                          {rolesList.map((r: string) => {
-                            const config = AVAILABLE_ROLES.find((item) => item.id === r);
-                            return (
-                              <span
-                                key={r}
-                                onClick={() => openRoleEditor(u)}
-                                className={`cursor-pointer px-2 py-0.5 rounded-md text-[10px] font-bold border ${
-                                  config?.color || "bg-slate-100 text-slate-800 border-slate-300"
-                                } hover:opacity-80 transition-opacity`}
-                                title="রোলস এডিট করতে ক্লিক করুন"
-                              >
-                                {config?.label || r}
-                              </span>
-                            );
-                          })}
-                        </div>
-                      </td>
-                      <td className="p-3">
-                        <Badge variant={statusVariant(u.status)} className="text-[10px]">
-                          {u.status}
-                        </Badge>
-                      </td>
-                      <td className="p-3 text-xs text-muted-foreground">
-                        {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString() : "—"}
-                      </td>
-                      <td className="p-3 text-right">
-                        <div className="flex justify-end gap-1">
-                          <button
-                            onClick={() => openRoleEditor(u)}
-                            className="p-1.5 rounded-md text-amber-600 hover:bg-amber-50 hover:text-amber-700"
-                            title="রোলস ম্যানেজ করুন"
+                    return (
+                      <tr key={u.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+                        <td className="p-3.5 text-center">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(u.id)}
+                            onChange={() => toggleSelect(u.id)}
+                            className="rounded border-slate-300 dark:border-slate-700 accent-amber-500"
+                          />
+                        </td>
+                        <td className="p-3.5">
+                          <Link
+                            href={`/dashboard/identity/users/${u.id}`}
+                            className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
                           >
-                            <UserCog className="h-4 w-4" />
-                          </button>
-                          <Link href={`/dashboard/identity/users/${u.id}`}>
-                            <button className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent" title="প্রোফাইল দেখুন">
-                              <Eye className="h-4 w-4" />
-                            </button>
+                            {u.fullName}
                           </Link>
-                          {u.status !== "active" && (
+                          <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                            {u.email || "ইমেইল নেই"} · {u.phone || "ফোন নেই"}
+                          </p>
+                        </td>
+                        <td className="p-3.5">
+                          <div className="flex flex-wrap gap-1 items-center">
+                            {rolesList.map((r: string) => {
+                              const config = AVAILABLE_ROLES.find((item) => item.id === r);
+                              return (
+                                <span
+                                  key={r}
+                                  onClick={() => openRoleEditor(u)}
+                                  className={`cursor-pointer px-2 py-0.5 rounded-full text-[10px] font-black border ${
+                                    config?.color || "bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700"
+                                  } hover:opacity-80 transition-opacity touch-manipulation`}
+                                  title="রোলস এডিট করতে ক্লিক করুন"
+                                >
+                                  {config?.label || r}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </td>
+                        <td className="p-3.5">
+                          <Badge variant={statusVariant(u.status)} className="text-[10px] font-black px-2 py-0.5 uppercase tracking-wider">
+                            {u.status}
+                          </Badge>
+                        </td>
+                        <td className="p-3.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
+                          {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleDateString() : "—"}
+                        </td>
+                        <td className="p-3.5 text-right">
+                          <div className="flex items-center justify-end gap-1">
                             <button
-                              onClick={() => handleStatus(u.id, "active")}
-                              className="p-1.5 rounded-md text-emerald-600 hover:bg-emerald-50"
-                              title="সক্রিয় করুন"
+                              onClick={() => openRoleEditor(u)}
+                              className="p-1.5 rounded-xl text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors touch-manipulation"
+                              title="রোলস ম্যানেজ করুন"
                             >
-                              <CheckCircle className="h-4 w-4" />
+                              <UserCog className="h-4 w-4" />
                             </button>
-                          )}
-                          {u.status !== "suspended" && (
+                            <Link href={`/dashboard/identity/users/${u.id}`}>
+                              <button className="p-1.5 rounded-xl text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors touch-manipulation" title="প্রোফাইল দেখুন">
+                                <Eye className="h-4 w-4" />
+                              </button>
+                            </Link>
+                            {u.status !== "active" && (
+                              <button
+                                onClick={() => handleStatus(u.id, "active")}
+                                className="p-1.5 rounded-xl text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors touch-manipulation"
+                                title="সক্রিয় করুন"
+                              >
+                                <CheckCircle className="h-4 w-4" />
+                              </button>
+                            )}
+                            {u.status !== "suspended" && (
                             <button
                               onClick={() => handleStatus(u.id, "suspended")}
                               className="p-1.5 rounded-md text-rose-600 hover:bg-rose-50"
@@ -471,25 +481,26 @@ export default function UserDirectoryPage(): React.ReactElement {
               )}
             </tbody>
           </table>
-        </CardContent>
-      </Card>
+        </div>
+      </CardContent>
+    </Card>
 
       {/* Role Editor Modal */}
       {editingUser && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 border border-slate-200">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 border border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
               <div>
-                <h3 className="text-lg font-black text-slate-900">মাল্টি-রোল ম্যানেজমেন্ট</h3>
-                <p className="text-xs text-slate-500">{editingUser.fullName} ({editingUser.email})</p>
+                <h3 className="text-base font-black text-slate-900 dark:text-slate-100">মাল্টি-রোল ম্যানেজমেন্ট</h3>
+                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">{editingUser.fullName} ({editingUser.email || editingUser.phone})</p>
               </div>
-              <button onClick={() => setEditingUser(null)} className="p-1 text-slate-400 hover:text-slate-600">
+              <button onClick={() => setEditingUser(null)} className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
                 <X className="h-5 w-5" />
               </button>
             </div>
 
-            <div className="space-y-3">
-              <p className="text-xs font-bold text-slate-700">অনুমোদিত রোলস নির্বাচন করুন (একটি একাউন্টে একাধিক রোল প্রযোজ্য):</p>
+            <div className="space-y-2.5">
+              <p className="text-xs font-bold text-slate-700 dark:text-slate-300">অনুমোদিত রোলস নির্বাচন করুন (একটি একাউন্টে একাধিক রোল প্রযোজ্য):</p>
               <div className="grid grid-cols-2 gap-2">
                 {AVAILABLE_ROLES.map((r) => {
                   const active = selectedRoles.includes(r.id);
@@ -498,10 +509,10 @@ export default function UserDirectoryPage(): React.ReactElement {
                       key={r.id}
                       type="button"
                       onClick={() => toggleRoleSelection(r.id)}
-                      className={`flex items-center justify-between px-3 py-2.5 rounded-xl border text-xs font-extrabold transition-all ${
+                      className={`flex items-center justify-between px-3 py-2.5 rounded-xl border text-xs font-black transition-all ${
                         active
                           ? `${r.color} shadow-xs ring-1 ring-amber-500/50`
-                          : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                          : "bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
                       }`}
                     >
                       <span>{r.label}</span>
@@ -512,11 +523,11 @@ export default function UserDirectoryPage(): React.ReactElement {
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 border-t border-slate-100 pt-3">
-              <Button variant="outline" onClick={() => setEditingUser(null)}>
+            <div className="flex justify-end gap-2 border-t border-slate-100 dark:border-slate-800 pt-3">
+              <Button variant="outline" onClick={() => setEditingUser(null)} className="rounded-xl font-bold text-xs">
                 বাতিল
               </Button>
-              <Button onClick={saveRoles} disabled={isSavingRoles} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold">
+              <Button onClick={saveRoles} disabled={isSavingRoles} className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs rounded-xl shadow-md">
                 {isSavingRoles ? "সেভ হচ্ছে..." : "পরিবর্তন সংরক্ষণ করুন"}
               </Button>
             </div>

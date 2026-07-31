@@ -541,3 +541,107 @@
 .ws-scroll::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.35);
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE-001 — Enterprise Mobile Design System Tokens & Utilities
+   Target: Native App Feeling, 44px/48px Touch Targets, High Contrast
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Mobile Spacing Scale: 4, 8, 12, 16, 20, 24, 32, 40, 48 */
+  --m-space-1: 0.25rem;  /* 4px */
+  --m-space-2: 0.5rem;   /* 8px */
+  --m-space-3: 0.75rem;  /* 12px */
+  --m-space-4: 1rem;     /* 16px */
+  --m-space-5: 1.25rem;  /* 20px */
+  --m-space-6: 1.5rem;   /* 24px */
+  --m-space-7: 2rem;     /* 32px */
+  --m-space-8: 2.5rem;   /* 40px */
+  --m-space-9: 3rem;     /* 48px */
+
+  --m-touch-min: 44px;
+  --m-touch-preferred: 48px;
+  --m-header-height: 56px;
+  --m-nav-height: 56px;
+}
+
+/* Touch Target Helpers */
+.touch-target {
+  min-height: var(--m-touch-min);
+  min-width: var(--m-touch-min);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+}
+
+.touch-target-lg {
+  min-height: var(--m-touch-preferred);
+  min-width: var(--m-touch-preferred);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+}
+
+/* Mobile Typography Scale */
+.text-mobile-h1 {
+  font-size: 1.5rem; /* 24px */
+  line-height: 1.25;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+}
+
+.text-mobile-h2 {
+  font-size: 1.25rem; /* 20px */
+  line-height: 1.3;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.text-mobile-h3 {
+  font-size: 1.125rem; /* 18px */
+  line-height: 1.35;
+  font-weight: 800;
+}
+
+.text-mobile-body {
+  font-size: 0.9375rem; /* 15px */
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.text-mobile-caption {
+  font-size: 0.8125rem; /* 13px */
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.text-mobile-label {
+  font-size: 0.75rem; /* 12px */
+  line-height: 1.3;
+  font-weight: 700;
+}
+
+/* Native Card Helper */
+.mobile-card {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 1.25rem;
+  padding: 1rem;
+  box-shadow: var(--shadow-xs);
+}
+
+.mobile-card-interactive {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 1.25rem;
+  padding: 1rem;
+  box-shadow: var(--shadow-xs);
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.mobile-card-interactive:active {
+  transform: scale(0.98);
+}
+

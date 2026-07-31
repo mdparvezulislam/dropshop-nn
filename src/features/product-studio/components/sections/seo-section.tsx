@@ -34,11 +34,11 @@ export function SEOSection({
   ogImage,
   onOgImageChange,
 }: SEOSectionProps): React.ReactElement {
-  const displayTitle = metaTitle || "Product Title | DropshopNN";
+  const displayTitle = metaTitle || "Product Title | NN Enterprise";
   const displaySlug = slug ? slug.toLowerCase().replace(/[^a-z0-9]+/g, "-") : "product-slug";
   const displayDesc =
     metaDescription ||
-    "Buy authentic products with fast delivery across Bangladesh on DropshopNN. Premium quality and best market prices.";
+    "Buy authentic products with fast delivery across Bangladesh on NN Enterprise. Premium quality and best market prices.";
 
   return (
     <StudioSection

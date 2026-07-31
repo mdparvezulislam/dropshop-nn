@@ -2,7 +2,7 @@
  * Enterprise Next.js 16 Cache Tag System
  *
  * Defines strongly typed cache tags and revalidation helper functions
- * for fine-grained cache invalidation across DropshopNN.
+ * for fine-grained cache invalidation across NN Enterprise.
  */
 
 export const CACHE_TAGS = {

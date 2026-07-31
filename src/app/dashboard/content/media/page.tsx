@@ -3,7 +3,7 @@ import { MediaService } from "@/features/cms/services/media-service";
 import { MediaLibraryClient } from "@/features/cms/components/media-library-client";
 
 export const metadata: Metadata = {
-  title: "Media Library - CMS - DropshopNN",
+  title: "Media Library - CMS - NN Enterprise",
   robots: { index: false },
 };
 

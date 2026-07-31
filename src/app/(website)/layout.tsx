@@ -8,6 +8,7 @@ import { CookieBanner } from "@/components/website/cookie-banner";
 import { FloatingActions } from "@/components/website/floating-actions";
 import { StorefrontJsonLd } from "@/components/website/storefront-json-ld";
 import { SkipNavLink } from "@/components/website/skip-nav-link";
+import { MobileBottomNav } from "@/shared/components/mobile/mobile-bottom-nav";
 import { getStorefrontNavigationAction } from "@/features/storefront/actions/storefront-actions";
 
 export default async function WebsiteLayout({
@@ -29,8 +30,9 @@ export default async function WebsiteLayout({
           <WishlistProvider>
             <StorefrontJsonLd />
             <SiteHeader categories={categories} />
-            <main id="main-content" className="flex-1">{children}</main>
+            <main id="main-content" className="flex-1 pb-14 md:pb-0">{children}</main>
             <SiteFooter categories={categories} />
+            <MobileBottomNav />
             <FloatingActions />
             <CookieBanner />
             {/* Storefront toast outlet — without this, cart/share confirmations render nowhere. */}

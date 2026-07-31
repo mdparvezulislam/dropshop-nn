@@ -47,7 +47,7 @@ const ROLE_INFO: Record<string, { label: string; description: string; features: 
   },
   supplier: {
     label: "Supplier",
-    description: "List and sell your products on DropshopNN.",
+    description: "List and sell your products on NN Enterprise.",
     features: [
       "Product management",
       "Inventory control",

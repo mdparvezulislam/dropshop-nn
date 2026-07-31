@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LiveDashboard } from "@/features/analytics/components/live-dashboard";
 
 export const metadata: Metadata = {
-  title: "Live Dashboard - DropshopNN",
+  title: "Live Dashboard - NN Enterprise",
   robots: { index: false },
 };
 

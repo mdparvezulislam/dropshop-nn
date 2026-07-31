@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { DeliveryLogs } from "@/features/notification/components/delivery-logs";
 
 export const metadata: Metadata = {
-  title: "Delivery Logs - DropshopNN",
+  title: "Delivery Logs - NN Enterprise",
   robots: { index: false },
 };
 

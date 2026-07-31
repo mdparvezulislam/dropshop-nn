@@ -3,7 +3,7 @@ import { NavigationService } from "@/features/cms/services/navigation-service";
 import { NavigationManagerClient } from "@/features/cms/components/navigation-manager-client";
 
 export const metadata: Metadata = {
-  title: "Navigation - CMS - DropshopNN",
+  title: "Navigation - CMS - NN Enterprise",
   robots: { index: false },
 };
 

@@ -28,8 +28,8 @@ export class InvoiceService {
       };
 
       const businessSnapshot = order.resellerId
-        ? { name: "Reseller Network Merchant", address: "DropshopNN Reseller Portal" }
-        : { name: "DropshopNN Platform", address: "Dhaka, Bangladesh" };
+        ? { name: "Reseller Network Merchant", address: "NN Enterprise Reseller Portal" }
+        : { name: "NN Enterprise Platform", address: "Dhaka, Bangladesh" };
 
       const itemsMapped = order.pricing.items.map((it) => ({
         description: it.productName,

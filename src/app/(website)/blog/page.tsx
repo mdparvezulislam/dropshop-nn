@@ -11,12 +11,12 @@ import type { PaginatedResult } from "@/types";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Blog - DropshopNN",
+  title: "Blog - NN Enterprise",
   description:
     "Guides, product insights, and growth playbooks for dropshipping and wholesale commerce in Bangladesh.",
   alternates: { canonical: "/blog" },
   openGraph: {
-    title: "Blog - DropshopNN",
+    title: "Blog - NN Enterprise",
     description: "Commerce insights for Bangladesh entrepreneurs.",
     type: "website",
   },

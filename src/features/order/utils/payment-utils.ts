@@ -34,7 +34,7 @@ export function getOrderPaymentDetails(order: any): PaymentDetails {
   const paymentMethodRaw = String(order?.shipping?.paymentMethod || order?.paymentMethod || "cod").toLowerCase();
   const isCod = paymentMethodRaw.includes("cod") || paymentMethodRaw.includes("cash");
 
-  let rawAdvance =
+  const rawAdvance =
     order?.pricing?.advancePaid ??
     order?.advancePaidCents ??
     order?.advancePaid ??

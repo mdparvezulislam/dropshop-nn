@@ -13,12 +13,12 @@ export const DEFAULT_PLATFORM_SETTINGS: Array<
   {
     category: "general",
     key: "general.platform_name",
-    value: "DropshopNN",
+    value: "NN Enterprise",
     dataType: "string",
     name: "Platform Name",
     description: "Primary commerce platform name",
     scope: "global",
-    defaultValue: "DropshopNN",
+    defaultValue: "NN Enterprise",
     isPublic: true,
   },
   {

@@ -45,7 +45,7 @@ export async function ProductQuestions({
                   {question.answer.body}
                 </p>
                 <p className="mt-1 text-[11px] font-bold text-slate-500">
-                  {question.answer.answeredByName ?? "DropshopNN"} •{" "}
+                  {question.answer.answeredByName ?? "NN Enterprise"} •{" "}
                   {formatReviewDate(question.answer.answeredAt)}
                 </p>
               </div>

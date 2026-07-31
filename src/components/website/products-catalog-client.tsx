@@ -8,6 +8,8 @@ import { ShopToolbar, type CatalogViewMode } from "./shop-toolbar";
 import { CatalogFilterSidebar } from "./catalog-filter-sidebar";
 import { QuickViewDrawer } from "./quick-view-drawer";
 import { CompareDrawer } from "./compare-drawer";
+import { MobileBottomSheet } from "@/shared/components/mobile/mobile-bottom-sheet";
+import { PlpCategoryChips } from "./plp-category-chips";
 import type {
   PublicBrandInfo,
   PublicCategoryInfo,
@@ -78,6 +80,9 @@ export function ProductsCatalogClient({
 
   return (
     <div>
+      {/* Mobile Horizontal Category Chips */}
+      <PlpCategoryChips categories={categories} />
+
       <ShopToolbar
         totalCount={totalCount}
         viewMode={viewMode}
@@ -87,54 +92,36 @@ export function ProductsCatalogClient({
         showSearchBox={showSearchBox}
       />
 
-      <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-4">
+      <div className="grid grid-cols-1 items-start gap-6 lg:gap-8 lg:grid-cols-4">
         <div className="hidden lg:col-span-1 lg:block">
           <CatalogFilterSidebar categories={categories} brands={brands} />
         </div>
 
-        {mobileFilterOpen && (
-          <div
-            className="fixed inset-0 z-50 overflow-y-auto bg-black/50 p-4 backdrop-blur-xs lg:hidden"
-            onClick={() => setMobileFilterOpen(false)}
-          >
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-label="ফিল্টার অপশন"
-              onClick={(e) => e.stopPropagation()}
-              className="ml-auto max-w-sm space-y-4 rounded-3xl bg-white p-5"
-            >
-              <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-                <h3 className="text-sm font-extrabold text-slate-900">ফিল্টার অপশন</h3>
-                <button
-                  ref={mobileCloseButtonRef}
-                  type="button"
-                  onClick={() => setMobileFilterOpen(false)}
-                  aria-label="ফিল্টার প্যানেল বন্ধ করুন"
-                  className="flex items-center gap-1 rounded text-xs font-bold text-slate-500 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-amber-600"
-                >
-                  বন্ধ করুন
-                  <X className="h-3.5 w-3.5" aria-hidden />
-                </button>
-              </div>
-              <CatalogFilterSidebar categories={categories} brands={brands} />
-            </div>
+        {/* Mobile Bottom Sheet Filter Drawer */}
+        <MobileBottomSheet
+          isOpen={mobileFilterOpen}
+          onClose={() => setMobileFilterOpen(false)}
+          title="প্রোডাক্ট ফিল্টার"
+          description="আপনার পছন্দ অনুযায়ী ক্যাটালগ ফিল্টার করুন"
+        >
+          <div className="pt-2">
+            <CatalogFilterSidebar categories={categories} brands={brands} />
           </div>
-        )}
+        </MobileBottomSheet>
 
         <div className="lg:col-span-3">
           {products.length === 0 ? (
-            <div className="space-y-4 rounded-3xl border border-slate-200 bg-white p-12 text-center shadow-xs">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
+            <div className="space-y-4 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 sm:p-12 text-center shadow-xs">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
                 <Search className="h-6 w-6" aria-hidden />
               </div>
-              <h3 className="text-lg font-black text-slate-900">কোনো প্রোডাক্ট পাওয়া যায়নি</h3>
-              <p className="mx-auto max-w-md text-xs text-slate-600">
+              <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">কোনো প্রোডাক্ট পাওয়া যায়নি</h3>
+              <p className="mx-auto max-w-md text-xs font-semibold text-slate-500 dark:text-slate-400">
                 আপনার ফিল্টার অথবা অনুসন্ধানের কি-ওয়ার্ড পরিবর্তন করে পুনরায় চেষ্টা করুন।
               </p>
               <Link
                 href={resetHref}
-                className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-extrabold text-slate-950 transition-colors hover:bg-amber-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
+                className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-black text-slate-950 transition-colors hover:bg-amber-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600 active:scale-95 touch-manipulation"
               >
                 <RotateCcw className="h-3.5 w-3.5" aria-hidden />
                 ফিল্টার রিসেট করুন
@@ -145,10 +132,10 @@ export function ProductsCatalogClient({
               <div
                 className={
                   viewMode === "grid"
-                    ? "grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
+                    ? "grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4"
                     : viewMode === "compact"
-                      ? "grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-4"
-                      : "space-y-4"
+                      ? "grid grid-cols-2 gap-2.5 sm:gap-3.5 sm:grid-cols-3 lg:grid-cols-4"
+                      : "space-y-3.5"
                 }
               >
                 {products.map((product, index) => (
@@ -162,7 +149,9 @@ export function ProductsCatalogClient({
                   />
                 ))}
               </div>
-              {pagination}
+              <div className="mt-8">
+                {pagination}
+              </div>
             </>
           )}
         </div>

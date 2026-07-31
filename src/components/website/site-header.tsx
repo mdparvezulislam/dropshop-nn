@@ -50,8 +50,14 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
         setSearchOpen(true);
       }
     };
+    const handleOpenSearch = () => setSearchOpen(true);
+
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    window.addEventListener("open-global-search", handleOpenSearch);
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      window.removeEventListener("open-global-search", handleOpenSearch);
+    };
   }, []);
 
   return (
@@ -60,34 +66,34 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
 
       <header
         className={cn(
-          "sticky top-0 z-50 w-full transition-all duration-200 bg-white",
-          scrolled ? "border-b border-slate-200 shadow-xs" : "border-b border-slate-200/70",
+          "sticky top-0 z-50 w-full transition-all duration-200 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md pt-[env(safe-area-inset-top,0px)]",
+          scrolled ? "border-b border-slate-200 dark:border-slate-800 shadow-xs" : "border-b border-slate-200/70 dark:border-slate-800/70",
         )}
       >
-        <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
-          <div className="flex h-18 lg:h-20 items-center justify-between gap-4">
+        <div className="mx-auto max-w-(--content-max) px-2.5 sm:px-6 lg:px-8">
+          <div className="flex h-12 lg:h-20 items-center justify-between gap-2">
             {/* Mobile menu trigger */}
             <button
               type="button"
-              className="lg:hidden -ml-1 p-2 text-slate-800 hover:text-slate-900 transition-colors touch-manipulation active:scale-95 focus-visible:outline-2 focus-visible:outline-amber-500 rounded-lg"
+              className="lg:hidden -ml-1 h-8 w-8 min-h-[36px] min-w-[36px] flex items-center justify-center text-slate-800 dark:text-slate-100 hover:text-amber-600 transition-colors touch-manipulation active:scale-95 focus-visible:outline-2 focus-visible:outline-amber-500 rounded-lg"
               onClick={() => setMobileOpen(true)}
               aria-label="মেনু খুলুন"
               aria-expanded={mobileOpen}
               aria-haspopup="dialog"
             >
-              <Menu className="h-5 w-5" aria-hidden />
+              <Menu className="h-4.5 w-4.5" aria-hidden />
             </button>
 
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-slate-950 font-black text-xl shadow-md group-hover:scale-105 transition-transform">
+            <Link href="/" className="flex items-center gap-1.5 shrink-0 group">
+              <div className="flex h-7.5 w-7.5 lg:h-10 lg:w-10 items-center justify-center rounded-lg lg:rounded-xl bg-amber-500 text-slate-950 font-black text-sm lg:text-xl shadow-xs group-hover:scale-105 transition-transform">
                 N
               </div>
               <div className="flex flex-col">
-                <span className="text-lg font-black tracking-tight text-slate-900 leading-none">
+                <span className="text-xs sm:text-base font-black tracking-tight text-slate-900 dark:text-slate-100 leading-none">
                   NN <span className="text-amber-500">Enterprise</span>
                 </span>
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-0.5">
+                <span className="text-[8px] sm:text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
                   Commerce OS
                 </span>
               </div>
@@ -119,7 +125,7 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
                       aria-controls={MEGA_MENU_ID}
                       onFocus={() => setMegaOpen(true)}
                       onClick={() => setMegaOpen((open) => !open)}
-                      className="flex items-center gap-1 py-2 text-xs sm:text-sm font-black text-slate-800 hover:text-amber-600 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 rounded"
+                      className="flex items-center gap-1 py-2 text-xs sm:text-sm font-black text-slate-800 dark:text-slate-200 hover:text-amber-600 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 rounded"
                     >
                       {item.label}
                       <ChevronDown
@@ -141,7 +147,7 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
                   <Link
                     key={item.label}
                     href={item.href}
-                    className="py-2 text-xs sm:text-sm font-black text-slate-800 hover:text-amber-600 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 rounded"
+                    className="py-2 text-xs sm:text-sm font-black text-slate-800 dark:text-slate-200 hover:text-amber-600 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 rounded"
                   >
                     {item.label}
                   </Link>
@@ -152,18 +158,29 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
             <div className="flex-1" />
 
             {/* Search + Action Buttons */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 sm:gap-3">
+              {/* Mobile Search Shortcut */}
               <button
                 type="button"
                 onClick={() => setSearchOpen(true)}
-                className="hidden lg:flex items-center gap-2.5 px-3.5 py-2 text-xs font-bold text-slate-600 bg-slate-100/80 border border-slate-300/80 rounded-xl hover:bg-white hover:border-amber-500 hover:text-slate-900 transition-all w-52 xl:w-64 shadow-2xs group focus-visible:outline-2 focus-visible:outline-amber-500"
+                className="lg:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-800 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400 transition-colors rounded-xl touch-manipulation active:scale-95 focus-visible:outline-2 focus-visible:outline-amber-500"
+                aria-label="সার্চ প্রোডাক্ট"
+              >
+                <Search className="h-5 w-5" aria-hidden />
+              </button>
+
+              {/* Desktop Search */}
+              <button
+                type="button"
+                onClick={() => setSearchOpen(true)}
+                className="hidden lg:flex items-center gap-2.5 px-3.5 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100/80 dark:bg-slate-800/80 border border-slate-300/80 dark:border-slate-700/80 rounded-xl hover:bg-white dark:hover:bg-slate-800 hover:border-amber-500 hover:text-slate-900 dark:hover:text-slate-100 transition-all w-52 xl:w-64 shadow-2xs group focus-visible:outline-2 focus-visible:outline-amber-500"
               >
                 <Search
                   className="h-3.5 w-3.5 shrink-0 text-slate-500 group-hover:text-amber-500 transition-colors"
                   aria-hidden
                 />
                 <span className="truncate">প্রোডাক্ট সার্চ করুন...</span>
-                <span className="ml-auto text-[10px] font-mono font-bold text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-300">
+                <span className="ml-auto text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-700">
                   ⌘K
                 </span>
               </button>
@@ -180,13 +197,15 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
 
               <Link
                 href="/become-wholesale-partner"
-                className="hidden md:inline-flex items-center h-9 px-3.5 text-xs font-extrabold text-slate-800 bg-slate-100 border border-slate-300 hover:bg-slate-200 hover:border-slate-400 hover:text-slate-950 rounded-xl transition-all shadow-2xs focus-visible:outline-2 focus-visible:outline-amber-500"
+                className="hidden md:inline-flex items-center h-9 px-3.5 text-xs font-extrabold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 hover:border-slate-400 hover:text-slate-950 dark:hover:text-white rounded-xl transition-all shadow-2xs focus-visible:outline-2 focus-visible:outline-amber-500"
               >
-                <Building2 className="h-3.5 w-3.5 mr-1.5 text-slate-600" aria-hidden />
+                <Building2 className="h-3.5 w-3.5 mr-1.5 text-slate-600 dark:text-slate-400" aria-hidden />
                 হোলসেলার হন
               </Link>
 
-              <WishlistCounter />
+              <div className="hidden lg:block">
+                <WishlistCounter />
+              </div>
 
               <CartButton />
 

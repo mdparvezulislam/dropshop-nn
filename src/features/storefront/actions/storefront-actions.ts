@@ -58,32 +58,47 @@ const cachedFooterData = cache(async () => getFooterDataCache());
 
 export async function getPublicHomepageDataAction(): Promise<PublicHomepageResult> {
   try {
-    const data = await cachedHomepageData();
+    let data = await cachedHomepageData();
+    // Automatic cache bypass if cached payload contains zero products (prevents stale empty cache)
+    if (
+      !data ||
+      (!data.featuredProducts?.length &&
+        !data.flashDeals?.length &&
+        !data.newArrivals?.length)
+    ) {
+      data = await storefrontGateway.getHomepageData();
+    }
     return { success: true, data };
   } catch (error) {
-    logger.error("getPublicHomepageDataAction failed", error);
-    return {
-      success: false,
-      error: "ডেটা লোড করা যায়নি। কিছুক্ষণ পরে আবার চেষ্টা করুন।",
-      data: {
-        categories: [],
-        featuredProducts: [],
-        flashDeals: [],
-        newArrivals: [],
-        trendingProducts: [],
-        brands: [],
-        collections: [],
-        blogPosts: [],
-        siteSettings: {
-          brandName: "NN Enterprise",
-          tagline: "Commerce OS",
+    logger.error("getPublicHomepageDataAction failed, executing live query fallback", error);
+    try {
+      const data = await storefrontGateway.getHomepageData();
+      return { success: true, data };
+    } catch (fallbackErr) {
+      logger.error("getPublicHomepageDataAction live fallback failed", fallbackErr);
+      return {
+        success: false,
+        error: "ডেটা লোড করা যায়নি। কিছুক্ষণ পরে আবার চেষ্টা করুন।",
+        data: {
+          categories: [],
+          featuredProducts: [],
+          flashDeals: [],
+          newArrivals: [],
+          trendingProducts: [],
+          brands: [],
+          collections: [],
+          blogPosts: [],
+          siteSettings: {
+            brandName: "NN Enterprise",
+            tagline: "Commerce OS",
+          },
+          telemetry: {
+            builtAt: new Date().toISOString(),
+            buildDurationMs: 0,
+          },
         },
-        telemetry: {
-          builtAt: new Date().toISOString(),
-          buildDurationMs: 0,
-        },
-      },
-    };
+      };
+    }
   }
 }
 

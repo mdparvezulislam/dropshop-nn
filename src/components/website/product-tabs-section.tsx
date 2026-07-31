@@ -83,7 +83,7 @@ export function ProductTabsSection({
     "সহজ রিটার্ন পলিসি",
   ],
   specifications = [
-    { key: "ব্র্যান্ড", value: "DropshopNN Premium" },
+    { key: "ব্র্যান্ড", value: "NN Enterprise Premium" },
     { key: "মডেল", value: "DS-2026-PRO" },
     { key: "ইনপুট ভোল্টেজ", value: "100-240V AC, 50/60Hz" },
     { key: "আউটপুট পাওয়ার", value: "65W Max Fast Charge" },

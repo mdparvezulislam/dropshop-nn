@@ -3,7 +3,7 @@ import { SmartParserService } from "./smart-parser";
 export function runSmartParserVerification(): boolean {
   const sampleSupplierHtml = `
     <h1>T900 Ultra Smart Watch 2.09" Display - Gold Edition</h1>
-    <p>Get authentic smart watch at best price in Bangladesh from DropshopNN.</p>
+    <p>Get authentic smart watch at best price in Bangladesh from NN Enterprise.</p>
     
     <h2>Key Specifications:</h2>
     <ul>

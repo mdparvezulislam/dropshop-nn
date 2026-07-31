@@ -33,9 +33,18 @@ export interface SearchInputProps {
   onClose: () => void;
 }
 
+const POPULAR_SEARCHES = [
+  "স্মার্টওয়াচ",
+  "ইয়ারফোন",
+  "ফ্যাশন",
+  "গ্যাজেট",
+  "হোম ডেকর",
+  "ব্যাগ",
+] as const;
+
 function readRecentSearches(): string[] {
   try {
-    const raw = sessionStorage.getItem(RECENT_STORAGE_KEY);
+    const raw = localStorage.getItem(RECENT_STORAGE_KEY);
     return raw ? (JSON.parse(raw) as string[]) : [];
   } catch {
     return [];
@@ -46,7 +55,7 @@ function addRecentSearch(query: string): void {
   try {
     const recent = readRecentSearches().filter((s) => s !== query);
     recent.unshift(query);
-    sessionStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(recent.slice(0, MAX_RECENT)));
+    localStorage.setItem(RECENT_STORAGE_KEY, JSON.stringify(recent.slice(0, MAX_RECENT)));
   } catch {
     // Storage unavailable (private mode etc.) — recents are best-effort only.
   }
@@ -217,14 +226,14 @@ export function SearchInput({ open, onClose }: SearchInputProps): ReactElement |
         onClick={onClose}
         aria-hidden
       />
-      <div className="fixed left-1/2 top-[15%] z-[61] w-full max-w-lg -translate-x-1/2">
+      <div className="fixed left-1/2 top-4 sm:top-[12%] z-[61] w-full max-w-lg px-3 -translate-x-1/2">
         <div
           role="dialog"
           aria-modal="true"
           aria-label="প্রোডাক্ট সার্চ"
-          className="mx-4 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl"
+          className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl"
         >
-          <div className="flex items-center gap-3 border-b border-slate-200 px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-amber-500">
+          <div className="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 px-4 focus-within:ring-2 focus-within:ring-inset focus-within:ring-amber-500">
             {loading ? (
               <Loader2 className="h-4 w-4 shrink-0 animate-spin text-amber-500" aria-hidden />
             ) : (
@@ -238,7 +247,7 @@ export function SearchInput({ open, onClose }: SearchInputProps): ReactElement |
               onKeyDown={handleKeyDown}
               placeholder="প্রোডাক্ট, ব্র্যান্ড বা ক্যাটাগরি খুঁজুন..."
               aria-label="প্রোডাক্ট, ব্র্যান্ড বা ক্যাটাগরি খুঁজুন"
-              className="flex-1 bg-transparent py-3.5 text-sm text-slate-900 outline-none placeholder:text-slate-400"
+              className="flex-1 bg-transparent py-3.5 text-sm text-slate-900 dark:text-slate-100 outline-none placeholder:text-slate-400"
               role="combobox"
               aria-expanded={visibleItems.length > 0}
               aria-controls={listboxId}
@@ -251,12 +260,12 @@ export function SearchInput({ open, onClose }: SearchInputProps): ReactElement |
                 type="button"
                 onClick={() => setQuery("")}
                 aria-label="সার্চ টেক্সট মুছুন"
-                className="rounded p-1 text-slate-400 transition-colors hover:text-slate-700 focus-visible:outline-2 focus-visible:outline-amber-600"
+                className="rounded p-1 text-slate-400 transition-colors hover:text-slate-700 dark:hover:text-slate-200 focus-visible:outline-2 focus-visible:outline-amber-600"
               >
                 <X className="h-4 w-4" aria-hidden />
               </button>
             )}
-            <kbd className="hidden rounded border border-slate-200 bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 sm:inline-flex">
+            <kbd className="hidden rounded border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 text-[10px] font-medium text-slate-500 dark:text-slate-400 sm:inline-flex">
               ESC
             </kbd>
           </div>
@@ -266,48 +275,65 @@ export function SearchInput({ open, onClose }: SearchInputProps): ReactElement |
             id={listboxId}
             role="listbox"
             aria-label="সার্চ সাজেশন"
-            className="max-h-80 overflow-y-auto p-2"
+            className="max-h-[75vh] sm:max-h-80 overflow-y-auto p-2"
           >
-            {showRecent && recentSearches.length > 0 && (
-              <div className="space-y-1 p-2">
-                <div className="mb-2 flex items-center gap-2">
-                  <Clock className="h-3.5 w-3.5 text-slate-400" aria-hidden />
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                    সাম্প্রতিক সার্চ
-                  </span>
-                </div>
-                {recentSearches.map((s, i) => (
-                  <button
-                    key={s}
-                    type="button"
-                    role="option"
-                    id={optionId(i)}
-                    aria-selected={selectedIndex === i}
-                    data-index={i}
-                    onClick={() => handleSubmit(s)}
-                    className={cn(
-                      "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm transition-colors focus-visible:outline-2 focus-visible:outline-amber-600",
-                      selectedIndex === i
-                        ? "bg-amber-50 text-amber-900"
-                        : "text-slate-700 hover:bg-slate-100",
-                    )}
-                  >
-                    <Clock className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden />
-                    <span className="truncate">{s}</span>
-                    <ArrowRight
-                      className="ml-auto h-3.5 w-3.5 shrink-0 text-slate-300"
-                      aria-hidden
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
+            {showRecent && (
+              <div className="space-y-3 p-2">
+                {recentSearches.length > 0 && (
+                  <div className="space-y-1">
+                    <div className="mb-2 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-3.5 w-3.5 text-amber-500" aria-hidden />
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                          সাম্প্রতিক সার্চ
+                        </span>
+                      </div>
+                    </div>
+                    {recentSearches.map((s, i) => (
+                      <button
+                        key={s}
+                        type="button"
+                        role="option"
+                        id={optionId(i)}
+                        aria-selected={selectedIndex === i}
+                        data-index={i}
+                        onClick={() => handleSubmit(s)}
+                        className={cn(
+                          "flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm transition-colors focus-visible:outline-2 focus-visible:outline-amber-600 active:scale-[0.99]",
+                          selectedIndex === i
+                            ? "bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300"
+                            : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800",
+                        )}
+                      >
+                        <Clock className="h-3.5 w-3.5 shrink-0 text-slate-400" aria-hidden />
+                        <span className="truncate">{s}</span>
+                        <ArrowRight
+                          className="ml-auto h-3.5 w-3.5 shrink-0 text-slate-300"
+                          aria-hidden
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
 
-            {showRecent && recentSearches.length === 0 && (
-              <div className="px-3 py-8 text-center">
-                <p className="text-sm text-slate-500">
-                  টাইপ করে প্রোডাক্ট, ব্র্যান্ড বা ক্যাটাগরি খুঁজুন
-                </p>
+                {/* Popular Searches Tags */}
+                <div className="pt-1">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-2">
+                    জনপ্রিয় সার্চসমূহ
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {POPULAR_SEARCHES.map((popular) => (
+                      <button
+                        key={popular}
+                        type="button"
+                        onClick={() => handleSubmit(popular)}
+                        className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-xs font-bold text-slate-700 dark:text-slate-300 hover:border-amber-500 hover:text-amber-600 dark:hover:text-amber-400 transition-all active:scale-95 touch-manipulation"
+                      >
+                        {popular}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
 
