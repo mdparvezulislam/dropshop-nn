@@ -252,30 +252,17 @@ export function QuickOrderCustomerForm({
             />
           </div>
 
-          {/* Email & Note */}
-          <div className="space-y-1">
+          {/* Order Note Optional */}
+          <div className="sm:col-span-2 space-y-1">
             <label className="text-[11px] font-black text-slate-800">
-              ইমেইল (ঐচ্ছিক)
-            </label>
-            <input
-              type="email"
-              value={value.email || ""}
-              onChange={(e) => onChange({ ...value, email: e.target.value })}
-              placeholder="customer@gmail.com"
-              className="w-full h-10 px-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-900 outline-none focus:border-amber-500"
-            />
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-[11px] font-black text-slate-800">
-              অর্ডার নোট (ঐচ্ছিক)
+              অর্ডার নোট <span className="text-slate-400 font-normal">(ঐচ্ছিক)</span>
             </label>
             <input
               type="text"
               value={value.note || ""}
               onChange={(e) => onChange({ ...value, note: e.target.value })}
-              placeholder="যেমন: কল দিয়ে ডেলিভারি দিন"
-              className="w-full h-10 px-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-900 outline-none focus:border-amber-500"
+              placeholder="যেমন: ডেলিভারির আগে কল দিয়ে নিশ্চিত করুন"
+              className="w-full h-10 px-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-900 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
             />
           </div>
         </div>

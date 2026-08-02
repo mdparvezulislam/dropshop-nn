@@ -41,7 +41,7 @@ export function PickupRequestModal({
   order,
   onSuccess,
 }: PickupRequestModalProps): React.ReactElement | null {
-  const [courierProvider, setCourierProvider] = useState<string>("Pathao Express");
+  const [courierProvider, setCourierProvider] = useState<string>("Steadfast Courier");
   const [pickupAddress, setPickupAddress] = useState<string>("Dhaka Central Hub - Tejgaon, Dhaka");
   const [contactName, setContactName] = useState<string>("Operations Desk");
   const [contactPhone, setContactPhone] = useState<string>("+8801700000000");

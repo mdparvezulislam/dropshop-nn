@@ -13,11 +13,11 @@ import {
 import { cn } from "@/lib/utils/cn";
 
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "ড্যাশবোর্ড", icon: LayoutDashboard },
-  { href: "/dashboard/orders", label: "অর্ডারসমূহ", icon: Package },
-  { href: "/dashboard/products", label: "প্রোডাক্টস", icon: ShoppingBag },
-  { href: "/dashboard/users", label: "ইউজারস", icon: Users },
-  { href: "/dashboard/more", label: "আরও", icon: MoreHorizontal },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/orders", label: "Orders", icon: Package },
+  { href: "/dashboard/products", label: "Products", icon: ShoppingBag },
+  { href: "/dashboard/users", label: "Users", icon: Users },
+  { href: "/dashboard/more", label: "More", icon: MoreHorizontal },
 ];
 
 export function AdminMobileBottomNav(): ReactElement {
@@ -25,7 +25,7 @@ export function AdminMobileBottomNav(): ReactElement {
 
   return (
     <div className="fixed bottom-0 inset-x-0 z-40 block lg:hidden bg-slate-900/95 text-slate-100 backdrop-blur-md border-t border-slate-800 px-2 py-1 shadow-[0_-6px_25px_rgba(0,0,0,0.2)] pb-[max(0.25rem,env(safe-area-inset-bottom))]">
-      <nav aria-label="অ্যাডমিন নেভিগেশন" className="flex items-center justify-around h-12 max-w-md mx-auto px-1">
+      <nav aria-label="Admin Navigation" className="flex items-center justify-around h-12 max-w-md mx-auto px-1">
         {NAV_ITEMS.map((item) => {
           const isActive =
             item.href === "/dashboard"

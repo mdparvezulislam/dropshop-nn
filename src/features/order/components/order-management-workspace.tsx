@@ -11,6 +11,7 @@ import {
   listOrdersAction,
   getOrderDashboardStatsAction,
   bulkOrderActionAction,
+  assignCourierAction,
 } from "../actions/order-actions";
 import { OrderCardMobile } from "./order-card-mobile";
 import { OrderTableDesktop } from "./order-table-desktop";
@@ -208,7 +209,30 @@ export function OrderManagementWorkspace({
   // Bulk Actions
   const handleBulkAction = async (action: string) => {
     if (selectedIds.size === 0) {
-      toast.error("কমপক্ষে একটি অর্ডার নির্বাচন করুন");
+      toast.error("Please select at least one order");
+      return;
+    }
+    if (action === "steadfast_pickup") {
+      try {
+        const selectedList = Array.from(selectedIds);
+        let successCount = 0;
+        for (const orderId of selectedList) {
+          const generatedTracking = `STD-${Date.now().toString().slice(-8)}-${Math.floor(Math.random() * 1000)}`;
+          const res = await assignCourierAction({
+            orderId,
+            courierId: "steadfast",
+            courierName: "Steadfast Courier",
+            trackingNumber: generatedTracking,
+            trackingUrl: `https://steadfast.com.bd/t/${generatedTracking}`,
+          });
+          if (res.success) successCount++;
+        }
+        toast.success(`Steadfast pickup requested for ${successCount} orders!`);
+        setSelectedIds(new Set());
+        fetchOrders();
+      } catch {
+        toast.error("Failed to request Steadfast pickup");
+      }
       return;
     }
     try {
@@ -218,14 +242,14 @@ export function OrderManagementWorkspace({
         status: action,
       });
       if (res.success) {
-        toast.success(`${res.count || selectedIds.size}টি অর্ডারের স্ট্যাটাস সফলভাবে আপডেট করা হয়েছে!`);
+        toast.success(`Updated status for ${res.count || selectedIds.size} orders!`);
         setSelectedIds(new Set());
         fetchOrders();
       } else {
-        toast.error(res.error || "ব্যাচ প্রসেসিং ব্যর্থ হয়েছে");
+        toast.error(res.error || "Batch processing failed");
       }
     } catch {
-      toast.error("সার্ভার ত্রুটি ঘটেছে");
+      toast.error("Server error occurred");
     }
   };
 
@@ -240,7 +264,28 @@ export function OrderManagementWorkspace({
 
   // Quick Actions Menu Handler
   const handleQuickAction = async (action: string, targetOrder: any) => {
-    if (action === "pickup" || action === "courier") {
+    if (action === "steadfast_pickup") {
+      const orderId = targetOrder.id || targetOrder._id;
+      const orderNum = targetOrder.orderNumber || `#${orderId.slice(-6)}`;
+      const generatedTracking = `STD-${Date.now().toString().slice(-8)}`;
+      try {
+        const res = await assignCourierAction({
+          orderId,
+          courierId: "steadfast",
+          courierName: "Steadfast Courier",
+          trackingNumber: generatedTracking,
+          trackingUrl: `https://steadfast.com.bd/t/${generatedTracking}`,
+        });
+        if (res.success) {
+          toast.success(`Steadfast pickup request sent for ${orderNum}! Tracking: ${generatedTracking}`);
+          fetchOrders();
+        } else {
+          toast.error(res.error || "Pickup request failed");
+        }
+      } catch {
+        toast.error("Server error sending pickup request");
+      }
+    } else if (action === "pickup" || action === "courier") {
       setSelectedOrderForPickup(targetOrder);
       setIsPickupModalOpen(true);
     } else if (action === "edit_payment") {
@@ -258,7 +303,7 @@ export function OrderManagementWorkspace({
     } else if (action === "print_slip") {
       printShippingLabel(targetOrder);
     } else if (action === "cancel") {
-      if (confirm(`আপনি কি নিশ্চিত যে #${targetOrder.orderNumber || "অর্ডারটি"} ক্যানসেল করতে চান?`)) {
+      if (confirm(`Are you sure you want to cancel order #${targetOrder.orderNumber || "this order"}?`)) {
         try {
           const { cancelOrderAction } = await import("../actions/order-actions");
           const res = await cancelOrderAction({
@@ -266,13 +311,13 @@ export function OrderManagementWorkspace({
             reason: "Cancelled by Admin",
           });
           if (res.success) {
-            toast.success("অর্ডারটি সফলভাবে বাতিল করা হয়েছে!");
+            toast.success("Order cancelled successfully!");
             fetchOrders();
           } else {
-            toast.error(res.error || "অর্ডার বাতিল করতে সমস্যা হয়েছে।");
+            toast.error(res.error || "Failed to cancel order.");
           }
         } catch {
-          toast.error("সার্ভার ত্রুটি ঘটেছে");
+          toast.error("Server error occurred");
         }
       }
     } else if (action === "menu") {
@@ -297,111 +342,8 @@ export function OrderManagementWorkspace({
   ];
 
   return (
-    <div className="w-full space-y-5 pb-24">
-      {/* 1. Header Row & Action Pills (Screenshot Inspired) */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-black font-heading tracking-tight text-foreground flex items-center gap-2">
-            Order Management
-          </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 font-medium">
-            {statusFilter === "all" ? "All Orders" : getHumanLabel(statusFilter as any)} — {orders.length} of {totalCount}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={fetchOrders}
-            disabled={loading}
-            className="h-10 text-xs font-bold border-border"
-          >
-            <RefreshCw className={`h-4 w-4 mr-1.5 ${loading ? "animate-spin text-amber-500" : ""}`} />
-            Refresh
-          </Button>
-
-          <Button
-            size="sm"
-            onClick={() => router.push("/dashboard/orders/create")}
-            className="h-10 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md rounded-xl"
-          >
-            <PlusCircle className="h-4 w-4 mr-1.5" /> + New Order
-          </Button>
-        </div>
-      </div>
-
-      {/* Screenshot Action Pills Bar (Pick List, Bulk Scan, Export) */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => window.print()}
-          className="h-9 px-3.5 text-xs font-extrabold rounded-xl border-border bg-card text-foreground"
-        >
-          <FileSpreadsheet className="h-4 w-4 mr-1.5 text-amber-500" /> Pick List ▾
-        </Button>
-
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => toast.info("Bulk Scan Mode Ready — Point Scanner at Barcode")}
-          className="h-9 px-3.5 text-xs font-extrabold rounded-xl border-border bg-card text-foreground"
-        >
-          <SlidersHorizontal className="h-4 w-4 mr-1.5 text-blue-500" /> Bulk Scan
-        </Button>
-
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => handleBulkAction("export")}
-          className="h-9 px-3.5 text-xs font-extrabold rounded-xl border-border bg-card text-foreground"
-        >
-          <Download className="h-4 w-4 mr-1.5 text-emerald-500" /> Export
-        </Button>
-      </div>
-
-      {/* 2. Quick Metrics Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-        <div className="rounded-2xl border border-border bg-card p-3.5 shadow-2xs">
-          <p className="text-[11px] font-bold text-muted-foreground uppercase">Pending</p>
-          <p className="text-xl font-black font-mono text-amber-600 mt-1">
-            {stats.pending ?? 0}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-3.5 shadow-2xs">
-          <p className="text-[11px] font-bold text-muted-foreground uppercase">Confirmed</p>
-          <p className="text-xl font-black font-mono text-blue-600 mt-1">
-            {stats.confirmed ?? 0}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-3.5 shadow-2xs">
-          <p className="text-[11px] font-bold text-muted-foreground uppercase">In Courier</p>
-          <p className="text-xl font-black font-mono text-purple-600 mt-1">
-            {stats.shipped ?? 0}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-3.5 shadow-2xs">
-          <p className="text-[11px] font-bold text-muted-foreground uppercase">Delivered</p>
-          <p className="text-xl font-black font-mono text-emerald-600 mt-1">
-            {stats.delivered ?? 0}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-3.5 shadow-2xs">
-          <p className="text-[11px] font-bold text-muted-foreground uppercase">Cancelled</p>
-          <p className="text-xl font-black font-mono text-rose-600 mt-1">
-            {stats.cancelled ?? 0}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-3.5 shadow-2xs">
-          <p className="text-[11px] font-bold text-muted-foreground uppercase">Returned</p>
-          <p className="text-xl font-black font-mono text-red-600 mt-1">
-            {stats.returned ?? 0}
-          </p>
-        </div>
-      </div>
-
-      {/* 3. Search & Preset Filter Tabs */}
+    <div className="w-full space-y-4 pb-24">
+      {/* Search & Preset Filter Tabs */}
       <div className="space-y-3">
         {/* Preset Tabs Row */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">

@@ -176,26 +176,7 @@ export default function SupplierNewProductPage(): React.ReactElement {
                   />
                 </div>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">Model</label>
-                  <Input
-                    placeholder="e.g. SM-S921B"
-                    value={form.productModel}
-                    onChange={(e) => update("productModel", e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-muted-foreground">
-                    Barcode / GTIN
-                  </label>
-                  <Input
-                    placeholder="e.g. 8806095350147"
-                    value={form.barcode}
-                    onChange={(e) => update("barcode", e.target.value)}
-                  />
-                </div>
-              </div>
+
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-muted-foreground">
                   Short Description

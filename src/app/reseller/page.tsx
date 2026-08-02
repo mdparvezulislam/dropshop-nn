@@ -209,36 +209,29 @@ export default function ResellerDashboardPage(): React.ReactElement {
 
   return (
     <ResellerStatusGuard status={data.resellerStatus}>
-      <div className="space-y-6 animate-fade-in">
-        {/* Onboarding Welcome Card */}
-        <ResellerOnboardingCard
-          businessName={data.shopName}
-          isProfileComplete={Boolean(data.shopName && data.shopName !== "My Reseller Shop")}
-          hasOrders={recentOrders.length > 0}
-        />
-
+      <div className="space-y-5 animate-fade-in">
         {/* Sales Hero Banner */}
-        <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-card p-6 sm:p-8 shadow-xs">
+        <div className="relative overflow-hidden rounded-2xl border border-amber-500/20 bg-linear-to-r from-slate-900 via-slate-900 to-amber-950 p-5 sm:p-6 shadow-md text-white">
           <div
-            className="pointer-events-none absolute inset-0 opacity-40"
+            className="pointer-events-none absolute inset-0 opacity-30"
             style={{
               background:
-                "radial-gradient(ellipse 70% 70% at 100% 0%, hsl(var(--primary) / 0.18), transparent 60%)",
+                "radial-gradient(ellipse 70% 70% at 100% 0%, hsl(38 92% 50% / 0.3), transparent 60%)",
             }}
           />
           <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-black uppercase tracking-wider border border-primary/20">
-                  <Store className="h-3.5 w-3.5" /> Sales Workspace
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-black uppercase tracking-wider border border-amber-500/30">
+                  <Store className="h-3 w-3" /> Reseller Workspace
                 </span>
-                <span className="text-xs font-bold text-muted-foreground">{data.shopName}</span>
+                <span className="text-xs font-bold text-slate-300">{data.shopName}</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-white">
                 {greeting()}, Partner 👋
               </h1>
-              <p className="max-w-xl text-xs sm:text-sm text-muted-foreground leading-relaxed font-semibold">
-                Manage your customer orders, track sales profit, and withdraw earnings.
+              <p className="text-xs text-slate-300 font-medium">
+                আজকের সেলস পারফরম্যান্স, লাভ ও অর্ডার ট্র্যাকিং ওয়ার্কস্পেস।
               </p>
               {profileError && (
                 <p className="mt-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-bold text-amber-200">
@@ -246,19 +239,19 @@ export default function ResellerDashboardPage(): React.ReactElement {
                 </p>
               )}
             </div>
-            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+            <div className="flex items-center gap-2.5 shrink-0">
               <Link href="/reseller/orders/create">
-                <Button size="lg" className="gap-2 font-black shadow-md">
+                <Button size="lg" className="gap-2 font-black shadow-md bg-amber-500 hover:bg-amber-600 text-slate-950 border-0">
                   <Plus className="h-4 w-4 stroke-[3]" />
-                  Create Quick Order
+                  কুইক অর্ডার তৈরি করুন
                 </Button>
               </Link>
             </div>
           </div>
         </div>
 
-        {/* Primary Reseller KPI Stats Grid (8 Cards) */}
-        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4 lg:grid-cols-4">
+        {/* Primary Reseller KPI Stats Grid (6 Focused Cards) */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           <StatCard
             label="Today's Orders"
             value={data.ordersToday}
@@ -281,10 +274,10 @@ export default function ResellerDashboardPage(): React.ReactElement {
             loading={loading}
           />
           <StatCard
-            label="Active Customers"
-            value={data.customersTotal}
-            icon={Users}
-            accent="info"
+            label="Today's Profit"
+            value={formatCents(data.profitToday)}
+            icon={TrendingUp}
+            accent="success"
             loading={loading}
           />
           <StatCard
@@ -299,20 +292,6 @@ export default function ResellerDashboardPage(): React.ReactElement {
             value={formatCents(data.withdrawableBalance)}
             icon={DollarSign}
             accent="success"
-            loading={loading}
-          />
-          <StatCard
-            label="Today's Profit"
-            value={formatCents(data.profitToday)}
-            icon={TrendingUp}
-            accent="success"
-            loading={loading}
-          />
-          <StatCard
-            label="Monthly Profit"
-            value={formatCents(data.profitMonthly)}
-            icon={TrendingUp}
-            accent="info"
             loading={loading}
           />
         </div>

@@ -23,6 +23,7 @@ import {
   MessageSquare,
   Calculator,
   CheckSquare,
+  Building,
   type LucideIcon,
 } from "lucide-react";
 
@@ -118,15 +119,7 @@ export const WORKSPACE_NAV: NavSection[] = [
           { label: "All Orders", href: "/dashboard/orders" },
           { label: "Create Order", href: "/dashboard/orders/create" },
           { label: "Order Board (Kanban)", href: "/dashboard/orders/board" },
-          { label: "Confirmation Calls", href: "/dashboard/orders/calls" },
           { label: "Returns & Refunds", href: "/dashboard/orders/returns" },
-          { label: "Exchanges", href: "/dashboard/orders/exchange" },
-          { label: "Failed Deliveries", href: "/dashboard/orders/failed-deliveries" },
-          { label: "Customer Follow-ups", href: "/dashboard/orders/follow-ups" },
-          { label: "Complaints & Tickets", href: "/dashboard/orders/complaints" },
-          { label: "COD Reconciliation", href: "/dashboard/orders/cod" },
-          { label: "Warranty Claims", href: "/dashboard/orders/warranty" },
-          { label: "Print Labels & Invoices", href: "/dashboard/orders/print" },
         ],
       },
     ],
@@ -181,12 +174,11 @@ export const WORKSPACE_NAV: NavSection[] = [
       { label: "Shipments & Logistics", icon: Truck, href: "/dashboard/shipments" },
       {
         label: "Courier Management",
-        icon: Layers,
-        href: "/dashboard/courier",
+        icon: Truck,
+        href: "/dashboard/courier/settings",
         children: [
-          { label: "Courier Overview", href: "/dashboard/courier" },
-          { label: "Dispatch Rules", href: "/dashboard/courier/automation" },
-          { label: "Courier Settings", href: "/dashboard/courier/settings" },
+          { label: "Courier Setup & Rules", href: "/dashboard/courier/settings" },
+          { label: "Shipments & Tracking", href: "/dashboard/shipments" },
         ],
       },
       { label: "Suppliers", icon: Factory, href: "/dashboard/suppliers" },
@@ -196,17 +188,8 @@ export const WORKSPACE_NAV: NavSection[] = [
     id: "partners",
     label: "Partners & Customers",
     items: [
-      {
-        label: "Resellers",
-        icon: Store,
-        href: "/dashboard/resellers",
-        children: [
-          { label: "Reseller Directory", href: "/dashboard/resellers" },
-          { label: "Register Reseller", href: "/dashboard/resellers/new" },
-        ],
-      },
-      { label: "Partner Approvals", icon: CheckSquare, href: "/dashboard/approvals" },
-      { label: "Membership Applications", icon: FileText, href: "/dashboard/identity/applications" },
+      { label: "Reseller Partners", icon: Store, href: "/dashboard/resellers" },
+      { label: "Wholesale Partners", icon: Building, href: "/dashboard/wholesalers" },
       { label: "Customers", icon: Users, href: "/dashboard/customers" },
     ],
   },
@@ -214,10 +197,8 @@ export const WORKSPACE_NAV: NavSection[] = [
     id: "finance",
     label: "Finance & Accounting",
     items: [
-      { label: "Financial Overview", icon: DollarSign, href: "/dashboard/finance" },
-      { label: "Vouchers & Ledger", icon: Receipt, href: "/dashboard/finance/vouchers" },
-      { label: "Reseller Wallet", icon: Wallet, href: "/dashboard/wallet" },
-      { label: "Operating Costs", icon: Calculator, href: "/dashboard/costs" },
+      { label: "Financial Center & P&L", icon: DollarSign, href: "/dashboard/finance" },
+      { label: "Reseller Wallet & Payouts", icon: Wallet, href: "/dashboard/wallet" },
     ],
   },
   {
@@ -278,12 +259,10 @@ export const WORKSPACE_NAV: NavSection[] = [
       {
         label: "Identity & Access",
         icon: Users,
-        href: "/dashboard/identity/users",
+        href: "/dashboard/users",
         children: [
-          { label: "User Directory", href: "/dashboard/identity/users" },
-          { label: "Roles & Permissions", href: "/dashboard/identity/roles" },
-          { label: "Staff Directory", href: "/dashboard/identity/staff" },
-          { label: "Active Sessions", href: "/dashboard/identity/sessions" },
+          { label: "User & Staff Directory", href: "/dashboard/users" },
+          { label: "Roles & Security", href: "/dashboard/security" },
         ],
       },
       {

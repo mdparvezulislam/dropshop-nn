@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BRAND } from "@/config/brand";
 import type { PublicCategoryInfo } from "@/features/catalog/domain/public-catalog-types";
+import { Truck, Store, ShieldCheck, Zap, Phone, Mail, MapPin } from "lucide-react";
 
 function FacebookIcon(props: React.SVGProps<SVGSVGElement>): React.ReactElement {
   return (
@@ -50,6 +51,15 @@ const STATIC_COLUMNS: Array<{ title: string; links: FooterLink[] }> = [
     ],
   },
   {
+    title: "পার্টনারশিপ",
+    links: [
+      { label: "রিসেলার পোর্টালে যুক্ত হন", href: "/become-reseller" },
+      { label: "হোলসেলার বিটুবি পোর্টাল", href: "/become-wholesale-partner" },
+      { label: "রিসেলার ওয়ালেট ও উইথড্র", href: "/account" },
+      { label: "অর্ডার ট্র্যাকিং", href: "/track-order" },
+    ],
+  },
+  {
     title: "সহায়তা",
     links: [
       { label: "সাপোর্ট সেন্টার", href: "/support" },
@@ -69,7 +79,6 @@ const STATIC_COLUMNS: Array<{ title: string; links: FooterLink[] }> = [
   },
 ];
 
-// Placeholder profiles pending real accounts — noted in WEBSITE-002.
 const SOCIAL_LINKS = [
   { icon: FacebookIcon, label: "Facebook", href: "https://facebook.com/dropshopnn" },
   { icon: YoutubeIcon, label: "YouTube", href: "https://youtube.com/dropshopnn" },
@@ -78,12 +87,10 @@ const SOCIAL_LINKS = [
 ];
 
 export interface SiteFooterProps {
-  /** Real taxonomy from the server layout; empty when the fetch failed. */
   categories?: PublicCategoryInfo[];
 }
 
 export function SiteFooter({ categories = [] }: SiteFooterProps): React.ReactElement {
-  // Real top-level categories only — the column is omitted when none exist.
   const categoryLinks: FooterLink[] = categories
     .filter((c) => c.parentCategoryId === null)
     .slice(0, 4)
@@ -91,19 +98,62 @@ export function SiteFooter({ categories = [] }: SiteFooterProps): React.ReactEle
 
   const columns: Array<{ title: string; links: FooterLink[] }> = [
     STATIC_COLUMNS[0],
-    ...(categoryLinks.length > 0 ? [{ title: "ক্যাটাগরি", links: categoryLinks }] : []),
     STATIC_COLUMNS[1],
+    ...(categoryLinks.length > 0 ? [{ title: "ক্যাটাগরি", links: categoryLinks }] : []),
     STATIC_COLUMNS[2],
+    STATIC_COLUMNS[3],
   ];
 
   return (
-    <footer className="bg-[#111827] text-white pt-8 sm:pt-12 pb-6 sm:pb-8 border-t border-white/10 relative overflow-hidden">
-      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
-        {/* Link columns sit two-across on mobile. Stacked, four short lists ran
-            to nearly a full screen of scrolling for four links each. */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-7 sm:gap-8 pb-8 sm:pb-12 border-b border-white/10">
-          {/* Logo & Tagline Column — full width on mobile, above the columns */}
-          <div className="col-span-2 md:col-span-3 lg:col-span-2 space-y-3.5 sm:space-y-4">
+    <footer className="bg-[#0b1120] text-slate-200 pt-10 sm:pt-16 pb-8 border-t border-slate-800 relative overflow-hidden">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-10">
+        {/* Value Proposition Badges Strip */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-5 rounded-3xl bg-slate-900/80 border border-slate-800 backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0">
+              <Truck className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs font-black text-white">⚡ Steadfast 1-Click Pickup</p>
+              <p className="text-[11px] text-slate-400">সমগ্র বাংলাদেশে দ্রুততম হোম ডেলিভারি</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+              <ShieldCheck className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs font-black text-white">১০০% নিরাপদ ক্যাশ অন ডেলিভারি</p>
+              <p className="text-[11px] text-slate-400">পণ্য হাতে পেয়ে মূল্য পরিশোধ করুন</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-2xl bg-purple-500/10 text-purple-400 border border-purple-500/30 flex items-center justify-center shrink-0">
+              <Store className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs font-black text-white">রিসেলার ও বিটুবি হোলসেল</p>
+              <p className="text-[11px] text-slate-400">জিরো ইনভেস্টমেন্টে ড্রপশিপিং সুবিধা</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 flex items-center justify-center shrink-0">
+              <Zap className="h-5 w-5" />
+            </div>
+            <div>
+              <p className="text-xs font-black text-white">ইনস্ট্যান্ট বিকাশ payout</p>
+              <p className="text-[11px] text-slate-400">প্রফিট উইথড্রল বিকাশ ও নগদে</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Link columns */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-8 pb-10 border-b border-slate-800">
+          {/* Logo & Tagline Column */}
+          <div className="col-span-2 md:col-span-3 lg:col-span-2 space-y-4">
             <Link href="/" className="flex items-center gap-2.5 group w-fit">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-slate-950 font-black text-xl shadow-md">
                 N
@@ -119,11 +169,11 @@ export function SiteFooter({ categories = [] }: SiteFooterProps): React.ReactEle
             </Link>
 
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              বাংলাদেশের ড্রপশিপিং এবং হোলসেল প্ল্যাটফর্ম। আপনার ব্যবসায় সাফল্য আমাদের লক্ষ্য।
+              বাংলাদেশের সেরা ড্রপশিপিং এবং বিটুবি হোলসেল প্ল্যাটফর্ম। আপনার ডিজিটাল ই-কমার্স ব্যবসায় সাফল্য আমাদের একমাত্র লক্ষ্য।
             </p>
 
-            {/* Social Icons */}
-            <div className="flex items-center gap-2.5 pt-2">
+            {/* Direct Social Links */}
+            <div className="flex items-center gap-2.5 pt-1">
               {SOCIAL_LINKS.map((s) => (
                 <a
                   key={s.label}
@@ -131,7 +181,7 @@ export function SiteFooter({ categories = [] }: SiteFooterProps): React.ReactEle
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={s.label}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 text-slate-300 hover:text-amber-400 hover:bg-white/20 transition-all border border-white/10 focus-visible:outline-2 focus-visible:outline-amber-400"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-800/80 text-slate-300 hover:text-amber-400 hover:bg-slate-800 transition-all border border-slate-700/80"
                 >
                   <s.icon className="h-4 w-4" aria-hidden />
                 </a>
@@ -141,16 +191,16 @@ export function SiteFooter({ categories = [] }: SiteFooterProps): React.ReactEle
 
           {/* Links Columns */}
           {columns.map((column) => (
-            <nav key={column.title} className="space-y-2.5 sm:space-y-3" aria-label={column.title}>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-amber-400">
+            <nav key={column.title} className="space-y-3" aria-label={column.title}>
+              <h3 className="text-xs font-black uppercase tracking-wider text-amber-400">
                 {column.title}
               </h3>
-              <ul className="space-y-1.5 sm:space-y-2">
+              <ul className="space-y-2">
                 {column.links.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-xs text-slate-300 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-amber-400 rounded"
+                      className="text-xs text-slate-300 hover:text-white transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -162,47 +212,41 @@ export function SiteFooter({ categories = [] }: SiteFooterProps): React.ReactEle
         </div>
 
         {/* Payment & Courier Badges Bar */}
-        <div className="py-6 border-b border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="font-bold text-slate-300">পেমেন্ট মেথড:</span>
-            <span className="px-2.5 py-1 rounded bg-white/10 text-amber-400 font-bold border border-white/10">
+        <div className="py-4 border-b border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="font-extrabold text-slate-300">পেমেন্ট মেথড:</span>
+            <span className="px-3 py-1 rounded-lg bg-slate-900 text-amber-400 font-black border border-slate-800 text-[11px]">
               bKash
             </span>
-            <span className="px-2.5 py-1 rounded bg-white/10 text-amber-400 font-bold border border-white/10">
+            <span className="px-3 py-1 rounded-lg bg-slate-900 text-amber-400 font-black border border-slate-800 text-[11px]">
               Nagad
             </span>
-            <span className="px-2.5 py-1 rounded bg-white/10 text-slate-200 font-bold border border-white/10">
+            <span className="px-3 py-1 rounded-lg bg-slate-900 text-slate-200 font-bold border border-slate-800 text-[11px]">
               VISA
             </span>
-            <span className="px-2.5 py-1 rounded bg-white/10 text-slate-200 font-bold border border-white/10">
+            <span className="px-3 py-1 rounded-lg bg-slate-900 text-slate-200 font-bold border border-slate-800 text-[11px]">
               Mastercard
             </span>
-            <span className="px-2.5 py-1 rounded bg-white/10 text-emerald-400 font-bold border border-white/10">
+            <span className="px-3 py-1 rounded-lg bg-slate-900 text-emerald-400 font-bold border border-slate-800 text-[11px]">
               Cash On Delivery
             </span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="font-bold text-slate-300">কুরিয়ার পার্টনার:</span>
-            <span className="px-2.5 py-1 rounded bg-white/10 text-slate-200 font-bold border border-white/10">
-              Pathao
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="font-extrabold text-slate-300">কুরিয়ার পার্টনার:</span>
+            <span className="px-3 py-1 rounded-lg bg-slate-900 text-amber-400 font-black border border-slate-800 text-[11px]">
+              ⚡ Steadfast Courier
             </span>
-            <span className="px-2.5 py-1 rounded bg-white/10 text-slate-200 font-bold border border-white/10">
-              Steadfast
-            </span>
-            <span className="px-2.5 py-1 rounded bg-white/10 text-slate-200 font-bold border border-white/10">
-              RedX
-            </span>
-            <span className="px-2.5 py-1 rounded bg-white/10 text-slate-200 font-bold border border-white/10">
-              Paperfly
+            <span className="px-3 py-1 rounded-lg bg-slate-900 text-slate-200 font-bold border border-slate-800 text-[11px]">
+              Pathao Courier
             </span>
           </div>
         </div>
 
         {/* Copyright Bar */}
-        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
+        <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
           <p>{BRAND.copyright}</p>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 font-medium">
             <Link href="/privacy" className="hover:text-amber-400 transition-colors">
               প্রাইভেসি পলিসি
             </Link>

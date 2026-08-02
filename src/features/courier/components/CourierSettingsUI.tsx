@@ -1,19 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from "@/components/ui/table";
 import {
   getCourierSettingsDashboardAction,
   saveSteadfastSettingsAction,
@@ -26,7 +18,6 @@ import {
 } from "../actions/courier-settings-actions";
 import {
   testCourierConnectionAction,
-  createPickupAddressAction,
   listPickupAddressesAction,
 } from "../actions/courier-actions";
 import { toast } from "sonner";
@@ -39,55 +30,29 @@ import {
   CheckCircle2,
   XCircle,
   AlertTriangle,
-  Building,
   MapPin,
   Sliders,
-  Activity,
-  History,
   Store,
   Layers,
-  ChevronLeft,
-  ChevronRight,
   ShieldCheck,
   Globe,
   Settings,
-  PlusCircle,
+  Building,
+  ExternalLink,
 } from "lucide-react";
 
-export function CourierSettingsUI(): React.ReactElement {
-  const [activeTab, setActiveTab] = React.useState<
-    | "dashboard"
-    | "steadfast_config"
-    | "steadfast_mapping"
-    | "pathao_config"
-    | "pathao_tokens"
-    | "pathao_mapping"
-    | "pickup_locations"
-    | "global_rules"
-    | "api_logs"
-  >("dashboard");
+type MainTab = "steadfast" | "rules" | "pathao";
 
+export function CourierSettingsUI(): React.ReactElement {
+  const [activeTab, setActiveTab] = React.useState<MainTab>("steadfast");
   const [loading, setLoading] = React.useState(false);
   const [data, setData] = React.useState<any>(null);
   const [pickupAddresses, setPickupAddresses] = React.useState<any[]>([]);
   const [pathaoStores, setPathaoStores] = React.useState<any[]>([]);
-  const [apiLogs, setApiLogs] = React.useState<any[]>([]);
-  const [fetchingStores, setFetchingStores] = React.useState(false);
-
-  // Tab Slider ref
-  const tabSliderRef = React.useRef<HTMLDivElement>(null);
-  const scrollTabs = (direction: "left" | "right") => {
-    if (tabSliderRef.current) {
-      tabSliderRef.current.scrollBy({
-        left: direction === "left" ? -280 : 280,
-        behavior: "smooth",
-      });
-    }
-  };
 
   // Steadfast Form State
-  const [stEnabled, setStEnabled] = React.useState(false);
-  const [stSandbox, setStSandbox] = React.useState(true);
+  const [stEnabled, setStEnabled] = React.useState(true);
+  const [stSandbox, setStSandbox] = React.useState(false);
   const [stBaseUrl, setStBaseUrl] = React.useState("https://portal.steadfast.com.bd/api/v1");
   const [stApiKey, setStApiKey] = React.useState("");
   const [stApiSecret, setStApiSecret] = React.useState("");
@@ -128,8 +93,8 @@ export function CourierSettingsUI(): React.ReactElement {
         setData(res.data);
         const st = res.data.steadfast;
         if (st) {
-          setStEnabled(st.enabled ?? false);
-          setStSandbox(st.isSandbox ?? true);
+          setStEnabled(st.enabled ?? true);
+          setStSandbox(st.isSandbox ?? false);
           setStBaseUrl(st.apiBaseUrl || "https://portal.steadfast.com.bd/api/v1");
           setStApiKey(st.apiKey || "");
           setStApiSecret(st.apiSecret || "");
@@ -151,14 +116,23 @@ export function CourierSettingsUI(): React.ReactElement {
           setPaPickupId(pa.pickupAddressId || "");
           setPaWeight(pa.defaultWeight || 500);
         }
+
+        const rules = res.data.globalRules;
+        if (rules) {
+          setDefaultCourier(rules.defaultCourier || "steadfast");
+          if (rules.autoBookingRules) {
+            setAutoBookConfirm(rules.autoBookingRules.autoBookOnConfirm ?? false);
+            setAutoBookPayment(rules.autoBookingRules.autoBookOnPayment ?? false);
+            setApplyReseller(rules.autoBookingRules.applyReseller ?? true);
+            setApplyWholesale(rules.autoBookingRules.applyWholesale ?? true);
+            setApplyRetail(rules.autoBookingRules.applyRetail ?? true);
+          }
+        }
       }
 
       const addrRes = await listPickupAddressesAction();
       if (addrRes.success && addrRes.data) setPickupAddresses(addrRes.data);
-
-      const logsRes = await getCourierApiLogsAction("all", "all");
-      if (logsRes.success && logsRes.data) setApiLogs(logsRes.data);
-    } catch (err: any) {
+    } catch {
       toast.error("Failed to load courier integration settings");
     } finally {
       setLoading(false);
@@ -235,9 +209,7 @@ export function CourierSettingsUI(): React.ReactElement {
 
   const handleGeneratePathaoToken = async () => {
     if (!paClientId || !paClientSecret || !paUsername || !paPassword) {
-      toast.error(
-        "Credentials missing. Please save Client ID, Client Secret, Username & Password first.",
-      );
+      toast.error("Credentials missing. Save Pathao settings first.");
       return;
     }
     setSubmittingAction(true);
@@ -250,49 +222,15 @@ export function CourierSettingsUI(): React.ReactElement {
         apiBaseUrl: paBaseUrl,
       });
       if (res.success) {
-        toast.success("Pathao OAuth2 Access Token generated successfully!");
+        toast.success("Pathao OAuth2 Access Token generated!");
         loadAllData();
       } else {
         toast.error(res.error || "Failed to generate Pathao token");
       }
     } catch (err: any) {
-      toast.error(err.message || "Token generation error");
+      toast.error(err.message || "Token error");
     } finally {
       setSubmittingAction(false);
-    }
-  };
-
-  const handleRefreshPathaoToken = async () => {
-    setSubmittingAction(true);
-    try {
-      const res = await refreshPathaoTokenAction();
-      if (res.success) {
-        toast.success("Pathao OAuth2 token refreshed!");
-        loadAllData();
-      } else {
-        toast.error(res.error || "Failed to refresh token");
-      }
-    } catch (err: any) {
-      toast.error(err.message || "Token refresh error");
-    } finally {
-      setSubmittingAction(false);
-    }
-  };
-
-  const handleFetchPathaoStores = async () => {
-    setFetchingStores(true);
-    try {
-      const res = await fetchPathaoStoresAction();
-      if (res.success && res.data) {
-        setPathaoStores(res.data);
-        toast.success(`Fetched ${res.data.length} registered Pathao Store locations`);
-      } else {
-        toast.error(res.error || "Failed to fetch Pathao stores");
-      }
-    } catch (err: any) {
-      toast.error(err.message || "Store fetch error");
-    } finally {
-      setFetchingStores(false);
     }
   };
 
@@ -356,695 +294,405 @@ export function CourierSettingsUI(): React.ReactElement {
     }
   };
 
+  const isSteadfastConfigured = Boolean(stApiKey && stApiSecret);
   const pathaoToken = data?.pathao?.pathaoConfig?.accessToken;
-  const pathaoTokenExpires = data?.pathao?.pathaoConfig?.tokenExpiresAt;
 
   return (
-    <div className="min-h-screen bg-slate-950 p-4 sm:p-6 text-white space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-slate-800 pb-5">
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 space-y-6 max-w-6xl mx-auto">
+      {/* Header Banner */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-              Courier Integration Settings Center
+            <h1 className="text-xl sm:text-2xl font-black font-heading tracking-tight text-foreground">
+              Courier Setup & Integration
             </h1>
-            <Badge
-              variant="outline"
-              className="border-indigo-500/30 text-indigo-400 bg-indigo-950/40 text-[10px]"
-            >
-              STEADFAST & PATHAO
+            <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/30 text-xs font-bold">
+              STEADFAST DIRECT
             </Badge>
           </div>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
-            Dedicated Courier Integration Center: OAuth2 Tokens, Status Mapping, Webhooks, Pickup
-            Locations & API Logs
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+            Configure Steadfast Courier API credentials, pickup locations, and 1-click dispatch rules.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            onClick={loadAllData}
-            size="sm"
-            variant="ghost"
-            disabled={loading}
-            className="text-slate-400 hover:text-white"
-          >
-            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-          </Button>
-        </div>
+        <Button
+          onClick={loadAllData}
+          size="sm"
+          variant="outline"
+          disabled={loading}
+          className="h-9 gap-1.5 text-xs font-bold shrink-0 self-start sm:self-auto"
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh Setup
+        </Button>
       </div>
 
-      {/* Navigation Sub-Tabs Slider */}
-      <div className="relative flex items-center border-b border-slate-800 pb-2 group">
+      {/* 3 Main Modern Tab Navigation Pills */}
+      <div className="flex items-center gap-2 border-b border-border pb-3 overflow-x-auto scrollbar-none">
         <button
-          onClick={() => scrollTabs("left")}
-          className="absolute left-0 z-10 p-1.5 rounded-full bg-slate-900/90 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 shadow-md backdrop-blur transition-all"
-          title="Scroll Left"
           type="button"
+          onClick={() => setActiveTab("steadfast")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-extrabold transition-all shrink-0 ${
+            activeTab === "steadfast"
+              ? "bg-amber-500 text-slate-950 shadow-xs"
+              : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+          }`}
         >
-          <ChevronLeft className="h-4 w-4" />
+          <Truck className="h-4 w-4" /> ⚡ Steadfast Courier
         </button>
-
-        <div
-          ref={tabSliderRef}
-          className="flex items-center gap-2 overflow-x-auto scroll-smooth scrollbar-none px-8 text-xs w-full"
-        >
-          <button
-            onClick={() => setActiveTab("dashboard")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "dashboard"
-                ? "bg-indigo-600 text-white font-semibold"
-                : "text-slate-400 hover:bg-slate-900 hover:text-white"
-            }`}
-          >
-            <Activity className="h-3.5 w-3.5" /> Courier Dashboard
-          </button>
-          <button
-            onClick={() => setActiveTab("steadfast_config")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "steadfast_config"
-                ? "bg-indigo-600 text-white font-semibold"
-                : "text-slate-400 hover:bg-slate-900 hover:text-white"
-            }`}
-          >
-            <Truck className="h-3.5 w-3.5 text-cyan-400" /> Steadfast Configuration
-          </button>
-          <button
-            onClick={() => setActiveTab("pathao_config")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "pathao_config"
-                ? "bg-indigo-600 text-white font-semibold"
-                : "text-slate-400 hover:bg-slate-900 hover:text-white"
-            }`}
-          >
-            <Truck className="h-3.5 w-3.5 text-rose-400" /> Pathao Configuration
-          </button>
-          <button
-            onClick={() => setActiveTab("pathao_tokens")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "pathao_tokens"
-                ? "bg-indigo-600 text-white font-semibold"
-                : "text-slate-400 hover:bg-slate-900 hover:text-white"
-            }`}
-          >
-            <Key className="h-3.5 w-3.5 text-yellow-400" /> Pathao Token Manager
-          </button>
-          <button
-            onClick={() => setActiveTab("pickup_locations")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "pickup_locations"
-                ? "bg-indigo-600 text-white font-semibold"
-                : "text-slate-400 hover:bg-slate-900 hover:text-white"
-            }`}
-          >
-            <Building className="h-3.5 w-3.5 text-emerald-400" /> Shared Pickup Locations
-          </button>
-          <button
-            onClick={() => setActiveTab("global_rules")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "global_rules"
-                ? "bg-indigo-600 text-white font-semibold"
-                : "text-slate-400 hover:bg-slate-900 hover:text-white"
-            }`}
-          >
-            <Sliders className="h-3.5 w-3.5 text-sky-400" /> Auto-Booking & Rules
-          </button>
-          <button
-            onClick={() => setActiveTab("api_logs")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-md font-medium whitespace-nowrap transition-colors ${
-              activeTab === "api_logs"
-                ? "bg-indigo-600 text-white font-semibold"
-                : "text-slate-400 hover:bg-slate-900 hover:text-white"
-            }`}
-          >
-            <History className="h-3.5 w-3.5 text-slate-300" /> API Health & Logs
-          </button>
-        </div>
-
         <button
-          onClick={() => scrollTabs("right")}
-          className="absolute right-0 z-10 p-1.5 rounded-full bg-slate-900/90 border border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800 shadow-md backdrop-blur transition-all"
-          title="Scroll Right"
           type="button"
+          onClick={() => setActiveTab("rules")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-extrabold transition-all shrink-0 ${
+            activeTab === "rules"
+              ? "bg-amber-500 text-slate-950 shadow-xs"
+              : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+          }`}
         >
-          <ChevronRight className="h-4 w-4" />
+          <Sliders className="h-4 w-4" /> 📦 Dispatch Rules & Auto-Booking
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("pathao")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-extrabold transition-all shrink-0 ${
+            activeTab === "pathao"
+              ? "bg-amber-500 text-slate-950 shadow-xs"
+              : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+          }`}
+        >
+          <Globe className="h-4 w-4" /> 🛵 Pathao Courier
         </button>
       </div>
 
-      {/* TAB 1: COURIER DASHBOARD OVERVIEW */}
-      {activeTab === "dashboard" && (
+      {/* TAB 1: STEADFAST COURIER */}
+      {activeTab === "steadfast" && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Steadfast Card */}
-            <Card className="bg-slate-900/80 border-slate-800">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <div className="flex items-center gap-2">
-                  <CardTitle className="text-base font-bold text-white">
-                    Steadfast Courier
-                  </CardTitle>
-                  <Badge variant={stEnabled ? "success" : "outline"} className="text-[10px]">
-                    {stEnabled ? "ENABLED" : "DISABLED"}
-                  </Badge>
-                  <Badge variant="warning" className="text-[10px]">
-                    {stSandbox ? "SANDBOX" : "PRODUCTION"}
-                  </Badge>
+          {/* Steadfast Status & Connection Card */}
+          <Card className="rounded-3xl border-border">
+            <CardHeader className="p-5 sm:p-6 border-b border-border/60">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center shrink-0">
+                    <Truck className="h-5 w-5 text-amber-600" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-base font-extrabold">Steadfast Courier API Status</CardTitle>
+                    <CardDescription className="text-xs">Primary delivery courier partner in Bangladesh</CardDescription>
+                  </div>
                 </div>
-                <Button
-                  onClick={handleTestSteadfastConnection}
-                  disabled={testingSteadfast}
-                  size="sm"
-                  variant="outline"
-                  className="text-xs h-7"
-                >
-                  {testingSteadfast ? "Testing..." : "Test Connection"}
-                </Button>
-              </CardHeader>
-              <CardContent className="space-y-3 text-xs">
-                <div className="flex items-center justify-between p-2 rounded bg-slate-950 border border-slate-800">
-                  <span className="text-slate-400">Connection Status:</span>
-                  <Badge
-                    variant={
-                      data?.steadfast?.connectionStatus === "connected" ? "success" : "destructive"
-                    }
-                  >
-                    {data?.steadfast?.connectionStatus || "untested"}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between p-2 rounded bg-slate-950 border border-slate-800">
-                  <span className="text-slate-400">Today's Requests / Errors:</span>
-                  <span className="font-semibold text-white">
-                    {data?.steadfastHealth?.totalRequests || 0} /{" "}
-                    <span className="text-rose-400">{data?.steadfastHealth?.errorCount || 0}</span>
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-2 rounded bg-slate-950 border border-slate-800">
-                  <span className="text-slate-400">Avg API Response Time:</span>
-                  <span className="font-semibold text-emerald-400">
-                    {data?.steadfastHealth?.avgResponseTimeMs || 0} ms
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
 
-            {/* Pathao Card */}
-            <Card className="bg-slate-900/80 border-slate-800">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <div className="flex items-center gap-2">
-                  <CardTitle className="text-base font-bold text-white">Pathao Courier</CardTitle>
-                  <Badge variant={paEnabled ? "success" : "outline"} className="text-[10px]">
-                    {paEnabled ? "ENABLED" : "DISABLED"}
+                  <Badge
+                    variant="outline"
+                    className={`text-xs font-bold ${
+                      isSteadfastConfigured
+                        ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
+                        : "bg-rose-500/10 text-rose-600 border-rose-500/30"
+                    }`}
+                  >
+                    {isSteadfastConfigured ? "Ready for Dispatch" : "Missing API Keys"}
                   </Badge>
-                  <Badge variant="warning" className="text-[10px]">
-                    {paSandbox ? "SANDBOX" : "PRODUCTION"}
-                  </Badge>
+
+                  <Button
+                    size="sm"
+                    className="h-8 text-xs font-extrabold bg-amber-500 text-slate-950 hover:bg-amber-600 shadow-2xs gap-1"
+                    onClick={handleTestSteadfastConnection}
+                    disabled={testingSteadfast || !isSteadfastConfigured}
+                  >
+                    <Zap className="h-3.5 w-3.5 text-slate-950" /> Test Connection
+                  </Button>
                 </div>
-                <Button
-                  onClick={handleTestPathaoConnection}
-                  disabled={testingPathao}
-                  size="sm"
-                  variant="outline"
-                  className="text-xs h-7"
-                >
-                  {testingPathao ? "Testing..." : "Test Connection"}
-                </Button>
-              </CardHeader>
-              <CardContent className="space-y-3 text-xs">
-                <div className="flex items-center justify-between p-2 rounded bg-slate-950 border border-slate-800">
-                  <span className="text-slate-400">OAuth2 Access Token:</span>
-                  <Badge variant={pathaoToken ? "success" : "destructive"}>
-                    {pathaoToken ? "ACTIVE TOKEN" : "MISSING TOKEN"}
-                  </Badge>
+              </div>
+            </CardHeader>
+
+            <CardContent className="p-5 sm:p-6">
+              <form onSubmit={handleSaveSteadfast} className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-muted/30 p-4 rounded-2xl border border-border/60">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-extrabold text-foreground">Enable Steadfast Integration</p>
+                      <p className="text-[11px] text-muted-foreground">Allow 1-click pickup requests to Steadfast</p>
+                    </div>
+                    <Switch checked={stEnabled} onCheckedChange={setStEnabled} />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-extrabold text-foreground">Sandbox Test Mode</p>
+                      <p className="text-[11px] text-muted-foreground">Use Steadfast sandbox environment</p>
+                    </div>
+                    <Switch checked={stSandbox} onCheckedChange={setStSandbox} />
+                  </div>
                 </div>
-                <div className="flex items-center justify-between p-2 rounded bg-slate-950 border border-slate-800">
-                  <span className="text-slate-400">Today's Requests / Errors:</span>
-                  <span className="font-semibold text-white">
-                    {data?.pathaoHealth?.totalRequests || 0} /{" "}
-                    <span className="text-rose-400">{data?.pathaoHealth?.errorCount || 0}</span>
-                  </span>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-foreground">API Key (App Key)</label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. st_key_xxxxxxx"
+                      value={stApiKey}
+                      onChange={(e) => setStApiKey(e.target.value)}
+                      className="h-10 text-xs font-mono rounded-xl"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-foreground">Secret Key (App Secret)</label>
+                    <Input
+                      type="password"
+                      placeholder="e.g. st_secret_xxxxxxx"
+                      value={stApiSecret}
+                      onChange={(e) => setStApiSecret(e.target.value)}
+                      className="h-10 text-xs font-mono rounded-xl"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-foreground">Merchant ID / Code (Optional)</label>
+                    <Input
+                      type="text"
+                      placeholder="e.g. 10452"
+                      value={stMerchantId}
+                      onChange={(e) => setStMerchantId(e.target.value)}
+                      className="h-10 text-xs font-mono rounded-xl"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-foreground">Steadfast API Base URL</label>
+                    <Input
+                      type="text"
+                      value={stBaseUrl}
+                      onChange={(e) => setStBaseUrl(e.target.value)}
+                      className="h-10 text-xs font-mono rounded-xl"
+                    />
+                  </div>
                 </div>
-                <div className="flex items-center justify-between p-2 rounded bg-slate-950 border border-slate-800">
-                  <span className="text-slate-400">Avg API Response Time:</span>
-                  <span className="font-semibold text-emerald-400">
-                    {data?.pathaoHealth?.avgResponseTimeMs || 0} ms
-                  </span>
+
+                <div className="flex justify-end pt-2">
+                  <Button
+                    type="submit"
+                    disabled={submittingAction}
+                    className="h-10 px-6 text-xs font-black bg-amber-500 text-slate-950 hover:bg-amber-600 shadow-2xs"
+                  >
+                    Save Steadfast Settings
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Steadfast Webhook Listener Information */}
+          <Card className="rounded-3xl border-border bg-muted/20">
+            <CardHeader className="p-5 border-b border-border/60">
+              <CardTitle className="text-sm font-extrabold flex items-center gap-2">
+                <Globe className="h-4 w-4 text-amber-500" /> Steadfast Webhook Status Listener
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-5 space-y-2 text-xs">
+              <p className="text-muted-foreground">
+                Copy this Webhook URL and paste it into your Steadfast Merchant Portal under API Webhook Settings:
+              </p>
+              <div className="p-3 bg-card border border-border rounded-xl font-mono text-[11px] text-amber-600 dark:text-amber-400 select-all font-bold">
+                https://dropshop-nn.com/api/webhooks/courier/steadfast
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )}
 
-      {/* TAB 2: STEADFAST CONFIGURATION */}
-      {activeTab === "steadfast_config" && (
-        <Card className="bg-slate-900/80 border-slate-800">
-          <CardHeader>
-            <CardTitle className="text-base font-bold text-white flex items-center gap-2">
-              <Truck className="h-4 w-4 text-cyan-400" /> Dedicated Steadfast Courier Configuration
-            </CardTitle>
+      {/* TAB 2: DISPATCH RULES & AUTO-BOOKING */}
+      {activeTab === "rules" && (
+        <Card className="rounded-3xl border-border">
+          <CardHeader className="p-5 sm:p-6 border-b border-border/60">
+            <CardTitle className="text-base font-extrabold">Dispatch & Auto-Booking Rules</CardTitle>
+            <CardDescription className="text-xs">Set up automatic courier pickup rules for orders</CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSaveSteadfast} className="space-y-4 max-w-2xl">
-              <div className="flex items-center justify-between p-3 rounded bg-slate-950 border border-slate-800">
-                <div>
-                  <p className="text-xs font-semibold text-white">Enable Steadfast Integration</p>
-                  <p className="text-[11px] text-slate-400">
-                    Allow booking and tracking via Steadfast Courier API
-                  </p>
-                </div>
-                <Switch checked={stEnabled} onCheckedChange={setStEnabled} />
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded bg-slate-950 border border-slate-800">
-                <div>
-                  <p className="text-xs font-semibold text-white">Sandbox / Staging Mode</p>
-                  <p className="text-[11px] text-slate-400">
-                    Use Steadfast sandbox environment for testing
-                  </p>
-                </div>
-                <Switch checked={stSandbox} onCheckedChange={setStSandbox} />
-              </div>
-
-              <div>
-                <label className="text-xs font-medium text-slate-300">API Base URL *</label>
-                <Input
-                  value={stBaseUrl}
-                  onChange={(e) => setStBaseUrl(e.target.value)}
-                  className="bg-slate-950 border-slate-800 text-xs mt-1"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-medium text-slate-300">API Key (App Key) *</label>
-                  <Input
-                    type="password"
-                    value={stApiKey}
-                    onChange={(e) => setStApiKey(e.target.value)}
-                    placeholder="Steadfast API Key"
-                    className="bg-slate-950 border-slate-800 text-xs mt-1"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-slate-300">API Secret Key</label>
-                  <Input
-                    type="password"
-                    value={stApiSecret}
-                    onChange={(e) => setStApiSecret(e.target.value)}
-                    placeholder="Steadfast Secret Key"
-                    className="bg-slate-950 border-slate-800 text-xs mt-1"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-medium text-slate-300">
-                    Default Pickup Location
-                  </label>
-                  <select
-                    value={stPickupId}
-                    onChange={(e) => setStPickupId(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-md p-2 text-xs text-white mt-1"
-                  >
-                    <option value="">Select Pickup Address</option>
-                    {pickupAddresses.map((a) => (
-                      <option key={a.id} value={a.id}>
-                        {a.name} ({a.district}, {a.area})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-slate-300">
-                    Default Package Weight (grams)
-                  </label>
-                  <Input
-                    type="number"
-                    value={stWeight}
-                    onChange={(e) => setStWeight(parseInt(e.target.value) || 500)}
-                    className="bg-slate-950 border-slate-800 text-xs mt-1"
-                  />
-                </div>
-              </div>
-
-              <div className="pt-2">
-                <Button
-                  type="submit"
-                  disabled={submittingAction}
-                  size="sm"
-                  className="bg-indigo-600 hover:bg-indigo-500"
+          <CardContent className="p-5 sm:p-6 space-y-6">
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-foreground">Default Pickup Courier</label>
+                <select
+                  value={defaultCourier}
+                  onChange={(e) => setDefaultCourier(e.target.value)}
+                  className="w-full h-10 px-3 text-xs rounded-xl border border-input bg-background font-bold"
                 >
-                  Save Steadfast Configuration
-                </Button>
+                  <option value="steadfast">⚡ Steadfast Courier (Recommended)</option>
+                  <option value="pathao">🛵 Pathao Courier</option>
+                </select>
               </div>
-            </form>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-muted/30 p-4 rounded-2xl border border-border/60">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-extrabold text-foreground">Auto-Book on Order Confirm</p>
+                    <p className="text-[11px] text-muted-foreground">Request pickup when status changes to Confirmed</p>
+                  </div>
+                  <Switch checked={autoBookConfirm} onCheckedChange={setAutoBookConfirm} />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-extrabold text-foreground">Auto-Book on Payment Paid</p>
+                    <p className="text-[11px] text-muted-foreground">Request pickup when advance payment is cleared</p>
+                  </div>
+                  <Switch checked={autoBookPayment} onCheckedChange={setAutoBookPayment} />
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-2">
+                <p className="text-xs font-extrabold text-foreground">Applicable Order Channels</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <label className="flex items-center gap-2 p-3 rounded-xl border border-border bg-card text-xs font-bold cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={applyReseller}
+                      onChange={(e) => setApplyReseller(e.target.checked)}
+                      className="rounded border-input text-amber-500"
+                    />
+                    Reseller Orders
+                  </label>
+                  <label className="flex items-center gap-2 p-3 rounded-xl border border-border bg-card text-xs font-bold cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={applyWholesale}
+                      onChange={(e) => setApplyWholesale(e.target.checked)}
+                      className="rounded border-input text-amber-500"
+                    />
+                    Wholesale Orders
+                  </label>
+                  <label className="flex items-center gap-2 p-3 rounded-xl border border-border bg-card text-xs font-bold cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={applyRetail}
+                      onChange={(e) => setApplyRetail(e.target.checked)}
+                      className="rounded border-input text-amber-500"
+                    />
+                    Retail Orders
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-4 border-t border-border/60">
+              <Button
+                onClick={handleSaveGlobalRules}
+                disabled={submittingAction}
+                className="h-10 px-6 text-xs font-black bg-amber-500 text-slate-950 hover:bg-amber-600 shadow-2xs"
+              >
+                Save Dispatch Rules
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
 
-      {/* TAB 3: PATHAO CONFIGURATION */}
-      {activeTab === "pathao_config" && (
-        <Card className="bg-slate-900/80 border-slate-800">
-          <CardHeader>
-            <CardTitle className="text-base font-bold text-white flex items-center gap-2">
-              <Truck className="h-4 w-4 text-rose-400" /> Dedicated Pathao Courier Configuration
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSavePathao} className="space-y-4 max-w-2xl">
-              <div className="flex items-center justify-between p-3 rounded bg-slate-950 border border-slate-800">
-                <div>
-                  <p className="text-xs font-semibold text-white">Enable Pathao Integration</p>
-                  <p className="text-[11px] text-slate-400">
-                    Allow booking and tracking via Pathao Courier API
-                  </p>
-                </div>
-                <Switch checked={paEnabled} onCheckedChange={setPaEnabled} />
-              </div>
-
-              <div className="flex items-center justify-between p-3 rounded bg-slate-950 border border-slate-800">
-                <div>
-                  <p className="text-xs font-semibold text-white">Sandbox / Staging Mode</p>
-                  <p className="text-[11px] text-slate-400">
-                    Use Pathao staging endpoint (`https://api-hermes.pathao.com`)
-                  </p>
-                </div>
-                <Switch checked={paSandbox} onCheckedChange={setPaSandbox} />
-              </div>
-
+      {/* TAB 3: PATHAO COURIER */}
+      {activeTab === "pathao" && (
+        <Card className="rounded-3xl border-border">
+          <CardHeader className="p-5 sm:p-6 border-b border-border/60">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <label className="text-xs font-medium text-slate-300">Pathao API Base URL *</label>
-                <Input
-                  value={paBaseUrl}
-                  onChange={(e) => setPaBaseUrl(e.target.value)}
-                  className="bg-slate-950 border-slate-800 text-xs mt-1"
-                />
+                <CardTitle className="text-base font-extrabold">Pathao Courier Setup</CardTitle>
+                <CardDescription className="text-xs">Optional secondary courier integration</CardDescription>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-medium text-slate-300">Client ID *</label>
+              <Button
+                size="sm"
+                className="h-8 text-xs font-extrabold bg-amber-500 text-slate-950 hover:bg-amber-600 gap-1"
+                onClick={handleTestPathaoConnection}
+                disabled={testingPathao}
+              >
+                <Zap className="h-3.5 w-3.5 text-slate-950" /> Test Connection
+              </Button>
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-5 sm:p-6">
+            <form onSubmit={handleSavePathao} className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-muted/30 p-4 rounded-2xl border border-border/60">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-extrabold text-foreground">Enable Pathao Integration</p>
+                    <p className="text-[11px] text-muted-foreground">Allow Pathao courier bookings</p>
+                  </div>
+                  <Switch checked={paEnabled} onCheckedChange={setPaEnabled} />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-extrabold text-foreground">Sandbox Mode</p>
+                    <p className="text-[11px] text-muted-foreground">Use Pathao sandbox API</p>
+                  </div>
+                  <Switch checked={paSandbox} onCheckedChange={setPaSandbox} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-foreground">Client ID</label>
                   <Input
-                    type="password"
+                    type="text"
                     value={paClientId}
                     onChange={(e) => setPaClientId(e.target.value)}
-                    className="bg-slate-950 border-slate-800 text-xs mt-1"
+                    className="h-10 text-xs font-mono rounded-xl"
                   />
                 </div>
-                <div>
-                  <label className="text-xs font-medium text-slate-300">Client Secret *</label>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-foreground">Client Secret</label>
                   <Input
                     type="password"
                     value={paClientSecret}
                     onChange={(e) => setPaClientSecret(e.target.value)}
-                    className="bg-slate-950 border-slate-800 text-xs mt-1"
+                    className="h-10 text-xs font-mono rounded-xl"
                   />
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-medium text-slate-300">
-                    Pathao Username / Email *
-                  </label>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-foreground">Pathao Registered Email / Username</label>
                   <Input
+                    type="text"
                     value={paUsername}
                     onChange={(e) => setPaUsername(e.target.value)}
-                    className="bg-slate-950 border-slate-800 text-xs mt-1"
+                    className="h-10 text-xs font-mono rounded-xl"
                   />
                 </div>
-                <div>
-                  <label className="text-xs font-medium text-slate-300">
-                    Pathao Account Password *
-                  </label>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-foreground">Pathao Password</label>
                   <Input
                     type="password"
                     value={paPassword}
                     onChange={(e) => setPaPassword(e.target.value)}
-                    className="bg-slate-950 border-slate-800 text-xs mt-1"
+                    className="h-10 text-xs font-mono rounded-xl"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 pt-2">
-                <div className="flex-1">
-                  <label className="text-xs font-medium text-slate-300">
-                    Pathao Store ID (Pickup Location)
-                  </label>
-                  <Input
-                    value={paStoreId}
-                    onChange={(e) => setPaStoreId(e.target.value)}
-                    placeholder="Pathao Store ID"
-                    className="bg-slate-950 border-slate-800 text-xs mt-1"
-                  />
-                </div>
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
                 <Button
-                  onClick={handleFetchPathaoStores}
-                  disabled={fetchingStores}
                   type="button"
-                  size="sm"
+                  onClick={handleGeneratePathaoToken}
+                  disabled={submittingAction}
                   variant="outline"
-                  className="mt-5 text-xs"
+                  className="h-10 text-xs font-bold"
                 >
-                  {fetchingStores ? "Fetching..." : "Fetch Stores"}
+                  <Key className="h-3.5 w-3.5 mr-1.5 text-amber-500" /> Generate Access Token
                 </Button>
-              </div>
 
-              <div className="pt-2">
                 <Button
                   type="submit"
                   disabled={submittingAction}
-                  size="sm"
-                  className="bg-indigo-600 hover:bg-indigo-500"
+                  className="h-10 px-6 text-xs font-black bg-amber-500 text-slate-950 hover:bg-amber-600 shadow-2xs"
                 >
-                  Save Pathao Configuration
+                  Save Pathao Settings
                 </Button>
               </div>
             </form>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* TAB 4: PATHAO TOKEN MANAGER */}
-      {activeTab === "pathao_tokens" && (
-        <Card className="bg-slate-900/80 border-slate-800">
-          <CardHeader>
-            <CardTitle className="text-base font-bold text-white flex items-center gap-2">
-              <Key className="h-4 w-4 text-yellow-400" /> Pathao OAuth2 Token Manager
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="p-4 rounded-lg bg-slate-950 border border-slate-800 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-slate-300 font-semibold">
-                  Active Access Token Status:
-                </span>
-                <Badge variant={pathaoToken ? "success" : "destructive"}>
-                  {pathaoToken ? "ACTIVE OAUTH TOKEN" : "NO ACTIVE TOKEN"}
-                </Badge>
-              </div>
-              {pathaoTokenExpires && (
-                <p className="text-xs text-slate-400">
-                  Token Expiration:{" "}
-                  <span className="text-amber-300">
-                    {new Date(pathaoTokenExpires).toLocaleString()}
-                  </span>
-                </p>
-              )}
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              <Button
-                onClick={handleGeneratePathaoToken}
-                disabled={submittingAction}
-                size="sm"
-                className="bg-emerald-600 hover:bg-emerald-500 text-xs"
-              >
-                Generate Pathao OAuth2 Token
-              </Button>
-              <Button
-                onClick={handleRefreshPathaoToken}
-                disabled={submittingAction}
-                size="sm"
-                variant="outline"
-                className="text-xs border-amber-500/40 text-amber-300"
-              >
-                Refresh OAuth Token
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* TAB 5: PICKUP LOCATIONS */}
-      {activeTab === "pickup_locations" && (
-        <Card className="bg-slate-900/80 border-slate-800">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="text-base font-bold text-white flex items-center gap-2">
-                <Building className="h-4 w-4 text-emerald-400" /> Shared Pickup Locations Registry
-              </CardTitle>
-              <p className="text-xs text-slate-400 mt-1">
-                Shared warehouse & store pickup locations used across Steadfast & Pathao.
-              </p>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow className="border-slate-800 hover:bg-transparent">
-                  <TableHead className="text-xs">Location Name</TableHead>
-                  <TableHead className="text-xs">Contact Person</TableHead>
-                  <TableHead className="text-xs">Phone</TableHead>
-                  <TableHead className="text-xs">District/Area</TableHead>
-                  <TableHead className="text-xs">Street Address</TableHead>
-                  <TableHead className="text-xs">Default</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pickupAddresses.map((a) => (
-                  <TableRow key={a.id} className="border-slate-800 hover:bg-slate-800/40">
-                    <TableCell className="text-xs font-semibold text-white">{a.name}</TableCell>
-                    <TableCell className="text-xs text-slate-300">{a.contactPerson}</TableCell>
-                    <TableCell className="text-xs font-mono text-slate-300">{a.phone}</TableCell>
-                    <TableCell className="text-xs text-slate-300">
-                      {a.district}, {a.area}
-                    </TableCell>
-                    <TableCell className="text-xs text-slate-400">{a.address}</TableCell>
-                    <TableCell className="text-xs">
-                      {a.isDefault ? (
-                        <Badge variant="success">DEFAULT</Badge>
-                      ) : (
-                        <Badge variant="outline">STANDARD</Badge>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* TAB 6: GLOBAL RULES */}
-      {activeTab === "global_rules" && (
-        <Card className="bg-slate-900/80 border-slate-800">
-          <CardHeader>
-            <CardTitle className="text-base font-bold text-white flex items-center gap-2">
-              <Sliders className="h-4 w-4 text-sky-400" /> Global Shipping & Auto-Booking Rules
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 max-w-xl">
-            <div>
-              <label className="text-xs font-medium text-slate-300">Default Courier Partner</label>
-              <select
-                value={defaultCourier}
-                onChange={(e) => setDefaultCourier(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-md p-2 text-xs text-white mt-1"
-              >
-                <option value="steadfast">Steadfast Courier</option>
-                <option value="pathao">Pathao Courier</option>
-              </select>
-            </div>
-
-            <div className="flex items-center justify-between p-3 rounded bg-slate-950 border border-slate-800">
-              <div>
-                <p className="text-xs font-semibold text-white">
-                  Auto Book After Order Confirmation
-                </p>
-                <p className="text-[11px] text-slate-400">
-                  Automatically book courier consignment when order is confirmed
-                </p>
-              </div>
-              <Switch checked={autoBookConfirm} onCheckedChange={setAutoBookConfirm} />
-            </div>
-
-            <div className="flex items-center justify-between p-3 rounded bg-slate-950 border border-slate-800">
-              <div>
-                <p className="text-xs font-semibold text-white">
-                  Auto Book After Payment Verification
-                </p>
-                <p className="text-[11px] text-slate-400">
-                  Automatically dispatch order after payment is captured
-                </p>
-              </div>
-              <Switch checked={autoBookPayment} onCheckedChange={setAutoBookPayment} />
-            </div>
-
-            <div className="pt-2">
-              <Button
-                onClick={handleSaveGlobalRules}
-                disabled={submittingAction}
-                size="sm"
-                className="bg-indigo-600 hover:bg-indigo-500"
-              >
-                Save Shipping Rules
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* TAB 7: API LOGS */}
-      {activeTab === "api_logs" && (
-        <Card className="bg-slate-900/80 border-slate-800">
-          <CardHeader>
-            <CardTitle className="text-base font-bold text-white flex items-center gap-2">
-              <History className="h-4 w-4 text-slate-300" /> Courier API Request/Response Logs
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow className="border-slate-800 hover:bg-transparent">
-                  <TableHead className="text-xs">Timestamp</TableHead>
-                  <TableHead className="text-xs">Provider</TableHead>
-                  <TableHead className="text-xs">Log Type</TableHead>
-                  <TableHead className="text-xs">Endpoint</TableHead>
-                  <TableHead className="text-xs">Latency</TableHead>
-                  <TableHead className="text-xs">Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {apiLogs.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-6 text-slate-400 text-xs">
-                      No API logs recorded yet.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  apiLogs.map((l) => (
-                    <TableRow key={l.id} className="border-slate-800 hover:bg-slate-800/40">
-                      <TableCell className="text-xs text-slate-400">
-                        {new Date(l.timestamp).toLocaleString()}
-                      </TableCell>
-                      <TableCell className="text-xs uppercase font-semibold text-indigo-400">
-                        {l.provider}
-                      </TableCell>
-                      <TableCell className="text-xs capitalize text-slate-300">
-                        {l.logType}
-                      </TableCell>
-                      <TableCell className="text-xs font-mono text-slate-400">
-                        {l.endpoint}
-                      </TableCell>
-                      <TableCell className="text-xs font-semibold text-emerald-400">
-                        {l.responseTimeMs} ms
-                      </TableCell>
-                      <TableCell className="text-xs">
-                        <Badge variant={l.success ? "success" : "destructive"}>
-                          {l.success ? "SUCCESS" : "ERROR"}
-                        </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
           </CardContent>
         </Card>
       )}
     </div>
   );
 }
-
-export default CourierSettingsUI;

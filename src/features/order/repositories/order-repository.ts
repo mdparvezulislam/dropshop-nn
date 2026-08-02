@@ -37,6 +37,8 @@ export interface OrderDocument extends BaseDocument {
   source?: string;
   autoConfirmed?: boolean;
   resellerId?: string;
+  resellerName?: string;
+  resellerShopName?: string;
   wholesaleId?: string;
   confirmedAt?: Date;
   completedAt?: Date;
@@ -73,6 +75,7 @@ function toDomain(doc: any): Order {
     autoConfirmed: doc.autoConfirmed,
     resellerId: doc.resellerId,
     resellerName: doc.resellerName,
+    resellerShopName: doc.resellerShopName || doc.resellerStoreName || doc.storeName || doc.shopName || doc.metadata?.resellerShopName || doc.metadata?.storeName,
     wholesaleId: doc.wholesaleId,
     confirmedAt: doc.confirmedAt,
     completedAt: doc.completedAt,

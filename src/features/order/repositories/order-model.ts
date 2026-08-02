@@ -192,6 +192,7 @@ const orderSchema = new Schema(
     autoConfirmed: { type: Boolean, default: false },
     resellerId: { type: String, default: null, index: true },
     resellerName: { type: String, default: null },
+    resellerShopName: { type: String, default: null },
     wholesaleId: { type: String, default: null, index: true },
     confirmedAt: { type: Date, default: null },
     completedAt: { type: Date, default: null },

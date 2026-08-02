@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Package, FileEdit, Copy, Trash2, Eye, CheckCircle2 } from "lucide-react";
+import { Package, FileEdit, Copy, Trash2, Eye, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 export interface ProductCatalogItem {
@@ -33,43 +33,41 @@ export interface CatalogTableViewProps {
   onDelete: (id: string) => void;
 }
 
-/** Renders any product lifecycle status, including `inactive` and `pending_review`,
- * which previously all fell through to the "Archived" badge. */
 function ProductStatusBadge({ status }: { status: string }): React.ReactElement {
   switch (status) {
     case "active":
       return (
         <Badge variant="success" size="xs" className="gap-1 font-bold">
-          <CheckCircle2 className="h-3 w-3" /> সক্রিয় (Active)
+          <CheckCircle2 className="h-3 w-3" /> Active
         </Badge>
       );
     case "draft":
       return (
         <Badge variant="warning" size="xs" className="gap-1 font-bold">
-          <FileEdit className="h-3 w-3" /> খসড়া (Draft)
+          <FileEdit className="h-3 w-3" /> Draft
         </Badge>
       );
     case "pending_review":
       return (
         <Badge variant="warning" size="xs" className="gap-1 font-bold">
-          পর্যালোচনায় (Pending)
+          <AlertTriangle className="h-3 w-3" /> Pending Review
         </Badge>
       );
-    case "inactive":
+    case "out_of_stock":
       return (
-        <Badge variant="outline" size="xs" className="gap-1 font-bold">
-          নিষ্ক্রিয় (Inactive)
+        <Badge variant="destructive" size="xs" className="gap-1 font-bold">
+          <XCircle className="h-3 w-3" /> Out of Stock
         </Badge>
       );
     case "archived":
       return (
         <Badge variant="outline" size="xs" className="gap-1 font-bold">
-          আর্কাইভ (Archived)
+          Archived
         </Badge>
       );
     default:
       return (
-        <Badge variant="outline" size="xs" className="gap-1 font-bold">
+        <Badge variant="outline" size="xs" className="font-semibold capitalize">
           {status}
         </Badge>
       );
@@ -105,7 +103,7 @@ export function CatalogTableView({
   if (loading) {
     return (
       <div className="rounded-2xl border border-border bg-card p-8 text-center text-xs text-muted-foreground animate-pulse">
-        পণ্য তালিকা লোড করা হচ্ছে (Loading catalog items…)
+        Loading product catalog...
       </div>
     );
   }
@@ -116,13 +114,13 @@ export function CatalogTableView({
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-primary">
           <Package className="h-6 w-6" />
         </div>
-        <p className="text-sm font-extrabold text-foreground">এখনও কোনো পণ্য যোগ করা হয়নি</p>
+        <p className="text-sm font-extrabold text-foreground">No products found</p>
         <p className="text-xs text-muted-foreground max-w-sm">
           No products matched your search or filters. Create a new product in Product Studio.
         </p>
         <Link href="/dashboard/products/new">
           <button className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90">
-            নতুন পণ্য যোগ করুন (Add Product)
+            Add New Product
           </button>
         </Link>
       </div>
@@ -130,7 +128,7 @@ export function CatalogTableView({
   }
 
   return (
-    <div className="ws-scroll max-h-[600px] overflow-y-auto rounded-2xl border border-border bg-card shadow-2xs">
+    <div className="ws-scroll max-h-[650px] overflow-y-auto rounded-2xl border border-border bg-card shadow-2xs">
       <table className="w-full text-left text-xs">
         <thead className="sticky top-0 bg-muted/90 backdrop-blur-xs border-b border-border font-bold text-muted-foreground select-none">
           <tr>
@@ -143,13 +141,13 @@ export function CatalogTableView({
                 className="h-3.5 w-3.5 rounded border-border text-primary"
               />
             </th>
-            <th className="p-3">পণ্য বিবরণ (Product Details)</th>
-            <th className="p-3">ক্যাটাগরি & ব্র্যান্ড</th>
-            <th className="p-3 text-right">খুচরা মূল্য (Retail)</th>
-            <th className="p-3 text-right">খরচ (Cost)</th>
-            <th className="p-3 text-center">স্টক (Stock)</th>
-            <th className="p-3">স্ট্যাটাস (Status)</th>
-            <th className="p-3 text-right">অ্যাকশন</th>
+            <th className="p-3">Product Details</th>
+            <th className="p-3">Category & Brand</th>
+            <th className="p-3 text-right">Retail Price</th>
+            <th className="p-3 text-right">Cost Price</th>
+            <th className="p-3 text-center">Stock</th>
+            <th className="p-3">Status</th>
+            <th className="p-3 text-right">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border/60 font-medium">
@@ -181,7 +179,7 @@ export function CatalogTableView({
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-border bg-muted/40 overflow-hidden shadow-2xs">
                       {item.image ? (
-                        // eslint-disable-next-line @next/next/no-img-element -- CDN thumbnails from arbitrary supplier hosts
+                        // eslint-disable-next-line @next/next/no-img-element -- CDN thumbnails
                         <img
                           src={item.image}
                           alt=""
@@ -287,14 +285,14 @@ export function CatalogTableView({
                       type="button"
                       onClick={() => onPreview(item.id)}
                       className="p-1.5 rounded-lg border border-border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                      title="Quick Side Preview"
+                      title="Quick Preview"
                     >
                       <Eye className="h-3.5 w-3.5" />
                     </button>
-                    <Link href={`/dashboard/products/${item.id}/edit`}>
+                    <Link href={`/dashboard/products/${item.id}`}>
                       <button
                         className="p-1.5 rounded-lg border border-border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                        title="Edit in Product Studio"
+                        title="Edit Product"
                       >
                         <FileEdit className="h-3.5 w-3.5" />
                       </button>

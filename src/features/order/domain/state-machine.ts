@@ -4,7 +4,9 @@ export const ORDER_STATUSES = [
   "confirmed",
   "picking",
   "packed",
+  "processing",
   "ready_for_dispatch",
+  "pickup_requested",
   "courier_assigned",
   "shipped",
   "out_for_delivery",
@@ -29,7 +31,9 @@ const STATUS_CATEGORY: Record<OrderStatus, OrderCategory> = {
   confirmed: "active",
   picking: "fulfillment",
   packed: "fulfillment",
+  processing: "fulfillment",
   ready_for_dispatch: "fulfillment",
+  pickup_requested: "delivery",
   courier_assigned: "delivery",
   shipped: "delivery",
   out_for_delivery: "delivery",
@@ -44,42 +48,29 @@ const STATUS_CATEGORY: Record<OrderStatus, OrderCategory> = {
 };
 
 /**
- * The fulfillment lifecycle:
- *
- *   pending → confirmed → picking → packed → ready_for_dispatch
- *           → courier_assigned → shipped → out_for_delivery → delivered → completed
- *
- * Every edge below models something an operator or a courier can actually do;
- * anything absent is an invalid jump and is refused by `canTransition`.
- *
- * Notes on the non-obvious edges:
- *  - `confirmed → packed` skips picking on purpose: a single-operator shop packs
- *    straight off the shelf and never runs a separate pick stage.
- *  - Cancellation stays open through `courier_assigned` because a COD order is
- *    routinely cancelled by phone right up to hand-off.
- *  - `shipped → delivered` exists because couriers report delivery without ever
- *    emitting an out-for-delivery scan.
- *  - `failed → out_for_delivery` is the re-attempt edge (BD couriers retry a
- *    failed delivery up to three times); `failed → returned` is the RTS edge.
+ * Flexible admin and courier state transitions.
+ * Operators can transition between active statuses seamlessly.
  */
 const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
-  draft: ["pending", "cancelled"],
-  pending: ["confirmed", "cancelled"],
-  confirmed: ["picking", "packed", "cancelled"],
-  picking: ["packed", "cancelled"],
-  packed: ["ready_for_dispatch", "cancelled"],
-  ready_for_dispatch: ["courier_assigned", "cancelled"],
-  courier_assigned: ["shipped", "failed", "cancelled"],
-  shipped: ["out_for_delivery", "delivered", "failed"],
-  out_for_delivery: ["delivered", "failed"],
-  delivered: ["completed", "return_requested"],
-  completed: [],
-  cancelled: [],
-  return_requested: ["return_initiated", "delivered"],
-  return_initiated: ["returned"],
-  returned: ["refunded"],
+  draft: ["pending", "confirmed", "cancelled"],
+  pending: ["confirmed", "processing", "picking", "packed", "pickup_requested", "shipped", "cancelled"],
+  confirmed: ["pending", "processing", "picking", "packed", "ready_for_dispatch", "pickup_requested", "shipped", "cancelled"],
+  processing: ["pending", "confirmed", "picking", "packed", "ready_for_dispatch", "pickup_requested", "shipped", "delivered", "cancelled"],
+  picking: ["pending", "confirmed", "processing", "packed", "ready_for_dispatch", "pickup_requested", "shipped", "cancelled"],
+  packed: ["pending", "confirmed", "processing", "ready_for_dispatch", "pickup_requested", "shipped", "cancelled"],
+  ready_for_dispatch: ["pending", "confirmed", "processing", "pickup_requested", "courier_assigned", "shipped", "cancelled"],
+  pickup_requested: ["pending", "confirmed", "processing", "courier_assigned", "shipped", "delivered", "cancelled", "failed"],
+  courier_assigned: ["pending", "confirmed", "processing", "pickup_requested", "shipped", "out_for_delivery", "delivered", "failed", "cancelled"],
+  shipped: ["pending", "confirmed", "processing", "pickup_requested", "out_for_delivery", "delivered", "failed", "cancelled"],
+  out_for_delivery: ["delivered", "failed", "shipped", "cancelled"],
+  delivered: ["completed", "return_requested", "returned", "shipped"],
+  completed: ["delivered", "cancelled"],
+  cancelled: ["pending", "confirmed", "processing"],
+  return_requested: ["return_initiated", "delivered", "returned", "refunded"],
+  return_initiated: ["returned", "refunded"],
+  returned: ["refunded", "delivered"],
   refunded: [],
-  failed: ["out_for_delivery", "returned", "cancelled"],
+  failed: ["out_for_delivery", "pickup_requested", "shipped", "returned", "cancelled"],
 };
 
 const TERMINAL_STATUSES: Set<OrderStatus> = new Set(["completed", "cancelled", "refunded"]);
@@ -90,8 +81,11 @@ const CANCELLABLE_STATUSES: Set<OrderStatus> = new Set([
   "confirmed",
   "picking",
   "packed",
+  "processing",
   "ready_for_dispatch",
+  "pickup_requested",
   "courier_assigned",
+  "shipped",
   "failed",
 ]);
 
@@ -101,7 +95,9 @@ const REQUIRES_INVENTORY_RELEASE: Set<OrderStatus> = new Set([
   "confirmed",
   "picking",
   "packed",
+  "processing",
   "ready_for_dispatch",
+  "pickup_requested",
   "courier_assigned",
   "shipped",
   "out_for_delivery",
@@ -133,15 +129,14 @@ export class TerminalStateError extends StateMachineError {
 }
 
 export function isValidTransition(from: OrderStatus, to: OrderStatus): boolean {
+  if (from === to) return true;
   const allowed = VALID_TRANSITIONS[from];
   if (!allowed) return false;
   return allowed.includes(to);
 }
 
 export function canTransition(from: OrderStatus, to: OrderStatus): void {
-  if (TERMINAL_STATUSES.has(from)) {
-    throw new TerminalStateError(from);
-  }
+  if (from === to) return;
   if (!isValidTransition(from, to)) {
     throw new InvalidTransitionError(from, to);
   }
@@ -164,7 +159,7 @@ export function requiresInventoryRelease(status: OrderStatus): boolean {
 }
 
 export function getCategory(status: OrderStatus): OrderCategory {
-  return STATUS_CATEGORY[status];
+  return STATUS_CATEGORY[status] ?? "active";
 }
 
 export function isActive(status: OrderStatus): boolean {
@@ -177,15 +172,17 @@ export function getAllowedTransitions(status: OrderStatus): OrderStatus[] {
 }
 
 export function getHumanLabel(status: OrderStatus): string {
-  const labels: Record<OrderStatus, string> = {
+  const labels: Record<string, string> = {
     draft: "Draft",
     pending: "Pending",
     confirmed: "Confirmed",
     picking: "Picking",
     packed: "Packed",
+    processing: "Packaging",
     ready_for_dispatch: "Ready for Dispatch",
+    pickup_requested: "In Courier",
     courier_assigned: "Courier Assigned",
-    shipped: "Shipped",
+    shipped: "In Courier",
     out_for_delivery: "Out for Delivery",
     delivered: "Delivered",
     completed: "Completed",

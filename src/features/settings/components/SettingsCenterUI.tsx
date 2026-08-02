@@ -1,19 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from "@/components/ui/table";
 import {
   getAllSettingsAction,
   updateSettingAction,
@@ -24,39 +16,34 @@ import {
 } from "../actions/settings-actions";
 import { toast } from "sonner";
 import {
-  Sliders,
-  Database,
   Globe,
-  Scale,
   DollarSign,
   Package,
-  Truck,
   Lock,
-  Flag,
-  HardDrive,
-  Activity,
-  History,
   Download,
   Upload,
   RefreshCw,
   Search,
   CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
-  Server,
   Zap,
+  Sliders,
+  Flag,
   RotateCcw,
+  Check,
+  ShieldCheck,
 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
+
+type MainTab = "general" | "pricing" | "business" | "security";
 
 export function SettingsCenterUI(): React.ReactElement {
-  const [activeTab, setActiveTab] = React.useState<string>("overview");
+  const [activeTab, setActiveTab] = React.useState<MainTab>("general");
   const [loading, setLoading] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
 
   const [settingsList, setSettingsList] = React.useState<any[]>([]);
   const [flagsList, setFlagsList] = React.useState<any[]>([]);
   const [healthStatus, setHealthStatus] = React.useState<any>(null);
-  const [auditLogs, setAuditLogs] = React.useState<any[]>([]);
 
   // Editing state maps
   const [editValues, setEditValues] = React.useState<Record<string, any>>({});
@@ -64,14 +51,6 @@ export function SettingsCenterUI(): React.ReactElement {
 
   // Import file upload ref
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const tabSliderRef = React.useRef<HTMLDivElement>(null);
-
-  const scrollTabs = (direction: "left" | "right") => {
-    if (tabSliderRef.current) {
-      const scrollAmount = direction === "left" ? -280 : 280;
-      tabSliderRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
-    }
-  };
 
   const loadAllData = React.useCallback(async () => {
     setLoading(true);
@@ -81,7 +60,6 @@ export function SettingsCenterUI(): React.ReactElement {
         setSettingsList(res.data.settings);
         setFlagsList(res.data.flags);
         setHealthStatus(res.data.health);
-        setAuditLogs(res.data.auditLogs);
 
         // Prepopulate editValues map
         const map: Record<string, any> = {};
@@ -181,20 +159,6 @@ export function SettingsCenterUI(): React.ReactElement {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleResetCategory = async (cat: string) => {
-    try {
-      const res = await resetCategoryToDefaultAction(cat);
-      if (res.success) {
-        toast.success(`Category '${cat}' reset to default settings`);
-        loadAllData();
-      } else {
-        toast.error(res.error || "Failed to reset category");
-      }
-    } catch (err: any) {
-      toast.error(err.message || "Reset error");
-    }
-  };
-
   // Filter settings by search
   const filteredSettings = settingsList.filter(
     (s) =>
@@ -203,787 +167,339 @@ export function SettingsCenterUI(): React.ReactElement {
       s.category.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
-  const getCategorySettings = (cat: string) => filteredSettings.filter((s) => s.category === cat);
+  const getCategorySettings = (cats: string[]) => filteredSettings.filter((s) => cats.includes(s.category));
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-border pb-4">
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
+      {/* Hidden File Input for Import */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleImportJSON}
+        accept=".json"
+        className="hidden"
+      />
+
+      {/* Header Banner */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-              Platform Configuration &amp; Settings
+            <h1 className="text-xl sm:text-2xl font-black font-heading tracking-tight text-foreground">
+              Platform Configuration & Settings
             </h1>
-            <Badge
-              variant="outline"
-              className="border-primary/30 text-primary bg-primary/10 text-[10px] font-bold"
-            >
-              SETTINGS-CENTER-001
+            <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/30 text-xs font-bold">
+              SYSTEM CONTROL
             </Badge>
           </div>
-          <p className="text-xs sm:text-sm text-muted-foreground font-semibold mt-1">
-            Single Source of Truth for Platform Configurations, Business Rules, Feature Flags, Maintenance &amp; System Health
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+            Single source of truth for platform configurations, pricing markup, branding, and feature flags.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative w-48 sm:w-64">
-            <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
-            <Input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search all settings..."
-              className="pl-8 text-xs bg-background border-border text-foreground"
-            />
-          </div>
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
           <Button
             onClick={handleExportJSON}
             size="sm"
             variant="outline"
-            className="text-xs gap-1.5 font-bold"
+            className="h-9 text-xs font-bold gap-1"
           >
-            <Download className="h-3.5 w-3.5 text-primary" /> Export JSON
+            <Download className="h-3.5 w-3.5 text-amber-500" /> Export JSON
           </Button>
+
           <Button
             onClick={() => fileInputRef.current?.click()}
             size="sm"
             variant="outline"
-            className="text-xs gap-1.5 font-bold"
+            className="h-9 text-xs font-bold gap-1"
           >
-            <Upload className="h-3.5 w-3.5 text-sky-500" /> Import JSON
+            <Upload className="h-3.5 w-3.5 text-amber-500" /> Import JSON
           </Button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            onChange={handleImportJSON}
-            className="hidden"
-          />
+
           <Button
             onClick={loadAllData}
             size="sm"
-            variant="ghost"
+            variant="outline"
             disabled={loading}
-            className="text-muted-foreground hover:text-foreground"
+            className="h-9 text-xs font-bold gap-1"
           >
-            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh
           </Button>
         </div>
       </div>
 
-      {/* Navigation Sub-Tabs Slider */}
-      <div className="relative flex items-center border-b border-border pb-3 group">
-        <button
-          onClick={() => scrollTabs("left")}
-          className="absolute left-0 z-10 p-1.5 rounded-full bg-card border border-border text-foreground hover:bg-muted shadow-xs transition-all"
-          title="Scroll Left"
-          type="button"
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-
-        <div
-          ref={tabSliderRef}
-          className="flex items-center gap-2 overflow-x-auto scroll-smooth scrollbar-none px-8 text-xs w-full"
-        >
+      {/* 4 Clean Modern Navigation Pills & Search */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
           <button
-            onClick={() => setActiveTab("overview")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
-              activeTab === "overview"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
-          >
-            <Activity className="h-3.5 w-3.5" /> Dashboard Summary
-          </button>
-          <button
+            type="button"
             onClick={() => setActiveTab("general")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-extrabold transition-all shrink-0 ${
               activeTab === "general"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+                ? "bg-amber-500 text-slate-950 shadow-xs"
+                : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            <Globe className="h-3.5 w-3.5 text-sky-500" /> General &amp; Branding
+            <Globe className="h-4 w-4" /> 🌐 General & Branding
           </button>
+
           <button
-            onClick={() => setActiveTab("business_rules")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
-              activeTab === "business_rules"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
-          >
-            <Scale className="h-3.5 w-3.5 text-amber-500" /> Business Rules
-          </button>
-          <button
+            type="button"
             onClick={() => setActiveTab("pricing")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-extrabold transition-all shrink-0 ${
               activeTab === "pricing"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+                ? "bg-amber-500 text-slate-950 shadow-xs"
+                : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            <DollarSign className="h-3.5 w-3.5 text-emerald-500" /> Pricing &amp; Markup
+            <DollarSign className="h-4 w-4" /> 💲 Pricing & Markup
           </button>
+
           <button
-            onClick={() => setActiveTab("order_product")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
-              activeTab === "order_product"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+            type="button"
+            onClick={() => setActiveTab("business")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-extrabold transition-all shrink-0 ${
+              activeTab === "business"
+                ? "bg-amber-500 text-slate-950 shadow-xs"
+                : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            <Package className="h-3.5 w-3.5 text-purple-500" /> Order &amp; Product
+            <Package className="h-4 w-4" /> 📦 Business & Logistics
           </button>
+
           <button
-            onClick={() => setActiveTab("logistics_finance")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
-              activeTab === "logistics_finance"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+            type="button"
+            onClick={() => setActiveTab("security")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-extrabold transition-all shrink-0 ${
+              activeTab === "security"
+                ? "bg-amber-500 text-slate-950 shadow-xs"
+                : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            <Truck className="h-3.5 w-3.5 text-indigo-500" /> Logistics &amp; Finance
-          </button>
-          <button
-            onClick={() => setActiveTab("security_access")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
-              activeTab === "security_access"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
-          >
-            <Lock className="h-3.5 w-3.5 text-rose-500" /> Security &amp; Policy
-          </button>
-          <button
-            onClick={() => setActiveTab("feature_flags")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
-              activeTab === "feature_flags"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
-          >
-            <Flag className="h-3.5 w-3.5 text-amber-500" /> Feature Flags ({flagsList.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("system_health")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
-              activeTab === "system_health"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
-          >
-            <Server className="h-3.5 w-3.5 text-emerald-500" /> System Health
-          </button>
-          <button
-            onClick={() => setActiveTab("history_audit")}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl font-bold whitespace-nowrap transition-all ${
-              activeTab === "history_audit"
-                ? "bg-primary text-primary-foreground shadow-xs"
-                : "bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
-          >
-            <History className="h-3.5 w-3.5 text-muted-foreground" /> Configuration History
+            <Lock className="h-4 w-4" /> 🔒 Security & Feature Flags
           </button>
         </div>
 
-        <button
-          onClick={() => scrollTabs("right")}
-          className="absolute right-0 z-10 p-1.5 rounded-full bg-card border border-border text-foreground hover:bg-muted shadow-xs transition-all"
-          title="Scroll Right"
-          type="button"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </button>
+        {/* Search Input */}
+        <div className="relative w-full sm:w-64">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search all settings..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 h-9 text-xs rounded-xl border-border bg-card"
+          />
+        </div>
       </div>
 
-      {/* TAB 1: OVERVIEW DASHBOARD */}
-      {activeTab === "overview" && (
+      {/* Main Settings Sections */}
+      {loading ? (
+        <div className="flex items-center justify-center p-12 text-sm text-muted-foreground gap-2">
+          <Spinner size="sm" /> Loading platform configuration...
+        </div>
+      ) : (
         <div className="space-y-6">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <Card className="border-border/80 shadow-2xs">
-              <CardContent className="p-4 space-y-1">
-                <p className="text-[11px] font-bold text-muted-foreground uppercase">Platform Status</p>
-                <div className="flex items-center justify-between">
-                  <p className="text-lg sm:text-xl font-black text-emerald-500">OPERATIONAL</p>
-                  <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border/80 shadow-2xs">
-              <CardContent className="p-4 space-y-1">
-                <p className="text-[11px] font-bold text-muted-foreground uppercase">Registered Settings</p>
-                <div className="flex items-center justify-between">
-                  <p className="text-lg sm:text-xl font-black text-foreground">{settingsList.length}</p>
-                  <Sliders className="h-4 w-4 text-sky-500" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border/80 shadow-2xs">
-              <CardContent className="p-4 space-y-1">
-                <p className="text-[11px] font-bold text-muted-foreground uppercase">Centralized Flags</p>
-                <div className="flex items-center justify-between">
-                  <p className="text-lg sm:text-xl font-black text-amber-500">{flagsList.length}</p>
-                  <Flag className="h-4 w-4 text-amber-500" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-border/80 shadow-2xs">
-              <CardContent className="p-4 space-y-1">
-                <p className="text-[11px] font-bold text-muted-foreground uppercase">Database Engine</p>
-                <div className="flex items-center justify-between">
-                  <p className="text-lg sm:text-xl font-black text-emerald-500">MongoDB Connected</p>
-                  <Database className="h-4 w-4 text-emerald-500" />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <Card className="border-border/80 shadow-2xs">
-            <CardHeader className="border-b border-border/60 pb-3">
-              <CardTitle className="text-sm font-black text-foreground">
-                All Platform Settings Overview
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-border bg-muted/40 hover:bg-transparent">
-                    <TableHead className="text-xs font-bold text-muted-foreground">Category</TableHead>
-                    <TableHead className="text-xs font-bold text-muted-foreground">Setting Key</TableHead>
-                    <TableHead className="text-xs font-bold text-muted-foreground">Setting Name</TableHead>
-                    <TableHead className="text-xs font-bold text-muted-foreground">Current Value</TableHead>
-                    <TableHead className="text-xs font-bold text-muted-foreground">Scope</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredSettings.slice(0, 15).map((s) => (
-                    <TableRow key={s.key} className="border-border/60 hover:bg-muted/40">
-                      <TableCell className="text-xs capitalize font-bold text-sky-600 dark:text-sky-400">
-                        {s.category}
-                      </TableCell>
-                      <TableCell className="text-xs font-mono text-muted-foreground">{s.key}</TableCell>
-                      <TableCell className="text-xs font-extrabold text-foreground">{s.name}</TableCell>
-                      <TableCell className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 truncate max-w-[200px]">
-                        {String(s.value)}
-                      </TableCell>
-                      <TableCell className="text-xs">
-                        <Badge variant="outline" className="capitalize font-bold border-border text-foreground">
-                          {s.scope}
+          {/* TAB 1: GENERAL & BRANDING */}
+          {activeTab === "general" && (
+            <Card className="rounded-3xl border-border bg-card">
+              <CardHeader className="p-5 sm:p-6 border-b border-border/60">
+                <CardTitle className="text-base font-extrabold flex items-center gap-2">
+                  <Globe className="h-5 w-5 text-amber-500" /> General Platform & Branding Settings
+                </CardTitle>
+                <CardDescription className="text-xs">Company identity, platform titles, contact info, and branding assets</CardDescription>
+              </CardHeader>
+              <CardContent className="p-5 sm:p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {getCategorySettings(["general", "branding"]).map((s) => (
+                    <div key={s.key} className="rounded-2xl border border-border/70 bg-muted/20 p-4 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-foreground">{s.name}</label>
+                        <Badge variant="outline" className="text-[9px] font-mono capitalize">
+                          {s.category}
                         </Badge>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* TAB 2: GENERAL & BRANDING */}
-      {activeTab === "general" && (
-        <Card className="border-border/80 shadow-2xs">
-          <CardHeader className="flex flex-row items-center justify-between border-b border-border/60 pb-3">
-            <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
-              <Globe className="h-4 w-4 text-sky-500" /> General &amp; Branding Configuration
-            </CardTitle>
-            <Button
-              onClick={() => handleResetCategory("general")}
-              size="sm"
-              variant="outline"
-              className="text-xs font-bold gap-1"
-            >
-              <RotateCcw className="h-3.5 w-3.5" /> Reset General
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-4 pt-4">
-            {getCategorySettings("general")
-              .concat(getCategorySettings("branding"))
-              .map((s) => (
-                <div
-                  key={s.key}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-muted/40 border border-border/60 gap-3"
-                >
-                  <div>
-                    <p className="text-xs font-bold text-foreground">{s.name}</p>
-                    <p className="text-[11px] text-muted-foreground">{s.description}</p>
-                    <p className="text-[10px] font-mono text-muted-foreground/70">{s.key}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      value={editValues[s.key] !== undefined ? String(editValues[s.key]) : ""}
-                      onChange={(e) => setEditValues({ ...editValues, [s.key]: e.target.value })}
-                      className="h-8 text-xs bg-background border-border w-48 sm:w-64"
-                    />
-                    <Button
-                      onClick={() => handleSaveSetting(s.key)}
-                      disabled={savingKey === s.key}
-                      size="sm"
-                      className="h-8 text-xs font-bold shadow-xs"
-                    >
-                      Save
-                    </Button>
-                  </div>
-                </div>
-              ))}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* TAB 3: BUSINESS RULES */}
-      {activeTab === "business_rules" && (
-        <Card className="border-border/80 shadow-2xs">
-          <CardHeader className="flex flex-row items-center justify-between border-b border-border/60 pb-3">
-            <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
-              <Scale className="h-4 w-4 text-amber-500" /> Business Rule Engine Settings
-            </CardTitle>
-            <Button
-              onClick={() => handleResetCategory("business_rules")}
-              size="sm"
-              variant="outline"
-              className="text-xs font-bold gap-1"
-            >
-              <RotateCcw className="h-3.5 w-3.5" /> Reset Rules
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-4 pt-4">
-            {getCategorySettings("business_rules").map((s) => (
-              <div
-                key={s.key}
-                className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-muted/40 border border-border/60 gap-3"
-              >
-                <div>
-                  <p className="text-xs font-bold text-foreground">{s.name}</p>
-                  <p className="text-[11px] text-muted-foreground">{s.description}</p>
-                  <p className="text-[10px] font-mono text-muted-foreground/70">{s.key}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type={s.dataType === "number" ? "number" : "text"}
-                    value={editValues[s.key] !== undefined ? String(editValues[s.key]) : ""}
-                    onChange={(e) =>
-                      setEditValues({
-                        ...editValues,
-                        [s.key]:
-                          s.dataType === "number"
-                            ? parseFloat(e.target.value) || 0
-                            : e.target.value,
-                      })
-                    }
-                    className="h-8 text-xs bg-background border-border w-48"
-                  />
-                  <Button
-                    onClick={() => handleSaveSetting(s.key)}
-                    disabled={savingKey === s.key}
-                    size="sm"
-                    className="h-8 text-xs font-bold shadow-xs"
-                  >
-                    Save Rule
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* TAB 4: PRICING & MARKUP */}
-      {activeTab === "pricing" && (
-        <div className="space-y-6">
-          <Card className="border-border/80 shadow-2xs">
-            <CardHeader className="border-b border-border/60 pb-3">
-              <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
-                <DollarSign className="h-4 w-4 text-emerald-500" /> Global Pricing &amp; Markup Defaults
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 pt-4">
-              {getCategorySettings("pricing").map((s) => (
-                <div
-                  key={s.key}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-muted/40 border border-border/60 gap-3"
-                >
-                  <div>
-                    <p className="text-xs font-bold text-foreground">{s.name}</p>
-                    <p className="text-[11px] text-muted-foreground">{s.description}</p>
-                    <p className="text-[10px] font-mono text-muted-foreground/70">{s.key}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="number"
-                      value={editValues[s.key] !== undefined ? String(editValues[s.key]) : ""}
-                      onChange={(e) =>
-                        setEditValues({ ...editValues, [s.key]: parseFloat(e.target.value) || 0 })
-                      }
-                      className="h-8 text-xs bg-background border-border w-36"
-                    />
-                    <Button
-                      onClick={() => handleSaveSetting(s.key)}
-                      disabled={savingKey === s.key}
-                      size="sm"
-                      className="h-8 text-xs font-bold shadow-xs"
-                    >
-                      Update
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Live Pricing Engine Preview Card */}
-          <Card className="border-emerald-500/30 bg-emerald-500/5 shadow-2xs">
-            <CardHeader className="border-b border-emerald-500/20 pb-3">
-              <CardTitle className="text-sm font-black text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
-                <Zap className="h-4 w-4 text-amber-500" /> Live Pricing Engine Calculator Preview
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-4 space-y-4">
-              <p className="text-xs text-muted-foreground">
-                Formula: <span className="font-mono font-bold text-foreground">Selling Price = Cost Price + (Cost Price × Markup %)</span>
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="p-3 rounded-xl bg-background border border-border/60 space-y-1">
-                  <p className="text-[11px] font-bold text-muted-foreground">Sample Cost Price (BDT)</p>
-                  <p className="text-lg font-black text-foreground">৳ 750</p>
-                  <p className="text-[10px] text-muted-foreground">Base product cost</p>
-                </div>
-
-                <div className="p-3 rounded-xl bg-background border border-border/60 space-y-1">
-                  <p className="text-[11px] font-bold text-sky-600 dark:text-sky-400">Retail Tier ({editValues["pricing.retail_markup_percent"] ?? 40}%)</p>
-                  <p className="text-lg font-black text-sky-600 dark:text-sky-400">
-                    ৳ {Math.round(750 * (1 + ((editValues["pricing.retail_markup_percent"] ?? 40) / 100)))}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    Profit: ৳ {Math.round(750 * ((editValues["pricing.retail_markup_percent"] ?? 40) / 100))}
-                  </p>
-                </div>
-
-                <div className="p-3 rounded-xl bg-background border border-border/60 space-y-1">
-                  <p className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400">Wholesale Tier ({editValues["pricing.wholesale_markup_percent"] ?? 30}%)</p>
-                  <p className="text-lg font-black text-indigo-600 dark:text-indigo-400">
-                    ৳ {Math.round(750 * (1 + ((editValues["pricing.wholesale_markup_percent"] ?? 30) / 100)))}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    Profit: ৳ {Math.round(750 * ((editValues["pricing.wholesale_markup_percent"] ?? 30) / 100))}
-                  </p>
-                </div>
-
-                <div className="p-3 rounded-xl bg-background border border-border/60 space-y-1">
-                  <p className="text-[11px] font-bold text-amber-600 dark:text-amber-400">Reseller Base Tier ({editValues["pricing.reseller_markup_percent"] ?? 22}%)</p>
-                  <p className="text-lg font-black text-amber-600 dark:text-amber-400">
-                    ৳ {Math.round(750 * (1 + ((editValues["pricing.reseller_markup_percent"] ?? 22) / 100)))}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">
-                    Profit: ৳ {Math.round(750 * ((editValues["pricing.reseller_markup_percent"] ?? 22) / 100))}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {/* TAB 5: ORDER & PRODUCT */}
-      {activeTab === "order_product" && (
-        <Card className="border-border/80 shadow-2xs">
-          <CardHeader className="border-b border-border/60 pb-3">
-            <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
-              <Package className="h-4 w-4 text-purple-500" /> Order Engine &amp; Product Configuration
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 pt-4">
-            {getCategorySettings("order")
-              .concat(getCategorySettings("product"))
-              .map((s) => (
-                <div
-                  key={s.key}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-muted/40 border border-border/60 gap-3"
-                >
-                  <div>
-                    <p className="text-xs font-bold text-foreground">{s.name}</p>
-                    <p className="text-[11px] text-muted-foreground">{s.description}</p>
-                    <p className="text-[10px] font-mono text-muted-foreground/70">{s.key}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {typeof s.value === "boolean" ? (
-                      <Switch
-                        checked={Boolean(editValues[s.key])}
-                        onCheckedChange={(chk) => {
-                          setEditValues({ ...editValues, [s.key]: chk });
-                          updateSettingAction({ key: s.key, value: chk }).then(loadAllData);
-                        }}
-                      />
-                    ) : (
-                      <>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground font-mono">{s.key}</p>
+                      <div className="flex items-center gap-2 pt-1">
                         <Input
-                          value={editValues[s.key] !== undefined ? String(editValues[s.key]) : ""}
-                          onChange={(e) =>
-                            setEditValues({ ...editValues, [s.key]: e.target.value })
-                          }
-                          className="h-8 text-xs bg-background border-border w-44"
+                          type="text"
+                          value={editValues[s.key] ?? s.value ?? ""}
+                          onChange={(e) => setEditValues({ ...editValues, [s.key]: e.target.value })}
+                          className="h-9 text-xs font-mono rounded-xl bg-background"
                         />
                         <Button
-                          onClick={() => handleSaveSetting(s.key)}
-                          disabled={savingKey === s.key}
                           size="sm"
-                          className="h-8 text-xs font-bold shadow-xs"
+                          disabled={savingKey === s.key}
+                          onClick={() => handleSaveSetting(s.key)}
+                          className="h-9 px-3 text-xs font-extrabold bg-amber-500 text-slate-950 hover:bg-amber-600 shadow-2xs shrink-0"
                         >
                           Save
                         </Button>
-                      </>
-                    )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* TAB 2: PRICING & MARKUP */}
+          {activeTab === "pricing" && (
+            <Card className="rounded-3xl border-border bg-card">
+              <CardHeader className="p-5 sm:p-6 border-b border-border/60">
+                <CardTitle className="text-base font-extrabold flex items-center gap-2">
+                  <DollarSign className="h-5 w-5 text-amber-500" /> Pricing Rules, Markup & Financial Limits
+                </CardTitle>
+                <CardDescription className="text-xs">Configure default reseller markup percent, minimum order amount, and tax rates</CardDescription>
+              </CardHeader>
+              <CardContent className="p-5 sm:p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {getCategorySettings(["pricing", "finance", "markup"]).map((s) => (
+                    <div key={s.key} className="rounded-2xl border border-border/70 bg-muted/20 p-4 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-foreground">{s.name}</label>
+                        <Badge variant="outline" className="text-[9px] font-mono capitalize">
+                          {s.category}
+                        </Badge>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground font-mono">{s.key}</p>
+                      <div className="flex items-center gap-2 pt-1">
+                        <Input
+                          type="text"
+                          value={editValues[s.key] ?? s.value ?? ""}
+                          onChange={(e) => setEditValues({ ...editValues, [s.key]: e.target.value })}
+                          className="h-9 text-xs font-mono rounded-xl bg-background"
+                        />
+                        <Button
+                          size="sm"
+                          disabled={savingKey === s.key}
+                          onClick={() => handleSaveSetting(s.key)}
+                          className="h-9 px-3 text-xs font-extrabold bg-amber-500 text-slate-950 hover:bg-amber-600 shadow-2xs shrink-0"
+                        >
+                          Save
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* TAB 3: BUSINESS & LOGISTICS */}
+          {activeTab === "business" && (
+            <Card className="rounded-3xl border-border bg-card">
+              <CardHeader className="p-5 sm:p-6 border-b border-border/60">
+                <CardTitle className="text-base font-extrabold flex items-center gap-2">
+                  <Package className="h-5 w-5 text-amber-500" /> Business Rules & Logistics Settings
+                </CardTitle>
+                <CardDescription className="text-xs">Weight units, free shipping thresholds, and inventory rules</CardDescription>
+              </CardHeader>
+              <CardContent className="p-5 sm:p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {getCategorySettings(["business_rules", "logistics"]).map((s) => (
+                    <div key={s.key} className="rounded-2xl border border-border/70 bg-muted/20 p-4 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-foreground">{s.name}</label>
+                        <Badge variant="outline" className="text-[9px] font-mono capitalize">
+                          {s.category}
+                        </Badge>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground font-mono">{s.key}</p>
+                      <div className="flex items-center gap-2 pt-1">
+                        <Input
+                          type="text"
+                          value={editValues[s.key] ?? s.value ?? ""}
+                          onChange={(e) => setEditValues({ ...editValues, [s.key]: e.target.value })}
+                          className="h-9 text-xs font-mono rounded-xl bg-background"
+                        />
+                        <Button
+                          size="sm"
+                          disabled={savingKey === s.key}
+                          onClick={() => handleSaveSetting(s.key)}
+                          className="h-9 px-3 text-xs font-extrabold bg-amber-500 text-slate-950 hover:bg-amber-600 shadow-2xs shrink-0"
+                        >
+                          Save
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* TAB 4: SECURITY & FEATURE FLAGS */}
+          {activeTab === "security" && (
+            <div className="space-y-6">
+              {/* Security & System Settings */}
+              <Card className="rounded-3xl border-border bg-card">
+                <CardHeader className="p-5 sm:p-6 border-b border-border/60">
+                  <CardTitle className="text-base font-extrabold flex items-center gap-2">
+                    <Lock className="h-5 w-5 text-amber-500" /> Security & Policy Configuration
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-5 sm:p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {getCategorySettings(["security"]).map((s) => (
+                      <div key={s.key} className="rounded-2xl border border-border/70 bg-muted/20 p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-foreground">{s.name}</label>
+                          <Badge variant="outline" className="text-[9px] font-mono capitalize">
+                            security
+                          </Badge>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground font-mono">{s.key}</p>
+                        <div className="flex items-center gap-2 pt-1">
+                          <Input
+                            type="text"
+                            value={editValues[s.key] ?? s.value ?? ""}
+                            onChange={(e) => setEditValues({ ...editValues, [s.key]: e.target.value })}
+                            className="h-9 text-xs font-mono rounded-xl bg-background"
+                          />
+                          <Button
+                            size="sm"
+                            disabled={savingKey === s.key}
+                            onClick={() => handleSaveSetting(s.key)}
+                            className="h-9 px-3 text-xs font-extrabold bg-amber-500 text-slate-950 hover:bg-amber-600 shadow-2xs shrink-0"
+                          >
+                            Save
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                </div>
-              ))}
-          </CardContent>
-        </Card>
-      )}
+                </CardContent>
+              </Card>
 
-      {/* TAB 6: LOGISTICS & FINANCE */}
-      {activeTab === "logistics_finance" && (
-        <Card className="border-border/80 shadow-2xs">
-          <CardHeader className="border-b border-border/60 pb-3">
-            <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
-              <Truck className="h-4 w-4 text-indigo-500" /> Logistics Hub &amp; Finance Configuration
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 pt-4">
-            {getCategorySettings("logistics")
-              .concat(getCategorySettings("finance"))
-              .map((s) => (
-                <div
-                  key={s.key}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-muted/40 border border-border/60 gap-3"
-                >
-                  <div>
-                    <p className="text-xs font-bold text-foreground">{s.name}</p>
-                    <p className="text-[11px] text-muted-foreground">{s.description}</p>
-                    <p className="text-[10px] font-mono text-muted-foreground/70">{s.key}</p>
+              {/* Centralized Feature Flags */}
+              <Card className="rounded-3xl border-border bg-card">
+                <CardHeader className="p-5 sm:p-6 border-b border-border/60">
+                  <CardTitle className="text-base font-extrabold flex items-center gap-2">
+                    <Flag className="h-5 w-5 text-amber-500" /> Centralized System Feature Flags ({flagsList.length})
+                  </CardTitle>
+                  <CardDescription className="text-xs">Toggle system capabilities, maintenance mode, and reseller onboarding</CardDescription>
+                </CardHeader>
+                <CardContent className="p-5 sm:p-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    {flagsList.map((f) => (
+                      <div key={f.key} className="rounded-2xl border border-border/70 bg-muted/20 p-4 flex items-center justify-between">
+                        <div>
+                          <p className="text-xs font-extrabold text-foreground">{f.name}</p>
+                          <p className="text-[10px] font-mono text-muted-foreground mt-0.5">{f.key}</p>
+                        </div>
+                        <Switch
+                          checked={f.state === "on"}
+                          onCheckedChange={() => handleToggleFlag(f.key, f.state)}
+                        />
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      value={editValues[s.key] !== undefined ? String(editValues[s.key]) : ""}
-                      onChange={(e) => setEditValues({ ...editValues, [s.key]: e.target.value })}
-                      className="h-8 text-xs bg-background border-border w-44"
-                    />
-                    <Button
-                      onClick={() => handleSaveSetting(s.key)}
-                      disabled={savingKey === s.key}
-                      size="sm"
-                      className="h-8 text-xs font-bold shadow-xs"
-                    >
-                      Save
-                    </Button>
-                  </div>
-                </div>
-              ))}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* TAB 7: SECURITY & POLICY */}
-      {activeTab === "security_access" && (
-        <Card className="border-border/80 shadow-2xs">
-          <CardHeader className="border-b border-border/60 pb-3">
-            <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
-              <Lock className="h-4 w-4 text-rose-500" /> Security, Policy &amp; Session Settings
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 pt-4">
-            {getCategorySettings("security").map((s) => (
-              <div
-                key={s.key}
-                className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-muted/40 border border-border/60 gap-3"
-              >
-                <div>
-                  <p className="text-xs font-bold text-foreground">{s.name}</p>
-                  <p className="text-[11px] text-muted-foreground">{s.description}</p>
-                  <p className="text-[10px] font-mono text-muted-foreground/70">{s.key}</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Input
-                    type="number"
-                    value={editValues[s.key] !== undefined ? String(editValues[s.key]) : ""}
-                    onChange={(e) =>
-                      setEditValues({ ...editValues, [s.key]: parseInt(e.target.value) || 0 })
-                    }
-                    className="h-8 text-xs bg-background border-border w-36"
-                  />
-                  <Button
-                    onClick={() => handleSaveSetting(s.key)}
-                    disabled={savingKey === s.key}
-                    size="sm"
-                    className="h-8 text-xs font-bold shadow-xs"
-                  >
-                    Save Policy
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* TAB 8: FEATURE FLAGS */}
-      {activeTab === "feature_flags" && (
-        <Card className="border-border/80 shadow-2xs">
-          <CardHeader className="border-b border-border/60 pb-3">
-            <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
-              <Flag className="h-4 w-4 text-amber-500" /> Centralized Feature Flag Management
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border bg-muted/40 hover:bg-transparent">
-                  <TableHead className="text-xs font-bold text-muted-foreground">Flag Name</TableHead>
-                  <TableHead className="text-xs font-bold text-muted-foreground">Key</TableHead>
-                  <TableHead className="text-xs font-bold text-muted-foreground">Description</TableHead>
-                  <TableHead className="text-xs font-bold text-muted-foreground">State</TableHead>
-                  <TableHead className="text-xs font-bold text-muted-foreground text-right">Toggle</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {flagsList.map((f) => (
-                  <TableRow key={f.key} className="border-border/60 hover:bg-muted/40">
-                    <TableCell className="text-xs font-black text-foreground">{f.name}</TableCell>
-                    <TableCell className="text-xs font-mono text-muted-foreground">{f.key}</TableCell>
-                    <TableCell className="text-xs text-muted-foreground font-semibold">{f.description}</TableCell>
-                    <TableCell className="text-xs">
-                      <Badge
-                        variant="outline"
-                        className={`capitalize font-bold ${
-                          f.state === "on"
-                            ? "border-emerald-500/40 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
-                            : f.state === "beta"
-                              ? "border-amber-500/40 text-amber-600 dark:text-amber-400 bg-amber-500/10"
-                              : "border-border text-muted-foreground"
-                        }`}
-                      >
-                        {f.state}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-xs text-right">
-                      <Switch
-                        checked={f.state === "on" || f.state === "beta"}
-                        onCheckedChange={() => handleToggleFlag(f.key, f.state)}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* TAB 9: SYSTEM HEALTH */}
-      {activeTab === "system_health" && (
-        <Card className="border-border/80 shadow-2xs">
-          <CardHeader className="border-b border-border/60 pb-3">
-            <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
-              <Server className="h-4 w-4 text-emerald-500" /> Platform System Health &amp; Infrastructure
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 pt-4">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <div className="p-4 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-muted-foreground">Database Engine (MongoDB)</p>
-                  <p className="text-lg font-black text-emerald-600 dark:text-emerald-400 capitalize">
-                    {healthStatus?.database || "Healthy"}
-                  </p>
-                </div>
-                <Database className="h-6 w-6 text-emerald-500" />
-              </div>
-
-              <div className="p-4 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-muted-foreground">BullMQ &amp; Redis Queue</p>
-                  <p className="text-lg font-black text-emerald-600 dark:text-emerald-400 capitalize">
-                    {healthStatus?.redis || "Healthy"}
-                  </p>
-                </div>
-                <Zap className="h-6 w-6 text-amber-500" />
-              </div>
-
-              <div className="p-4 rounded-xl bg-muted/40 border border-border/60 flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-muted-foreground">Asset Storage (ImageKit)</p>
-                  <p className="text-lg font-black text-emerald-600 dark:text-emerald-400 capitalize">
-                    {healthStatus?.storage || "Healthy"}
-                  </p>
-                </div>
-                <HardDrive className="h-6 w-6 text-sky-500" />
-              </div>
+                </CardContent>
+              </Card>
             </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* TAB 10: CONFIGURATION HISTORY */}
-      {activeTab === "history_audit" && (
-        <Card className="border-border/80 shadow-2xs">
-          <CardHeader className="border-b border-border/60 pb-3">
-            <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
-              <History className="h-4 w-4 text-muted-foreground" /> Configuration Change Audit Log
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border bg-muted/40 hover:bg-transparent">
-                  <TableHead className="text-xs font-bold text-muted-foreground">Timestamp</TableHead>
-                  <TableHead className="text-xs font-bold text-muted-foreground">Setting Key</TableHead>
-                  <TableHead className="text-xs font-bold text-muted-foreground">Category</TableHead>
-                  <TableHead className="text-xs font-bold text-muted-foreground">Old Value</TableHead>
-                  <TableHead className="text-xs font-bold text-muted-foreground">New Value</TableHead>
-                  <TableHead className="text-xs font-bold text-muted-foreground">Changed By</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {auditLogs.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-6 text-muted-foreground text-xs font-semibold">
-                      No setting mutations recorded in audit trail yet.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  auditLogs.map((a) => (
-                    <TableRow key={a.id} className="border-border/60 hover:bg-muted/40">
-                      <TableCell className="text-xs text-muted-foreground font-mono">
-                        {new Date(a.timestamp).toLocaleString()}
-                      </TableCell>
-                      <TableCell className="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">
-                        {a.settingKey}
-                      </TableCell>
-                      <TableCell className="text-xs capitalize font-semibold text-foreground">
-                        {a.category}
-                      </TableCell>
-                      <TableCell className="text-xs font-mono text-rose-600 dark:text-rose-400">
-                        {String(a.oldValue ?? "N/A")}
-                      </TableCell>
-                      <TableCell className="text-xs font-mono font-black text-emerald-600 dark:text-emerald-400">
-                        {String(a.newValue)}
-                      </TableCell>
-                      <TableCell className="text-xs text-foreground font-bold">
-                        {a.changedBy}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+          )}
+        </div>
       )}
     </div>
   );
 }
-
-export default SettingsCenterUI;

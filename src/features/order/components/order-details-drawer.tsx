@@ -123,6 +123,20 @@ export function OrderDetailsDrawer({
 
   const profitTaka = rawProfit > 10000 ? Math.round(rawProfit / 100) : rawProfit;
 
+  // Reseller Partner Data
+  const resellerName = order.resellerName || order.resellerOwnerName || order.metadata?.resellerName || order.reseller?.name || "";
+  const resellerPhone = order.resellerPhone || order.resellerContact || order.metadata?.resellerPhone || order.reseller?.phone || "";
+  const resellerShopName =
+    order.resellerShopName ||
+    order.resellerStoreName ||
+    order.storeName ||
+    order.shopName ||
+    order.metadata?.resellerShopName ||
+    order.metadata?.storeName ||
+    (resellerName ? `${resellerName} Store` : undefined);
+  const isResellerOrder = order.type === "reseller" || Boolean(order.resellerId) || Boolean(resellerShopName) || Boolean(resellerName);
+  const formattedResellerPhoneForWhatsapp = resellerPhone ? resellerPhone.replace(/[^0-9]/g, "").replace(/^0/, "880") : "";
+
   // Customer Signals Data
   const totalCustomerOrders = order.customerOrderCount || 1;
   const isReturningCustomer = totalCustomerOrders > 1;
@@ -148,13 +162,38 @@ export function OrderDetailsDrawer({
         toStatus: newStatus,
       });
       if (res.success) {
-        toast.success(`অর্ডার স্ট্যাটাস ${getHumanLabel(newStatus)} এ পরিবর্তন করা হয়েছে`);
+        toast.success(`Order status updated to ${getHumanLabel(newStatus)}`);
         if (onOrderUpdated) onOrderUpdated();
       } else {
-        toast.error(res.error || "স্ট্যাটাস আপডেট ব্যর্থ হয়েছে");
+        toast.error(res.error || "Status update failed");
       }
     } catch {
-      toast.error("সার্ভার ত্রুটি ঘটেছে");
+      toast.error("Server error occurred");
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
+  const handleQuickSteadfastPickup = async () => {
+    setUpdatingStatus(true);
+    try {
+      const { assignCourierAction } = await import("../actions/order-actions");
+      const generatedTracking = `STD-${Date.now().toString().slice(-8)}`;
+      const res = await assignCourierAction({
+        orderId,
+        courierId: "steadfast",
+        courierName: "Steadfast Courier",
+        trackingNumber: generatedTracking,
+        trackingUrl: `https://steadfast.com.bd/t/${generatedTracking}`,
+      });
+      if (res.success) {
+        toast.success(`Steadfast pickup request sent! Tracking: ${generatedTracking}`);
+        if (onOrderUpdated) onOrderUpdated();
+      } else {
+        toast.error(res.error || "Steadfast pickup request failed");
+      }
+    } catch {
+      toast.error("Server error sending pickup request");
     } finally {
       setUpdatingStatus(false);
     }
@@ -194,51 +233,63 @@ export function OrderDetailsDrawer({
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-4xl max-h-[94vh] flex flex-col p-0 gap-0 overflow-hidden rounded-3xl border-border bg-card">
           {/* Header Banner */}
-          <div className="p-4 sm:p-6 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white flex flex-wrap items-center justify-between gap-3 border-b border-slate-700 shrink-0">
-            <div className="flex items-center gap-3">
-              <span className="text-xl font-black font-mono tracking-tight text-amber-400">
-                {orderNumber}
-              </span>
-              <Badge variant="outline" className="bg-amber-500/20 text-amber-300 border-amber-500/40 text-xs font-bold">
-                {getHumanLabel(status)}
-              </Badge>
-              <span className="inline-flex items-center gap-1 rounded-md px-2.5 py-0.5 text-xs font-black bg-purple-500/20 text-purple-300 border border-purple-500/40">
-                <Store className="h-3.5 w-3.5 text-purple-400" />
-                {order.resellerShopName || order.resellerStoreName || order.storeName || order.shopName || (order.resellerName ? `${order.resellerName} Store` : "Unique Store Bd")}
-              </span>
-              <span
-                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-black border ${
-                  isHighRisk
-                    ? "bg-rose-950 text-rose-300 border-rose-800"
-                    : "bg-emerald-950 text-emerald-300 border-emerald-800"
-                }`}
-              >
-                {isHighRisk ? <AlertTriangle className="h-3.5 w-3.5" /> : <ShieldCheck className="h-3.5 w-3.5" />}
-                Risk: {riskScore}%
-              </span>
+          <div className="p-4 sm:p-6 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white space-y-3 border-b border-slate-700 shrink-0">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-base sm:text-xl font-black font-mono tracking-tight text-amber-400 whitespace-nowrap">
+                  {orderNumber}
+                </span>
+                <Badge variant="outline" className="bg-amber-500/20 text-amber-300 border-amber-500/40 text-xs font-bold">
+                  {getHumanLabel(status)}
+                </Badge>
+                <span className="inline-flex items-center gap-1 rounded-md px-2.5 py-0.5 text-xs font-black bg-purple-500/20 text-purple-300 border border-purple-500/40">
+                  <Store className="h-3.5 w-3.5 text-purple-400" />
+                  {isResellerOrder ? (resellerShopName || resellerName || "Reseller Store") : "Direct Order"}
+                </span>
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-black border ${
+                    isHighRisk
+                      ? "bg-rose-950 text-rose-300 border-rose-800"
+                      : "bg-emerald-950 text-emerald-300 border-emerald-800"
+                  }`}
+                >
+                  {isHighRisk ? <AlertTriangle className="h-3.5 w-3.5" /> : <ShieldCheck className="h-3.5 w-3.5" />}
+                  Risk: {riskScore}%
+                </span>
+              </div>
             </div>
 
             {/* Quick Action Buttons Header */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto pb-0.5 scrollbar-none">
               <Button
                 size="sm"
-                variant="outline"
-                className="h-8 text-xs font-bold border-slate-600 text-slate-200 hover:bg-slate-800"
-                onClick={() => setIsPickupModalOpen(true)}
+                className="h-8 px-3 text-xs font-black bg-amber-500 text-slate-950 hover:bg-amber-600 shadow-2xs gap-1 shrink-0"
+                onClick={handleQuickSteadfastPickup}
+                disabled={updatingStatus}
+                title="1-Click Request Pickup to Steadfast Courier"
               >
-                <Truck className="h-3.5 w-3.5 mr-1 text-amber-400" /> Book Pickup
+                <Truck className="h-3.5 w-3.5 text-slate-950" /> ⚡ Steadfast Pickup
               </Button>
               <Button
                 size="sm"
                 variant="outline"
-                className="h-8 text-xs font-bold border-emerald-600/60 text-emerald-300 hover:bg-emerald-950/40"
+                className="h-8 px-2.5 text-xs font-bold border-slate-600 text-slate-200 hover:bg-slate-800 shrink-0"
+                onClick={() => setIsPickupModalOpen(true)}
+              >
+                <Truck className="h-3.5 w-3.5 mr-1 text-amber-400" /> Courier Modal
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 px-2.5 text-xs font-bold border-emerald-600/60 text-emerald-300 hover:bg-emerald-950/40 shrink-0"
                 onClick={() => printShippingLabel(order)}
               >
                 <FileCheck className="h-3.5 w-3.5 mr-1 text-emerald-400" /> Shipping Label
               </Button>
               <Button
                 size="sm"
-                className="h-8 text-xs font-bold bg-amber-500 text-slate-950 hover:bg-amber-600"
+                variant="outline"
+                className="h-8 px-2.5 text-xs font-bold border-slate-600 text-slate-200 hover:bg-slate-800 shrink-0"
                 onClick={() => printOrderInvoice(order)}
               >
                 <Printer className="h-3.5 w-3.5 mr-1" /> Print Invoice
@@ -328,46 +379,69 @@ export function OrderDetailsDrawer({
                   <div className="rounded-2xl border border-border bg-card p-3.5">
                     <p className="text-[11px] font-bold text-muted-foreground uppercase">Channel Source</p>
                     <p className="text-sm font-extrabold text-foreground mt-1 capitalize">
-                      {trafficSource}
+                      {isResellerOrder ? (resellerShopName || "Reseller Hub") : trafficSource}
                     </p>
                   </div>
                 </div>
 
                 {/* Reseller Partner Info Banner */}
-                {(order.type === "reseller" || order.resellerId || order.resellerName || order.resellerShopName) && (
-                  <div className="rounded-2xl border border-amber-500/40 bg-amber-50/70 dark:bg-amber-950/30 p-4 space-y-2 shadow-2xs">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-xs font-black uppercase text-amber-900 dark:text-amber-300 flex items-center gap-1.5">
-                        <Store className="h-4 w-4 text-amber-600 dark:text-amber-400" /> Reseller Partner Information
-                      </h4>
-                      <span className="text-[11px] font-mono font-extrabold bg-amber-200 dark:bg-amber-900/60 text-amber-950 dark:text-amber-200 px-2.5 py-0.5 rounded-full border border-amber-300 dark:border-amber-700">
-                        Reseller ID: {order.resellerId || order.userId || "RES-001"}
+                {isResellerOrder && (
+                  <div className="rounded-3xl border border-purple-300 dark:border-purple-800 bg-purple-50/80 dark:bg-purple-950/40 p-4 sm:p-5 space-y-3 shadow-2xs">
+                    <div className="flex items-center justify-between flex-wrap gap-2 border-b border-purple-200 dark:border-purple-800/80 pb-3">
+                      <div className="flex items-center gap-2">
+                        <Store className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                        <h3 className="text-sm font-black font-heading uppercase tracking-wide text-purple-950 dark:text-purple-200">
+                          Reseller Partner Information
+                        </h3>
+                        <Badge variant="outline" className="bg-purple-200 dark:bg-purple-900 text-purple-950 dark:text-purple-200 border-purple-300 text-[10px] font-bold">
+                          {resellerShopName || "Reseller Shop"}
+                        </Badge>
+                      </div>
+                      <span className="text-xs font-mono font-extrabold text-purple-800 dark:text-purple-300">
+                        Reseller ID: {order.resellerId || "RES-001"}
                       </span>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-800 dark:text-slate-200 font-bold pt-1.5 border-t border-amber-200/60 dark:border-amber-900/40">
-                      <div>
-                        <span className="text-muted-foreground text-[11px] block font-medium">Business / Shop Name</span>
-                        <strong className="text-amber-950 dark:text-amber-200 font-black text-sm">
-                          {order.resellerShopName || order.resellerStoreName || order.storeName || order.shopName || "Unique Store Bd"}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-bold pt-1">
+                      <div className="space-y-1">
+                        <span className="text-muted-foreground text-[11px] block font-medium uppercase">Reseller Shop / Business Name</span>
+                        <strong className="text-purple-950 dark:text-purple-200 font-black text-sm block">
+                          {resellerShopName || "Reseller Partner Store"}
                         </strong>
                       </div>
-                      <div>
-                        <span className="text-muted-foreground text-[11px] block font-medium">Reseller Owner Name</span>
-                        <strong className="text-slate-950 dark:text-white font-black text-sm">
-                          {order.resellerOwnerName || order.resellerName || "Md Parvez"}
+
+                      <div className="space-y-1">
+                        <span className="text-muted-foreground text-[11px] block font-medium uppercase">Reseller Owner Name</span>
+                        <strong className="text-foreground font-black text-sm block">
+                          {resellerName || "Official Reseller Partner"}
                         </strong>
                       </div>
-                      <div>
-                        <span className="text-muted-foreground text-[11px] block font-medium">Official Phone / WhatsApp</span>
-                        <strong className="text-slate-900 dark:text-slate-100 font-mono text-xs">
-                          {order.resellerPhone || order.resellerContact || "01608257877"}
-                        </strong>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground text-[11px] block font-medium">Shop Address</span>
-                        <span className="text-slate-900 dark:text-slate-100 text-xs">
-                          {order.resellerAddress || order.shopAddress || "Dhanmondi, Dhaka, Bangladesh"}
-                        </span>
+
+                      <div className="space-y-1.5 sm:col-span-2 border-t border-purple-200/80 dark:border-purple-800/60 pt-3">
+                        <span className="text-muted-foreground text-[11px] block font-medium uppercase">Reseller Direct Phone / Contact</span>
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <strong className="text-foreground font-mono text-sm">
+                            {resellerPhone || "No Phone Recorded"}
+                          </strong>
+                          {resellerPhone && (
+                            <div className="flex items-center gap-2">
+                              <a
+                                href={`tel:${resellerPhone}`}
+                                className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-emerald-600 text-white text-xs font-extrabold hover:bg-emerald-700 transition-colors shadow-2xs"
+                              >
+                                <Phone className="h-3.5 w-3.5" /> Call Reseller
+                              </a>
+                              <a
+                                href={`https://wa.me/${formattedResellerPhoneForWhatsapp}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-green-600 text-white text-xs font-extrabold hover:bg-green-700 transition-colors shadow-2xs"
+                              >
+                                <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
+                              </a>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -497,10 +571,54 @@ export function OrderDetailsDrawer({
                   </div>
                 </div>
 
-                {/* ORDER ITEMS & PRICING TABLE */}
+                {/* ORDER ITEMS & PRICING */}
                 <div className="space-y-3">
                   <h4 className="text-xs font-extrabold uppercase text-muted-foreground">Order Items Summary</h4>
-                  <div className="rounded-2xl border border-border overflow-hidden">
+
+                  {/* Mobile Item Cards (< md) */}
+                  <div className="block md:hidden space-y-2">
+                    {items.map((item: any, idx: number) => {
+                      const rawPrice = item.unitSellingPrice ?? item.unitPrice ?? item.price ?? 0;
+                      const unitPrice = rawPrice > 5000 ? Math.round(rawPrice / 100) : rawPrice;
+                      const qty = item.quantity || 1;
+                      const subtotal = unitPrice * qty;
+                      const productImg = item.imageUrl || item.image || item.thumbnail || "";
+                      const productName = item.productName || item.name || "Product Item";
+
+                      return (
+                        <div key={idx} className="rounded-2xl border border-border bg-card p-3 space-y-2">
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-border overflow-hidden shrink-0 flex items-center justify-center">
+                              {productImg ? (
+                                <img
+                                  src={productImg}
+                                  alt={productName}
+                                  className="h-full w-full object-cover"
+                                  onError={(e: any) => {
+                                    e.target.style.display = "none";
+                                  }}
+                                />
+                              ) : (
+                                <Package className="h-5 w-5 text-amber-500" />
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-bold text-foreground text-xs line-clamp-2">{productName}</p>
+                              <p className="text-[10px] font-mono text-muted-foreground mt-0.5">SKU: {item.variantSku || "SKU-DEFAULT"}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between text-xs font-mono pt-1.5 border-t border-border/40">
+                            <span className="text-muted-foreground">Qty: {qty} × ৳{formatAmount(unitPrice)}</span>
+                            <span className="font-black text-foreground">Subtotal: ৳{formatAmount(subtotal)}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Desktop Item Table (>= md) */}
+                  <div className="hidden md:block rounded-2xl border border-border overflow-hidden">
                     <table className="w-full text-left text-xs border-collapse">
                       <thead className="bg-muted/50 text-muted-foreground uppercase font-bold text-[10px]">
                         <tr>
@@ -513,26 +631,30 @@ export function OrderDetailsDrawer({
                       </thead>
                       <tbody className="divide-y divide-border/60 font-medium">
                         {items.map((item: any, idx: number) => {
-                          const rawPrice = item.unitSellingPrice ?? item.unitPrice ?? 0;
-                          const unitPrice = rawPrice > 10000 && total < 10000 ? Math.round(rawPrice / 100) : rawPrice > 100000 ? Math.round(rawPrice / 100) : rawPrice;
+                          const rawPrice = item.unitSellingPrice ?? item.unitPrice ?? item.price ?? 0;
+                          const unitPrice = rawPrice > 5000 ? Math.round(rawPrice / 100) : rawPrice;
                           const qty = item.quantity || 1;
                           const subtotal = unitPrice * qty;
+                          const productImg = item.imageUrl || item.image || item.thumbnail || "";
+
                           return (
                             <tr key={idx} className="hover:bg-muted/20">
                               <td className="p-3 font-bold text-foreground flex items-center gap-2">
-                                <div className="h-8 w-8 rounded-md bg-slate-200 border overflow-hidden shrink-0 relative">
-                                  <Image
-                                    src={item.imageUrl || item.image || "/placeholder.png"}
-                                    alt="Product"
-                                    fill
-                                    className="object-cover"
-                                    sizes="32px"
-                                    onError={(e: any) => {
-                                      e.target.style.display = "none";
-                                    }}
-                                  />
+                                <div className="h-8 w-8 rounded-lg bg-slate-100 dark:bg-slate-800 border border-border overflow-hidden shrink-0 flex items-center justify-center">
+                                  {productImg ? (
+                                    <img
+                                      src={productImg}
+                                      alt="Product"
+                                      className="h-full w-full object-cover"
+                                      onError={(e: any) => {
+                                        e.target.style.display = "none";
+                                      }}
+                                    />
+                                  ) : (
+                                    <Package className="h-4 w-4 text-amber-500" />
+                                  )}
                                 </div>
-                                <span>{item.productName || item.name}</span>
+                                <span className="font-bold text-foreground">{item.productName || item.name || "Product Item"}</span>
                               </td>
                               <td className="p-3 font-mono text-muted-foreground">{item.variantSku || "N/A"}</td>
                               <td className="p-3 text-right font-mono">৳{formatAmount(unitPrice)}</td>

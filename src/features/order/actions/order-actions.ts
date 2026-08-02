@@ -48,7 +48,11 @@ export async function updateOrderStatusAction(formData: unknown): Promise<{
   const session = await auth();
   checkPermission(session, "Order.Update");
   try {
-    const validated = updateOrderStatusSchema.parse(formData);
+    const raw = typeof formData === "object" && formData !== null ? { ...(formData as any) } : {};
+    if (!raw.actorId) {
+      raw.actorId = (session?.user as any)?.id || (session?.user as any)?.email || "admin";
+    }
+    const validated = updateOrderStatusSchema.parse(raw);
     const service = new OrderService();
     const result = await service.transitionStatus(
       validated.orderId,
@@ -72,7 +76,14 @@ export async function cancelOrderAction(formData: unknown): Promise<{
   const session = await auth();
   checkPermission(session, "Order.Cancel");
   try {
-    const validated = cancelOrderSchema.parse(formData);
+    const raw = typeof formData === "object" && formData !== null ? { ...(formData as any) } : {};
+    if (!raw.cancelledBy) {
+      raw.cancelledBy = (session?.user as any)?.id || (session?.user as any)?.email || "admin";
+    }
+    if (!raw.reason) {
+      raw.reason = "Cancelled by operator";
+    }
+    const validated = cancelOrderSchema.parse(raw);
     const service = new OrderService();
     const result = await service.cancelOrder(
       validated.orderId,

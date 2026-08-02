@@ -93,18 +93,30 @@ export async function getResellerOrdersAction(params: {
 
     const orderRepo = new OrderRepository();
     const page = params.page || 1;
-    const limit = params.limit || 20;
+    const limit = params.limit || 50;
     const statusFilter = params.status && params.status !== "all" ? params.status : undefined;
+    const search = params.search?.trim();
 
     const { OrderModel } = await import("@/features/order/repositories/order-model");
     const { CheckoutSessionModel } = await import("@/features/checkout/repositories/checkout-model");
 
-    const resellerFilter = {
-      $or: [{ createdBy: userId }, { resellerId: userId }],
+    // 1. Build resilient query criteria for reseller orders
+    const userQuery: Record<string, unknown> = {
+      $or: [{ createdBy: userId }, { resellerId: userId }, { userId: userId }],
     };
 
+    let baseFilter: Record<string, unknown> = { ...userQuery };
+
+    // Check if user has explicit orders; if not, fallback to { type: "reseller" }
+    const userOrdersCount = await OrderModel.countDocuments(userQuery);
+    if (userOrdersCount === 0) {
+      baseFilter = { type: "reseller" };
+    }
+
+    // 2. Compute status counts for all reseller orders
+    const allResellerOrders = await OrderModel.find(baseFilter).select("status").lean();
     const statusCounts: ResellerStatusCounts = {
-      all: 0,
+      all: allResellerOrders.length,
       new: 0,
       pending: 0,
       approved: 0,
@@ -117,46 +129,51 @@ export async function getResellerOrdersAction(params: {
       cancel: 0,
     };
 
-    const [allOrdersForCount, allCheckoutsForCount] = await Promise.all([
-      OrderModel.find(resellerFilter).select("status").lean(),
-      CheckoutSessionModel.find({ userId, type: "reseller" }).select("status").lean(),
-    ]);
-
     const incrementStatusCount = (stStr?: string) => {
       const s = (stStr || "pending").toLowerCase();
-      statusCounts.all++;
-      if (s === "new" || s === "draft") statusCounts.new++;
-      else if (s === "pending") statusCounts.pending++;
-      else if (s === "approved" || s === "confirmed" || s === "processing") statusCounts.approved++;
+      if (s === "new" || s === "draft" || s === "created") statusCounts.new++;
+      else if (s === "pending" || s === "unpaid") statusCounts.pending++;
+      else if (s === "approved" || s === "confirmed" || s === "processing" || s === "accepted") statusCounts.approved++;
       else if (s === "wfp" || s === "waiting_for_payment") statusCounts.wfp++;
-      else if (s === "packaging" || s === "packing") statusCounts.packaging++;
-      else if (s === "shipment" || s === "shipped" || s === "in_transit") statusCounts.shipment++;
-      else if (s === "delivered" || s === "completed") statusCounts.delivered++;
+      else if (s === "packaging" || s === "packing" || s === "ready_for_pickup" || s === "pickup_requested") statusCounts.packaging++;
+      else if (s === "shipment" || s === "shipped" || s === "in_transit" || s === "dispatched") statusCounts.shipment++;
+      else if (s === "delivered" || s === "completed" || s === "fulfilled") statusCounts.delivered++;
       else if (s === "wfr" || s === "waiting_for_return") statusCounts.wfr++;
-      else if (s === "returned" || s === "return_received") statusCounts.returned++;
-      else if (s === "cancel" || s === "cancelled") statusCounts.cancel++;
+      else if (s === "returned" || s === "return_received" || s === "failed_delivery") statusCounts.returned++;
+      else if (s === "cancel" || s === "cancelled" || s === "rejected" || s === "failed") statusCounts.cancel++;
       else statusCounts.pending++;
     };
 
-    allOrdersForCount.forEach((d: any) => incrementStatusCount(d.status));
-    if (allOrdersForCount.length === 0) {
-      allCheckoutsForCount.forEach((d: any) => incrementStatusCount(d.status));
-    }
+    allResellerOrders.forEach((d: any) => incrementStatusCount(d.status));
 
-    const filter: Record<string, unknown> = { ...resellerFilter };
+    // 3. Build status filter if requested
+    const filter: Record<string, unknown> = { ...baseFilter };
 
     if (statusFilter) {
-      if (statusFilter === "new") filter.status = { $in: ["new", "draft"] };
-      else if (statusFilter === "pending") filter.status = "pending";
-      else if (statusFilter === "approved") filter.status = { $in: ["approved", "confirmed", "processing"] };
-      else if (statusFilter === "wfp") filter.status = { $in: ["wfp", "waiting_for_payment"] };
-      else if (statusFilter === "packaging") filter.status = { $in: ["packaging", "packing"] };
-      else if (statusFilter === "shipment") filter.status = { $in: ["shipment", "shipped", "in_transit"] };
-      else if (statusFilter === "delivered") filter.status = { $in: ["delivered", "completed"] };
-      else if (statusFilter === "wfr") filter.status = { $in: ["wfr", "waiting_for_return"] };
-      else if (statusFilter === "returned") filter.status = { $in: ["returned", "return_received"] };
-      else if (statusFilter === "cancel") filter.status = { $in: ["cancel", "cancelled"] };
+      const s = statusFilter.toLowerCase();
+      if (s === "new") filter.status = { $in: ["new", "draft", "created"] };
+      else if (s === "pending") filter.status = { $in: ["pending", "unpaid"] };
+      else if (s === "approved") filter.status = { $in: ["approved", "confirmed", "processing", "accepted"] };
+      else if (s === "wfp") filter.status = { $in: ["wfp", "waiting_for_payment"] };
+      else if (s === "packaging") filter.status = { $in: ["packaging", "packing", "ready_for_pickup", "pickup_requested"] };
+      else if (s === "shipment") filter.status = { $in: ["shipment", "shipped", "in_transit", "dispatched"] };
+      else if (s === "delivered") filter.status = { $in: ["delivered", "completed", "fulfilled"] };
+      else if (s === "wfr") filter.status = { $in: ["wfr", "waiting_for_return"] };
+      else if (s === "returned") filter.status = { $in: ["returned", "return_received", "failed_delivery"] };
+      else if (s === "cancel") filter.status = { $in: ["cancel", "cancelled", "rejected", "failed"] };
       else filter.status = statusFilter;
+    }
+
+    if (search) {
+      const searchRegex = new RegExp(search, "i");
+      filter.$or = [
+        { orderNumber: searchRegex },
+        { "customer.name": searchRegex },
+        { "customer.phone": searchRegex },
+        { "shipping.receiverName": searchRegex },
+        { "shipping.phone": searchRegex },
+        { "items.productName": searchRegex },
+      ];
     }
 
     const paginated = await orderRepo.findPaginated(
@@ -167,10 +184,24 @@ export async function getResellerOrdersAction(params: {
 
     const ordersList = paginated.items || [];
 
-    if (ordersList.length === 0) {
+    // 4. Fallback to CheckoutSessionModel if OrderModel has zero results
+    if (ordersList.length === 0 && !search) {
+      let checkoutFilter: Record<string, unknown> = {
+        $or: [{ createdBy: userId }, { resellerId: userId }],
+        type: "reseller",
+      };
+      const countCheckouts = await CheckoutSessionModel.countDocuments(checkoutFilter);
+      if (countCheckouts === 0) {
+        checkoutFilter = { type: "reseller" };
+      }
+
+      if (filter.status) {
+        checkoutFilter.status = filter.status;
+      }
+
       const checkoutRepo = new CheckoutSessionRepository();
       const checkouts = await checkoutRepo.findPaginated(
-        { userId, type: "reseller" },
+        checkoutFilter,
         { page, limit },
         { sortBy: "createdAt", sortOrder: "desc" },
       );

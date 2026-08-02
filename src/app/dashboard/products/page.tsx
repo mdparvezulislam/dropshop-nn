@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   deleteProductAction,
@@ -21,6 +20,7 @@ import {
   CatalogTableView,
   type ProductCatalogItem,
 } from "@/features/catalog/components/catalog-table-view";
+import { CatalogMobileCardView } from "@/features/catalog/components/catalog-mobile-card-view";
 import { CatalogGridView } from "@/features/catalog/components/catalog-grid-view";
 import { CatalogAnalyticsView } from "@/features/catalog/components/catalog-analytics-view";
 import { CatalogPreviewDrawer } from "@/features/catalog/components/catalog-preview-drawer";
@@ -31,7 +31,6 @@ import { CatalogExportModal } from "@/features/catalog/components/modals/catalog
 const PAGE_SIZE = 50;
 
 export default function ProductsMasterWorkspacePage(): React.ReactElement {
-  const router = useRouter();
   const {
     activeTab,
     setActiveTab,
@@ -54,7 +53,7 @@ export default function ProductsMasterWorkspacePage(): React.ReactElement {
   } = useCatalogWorkspace();
 
   const [items, setItems] = React.useState<ProductCatalogItem[]>([]);
-  const [totalCount, setTotalCount] = React.useState(0);
+  const [, setTotalCount] = React.useState(0);
   const [stats, setStats] = React.useState<CatalogSummaryStats>({
     total: 0,
     active: 0,
@@ -65,7 +64,6 @@ export default function ProductsMasterWorkspacePage(): React.ReactElement {
   });
   const [loading, setLoading] = React.useState(true);
 
-  // Search previously re-queried the server on every keystroke.
   const debouncedSearch = useDebounce(filters.search, 350);
 
   const loadData = React.useCallback(async () => {
@@ -105,7 +103,6 @@ export default function ProductsMasterWorkspacePage(): React.ReactElement {
     loadData();
   }, [loadData]);
 
-  // A tab or search change invalidates the current selection.
   React.useEffect(() => {
     clearSelection();
   }, [activeTab, debouncedSearch, clearSelection]);
@@ -114,7 +111,7 @@ export default function ProductsMasterWorkspacePage(): React.ReactElement {
     try {
       const res = await deleteProductAction(id);
       if (res.success) {
-        toast.success("পণ্য মুছে ফেলা হয়েছে (Product deleted)");
+        toast.success("Product deleted successfully");
         loadData();
       } else {
         toast.error(res.error || "Delete failed");
@@ -128,7 +125,7 @@ export default function ProductsMasterWorkspacePage(): React.ReactElement {
     try {
       const res = await duplicateProductAction(id);
       if (res.success) {
-        toast.success("পণ্য কপি করা হয়েছে (Product duplicated)");
+        toast.success("Product duplicated successfully");
         loadData();
       } else {
         toast.error(res.error || "Duplicate failed");
@@ -142,11 +139,9 @@ export default function ProductsMasterWorkspacePage(): React.ReactElement {
     try {
       const res = await inlineUpdateProductAction(id, field, val);
       if (res.success) {
-        toast.success("পণ্য তথ্য আপডেট হয়েছে (Product updated)");
+        toast.success("Product updated");
         loadData();
       } else {
-        // Inline-edit failures used to be swallowed, leaving the old value on screen
-        // with no indication the write never happened.
         toast.error(res.error || "Inline edit failed");
       }
     } catch (err: unknown) {
@@ -163,8 +158,8 @@ export default function ProductsMasterWorkspacePage(): React.ReactElement {
   };
 
   return (
-    <div className="space-y-5 p-4 sm:p-6 max-w-[1600px] mx-auto">
-      {/* Workspace Header */}
+    <div className="space-y-4 p-3 sm:p-6 max-w-[1600px] mx-auto animate-fade-in">
+      {/* Workspace Header & Action Bar */}
       <CatalogWorkspaceHeader
         activeTab={activeTab}
         onTabChange={setActiveTab}
@@ -186,30 +181,42 @@ export default function ProductsMasterWorkspacePage(): React.ReactElement {
         onSelectTab={setActiveTab}
       />
 
-      {/* Main View Mode Content */}
-      {viewMode === "table" || viewMode === "compact" ? (
-        <CatalogTableView
-          items={items}
-          loading={loading}
-          selectedIds={selectedIds}
-          onToggleSelect={toggleSelect}
-          onToggleSelectAll={toggleSelectAll}
-          onPreview={(id) => setPreviewProductId(id)}
-          onInlineUpdate={handleInlineUpdate}
-          onDuplicate={handleDuplicate}
-          onDelete={handleDelete}
-        />
-      ) : viewMode === "grid" ? (
-        <CatalogGridView
+      {/* Responsive Content: Mobile Cards (< md) vs Desktop Table/Grid (>= md) */}
+      <div className="md:hidden">
+        <CatalogMobileCardView
           items={items}
           loading={loading}
           onPreview={(id) => setPreviewProductId(id)}
           onDuplicate={handleDuplicate}
           onDelete={handleDelete}
         />
-      ) : (
-        <CatalogAnalyticsView items={items} />
-      )}
+      </div>
+
+      <div className="hidden md:block">
+        {viewMode === "table" || viewMode === "compact" ? (
+          <CatalogTableView
+            items={items}
+            loading={loading}
+            selectedIds={selectedIds}
+            onToggleSelect={toggleSelect}
+            onToggleSelectAll={toggleSelectAll}
+            onPreview={(id) => setPreviewProductId(id)}
+            onInlineUpdate={handleInlineUpdate}
+            onDuplicate={handleDuplicate}
+            onDelete={handleDelete}
+          />
+        ) : viewMode === "grid" ? (
+          <CatalogGridView
+            items={items}
+            loading={loading}
+            onPreview={(id) => setPreviewProductId(id)}
+            onDuplicate={handleDuplicate}
+            onDelete={handleDelete}
+          />
+        ) : (
+          <CatalogAnalyticsView items={items} />
+        )}
+      </div>
 
       {/* Slide-over Preview Drawer */}
       <CatalogPreviewDrawer

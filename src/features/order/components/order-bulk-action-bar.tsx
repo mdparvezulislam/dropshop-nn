@@ -73,6 +73,15 @@ export function OrderBulkActionBar({
         <Button
           size="sm"
           variant="secondary"
+          onClick={() => onBulkAction("steadfast_pickup")}
+          className="h-8 px-2.5 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-slate-950 border-0 shrink-0 shadow-xs gap-1"
+        >
+          <Truck className="h-3.5 w-3.5 text-slate-950" /> ⚡ Steadfast Pickup
+        </Button>
+
+        <Button
+          size="sm"
+          variant="secondary"
           onClick={() => onBulkAction("pickup_requested")}
           className="h-8 px-2.5 text-xs font-extrabold bg-purple-600 hover:bg-purple-700 text-white border-0 shrink-0 shadow-xs"
         >

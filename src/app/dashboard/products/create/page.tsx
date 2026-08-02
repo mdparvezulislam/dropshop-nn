@@ -315,10 +315,10 @@ export default function CreateProductStudioPage(): React.ReactElement {
               onStockChange={(v) => update("stock", v)}
               shortDescription={form.shortDescription}
               onShortDescriptionChange={(v) => update("shortDescription", v)}
-              productModel={form.productModel}
-              onProductModelChange={(v) => update("productModel", v)}
-              barcode={form.barcode}
-              onBarcodeChange={(v) => update("barcode", v)}
+              productModel=""
+              onProductModelChange={() => {}}
+              barcode=""
+              onBarcodeChange={() => {}}
               onAutoGenerateSKU={handleAutoGenerateSKU}
             />
             <LazyDescriptionSection

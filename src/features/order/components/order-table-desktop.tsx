@@ -26,6 +26,7 @@ import {
   FileCheck,
   Lock,
   Trash2,
+  Package,
 } from "lucide-react";
 import { getHumanLabel, type OrderStatus } from "../domain/state-machine";
 import { getOrderPaymentDetails, formatAmount } from "../utils/payment-utils";
@@ -252,17 +253,19 @@ export function OrderTableDesktop({
                     {items.length > 0 ? (
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <div className="h-7 w-7 rounded-md bg-slate-200 border overflow-hidden shrink-0 relative">
-                            <Image
-                              src={items[0].imageUrl || items[0].image || "/placeholder.png"}
-                              alt="Product"
-                              fill
-                              className="object-cover"
-                              sizes="28px"
-                              onError={(e: any) => {
-                                e.target.style.display = "none";
-                              }}
-                            />
+                          <div className="h-8 w-8 rounded-lg bg-slate-100 dark:bg-slate-800 border border-border overflow-hidden shrink-0 flex items-center justify-center">
+                            {items[0].imageUrl || items[0].image || items[0].thumbnail ? (
+                              <img
+                                src={items[0].imageUrl || items[0].image || items[0].thumbnail}
+                                alt="Product"
+                                className="h-full w-full object-cover"
+                                onError={(e: any) => {
+                                  e.target.style.display = "none";
+                                }}
+                              />
+                            ) : (
+                              <Package className="h-4 w-4 text-amber-500" />
+                            )}
                           </div>
                           <div>
                             <p className="font-bold text-foreground line-clamp-1">
@@ -355,11 +358,11 @@ export function OrderTableDesktop({
                       <div className="space-y-1">
                         <Button
                           size="sm"
-                          variant="outline"
-                          onClick={() => onQuickAction("pickup", order)}
-                          className="h-7 px-2 text-[11px] font-bold text-amber-700 border-amber-300 bg-amber-50 hover:bg-amber-100"
+                          onClick={() => onQuickAction("steadfast_pickup", order)}
+                          className="h-7 px-2.5 text-[11px] font-extrabold text-amber-950 bg-amber-500 hover:bg-amber-600 border-amber-400 shadow-2xs gap-1"
+                          title="1-Click Request Pickup to Steadfast Courier"
                         >
-                          <Truck className="h-3 w-3 mr-1" /> Book Pickup
+                          <Truck className="h-3.5 w-3.5 text-amber-950" /> ⚡ Book Steadfast
                         </Button>
                         <p className="text-[10px] text-slate-400 italic flex items-center gap-1">
                           <Lock className="h-3 w-3" /> Slip Not Fetched
