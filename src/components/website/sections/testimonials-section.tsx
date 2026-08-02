@@ -9,7 +9,7 @@ import { BRAND } from "@/config/brand";
 const TESTIMONIALS = [
   {
     name: "মোহাব্বাত চৌধুরী",
-    role: "রিসেলার, ঢাকা",
+    role: "অনলাইন শপার ও রিসেলার, ঢাকা",
     avatar:
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
     rating: 5,
@@ -22,39 +22,39 @@ const TESTIMONIALS = [
     avatar:
       "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80",
     rating: 5,
-    content: "বাল্ক অর্ডারে সেরা দাম এবং ফাস্ট ডেলিভারি পাই। আমার ব্যবসা অনেক সহজে চলছে।",
+    content: "বাল্ক অর্ডারে সেরা পাইকারি দাম এবং ফাস্ট ডেলিভারি পাই। আমার কাস্টমাররা প্রোডাক্ট কোয়ালিটি নিয়ে খুবই হ্যাপি।",
   },
   {
     name: "মাহমুদুল হাসান রেজওয়ান",
-    role: "ড্রপশিপার, সিলেট",
+    role: "বিজনেস পার্টনার, সিলেট",
     avatar:
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
     rating: 5,
-    content: `স্টক ছাড়াই ব্যবসা শুরু করেছি। ${BRAND.publicName} আমার জন্য গেম চেঞ্জার!`,
+    content: `সরাসরি সোর্সিং সুবিধা পেয়েছি। ${BRAND.publicName} আমার ব্যবসাকে দ্রুত বড় করতে সাহায্য করেছে!`,
   },
 ];
 
 export function TestimonialsSection(): React.ReactElement {
   return (
     <section
-      className="py-8 sm:py-12 lg:py-16 bg-white border-b border-slate-200"
-      aria-label="Client Testimonials"
+      className="py-8 sm:py-12 lg:py-16 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100"
+      aria-label="Customer Reviews"
     >
       <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
         <div className="flex items-end justify-between mb-8">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
-              আমাদের ক্লায়েন্টদের মতামত
+            <h2 className="text-xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100">
+              আমাদের কাস্টমারদের মতামত
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 font-bold mt-1">তাদের অভিজ্ঞতা জানুন</p>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-bold mt-1">কাস্টমার ও বিজনেস পার্টনারদের অভিজ্ঞতা</p>
           </div>
 
           <Link
             href="/reviews"
-            className="inline-flex items-center gap-1.5 text-xs font-extrabold text-amber-600 hover:text-amber-700 transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-extrabold text-amber-600 dark:text-amber-400 hover:text-amber-700 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 rounded"
           >
-            সব দেখুন
-            <ArrowRight className="h-3.5 w-3.5" />
+            সব রিভিউ দেখুন
+            <ArrowRight className="h-3.5 w-3.5" aria-hidden />
           </Link>
         </div>
 
@@ -66,25 +66,25 @@ export function TestimonialsSection(): React.ReactElement {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.3, delay: idx * 0.1 }}
-              className="p-6 rounded-2xl bg-white border border-slate-300 hover:border-amber-400 hover:shadow-md transition-all duration-300 space-y-4"
+              className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500 hover:shadow-md transition-all duration-300 space-y-4"
             >
               <div className="flex items-center gap-3">
-                <div className="relative w-11 h-11 rounded-full overflow-hidden shrink-0 border border-amber-200">
+                <div className="relative w-11 h-11 rounded-full overflow-hidden shrink-0 border border-amber-200 dark:border-amber-800">
                   <Image src={t.avatar} alt={t.name} fill className="object-cover" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-black text-slate-900">{t.name}</h3>
-                  <p className="text-[11px] font-bold text-slate-600">{t.role}</p>
+                  <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">{t.name}</h3>
+                  <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400">{t.role}</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-0.5">
                 {Array.from({ length: t.rating }).map((_, i) => (
-                  <Star key={i} className="h-4 w-4 text-amber-400 fill-amber-400" />
+                  <Star key={i} className="h-4 w-4 text-amber-400 fill-amber-400" aria-hidden />
                 ))}
               </div>
 
-              <p className="text-xs text-slate-800 leading-relaxed font-bold">
+              <p className="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-semibold">
                 &ldquo;{t.content}&rdquo;
               </p>
             </motion.div>

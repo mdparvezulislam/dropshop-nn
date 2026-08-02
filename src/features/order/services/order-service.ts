@@ -283,7 +283,14 @@ export class OrderService {
           const deliveryCents = rawOrder.deliveryChargeCents || rawOrder.shipping?.deliveryFee || stdCourierCost;
 
           const resellerProfitCents = (subtotalCents - costBasisCents) + (deliveryCents - stdCourierCost);
-          const adminProfitCents = Math.round(costBasisCents * 0.25); // Platform wholesale margin (e.g. 25% of wholesale cost)
+
+          const isResellerOrder = Boolean(rawOrder.resellerId || rawOrder.createdBy || rawOrder.channel === "reseller");
+          let adminProfitCents = 0;
+          if (isResellerOrder) {
+            adminProfitCents = Math.round(costBasisCents * 0.25);
+          } else {
+            adminProfitCents = Math.max(0, subtotalCents - costBasisCents);
+          }
 
           await OrderModel.findByIdAndUpdate(orderId, {
             $set: {
@@ -831,7 +838,7 @@ export class OrderService {
       const checkoutRepo = new CheckoutSessionRepository();
 
       const [orderList, checkouts] = await Promise.all([
-        OrderModel.find({}).select("status pricing profitPreview createdAt").lean(),
+        OrderModel.find({}).select("status pricing profitPreview resellerId createdBy channel createdAt").lean(),
         checkoutRepo.findPaginated({ type: "reseller" }, { page: 1, limit: 1000 }),
       ]);
 
@@ -849,31 +856,61 @@ export class OrderService {
         total_cod: orderList.length + checkoutList.length,
         total_delivered_revenue: 0,
         total_delivered_profit: 0,
+        total_admin_profit_all: 0,
         reseller_total_profit: 0,
+        reseller_total_profit_all: 0,
+        total_revenue_all: 0,
       };
 
       orderList.forEach((o: any) => {
         const st = String(o.status || "pending").toLowerCase();
-        if (["draft", "pending", "new", "wfp"].includes(st)) result.pending++;
-        else if (["confirmed"].includes(st)) result.confirmed++;
-        else if (["processing", "packed"].includes(st)) result.processing++;
-        else if (["shipped", "in_courier", "ready_for_dispatch", "courier_assigned", "shipment"].includes(st)) result.shipped++;
-        else if (["delivered", "completed"].includes(st)) {
-          result.delivered++;
-          const grandTotal = o.pricing?.grandTotal || 0;
-          const revTaka = grandTotal > 5000 ? Math.round(grandTotal / 100) : grandTotal;
-          result.total_delivered_revenue += revTaka;
+        const isCancelledOrReturned = ["cancelled", "cancel", "returned", "wfr", "return_requested"].includes(st);
 
-          const resProfit = o.profitPreview?.totalProfit || 0;
-          const resProfitTaka = resProfit > 5000 ? Math.round(resProfit / 100) : resProfit;
-          result.reseller_total_profit += resProfitTaka;
+        const grandTotalRaw = o.pricing?.grandTotal || 0;
+        const revTaka = grandTotalRaw > 5000 ? Math.round(grandTotalRaw / 100) : grandTotalRaw;
 
-          const adminProf = o.profitPreview?.adminProfit || Math.round(resProfit * 0.2);
-          const adminProfTaka = adminProf > 5000 ? Math.round(adminProf / 100) : adminProf;
-          result.total_delivered_profit += adminProfTaka;
+        const resProfitRaw = o.profitPreview?.totalProfit || 0;
+        const resProfitTaka = resProfitRaw > 5000 ? Math.round(resProfitRaw / 100) : resProfitRaw;
+
+        const costBasisRaw = o.profitPreview?.totalCostBasis || 0;
+        const costBasisTaka = costBasisRaw > 5000 ? Math.round(costBasisRaw / 100) : costBasisRaw;
+
+        const isResellerOrder = Boolean(o.resellerId || o.createdBy || o.channel === "reseller");
+
+        let adminProfTaka = 0;
+        if (o.profitPreview?.adminProfit !== undefined && o.profitPreview?.adminProfit !== null && o.profitPreview?.adminProfit > 0) {
+          const rawAdmin = o.profitPreview.adminProfit;
+          adminProfTaka = rawAdmin > 5000 ? Math.round(rawAdmin / 100) : rawAdmin;
+        } else {
+          adminProfTaka = isResellerOrder
+            ? Math.max(0, revTaka - costBasisTaka - resProfitTaka)
+            : Math.max(0, revTaka - costBasisTaka);
         }
-        else if (["cancelled", "cancel"].includes(st)) result.cancelled++;
-        else if (["returned", "wfr", "return_requested"].includes(st)) result.returned++;
+
+        if (!isCancelledOrReturned) {
+          result.total_revenue_all += revTaka;
+          result.total_admin_profit_all += adminProfTaka;
+          result.reseller_total_profit_all += resProfitTaka;
+        }
+
+        if (["draft", "pending", "new", "wfp"].includes(st)) {
+          result.pending++;
+        } else if (["confirmed"].includes(st)) {
+          result.confirmed++;
+        } else if (["processing", "packed"].includes(st)) {
+          result.processing++;
+        } else if (["shipped", "in_courier", "ready_for_dispatch", "courier_assigned", "shipment"].includes(st)) {
+          result.shipped++;
+        } else if (["delivered", "completed"].includes(st)) {
+          result.delivered++;
+          result.total_delivered_revenue += revTaka;
+          result.reseller_total_profit += resProfitTaka;
+          result.total_delivered_profit += adminProfTaka;
+        } else if (["cancelled", "cancel"].includes(st)) {
+          result.cancelled++;
+        } else if (["returned", "wfr", "return_requested"].includes(st)) {
+          result.returned++;
+        }
 
         if (o.createdAt && new Date(o.createdAt) >= todayStart) {
           result.today++;
@@ -902,6 +939,12 @@ export class OrderService {
         returned: 0,
         today: 0,
         total_cod: 0,
+        total_delivered_revenue: 0,
+        total_delivered_profit: 0,
+        total_admin_profit_all: 0,
+        reseller_total_profit: 0,
+        reseller_total_profit_all: 0,
+        total_revenue_all: 0,
       };
     }
   }

@@ -7,11 +7,21 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import {
   getResellerByIdAction,
   updateResellerStatusAction,
   updateResellerMarkupAction,
 } from "@/features/reseller/actions/reseller-actions";
+import { createAdminManualPayoutAction } from "@/features/finance/actions/finance-actions";
 import { toast } from "sonner";
 import {
   ArrowLeft,
@@ -29,6 +39,7 @@ import {
   ShieldCheck,
   MapPin,
   Percent,
+  Loader2,
 } from "lucide-react";
 
 export default function ResellerDetailsPage(): React.ReactElement {
@@ -42,6 +53,53 @@ export default function ResellerDetailsPage(): React.ReactElement {
   const [resellerMarkup, setResellerMarkup] = React.useState<number>(22);
   const [wholesaleMarkup, setWholesaleMarkup] = React.useState<number>(30);
   const [savingMarkup, setSavingMarkup] = React.useState(false);
+
+  // Manual Payout Modal states
+  const [manualPayoutOpen, setManualPayoutOpen] = React.useState(false);
+  const [payoutAmount, setPayoutAmount] = React.useState("500");
+  const [payoutMethod, setPayoutMethod] = React.useState("bKash");
+  const [payoutAccountNumber, setPayoutAccountNumber] = React.useState("01700000000");
+  const [payoutTxnId, setPayoutTxnId] = React.useState("");
+  const [payoutNote, setPayoutNote] = React.useState("");
+  const [submittingPayout, setSubmittingPayout] = React.useState(false);
+
+  const handleSendManualPayout = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const amt = parseFloat(payoutAmount);
+    if (isNaN(amt) || amt <= 0) {
+      toast.error("সঠিক পেমেন্ট পরিমাণ প্রদান করুন।");
+      return;
+    }
+
+    if (!payoutAccountNumber.trim()) {
+      toast.error("পেমেন্ট নম্বর প্রদান করা আবশ্যক!");
+      return;
+    }
+
+    setSubmittingPayout(true);
+    try {
+      const res = await createAdminManualPayoutAction({
+        resellerId: id,
+        amountTaka: amt,
+        method: payoutMethod,
+        accountNumber: payoutAccountNumber.trim(),
+        transactionId: payoutTxnId.trim() || undefined,
+        note: payoutNote.trim() || undefined,
+      });
+
+      if (res.success) {
+        toast.success(`৳${amt.toLocaleString("bn-BD")} টাকা ম্যানুয়াল পে-আউট পেমেন্ট সম্পন্ন হয়েছে!`);
+        setManualPayoutOpen(false);
+        loadData();
+      } else {
+        toast.error(res.error || "পেমেন্ট প্রসেস করতে ব্যর্থ হয়েছে");
+      }
+    } catch {
+      toast.error("সার্ভার সমস্যা হয়েছে");
+    } finally {
+      setSubmittingPayout(false);
+    }
+  };
 
   const loadData = React.useCallback(async () => {
     setLoading(true);
@@ -163,6 +221,12 @@ export default function ResellerDetailsPage(): React.ReactElement {
         </div>
 
         <div className="flex flex-wrap gap-2">
+          <Button
+            onClick={() => setManualPayoutOpen(true)}
+            className="h-9 bg-amber-500 hover:bg-amber-600 text-slate-950 font-black gap-1.5 shadow-sm"
+          >
+            <Wallet className="h-3.5 w-3.5" /> Send Manual Payout
+          </Button>
           <Link
             href={`/dashboard/resellers/${id}/edit`}
             className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-sm font-medium hover:bg-muted transition-colors"
@@ -385,6 +449,105 @@ export default function ResellerDetailsPage(): React.ReactElement {
           </div>
         </CardContent>
       </Card>
+
+      {/* Manual Payout Modal */}
+      <Dialog open={manualPayoutOpen} onOpenChange={setManualPayoutOpen}>
+        <DialogContent className="sm:max-w-md rounded-3xl p-6">
+          <form onSubmit={handleSendManualPayout} className="space-y-4">
+            <DialogHeader>
+              <DialogTitle className="text-lg font-black flex items-center gap-2">
+                <Wallet className="h-5 w-5 text-amber-500" /> ম্যানুয়াল পে-আউট পেমেন্ট সেন্ড করুন
+              </DialogTitle>
+              <DialogDescription className="text-xs">
+                {r.businessName || r.ownerName} এর অ্যাকাউন্টে সরাসরি ম্যানুয়ালি পে-আউট প্রদান করুন।
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-3 py-1">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-foreground">পেমেন্ট পরিমাণ (টাকা) *</label>
+                <Input
+                  type="number"
+                  required
+                  min={1}
+                  value={payoutAmount}
+                  onChange={(e) => setPayoutAmount(e.target.value)}
+                  placeholder="৫০০"
+                  className="h-10 text-xs font-mono rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-foreground">পেমেন্ট মেথড *</label>
+                <select
+                  value={payoutMethod}
+                  onChange={(e) => setPayoutMethod(e.target.value)}
+                  className="w-full h-10 px-3 rounded-xl border border-input bg-background text-xs font-bold text-foreground"
+                >
+                  <option value="bKash">bKash (বিকাশ)</option>
+                  <option value="Nagad">Nagad (নগদ)</option>
+                  <option value="Rocket">Rocket (রকেট)</option>
+                  <option value="Bank">Bank Transfer (ব্যাংক)</option>
+                  <option value="Cash">Cash (ক্যাশ প্রদান)</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-foreground">অ্যাকাউন্ট / ফোন নম্বর *</label>
+                <Input
+                  type="text"
+                  required
+                  value={payoutAccountNumber}
+                  onChange={(e) => setPayoutAccountNumber(e.target.value)}
+                  placeholder="017XXXXXXXX"
+                  className="h-10 text-xs font-mono rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-foreground">ট্রানজেকশন আইডি (ঐচ্ছিক)</label>
+                <Input
+                  type="text"
+                  value={payoutTxnId}
+                  onChange={(e) => setPayoutTxnId(e.target.value)}
+                  placeholder="যেমন: MANUAL-TXN-998822"
+                  className="h-10 text-xs font-mono rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-foreground">এডমিন নোট / মন্তব্য (ঐচ্ছিক)</label>
+                <Input
+                  type="text"
+                  value={payoutNote}
+                  onChange={(e) => setPayoutNote(e.target.value)}
+                  placeholder="যেমন: ক্যাশে সরাসরি পেমেন্ট হ্যান্ডওভার করা হয়েছে"
+                  className="h-10 text-xs rounded-xl"
+                />
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2 sm:gap-0 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setManualPayoutOpen(false)}
+                className="h-9 text-xs font-bold rounded-xl"
+              >
+                বাতিল
+              </Button>
+              <Button
+                type="submit"
+                disabled={submittingPayout}
+                className="h-9 text-xs font-black bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl gap-1.5"
+              >
+                {submittingPayout && <Loader2 className="h-4 w-4 animate-spin" />}
+                পেমেন্ট কনফার্ম করুন
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

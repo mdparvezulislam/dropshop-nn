@@ -92,7 +92,7 @@ export function ShopToolbar({
   ];
 
   return (
-    <div className="sticky top-12 lg:top-20 z-30 mb-4 lg:mb-6 w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 px-3 sm:px-6 py-2.5 shadow-xs backdrop-blur-md">
+    <div className="sticky top-14 lg:top-20 z-30 mb-4 lg:mb-6 w-full rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 px-3 sm:px-6 py-2.5 shadow-xs backdrop-blur-md">
       <div className="flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex items-center gap-2 sm:gap-3">
           {onMobileFilterToggle && (

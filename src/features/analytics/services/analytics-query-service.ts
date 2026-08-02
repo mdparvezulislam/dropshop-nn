@@ -38,9 +38,15 @@ export function resolveDateRange(input?: { from?: Date; to?: Date; preset?: stri
   const from = new Date(to);
   from.setHours(0, 0, 0, 0);
   switch (input?.preset) {
+    case "24h":
+    case "hours":
+      from.setTime(to.getTime() - 24 * 60 * 60 * 1000);
+      break;
     case "today":
+    case "day":
       break;
     case "7d":
+    case "week":
       from.setDate(from.getDate() - 6);
       break;
     case "90d":
@@ -50,6 +56,7 @@ export function resolveDateRange(input?: { from?: Date; to?: Date; preset?: stri
       from.setFullYear(from.getFullYear() - 1);
       break;
     case "30d":
+    case "month":
     default:
       from.setDate(from.getDate() - 29);
       break;

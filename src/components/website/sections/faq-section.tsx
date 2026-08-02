@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, HelpCircle } from "lucide-react";
 import { useState } from "react";
 import { BRAND } from "@/config/brand";
 
@@ -9,145 +9,123 @@ interface FAQItem {
   id: string;
   question: string;
   answer: string;
-  category: "general" | "business" | "technical";
+  category: "general" | "reseller" | "wholesale";
 }
 
-const faqs: FAQItem[] = [
+const FAQS: FAQItem[] = [
   {
     id: "1",
     category: "general",
-    question: `What is ${BRAND.publicName}?`,
+    question: `${BRAND.publicName} কি এবং কিভাবে অর্ডার করব?`,
     answer:
-      `${BRAND.publicName} is an enterprise commerce operating system designed for Bangladesh. It connects suppliers, resellers, wholesalers, and customers in one unified platform with automation, smart pricing, and growth tools.`,
+      `${BRAND.publicName} হলো বাংলাদেশের একটি বিশ্বস্ত অনলাইন শপিং ও কমার্স প্ল্যাটফর্ম। আপনি ওয়েবসাইটের প্রোডাক্ট ক্যাটালগ থেকে যেকোনো প্রোডাক্ট বেছে নিয়ে 'কার্টে যোগ করুন' বা 'সরাসরি কিনুন' বাটনে ক্লিক করে সহজেই অর্ডার সম্পন্ন করতে পারবেন।`,
   },
   {
     id: "2",
-    category: "business",
-    question: "How do I become a reseller?",
+    category: "general",
+    question: "ডেলিভারি চার্জ ও সময় কত?",
     answer:
-      "Visit /become-reseller to start the process. Create your shop profile, set up your payment method, and start listing products from our catalog. Our reseller dashboard provides all the tools you need to grow.",
+      "ঢাকার ভেতরে সাধারণত ২৪-৪৮ ঘণ্টার মধ্যে এবং ঢাকার বাইরে ৬৪ জেলায় ২-৩ কার্যদিবসের মধ্যে পাথাও ও স্টিডফাস্ট কুরিয়ারের মাধ্যমে ক্যাশ অন ডেলিভারিতে হোম ডেলিভারি দেওয়া হয়।",
   },
   {
     id: "3",
-    category: "business",
-    question: "What are the wholesale requirements?",
+    category: "reseller",
+    question: "রিসেলার হিসেবে কিভাবে কাজ শুরু করব?",
     answer:
-      "Wholesale buyers can access bulk pricing with MOQ (Minimum Order Quantity) support. Visit /become-wholesale-partner to register your business, verify company details, and access wholesale pricing.",
+      "আমাদের 'রিসেলার হন' পেজে গিয়ে ফ্রী রেজিস্টার করুন। রেজিস্ট্রেশন সম্পন্ন হলে আপনি আপনার নিজস্ব দামে প্রোডাক্টগুলো গ্রাহকদের কাছে বিক্রি করতে পারবেন এবং প্রফিট সহজেই উইথড্র করতে পারবেন।",
   },
   {
     id: "4",
-    category: "technical",
-    question: "How are prices calculated?",
+    category: "reseller",
+    question: "রিসেলিং করতে কোনো অগ্রিম ইনভেস্টমেন্ট লাগে?",
     answer:
-      "Our Smart Pricing Engine automatically applies the right tier: retail for customers, reseller pricing for partners, and wholesale pricing for bulk orders. All based on your role and order quantity.",
+      "না, কোনো অগ্রিম ইনভেস্টমেন্ট ছাড়াই আপনি হাজার হাজার অরিজিনাল প্রোডাক্ট সোর্স ও রিয়েলটাইম অর্ডার প্লেস করতে পারবেন। কাস্টমার কুরিয়ারে টাকা পরিশোধ করার সাথে সাথে আপনার প্রফিট ওয়ালেটে যুক্ত হবে।",
   },
   {
     id: "5",
-    category: "general",
-    question: "What payment methods are supported?",
+    category: "wholesale",
+    question: "পাইকারি বা বাল্ক অর্ডারের প্রসেস কি?",
     answer:
-      "We support credit/debit cards, mobile banking (bKash, Nagad, Rocket), and cash on delivery. Multiple payment options ensure smooth transactions for all customer types.",
+      "বাল্ক বা পাইকারি অর্ডারের জন্য আমাদের 'হোলসেলার হন' পোর্টালে যুক্ত হোন। এখানে বড় অর্ডারের ওপর বিশেষ ফ্যাক্টরি রেট ও ডিসকাউন্ট অফার পাওয়া যায়।",
   },
   {
     id: "6",
-    category: "technical",
-    question: "How does order tracking work?",
+    category: "general",
+    question: "প্রোডাক্টের ওয়ারেন্টি ও রিটার্ন পলিসি কি?",
     answer:
-      "Every order gets a tracking number. Customers can track deliveries in real-time. Suppliers and resellers see full order status in their dashboards with courier integration.",
+      "আমরা ১০০% অরিজিনাল গ্যাজেট ও অফিশিয়াল ওয়ারেন্টি গ্যারান্টি দিই। যেকোনো ড্যামেজ বা ভুল প্রোডাক্টে রয়েছে সহজ ৭ দিনের রিটার্ন পলিসি।",
   },
 ];
 
-const categories = ["general", "business", "technical"] as const;
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.05,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.3 },
-  },
-};
+const CATEGORIES = [
+  { id: "general", label: "সাধারণ বিষয়াবলী" },
+  { id: "reseller", label: "রিসেলার গাইড" },
+  { id: "wholesale", label: "পাইকারি ও বাল্ক" },
+] as const;
 
 export function FAQSection(): React.ReactElement {
   const [activeId, setActiveId] = useState<string>("1");
-  const [activeCategory, setActiveCategory] = useState<"general" | "business" | "technical">(
-    "general",
-  );
+  const [activeCategory, setActiveCategory] = useState<"general" | "reseller" | "wholesale">("general");
 
-  const filteredFaqs = faqs.filter((faq) => faq.category === activeCategory);
+  const filteredFaqs = FAQS.filter((faq) => faq.category === activeCategory);
 
   return (
-    <section className="w-full py-16 lg:py-24 bg-[hsl(0_0%_96%)]" aria-labelledby="faq-heading">
+    <section
+      className="w-full py-10 sm:py-16 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100"
+      aria-labelledby="faq-heading"
+    >
       <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12"
-        >
+        <div className="text-center mb-8 max-w-xl mx-auto space-y-1.5">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-xs font-black text-amber-700 dark:text-amber-400">
+            <HelpCircle className="h-3.5 w-3.5 text-amber-500" aria-hidden />
+            <span>সাধারণ জিজ্ঞাসাসমূহ</span>
+          </div>
           <h2
             id="faq-heading"
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-foreground mb-4"
+            className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100"
           >
-            Frequently Asked Questions
+            সচরাচর জিজ্ঞাসিত প্রশ্নসমূহ (FAQ)
           </h2>
-          <p className="text-lg text-muted-foreground">
-            Find answers to common questions about {BRAND.publicName}
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-bold">
+            {BRAND.publicName} সম্পর্কে আপনার প্রয়োজনীয় তথ্যাবলী
           </p>
-        </motion.div>
+        </div>
 
         <div className="flex gap-2 justify-center mb-8 flex-wrap">
-          {categories.map((cat) => (
+          {CATEGORIES.map((cat) => (
             <button
-              key={cat}
+              key={cat.id}
               onClick={() => {
-                setActiveCategory(cat);
+                setActiveCategory(cat.id);
                 setActiveId("");
               }}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                activeCategory === cat
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-white border border-[hsl(0_0%_91%)] text-foreground hover:border-primary/40"
+              className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                activeCategory === cat.id
+                  ? "bg-amber-500 text-slate-950 shadow-xs"
+                  : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-400"
               }`}
             >
-              {cat.charAt(0).toUpperCase() + cat.slice(1)}
+              {cat.label}
             </button>
           ))}
         </div>
 
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          className="max-w-2xl mx-auto space-y-3"
-        >
+        <div className="max-w-2xl mx-auto space-y-3">
           {filteredFaqs.map((faq) => (
-            <motion.div
+            <div
               key={faq.id}
-              variants={itemVariants}
-              className="border border-[hsl(0_0%_91%)] rounded-lg bg-white overflow-hidden"
+              className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 overflow-hidden shadow-2xs"
             >
               <button
                 onClick={() => setActiveId(activeId === faq.id ? "" : faq.id)}
-                className="w-full text-left px-6 py-4 hover:bg-[hsl(0_0%_96%)] transition-colors flex items-center justify-between"
+                className="w-full text-left px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex items-center justify-between gap-3"
               >
-                <span className="font-medium text-foreground">{faq.question}</span>
+                <span className="font-black text-xs sm:text-sm text-slate-900 dark:text-slate-100">
+                  {faq.question}
+                </span>
                 <ChevronDown
-                  className={`h-5 w-5 text-muted-foreground transition-transform ${
-                    activeId === faq.id ? "rotate-180" : ""
+                  className={`h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200 ${
+                    activeId === faq.id ? "rotate-180 text-amber-500" : ""
                   }`}
                 />
               </button>
@@ -158,15 +136,19 @@ export function FAQSection(): React.ReactElement {
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="px-6 py-4 border-t border-[hsl(0_0%_91%)] bg-white"
+                  className="px-5 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50"
                 >
-                  <p className="text-sm text-muted-foreground leading-relaxed">{faq.answer}</p>
+                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-semibold">
+                    {faq.answer}
+                  </p>
                 </motion.div>
               )}
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
 }
+
+export default FAQSection;

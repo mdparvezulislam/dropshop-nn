@@ -35,6 +35,10 @@ interface DashboardData {
   ordersActive: number;
   ordersCompleted: number;
   ordersRevenue: number;
+  adminProfitTaka: number;
+  adminTotalProfitAll: number;
+  resellerProfitTaka: number;
+  resellerTotalProfitAll: number;
   suppliersTotal: number;
   suppliersActive: number;
   suppliersPending: number;
@@ -55,6 +59,10 @@ const DEFAULT_DASHBOARD: DashboardData = {
   ordersActive: 0,
   ordersCompleted: 0,
   ordersRevenue: 0,
+  adminProfitTaka: 0,
+  adminTotalProfitAll: 0,
+  resellerProfitTaka: 0,
+  resellerTotalProfitAll: 0,
   suppliersTotal: 0,
   suppliersActive: 0,
   suppliersPending: 0,
@@ -85,10 +93,10 @@ const QUICK_ACTIONS = [
     description: "Add item to catalog",
   },
   {
-    label: "Onboard supplier",
+    label: "Onboard merchant",
     href: "/dashboard/suppliers/new",
     icon: Building2,
-    description: "Register new supplier",
+    description: "Register supply partner",
   },
   {
     label: "Onboard reseller",
@@ -120,7 +128,7 @@ const NEED_ATTENTION = [
     key: "inventoryLowStock",
   },
   {
-    title: "Suppliers pending review",
+    title: "Merchants pending review",
     detail: "Awaiting verification",
     href: "/dashboard/suppliers",
     tone: "info" as const,
@@ -147,7 +155,7 @@ const NEED_ATTENTION = [
 
 const RECENT_ACTIVITY = [
   { text: "Platform bootstrap initialized cleanly", time: "Just now", icon: CheckCircle2 },
-  { text: "Real-time sync active across all suppliers", time: "Startup", icon: Clock },
+  { text: "Real-time sync active across all merchants", time: "Startup", icon: Clock },
 ];
 
 export default function WorkspaceHomePage(): React.ReactElement {
@@ -166,6 +174,7 @@ export default function WorkspaceHomePage(): React.ReactElement {
       try {
         const [
           ordersRes,
+          orderStatsRes,
           suppliersRes,
           invRes,
           resellersRes,
@@ -175,6 +184,9 @@ export default function WorkspaceHomePage(): React.ReactElement {
         ] = await Promise.allSettled([
           import("@/features/order/actions/order-actions").then((m) =>
             m.listOrdersAction({ page: 1, limit: 10 }),
+          ),
+          import("@/features/order/actions/order-actions").then((m) =>
+            m.getOrderDashboardStatsAction(),
           ),
           import("@/features/supplier/actions/supplier-actions").then((m) =>
             m.listSuppliersAction({ page: 1, limit: 10 }),
@@ -208,6 +220,16 @@ export default function WorkspaceHomePage(): React.ReactElement {
           d.ordersCompleted = od?.items?.filter((o: any) => o.status === "completed").length ?? 0;
           d.ordersRevenue =
             od?.items?.reduce((s: number, o: any) => s + (o.pricing?.grandTotal ?? 0), 0) ?? 0;
+        }
+
+        if (orderStatsRes.status === "fulfilled" && orderStatsRes.value.success && orderStatsRes.value.data) {
+          const st = orderStatsRes.value.data;
+          d.ordersRevenue = st.total_delivered_revenue || d.ordersRevenue;
+          d.adminProfitTaka = st.total_delivered_profit || 0;
+          d.adminTotalProfitAll = st.total_admin_profit_all || d.adminProfitTaka;
+          d.resellerProfitTaka = st.reseller_total_profit || 0;
+          d.resellerTotalProfitAll = st.reseller_total_profit_all || d.resellerProfitTaka;
+          if (st.delivered !== undefined) d.ordersCompleted = st.delivered;
         }
 
         if (suppliersRes.status === "fulfilled" && suppliersRes.value.success) {
@@ -256,9 +278,6 @@ export default function WorkspaceHomePage(): React.ReactElement {
     }
     load();
   }, []);
-
-  const formatCents = (cents: number): string =>
-    `৳${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 0 })}`;
 
   const attentionItems = NEED_ATTENTION.map((item) => {
     const count = data[item.key as keyof DashboardData] as number;
@@ -312,19 +331,34 @@ export default function WorkspaceHomePage(): React.ReactElement {
       {/* Primary KPI Stat Cards Grid */}
       <div className="grid gap-2.5 sm:gap-4 grid-cols-2 lg:grid-cols-4">
         <StatCard
-          label="Total Orders"
-          value={data.ordersTotal}
-          icon={ShoppingCart}
-          accent="primary"
-          trend={{ value: "+14%", positive: true }}
-          loading={loading}
-        />
-        <StatCard
-          label="Revenue"
-          value={formatCents(data.ordersRevenue)}
+          label="Gross Delivered Revenue"
+          value={`৳ ${data.ordersRevenue.toLocaleString("bn-BD")}`}
           icon={TrendingUp}
           accent="success"
           trend={{ value: "+22%", positive: true }}
+          loading={loading}
+        />
+        <StatCard
+          label="Admin Net Profit"
+          value={`৳ ${data.adminProfitTaka.toLocaleString("bn-BD")}`}
+          icon={DollarSign}
+          accent="primary"
+          hint={`Pipeline total: ৳ ${data.adminTotalProfitAll.toLocaleString("bn-BD")}`}
+          loading={loading}
+        />
+        <StatCard
+          label="Reseller Delivered Profit"
+          value={`৳ ${data.resellerProfitTaka.toLocaleString("bn-BD")}`}
+          icon={Store}
+          accent="warning"
+          hint="Reseller net earnings"
+          loading={loading}
+        />
+        <StatCard
+          label="Total Orders"
+          value={data.ordersTotal}
+          icon={ShoppingCart}
+          accent="info"
           loading={loading}
         />
         <StatCard
@@ -344,7 +378,7 @@ export default function WorkspaceHomePage(): React.ReactElement {
           loading={loading}
         />
         <StatCard
-          label="Active Suppliers"
+          label="Merchants & Supply"
           value={`${data.suppliersActive}/${data.suppliersTotal}`}
           icon={Building2}
           accent="info"

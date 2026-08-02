@@ -18,17 +18,17 @@ export interface CatalogFilterSidebarProps {
 
 const rowClass = (selected: boolean): string =>
   cn(
-    "flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-left text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-amber-600",
+    "flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-left text-xs font-bold transition-all focus-visible:outline-2 focus-visible:outline-amber-600 active:scale-[0.99]",
     selected
-      ? "border border-amber-200 bg-amber-50 font-black text-amber-900"
-      : "text-slate-800 hover:bg-slate-100",
+      ? "border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/50 font-black text-amber-900 dark:text-amber-300 shadow-2xs"
+      : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800",
   );
 
 function TaxonomyError({ label }: { label: string }): ReactElement {
   return (
     <p
       role="alert"
-      className="rounded-lg border border-red-200 bg-red-50 px-2.5 py-2 text-[11px] font-bold text-red-700"
+      className="rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 px-3 py-2 text-[11px] font-bold text-red-700 dark:text-red-400"
     >
       {label} লোড করা যায়নি। পেজটি রিলোড করে আবার চেষ্টা করুন।
     </p>
@@ -51,6 +51,7 @@ export function CatalogFilterSidebar({
   const maxPrice = searchParams.get("maxPrice") ?? "";
   const inStockOnly = searchParams.get("inStock") === "1";
   const onSaleOnly = searchParams.get("onSale") === "1";
+  const isNewOnly = searchParams.get("isNew") === "1";
 
   /** Applies param changes and always resets pagination back to page 1. */
   const updateParams = (changes: Record<string, string | null>): void => {
@@ -78,35 +79,35 @@ export function CatalogFilterSidebar({
   };
 
   const handleReset = (): void => {
-    // Filters are cleared; an active search query (q) is intentionally kept.
     const q = searchParams.get("q");
     router.push(q ? `${pathname}?q=${encodeURIComponent(q)}` : pathname);
   };
 
   return (
     <aside aria-label="প্রোডাক্ট ফিল্টার" className="w-full space-y-6">
-      <div className="space-y-6 rounded-2xl border border-slate-300 bg-white p-5 shadow-xs">
-        <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+      <div className="space-y-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-xs">
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="h-4 w-4 text-amber-500" aria-hidden />
-            <h3 className="text-sm font-black text-slate-900">ফিল্টার করুন</h3>
+            <h3 className="text-sm font-black text-slate-900 dark:text-slate-100">ফিল্টার করুন</h3>
           </div>
           <button
             type="button"
             onClick={handleReset}
-            className="flex items-center gap-1 rounded text-xs font-extrabold text-amber-700 hover:underline focus-visible:outline-2 focus-visible:outline-amber-600"
+            className="flex items-center gap-1 rounded text-xs font-black text-amber-600 dark:text-amber-400 hover:underline focus-visible:outline-2 focus-visible:outline-amber-600"
           >
             <RotateCcw className="h-3 w-3" aria-hidden />
             রিসেট
           </button>
         </div>
 
-        <div className="space-y-2.5">
-          <h4 className="text-xs font-black uppercase tracking-wider text-slate-600">ক্যাটাগরি</h4>
+        {/* Categories Section */}
+        <div className="space-y-2">
+          <h4 className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">ক্যাটাগরি</h4>
           {categories === null ? (
             <TaxonomyError label="ক্যাটাগরি" />
           ) : (
-            <div className="max-h-48 space-y-1 overflow-y-auto pr-1">
+            <div className="max-h-52 space-y-1 overflow-y-auto pr-1">
               <button
                 type="button"
                 onClick={() => updateParams({ category: null })}
@@ -115,7 +116,7 @@ export function CatalogFilterSidebar({
               >
                 <span>সকল ক্যাটাগরি</span>
                 {!selectedCategory && (
-                  <Check className="h-3.5 w-3.5 shrink-0 text-amber-600" aria-hidden />
+                  <Check className="h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />
                 )}
               </button>
               {categories.map((cat) => (
@@ -130,11 +131,11 @@ export function CatalogFilterSidebar({
                 >
                   <span className="truncate">{cat.name}</span>
                   <span className="flex shrink-0 items-center gap-1.5">
-                    <span className="text-[10px] font-extrabold text-slate-500 tabular-nums">
+                    <span className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 tabular-nums">
                       {cat.productCount}
                     </span>
                     {selectedCategory === cat.slug && (
-                      <Check className="h-3.5 w-3.5 text-amber-600" aria-hidden />
+                      <Check className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" aria-hidden />
                     )}
                   </span>
                 </button>
@@ -143,8 +144,9 @@ export function CatalogFilterSidebar({
           )}
         </div>
 
-        <div className="space-y-2.5 border-t border-slate-200 pt-2">
-          <h4 className="text-xs font-black uppercase tracking-wider text-slate-600">
+        {/* Price Filter Section */}
+        <div className="space-y-2 border-t border-slate-200 dark:border-slate-800 pt-3">
+          <h4 className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
             দামের সীমা (৳ BDT)
           </h4>
           <form onSubmit={handlePriceSubmit} className="space-y-2">
@@ -162,7 +164,7 @@ export function CatalogFilterSidebar({
                   placeholder="সর্বনিম্ন"
                   defaultValue={minPrice}
                   key={`min-${minPrice}`}
-                  className="h-9 w-full rounded-xl border border-slate-300 bg-white px-3 text-xs font-bold text-slate-900 shadow-2xs placeholder:text-slate-500 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500"
+                  className="h-9 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 text-xs font-bold text-slate-900 dark:text-slate-100 shadow-2xs placeholder:text-slate-400 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500"
                 />
               </div>
               <div>
@@ -178,27 +180,28 @@ export function CatalogFilterSidebar({
                   placeholder="সর্বোচ্চ"
                   defaultValue={maxPrice}
                   key={`max-${maxPrice}`}
-                  className="h-9 w-full rounded-xl border border-slate-300 bg-white px-3 text-xs font-bold text-slate-900 shadow-2xs placeholder:text-slate-500 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500"
+                  className="h-9 w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 text-xs font-bold text-slate-900 dark:text-slate-100 shadow-2xs placeholder:text-slate-400 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-amber-500"
                 />
               </div>
             </div>
             <button
               type="submit"
-              className="h-8 w-full rounded-xl bg-amber-500 text-xs font-extrabold text-slate-950 transition-colors hover:bg-amber-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
+              className="h-9 w-full rounded-xl bg-amber-500 hover:bg-amber-600 text-xs font-black text-slate-950 transition-colors shadow-xs active:scale-95 touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
             >
               দাম প্রয়োগ করুন
             </button>
           </form>
         </div>
 
-        <div className="space-y-2.5 border-t border-slate-200 pt-2">
-          <h4 className="text-xs font-black uppercase tracking-wider text-slate-600">ব্র্যান্ড</h4>
+        {/* Brands Filter Section */}
+        <div className="space-y-2 border-t border-slate-200 dark:border-slate-800 pt-3">
+          <h4 className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">ব্র্যান্ড</h4>
           {brands === null ? (
             <TaxonomyError label="ব্র্যান্ড" />
           ) : brands.length === 0 ? (
             <p className="text-[11px] font-bold text-slate-500">কোনো ব্র্যান্ড নেই</p>
           ) : (
-            <div className="max-h-40 space-y-1 overflow-y-auto pr-1">
+            <div className="max-h-44 space-y-1 overflow-y-auto pr-1">
               <button
                 type="button"
                 onClick={() => updateParams({ brand: null })}
@@ -207,7 +210,7 @@ export function CatalogFilterSidebar({
               >
                 <span>সকল ব্র্যান্ড</span>
                 {!selectedBrand && (
-                  <Check className="h-3.5 w-3.5 shrink-0 text-amber-600" aria-hidden />
+                  <Check className="h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden />
                 )}
               </button>
               {brands.map((b) => (
@@ -220,11 +223,11 @@ export function CatalogFilterSidebar({
                 >
                   <span className="truncate">{b.name}</span>
                   <span className="flex shrink-0 items-center gap-1.5">
-                    <span className="text-[10px] font-extrabold text-slate-500 tabular-nums">
+                    <span className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 tabular-nums">
                       {b.productCount}
                     </span>
                     {selectedBrand === b.slug && (
-                      <Check className="h-3.5 w-3.5 text-amber-600" aria-hidden />
+                      <Check className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" aria-hidden />
                     )}
                   </span>
                 </button>
@@ -233,8 +236,9 @@ export function CatalogFilterSidebar({
           )}
         </div>
 
+        {/* Availability & Offers Checkboxes */}
         <div className="space-y-2.5 border-t border-slate-200 dark:border-slate-800 pt-3">
-          <h4 className="text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400">
+          <h4 className="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
             প্রাপ্যতা ও অফার
           </h4>
 
@@ -262,7 +266,7 @@ export function CatalogFilterSidebar({
             <label className="flex cursor-pointer items-center gap-2.5 text-xs font-bold text-slate-800 dark:text-slate-200 hover:text-amber-600 transition-colors">
               <input
                 type="checkbox"
-                checked={searchParams.get("isNew") === "1"}
+                checked={isNewOnly}
                 onChange={(e) => updateParams({ isNew: e.target.checked ? "1" : null })}
                 className="h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-amber-500 focus-visible:outline-2 focus-visible:outline-amber-600"
               />

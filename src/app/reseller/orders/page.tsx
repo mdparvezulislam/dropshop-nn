@@ -273,7 +273,7 @@ export default function ResellerOrdersPage(): React.ReactElement {
           </div>
         </div>
 
-        {/* Content Table (Matching Screenshot Image Structure) */}
+        {/* Content Container (Mobile Card View & Desktop Table View) */}
         {loading ? (
           <div className="p-16 text-center text-sm font-semibold text-muted-foreground">
             অর্ডার তালিকা লোড হচ্ছে...
@@ -284,263 +284,453 @@ export default function ResellerOrdersPage(): React.ReactElement {
             <p>কোনো অর্ডার পাওয়া যায়নি।</p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-2xl border border-border/80 bg-card shadow-2xs">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 font-black border-b border-border text-[11px]">
-                <tr>
-                  <th className="py-3 px-3 text-center w-10">#</th>
-                  <th className="py-3 px-3">Invoice</th>
-                  <th className="py-3 px-3 min-w-[200px]">Customer</th>
-                  <th className="py-3 px-3 min-w-[180px]">Product</th>
-                  <th className="py-3 px-3 min-w-[140px]">Details</th>
-                  <th className="py-3 px-3 min-w-[170px]">Activities</th>
-                  <th className="py-3 px-3">Courier</th>
-                  <th className="py-3 px-3 text-center">Comment</th>
-                  <th className="py-3 px-3 text-center">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/60 font-semibold">
-                {filteredOrders.map((o, idx) => {
-                  const serialNo = (page - 1) * pageSize + idx + 1;
-                  const totalBillTaka =
-                    (o.sellingPriceCents || 0) > 5000
-                      ? Math.round((o.sellingPriceCents || 0) / 100)
-                      : o.sellingPriceCents || 0;
-                  const deliveryTaka =
-                    (o.deliveryChargeCents || 0) > 5000
-                      ? Math.round((o.deliveryChargeCents || 0) / 100)
-                      : o.deliveryChargeCents || 0;
-                  const advancePaidTaka =
-                    (o.advancePaidCents || 0) > 5000
-                      ? Math.round((o.advancePaidCents || 0) / 100)
-                      : o.advancePaidCents || 0;
-                  const dueTaka = Math.max(0, totalBillTaka - advancePaidTaka);
-                  const profitTaka =
-                    Math.abs(o.profitCents || 0) > 5000
-                      ? Math.round((o.profitCents || 0) / 100)
-                      : o.profitCents || 0;
-                  const isEditable =
-                    !o.trackingNumber &&
-                    !["pickup_requested", "shipment", "shipped", "in_transit", "delivered", "completed", "cancelled"].includes(
-                      o.status,
-                    );
+          <div className="space-y-4">
+            {/* MOBILE CARD VIEW (< 768px) */}
+            <div className="block md:hidden space-y-3">
+              {filteredOrders.map((o, idx) => {
+                const serialNo = (page - 1) * pageSize + idx + 1;
+                const totalBillTaka =
+                  (o.sellingPriceCents || 0) > 5000
+                    ? Math.round((o.sellingPriceCents || 0) / 100)
+                    : o.sellingPriceCents || 0;
+                const deliveryTaka =
+                  (o.deliveryChargeCents || 0) > 5000
+                    ? Math.round((o.deliveryChargeCents || 0) / 100)
+                    : o.deliveryChargeCents || 0;
+                const advancePaidTaka =
+                  (o.advancePaidCents || 0) > 5000
+                    ? Math.round((o.advancePaidCents || 0) / 100)
+                    : o.advancePaidCents || 0;
+                const dueTaka = Math.max(0, totalBillTaka - advancePaidTaka);
+                const profitTaka =
+                  Math.abs(o.profitCents || 0) > 5000
+                    ? Math.round((o.profitCents || 0) / 100)
+                    : o.profitCents || 0;
+                const isEditable =
+                  !o.trackingNumber &&
+                  !["pickup_requested", "shipment", "shipped", "in_transit", "delivered", "completed", "cancelled"].includes(
+                    o.status,
+                  );
 
-                  return (
-                    <tr key={o.id} className="hover:bg-muted/30 transition-colors">
-                      {/* # Serial */}
-                      <td className="py-3.5 px-3 text-center text-muted-foreground font-mono font-bold">
-                        {serialNo}
-                      </td>
+                const rawNote = (o as any).notes || (o as any).shipping?.deliveryNote || "";
+                const userMatch = rawNote.match(/userNote:(.*)$/i);
+                const cleanNote = userMatch ? userMatch[1].trim() : (rawNote.includes("payment:") ? "" : rawNote.trim());
 
-                      {/* Invoice ID */}
-                      <td className="py-3.5 px-3 font-mono font-extrabold text-foreground whitespace-nowrap">
-                        #{o.orderNumber}
-                      </td>
+                return (
+                  <Card key={o.id} className="rounded-2xl border border-border bg-card shadow-xs overflow-hidden">
+                    <CardContent className="p-4 space-y-3">
+                      {/* Top Row: Serial, Invoice & Status */}
+                      <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-2.5">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-muted-foreground font-mono">#{serialNo}</span>
+                          <span className="font-mono font-black text-sm text-foreground">#{o.orderNumber}</span>
+                        </div>
+                        <StatusChip
+                          label={o.status.replace(/_/g, " ")}
+                          tone={statusToneFromValue(o.status)}
+                        />
+                      </div>
 
-                      {/* Customer Info Block */}
-                      <td className="py-3.5 px-3 space-y-1">
-                        <p className="font-extrabold text-slate-900 dark:text-slate-100 text-sm">
-                          {o.customerName}
-                        </p>
-                        <div className="flex items-center gap-1">
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 font-mono text-[11px] font-bold border border-indigo-200/60 dark:border-indigo-900">
+                      {/* Customer Block */}
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="font-black text-slate-900 dark:text-slate-100 text-sm">{o.customerName}</p>
+                          <span className="font-mono font-extrabold text-xs text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/50 px-2 py-0.5 rounded-lg border border-indigo-200/60 dark:border-indigo-900">
                             {o.customerPhone}
                           </span>
                         </div>
-                        <p className="text-[11px] text-muted-foreground line-clamp-2 max-w-xs">
-                          {o.fullAddress}, {o.district}
-                        </p>
-                        {/* Quick Contact Icons */}
-                        <div className="flex items-center gap-1 pt-1">
+
+                        <p className="text-xs text-muted-foreground line-clamp-2">{o.fullAddress}, {o.district}</p>
+
+                        {/* Customer Quick Actions */}
+                        <div className="flex items-center gap-2 pt-1">
                           <a
                             href={`tel:${o.customerPhone}`}
-                            className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-rose-600"
-                            title="কল করুন"
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold"
                           >
-                            <Phone className="w-3 h-3" />
+                            <Phone className="w-3 h-3 text-rose-500" /> কল
                           </a>
                           <button
+                            type="button"
                             onClick={() => handleCopyPhone(o.customerPhone)}
-                            className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-rose-600"
-                            title="নম্বর কপি করুন"
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[11px] font-bold"
                           >
-                            <Copy className="w-3 h-3" />
+                            <Copy className="w-3 h-3 text-indigo-500" /> কপি
                           </button>
                           <a
                             href={`https://wa.me/88${o.customerPhone.replace(/\D/g, "")}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-1 rounded-md bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
-                            title="হোয়াটসঅ্যাপ মেসেজ"
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold"
                           >
-                            <MessageCircle className="w-3 h-3" />
+                            <MessageCircle className="w-3 h-3" /> হোয়াটসঅ্যাপ
                           </a>
                         </div>
-                      </td>
+                      </div>
 
-                      {/* Product Info Block */}
-                      <td className="py-3.5 px-3">
-                        <div className="flex items-center gap-2.5">
-                          {o.imageUrl && (
-                            <img
-                              src={o.imageUrl}
-                              alt={o.productName}
-                              className="w-10 h-10 object-cover rounded-lg border border-border shrink-0"
-                            />
-                          )}
-                          <div>
-                            <p className="font-bold text-foreground line-clamp-1 max-w-[150px]">
-                              {o.productName}
-                            </p>
-                            <p className="text-[10px] text-muted-foreground font-mono">
-                              Qty: {o.quantity}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Details (Financial Breakdown matching image) */}
-                      <td className="py-3.5 px-3 space-y-0.5 text-[11px] font-mono">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Total:</span>
-                          <span className="font-bold text-foreground">৳{totalBillTaka}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Discount:</span>
-                          <span>৳0</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Paid:</span>
-                          <span className={cn("font-bold", advancePaidTaka > 0 ? "text-emerald-600" : "text-slate-500")}>
-                            ৳{advancePaidTaka}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Shipping:</span>
-                          <span>৳{deliveryTaka}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Due:</span>
-                          <span className={cn("font-extrabold", dueTaka > 0 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600")}>
-                            ৳{dueTaka}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-emerald-600 font-extrabold border-t border-border/40 pt-0.5">
-                          <span>Profit:</span>
-                          <span>+৳{profitTaka}</span>
-                        </div>
-                      </td>
-
-                      {/* Activities */}
-                      <td className="py-3.5 px-3 space-y-1.5">
-                        <p className="text-[11px] text-muted-foreground whitespace-nowrap font-mono">
-                          Order Date: {new Date(o.createdAt).toLocaleString("bn-BD")}
-                        </p>
-                        <div className="flex items-center gap-1">
-                          <span className="text-[10px] text-muted-foreground">Status:</span>
-                          <StatusChip
-                            label={o.status.replace(/_/g, " ")}
-                            tone={statusToneFromValue(o.status)}
+                      {/* Product Block */}
+                      <div className="p-2.5 rounded-xl bg-muted/40 border border-border/60 flex items-center gap-3">
+                        {o.imageUrl && (
+                          <img
+                            src={o.imageUrl}
+                            alt={o.productName}
+                            className="w-12 h-12 object-cover rounded-lg border border-border shrink-0"
                           />
-                        </div>
-                      </td>
-
-                      {/* Courier Tracking */}
-                      <td className="py-3.5 px-3 whitespace-nowrap">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-[10px] font-bold border border-border">
-                          {o.courierName || "Steadfast"}
-                        </span>
-                        {o.trackingNumber && (
-                          <p className="text-[10px] font-mono text-muted-foreground mt-0.5">
-                            {o.trackingNumber}
-                          </p>
                         )}
-                      </td>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-bold text-xs text-foreground line-clamp-1">{o.productName}</p>
+                          <p className="text-[11px] font-mono text-muted-foreground mt-0.5">পরিমাণ: {o.quantity} টি</p>
+                        </div>
+                      </div>
 
-                      {/* Comment */}
-                      <td className="py-3.5 px-3 text-center">
-                        {(() => {
-                          const rawNote = (o as any).notes || (o as any).shipping?.deliveryNote || "";
-                          const userMatch = rawNote.match(/userNote:(.*)$/i);
-                          const cleanNote = userMatch ? userMatch[1].trim() : (rawNote.includes("payment:") ? "" : rawNote.trim());
-                          return (
-                            <button
-                              onClick={() => {
-                                setSelectedOrderForNote(o);
-                                setNoteModalOpen(true);
-                              }}
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-extrabold text-[11px] border border-amber-500/20 transition-all shadow-2xs"
-                              title="বিশেষ নোট পড়ুন বা নতুন নোট লিখুন"
-                            >
-                              <Edit3 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                              {cleanNote ? (
-                                <span className="max-w-[80px] truncate font-bold" title={cleanNote}>{cleanNote}</span>
-                              ) : (
-                                <span>নোট</span>
-                              )}
-                            </button>
-                          );
-                        })()}
-                      </td>
+                      {/* Financial Summary Breakdown Grid */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl border border-border/60">
+                        <div>
+                          <span className="text-[10px] text-muted-foreground block">মোট বিল:</span>
+                          <span className="font-black text-foreground">৳{totalBillTaka}</span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-muted-foreground block">অগ্রিম পরিশোধ:</span>
+                          <span className="font-bold text-emerald-600">৳{advancePaidTaka}</span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-muted-foreground block">ক্যাশ অন ডেলিভারি:</span>
+                          <span className="font-extrabold text-amber-600 dark:text-amber-400">৳{dueTaka}</span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-muted-foreground block">আপনার প্রফিট:</span>
+                          <span className="font-black text-emerald-600 dark:text-emerald-400">+৳{profitTaka}</span>
+                        </div>
+                      </div>
 
-                      {/* Actions */}
-                      <td className="py-3.5 px-3 text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          {/* Print Invoice Button */}
+                      {/* Action Bar */}
+                      <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/60">
+                        <div className="flex items-center gap-1.5">
                           <button
+                            type="button"
                             onClick={() => handlePrintInvoice(o)}
-                            className="p-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-900 transition-colors"
-                            title="ইনভয়েস প্রিন্ট করুন"
+                            className="h-8 px-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 text-rose-600 text-xs font-bold flex items-center gap-1"
                           >
-                            <Printer className="w-4 h-4" />
+                            <Printer className="w-3.5 h-3.5" /> ইনভয়েস
                           </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedOrderForNote(o);
+                              setNoteModalOpen(true);
+                            }}
+                            className="h-8 px-2.5 rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-300 text-xs font-bold flex items-center gap-1 border border-amber-500/20"
+                          >
+                            <Edit3 className="w-3.5 h-3.5 text-amber-600" />
+                            {cleanNote ? "নোট দেখুন" : "নোট"}
+                          </button>
+                        </div>
 
-                          {/* View details */}
+                        <div className="flex items-center gap-1">
                           <Link href={`/reseller/orders/${o.id}`}>
                             <button
-                              className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                              title="অর্ডার ডিটেইলস"
+                              type="button"
+                              className="p-2 rounded-xl hover:bg-muted text-muted-foreground hover:text-foreground"
+                              title="ভিউ"
                             >
                               <Eye className="w-4 h-4" />
                             </button>
                           </Link>
-
-                          {/* Edit order */}
                           <button
+                            type="button"
                             onClick={() => handleEditClick(o)}
                             disabled={!isEditable}
                             className={cn(
-                              "p-1.5 rounded-lg transition-colors",
-                              isEditable
-                                ? "hover:bg-primary/10 text-primary"
-                                : "text-muted-foreground/30 cursor-not-allowed",
+                              "p-2 rounded-xl transition-colors",
+                              isEditable ? "hover:bg-primary/10 text-primary" : "text-muted-foreground/30 cursor-not-allowed",
                             )}
-                            title={isEditable ? "এডিট" : "অনুমোদিত অর্ডারে এডিট প্রযোজ্য নয়"}
                           >
                             <Edit3 className="w-4 h-4" />
                           </button>
-
-                          {/* Delete order */}
                           <button
+                            type="button"
                             onClick={() => handleDeleteOrder(o.id)}
                             disabled={!isEditable}
                             className={cn(
-                              "p-1.5 rounded-lg transition-colors",
-                              isEditable
-                                ? "hover:bg-rose-500/10 text-rose-600"
-                                : "text-muted-foreground/30 cursor-not-allowed",
+                              "p-2 rounded-xl transition-colors",
+                              isEditable ? "hover:bg-rose-500/10 text-rose-600" : "text-muted-foreground/30 cursor-not-allowed",
                             )}
-                            title={isEditable ? "ডিলিট" : "অনুমোদিত অর্ডারে ডিলিট প্রযোজ্য নয়"}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+
+            {/* DESKTOP TABLE VIEW (>= 768px) */}
+            <div className="hidden md:block overflow-x-auto rounded-2xl border border-border/80 bg-card shadow-2xs">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-100 dark:bg-slate-800/80 text-slate-700 dark:text-slate-200 font-black border-b border-border text-[11px]">
+                  <tr>
+                    <th className="py-3 px-3 text-center w-10">#</th>
+                    <th className="py-3 px-3">Invoice</th>
+                    <th className="py-3 px-3 min-w-[200px]">Customer</th>
+                    <th className="py-3 px-3 min-w-[180px]">Product</th>
+                    <th className="py-3 px-3 min-w-[140px]">Details</th>
+                    <th className="py-3 px-3 min-w-[170px]">Activities</th>
+                    <th className="py-3 px-3">Courier</th>
+                    <th className="py-3 px-3 text-center">Comment</th>
+                    <th className="py-3 px-3 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/60 font-semibold">
+                  {filteredOrders.map((o, idx) => {
+                    const serialNo = (page - 1) * pageSize + idx + 1;
+                    const totalBillTaka =
+                      (o.sellingPriceCents || 0) > 5000
+                        ? Math.round((o.sellingPriceCents || 0) / 100)
+                        : o.sellingPriceCents || 0;
+                    const deliveryTaka =
+                      (o.deliveryChargeCents || 0) > 5000
+                        ? Math.round((o.deliveryChargeCents || 0) / 100)
+                        : o.deliveryChargeCents || 0;
+                    const advancePaidTaka =
+                      (o.advancePaidCents || 0) > 5000
+                        ? Math.round((o.advancePaidCents || 0) / 100)
+                        : o.advancePaidCents || 0;
+                    const dueTaka = Math.max(0, totalBillTaka - advancePaidTaka);
+                    const profitTaka =
+                      Math.abs(o.profitCents || 0) > 5000
+                        ? Math.round((o.profitCents || 0) / 100)
+                        : o.profitCents || 0;
+                    const isEditable =
+                      !o.trackingNumber &&
+                      !["pickup_requested", "shipment", "shipped", "in_transit", "delivered", "completed", "cancelled"].includes(
+                        o.status,
+                      );
+
+                    return (
+                      <tr key={o.id} className="hover:bg-muted/30 transition-colors">
+                        {/* # Serial */}
+                        <td className="py-3.5 px-3 text-center text-muted-foreground font-mono font-bold">
+                          {serialNo}
+                        </td>
+
+                        {/* Invoice ID */}
+                        <td className="py-3.5 px-3 font-mono font-extrabold text-foreground whitespace-nowrap">
+                          #{o.orderNumber}
+                        </td>
+
+                        {/* Customer Info Block */}
+                        <td className="py-3.5 px-3 space-y-1">
+                          <p className="font-extrabold text-slate-900 dark:text-slate-100 text-sm">
+                            {o.customerName}
+                          </p>
+                          <div className="flex items-center gap-1">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 font-mono text-[11px] font-bold border border-indigo-200/60 dark:border-indigo-900">
+                              {o.customerPhone}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground line-clamp-2 max-w-xs">
+                            {o.fullAddress}, {o.district}
+                          </p>
+                          {/* Quick Contact Icons */}
+                          <div className="flex items-center gap-1 pt-1">
+                            <a
+                              href={`tel:${o.customerPhone}`}
+                              className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-rose-600"
+                              title="কল করুন"
+                            >
+                              <Phone className="w-3 h-3" />
+                            </a>
+                            <button
+                              type="button"
+                              onClick={() => handleCopyPhone(o.customerPhone)}
+                              className="p-1 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-rose-600"
+                              title="নম্বর কপি করুন"
+                            >
+                              <Copy className="w-3 h-3" />
+                            </button>
+                            <a
+                              href={`https://wa.me/88${o.customerPhone.replace(/\D/g, "")}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-1 rounded-md bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                              title="হোয়াটসঅ্যাপ মেসেজ"
+                            >
+                              <MessageCircle className="w-3 h-3" />
+                            </a>
+                          </div>
+                        </td>
+
+                        {/* Product Info Block */}
+                        <td className="py-3.5 px-3">
+                          <div className="flex items-center gap-2.5">
+                            {o.imageUrl && (
+                              <img
+                                src={o.imageUrl}
+                                alt={o.productName}
+                                className="w-10 h-10 object-cover rounded-lg border border-border shrink-0"
+                              />
+                            )}
+                            <div>
+                              <p className="font-bold text-foreground line-clamp-1 max-w-[150px]">
+                                {o.productName}
+                              </p>
+                              <p className="text-[10px] text-muted-foreground font-mono">
+                                Qty: {o.quantity}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Details (Financial Breakdown matching image) */}
+                        <td className="py-3.5 px-3 space-y-0.5 text-[11px] font-mono">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Total:</span>
+                            <span className="font-bold text-foreground">৳{totalBillTaka}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Discount:</span>
+                            <span>৳0</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Paid:</span>
+                            <span className={cn("font-bold", advancePaidTaka > 0 ? "text-emerald-600" : "text-slate-500")}>
+                              ৳{advancePaidTaka}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Shipping:</span>
+                            <span>৳{deliveryTaka}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Due:</span>
+                            <span className={cn("font-extrabold", dueTaka > 0 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600")}>
+                              ৳{dueTaka}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-emerald-600 font-extrabold border-t border-border/40 pt-0.5">
+                            <span>Profit:</span>
+                            <span>+৳{profitTaka}</span>
+                          </div>
+                        </td>
+
+                        {/* Activities */}
+                        <td className="py-3.5 px-3 space-y-1.5">
+                          <p className="text-[11px] text-muted-foreground whitespace-nowrap font-mono">
+                            Order Date: {new Date(o.createdAt).toLocaleString("bn-BD")}
+                          </p>
+                          <div className="flex items-center gap-1">
+                            <span className="text-[10px] text-muted-foreground">Status:</span>
+                            <StatusChip
+                              label={o.status.replace(/_/g, " ")}
+                              tone={statusToneFromValue(o.status)}
+                            />
+                          </div>
+                        </td>
+
+                        {/* Courier Tracking */}
+                        <td className="py-3.5 px-3 whitespace-nowrap">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono text-[10px] font-bold border border-border">
+                            {o.courierName || "Steadfast"}
+                          </span>
+                          {o.trackingNumber && (
+                            <p className="text-[10px] font-mono text-muted-foreground mt-0.5">
+                              {o.trackingNumber}
+                            </p>
+                          )}
+                        </td>
+
+                        {/* Comment */}
+                        <td className="py-3.5 px-3 text-center">
+                          {(() => {
+                            const rawNote = (o as any).notes || (o as any).shipping?.deliveryNote || "";
+                            const userMatch = rawNote.match(/userNote:(.*)$/i);
+                            const cleanNote = userMatch ? userMatch[1].trim() : (rawNote.includes("payment:") ? "" : rawNote.trim());
+                            return (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedOrderForNote(o);
+                                  setNoteModalOpen(true);
+                                }}
+                                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-extrabold text-[11px] border border-amber-500/20 transition-all shadow-2xs cursor-pointer"
+                                title="বিশেষ নোট পড়ুন বা নতুন নোট লিখুন"
+                              >
+                                <Edit3 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                                {cleanNote ? (
+                                  <span className="max-w-[80px] truncate font-bold" title={cleanNote}>{cleanNote}</span>
+                                ) : (
+                                  <span>নোট</span>
+                                )}
+                              </button>
+                            );
+                          })()}
+                        </td>
+
+                        {/* Actions */}
+                        <td className="py-3.5 px-3 text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            {/* Print Invoice Button */}
+                            <button
+                              type="button"
+                              onClick={() => handlePrintInvoice(o)}
+                              className="p-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-900 transition-colors cursor-pointer"
+                              title="ইনভয়েস প্রিন্ট করুন"
+                            >
+                              <Printer className="w-4 h-4" />
+                            </button>
+
+                            {/* View details */}
+                            <Link href={`/reseller/orders/${o.id}`}>
+                              <button
+                                type="button"
+                                className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                                title="অর্ডার ডিটেইলস"
+                              >
+                                <Eye className="w-4 h-4" />
+                              </button>
+                            </Link>
+
+                            {/* Edit order */}
+                            <button
+                              type="button"
+                              onClick={() => handleEditClick(o)}
+                              disabled={!isEditable}
+                              className={cn(
+                                "p-1.5 rounded-lg transition-colors cursor-pointer",
+                                isEditable
+                                  ? "hover:bg-primary/10 text-primary"
+                                  : "text-muted-foreground/30 cursor-not-allowed",
+                              )}
+                              title={isEditable ? "এডিট" : "অনুমোদিত অর্ডারে এডিট প্রযোজ্য নয়"}
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+
+                            {/* Delete order */}
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteOrder(o.id)}
+                              disabled={!isEditable}
+                              className={cn(
+                                "p-1.5 rounded-lg transition-colors cursor-pointer",
+                                isEditable
+                                  ? "hover:bg-rose-500/10 text-rose-600"
+                                  : "text-muted-foreground/30 cursor-not-allowed",
+                              )}
+                              title={isEditable ? "ডিলিট" : "অনুমোদিত অর্ডারে ডিলিট প্রযোজ্য নয়"}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 

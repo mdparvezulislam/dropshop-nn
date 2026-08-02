@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Heart, Eye, ArrowLeftRight, ShoppingBag } from "lucide-react";
+import { Heart, Eye, ArrowLeftRight, ShoppingBag, Zap } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { PRODUCT_IMAGE_PLACEHOLDER } from "@/config/site";
 import { CompactRating } from "@/components/website/reviews/rating-stars";
@@ -26,7 +26,6 @@ export interface ProductCardProps {
 
 function CardPrice({ product, large }: { product: PublicProductCard; large?: boolean }) {
   if (product.price <= 0) {
-    // No configured price is shown honestly — never an invented number.
     return <span className="text-xs font-bold text-slate-500 dark:text-slate-400">দামের জন্য যোগাযোগ করুন</span>;
   }
   return (
@@ -48,10 +47,6 @@ function CardPrice({ product, large }: { product: PublicProductCard; large?: boo
   );
 }
 
-/**
- * Rating line. `rating`/`reviewCount` are optional by contract — undefined
- * means the product has no published reviews, so nothing is rendered.
- */
 function CardRating({
   product,
   countLabel,
@@ -75,7 +70,7 @@ function CardBadges({ product }: { product: PublicProductCard }) {
   return (
     <div className="absolute top-2 left-2 flex flex-col gap-1 z-10">
       {product.isNew && (
-        <span className="px-2 py-0.5 rounded-full bg-slate-900 text-white text-[10px] font-black uppercase tracking-wider shadow-2xs">
+        <span className="px-2 py-0.5 rounded-full bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-950 text-[10px] font-black uppercase tracking-wider shadow-2xs">
           নতুন
         </span>
       )}
@@ -102,21 +97,21 @@ function StockChip({
 }) {
   if (status === "out_of_stock") {
     return (
-      <span className="text-[11px] font-extrabold text-red-700 bg-red-50 px-2 py-0.5 rounded-md border border-red-200">
+      <span className="text-[11px] font-extrabold text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/60 px-2 py-0.5 rounded-md border border-red-200 dark:border-red-800">
         স্টক শেষ
       </span>
     );
   }
   if (status === "low_stock") {
     return (
-      <span className="text-[11px] font-extrabold text-orange-700 bg-orange-50 px-2 py-0.5 rounded-md border border-orange-200">
+      <span className="text-[11px] font-extrabold text-orange-700 dark:text-orange-400 bg-orange-50 dark:bg-orange-950/60 px-2 py-0.5 rounded-md border border-orange-200 dark:border-orange-800">
         সীমিত স্টক
       </span>
     );
   }
   if (subtle) return null;
   return (
-    <span className="text-[11px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+    <span className="text-[11px] font-extrabold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
       স্টকে আছে
     </span>
   );
@@ -203,6 +198,26 @@ export function ProductCard({
     });
   };
 
+  const handleQuickBuy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (outOfStock) {
+      router.push(productUrl);
+      return;
+    }
+    cart.addItem(
+      {
+        productId: product.id,
+        slug: product.slug,
+        name: product.name,
+        image: product.image ?? "",
+        unitPrice: product.price,
+      },
+      1,
+    );
+    router.push("/checkout");
+  };
+
   const handleWishlistToggle = async (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
@@ -223,13 +238,13 @@ export function ProductCard({
     return (
       <article
         className={cn(
-          "group relative rounded-2xl border border-slate-300 bg-white p-4 transition-shadow duration-200 hover:shadow-lg hover:border-amber-400 flex flex-col sm:flex-row gap-5 items-center",
+          "group relative rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 transition-all duration-200 hover:shadow-lg hover:border-amber-400 dark:hover:border-amber-500 flex flex-col sm:flex-row gap-5 items-center",
           className,
         )}
       >
         <Link
           href={productUrl}
-          className="relative w-full sm:w-48 aspect-square rounded-xl bg-slate-100 overflow-hidden shrink-0 block focus-visible:outline-2 focus-visible:outline-amber-500"
+          className="relative w-full sm:w-48 aspect-square rounded-xl bg-slate-100 dark:bg-slate-800 overflow-hidden shrink-0 block focus-visible:outline-2 focus-visible:outline-amber-500"
           aria-label={product.name}
         >
           <CardImage
@@ -245,7 +260,7 @@ export function ProductCard({
             {product.brandName ? (
               <Link
                 href={product.brandSlug ? `/brands/${product.brandSlug}` : productUrl}
-                className="text-[11px] font-extrabold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-amber-500"
+                className="text-[11px] font-extrabold uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2 py-0.5 rounded-md hover:bg-amber-100 focus-visible:outline-2 focus-visible:outline-amber-500"
               >
                 {product.brandName}
               </Link>
@@ -259,13 +274,13 @@ export function ProductCard({
             href={productUrl}
             className="block focus-visible:outline-2 focus-visible:outline-amber-500 rounded"
           >
-            <h3 className="text-base font-black text-slate-900 group-hover:text-amber-600 transition-colors line-clamp-1">
+            <h3 className="text-base font-black text-slate-900 dark:text-slate-100 group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors line-clamp-1">
               {product.name}
             </h3>
           </Link>
 
           {product.categoryName && (
-            <p className="text-xs font-bold text-slate-600">{product.categoryName}</p>
+            <p className="text-xs font-bold text-slate-500 dark:text-slate-400">{product.categoryName}</p>
           )}
 
           <CardRating product={product} />
@@ -277,17 +292,28 @@ export function ProductCard({
           <button
             type="button"
             onClick={handleAddToCart}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xs transition-all active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:bg-amber-500 hover:text-slate-950 transition-all active:scale-95 focus-visible:outline-2 focus-visible:outline-amber-500"
           >
             <ShoppingBag className="h-3.5 w-3.5" aria-hidden />
             {outOfStock ? "বিস্তারিত দেখুন" : "কার্টে যোগ করুন"}
           </button>
 
+          {!outOfStock && (
+            <button
+              type="button"
+              onClick={handleQuickBuy}
+              className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xs transition-all active:scale-95 focus-visible:outline-2 focus-visible:outline-amber-600"
+            >
+              <Zap className="h-3.5 w-3.5 fill-slate-950" aria-hidden />
+              সরাসরি কিনুন
+            </button>
+          )}
+
           {onQuickView && (
             <button
               type="button"
               onClick={() => onQuickView(product)}
-              className="p-2.5 rounded-xl border border-slate-300 text-slate-800 hover:bg-amber-50 hover:border-amber-400 transition-colors focus-visible:outline-2 focus-visible:outline-amber-500"
+              className="p-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-amber-50 hover:border-amber-400 transition-colors focus-visible:outline-2 focus-visible:outline-amber-500"
               aria-label={`কুইক ভিউ: ${product.name}`}
             >
               <Eye className="h-4 w-4" aria-hidden />
@@ -410,15 +436,26 @@ export function ProductCard({
         </div>
       </div>
 
-      <div className="px-2 sm:px-3.5 pb-2 sm:pb-3.5 pt-0.5">
+      <div className="px-2 sm:px-3.5 pb-2 sm:pb-3.5 pt-0.5 flex items-center gap-1.5">
         <button
           type="button"
           onClick={handleAddToCart}
-          className="flex items-center justify-center gap-1.5 w-full h-9 rounded-xl text-xs font-black transition-all duration-150 bg-amber-500 text-slate-950 shadow-xs hover:bg-amber-600 hover:shadow-md active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600 touch-manipulation"
+          className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-xl text-xs font-black transition-all duration-150 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600 touch-manipulation"
         >
           <ShoppingBag className="h-3.5 w-3.5" aria-hidden />
-          {outOfStock ? "বিস্তারিত দেখুন" : "কার্টে যোগ করুন"}
+          {outOfStock ? "বিস্তারিত" : "কার্ট"}
         </button>
+
+        {!outOfStock && (
+          <button
+            type="button"
+            onClick={handleQuickBuy}
+            className="flex-1 flex items-center justify-center gap-1 h-9 rounded-xl text-xs font-black transition-all duration-150 bg-amber-500 text-slate-950 shadow-xs hover:bg-amber-600 hover:shadow-md active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600 touch-manipulation"
+          >
+            <Zap className="h-3.5 w-3.5 fill-slate-950" aria-hidden />
+            কিনুন
+          </button>
+        )}
       </div>
     </article>
   );

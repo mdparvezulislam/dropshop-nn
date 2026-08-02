@@ -36,7 +36,7 @@ const themeBootstrapScript = `
 (function() {
   try {
     var stored = localStorage.getItem('dropshop-theme');
-    var theme = (stored === 'light' || stored === 'dark' || stored === 'system') ? stored : 'system';
+    var theme = (stored === 'light' || stored === 'dark' || stored === 'system') ? stored : 'light';
     var resolved = theme;
     if (theme === 'system') {
       resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';

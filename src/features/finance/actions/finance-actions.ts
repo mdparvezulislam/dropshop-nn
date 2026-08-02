@@ -518,6 +518,8 @@ export async function getResellerWalletSummaryAction(): Promise<{
   success: boolean;
   data?: {
     balanceTaka: number;
+    totalEarningsTaka: number;
+    pendingWithdrawalTaka: number;
     minWithdrawalTaka: number;
     savedPaymentNumber: string;
     savedPaymentMethod: string;
@@ -536,56 +538,109 @@ export async function getResellerWalletSummaryAction(): Promise<{
 }> {
   const session = (await auth()) as any;
   if (!session?.user?.id) {
-    return { success: false, error: "Unauthorized" };
+    return { success: false, error: "অনুমোদিত নয়। অনুগ্রহ করে পুনরায় লগইন করুন।" };
   }
 
   try {
-    const { WalletRepository } = await import("../repositories/wallet-repository");
-    const { WithdrawalRepository } = await import("../repositories/withdrawal-repository");
-    const { WalletService } = await import("../services/wallet-service");
+    const userId = session.user.id;
+    const { OrderModel } = await import("@/features/order/repositories/order-model");
+    const { WithdrawalModel } = await import("../repositories/withdrawal-model");
     const { UserModel } = await import("@/features/auth/repositories/user-model");
+    const { WalletRepository } = await import("../repositories/wallet-repository");
 
     const walletRepo = new WalletRepository();
-    const withdrawalRepo = new WithdrawalRepository();
-    const walletService = new WalletService();
-
-    const wallet = await walletRepo.findByWorkspaceId(session.user.id);
-    let balanceCents = 21000;
-
-    if (wallet) {
-      const balances = await walletService.getBalances(wallet.id);
-      balanceCents = balances.withdrawableBalance > 0 ? balances.withdrawableBalance : balances.availableBalance;
+    let wallet = await walletRepo.findByWorkspaceId(userId);
+    if (!wallet) {
+      wallet = await walletRepo.create({
+        workspaceId: userId,
+        workspaceRole: "reseller",
+        currency: "BDT",
+        status: "active",
+      });
     }
 
-    const userDoc = await UserModel.findById(session.user.id).exec();
-    const withdrawals = wallet ? await withdrawalRepo.findByWalletId(wallet.id) : [];
+    // 1. Compute total delivered profits for reseller
+    const deliveredOrders = await OrderModel.find({
+      $or: [{ createdBy: userId }, { resellerId: userId }, { userId: userId }],
+      status: { $in: ["delivered", "completed"] },
+    }).lean();
 
-    const balanceTaka = Math.round(balanceCents / 100);
+    let totalDeliveredProfitsCents = 0;
+    deliveredOrders.forEach((o: any) => {
+      const p = o.profitPreview?.totalProfit || o.resellerProfit || 0;
+      const pCents = p > 0 && p <= 5000 ? p * 100 : p;
+      totalDeliveredProfitsCents += pCents;
+    });
 
-    const history = (withdrawals || []).map((w: any, idx: number) => ({
-      serial: idx + 1,
-      id: w.id || w._id,
-      date: w.createdAt
-        ? new Date(w.createdAt).toLocaleString("bn-BD", {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-            hour: "numeric",
-            minute: "numeric",
-            hour12: true,
-          })
-        : "২৬ জুন, ২০২৬ এ ৫:৩৯ AM",
-      method: w.method || "বিকাশ",
-      accountNumber: w.payoutDetails?.accountNumber || w.accountNumber || "01700000000",
-      amountTaka: Math.round((w.amount || 0) / 100),
-      status: w.status || "pending",
-      comment: w.comment || w.remarks || (w.transactionId ? `TRANSACTION ID ${w.transactionId}` : "—"),
-    }));
+    if (deliveredOrders.length === 0 && totalDeliveredProfitsCents === 0) {
+      totalDeliveredProfitsCents = 21000; // Default starter balance ৳210
+    }
+
+    // 2. Fetch all withdrawals for this reseller
+    const withdrawals = await WithdrawalModel.find({
+      $or: [{ walletId: wallet.id }, { userId: userId }],
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    let pendingWithdrawalsCents = 0;
+    let completedWithdrawalsCents = 0;
+
+    withdrawals.forEach((w: any) => {
+      const st = (w.status || "pending").toLowerCase();
+      const amt = w.amount || 0;
+      if (st === "pending") {
+        pendingWithdrawalsCents += amt;
+      } else if (["completed", "paid", "approved"].includes(st)) {
+        completedWithdrawalsCents += amt;
+      }
+    });
+
+    const availableBalanceCents = Math.max(
+      0,
+      totalDeliveredProfitsCents - pendingWithdrawalsCents - completedWithdrawalsCents,
+    );
+
+    const userDoc = await UserModel.findById(userId).exec();
+
+    const history = (withdrawals || []).map((w: any, idx: number) => {
+      const amtTaka = Math.round((w.amount || 0) / 100);
+      const st = (w.status || "pending").toLowerCase();
+      let displayStatus = st;
+      if (st === "pending") displayStatus = "pending";
+      else if (["completed", "paid", "approved"].includes(st)) displayStatus = "paid";
+      else if (st === "rejected") displayStatus = "rejected";
+
+      return {
+        serial: idx + 1,
+        id: String(w._id || w.id),
+        date: w.createdAt
+          ? new Date(w.createdAt).toLocaleString("bn-BD", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+              hour: "numeric",
+              minute: "numeric",
+              hour12: true,
+            })
+          : "আজ",
+        method: w.method || "bKash",
+        accountNumber: w.payoutDetails?.accountNumber || w.accountNumber || "01700000000",
+        amountTaka: amtTaka,
+        status: displayStatus,
+        comment:
+          w.comment ||
+          w.rejectionReason ||
+          (w.transactionId ? `TRANSACTION ID: ${w.transactionId}` : st === "pending" ? "পেন্ডিং (এডমিন পর্যালোচনায় রয়েছে)" : "—"),
+      };
+    });
 
     return {
       success: true,
       data: {
-        balanceTaka,
+        balanceTaka: Math.round(availableBalanceCents / 100),
+        totalEarningsTaka: Math.round(totalDeliveredProfitsCents / 100),
+        pendingWithdrawalTaka: Math.round(pendingWithdrawalsCents / 100),
         minWithdrawalTaka: 500,
         savedPaymentNumber: userDoc?.paymentNumber || userDoc?.phone || "01700000000",
         savedPaymentMethod: userDoc?.paymentMethod || "bKash",
@@ -618,52 +673,57 @@ export async function submitResellerWithdrawalAction(data: {
       return { success: false, error: "টাকা উত্তোলন করার জন্য আপনার অ্যাকাউন্টে কমপক্ষে ৫০০ টাকা থাকতে হবে।" };
     }
 
+    const walletSummary = await getResellerWalletSummaryAction();
+    if (!walletSummary.success || !walletSummary.data) {
+      return { success: false, error: "ব্যালেন্স যাচাই করতে সমস্যা হয়েছে।" };
+    }
+
+    if (walletSummary.data.balanceTaka < data.amountTaka) {
+      return {
+        success: false,
+        error: `পর্যাপ্ত ব্যালেন্স নেই! আপনার বর্তমান ব্যালেন্স ৳${walletSummary.data.balanceTaka}`,
+      };
+    }
+
+    const { WithdrawalModel } = await import("../repositories/withdrawal-model");
     const { WalletRepository } = await import("../repositories/wallet-repository");
-    const { WithdrawalRepository } = await import("../repositories/withdrawal-repository");
-    const { WalletService } = await import("../services/wallet-service");
     const walletRepo = new WalletRepository();
-    const withdrawalRepo = new WithdrawalRepository();
-    const walletService = new WalletService();
+    const wallet = await walletRepo.findByWorkspaceId(session.user.id);
 
-    let wallet = await walletRepo.findByWorkspaceId(session.user.id);
-    if (!wallet) {
-      wallet = await walletRepo.create({
-        workspaceId: session.user.id,
-        workspaceRole: "reseller",
-        currency: "BDT",
-        status: "active",
-      });
-    }
-
-    const balances = await walletService.getBalances(wallet.id);
-    const availableBalanceCents = balances.withdrawableBalance > 0 ? balances.withdrawableBalance : balances.availableBalance;
-
-    if (availableBalanceCents < amountCents) {
-      return { success: false, error: "পর্যাপ্ত ব্যালেন্স নেই। টাকা উত্তোলন করার জন্য আপনার অ্যাকাউন্টে প্রয়োজনীয় টাকা থাকতে হবে।" };
-    }
-
-    const methodLower = data.method.toLowerCase();
-    const validMethod: any = methodLower.includes("nagad")
-      ? "nagad"
-      : methodLower.includes("rocket")
-      ? "rocket"
-      : methodLower.includes("bank")
-      ? "bank_transfer"
-      : "bkash";
-
-    const withdrawal = await withdrawalRepo.create({
-      walletId: wallet.id,
+    const withdrawal = await WithdrawalModel.create({
+      walletId: wallet?.id || session.user.id,
+      userId: session.user.id,
+      resellerName: session.user.name || "Reseller",
+      resellerPhone: session.user.phone || data.accountNumber,
       amount: amountCents,
-      method: validMethod,
+      method: data.method,
       payoutDetails: {
         accountNumber: data.accountNumber,
         accountName: session.user.name || "Reseller",
       },
       status: "pending",
+      createdAt: new Date(),
     });
 
+    try {
+      const { NotificationModel } = await import("@/features/notification/repositories/notification-model");
+      await NotificationModel.create({
+        userId: "admin-platform",
+        category: "payout",
+        type: "withdrawal_requested",
+        title: "নতুন উইথড্রয়াল রিকোয়েস্ট",
+        body: `${session.user.name || "রিসেলার"} ৳${data.amountTaka} টাকা উত্তোলনের আবেদন করেছেন (${data.method} - ${data.accountNumber})`,
+        priority: "high",
+        status: "delivered",
+        read: false,
+      });
+    } catch {
+      // silent fallback
+    }
+
     revalidatePath("/reseller/wallet");
-    return { success: true, data: withdrawal };
+    revalidatePath("/dashboard/payouts");
+    return { success: true, data: JSON.parse(JSON.stringify(withdrawal)) };
   } catch (error: any) {
     logger.error("submitResellerWithdrawalAction failed", error);
     return { success: false, error: error.message };
@@ -696,4 +756,251 @@ export async function saveResellerPaymentNumberAction(data: {
     return { success: false, error: error.message };
   }
 }
+
+export async function listAdminWithdrawalsAction(statusFilter?: string): Promise<{
+  success: boolean;
+  data?: {
+    items: Array<{
+      id: string;
+      resellerName: string;
+      resellerPhone: string;
+      amountTaka: number;
+      method: string;
+      accountNumber: string;
+      status: string;
+      requestedAt: string;
+      comment?: string;
+      transactionId?: string;
+    }>;
+    counts: {
+      all: number;
+      pending: number;
+      completed: number;
+      rejected: number;
+    };
+  };
+  error?: string;
+}> {
+  const session = (await auth()) as any;
+  if (!session?.user?.id) {
+    return { success: false, error: "অনুমোদিত নয়।" };
+  }
+
+  try {
+    const { WithdrawalModel } = await import("../repositories/withdrawal-model");
+    const { UserModel } = await import("@/features/auth/repositories/user-model");
+
+    const allWithdrawals = await WithdrawalModel.find({}).sort({ createdAt: -1 }).lean();
+
+    const counts = {
+      all: allWithdrawals.length,
+      pending: 0,
+      completed: 0,
+      rejected: 0,
+    };
+
+    allWithdrawals.forEach((w: any) => {
+      const st = (w.status || "pending").toLowerCase();
+      if (st === "pending") counts.pending++;
+      else if (["completed", "paid", "approved"].includes(st)) counts.completed++;
+      else if (st === "rejected") counts.rejected++;
+    });
+
+    const filtered = allWithdrawals.filter((w: any) => {
+      if (!statusFilter || statusFilter === "all") return true;
+      const st = (w.status || "pending").toLowerCase();
+      if (statusFilter === "pending") return st === "pending";
+      if (statusFilter === "completed") return ["completed", "paid", "approved"].includes(st);
+      if (statusFilter === "rejected") return st === "rejected";
+      return true;
+    });
+
+    const items = await Promise.all(
+      filtered.map(async (w: any) => {
+        let name = w.resellerName || "Reseller Partner";
+        let phone = w.resellerPhone || w.payoutDetails?.accountNumber || "";
+
+        if (w.userId && (!name || name === "Reseller Partner")) {
+          const uDoc = await UserModel.findById(w.userId).lean();
+          if (uDoc) {
+            name = (uDoc as any).shopName || uDoc.name || name;
+            phone = uDoc.phone || phone;
+          }
+        }
+
+        return {
+          id: String(w._id || w.id),
+          resellerName: name,
+          resellerPhone: phone,
+          amountTaka: Math.round((w.amount || 0) / 100),
+          method: w.method || "bKash",
+          accountNumber: w.payoutDetails?.accountNumber || w.accountNumber || "01700000000",
+          status: w.status || "pending",
+          requestedAt: w.createdAt ? new Date(w.createdAt).toISOString() : new Date().toISOString(),
+          comment: w.comment || w.rejectionReason,
+          transactionId: w.transactionId,
+        };
+      }),
+    );
+
+    return { success: true, data: { items, counts } };
+  } catch (error: any) {
+    logger.error("listAdminWithdrawalsAction failed", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function processAdminWithdrawalAction(input: {
+  withdrawalId: string;
+  status: "completed" | "rejected";
+  transactionId?: string;
+  rejectionReason?: string;
+}): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  const session = (await auth()) as any;
+  if (!session?.user?.id) {
+    return { success: false, error: "অনুমোদিত নয়।" };
+  }
+
+  try {
+    const { WithdrawalModel } = await import("../repositories/withdrawal-model");
+    const { NotificationModel } = await import("@/features/notification/repositories/notification-model");
+
+    const w = await WithdrawalModel.findById(input.withdrawalId);
+    if (!w) {
+      return { success: false, error: "উইথড্রয়াল রেকর্ডটি পাওয়া যায়নি।" };
+    }
+
+    const amountTaka = Math.round((w.amount || 0) / 100);
+
+    if (input.status === "completed") {
+      w.status = "completed";
+      w.transactionId = input.transactionId || `TXN-${Date.now().toString().slice(-8)}`;
+      (w as any).comment = input.transactionId ? `TRANSACTION ID: ${input.transactionId}` : "Paid by Admin";
+      await w.save();
+
+      if (w.userId) {
+        await NotificationModel.create({
+          userId: w.userId,
+          category: "payout",
+          type: "withdrawal_approved",
+          title: "উইথড্রয়াল পেইড হয়েছে 🎉",
+          body: `আপনার ৳${amountTaka} টাকা উত্তোলনের অনুরোধ সফলভাবে সম্পন্ন হয়েছে। (TrxID: ${w.transactionId})`,
+          priority: "high",
+          status: "delivered",
+          read: false,
+        });
+      }
+    } else {
+      w.status = "rejected";
+      (w as any).rejectionReason = input.rejectionReason || "প্রশাসক কর্তৃক আবেদনটি বাতিল করা হয়েছে।";
+      (w as any).comment = `Rejected: ${input.rejectionReason || "বাতিল করা হয়েছে"}`;
+      await w.save();
+
+      if (w.userId) {
+        await NotificationModel.create({
+          userId: w.userId,
+          category: "payout",
+          type: "withdrawal_rejected",
+          title: "উইথড্রয়াল আবেদন বাতিল করা হয়েছে",
+          body: `আপনার ৳${amountTaka} টাকা উত্তোলনের অনুরোধটি বাতিল করা হয়েছে। টাকাটি পুনরায় আপনার ব্যালেন্সে যুক্ত করা হয়েছে। (কারণ: ${input.rejectionReason || "নিয়ম লঙ্ঘন"})`,
+          priority: "urgent",
+          status: "delivered",
+          read: false,
+        });
+      }
+    }
+
+    revalidatePath("/dashboard/payouts");
+    revalidatePath("/reseller/wallet");
+    return { success: true };
+  } catch (error: any) {
+    logger.error("processAdminWithdrawalAction failed", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function createAdminManualPayoutAction(input: {
+  resellerId: string;
+  amountTaka: number;
+  method: string;
+  accountNumber: string;
+  transactionId?: string;
+  note?: string;
+}): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  const session = (await auth()) as any;
+  if (!session?.user?.id) {
+    return { success: false, error: "অনুমোদিত নয়।" };
+  }
+
+  try {
+    const amountCents = Math.round(input.amountTaka * 100);
+    if (amountCents <= 0) {
+      return { success: false, error: "সঠিক উত্তোলনের পরিমাণ প্রদান করুন।" };
+    }
+
+    const { ResellerModel } = await import("@/features/reseller/repositories/reseller-model");
+    const { WithdrawalModel } = await import("../repositories/withdrawal-model");
+    const { NotificationModel } = await import("@/features/notification/repositories/notification-model");
+
+    let resellerDoc = await ResellerModel.findById(input.resellerId).lean();
+    if (!resellerDoc) {
+      resellerDoc = await ResellerModel.findOne({
+        $or: [{ code: input.resellerId }, { userId: input.resellerId }],
+      }).lean();
+    }
+
+    const targetUserId = resellerDoc?.userId ? String(resellerDoc.userId) : input.resellerId;
+    const name = resellerDoc?.businessName || resellerDoc?.ownerName || "Reseller Partner";
+    const txnId = input.transactionId?.trim() || `MANUAL-${Date.now().toString().slice(-8)}`;
+
+    await WithdrawalModel.create({
+      walletId: targetUserId,
+      userId: targetUserId,
+      resellerName: name,
+      resellerPhone: resellerDoc?.phone || input.accountNumber,
+      amount: amountCents,
+      method: input.method || "bKash",
+      payoutDetails: {
+        accountNumber: input.accountNumber,
+        accountName: name,
+      },
+      status: "completed",
+      transactionId: txnId,
+      comment: input.note ? `Admin Manual Payout: ${input.note}` : `Admin Manual Payout (TrxID: ${txnId})`,
+      createdAt: new Date(),
+    });
+
+    if (targetUserId) {
+      try {
+        await NotificationModel.create({
+          userId: targetUserId,
+          category: "payout",
+          type: "withdrawal_approved",
+          title: "ম্যানুয়াল পে-আউট পেমেন্ট সম্পন্ন 🎉",
+          body: `এডমিন আপনার অ্যাকাউন্টে ম্যানুয়ালি ৳${input.amountTaka.toLocaleString("bn-BD")} টাকা পে-আউট ট্রান্সফার সম্পন্ন করেছেন। (TrxID: ${txnId})`,
+          priority: "high",
+          status: "delivered",
+          read: false,
+        });
+      } catch {
+        // silent fallback
+      }
+    }
+
+    revalidatePath(`/dashboard/resellers/${input.resellerId}`);
+    revalidatePath("/dashboard/payouts");
+    revalidatePath("/reseller/wallet");
+    return { success: true };
+  } catch (error: any) {
+    logger.error("createAdminManualPayoutAction failed", error);
+    return { success: false, error: error.message };
+  }
+}
+
 

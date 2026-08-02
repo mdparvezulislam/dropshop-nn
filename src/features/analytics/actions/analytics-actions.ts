@@ -319,7 +319,7 @@ export async function getPaymentAnalyticsAction(
   }
 }
 
-export async function getLiveDashboardAction(): Promise<{
+export async function getLiveDashboardAction(preset?: string): Promise<{
   success: boolean;
   data?: unknown;
   error?: string;
@@ -327,9 +327,9 @@ export async function getLiveDashboardAction(): Promise<{
   try {
     const session = await auth();
     checkPermission(session, "Analytics.View");
-    const todayRange = { preset: "today" };
+    const rangePreset = preset || "today";
     const service = new ExecutiveAnalyticsService();
-    const data = await service.getExecutiveDashboard(todayRange);
+    const data = await service.getExecutiveDashboard({ preset: rangePreset });
     return { success: true, data };
   } catch (err) {
     return {

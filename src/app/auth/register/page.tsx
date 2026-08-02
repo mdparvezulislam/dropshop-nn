@@ -6,9 +6,10 @@ import { useRouter } from "next/navigation";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { registerUserAction } from "@/features/auth/actions/auth-actions";
-import { UserPlus, CheckCircle2, AlertCircle, Eye, EyeOff, Lock, User, Phone, Mail } from "lucide-react";
+import { UserPlus, CheckCircle2, AlertCircle, Eye, EyeOff, Lock, User, Phone, Mail, ArrowRight } from "lucide-react";
+import { BRAND } from "@/config/brand";
 
-export default function RegisterPage() {
+export default function RegisterPage(): React.ReactElement {
   const router = useRouter();
   const [formData, setFormData] = React.useState({
     fullName: "",
@@ -74,19 +75,19 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950 p-4 sm:p-6">
-      <div className="w-full max-w-md space-y-4">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 sm:p-6 lg:p-8">
+      <div className="w-full max-w-md space-y-5">
         {/* Branding Header */}
-        <div className="text-center space-y-1.5">
-          <Link href="/" className="inline-flex items-center gap-2 group">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500 text-slate-950 font-black text-xl shadow-md group-hover:scale-105 transition-transform">
-              NN
+        <div className="text-center space-y-2">
+          <Link href="/" className="inline-flex items-center gap-2.5 group">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500 text-slate-950 font-black text-xl shadow-md group-hover:scale-105 transition-transform duration-300">
+              N
             </div>
             <div className="text-left leading-none">
-              <span className="text-lg font-black tracking-tight text-slate-900 dark:text-slate-100">
-                Dropshop<span className="text-amber-500">NN</span>
+              <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-slate-100 block">
+                NN <span className="text-amber-500">Enterprise</span>
               </span>
-              <span className="block text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-0.5">
+              <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest block mt-0.5">
                 Commerce OS
               </span>
             </div>
@@ -94,26 +95,26 @@ export default function RegisterPage() {
         </div>
 
         {/* Card Container */}
-        <Card className="border border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-xl rounded-3xl p-2 sm:p-4">
-          <CardHeader className="space-y-1 pb-3">
+        <Card className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl rounded-3xl p-5 sm:p-7 space-y-4">
+          <CardHeader className="space-y-1 p-0 border-b border-slate-100 dark:border-slate-800 pb-3">
             <CardTitle className="text-xl font-black tracking-tight text-slate-900 dark:text-slate-100">
-              নতুন অ্যাকাউন্ট খুলুন
+              নতুন অ্যাকাউন্ট তৈরি করুন
             </CardTitle>
             <CardDescription className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-              অর্ডার ও কাস্টমার ফিচার ব্যবহারের জন্য নিবন্ধন করুন
+              অর্ডার করতে ও সকল ফিচার উপভোগ করতে নিবন্ধন সম্পন্ন করুন
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0 pt-2">
             <form onSubmit={handleSubmit} className="space-y-3.5">
               {errorMsg && (
-                <div className="rounded-2xl border border-red-200 bg-red-50 dark:bg-red-950/40 p-3.5 text-xs font-bold text-red-700 dark:text-red-300 flex items-start gap-2.5">
+                <div className="rounded-2xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 p-3.5 text-xs font-bold text-red-700 dark:text-red-300 flex items-start gap-2.5 animate-in fade-in">
                   <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
                   <span>{errorMsg}</span>
                 </div>
               )}
 
               {successMsg && (
-                <div className="rounded-2xl border border-emerald-200 bg-emerald-50 dark:bg-emerald-950/40 p-3.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-start gap-2.5">
+                <div className="rounded-2xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/50 p-3.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-start gap-2.5 animate-in fade-in">
                   <CheckCircle2 className="h-4 w-4 shrink-0 mt-0.5" />
                   <span>{successMsg}</span>
                 </div>
@@ -133,7 +134,7 @@ export default function RegisterPage() {
                     onChange={(e) => handleChange("fullName", e.target.value)}
                     disabled={loading}
                     required
-                    className="w-full h-12 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 pl-10 pr-3.5 text-sm font-semibold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus-visible:outline-2 focus-visible:outline-amber-500"
+                    className="w-full h-12 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 pl-10 pr-3.5 text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus-visible:outline-2 focus-visible:outline-amber-500"
                   />
                 </div>
               </div>
@@ -152,7 +153,7 @@ export default function RegisterPage() {
                     onChange={(e) => handleChange("phone", e.target.value)}
                     disabled={loading}
                     required
-                    className="w-full h-12 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 pl-10 pr-3.5 text-sm font-semibold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus-visible:outline-2 focus-visible:outline-amber-500"
+                    className="w-full h-12 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 pl-10 pr-3.5 text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus-visible:outline-2 focus-visible:outline-amber-500"
                   />
                 </div>
               </div>
@@ -170,7 +171,7 @@ export default function RegisterPage() {
                     value={formData.email}
                     onChange={(e) => handleChange("email", e.target.value)}
                     disabled={loading}
-                    className="w-full h-12 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 pl-10 pr-3.5 text-sm font-semibold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus-visible:outline-2 focus-visible:outline-amber-500"
+                    className="w-full h-12 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 pl-10 pr-3.5 text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus-visible:outline-2 focus-visible:outline-amber-500"
                   />
                 </div>
               </div>
@@ -190,7 +191,7 @@ export default function RegisterPage() {
                       onChange={(e) => handleChange("password", e.target.value)}
                       disabled={loading}
                       required
-                      className="w-full h-12 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 pl-10 pr-9 text-sm font-semibold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus-visible:outline-2 focus-visible:outline-amber-500"
+                      className="w-full h-12 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 pl-10 pr-9 text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus-visible:outline-2 focus-visible:outline-amber-500"
                     />
                     <button
                       type="button"
@@ -216,7 +217,7 @@ export default function RegisterPage() {
                       onChange={(e) => handleChange("confirmPassword", e.target.value)}
                       disabled={loading}
                       required
-                      className="w-full h-12 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 pl-10 pr-3.5 text-sm font-semibold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus-visible:outline-2 focus-visible:outline-amber-500"
+                      className="w-full h-12 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 pl-10 pr-3.5 text-xs sm:text-sm font-semibold text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus-visible:outline-2 focus-visible:outline-amber-500"
                     />
                   </div>
                 </div>
@@ -238,10 +239,11 @@ export default function RegisterPage() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-12 text-sm font-black bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-slate-950 rounded-xl shadow-md transition-all touch-manipulation flex items-center justify-center gap-2"
+                className="w-full h-12 text-xs sm:text-sm font-black bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-slate-950 rounded-xl shadow-md transition-all touch-manipulation flex items-center justify-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600"
               >
                 <UserPlus className="h-4 w-4" />
-                <span>{loading ? "অ্যাকাউন্ট তৈরি হচ্ছে..." : "অ্যাকাউন্ট নিবন্ধন করুন"}</span>
+                <span>{loading ? "অ্যাকাউন্ট তৈরি হচ্ছে..." : "অ্যাকাউন্ট সাইন আপ করুন"}</span>
+                <ArrowRight className="h-4 w-4" />
               </Button>
             </form>
 
@@ -253,6 +255,11 @@ export default function RegisterPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Footer Credit */}
+        <p className="text-center text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+          © {new Date().getFullYear()} {BRAND.publicName} Commerce OS. All rights reserved.
+        </p>
       </div>
     </div>
   );

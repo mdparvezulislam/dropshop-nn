@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BRAND } from "@/config/brand";
 import type { PublicCategoryInfo } from "@/features/catalog/domain/public-catalog-types";
-import { Truck, Store, ShieldCheck, Zap, Phone, Mail, MapPin } from "lucide-react";
+import { Truck, Store, ShieldCheck, Zap } from "lucide-react";
 
 function FacebookIcon(props: React.SVGProps<SVGSVGElement>): React.ReactElement {
   return (
@@ -55,8 +55,8 @@ const STATIC_COLUMNS: Array<{ title: string; links: FooterLink[] }> = [
     links: [
       { label: "রিসেলার পোর্টালে যুক্ত হন", href: "/become-reseller" },
       { label: "হোলসেলার বিটুবি পোর্টাল", href: "/become-wholesale-partner" },
-      { label: "রিসেলার ওয়ালেট ও উইথড্র", href: "/account" },
       { label: "অর্ডার ট্র্যাকিং", href: "/track-order" },
+      { label: "মাই অ্যাকাউন্ট", href: "/account" },
     ],
   },
   {
@@ -105,71 +105,71 @@ export function SiteFooter({ categories = [] }: SiteFooterProps): React.ReactEle
   ];
 
   return (
-    <footer className="bg-[#0b1120] text-slate-200 pt-10 sm:pt-16 pb-8 border-t border-slate-800 relative overflow-hidden">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-10">
+    <footer className="bg-slate-900 text-slate-100 dark:bg-[#070b14] dark:text-slate-200 pt-10 sm:pt-16 pb-8 border-t border-slate-800 dark:border-slate-800/80 transition-colors duration-200 relative overflow-hidden">
+      <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8 space-y-10">
         {/* Value Proposition Badges Strip */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-5 rounded-3xl bg-slate-900/80 border border-slate-800 backdrop-blur-md">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 p-5 rounded-3xl bg-slate-800/70 dark:bg-slate-900/90 border border-slate-700/60 dark:border-slate-800 backdrop-blur-md shadow-lg">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0">
+            <div className="h-10 w-10 rounded-2xl bg-amber-500/20 dark:bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center justify-center shrink-0">
               <Truck className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs font-black text-white">⚡ Steadfast 1-Click Pickup</p>
-              <p className="text-[11px] text-slate-400">সমগ্র বাংলাদেশে দ্রুততম হোম ডেলিভারি</p>
+              <p className="text-xs font-black text-white dark:text-slate-100">⚡ দ্রুততম ডেলিভারি নেটওয়ার্ক</p>
+              <p className="text-[11px] text-slate-300 dark:text-slate-400">৬৪ জেলায় হোম ডেলিভারি সুবিধা</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+            <div className="h-10 w-10 rounded-2xl bg-emerald-500/20 dark:bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs font-black text-white">১০০% নিরাপদ ক্যাশ অন ডেলিভারি</p>
-              <p className="text-[11px] text-slate-400">পণ্য হাতে পেয়ে মূল্য পরিশোধ করুন</p>
+              <p className="text-xs font-black text-white dark:text-slate-100">১০০% অরিজিনাল প্রোডাক্ট</p>
+              <p className="text-[11px] text-slate-300 dark:text-slate-400">গ্যারান্টিযুক্ত কোয়ালিটি ও ওয়ারেন্টি</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-2xl bg-purple-500/10 text-purple-400 border border-purple-500/30 flex items-center justify-center shrink-0">
+            <div className="h-10 w-10 rounded-2xl bg-purple-500/20 dark:bg-purple-500/10 text-purple-400 border border-purple-500/30 flex items-center justify-center shrink-0">
               <Store className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs font-black text-white">রিসেলার ও বিটুবি হোলসেল</p>
-              <p className="text-[11px] text-slate-400">জিরো ইনভেস্টমেন্টে ড্রপশিপিং সুবিধা</p>
+              <p className="text-xs font-black text-white dark:text-slate-100">রিসেলার ও বিটুবি হোলসেল</p>
+              <p className="text-[11px] text-slate-300 dark:text-slate-400">রিসেলিং ও বাল্ক সোর্সিং সুবিধা</p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 flex items-center justify-center shrink-0">
+            <div className="h-10 w-10 rounded-2xl bg-cyan-500/20 dark:bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 flex items-center justify-center shrink-0">
               <Zap className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-xs font-black text-white">ইনস্ট্যান্ট বিকাশ payout</p>
-              <p className="text-[11px] text-slate-400">প্রফিট উইথড্রল বিকাশ ও নগদে</p>
+              <p className="text-xs font-black text-white dark:text-slate-100">নিরাপদ পেমেন্ট গেটওয়ে</p>
+              <p className="text-[11px] text-slate-300 dark:text-slate-400">bKash, Nagad ও ক্যাশ অন ডেলিভারি</p>
             </div>
           </div>
         </div>
 
         {/* Link columns */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-8 pb-10 border-b border-slate-800">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-4 gap-y-8 pb-10 border-b border-slate-800 dark:border-slate-800">
           {/* Logo & Tagline Column */}
           <div className="col-span-2 md:col-span-3 lg:col-span-2 space-y-4">
             <Link href="/" className="flex items-center gap-2.5 group w-fit">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-slate-950 font-black text-xl shadow-md">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-slate-950 font-black text-xl shadow-md group-hover:scale-105 transition-transform">
                 N
               </div>
               <div className="flex flex-col">
-                <span className="text-lg font-black tracking-tight text-white leading-none">
+                <span className="text-lg font-black tracking-tight text-white dark:text-slate-100 leading-none">
                   NN <span className="text-amber-500">Enterprise</span>
                 </span>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-0.5">
                   Commerce OS
                 </span>
               </div>
             </Link>
 
-            <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              বাংলাদেশের সেরা ড্রপশিপিং এবং বিটুবি হোলসেল প্ল্যাটফর্ম। আপনার ডিজিটাল ই-কমার্স ব্যবসায় সাফল্য আমাদের একমাত্র লক্ষ্য।
+            <p className="text-xs text-slate-300 dark:text-slate-400 leading-relaxed max-w-sm">
+              বাংলাদেশের শীর্ষস্থানীয় শপিং এবং সোর্সিং প্ল্যাটফর্ম। আপনার শপিং অভিজ্ঞতা ও ব্যবসায়িক উন্নতি আমাদের একমাত্র অগ্রাধিকার।
             </p>
 
             {/* Direct Social Links */}
@@ -181,7 +181,7 @@ export function SiteFooter({ categories = [] }: SiteFooterProps): React.ReactEle
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={s.label}
-                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-800/80 text-slate-300 hover:text-amber-400 hover:bg-slate-800 transition-all border border-slate-700/80"
+                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-800 text-slate-300 hover:text-amber-400 hover:bg-slate-700 dark:bg-slate-800/80 dark:hover:bg-slate-800 transition-all border border-slate-700 dark:border-slate-700/80"
                 >
                   <s.icon className="h-4 w-4" aria-hidden />
                 </a>
@@ -192,7 +192,7 @@ export function SiteFooter({ categories = [] }: SiteFooterProps): React.ReactEle
           {/* Links Columns */}
           {columns.map((column) => (
             <nav key={column.title} className="space-y-3" aria-label={column.title}>
-              <h3 className="text-xs font-black uppercase tracking-wider text-amber-400">
+              <h3 className="text-xs font-black uppercase tracking-wider text-amber-400 dark:text-amber-400">
                 {column.title}
               </h3>
               <ul className="space-y-2">
@@ -200,7 +200,7 @@ export function SiteFooter({ categories = [] }: SiteFooterProps): React.ReactEle
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-xs text-slate-300 hover:text-white transition-colors"
+                      className="text-xs text-slate-300 hover:text-white dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -212,39 +212,39 @@ export function SiteFooter({ categories = [] }: SiteFooterProps): React.ReactEle
         </div>
 
         {/* Payment & Courier Badges Bar */}
-        <div className="py-4 border-b border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+        <div className="py-4 border-b border-slate-800 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-300 dark:text-slate-400">
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="font-extrabold text-slate-300">পেমেন্ট মেথড:</span>
-            <span className="px-3 py-1 rounded-lg bg-slate-900 text-amber-400 font-black border border-slate-800 text-[11px]">
+            <span className="font-extrabold text-slate-200 dark:text-slate-300">পেমেন্ট মেথড:</span>
+            <span className="px-3 py-1 rounded-lg bg-slate-800 dark:bg-slate-900 text-amber-400 font-black border border-slate-700 dark:border-slate-800 text-[11px]">
               bKash
             </span>
-            <span className="px-3 py-1 rounded-lg bg-slate-900 text-amber-400 font-black border border-slate-800 text-[11px]">
+            <span className="px-3 py-1 rounded-lg bg-slate-800 dark:bg-slate-900 text-amber-400 font-black border border-slate-700 dark:border-slate-800 text-[11px]">
               Nagad
             </span>
-            <span className="px-3 py-1 rounded-lg bg-slate-900 text-slate-200 font-bold border border-slate-800 text-[11px]">
+            <span className="px-3 py-1 rounded-lg bg-slate-800 dark:bg-slate-900 text-slate-200 font-bold border border-slate-700 dark:border-slate-800 text-[11px]">
               VISA
             </span>
-            <span className="px-3 py-1 rounded-lg bg-slate-900 text-slate-200 font-bold border border-slate-800 text-[11px]">
+            <span className="px-3 py-1 rounded-lg bg-slate-800 dark:bg-slate-900 text-slate-200 font-bold border border-slate-700 dark:border-slate-800 text-[11px]">
               Mastercard
             </span>
-            <span className="px-3 py-1 rounded-lg bg-slate-900 text-emerald-400 font-bold border border-slate-800 text-[11px]">
+            <span className="px-3 py-1 rounded-lg bg-slate-800 dark:bg-slate-900 text-emerald-400 font-bold border border-slate-700 dark:border-slate-800 text-[11px]">
               Cash On Delivery
             </span>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="font-extrabold text-slate-300">কুরিয়ার পার্টনার:</span>
-            <span className="px-3 py-1 rounded-lg bg-slate-900 text-amber-400 font-black border border-slate-800 text-[11px]">
+            <span className="font-extrabold text-slate-200 dark:text-slate-300">কুরিয়ার পার্টনার:</span>
+            <span className="px-3 py-1 rounded-lg bg-slate-800 dark:bg-slate-900 text-amber-400 font-black border border-slate-700 dark:border-slate-800 text-[11px]">
               ⚡ Steadfast Courier
             </span>
-            <span className="px-3 py-1 rounded-lg bg-slate-900 text-slate-200 font-bold border border-slate-800 text-[11px]">
+            <span className="px-3 py-1 rounded-lg bg-slate-800 dark:bg-slate-900 text-slate-200 font-bold border border-slate-700 dark:border-slate-800 text-[11px]">
               Pathao Courier
             </span>
           </div>
         </div>
 
         {/* Copyright Bar */}
-        <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
+        <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400 dark:text-slate-500">
           <p>{BRAND.copyright}</p>
           <div className="flex items-center gap-4 font-medium">
             <Link href="/privacy" className="hover:text-amber-400 transition-colors">

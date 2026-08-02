@@ -21,24 +21,23 @@ function isTheme(value: unknown): value is Theme {
   return value === "light" || value === "dark" || value === "system";
 }
 
-function getSystemTheme(): ResolvedTheme {
-  if (typeof window === "undefined") return "light";
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
 function resolveTheme(theme: Theme): ResolvedTheme {
-  return theme === "system" ? getSystemTheme() : theme;
+  if (theme === "system") {
+    if (typeof window === "undefined") return "light";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  return theme;
 }
 
 function readStoredTheme(): Theme {
-  if (typeof window === "undefined") return "system";
+  if (typeof window === "undefined") return "light";
   try {
     const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
     if (isTheme(stored)) return stored;
   } catch {
     // localStorage can be unavailable (private mode, blocked cookies).
   }
-  return "system";
+  return "light";
 }
 
 function applyTheme(resolved: ResolvedTheme): void {
@@ -50,11 +49,7 @@ function applyTheme(resolved: ResolvedTheme): void {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }): React.ReactElement {
-  // Server render and the first client render must agree, so both start from
-  // the same neutral defaults. The inline bootstrap script in the root layout
-  // has already painted the correct theme on <html>, so there is no flash —
-  // only this in-memory state needs to catch up, which happens on mount.
-  const [theme, setThemeState] = React.useState<Theme>("system");
+  const [theme, setThemeState] = React.useState<Theme>("light");
   const [resolvedTheme, setResolvedTheme] = React.useState<ResolvedTheme>("light");
 
   React.useEffect(() => {
@@ -62,18 +57,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }): Reac
     const resolved = resolveTheme(stored);
     setThemeState(stored);
     setResolvedTheme(resolved);
-    // Re-assert in case the bootstrap script was blocked or the DOM was
-    // mutated between first paint and hydration.
     applyTheme(resolved);
   }, []);
 
-  // Follow the OS only while the user has explicitly chosen "system".
   React.useEffect(() => {
     if (theme !== "system") return;
 
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = (): void => {
-      const next = getSystemTheme();
+      const next = media.matches ? "dark" : "light";
       setResolvedTheme(next);
       applyTheme(next);
     };
@@ -82,11 +74,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }): Reac
     return () => media.removeEventListener("change", handleChange);
   }, [theme]);
 
-  // Keep other tabs of the app in sync with the saved preference.
   React.useEffect(() => {
     const handleStorage = (event: StorageEvent): void => {
       if (event.key !== THEME_STORAGE_KEY) return;
-      const next = isTheme(event.newValue) ? event.newValue : "system";
+      const next = isTheme(event.newValue) ? event.newValue : "light";
       const resolved = resolveTheme(next);
       setThemeState(next);
       setResolvedTheme(resolved);
@@ -99,14 +90,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }): Reac
 
   const setTheme = React.useCallback((next: Theme): void => {
     const resolved = resolveTheme(next);
-    // Paint first so the change is visible in the same frame as the click.
     applyTheme(resolved);
     setThemeState(next);
     setResolvedTheme(resolved);
     try {
       window.localStorage.setItem(THEME_STORAGE_KEY, next);
     } catch {
-      // Preference cannot be persisted; the session still reflects the choice.
+      // Ignore quota/private mode errors.
     }
   }, []);
 

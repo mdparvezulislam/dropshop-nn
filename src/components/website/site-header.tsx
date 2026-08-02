@@ -67,39 +67,41 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
       <header
         className={cn(
           "sticky top-0 z-50 w-full transition-all duration-200 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md pt-[env(safe-area-inset-top,0px)]",
-          scrolled ? "border-b border-slate-200 dark:border-slate-800 shadow-xs" : "border-b border-slate-200/70 dark:border-slate-800/70",
+          scrolled
+            ? "border-b border-slate-200 dark:border-slate-800 shadow-sm"
+            : "border-b border-slate-200/70 dark:border-slate-800/70",
         )}
       >
         <div className="mx-auto max-w-(--content-max) px-2.5 sm:px-6 lg:px-8">
-          <div className="flex h-12 lg:h-20 items-center justify-between gap-2">
+          <div className="flex h-14 lg:h-20 items-center justify-between gap-2.5 sm:gap-4">
             {/* Mobile menu trigger */}
             <button
               type="button"
-              className="lg:hidden -ml-1 h-8 w-8 min-h-[36px] min-w-[36px] flex items-center justify-center text-slate-800 dark:text-slate-100 hover:text-amber-600 transition-colors touch-manipulation active:scale-95 focus-visible:outline-2 focus-visible:outline-amber-500 rounded-lg"
+              className="lg:hidden -ml-1 h-9 w-9 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-800 dark:text-slate-100 hover:text-amber-600 transition-colors touch-manipulation active:scale-95 focus-visible:outline-2 focus-visible:outline-amber-500 rounded-xl"
               onClick={() => setMobileOpen(true)}
               aria-label="মেনু খুলুন"
               aria-expanded={mobileOpen}
               aria-haspopup="dialog"
             >
-              <Menu className="h-4.5 w-4.5" aria-hidden />
+              <Menu className="h-5 w-5" aria-hidden />
             </button>
 
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-1.5 shrink-0 group">
-              <div className="flex h-7.5 w-7.5 lg:h-10 lg:w-10 items-center justify-center rounded-lg lg:rounded-xl bg-amber-500 text-slate-950 font-black text-sm lg:text-xl shadow-xs group-hover:scale-105 transition-transform">
+            {/* Brand Logo */}
+            <Link href="/" className="flex items-center gap-2 shrink-0 group">
+              <div className="flex h-8 w-8 lg:h-10 lg:w-10 items-center justify-center rounded-xl bg-amber-500 text-slate-950 font-black text-base lg:text-xl shadow-xs group-hover:scale-105 transition-transform">
                 N
               </div>
               <div className="flex flex-col">
-                <span className="text-xs sm:text-base font-black tracking-tight text-slate-900 dark:text-slate-100 leading-none">
+                <span className="text-sm sm:text-base font-black tracking-tight text-slate-900 dark:text-slate-100 leading-none">
                   NN <span className="text-amber-500">Enterprise</span>
                 </span>
-                <span className="text-[8px] sm:text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">
+                <span className="text-[8px] sm:text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-0.5">
                   Commerce OS
                 </span>
               </div>
             </Link>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation Links */}
             <nav className="hidden xl:flex items-center gap-6 ml-6" aria-label="প্রধান নেভিগেশন">
               {BANGLA_NAV_ITEMS.map((item) =>
                 "hasMega" in item && item.hasMega ? (
@@ -109,7 +111,6 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
                     onMouseEnter={() => setMegaOpen(true)}
                     onMouseLeave={() => setMegaOpen(false)}
                     onBlur={(e) => {
-                      // Close only when focus leaves the trigger AND the panel.
                       if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
                         setMegaOpen(false);
                       }
@@ -157,7 +158,7 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
 
             <div className="flex-1" />
 
-            {/* Search + Action Buttons */}
+            {/* Search + CTAs + Cart + Account */}
             <div className="flex items-center gap-1.5 sm:gap-3">
               {/* Mobile Search Shortcut */}
               <button
@@ -169,11 +170,11 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
                 <Search className="h-5 w-5" aria-hidden />
               </button>
 
-              {/* Desktop Search */}
+              {/* Desktop Search Button */}
               <button
                 type="button"
                 onClick={() => setSearchOpen(true)}
-                className="hidden lg:flex items-center gap-2.5 px-3.5 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100/80 dark:bg-slate-800/80 border border-slate-300/80 dark:border-slate-700/80 rounded-xl hover:bg-white dark:hover:bg-slate-800 hover:border-amber-500 hover:text-slate-900 dark:hover:text-slate-100 transition-all w-52 xl:w-64 shadow-2xs group focus-visible:outline-2 focus-visible:outline-amber-500"
+                className="hidden lg:flex items-center gap-2.5 px-3.5 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100/90 dark:bg-slate-800/90 border border-slate-300/80 dark:border-slate-700/80 rounded-xl hover:bg-white dark:hover:bg-slate-800 hover:border-amber-500 hover:text-slate-900 dark:hover:text-slate-100 transition-all w-52 xl:w-64 shadow-2xs group focus-visible:outline-2 focus-visible:outline-amber-500"
               >
                 <Search
                   className="h-3.5 w-3.5 shrink-0 text-slate-500 group-hover:text-amber-500 transition-colors"
@@ -185,10 +186,11 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
                 </span>
               </button>
 
+              {/* Business Action Buttons */}
               <Link href="/become-reseller" className="hidden sm:inline-flex">
                 <Button
                   size="sm"
-                  className="h-9 px-4 text-xs font-extrabold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xs"
+                  className="h-9 px-4 text-xs font-black bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xs rounded-xl"
                 >
                   <Store className="h-3.5 w-3.5 mr-1.5" aria-hidden />
                   রিসেলার হন
@@ -197,7 +199,7 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
 
               <Link
                 href="/become-wholesale-partner"
-                className="hidden md:inline-flex items-center h-9 px-3.5 text-xs font-extrabold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 hover:border-slate-400 hover:text-slate-950 dark:hover:text-white rounded-xl transition-all shadow-2xs focus-visible:outline-2 focus-visible:outline-amber-500"
+                className="hidden md:inline-flex items-center h-9 px-3.5 text-xs font-black text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 hover:border-slate-400 hover:text-slate-950 dark:hover:text-white rounded-xl transition-all shadow-2xs focus-visible:outline-2 focus-visible:outline-amber-500"
               >
                 <Building2 className="h-3.5 w-3.5 mr-1.5 text-slate-600 dark:text-slate-400" aria-hidden />
                 হোলসেলার হন
