@@ -113,14 +113,17 @@ export function OrderDetailsDrawer({
   const status: OrderStatus = order.status || "pending";
   const allowedTransitions = getAllowedTransitions(status);
 
-  const customerName = order.customer?.name || "GUEST CUSTOMER";
+  const customerName = order.customer?.name || order.shipping?.receiverName || "GUEST CUSTOMER";
   const phone = order.customer?.phone || order.shipping?.phone || "";
   const formattedPhoneForWhatsapp = phone.replace(/[^0-9]/g, "").replace(/^0/, "880");
-  const address =
-    order.shipping?.address ||
-    `${order.shipping?.district || ""}, ${order.shipping?.division || ""}`.trim() ||
-    "N/A";
-  const googleMapsUrl = `https://maps.google.com/?q=${encodeURIComponent(address)}`;
+
+  const districtName = order.shipping?.district || order.shippingAddress?.district || order.customer?.district || "";
+  const upazilaName = order.shipping?.upazila || order.shippingAddress?.upazila || order.customer?.upazila || "";
+  const streetAddress = order.shipping?.address || order.shippingAddress?.address || order.customer?.address || "";
+
+  const fullLocationHeader = [upazilaName, districtName].filter(Boolean).join(", ");
+  const address = streetAddress || fullLocationHeader || "N/A";
+  const googleMapsUrl = `https://maps.google.com/?q=${encodeURIComponent([streetAddress, fullLocationHeader].filter(Boolean).join(", "))}`;
 
   const payDetails = getOrderPaymentDetails(order);
   const total = payDetails.grandTotal;
@@ -618,6 +621,11 @@ export function OrderDetailsDrawer({
                       </Button>
                     </div>
 
+                    {fullLocationHeader && (
+                      <p className="text-xs font-extrabold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                        📍 {fullLocationHeader}
+                      </p>
+                    )}
                     <p className="text-xs text-foreground font-medium leading-relaxed">{address}</p>
                     <a
                       href={googleMapsUrl}

@@ -105,22 +105,7 @@ export function QuickOrderLiveSummary({
           </div>
         )}
 
-        {/* Editable Delivery Charge Input */}
-        <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between">
-              <span>ডেলিভারি ফি (৳)</span>
-              <span className="text-[9px] text-muted-foreground">({isDhaka ? "ডিফল্ট ৬০" : "ডিফল্ট ১২০"})</span>
-            </label>
-            <input
-              type="number"
-              min={0}
-              value={deliveryChargeTaka}
-              onChange={(e) => onDeliveryChargeChange(parseFloat(e.target.value) || 0)}
-              className="w-full h-8 px-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono font-bold text-slate-900 dark:text-slate-100 text-xs outline-none focus:border-amber-500"
-            />
-          </div>
-        </div>
+
 
         {/* Financial Breakdown */}
         <div className="space-y-1.5 text-xs pt-1 border-t border-slate-200 dark:border-slate-800">

@@ -289,8 +289,13 @@ export class StorefrontCheckoutService {
       cartId = updated.id;
     }
 
+    const { AddressParserService } = await import("@/features/address/services/address-parser-service");
+    const parsedAddress = AddressParserService.parseAddress(input.shipping.address);
+
     const shippingInfo: CheckoutShippingInfo = {
       ...input.shipping,
+      district: input.shipping.district || parsedAddress.detectedDistrict || "Dhaka",
+      upazila: input.shipping.upazila || parsedAddress.detectedUpazila,
       shippingMethod: method.id,
       deliveryCharge: Math.round(method.cost * 100),
       paymentMethod: input.paymentMethod,

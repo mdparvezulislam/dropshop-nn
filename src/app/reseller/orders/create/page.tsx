@@ -227,6 +227,23 @@ export default function ResellerQuickOrderPage(): React.ReactElement {
       }
 
       const created = res.data as any;
+
+      // Auto-save customer into main Customer collection
+      try {
+        const { saveCustomerProfileAction } = await import(
+          "@/features/customer/actions/customer-actions"
+        );
+        await saveCustomerProfileAction({
+          name: customer.name.trim(),
+          phone: customer.phone.trim(),
+          email: customer.email ? customer.email.trim() : undefined,
+          district: customer.district || "Dhaka",
+          upazila: customer.upazila || "",
+          address: customer.fullAddress.trim(),
+        });
+      } catch {
+        // silent fallback
+      }
       const orderNumber = created.orderNumber || created.id?.slice(0, 8) || "RSL-9999";
       let subtotalTaka = 0;
       let costSubtotalTaka = 0;

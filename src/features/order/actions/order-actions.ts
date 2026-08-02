@@ -502,7 +502,7 @@ export async function updateOrderPaymentAction(formData: {
     const service = new OrderService();
     const result = await service.updateOrderPayment(formData);
     revalidatePath("/dashboard/orders");
-    return { success: true, data: result };
+    return { success: true, data: JSON.parse(JSON.stringify(result)) };
   } catch (error: any) {
     logger.error("updateOrderPaymentAction failed", error);
     return { success: false, error: error.message };
@@ -529,7 +529,7 @@ export async function updateOrderAddressAction(formData: {
     const service = new OrderService();
     const result = await service.updateOrderAddress(formData);
     revalidatePath("/dashboard/orders");
-    return { success: true, data: result };
+    return { success: true, data: JSON.parse(JSON.stringify(result)) };
   } catch (error: any) {
     logger.error("updateOrderAddressAction failed", error);
     return { success: false, error: error.message };

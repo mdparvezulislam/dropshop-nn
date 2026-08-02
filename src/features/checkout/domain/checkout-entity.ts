@@ -20,8 +20,8 @@ export interface CheckoutShippingInfo {
   alternativePhone?: string;
   /** Customer email — links the order to an account's history. */
   email?: string;
-  division: string;
-  district: string;
+  division?: string;
+  district?: string;
   /** Optional thana/upazila (sub-district) for legacy pipelines. */
   upazila?: string;
 

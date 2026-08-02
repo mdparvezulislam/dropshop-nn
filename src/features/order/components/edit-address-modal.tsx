@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { updateOrderAddressAction } from "../actions/order-actions";
 import { MapPin, User, Phone, CheckCircle2, Loader2 } from "lucide-react";
+import { SmartAddressPicker } from "@/shared/components/address/smart-address-picker";
 
 interface EditAddressModalProps {
   isOpen: boolean;
@@ -38,15 +40,26 @@ export function EditAddressModal({
   const [deliveryNote, setDeliveryNote] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const router = useRouter();
+
   useEffect(() => {
     if (order) {
-      setCustomerName(order.customer?.name || "");
+      setCustomerName(order.customer?.name || order.shipping?.receiverName || "");
       setPhone(order.customer?.phone || order.shipping?.phone || "");
-      setDivision(order.shipping?.division || "Dhaka");
-      setDistrict(order.shipping?.district || "Dhaka");
-      setUpazila(order.shipping?.upazila || "");
-      setAddress(order.shipping?.address || "");
-      setDeliveryNote(order.shipping?.deliveryNote || "");
+      setDivision(order.shipping?.division || order.shippingAddress?.division || "Dhaka");
+      setDistrict(order.shipping?.district || order.shippingAddress?.district || "Dhaka");
+      setUpazila(order.shipping?.upazila || order.shippingAddress?.upazila || "");
+      setAddress(order.shipping?.address || order.shippingAddress?.address || "");
+
+      const rawNote = order.shipping?.deliveryNote || order.notes || "";
+      let userNote = rawNote;
+      if (rawNote.includes("userNote:")) {
+        const match = rawNote.match(/userNote:([^;]+)/);
+        userNote = match ? match[1].trim() : "";
+      } else if (rawNote.startsWith("payment:") || rawNote.includes("deliveryCharge:")) {
+        userNote = "";
+      }
+      setDeliveryNote(userNote);
     }
   }, [order]);
 
@@ -63,20 +76,28 @@ export function EditAddressModal({
 
     setLoading(true);
     try {
+      const rawNote = order.shipping?.deliveryNote || order.notes || "";
+      let finalNotePayload = deliveryNote.trim();
+      if (rawNote.startsWith("payment:") || rawNote.includes("deliveryCharge:")) {
+        const baseMeta = rawNote.split(";userNote:")[0];
+        finalNotePayload = finalNotePayload ? `${baseMeta};userNote:${finalNotePayload}` : baseMeta;
+      }
+
       const res = await updateOrderAddressAction({
         orderId,
-        customerName,
-        phone,
+        customerName: customerName.trim(),
+        phone: phone.trim(),
         division,
         district,
         upazila,
-        address,
-        deliveryNote,
+        address: address.trim(),
+        deliveryNote: finalNotePayload,
       });
 
       if (res.success) {
         toast.success(`অর্ডার ${orderNumber} এর কাস্টমার ঠিকানা আপডেটেড হয়েছে!`);
         if (onSuccess) onSuccess();
+        router.refresh();
         onClose();
       } else {
         toast.error(res.error || "ঠিকানা আপডেট করতে সমস্যা হয়েছে");
@@ -131,34 +152,13 @@ export function EditAddressModal({
           </div>
 
           {/* Division & District & Upazila Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-            <div className="space-y-1">
-              <label className="font-bold text-foreground">Division</label>
-              <Input
-                value={division}
-                onChange={(e) => setDivision(e.target.value)}
-                placeholder="Dhaka"
-                className="h-10 text-xs font-medium"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="font-bold text-foreground">District</label>
-              <Input
-                value={district}
-                onChange={(e) => setDistrict(e.target.value)}
-                placeholder="Dhaka"
-                className="h-10 text-xs font-medium"
-              />
-            </div>
-            <div className="space-y-1">
-              <label className="font-bold text-foreground">Upazila / Thana</label>
-              <Input
-                value={upazila}
-                onChange={(e) => setUpazila(e.target.value)}
-                placeholder="Dhamrai / Tejgaon"
-                className="h-10 text-xs font-medium"
-              />
-            </div>
+          <div className="col-span-1 sm:col-span-3">
+            <SmartAddressPicker
+              districtValue={district}
+              upazilaValue={upazila}
+              onDistrictChange={(newDistrict) => setDistrict(newDistrict)}
+              onUpazilaChange={(newUpazila) => setUpazila(newUpazila)}
+            />
           </div>
 
           {/* Street Address */}

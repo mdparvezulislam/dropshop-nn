@@ -22,6 +22,7 @@ import {
   Edit2,
   Check,
   Package,
+  MessageSquare,
 } from "lucide-react";
 import { getHumanLabel, type OrderStatus } from "../domain/state-machine";
 import { getOrderPaymentDetails, formatAmount } from "../utils/payment-utils";
@@ -304,6 +305,19 @@ export function OrderCardMobile({
                 ৳{formatAmount(deliveryCharge)}
               </span>
             </div>
+
+            {(() => {
+              const rawNote = order.notes || order.shipping?.deliveryNote || "";
+              const userMatch = rawNote.match(/userNote:(.*)$/i);
+              const cleanNote = userMatch ? userMatch[1].trim() : (rawNote.includes("payment:") ? "" : rawNote.trim());
+              if (!cleanNote) return null;
+              return (
+                <div className="pt-1 border-t border-border/40 text-[11px] font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1">
+                  <MessageSquare className="w-3 h-3 text-amber-500 shrink-0" />
+                  <span className="truncate">{cleanNote}</span>
+                </div>
+              );
+            })()}
           </div>
         )}
 
@@ -315,6 +329,16 @@ export function OrderCardMobile({
             className="flex-1 h-8 text-xs font-black bg-amber-500 hover:bg-amber-600 text-slate-950 border-0 shadow-2xs gap-1"
           >
             <Truck className="h-3.5 w-3.5 text-slate-950" /> ⚡ Steadfast Pickup
+          </Button>
+
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => onQuickAction("edit_note", order)}
+            className="h-8 px-2.5 text-xs font-bold border border-amber-300/80 bg-amber-500/10 text-amber-700 dark:text-amber-300 dark:border-amber-700/60 shrink-0"
+            title="বিশেষ নোট পড়ুন বা লিখুন"
+          >
+            <MessageSquare className="h-3.5 w-3.5" />
           </Button>
 
           <Button

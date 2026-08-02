@@ -99,13 +99,51 @@ export class SteadfastCourierAdapter implements CourierProvider {
 
     try {
       const orderData = (order ?? {}) as Record<string, any>;
+      const rawNote = shipment.notes ?? orderData.notes ?? orderData.shippingAddress?.deliveryNote ?? "";
+      const match = String(rawNote).match(/userNote:(.*)$/i);
+      const cleanNote = match ? match[1].trim() : (rawNote.includes("payment:") ? "" : rawNote.trim());
+
+      const recipientName =
+        orderData.shipping?.receiverName ||
+        orderData.shippingAddress?.receiverName ||
+        orderData.shippingAddress?.fullName ||
+        orderData.customer?.name ||
+        "Customer";
+
+      const recipientPhone =
+        orderData.shipping?.phone ||
+        orderData.shippingAddress?.phone ||
+        orderData.customer?.phone ||
+        "01700000000";
+
+      const street =
+        orderData.shipping?.address ||
+        orderData.shippingAddress?.address ||
+        orderData.shippingAddress?.addressLine1 ||
+        orderData.customer?.address ||
+        "";
+      const upazila =
+        orderData.shipping?.upazila ||
+        orderData.shippingAddress?.upazila ||
+        orderData.customer?.upazila ||
+        "";
+      const district =
+        orderData.shipping?.district ||
+        orderData.shippingAddress?.district ||
+        orderData.shippingAddress?.city ||
+        orderData.customer?.district ||
+        "";
+
+      const fullRecipientAddress =
+        [street, upazila, district].filter(Boolean).join(", ") || "Dhaka";
+
       const payload = {
         invoice: shipment.orderNumber,
-        recipient_name: orderData.shippingAddress?.fullName ?? "Customer",
-        recipient_phone: orderData.shippingAddress?.phone ?? "01700000000",
-        recipient_address: orderData.shippingAddress?.addressLine1 ?? "Dhaka",
+        recipient_name: recipientName,
+        recipient_phone: recipientPhone,
+        recipient_address: fullRecipientAddress,
         cod_amount: shipment.codAmount ?? 0,
-        note: shipment.notes ?? "",
+        note: cleanNote,
       };
 
       const res = await this.request<{

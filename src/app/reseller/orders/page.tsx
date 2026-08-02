@@ -24,6 +24,7 @@ import { StatusChip, statusToneFromValue } from "@/components/workspace/status-c
 import { ResellerStatusGuard } from "@/features/reseller-workspace/components/reseller-status-guard";
 import { EditResellerOrderModal } from "@/features/reseller-workspace/components/edit-reseller-order-modal";
 import { ResellerInvoiceModal } from "@/features/reseller-workspace/components/reseller-invoice-modal";
+import { OrderNoteModal } from "@/shared/components/order-note-modal";
 import type { ResellerOrderDTO } from "@/features/reseller/actions/reseller-order-actions";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils/cn";
@@ -68,6 +69,9 @@ export default function ResellerOrdersPage(): React.ReactElement {
 
   const [invoiceModalOpen, setInvoiceModalOpen] = React.useState(false);
   const [selectedOrderForInvoice, setSelectedOrderForInvoice] = React.useState<ResellerOrderDTO | null>(null);
+
+  const [noteModalOpen, setNoteModalOpen] = React.useState(false);
+  const [selectedOrderForNote, setSelectedOrderForNote] = React.useState<ResellerOrderDTO | null>(null);
 
   // Shop Settings for Invoice Branding
   const [shopSettings, setShopSettings] = React.useState<{
@@ -455,12 +459,28 @@ export default function ResellerOrdersPage(): React.ReactElement {
 
                       {/* Comment */}
                       <td className="py-3.5 px-3 text-center">
-                        <button
-                          className="p-1 rounded-md text-muted-foreground hover:text-foreground"
-                          title="নোট পড়ুন বা লিখুন"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                        </button>
+                        {(() => {
+                          const rawNote = (o as any).notes || (o as any).shipping?.deliveryNote || "";
+                          const userMatch = rawNote.match(/userNote:(.*)$/i);
+                          const cleanNote = userMatch ? userMatch[1].trim() : (rawNote.includes("payment:") ? "" : rawNote.trim());
+                          return (
+                            <button
+                              onClick={() => {
+                                setSelectedOrderForNote(o);
+                                setNoteModalOpen(true);
+                              }}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-extrabold text-[11px] border border-amber-500/20 transition-all shadow-2xs"
+                              title="বিশেষ নোট পড়ুন বা নতুন নোট লিখুন"
+                            >
+                              <Edit3 className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                              {cleanNote ? (
+                                <span className="max-w-[80px] truncate font-bold" title={cleanNote}>{cleanNote}</span>
+                              ) : (
+                                <span>নোট</span>
+                              )}
+                            </button>
+                          );
+                        })()}
                       </td>
 
                       {/* Actions */}
@@ -571,6 +591,14 @@ export default function ResellerOrdersPage(): React.ReactElement {
         shopPhone={shopSettings?.phone}
         shopAddress={shopSettings?.address}
         invoiceFooter={shopSettings?.invoiceFooter}
+      />
+
+      {/* Order Note / Courier Instructions Modal */}
+      <OrderNoteModal
+        open={noteModalOpen}
+        onOpenChange={setNoteModalOpen}
+        order={selectedOrderForNote}
+        onSuccess={loadOrders}
       />
     </ResellerStatusGuard>
   );

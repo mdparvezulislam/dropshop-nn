@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BD_DISTRICTS } from "@/config/bd-districts";
+import { SmartAddressPicker } from "@/shared/components/address/smart-address-picker";
 import { toast } from "sonner";
 import type { ResellerOrderDTO } from "@/features/reseller/actions/reseller-order-actions";
 import { cn } from "@/lib/utils/cn";
@@ -365,36 +366,16 @@ export function EditResellerOrderModal({
                 />
               </div>
 
-              <div>
-                <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                  জেলা *
-                </label>
-                <select
+              <div className="col-span-1 sm:col-span-2">
+                <SmartAddressPicker
+                  districtValue={district}
+                  upazilaValue={upazila}
+                  onDistrictChange={(newDistrict, isDhaka, fee) => {
+                    setDistrict(newDistrict);
+                    setDeliveryChargeTaka(fee);
+                  }}
+                  onUpazilaChange={(newUpazila) => setUpazila(newUpazila)}
                   disabled={!isEditable}
-                  value={district}
-                  onChange={(e) => setDistrict(e.target.value)}
-                  className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 disabled:opacity-60"
-                  required
-                >
-                  {BD_DISTRICTS.map((d) => (
-                    <option key={d.id} value={d.name}>
-                      {d.name} ({d.nameEn})
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                  উপজেলা / এলাকা
-                </label>
-                <input
-                  type="text"
-                  disabled={!isEditable}
-                  value={upazila}
-                  onChange={(e) => setUpazila(e.target.value)}
-                  placeholder="যেমন: বরুড়া"
-                  className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 disabled:opacity-60"
                 />
               </div>
             </div>

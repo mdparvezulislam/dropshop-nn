@@ -80,7 +80,6 @@ function validate(form: CheckoutForm): FieldErrors {
   if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
     errors.email = "সঠিক ইমেইল দিন";
   }
-  if (!form.districtId) errors.districtId = "জেলা নির্বাচন করুন";
   if (form.address.trim().length < 8) {
     errors.address = "সম্পূর্ণ ঠিকানা লিখুন (বাসা/রোড/এলাকা)";
   }
@@ -427,26 +426,7 @@ export function CheckoutFlow() {
               />
             </Field>
 
-            {/* District & Thana Selection */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              <Field id="district" label="জেলা" required error={errors.districtId}>
-                <DistrictSelect
-                  id="district"
-                  value={form.districtId}
-                  onChange={onDistrictChange}
-                  error={Boolean(errors.districtId)}
-                />
-              </Field>
-
-              <Field id="thana" label="থানা / উপজেলা (ঐচ্ছিক)">
-                <ThanaSelect
-                  id="thana"
-                  districtId={form.districtId}
-                  value={form.upazila}
-                  onChange={(thana) => set("upazila", thana)}
-                />
-              </Field>
-            </div>
+            {/* Full Street Address */}
 
             {/* Full Street Address */}
             <Field
@@ -460,7 +440,7 @@ export function CheckoutFlow() {
                 id="address"
                 rows={3}
                 autoComplete="street-address"
-                placeholder="যেমন: বাসা ১২, রোড ৫, ধানমন্ডি, ধানমন্ডি থানা"
+                placeholder="বাসা নং, রোড নং, এলাকা, উপজেলা/থানা, জেলা লিখুন (যেমন: বাসা ১২, রোড ৫, ধানমন্ডি, ধানমন্ডি থানা, ঢাকা)"
                 value={form.address}
                 aria-invalid={Boolean(errors.address) || undefined}
                 onChange={(e) => set("address", e.target.value)}

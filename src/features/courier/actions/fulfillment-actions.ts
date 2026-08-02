@@ -353,7 +353,7 @@ export async function listShippableOrdersAction(
         orderNumber: order.orderNumber,
         status: order.status,
         customerName: order.customer.name,
-        district: order.shipping.district,
+        district: order.shipping.district || "",
         grandTotal: minorToBdt(order.pricing.grandTotal),
         placedAt: iso(order.createdAt),
         hasShipment: shipments.has(order.id),

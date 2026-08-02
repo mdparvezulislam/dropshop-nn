@@ -148,8 +148,8 @@ function toDetail(order: Order, shipment?: CustomerShipmentView | null): Custome
     address: {
       receiverName: order.shipping.receiverName,
       phone: order.shipping.phone,
-      division: order.shipping.division,
-      district: order.shipping.district,
+      division: order.shipping.division || "Dhaka",
+      district: order.shipping.district || "Dhaka",
       upazila: order.shipping.upazila,
       address: order.shipping.address,
       postalCode: order.shipping.postalCode ?? undefined,
@@ -178,7 +178,7 @@ function toTracking(order: Order, shipment?: CustomerShipmentView | null): Track
     orderNumber: order.orderNumber,
     status: order.status,
     placedAt: new Date(order.createdAt ?? Date.now()).toISOString(),
-    district: order.shipping.district,
+    district: order.shipping.district || "Dhaka",
     courier: order.shippingInfo
       ? {
           name: order.shippingInfo.courierName ?? undefined,

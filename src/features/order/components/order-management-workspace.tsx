@@ -22,6 +22,7 @@ import { EditPaymentModal } from "./edit-payment-modal";
 import { EditAddressModal } from "./edit-address-modal";
 import { EditResellerOrderModal } from "@/features/reseller-workspace/components/edit-reseller-order-modal";
 import { ResellerInvoiceModal } from "@/features/reseller-workspace/components/reseller-invoice-modal";
+import { OrderNoteModal } from "@/shared/components/order-note-modal";
 import { OrderQuickActionMenu } from "./order-quick-action-menu";
 import { printOrderInvoice, printShippingLabel } from "../utils/print-utils";
 import { getHumanLabel } from "../domain/state-machine";
@@ -95,6 +96,8 @@ export function OrderManagementWorkspace({
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [selectedOrderForInvoice, setSelectedOrderForInvoice] = useState<any | null>(null);
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState<boolean>(false);
+  const [selectedOrderForNote, setSelectedOrderForNote] = useState<any | null>(null);
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState<boolean>(false);
 
   // Data Fetching
   const fetchOrders = useCallback(async () => {
@@ -115,9 +118,17 @@ export function OrderManagementWorkspace({
 
       if (ordersRes.success && ordersRes.data) {
         const d = ordersRes.data as any;
-        setOrders(d.items as any[]);
+        const fetchedItems = (d.items as any[]) || [];
+        setOrders(fetchedItems);
         setTotalPages(d.totalPages || 1);
         setTotalCount(d.totalItems ?? d.total ?? d.items?.length ?? 0);
+
+        setSelectedOrderForDrawer((prev: any) => {
+          if (!prev) return prev;
+          const targetId = prev.id || prev._id;
+          const updated = fetchedItems.find((o: any) => (o.id || o._id) === targetId);
+          return updated || prev;
+        });
       }
       if (statsRes.success && statsRes.data) {
         setStats(statsRes.data);
@@ -310,6 +321,9 @@ export function OrderManagementWorkspace({
     } else if (action === "edit_payment") {
       setSelectedOrderForPayment(targetOrder);
       setIsPaymentModalOpen(true);
+    } else if (action === "edit_note" || action === "note") {
+      setSelectedOrderForNote(targetOrder);
+      setIsNoteModalOpen(true);
     } else if (action === "edit_address") {
       setSelectedOrderForAddress(targetOrder);
       setIsAddressModalOpen(true);
@@ -617,7 +631,13 @@ export function OrderManagementWorkspace({
         order={selectedOrderForInvoice}
       />
 
-      {/* 3-Dots Quick Action Menu */}
+      {/* Order Note Modal */}
+      <OrderNoteModal
+        open={isNoteModalOpen}
+        onOpenChange={setIsNoteModalOpen}
+        order={selectedOrderForNote}
+        onSuccess={fetchOrders}
+      />
       <OrderQuickActionMenu
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}

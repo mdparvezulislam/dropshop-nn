@@ -255,12 +255,49 @@ export class OrderService {
 
       await this.publishStatusEvent(order, fromStatus, toStatus, actor, reason);
 
-      if (toStatus === "confirmed" || toStatus === "packed" || toStatus === "shipped" || toStatus === "completed") {
+      if (toStatus === "confirmed" || toStatus === "packed" || toStatus === "shipped" || toStatus === "completed" || toStatus === "delivered") {
         await this.confirmOrderInventory(order);
       } else if (toStatus === "cancelled") {
         await this.requestInventoryRelease(order);
       } else if (toStatus === "returned") {
         await this.restockReturnedOrder(order);
+      }
+
+      if (toStatus === "delivered" || toStatus === "completed") {
+        try {
+          const { OrderModel } = await import("../repositories/order-model");
+          const rawOrder = order as any;
+          const items = rawOrder.pricing?.items || rawOrder.items || [];
+          const subtotalCents =
+            rawOrder.pricing?.subtotal && rawOrder.pricing.subtotal > 0
+              ? rawOrder.pricing.subtotal
+              : items.reduce((sum: number, i: any) => sum + (i.totalSellingPrice || ((i.unitSellingPrice || i.price || 0) * (i.quantity || 1))), 0);
+          const costBasisCents =
+            rawOrder.profitPreview?.totalCostBasis && rawOrder.profitPreview.totalCostBasis > 0
+              ? rawOrder.profitPreview.totalCostBasis
+              : items.reduce((sum: number, i: any) => sum + (i.totalCostBasis || ((i.unitCostBasis || 0) * (i.quantity || 1))), 0);
+
+          const district = rawOrder.shipping?.district || rawOrder.customer?.district || "Dhaka";
+          const isDhaka = String(district).toLowerCase().includes("dhaka");
+          const stdCourierCost = isDhaka ? 6000 : 12000;
+          const deliveryCents = rawOrder.deliveryChargeCents || rawOrder.shipping?.deliveryFee || stdCourierCost;
+
+          const resellerProfitCents = (subtotalCents - costBasisCents) + (deliveryCents - stdCourierCost);
+          const adminProfitCents = Math.round(costBasisCents * 0.25); // Platform wholesale margin (e.g. 25% of wholesale cost)
+
+          await OrderModel.findByIdAndUpdate(orderId, {
+            $set: {
+              "profitPreview.totalRevenue": subtotalCents,
+              "profitPreview.totalCostBasis": costBasisCents,
+              "profitPreview.totalProfit": resellerProfitCents,
+              "profitPreview.adminProfit": adminProfitCents,
+              "metadata.isDelivered": true,
+              "metadata.deliveredAt": new Date(),
+            },
+          });
+        } catch (err) {
+          logger.error("Failed to update delivered order profit preview", err as Error);
+        }
       }
 
       logger.info("OrderService: status transitioned", {
@@ -438,20 +475,49 @@ export class OrderService {
       throw new NotFoundError("Order not found");
     }
 
+    const { AddressParserService } = await import("@/features/address/services/address-parser-service");
+    const newAddressText = input.address || order.shipping?.address || "";
+    const parsed = AddressParserService.parseAddress(newAddressText);
+
+    const finalDistrict = input.district || parsed.detectedDistrict || order.shipping?.district || "Dhaka";
+    const finalUpazila = input.upazila !== undefined ? input.upazila : (parsed.detectedUpazila || order.shipping?.upazila || "");
+
     const updates: Record<string, any> = {};
     if (input.customerName) {
       updates["customer.name"] = input.customerName;
       updates["shipping.receiverName"] = input.customerName;
+      updates["shippingAddress.receiverName"] = input.customerName;
+      updates["shippingAddress.name"] = input.customerName;
     }
     if (input.phone) {
       updates["customer.phone"] = input.phone;
       updates["shipping.phone"] = input.phone;
+      updates["shippingAddress.phone"] = input.phone;
     }
-    if (input.division) updates["shipping.division"] = input.division;
-    if (input.district) updates["shipping.district"] = input.district;
-    if (input.upazila !== undefined) updates["shipping.upazila"] = input.upazila;
-    if (input.address) updates["shipping.address"] = input.address;
-    if (input.deliveryNote !== undefined) updates["shipping.deliveryNote"] = input.deliveryNote;
+
+    updates["shipping.district"] = finalDistrict;
+    updates["shipping.division"] = input.division || finalDistrict;
+    updates["shipping.upazila"] = finalUpazila;
+    updates["customer.district"] = finalDistrict;
+    updates["customer.upazila"] = finalUpazila;
+    updates["shippingAddress.district"] = finalDistrict;
+    updates["shippingAddress.city"] = finalDistrict;
+    updates["shippingAddress.upazila"] = finalUpazila;
+
+    if (input.address) {
+      updates["shipping.address"] = input.address;
+      updates["customer.address"] = input.address;
+      updates["customer.fullAddress"] = input.address;
+      updates["shippingAddress.address"] = input.address;
+    }
+
+    if (input.deliveryNote !== undefined) {
+      updates["shipping.deliveryNote"] = input.deliveryNote;
+      updates["notes"] = input.deliveryNote;
+      updates["shippingAddress.deliveryNote"] = input.deliveryNote;
+    }
+
+    updates["shipping.addressMetadata"] = parsed;
 
     const updated = await this.orderRepository.update(input.orderId, updates);
 
@@ -765,7 +831,7 @@ export class OrderService {
       const checkoutRepo = new CheckoutSessionRepository();
 
       const [orderList, checkouts] = await Promise.all([
-        OrderModel.find({}).select("status pricing createdAt").lean(),
+        OrderModel.find({}).select("status pricing profitPreview createdAt").lean(),
         checkoutRepo.findPaginated({ type: "reseller" }, { page: 1, limit: 1000 }),
       ]);
 
@@ -781,6 +847,9 @@ export class OrderService {
         returned: 0,
         today: 0,
         total_cod: orderList.length + checkoutList.length,
+        total_delivered_revenue: 0,
+        total_delivered_profit: 0,
+        reseller_total_profit: 0,
       };
 
       orderList.forEach((o: any) => {
@@ -789,7 +858,20 @@ export class OrderService {
         else if (["confirmed"].includes(st)) result.confirmed++;
         else if (["processing", "packed"].includes(st)) result.processing++;
         else if (["shipped", "in_courier", "ready_for_dispatch", "courier_assigned", "shipment"].includes(st)) result.shipped++;
-        else if (["delivered", "completed"].includes(st)) result.delivered++;
+        else if (["delivered", "completed"].includes(st)) {
+          result.delivered++;
+          const grandTotal = o.pricing?.grandTotal || 0;
+          const revTaka = grandTotal > 5000 ? Math.round(grandTotal / 100) : grandTotal;
+          result.total_delivered_revenue += revTaka;
+
+          const resProfit = o.profitPreview?.totalProfit || 0;
+          const resProfitTaka = resProfit > 5000 ? Math.round(resProfit / 100) : resProfit;
+          result.reseller_total_profit += resProfitTaka;
+
+          const adminProf = o.profitPreview?.adminProfit || Math.round(resProfit * 0.2);
+          const adminProfTaka = adminProf > 5000 ? Math.round(adminProf / 100) : adminProf;
+          result.total_delivered_profit += adminProfTaka;
+        }
         else if (["cancelled", "cancel"].includes(st)) result.cancelled++;
         else if (["returned", "wfr", "return_requested"].includes(st)) result.returned++;
 

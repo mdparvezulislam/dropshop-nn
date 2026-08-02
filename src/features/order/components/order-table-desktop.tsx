@@ -27,6 +27,7 @@ import {
   Lock,
   Trash2,
   Package,
+  MessageSquare,
 } from "lucide-react";
 import { getHumanLabel, type OrderStatus } from "../domain/state-machine";
 import { getOrderPaymentDetails, formatAmount } from "../utils/payment-utils";
@@ -102,13 +103,14 @@ export function OrderTableDesktop({
             <th className="p-3.5 text-right">Total & Due</th>
             <th className="p-3.5">Status & Risk</th>
             <th className="p-3.5">Courier & Slip</th>
+            <th className="p-3.5 text-center">Comment</th>
             <th className="p-3.5 text-right w-28">Action</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border/60 font-medium">
           {orders.length === 0 ? (
             <tr>
-              <td colSpan={9} className="p-12 text-center text-muted-foreground">
+              <td colSpan={10} className="p-12 text-center text-muted-foreground">
                 কোনো অর্ডার পাওয়া যায়নি।
               </td>
             </tr>
@@ -371,6 +373,30 @@ export function OrderTableDesktop({
                         </p>
                       </div>
                     )}
+                  </td>
+
+                  {/* Comment / Special Note */}
+                  <td className="p-3.5 text-center" onClick={(e) => e.stopPropagation()}>
+                    {(() => {
+                      const rawNote = order.notes || order.shipping?.deliveryNote || "";
+                      const userMatch = rawNote.match(/userNote:(.*)$/i);
+                      const cleanNote = userMatch ? userMatch[1].trim() : (rawNote.includes("payment:") ? "" : rawNote.trim());
+                      return (
+                        <button
+                          type="button"
+                          onClick={() => onQuickAction("edit_note", order)}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-extrabold text-[11px] border border-amber-500/20 transition-all shadow-2xs"
+                          title="বিশেষ নোট পড়ুন বা নতুন নোট লিখুন"
+                        >
+                          <MessageSquare className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                          {cleanNote ? (
+                            <span className="max-w-[90px] truncate font-bold" title={cleanNote}>{cleanNote}</span>
+                          ) : (
+                            <span>নোট</span>
+                          )}
+                        </button>
+                      );
+                    })()}
                   </td>
 
                   {/* Action Controls */}

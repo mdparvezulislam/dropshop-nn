@@ -17,8 +17,8 @@ export interface ShippingSnapshot {
   phone: string;
   alternativePhone?: string;
   email?: string;
-  division: string;
-  district: string;
+  division?: string;
+  district?: string;
   upazila?: string;
   area?: string;
   address: string;
@@ -30,6 +30,18 @@ export interface ShippingSnapshot {
   deliveryCharge?: number;
   paymentMethod?: string;
   deliveryNote?: string;
+  addressMetadata?: {
+    originalAddress: string;
+    normalizedAddress: string;
+    detectedDistrict?: string;
+    detectedDistrictId?: string;
+    detectedDistrictBn?: string;
+    detectedUpazila?: string;
+    isDhaka: boolean;
+    deliveryFee: number;
+    confidenceScore: number;
+    verificationStatus: "VERIFIED" | "PARTIAL" | "PENDING";
+  };
 }
 
 export interface OrderPricingItem {
