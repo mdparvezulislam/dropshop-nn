@@ -235,6 +235,25 @@ export function OrderManagementWorkspace({
       }
       return;
     }
+    if (action === "delete_permanently") {
+      if (!confirm(`Are you sure you want to PERMANENTLY delete ${selectedIds.size} selected orders from database? This action cannot be undone.`)) {
+        return;
+      }
+      try {
+        const { deleteOrderPermanentlyAction } = await import("../actions/order-actions");
+        let deletedCount = 0;
+        for (const orderId of Array.from(selectedIds)) {
+          const res = await deleteOrderPermanentlyAction(orderId);
+          if (res.success) deletedCount++;
+        }
+        toast.success(`Permanently deleted ${deletedCount} orders from database!`);
+        setSelectedIds(new Set());
+        fetchOrders();
+      } catch {
+        toast.error("Failed to delete selected orders");
+      }
+      return;
+    }
     try {
       const { bulkUpdateOrderStatusAction } = await import("../actions/order-actions");
       const res = await bulkUpdateOrderStatusAction({
@@ -318,6 +337,23 @@ export function OrderManagementWorkspace({
           }
         } catch {
           toast.error("Server error occurred");
+        }
+      }
+    } else if (action === "delete_permanently") {
+      const orderId = targetOrder.id || targetOrder._id;
+      const orderNum = targetOrder.orderNumber || `#${orderId.slice(-6)}`;
+      if (confirm(`Are you sure you want to PERMANENTLY delete order ${orderNum} from database? This action cannot be undone.`)) {
+        try {
+          const { deleteOrderPermanentlyAction } = await import("../actions/order-actions");
+          const res = await deleteOrderPermanentlyAction(orderId);
+          if (res.success) {
+            toast.success(`Order ${orderNum} deleted permanently from database!`);
+            fetchOrders();
+          } else {
+            toast.error(res.error || "Failed to delete order");
+          }
+        } catch {
+          toast.error("Server error deleting order");
         }
       }
     } else if (action === "menu") {

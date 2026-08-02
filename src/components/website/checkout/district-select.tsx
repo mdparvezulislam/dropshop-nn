@@ -137,10 +137,10 @@ export function DistrictSelect({
           }}
           onKeyDown={onKeyDown}
           className={cn(
-            "w-full h-12 pl-10 pr-10 rounded-xl border bg-white text-sm font-semibold text-slate-900",
+            "w-full h-12 pl-10 pr-10 rounded-xl border bg-white dark:bg-slate-900 text-sm font-semibold text-slate-900 dark:text-slate-100",
             "placeholder:text-slate-400 placeholder:font-medium",
             "focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-amber-500",
-            error ? "border-red-400" : "border-slate-300",
+            error ? "border-red-400" : "border-slate-300 dark:border-slate-800",
           )}
         />
         <button
@@ -148,7 +148,7 @@ export function DistrictSelect({
           tabIndex={-1}
           aria-label={open ? "তালিকা বন্ধ করুন" : "জেলার তালিকা খুলুন"}
           onClick={() => (open ? setOpen(false) : (inputRef.current?.focus(), openList()))}
-          className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center text-slate-400 hover:text-slate-700 rounded-lg"
+          className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg"
         >
           {open ? (
             <Search className="h-4 w-4" aria-hidden />
@@ -164,10 +164,10 @@ export function DistrictSelect({
           id={`${id}-listbox`}
           role="listbox"
           aria-label="জেলা"
-          className="absolute z-40 mt-1.5 w-full max-h-64 overflow-y-auto overscroll-contain rounded-xl border border-slate-200 bg-white shadow-xl py-1"
+          className="absolute z-40 mt-1.5 w-full max-h-64 overflow-y-auto overscroll-contain rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl py-1"
         >
           {options.length === 0 ? (
-            <li className="px-3.5 py-3 text-xs font-bold text-slate-500">
+            <li className="px-3.5 py-3 text-xs font-bold text-slate-500 dark:text-slate-400">
               &quot;{query}&quot; নামে কোনো জেলা পাওয়া যায়নি
             </li>
           ) : (
@@ -189,19 +189,19 @@ export function DistrictSelect({
                   onMouseEnter={() => setActiveIndex(index)}
                   className={cn(
                     "flex items-center justify-between gap-2 px-3.5 py-2.5 cursor-pointer",
-                    isActive && "bg-amber-50",
+                    isActive && "bg-amber-50 dark:bg-amber-950/40",
                     isSelected && "font-black",
                   )}
                 >
                   <span className="min-w-0">
-                    <span className="block text-sm font-bold text-slate-900 truncate">
+                    <span className="block text-sm font-bold text-slate-900 dark:text-slate-100 truncate">
                       {district.name}
                     </span>
-                    <span className="block text-[11px] font-semibold text-slate-500 truncate">
+                    <span className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 truncate">
                       {district.nameEn} • {district.division} বিভাগ
                     </span>
                   </span>
-                  {isSelected && <Check className="h-4 w-4 text-amber-600 shrink-0" aria-hidden />}
+                  {isSelected && <Check className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" aria-hidden />}
                 </li>
               );
             })

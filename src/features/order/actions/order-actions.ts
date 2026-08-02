@@ -48,11 +48,11 @@ export async function updateOrderStatusAction(formData: unknown): Promise<{
   const session = await auth();
   checkPermission(session, "Order.Update");
   try {
-    const raw = typeof formData === "object" && formData !== null ? { ...(formData as any) } : {};
-    if (!raw.actorId) {
-      raw.actorId = (session?.user as any)?.id || (session?.user as any)?.email || "admin";
+    const rawData = typeof formData === "object" && formData !== null ? { ...formData } : {};
+    if (!("actorId" in rawData) || !(rawData as any).actorId) {
+      (rawData as any).actorId = session?.user?.id || session?.user?.email || "admin";
     }
-    const validated = updateOrderStatusSchema.parse(raw);
+    const validated = updateOrderStatusSchema.parse(rawData);
     const service = new OrderService();
     const result = await service.transitionStatus(
       validated.orderId,
@@ -61,7 +61,7 @@ export async function updateOrderStatusAction(formData: unknown): Promise<{
       validated.reason,
     );
     revalidatePath("/dashboard/orders");
-    return { success: true, data: result };
+    return { success: true, data: JSON.parse(JSON.stringify(result)) };
   } catch (error: any) {
     logger.error("updateOrderStatusAction failed", error);
     return { success: false, error: error.message };
@@ -76,24 +76,41 @@ export async function cancelOrderAction(formData: unknown): Promise<{
   const session = await auth();
   checkPermission(session, "Order.Cancel");
   try {
-    const raw = typeof formData === "object" && formData !== null ? { ...(formData as any) } : {};
-    if (!raw.cancelledBy) {
-      raw.cancelledBy = (session?.user as any)?.id || (session?.user as any)?.email || "admin";
+    const rawData = typeof formData === "object" && formData !== null ? { ...formData } : {};
+    if (!("cancelledBy" in rawData) || !(rawData as any).cancelledBy) {
+      (rawData as any).cancelledBy = session?.user?.id || session?.user?.email || "admin";
     }
-    if (!raw.reason) {
-      raw.reason = "Cancelled by operator";
+    if (!("reason" in rawData) || !(rawData as any).reason) {
+      (rawData as any).reason = "Cancelled by operator";
     }
-    const validated = cancelOrderSchema.parse(raw);
+    const validated = cancelOrderSchema.parse(rawData);
     const service = new OrderService();
     const result = await service.cancelOrder(
       validated.orderId,
-      validated.reason,
-      validated.cancelledBy,
+      validated.reason || "Cancelled by operator",
+      validated.cancelledBy || "admin",
     );
     revalidatePath("/dashboard/orders");
-    return { success: true, data: result };
+    return { success: true, data: JSON.parse(JSON.stringify(result)) };
   } catch (error: any) {
     logger.error("cancelOrderAction failed", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function deleteOrderPermanentlyAction(orderId: string): Promise<{
+  success: boolean;
+  error?: string;
+}> {
+  const session = await auth();
+  checkPermission(session, "Order.Cancel");
+  try {
+    const service = new OrderService();
+    await service.hardDeleteOrder(orderId);
+    revalidatePath("/dashboard/orders");
+    return { success: true };
+  } catch (error: any) {
+    logger.error("deleteOrderPermanentlyAction failed", error);
     return { success: false, error: error.message };
   }
 }
@@ -116,7 +133,7 @@ export async function assignCourierAction(formData: unknown): Promise<{
       validated.trackingUrl,
     );
     revalidatePath("/dashboard/orders");
-    return { success: true, data: result };
+    return { success: true, data: JSON.parse(JSON.stringify(result)) };
   } catch (error: any) {
     logger.error("assignCourierAction failed", error);
     return { success: false, error: error.message };
@@ -139,7 +156,7 @@ export async function updateTrackingAction(formData: unknown): Promise<{
       validated.trackingUrl,
     );
     revalidatePath("/dashboard/orders");
-    return { success: true, data: result };
+    return { success: true, data: JSON.parse(JSON.stringify(result)) };
   } catch (error: any) {
     logger.error("updateTrackingAction failed", error);
     return { success: false, error: error.message };
@@ -158,7 +175,7 @@ export async function addOrderNoteAction(formData: unknown): Promise<{
     const service = new OrderService();
     const result = await service.addNote(validated.orderId, validated.note, validated.internal);
     revalidatePath("/dashboard/orders");
-    return { success: true, data: result };
+    return { success: true, data: JSON.parse(JSON.stringify(result)) };
   } catch (error: any) {
     logger.error("addOrderNoteAction failed", error);
     return { success: false, error: error.message };
@@ -240,8 +257,31 @@ export async function getOrderAction(formData: unknown): Promise<{
   try {
     const validated = getOrderSchema.parse(formData);
     const service = new OrderService();
-    const result = await service.getOrder(validated.orderId);
-    return { success: true, data: result ?? undefined };
+    const rawResult = await service.getOrder(validated.orderId);
+    const result: any = rawResult ? JSON.parse(JSON.stringify(rawResult)) : undefined;
+    if (result && (result.type === "reseller" || result.resellerId || result.createdBy || result.userId)) {
+      try {
+        const { ResellerModel } = await import("@/features/reseller/repositories/reseller-model");
+        const uid = result.resellerId || result.createdBy || result.userId;
+        const rProfile = await ResellerModel.findOne({
+          $or: [
+            { code: uid },
+            { userId: uid },
+            { _id: uid && uid.length === 24 ? uid : undefined },
+          ].filter(Boolean),
+        }).lean();
+        if (rProfile) {
+          result.resellerId = result.resellerId || rProfile.code || rProfile._id.toString();
+          result.resellerShopName = result.resellerShopName || rProfile.businessName;
+          result.resellerName = result.resellerName || rProfile.ownerName || rProfile.contactPerson;
+          result.resellerOwnerName = result.resellerOwnerName || rProfile.ownerName || rProfile.contactPerson;
+          result.resellerPhone = result.resellerPhone || rProfile.phone || rProfile.contactPhone;
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+    return { success: true, data: result };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
@@ -256,8 +296,31 @@ export async function getOrderByNumberAction(orderNumber: string): Promise<{
   checkPermission(session, "Order.View");
   try {
     const service = new OrderService();
-    const result = await service.getOrderByNumber(orderNumber);
-    return { success: true, data: result ?? undefined };
+    const rawResult = await service.getOrderByNumber(orderNumber);
+    const result: any = rawResult ? JSON.parse(JSON.stringify(rawResult)) : undefined;
+    if (result && (result.type === "reseller" || result.resellerId || result.createdBy || result.userId)) {
+      try {
+        const { ResellerModel } = await import("@/features/reseller/repositories/reseller-model");
+        const uid = result.resellerId || result.createdBy || result.userId;
+        const rProfile = await ResellerModel.findOne({
+          $or: [
+            { code: uid },
+            { userId: uid },
+            { _id: uid && uid.length === 24 ? uid : undefined },
+          ].filter(Boolean),
+        }).lean();
+        if (rProfile) {
+          result.resellerId = result.resellerId || rProfile.code || rProfile._id.toString();
+          result.resellerShopName = result.resellerShopName || rProfile.businessName;
+          result.resellerName = result.resellerName || rProfile.ownerName || rProfile.contactPerson;
+          result.resellerOwnerName = result.resellerOwnerName || rProfile.ownerName || rProfile.contactPerson;
+          result.resellerPhone = result.resellerPhone || rProfile.phone || rProfile.contactPhone;
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+    return { success: true, data: result };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
@@ -277,6 +340,87 @@ export async function listOrdersAction(formData: unknown): Promise<{
       page: validated.page,
       limit: validated.limit,
     });
+
+    if (result && result.items && result.items.length > 0) {
+      try {
+        const { ResellerModel } = await import("@/features/reseller/repositories/reseller-model");
+        const resellerUserIds = new Set<string>();
+        result.items.forEach((item: any) => {
+          if (item.type === "reseller" || item.resellerId || item.createdBy || item.userId) {
+            const uid = item.resellerId || item.createdBy || item.userId;
+            if (uid) resellerUserIds.add(uid);
+          }
+        });
+
+        const resellerMap = new Map<string, any>();
+        if (resellerUserIds.size > 0) {
+          const resellers = await ResellerModel.find({
+            $or: [
+              { code: { $in: Array.from(resellerUserIds) } },
+              { userId: { $in: Array.from(resellerUserIds) } },
+              { _id: { $in: Array.from(resellerUserIds).filter((id) => id.length === 24) } },
+            ],
+          }).lean();
+
+          resellers.forEach((r: any) => {
+            if (r.code) resellerMap.set(r.code, r);
+            if (r.userId) resellerMap.set(r.userId, r);
+            if (r._id) resellerMap.set(r._id.toString(), r);
+          });
+        }
+
+        result.items = result.items.map((item: any) => {
+          const uid = item.resellerId || item.createdBy || item.userId;
+          const r = uid ? resellerMap.get(uid) : null;
+          const enriched = r
+            ? {
+                ...item,
+                resellerId: item.resellerId || r.code || r._id.toString(),
+                resellerShopName: item.resellerShopName || r.businessName,
+                resellerName: item.resellerName || r.ownerName || r.contactPerson,
+                resellerOwnerName: item.resellerOwnerName || r.ownerName || r.contactPerson,
+                resellerPhone: item.resellerPhone || r.phone || r.contactPhone,
+              }
+            : item;
+
+          const district = enriched.shipping?.district || enriched.customer?.district || enriched.shipping?.division || "Dhaka";
+          const isDhaka = String(district).toLowerCase().includes("dhaka");
+          const defaultDeliveryCents = isDhaka ? 6000 : 12000;
+
+          const deliveryCents =
+            (enriched.deliveryChargeCents && enriched.deliveryChargeCents > 0 ? enriched.deliveryChargeCents : undefined) ??
+            (enriched.shipping?.deliveryFee && enriched.shipping.deliveryFee > 0 ? (enriched.shipping.deliveryFee <= 5000 ? enriched.shipping.deliveryFee * 100 : enriched.shipping.deliveryFee) : undefined) ??
+            (enriched.shipping?.deliveryCharge && enriched.shipping.deliveryCharge > 0 ? (enriched.shipping.deliveryCharge <= 5000 ? enriched.shipping.deliveryCharge * 100 : enriched.shipping.deliveryCharge) : undefined) ??
+            defaultDeliveryCents;
+
+          const itemsList = enriched.pricing?.items || enriched.items || [];
+          const subtotalCents =
+            itemsList.length > 0
+              ? itemsList.reduce((sum: number, i: any) => {
+                  const rawP = i.unitSellingPrice ?? i.unitPrice ?? i.price ?? 0;
+                  const pCents = rawP > 0 && rawP <= 5000 ? rawP * 100 : rawP;
+                  return sum + pCents * (i.quantity || 1);
+                }, 0)
+              : (enriched.pricing?.subtotal ? (enriched.pricing.subtotal <= 5000 ? enriched.pricing.subtotal * 100 : enriched.pricing.subtotal) : 0);
+
+          const grandTotalCents = subtotalCents + deliveryCents;
+
+          if (!enriched.pricing) enriched.pricing = {};
+          enriched.pricing.subtotal = subtotalCents;
+          enriched.pricing.grandTotal = grandTotalCents;
+          enriched.pricing.dueAmount = grandTotalCents;
+          if (!enriched.shipping) enriched.shipping = {};
+          enriched.shipping.deliveryFee = deliveryCents;
+          enriched.shipping.deliveryCharge = deliveryCents;
+          enriched.deliveryChargeCents = deliveryCents;
+
+          return enriched;
+        });
+      } catch (err) {
+        logger.error("Failed to populate reseller info in listOrdersAction", err as Error);
+      }
+    }
+
     return { success: true, data: result };
   } catch (error: any) {
     logger.error("listOrdersAction failed", error);

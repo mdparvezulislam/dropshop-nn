@@ -101,8 +101,19 @@ export class CheckoutService {
       role,
     }));
 
-    const resolvedPrices: CheckoutPriceItem[] =
+    const batchResolved: CheckoutPriceItem[] =
       await this.priceResolutionService.resolveBatch(requests);
+
+    const resolvedPrices: CheckoutPriceItem[] = batchResolved.map((resolved, idx) => {
+      const cartItem = cart.items[idx];
+      const customPrice = cartItem?.resolvedPrice;
+      const unitPrice = customPrice && customPrice > 0 ? customPrice : resolved.unitPrice;
+      return {
+        ...resolved,
+        unitPrice,
+        totalPrice: unitPrice * (resolved.quantity || cartItem?.quantity || 1),
+      };
+    });
 
     const updated = await this.checkoutRepository.update(checkoutId, {
       resolvedPrices,
@@ -129,23 +140,23 @@ export class CheckoutService {
       quantity: item.quantity,
     }));
 
-    const validations = await this.inventoryValidationService.validateBatch(requests);
+    const validations: CheckoutInventoryItem[] =
+      await this.inventoryValidationService.validateBatch(requests);
 
     const allValid = validations.every((v) => v.isValid);
 
     await EventBus.publish(
-      "checkout.validated",
+      "checkout.inventory_validated",
       {
         checkoutId,
         cartId: session.cartId,
-        priceValid: true,
-        inventoryValid: allValid,
+        validations: validations.map((v) => ({ productId: v.productId, isValid: v.isValid })),
       },
       { source: "checkout" },
     );
 
     return this.checkoutRepository.update(checkoutId, {
-      inventoryValidations: validations,
+      inventoryReservations: validations,
       step: allValid ? ("inventory_validated" as CheckoutStep) : ("failed" as CheckoutStep),
       status: allValid ? "active" : "failed",
     } as any);
@@ -246,8 +257,6 @@ export class CheckoutService {
 
       const resolvedPrices = session.resolvedPrices;
       const subtotal = resolvedPrices.reduce((sum, p) => sum + p.totalPrice, 0);
-      // Delivery charge is part of the order total — never smuggled through
-      // notes, never dropped. Stored in minor units on the shipping info.
       const shippingTotal = session.shipping?.deliveryCharge ?? 0;
       const grandTotal = subtotal + shippingTotal;
 
@@ -261,17 +270,24 @@ export class CheckoutService {
       };
 
       const totalCostBasis = cart.items.reduce((sum, item, idx) => {
-        const resolved = resolvedPrices[idx];
-        return sum + (resolved ? resolved.unitPrice * item.quantity : 0);
+        const costBasisUnit = item.profitPreview?.costBasis ?? 0;
+        return (
+          sum +
+          (costBasisUnit > 0 ? costBasisUnit : (resolvedPrices[idx]?.unitPrice ?? 0)) *
+            item.quantity
+        );
       }, 0);
 
-      // Shipping is pass-through, not margin — profit math uses subtotal.
+      const isDhaka = (session.shipping?.district || "Dhaka").toLowerCase().includes("dhaka");
+      const standardCourierCostCents = isDhaka ? 6000 : 12000;
+      const totalProfit = (subtotal - totalCostBasis) + (shippingTotal - standardCourierCostCents);
+
       const profitPreview: CheckoutProfitPreview = {
         totalCostBasis,
         totalRevenue: subtotal,
-        totalProfit: subtotal - totalCostBasis,
+        totalProfit,
         averageMargin:
-          totalCostBasis > 0 ? ((subtotal - totalCostBasis) / totalCostBasis) * 100 : 0,
+          subtotal > 0 ? ((subtotal - totalCostBasis) / subtotal) * 100 : 0,
       };
 
       const draft = await this.orderDraftRepository.create({

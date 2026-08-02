@@ -115,6 +115,32 @@ export class OrderService {
         wholesaleId: input.wholesaleId,
       };
 
+      if (input.resellerId || input.type === "reseller") {
+        try {
+          const { ResellerModel } = await import("@/features/reseller/repositories/reseller-model");
+          const targetId = input.resellerId;
+          let rDoc: any = null;
+          if (targetId && targetId.length === 24) {
+            rDoc = await ResellerModel.findById(targetId).lean();
+          }
+          if (!rDoc && targetId) {
+            rDoc = await ResellerModel.findOne({ code: targetId }).lean();
+          }
+          if (!rDoc && targetId) {
+            rDoc = await ResellerModel.findOne({ userId: targetId }).lean();
+          }
+          if (rDoc) {
+            orderData.resellerId = rDoc.code || rDoc._id.toString();
+            orderData.resellerShopName = rDoc.businessName;
+            orderData.resellerName = rDoc.ownerName || rDoc.contactPerson;
+            orderData.resellerOwnerName = rDoc.ownerName;
+            orderData.resellerPhone = rDoc.phone;
+          }
+        } catch {
+          /* ignore lookup error */
+        }
+      }
+
       if (input.autoConfirmed) {
         (orderData as Record<string, unknown>).confirmedAt = new Date();
       }
@@ -263,6 +289,20 @@ export class OrderService {
     }
 
     return this.transitionStatus(orderId, "cancelled", { id: cancelledBy, role: "admin" }, reason);
+  }
+
+  async hardDeleteOrder(orderId: string): Promise<boolean> {
+    const order = await this.orderRepository.findById(orderId, { showDeleted: true });
+    if (!order) throw new NotFoundError("Order not found");
+
+    try {
+      const { CheckoutSessionModel } = await import("@/features/checkout/repositories/checkout-model");
+      await CheckoutSessionModel.deleteMany({ _id: orderId });
+    } catch {
+      // Ignore checkout session deletion errors if model doesn't match
+    }
+
+    return this.orderRepository.hardDelete(orderId, { showDeleted: true });
   }
 
   async requestReturn(orderId: string, reason: string, requestedBy?: string): Promise<Order> {

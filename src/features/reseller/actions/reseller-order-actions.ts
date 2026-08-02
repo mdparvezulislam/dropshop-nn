@@ -305,30 +305,44 @@ export async function getResellerOrdersAction(params: {
       const firstItem = itemsList[0] || {};
       const noteMeta = parseNoteMeta(o.shipping?.deliveryNote || o.notes);
 
-      const grandTotalCents = o.pricing?.grandTotal ?? 0;
-      const subtotalCents = o.pricing?.subtotal ?? (firstItem.totalSellingPrice || 0);
+      const isDhaka = (o.shipping?.district || o.shipping?.division || "Dhaka").toLowerCase().includes("dhaka");
+      const standardCourierCostCents = isDhaka ? 6000 : 12000;
+
       const deliveryCents =
-        noteMeta.deliveryCharge !== undefined
-          ? noteMeta.deliveryCharge
-          : grandTotalCents > subtotalCents
-            ? grandTotalCents - subtotalCents
-            : (o.shipping?.deliveryFee || 6000);
+        (o.deliveryChargeCents && o.deliveryChargeCents > 0 ? o.deliveryChargeCents : undefined) ??
+        (o.shipping?.deliveryFee && o.shipping.deliveryFee > 0 ? o.shipping.deliveryFee : undefined) ??
+        (o.shipping?.deliveryCharge && o.shipping.deliveryCharge > 0 ? o.shipping.deliveryCharge : undefined) ??
+        (o.pricing?.deliveryFee && o.pricing.deliveryFee > 0 ? o.pricing.deliveryFee : undefined) ??
+        (noteMeta.deliveryCharge !== undefined ? noteMeta.deliveryCharge : (isDhaka ? 6000 : 12000));
+
+      const subtotalCents =
+        itemsList.length > 0
+          ? itemsList.reduce((sum: number, i: any) => {
+              const rawPrice = i.unitSellingPrice ?? i.unitPrice ?? i.price ?? 0;
+              const priceCents = rawPrice > 0 && rawPrice <= 5000 ? rawPrice * 100 : rawPrice;
+              return sum + priceCents * (i.quantity || 1);
+            }, 0)
+          : (o.pricing?.subtotal && o.pricing.subtotal > 0 ? (o.pricing.subtotal <= 5000 ? o.pricing.subtotal * 100 : o.pricing.subtotal) : 0);
+
+      const grandTotalCents = subtotalCents + deliveryCents;
 
       const advancePaidCents =
         o.pricing?.advancePaid !== undefined && o.pricing?.advancePaid > 0
-          ? o.pricing.advancePaid
+          ? (o.pricing.advancePaid <= 5000 ? o.pricing.advancePaid * 100 : o.pricing.advancePaid)
           : (noteMeta.advancePaid || o.advancePaidCents || 0);
 
-      const totalSellingCents = grandTotalCents || (subtotalCents + deliveryCents);
-      const dueAmountCents = Math.max(0, totalSellingCents - advancePaidCents);
+      const dueAmountCents = Math.max(0, grandTotalCents - advancePaidCents);
 
-      const isDhaka = (o.shipping?.district || o.shipping?.division || "Dhaka").toLowerCase().includes("dhaka");
-      const standardCourierCostCents = isDhaka ? 6000 : 12000;
-      const costBasisCents = o.profitPreview?.totalCostBasis || 0;
-      const profitCents =
-        o.profitPreview?.totalProfit !== undefined
-          ? o.profitPreview.totalProfit
-          : (subtotalCents - costBasisCents) + (deliveryCents - standardCourierCostCents);
+      const costBasisCents =
+        itemsList.length > 0
+          ? itemsList.reduce((sum: number, i: any) => {
+              const rawCost = i.unitCostBasis ?? i.costBasis ?? 0;
+              const costCents = rawCost > 0 && rawCost <= 5000 ? rawCost * 100 : rawCost;
+              return sum + costCents * (i.quantity || 1);
+            }, 0)
+          : (o.profitPreview?.totalCostBasis && o.profitPreview.totalCostBasis > 0 ? (o.profitPreview.totalCostBasis <= 5000 ? o.profitPreview.totalCostBasis * 100 : o.profitPreview.totalCostBasis) : 0);
+
+      const profitCents = (subtotalCents - costBasisCents) + (deliveryCents - standardCourierCostCents);
 
       return {
         id: o.id || o._id,
@@ -352,8 +366,8 @@ export async function getResellerOrdersAction(params: {
           totalProfit: i.totalProfit || 0,
         })),
         imageUrl: firstItem.imageUrl,
-        sellingPriceCents: totalSellingCents,
-        costBasisCents: o.profitPreview?.totalCostBasis || 0,
+        sellingPriceCents: grandTotalCents,
+        costBasisCents,
         deliveryChargeCents: deliveryCents,
         advancePaidCents,
         dueAmountCents,
@@ -423,30 +437,44 @@ export async function getResellerOrderDetailAction(orderId: string): Promise<{
       const firstItem = itemsList[0] || {};
       const noteMeta = parseNoteMeta(o.shipping?.deliveryNote || o.notes);
 
-      const grandTotalCents = o.pricing?.grandTotal ?? 0;
-      const subtotalCents = o.pricing?.subtotal ?? (firstItem.totalSellingPrice || 0);
+      const isDhaka = (o.shipping?.district || o.shipping?.division || "Dhaka").toLowerCase().includes("dhaka");
+      const standardCourierCostCents = isDhaka ? 6000 : 12000;
+
       const deliveryCents =
-        noteMeta.deliveryCharge !== undefined
-          ? noteMeta.deliveryCharge
-          : grandTotalCents > subtotalCents
-            ? grandTotalCents - subtotalCents
-            : (o.shipping?.deliveryFee || 6000);
+        (o.deliveryChargeCents && o.deliveryChargeCents > 0 ? o.deliveryChargeCents : undefined) ??
+        (o.shipping?.deliveryFee && o.shipping.deliveryFee > 0 ? o.shipping.deliveryFee : undefined) ??
+        (o.shipping?.deliveryCharge && o.shipping.deliveryCharge > 0 ? o.shipping.deliveryCharge : undefined) ??
+        (o.pricing?.deliveryFee && o.pricing.deliveryFee > 0 ? o.pricing.deliveryFee : undefined) ??
+        (noteMeta.deliveryCharge !== undefined ? noteMeta.deliveryCharge : (isDhaka ? 6000 : 12000));
+
+      const subtotalCents =
+        itemsList.length > 0
+          ? itemsList.reduce((sum: number, i: any) => {
+              const rawPrice = i.unitSellingPrice ?? i.unitPrice ?? i.price ?? 0;
+              const priceCents = rawPrice > 0 && rawPrice <= 5000 ? rawPrice * 100 : rawPrice;
+              return sum + priceCents * (i.quantity || 1);
+            }, 0)
+          : (o.pricing?.subtotal && o.pricing.subtotal > 0 ? (o.pricing.subtotal <= 5000 ? o.pricing.subtotal * 100 : o.pricing.subtotal) : 0);
+
+      const totalSellingCents = subtotalCents + deliveryCents;
 
       const advancePaidCents =
         o.pricing?.advancePaid !== undefined && o.pricing?.advancePaid > 0
-          ? o.pricing.advancePaid
+          ? (o.pricing.advancePaid <= 5000 ? o.pricing.advancePaid * 100 : o.pricing.advancePaid)
           : (noteMeta.advancePaid || o.advancePaidCents || 0);
 
-      const totalSellingCents = grandTotalCents || (subtotalCents + deliveryCents);
       const dueAmountCents = Math.max(0, totalSellingCents - advancePaidCents);
 
-      const isDhaka = (o.shipping?.district || o.shipping?.division || "Dhaka").toLowerCase().includes("dhaka");
-      const standardCourierCostCents = isDhaka ? 6000 : 12000;
-      const costBasisCents = o.profitPreview?.totalCostBasis || 0;
-      const profitCents =
-        o.profitPreview?.totalProfit !== undefined
-          ? o.profitPreview.totalProfit
-          : (subtotalCents - costBasisCents) + (deliveryCents - standardCourierCostCents);
+      const costBasisCents =
+        itemsList.length > 0
+          ? itemsList.reduce((sum: number, i: any) => {
+              const rawCost = i.unitCostBasis ?? i.costBasis ?? 0;
+              const costCents = rawCost > 0 && rawCost <= 5000 ? rawCost * 100 : rawCost;
+              return sum + costCents * (i.quantity || 1);
+            }, 0)
+          : (o.profitPreview?.totalCostBasis && o.profitPreview.totalCostBasis > 0 ? (o.profitPreview.totalCostBasis <= 5000 ? o.profitPreview.totalCostBasis * 100 : o.profitPreview.totalCostBasis) : 0);
+
+      const profitCents = (subtotalCents - costBasisCents) + (deliveryCents - standardCourierCostCents);
 
       const dto: ResellerOrderDTO = {
         id: o.id || o._id,

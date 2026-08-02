@@ -491,24 +491,96 @@ export async function completeRoleCheckoutAction(formData: unknown): Promise<{
     if (orderId) {
       try {
         const { OrderModel } = await import("@/features/order/repositories/order-model");
+        const { CheckoutSessionModel } = await import("@/features/checkout/repositories/checkout-model");
         const savedOrder = await OrderModel.findById(orderId);
         if (savedOrder) {
-          const isDhaka = (validated.customer.district || "Dhaka").toLowerCase().includes("dhaka");
-          const standardCourierCostCents = isDhaka ? 6000 : 12000;
-          const subtotal = savedOrder.pricing?.subtotal || 0;
-          const totalCostBasis = savedOrder.profitPreview?.totalCostBasis || 0;
-          const grandTotal = subtotal + validated.deliveryCharge;
+          const freshCart = await cartService.getCart(cart.id);
+
+          const itemsList = validated.items.map((item, idx) => {
+            const cartItem = freshCart?.items?.[idx] || cart.items[idx];
+            const existingItem = savedOrder.pricing?.items?.[idx];
+            const unitSellingPrice = item.unitPriceOverride ?? cartItem?.resolvedPrice ?? 0;
+            const unitCostBasis = cartItem?.profitPreview?.costBasis ?? Math.round(unitSellingPrice * 0.75);
+            const totalSellingPrice = unitSellingPrice * item.quantity;
+            const totalCostBasis = unitCostBasis * item.quantity;
+            const totalProfit = totalSellingPrice - totalCostBasis;
+            return {
+              productId: item.productId,
+              productName: (item as any).productName || (cartItem as any)?.productName || existingItem?.productName || "Product Item",
+              variantSku: item.variantSku || cartItem?.variantSku || existingItem?.variantSku || "",
+              quantity: item.quantity,
+              unitSellingPrice,
+              unitCostBasis,
+              totalSellingPrice,
+              totalCostBasis,
+              totalProfit,
+            };
+          });
+
+          const subtotal = itemsList.reduce((sum, i) => sum + i.totalSellingPrice, 0);
+          const totalCostBasis = itemsList.reduce((sum, i) => sum + i.totalCostBasis, 0);
+          const deliveryFee = validated.deliveryCharge;
+          const grandTotal = subtotal + deliveryFee;
           const advancePaid = validated.advancePaid || 0;
           const dueAmount = Math.max(0, grandTotal - advancePaid);
-          const totalProfit = (subtotal - totalCostBasis) + (validated.deliveryCharge - standardCourierCostCents);
+
+          const isDhaka = (validated.customer.district || "Dhaka").toLowerCase().includes("dhaka");
+          const standardCourierCostCents = isDhaka ? 6000 : 12000;
+          const totalProfit = (subtotal - totalCostBasis) + (deliveryFee - standardCourierCostCents);
+
+          let rData: Record<string, any> = {};
+          if (validated.type === "reseller" || sessionUser?.id) {
+            try {
+              const { ResellerModel } = await import("@/features/reseller/repositories/reseller-model");
+              let rProfile: any = null;
+              if (sessionUser?.id) {
+                rProfile = await ResellerModel.findOne({
+                  $or: [
+                    { userId: sessionUser.id },
+                    { email: (sessionUser as any)?.email },
+                    { code: sessionUser.id },
+                  ],
+                }).lean();
+              }
+              if (rProfile) {
+                rData = {
+                  resellerId: rProfile.code || rProfile._id.toString(),
+                  resellerShopName: rProfile.businessName,
+                  resellerName: rProfile.ownerName || rProfile.contactPerson,
+                  resellerOwnerName: rProfile.ownerName,
+                  resellerPhone: rProfile.phone,
+                };
+              }
+            } catch {
+              /* ignore */
+            }
+          }
 
           await OrderModel.findByIdAndUpdate(orderId, {
             $set: {
+              "pricing.items": itemsList,
+              "pricing.subtotal": subtotal,
               "pricing.grandTotal": grandTotal,
               "pricing.advancePaid": advancePaid,
               "pricing.dueAmount": dueAmount,
+              "shipping.deliveryFee": deliveryFee,
+              "shipping.deliveryCharge": deliveryFee,
+              "shipping.deliveryNote": `payment:${validated.paymentMethod};deliveryCharge:${deliveryFee};advancePaid:${advancePaid}`,
+              "profitPreview.totalCostBasis": totalCostBasis,
+              "profitPreview.totalRevenue": subtotal,
               "profitPreview.totalProfit": totalProfit,
-              "shipping.deliveryFee": validated.deliveryCharge,
+              "profitPreview.averageMargin": subtotal > 0 ? (totalProfit / subtotal) * 100 : 0,
+              ...rData,
+            },
+          });
+
+          // Also update CheckoutSessionModel if present
+          await CheckoutSessionModel.findByIdAndUpdate(orderId, {
+            $set: {
+              deliveryFee,
+              advancePaid,
+              notes: `payment:${validated.paymentMethod};deliveryCharge:${deliveryFee};advancePaid:${advancePaid};userNote:${validated.notes || ""}`,
+              ...rData,
             },
           });
         }

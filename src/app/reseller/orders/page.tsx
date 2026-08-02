@@ -298,11 +298,23 @@ export default function ResellerOrdersPage(): React.ReactElement {
               <tbody className="divide-y divide-border/60 font-semibold">
                 {filteredOrders.map((o, idx) => {
                   const serialNo = (page - 1) * pageSize + idx + 1;
-                  const totalBillTaka = Math.round(o.sellingPriceCents / 100);
-                  const deliveryTaka = Math.round(o.deliveryChargeCents / 100);
-                  const advancePaidTaka = Math.round((o.advancePaidCents || 0) / 100);
+                  const totalBillTaka =
+                    (o.sellingPriceCents || 0) > 5000
+                      ? Math.round((o.sellingPriceCents || 0) / 100)
+                      : o.sellingPriceCents || 0;
+                  const deliveryTaka =
+                    (o.deliveryChargeCents || 0) > 5000
+                      ? Math.round((o.deliveryChargeCents || 0) / 100)
+                      : o.deliveryChargeCents || 0;
+                  const advancePaidTaka =
+                    (o.advancePaidCents || 0) > 5000
+                      ? Math.round((o.advancePaidCents || 0) / 100)
+                      : o.advancePaidCents || 0;
                   const dueTaka = Math.max(0, totalBillTaka - advancePaidTaka);
-                  const profitTaka = Math.round(o.profitCents / 100);
+                  const profitTaka =
+                    Math.abs(o.profitCents || 0) > 5000
+                      ? Math.round((o.profitCents || 0) / 100)
+                      : o.profitCents || 0;
                   const isEditable =
                     !o.trackingNumber &&
                     !["pickup_requested", "shipment", "shipped", "in_transit", "delivered", "completed", "cancelled"].includes(

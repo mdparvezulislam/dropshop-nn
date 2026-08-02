@@ -107,10 +107,34 @@ export class ResellerService {
     return result;
   }
 
-  async getResellerById(id: string): Promise<Reseller> {
-    const reseller = await this.resellerRepository.findById(id);
+  async getResellerById(idOrCode: string): Promise<Reseller> {
+    let reseller: Reseller | null = null;
+    if (idOrCode && idOrCode.length === 24) {
+      try {
+        reseller = await this.resellerRepository.findById(idOrCode);
+      } catch {
+        /* ignore invalid ObjectId */
+      }
+    }
+
+    if (!reseller && idOrCode) {
+      try {
+        reseller = await this.resellerRepository.findByCode(idOrCode);
+      } catch {
+        /* ignore search error */
+      }
+    }
+
+    if (!reseller && idOrCode) {
+      try {
+        reseller = await this.resellerRepository.findByUserId(idOrCode);
+      } catch {
+        /* ignore search error */
+      }
+    }
+
     if (!reseller) {
-      throw new NotFoundError("Reseller not found");
+      throw new NotFoundError("Reseller profile not found");
     }
     return reseller;
   }

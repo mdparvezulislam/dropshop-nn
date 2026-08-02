@@ -126,9 +126,14 @@ export async function getResellerByIdAction(id: string): Promise<{
   const session = await auth();
   checkPermission(session, "Reseller.View");
 
-  const service = new ResellerService();
-  const result = await service.getResellerById(id);
-  return { success: true, data: result };
+  try {
+    const service = new ResellerService();
+    const result = await service.getResellerById(id);
+    return { success: true, data: JSON.parse(JSON.stringify(result)) };
+  } catch (error: any) {
+    logger.error("getResellerByIdAction failed", error);
+    return { success: false, error: error.message };
+  }
 }
 
 export async function listResellersAction(query: unknown): Promise<{

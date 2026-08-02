@@ -54,16 +54,30 @@ export function ResellerInvoiceModal({
 
   const itemsSubtotalTaka =
     order.items && order.items.length > 0
-      ? order.items.reduce(
-          (sum, item) =>
-            sum + Math.round((item.unitSellingPrice * item.quantity) / 100),
+      ? order.items.reduce((sum, item) => {
+          const rawUnit = item.unitSellingPrice || 0;
+          const unitTaka = rawUnit > 5000 ? Math.round(rawUnit / 100) : rawUnit;
+          return sum + unitTaka * (item.quantity || 1);
+        }, 0)
+      : Math.max(
           0,
-        )
-      : Math.max(0, Math.round(order.sellingPriceCents / 100) - Math.round(order.deliveryChargeCents / 100));
+          (order.sellingPriceCents > 5000
+            ? Math.round(order.sellingPriceCents / 100)
+            : order.sellingPriceCents || 0) -
+            (order.deliveryChargeCents > 5000
+              ? Math.round(order.deliveryChargeCents / 100)
+              : order.deliveryChargeCents || 0),
+        );
 
-  const deliveryTaka = Math.round(order.deliveryChargeCents / 100);
+  const deliveryTaka =
+    order.deliveryChargeCents > 5000
+      ? Math.round(order.deliveryChargeCents / 100)
+      : order.deliveryChargeCents || 0;
   const grandTotalTaka = itemsSubtotalTaka + deliveryTaka;
-  const advancePaidTaka = Math.round((order.advancePaidCents || 0) / 100);
+  const advancePaidTaka =
+    (order.advancePaidCents || 0) > 5000
+      ? Math.round((order.advancePaidCents || 0) / 100)
+      : order.advancePaidCents || 0;
   const dueTaka = Math.max(0, grandTotalTaka - advancePaidTaka);
 
   const formattedDate = new Date(order.createdAt).toLocaleString("bn-BD", {

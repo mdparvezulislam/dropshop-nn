@@ -178,6 +178,24 @@ export function OrderQuickActionMenu({
               <p className="text-[11px] text-muted-foreground">Generate parcel shipping sticker label</p>
             </div>
           </button>
+
+          {/* Delete Order Permanently */}
+          <button
+            type="button"
+            onClick={() => {
+              onClose();
+              onSelectAction("delete_permanently", order);
+            }}
+            className="flex items-center gap-3 p-3 rounded-2xl border border-rose-200 dark:border-rose-900/60 hover:border-rose-500 hover:bg-rose-500/10 transition-colors text-left font-bold text-rose-600 dark:text-rose-400"
+          >
+            <div className="p-2 rounded-xl bg-rose-500/10 text-rose-600">
+              <XCircle className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="font-extrabold text-sm">Delete Order Permanently (DB Purge)</p>
+              <p className="text-[11px] text-muted-foreground">Hard delete order record from MongoDB database</p>
+            </div>
+          </button>
         </div>
       </DialogContent>
     </Dialog>

@@ -45,6 +45,7 @@ import {
   Edit2,
   Store,
   Check,
+  Trash2,
 } from "lucide-react";
 
 interface OrderDetailsDrawerProps {
@@ -72,6 +73,38 @@ export function OrderDetailsDrawer({
   const [noteType, setNoteType] = useState<"internal" | "customer" | "courier">("internal");
   const [submittingNote, setSubmittingNote] = useState(false);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [fetchedReseller, setFetchedReseller] = useState<any | null>(null);
+
+  React.useEffect(() => {
+    async function loadResellerInfo() {
+      if (!order) return;
+      const targetResellerId =
+        order.resellerId ||
+        order.metadata?.resellerId ||
+        order.resellerCode ||
+        order.createdBy ||
+        order.userId;
+
+      if (targetResellerId) {
+        try {
+          const { getResellerByIdAction } = await import("@/features/reseller/actions/reseller-actions");
+          const res = await getResellerByIdAction(targetResellerId);
+          if (res.success && res.data) {
+            setFetchedReseller(res.data);
+          } else {
+            setFetchedReseller(null);
+          }
+        } catch {
+          setFetchedReseller(null);
+        }
+      } else {
+        setFetchedReseller(null);
+      }
+    }
+    if (isOpen && order) {
+      loadResellerInfo();
+    }
+  }, [isOpen, order]);
 
   if (!isOpen || !order) return null;
 
@@ -96,17 +129,7 @@ export function OrderDetailsDrawer({
   const riskScore = order.riskScore ?? 85;
   const isHighRisk = riskScore < 50;
 
-  const rawDeliveryCharge =
-    order.deliveryChargeCents ??
-    (order.pricing?.grandTotal && order.pricing?.subtotal && order.pricing.grandTotal > order.pricing.subtotal
-      ? order.pricing.grandTotal - order.pricing.subtotal
-      : undefined) ??
-    order.shipping?.deliveryFee ??
-    order.shipping?.deliveryCharge ??
-    order.shippingCost ??
-    60;
-
-  const deliveryCharge = rawDeliveryCharge > 1000 ? Math.round(rawDeliveryCharge / 100) : rawDeliveryCharge;
+  const deliveryCharge = payDetails.deliveryFee;
 
   const rawProfit =
     order.resellerProfit ??
@@ -123,9 +146,23 @@ export function OrderDetailsDrawer({
 
   const profitTaka = rawProfit > 10000 ? Math.round(rawProfit / 100) : rawProfit;
 
-  // Reseller Partner Data
-  const resellerName = order.resellerName || order.resellerOwnerName || order.metadata?.resellerName || order.reseller?.name || "";
-  const resellerPhone = order.resellerPhone || order.resellerContact || order.metadata?.resellerPhone || order.reseller?.phone || "";
+  const resellerCode =
+    (order.resellerId && order.resellerId.length < 20 ? order.resellerId : undefined) ||
+    order.metadata?.resellerId ||
+    order.resellerCode ||
+    fetchedReseller?.code ||
+    (fetchedReseller?._id ? `RS-${String(fetchedReseller._id).slice(-6).toUpperCase()}` : "RS-10023");
+
+  const resellerOwnerName =
+    order.resellerOwnerName ||
+    order.resellerName ||
+    order.metadata?.resellerName ||
+    order.reseller?.name ||
+    fetchedReseller?.ownerName ||
+    fetchedReseller?.contactPerson ||
+    fetchedReseller?.name ||
+    "Md Parvez";
+
   const resellerShopName =
     order.resellerShopName ||
     order.resellerStoreName ||
@@ -133,18 +170,41 @@ export function OrderDetailsDrawer({
     order.shopName ||
     order.metadata?.resellerShopName ||
     order.metadata?.storeName ||
-    (resellerName ? `${resellerName} Store` : undefined);
-  const isResellerOrder = order.type === "reseller" || Boolean(order.resellerId) || Boolean(resellerShopName) || Boolean(resellerName);
+    fetchedReseller?.businessName ||
+    "Unique Store Bd";
+
+  const resellerPhone =
+    order.resellerPhone ||
+    order.resellerContact ||
+    order.metadata?.resellerPhone ||
+    order.reseller?.phone ||
+    fetchedReseller?.phone ||
+    fetchedReseller?.alternativePhone ||
+    "01608257876";
+
+  const isResellerOrder =
+    order.type === "reseller" ||
+    Boolean(order.resellerId) ||
+    Boolean(order.resellerShopName) ||
+    Boolean(order.resellerName) ||
+    Boolean(fetchedReseller);
+
   const formattedResellerPhoneForWhatsapp = resellerPhone ? resellerPhone.replace(/[^0-9]/g, "").replace(/^0/, "880") : "";
+
+  const rawDeliveryNote = order.notes || order.shipping?.deliveryNote || order.note || "";
+  const userNoteMatch = rawDeliveryNote.match(/userNote:(.*)$/i);
+  const cleanDeliveryNote = userNoteMatch
+    ? userNoteMatch[1].trim()
+    : (rawDeliveryNote.includes("payment:") ? "" : rawDeliveryNote.trim());
 
   // Customer Signals Data
   const totalCustomerOrders = order.customerOrderCount || 1;
   const isReturningCustomer = totalCustomerOrders > 1;
   const completedOrders = order.completedOrdersCount || (isReturningCustomer ? totalCustomerOrders - 1 : 0);
   const cancelledOrders = order.cancelledOrdersCount || 0;
-  const trafficSource = order.source || "Facebook Ads";
-  const approxLocation = `${order.shipping?.upazila || "Dhamrai"}, ${order.shipping?.district || "Dhaka"}, Bangladesh`;
-  const ipAddress = order.metadata?.ip || "37.111.206.200 (Grameenphone Limited)";
+  const trafficSource = order.source || order.metadata?.source || (isResellerOrder ? (resellerShopName || "Reseller Store") : "Direct Web Store");
+  const approxLocation = [order.shipping?.upazila, order.shipping?.district, "Bangladesh"].filter(Boolean).join(", ");
+  const ipAddress = order.metadata?.ip || "Direct Web Session";
 
   const copyToClipboard = (text: string, fieldName: string) => {
     if (!text) return;
@@ -199,6 +259,28 @@ export function OrderDetailsDrawer({
     }
   };
 
+  const handleDeleteOrderPermanently = async () => {
+    if (!confirm(`Are you sure you want to PERMANENTLY delete order ${orderNumber} from database? This action cannot be undone.`)) {
+      return;
+    }
+    setUpdatingStatus(true);
+    try {
+      const { deleteOrderPermanentlyAction } = await import("../actions/order-actions");
+      const res = await deleteOrderPermanentlyAction(orderId);
+      if (res.success) {
+        toast.success(`Order ${orderNumber} deleted permanently from database!`);
+        onClose();
+        if (onOrderUpdated) onOrderUpdated();
+      } else {
+        toast.error(res.error || "Failed to delete order");
+      }
+    } catch {
+      toast.error("Server error deleting order");
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
   const handleAddNote = async () => {
     if (!noteInput.trim()) return;
     setSubmittingNote(true);
@@ -244,7 +326,7 @@ export function OrderDetailsDrawer({
                 </Badge>
                 <span className="inline-flex items-center gap-1 rounded-md px-2.5 py-0.5 text-xs font-black bg-purple-500/20 text-purple-300 border border-purple-500/40">
                   <Store className="h-3.5 w-3.5 text-purple-400" />
-                  {isResellerOrder ? (resellerShopName || resellerName || "Reseller Store") : "Direct Order"}
+                  {isResellerOrder ? (resellerShopName || resellerOwnerName || "Reseller Store") : "Direct Order"}
                 </span>
                 <span
                   className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-black border ${
@@ -293,6 +375,17 @@ export function OrderDetailsDrawer({
                 onClick={() => printOrderInvoice(order)}
               >
                 <Printer className="h-3.5 w-3.5 mr-1" /> Print Invoice
+              </Button>
+
+              <Button
+                size="sm"
+                variant="destructive"
+                className="h-8 px-2.5 text-xs font-bold bg-rose-950/80 border border-rose-800 text-rose-300 hover:bg-rose-900 shrink-0"
+                onClick={handleDeleteOrderPermanently}
+                disabled={updatingStatus}
+                title="Permanently Delete Order from Database"
+              >
+                <Trash2 className="h-3.5 w-3.5 mr-1 text-rose-400" /> Delete DB
               </Button>
             </div>
           </div>
@@ -398,7 +491,7 @@ export function OrderDetailsDrawer({
                         </Badge>
                       </div>
                       <span className="text-xs font-mono font-extrabold text-purple-800 dark:text-purple-300">
-                        Reseller ID: {order.resellerId || "RES-001"}
+                        Reseller ID: {resellerCode}
                       </span>
                     </div>
 
@@ -413,7 +506,7 @@ export function OrderDetailsDrawer({
                       <div className="space-y-1">
                         <span className="text-muted-foreground text-[11px] block font-medium uppercase">Reseller Owner Name</span>
                         <strong className="text-foreground font-black text-sm block">
-                          {resellerName || "Official Reseller Partner"}
+                          {resellerOwnerName || "Official Reseller Partner"}
                         </strong>
                       </div>
 
@@ -536,6 +629,21 @@ export function OrderDetailsDrawer({
                     </a>
                   </div>
                 </div>
+
+                {/* Special Order Note / Courier Instructions Banner */}
+                {cleanDeliveryNote && (
+                  <div className="rounded-2xl border border-amber-300 dark:border-amber-800 bg-amber-50/80 dark:bg-amber-950/40 p-4 flex items-start gap-3 shadow-xs">
+                    <FileText className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    <div className="space-y-1 flex-1">
+                      <h4 className="text-xs font-black uppercase tracking-wide text-amber-950 dark:text-amber-200">
+                        বিশেষ নোটস / কুরিয়ার নির্দেশিকা (Special Order Note)
+                      </h4>
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
+                        {cleanDeliveryNote}
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {/* CUSTOMER SIGNALS & RELIABILITY CARD */}
                 <div className="rounded-3xl border border-border bg-card p-5 space-y-4 shadow-xs">

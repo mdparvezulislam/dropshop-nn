@@ -115,6 +115,15 @@ export function OrderBulkActionBar({
           <Ban className="h-3.5 w-3.5 mr-1" /> Cancel
         </Button>
 
+        <Button
+          size="sm"
+          variant="destructive"
+          onClick={() => onBulkAction("delete_permanently")}
+          className="h-8 px-2.5 text-xs font-extrabold bg-rose-600 hover:bg-rose-700 text-white shrink-0 shadow-xs gap-1"
+        >
+          <X className="h-3.5 w-3.5" /> Delete DB
+        </Button>
+
         <button
           type="button"
           onClick={onClearSelection}

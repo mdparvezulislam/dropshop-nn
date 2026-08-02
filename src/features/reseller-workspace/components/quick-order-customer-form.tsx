@@ -177,7 +177,7 @@ export function QuickOrderCustomerForm({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {/* Phone Input */}
           <div className="space-y-1">
-            <label className="text-[11px] font-black text-slate-800 flex items-center justify-between">
+            <label className="text-[11px] font-black text-slate-800 dark:text-slate-200 flex items-center justify-between">
               <span>মোবাইল নম্বর <span className="text-rose-500">*</span></span>
               {lookingUp && <Loader2 className="w-3 h-3 text-amber-500 animate-spin" />}
             </label>
@@ -189,14 +189,14 @@ export function QuickOrderCustomerForm({
                 value={value.phone}
                 onChange={(e) => handlePhoneChange(e.target.value)}
                 placeholder="017XXXXXXXX"
-                className="w-full h-10 sm:h-11 pl-9 pr-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-900 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                className="w-full h-10 sm:h-11 pl-9 pr-3 rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-bold text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
               />
             </div>
           </div>
 
           {/* Customer Name */}
           <div className="space-y-1">
-            <label className="text-[11px] font-black text-slate-800">
+            <label className="text-[11px] font-black text-slate-800 dark:text-slate-200">
               কাস্টমারের নাম <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
@@ -207,14 +207,14 @@ export function QuickOrderCustomerForm({
                 value={value.name}
                 onChange={(e) => onChange({ ...value, name: e.target.value })}
                 placeholder="যেমন: মোহাম্মদ রহিম"
-                className="w-full h-10 sm:h-11 pl-9 pr-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-900 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+                className="w-full h-10 sm:h-11 pl-9 pr-3 rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-bold text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
               />
             </div>
           </div>
 
           {/* District Searchable Select (64 Districts) */}
           <div className="space-y-1">
-            <label className="text-[11px] font-black text-slate-800">
+            <label className="text-[11px] font-black text-slate-800 dark:text-slate-200">
               জেলা (District) <span className="text-rose-500">*</span>
             </label>
             <DistrictSelect
@@ -226,7 +226,7 @@ export function QuickOrderCustomerForm({
 
           {/* Thana / Upazila Select */}
           <div className="space-y-1">
-            <label className="text-[11px] font-black text-slate-800">
+            <label className="text-[11px] font-black text-slate-800 dark:text-slate-200">
               থানা / উপজেলা (Upazila) <span className="text-slate-400 font-normal">(ঐচ্ছিক)</span>
             </label>
             <ThanaSelect
@@ -239,8 +239,8 @@ export function QuickOrderCustomerForm({
 
           {/* Full Delivery Address Textarea */}
           <div className="sm:col-span-2 space-y-1">
-            <label className="text-[11px] font-black text-slate-800 flex items-center gap-1">
-              <MapPin className="w-3 h-3 text-amber-600" /> সম্পূর্ণ ডেলিভারি ঠিকানা <span className="text-rose-500">*</span>
+            <label className="text-[11px] font-black text-slate-800 dark:text-slate-200 flex items-center gap-1">
+              <MapPin className="w-3 h-3 text-amber-600 dark:text-amber-400" /> সম্পূর্ণ ডেলিভারি ঠিকানা <span className="text-rose-500">*</span>
             </label>
             <textarea
               required
@@ -248,13 +248,13 @@ export function QuickOrderCustomerForm({
               value={value.fullAddress}
               onChange={(e) => onChange({ ...value, fullAddress: e.target.value })}
               placeholder="বাসা নং, রোড নং, এলাকা ও ল্যান্ডমার্ক লিখুন..."
-              className="w-full p-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-900 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+              className="w-full p-3 rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-bold text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
             />
           </div>
 
           {/* Order Note Optional */}
           <div className="sm:col-span-2 space-y-1">
-            <label className="text-[11px] font-black text-slate-800">
+            <label className="text-[11px] font-black text-slate-800 dark:text-slate-200">
               অর্ডার নোট <span className="text-slate-400 font-normal">(ঐচ্ছিক)</span>
             </label>
             <input
@@ -262,7 +262,7 @@ export function QuickOrderCustomerForm({
               value={value.note || ""}
               onChange={(e) => onChange({ ...value, note: e.target.value })}
               placeholder="যেমন: ডেলিভারির আগে কল দিয়ে নিশ্চিত করুন"
-              className="w-full h-10 px-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-900 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
+              className="w-full h-10 px-3 rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-bold text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20"
             />
           </div>
         </div>

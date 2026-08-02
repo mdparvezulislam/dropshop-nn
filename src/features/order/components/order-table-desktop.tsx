@@ -132,16 +132,7 @@ export function OrderTableDesktop({
               const riskScore = order.riskScore ?? 76;
               const isHighRisk = riskScore < 50;
               const hasCourierSlip = Boolean(order.courierInfo?.trackingNumber || order.pickupRequested);
-              const rawDeliveryCharge =
-                order.deliveryChargeCents ??
-                (order.pricing?.grandTotal && order.pricing?.subtotal && order.pricing.grandTotal > order.pricing.subtotal
-                  ? order.pricing.grandTotal - order.pricing.subtotal
-                  : undefined) ??
-                order.shipping?.deliveryFee ??
-                order.shipping?.deliveryCharge ??
-                order.shippingCost ??
-                60;
-              const deliveryCharge = rawDeliveryCharge > 1000 ? Math.round(rawDeliveryCharge / 100) : rawDeliveryCharge;
+              const deliveryCharge = payDetails.deliveryFee;
 
               return (
                 <tr
@@ -283,6 +274,17 @@ export function OrderTableDesktop({
                         <div className="text-[10px] text-muted-foreground font-mono">
                           Delivery Charge: ৳{formatAmount(deliveryCharge)}
                         </div>
+                        {(() => {
+                          const rawNote = order.notes || order.shipping?.deliveryNote || "";
+                          const userMatch = rawNote.match(/userNote:(.*)$/i);
+                          const cleanNote = userMatch ? userMatch[1].trim() : (rawNote.includes("payment:") ? "" : rawNote.trim());
+                          if (!cleanNote) return null;
+                          return (
+                            <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400 line-clamp-1 max-w-[180px]" title={cleanNote}>
+                              📝 {cleanNote}
+                            </p>
+                          );
+                        })()}
                       </div>
                     ) : (
                       <span className="text-muted-foreground">No items</span>

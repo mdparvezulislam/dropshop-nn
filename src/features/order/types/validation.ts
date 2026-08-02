@@ -142,7 +142,7 @@ export type RequestReturnInput = z.infer<typeof requestReturnSchema>;
 
 export const processReturnSchema = z.object({
   orderId: objectIdSchema,
-  initiatedBy: z.string().optional().default("admin"),
+  initiatedBy: z.string().min(1),
 });
 
 export type ProcessReturnInput = z.infer<typeof processReturnSchema>;
@@ -150,7 +150,7 @@ export type ProcessReturnInput = z.infer<typeof processReturnSchema>;
 export const refundOrderSchema = z.object({
   orderId: objectIdSchema,
   refundAmount: z.number().int().nonnegative(),
-  refundedBy: z.string().optional().default("admin"),
+  refundedBy: z.string().min(1),
 });
 
 export type RefundOrderInput = z.infer<typeof refundOrderSchema>;

@@ -136,6 +136,8 @@ export interface Order extends BaseDBEntity {
   resellerId?: string;
   resellerName?: string;
   resellerShopName?: string;
+  resellerPhone?: string;
+  resellerOwnerName?: string;
   wholesaleId?: string;
   confirmedAt?: Date;
   completedAt?: Date;

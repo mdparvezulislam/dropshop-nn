@@ -99,7 +99,10 @@ export function EditResellerOrderModal({
       const advTaka = rawAdv > 1000 ? Math.round(rawAdv / 100) : rawAdv;
       setAdvancePaidTaka(advTaka);
 
-      setNotes(o.notes || o.shipping?.deliveryNote || "");
+      const rawNote = o.notes || o.shipping?.deliveryNote || "";
+      const userNoteMatch = rawNote.match(/userNote:(.*)$/i);
+      const cleanNote = userNoteMatch ? userNoteMatch[1].trim() : (rawNote.includes("payment:") ? "" : rawNote);
+      setNotes(cleanNote);
 
       const mappedItems = (o.items || []).map((i: any) => {
         const rawPrice = i.unitSellingPrice ?? i.unitPrice ?? i.price ?? i.sellingPriceCents ?? 0;
@@ -568,17 +571,10 @@ export function EditResellerOrderModal({
                       </label>
                       <input
                         type="number"
-                        min={0}
-                        disabled={!isEditable}
+                        readOnly
+                        disabled
                         value={item.unitCostBasisTaka}
-                        onChange={(e) =>
-                          handleItemChange(
-                            idx,
-                            "unitCostBasisTaka",
-                            parseFloat(e.target.value) || 0,
-                          )
-                        }
-                        className="w-full h-10 px-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 text-center outline-none"
+                        className="w-full h-10 px-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800/80 text-xs font-mono font-bold text-slate-500 dark:text-slate-400 text-center outline-none cursor-not-allowed select-none"
                       />
                     </div>
 
@@ -608,9 +604,9 @@ export function EditResellerOrderModal({
             </div>
           </div>
 
-          {/* Section 3: Delivery Charge, Advance Payment & Special Notes */}
+          {/* Section 3: Delivery Charge & Special Notes */}
           <div className="space-y-3 border-t border-slate-100 dark:border-slate-800 pt-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block mb-1">
                   ডেলিভারি চার্জ (৳)
@@ -629,23 +625,6 @@ export function EditResellerOrderModal({
 
               <div>
                 <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block mb-1">
-                  অগ্রিম জমা / এডভান্স (৳)
-                </label>
-                <input
-                  type="number"
-                  min={0}
-                  disabled={!isEditable}
-                  value={advancePaidTaka}
-                  onChange={(e) =>
-                    setAdvancePaidTaka(parseFloat(e.target.value) || 0)
-                  }
-                  placeholder="0 (COD এর জন্য 0)"
-                  className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-xs font-mono font-bold text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 disabled:opacity-60"
-                />
-              </div>
-
-              <div>
-                <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 block mb-1">
                   বিশেষ নোটস / কুরিয়ার নির্দেশিকা
                 </label>
                 <input
@@ -653,14 +632,14 @@ export function EditResellerOrderModal({
                   disabled={!isEditable}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="যেমন: কুরিয়ার ডোর ডেলিভারি"
+                  placeholder="যেমন: ডেলিভারির আগে কল দিয়ে নিশ্চিত করুন..."
                   className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-xs font-bold text-slate-900 dark:text-slate-100 outline-none focus:border-amber-500 disabled:opacity-60"
                 />
               </div>
             </div>
           </div>
 
-          {/* Live Financial Breakdown Summary (Matching Screenshot exact layout & styling) */}
+          {/* Live Financial Breakdown Summary */}
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 space-y-2 text-xs font-semibold">
             <div className="flex justify-between text-slate-600 dark:text-slate-400">
               <span>পণ্য ক্রয় মূল্য (Cost Basis):</span>
@@ -680,13 +659,9 @@ export function EditResellerOrderModal({
               <span className="font-mono text-base">৳{grandTotalTaka}</span>
             </div>
 
-            <div className="flex justify-between text-slate-600 dark:text-slate-400 pt-1 border-t border-dashed border-slate-200 dark:border-slate-700">
-              <span>অগ্রিম পরিশোধ (Paid):</span>
-              <span className="font-mono font-bold text-emerald-600">৳{advancePaidTaka}</span>
-            </div>
-            <div className="flex justify-between text-slate-900 dark:text-slate-100 font-bold">
+            <div className="flex justify-between text-slate-900 dark:text-slate-100 font-bold pt-1 border-t border-dashed border-slate-200 dark:border-slate-700">
               <span>বাকি বকেয়া (Due Amount / Collection):</span>
-              <span className="font-mono font-black text-amber-600 dark:text-amber-400">৳{Math.max(0, grandTotalTaka - advancePaidTaka)}</span>
+              <span className="font-mono font-black text-amber-600 dark:text-amber-400">৳{grandTotalTaka}</span>
             </div>
 
             {/* Profit Highlight Box (Matching Screenshot Green Badge) */}

@@ -8,72 +8,53 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { updateOrderStatusAction, listOrdersAction } from "@/features/order/actions/order-actions";
 import { toast } from "sonner";
-import { ArrowLeft, ArrowRight, ShoppingCart, RefreshCw } from "lucide-react";
+import { ArrowLeft, ArrowRight, ShoppingCart, RefreshCw, Truck, CheckCircle2, Store, Eye, Package } from "lucide-react";
 import {
   getHumanLabel,
   getAllowedTransitions,
   type OrderStatus,
 } from "@/features/order/domain/state-machine";
+import { formatAmount } from "@/features/order/utils/payment-utils";
+import { Spinner } from "@/components/ui/spinner";
+import { OrderDetailsDrawer } from "@/features/order/components/order-details-drawer";
 
-const BOARD_COLUMNS = [
+const BOARD_COLUMNS: OrderStatus[] = [
   "pending",
   "confirmed",
-  "packed",
-  "ready_for_dispatch",
-  "courier_assigned",
+  "processing",
+  "pickup_requested",
   "shipped",
-  "out_for_delivery",
-] as const;
+  "delivered",
+];
 
-export default function OrderBoardPage() {
-  const { data: session } = useSession();
+export default function OrderBoardPage(): React.ReactElement {
+  const { data: session } = useSession() as any;
   const [orders, setOrders] = React.useState<any[]>([]);
   const [loading, setLoading] = React.useState(false);
+  const [selectedOrderForDrawer, setSelectedOrderForDrawer] = React.useState<any | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = React.useState(false);
+  const [mutatingId, setMutatingId] = React.useState<string | null>(null);
 
-  const loadData = async () => {
+  const loadData = React.useCallback(async () => {
     setLoading(true);
     try {
       const res = await listOrdersAction({ page: 1, limit: 100, status: "all" });
       if (res.success && res.data?.items) {
         setOrders(res.data.items);
-      } else {
-        // Fallback mock values
-        setOrders([
-          {
-            id: "60c72b2f9b1d8e2568cf4001",
-            orderNumber: "ORD-928172",
-            customer: { name: "Afsana Mimi" },
-            pricing: { grandTotal: 250000 },
-            status: "confirmed",
-          },
-          {
-            id: "60c72b2f9b1d8e2568cf4002",
-            orderNumber: "ORD-123491",
-            customer: { name: "Kamal Hossain" },
-            pricing: { grandTotal: 84000 },
-            status: "pending",
-          },
-          {
-            id: "60c72b2f9b1d8e2568cf4003",
-            orderNumber: "ORD-340912",
-            customer: { name: "Rashed Khan" },
-            pricing: { grandTotal: 154000 },
-            status: "packed",
-          },
-        ]);
       }
-    } catch (err) {
+    } catch {
       toast.error("Failed to load orders");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   React.useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   const handleTransition = async (id: string, toStatus: OrderStatus) => {
+    setMutatingId(id);
     try {
       const res = await updateOrderStatusAction({
         orderId: id,
@@ -82,111 +63,136 @@ export default function OrderBoardPage() {
         actorId: session?.user?.id || "system",
       });
       if (res.success) {
-        setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status: toStatus } : o)));
+        setOrders((prev) => prev.map((o) => ((o.id || o._id) === id ? { ...o, status: toStatus } : o)));
         toast.success(`Moved order to ${getHumanLabel(toStatus)}`);
       } else {
         toast.error(res.error || "Transition blocked by state machine");
       }
     } catch (err: any) {
       toast.error(err.message || "Failed to transition status");
+    } finally {
+      setMutatingId(null);
     }
   };
 
   const getOrdersByColumn = (col: OrderStatus) => {
-    return orders.filter((o) => o.status === col);
-  };
-
-  const formatCurrency = (amount: number) => {
-    return `৳${(amount / 100).toLocaleString("en-US", { minimumFractionDigits: 0 })}`;
+    return orders.filter((o) => (o.status || "pending") === col);
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 p-4 sm:p-6 text-white space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
+      {/* Header Banner */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-5">
         <div className="flex items-center gap-3">
           <Link
             href="/dashboard/orders"
-            className="p-2 rounded-full border border-slate-800 bg-slate-900/50 text-slate-400 hover:text-white transition-colors"
+            className="p-2.5 rounded-2xl border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-2xs"
           >
-            <ArrowLeft className="h-4.5 w-4.5" />
+            <ArrowLeft className="h-4 w-4" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Order Status Board</h1>
-            <p className="text-sm text-slate-400">
-              Kanban visualization of operational logistics lifecycle
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-black font-heading tracking-tight text-foreground">
+                Order Operational Board
+              </h1>
+              <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/30 text-xs font-bold">
+                KANBAN PIPELINE
+              </Badge>
+            </div>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+              Visual fulfillment pipeline tracking orders from Pending confirmation to Courier delivery.
             </p>
           </div>
         </div>
-        <Button onClick={loadData} disabled={loading} variant="outline" className="h-9 gap-1.5">
-          <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} /> Refresh
+
+        <Button
+          onClick={loadData}
+          disabled={loading}
+          variant="outline"
+          size="sm"
+          className="h-9 text-xs font-bold gap-1 self-start sm:self-auto"
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh Board
         </Button>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin">
+      {/* Kanban Board Columns Container */}
+      <div className="flex gap-4 overflow-x-auto pb-6 scrollbar-none items-start">
         {BOARD_COLUMNS.map((col) => {
           const colOrders = getOrdersByColumn(col);
+
           return (
             <div
               key={col}
-              className="w-80 shrink-0 flex flex-col bg-slate-900/40 rounded-xl border border-slate-850 p-3 h-[75vh]"
+              className="w-80 shrink-0 flex flex-col bg-muted/40 rounded-3xl border border-border/80 p-3.5 min-h-[600px] max-h-[80vh]"
             >
-              <div className="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
+              {/* Column Header */}
+              <div className="flex items-center justify-between border-b border-border/60 pb-3 mb-3">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-sm capitalize text-slate-200">
+                  <h3 className="font-black text-xs text-foreground uppercase tracking-wide">
                     {getHumanLabel(col)}
                   </h3>
-                  <Badge
-                    variant="outline"
-                    className="bg-slate-950/50 text-[10px] py-0 px-1.5 border-slate-800"
-                  >
+                  <Badge variant="outline" className="text-[10px] font-mono bg-card text-foreground font-bold">
                     {colOrders.length}
                   </Badge>
                 </div>
               </div>
 
+              {/* Column Cards Stream */}
               <div className="flex-1 overflow-y-auto space-y-3 pr-1">
                 {colOrders.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-32 border border-dashed border-slate-800 rounded-lg text-slate-600 text-xs">
+                  <div className="flex flex-col items-center justify-center h-36 border border-dashed border-border/70 rounded-2xl text-muted-foreground text-xs font-medium">
                     No orders in this state
                   </div>
                 ) : (
-                  colOrders.map((o) => {
-                    const transitions = getAllowedTransitions(o.status);
-                    const nextOperational = transitions.filter(
+                  colOrders.map((o: any) => {
+                    const oId = o.id || o._id;
+                    const orderNumber = o.orderNumber || `#${oId.slice(-6)}`;
+                    const customerName = o.customer?.name || "Customer";
+                    const grandTotal = o.pricing?.grandTotal || 0;
+                    const grandTotalTaka = grandTotal > 5000 ? Math.round(grandTotal / 100) : grandTotal;
+                    const allowed = getAllowedTransitions(o.status || "pending");
+                    const nextOperational = allowed.filter(
                       (t) => col !== t && BOARD_COLUMNS.includes(t as any),
                     );
 
                     return (
                       <Card
-                        key={o.id}
-                        className="border-slate-800 bg-slate-950/75 hover:border-slate-700 transition-all p-3.5 space-y-3"
+                        key={oId}
+                        className="border-border bg-card hover:border-amber-500/50 transition-all p-4 space-y-3 shadow-2xs"
                       >
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <Link
-                              href={`/dashboard/orders/${o.id}`}
-                              className="font-semibold hover:text-indigo-400 text-sm text-indigo-300"
+                        <div className="flex justify-between items-start border-b border-border/60 pb-2">
+                          <div className="min-w-0 flex-1">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedOrderForDrawer(o);
+                                setIsDrawerOpen(true);
+                              }}
+                              className="font-extrabold text-amber-600 dark:text-amber-400 hover:underline text-xs truncate block text-left"
                             >
-                              {o.orderNumber}
-                            </Link>
-                            <p className="text-xs text-slate-400 mt-0.5">{o.customer?.name}</p>
+                              {orderNumber}
+                            </button>
+                            <p className="text-[11px] font-bold text-foreground truncate mt-0.5">{customerName}</p>
                           </div>
-                          <span className="text-xs font-semibold text-emerald-400">
-                            {formatCurrency(o.pricing?.grandTotal)}
+                          <span className="text-xs font-mono font-black text-foreground shrink-0">
+                            ৳ {formatAmount(grandTotalTaka)}
                           </span>
                         </div>
 
+                        {/* Action Buttons to Transition Status */}
                         {nextOperational.length > 0 && (
-                          <div className="pt-2 border-t border-slate-900 flex justify-end gap-1.5">
+                          <div className="pt-1 flex flex-wrap justify-end gap-1.5">
                             {nextOperational.map((nextState) => (
-                              <button
+                              <Button
                                 key={nextState}
-                                onClick={() => handleTransition(o.id, nextState)}
-                                className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white transition-colors"
+                                size="sm"
+                                disabled={mutatingId === oId}
+                                onClick={() => handleTransition(oId, nextState as OrderStatus)}
+                                className="h-7 px-2.5 text-[10px] font-extrabold bg-amber-500 text-slate-950 hover:bg-amber-600 shadow-2xs gap-1"
                               >
-                                Move to {getHumanLabel(nextState)}{" "}
-                                <ArrowRight className="h-3 w-3" />
-                              </button>
+                                Move to {getHumanLabel(nextState as OrderStatus)} <ArrowRight className="h-3 w-3" />
+                              </Button>
                             ))}
                           </div>
                         )}
@@ -199,6 +205,19 @@ export default function OrderBoardPage() {
           );
         })}
       </div>
+
+      {/* Order Details Drawer Modal */}
+      {selectedOrderForDrawer && (
+        <OrderDetailsDrawer
+          isOpen={isDrawerOpen}
+          onClose={() => {
+            setIsDrawerOpen(false);
+            setSelectedOrderForDrawer(null);
+          }}
+          order={selectedOrderForDrawer}
+          onOrderUpdated={loadData}
+        />
+      )}
     </div>
   );
 }

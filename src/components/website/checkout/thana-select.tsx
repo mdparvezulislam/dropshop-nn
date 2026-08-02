@@ -72,8 +72,8 @@ export function ThanaSelect({
           }
         }}
         className={cn(
-          "w-full h-12 px-3.5 rounded-xl border bg-white text-sm font-semibold text-slate-900 flex items-center justify-between transition-colors shadow-2xs focus-visible:outline-2 focus-visible:outline-amber-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-200 disabled:cursor-not-allowed",
-          value ? "text-slate-900 border-slate-300" : "text-slate-400 border-slate-300",
+          "w-full h-12 px-3.5 rounded-xl border bg-white dark:bg-slate-900 text-sm font-semibold text-slate-900 dark:text-slate-100 flex items-center justify-between transition-colors shadow-2xs focus-visible:outline-2 focus-visible:outline-amber-500 disabled:bg-slate-100 dark:disabled:bg-slate-800 disabled:text-slate-400 disabled:border-slate-200 dark:disabled:border-slate-800 disabled:cursor-not-allowed",
+          value ? "text-slate-900 dark:text-slate-100 border-slate-300 dark:border-slate-800" : "text-slate-400 border-slate-300 dark:border-slate-800",
         )}
       >
         <span className="truncate">
@@ -83,8 +83,8 @@ export function ThanaSelect({
       </button>
 
       {open && districtId && (
-        <div className="absolute left-0 right-0 top-full mt-1 z-50 rounded-2xl border border-slate-300 bg-white shadow-xl overflow-hidden text-slate-900 max-h-64 flex flex-col">
-          <div className="p-2 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
+        <div className="absolute left-0 right-0 top-full mt-1 z-50 rounded-2xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden text-slate-900 dark:text-slate-100 max-h-64 flex flex-col">
+          <div className="p-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex items-center gap-2">
             <Search className="h-4 w-4 text-slate-400 shrink-0" />
             <input
               ref={inputRef}
@@ -92,7 +92,7 @@ export function ThanaSelect({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="থানা / উপজেলা লিখুন..."
-              className="w-full text-xs font-semibold bg-transparent focus:outline-none placeholder:text-slate-400 text-slate-900"
+              className="w-full text-xs font-semibold bg-transparent focus:outline-none placeholder:text-slate-400 text-slate-900 dark:text-slate-100"
             />
           </div>
 
@@ -107,17 +107,17 @@ export function ThanaSelect({
                       onClick={() => selectThana(item)}
                       className={cn(
                         "w-full text-left px-3 py-2 rounded-xl flex items-center justify-between transition-colors",
-                        isSelected ? "bg-amber-50 text-amber-900 font-extrabold" : "hover:bg-slate-100 text-slate-700",
+                        isSelected ? "bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 font-extrabold" : "hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-300",
                       )}
                     >
                       <span>{item}</span>
-                      {isSelected && <Check className="h-3.5 w-3.5 text-amber-600 shrink-0" />}
+                      {isSelected && <Check className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0" />}
                     </button>
                   </li>
                 );
               })
             ) : (
-              <li className="px-3 py-3 text-center text-slate-500">
+              <li className="px-3 py-3 text-center text-slate-500 dark:text-slate-400">
                 <p>কোনো মিল পাওয়া যায়নি</p>
                 {query.trim() && (
                   <button

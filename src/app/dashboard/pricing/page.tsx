@@ -1,561 +1,542 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
-  Plus,
-  DollarSign,
-  TrendingUp,
-  Shield,
-  Percent,
-  Clock,
-  AlertTriangle,
-  Layers,
-  FileText,
-  Calculator,
-  History,
-  CheckCircle,
-  Tags,
-  ShoppingBag,
-  Zap,
-  Search,
-  X,
-} from "lucide-react";
-import { toast } from "sonner";
-import {
-  searchProductPricingAction,
   listGlobalRulesAction,
-  listPendingApprovalsAction,
-  listPricingProfilesAction,
+  createGlobalRuleAction,
+  updateGlobalRuleAction,
+  deleteGlobalRuleAction,
   listCampaignsAction,
 } from "@/features/pricing/actions/pricing-engine-actions";
-import ProductPricingPanel, {
-  type ProductPricingData,
-} from "@/features/pricing/components/sections/ProductPricingPanel";
-import { formatCentsToCurrency } from "@/lib/utils/currency-utils";
-import { SectionHeader } from "@/components/workspace/section-header";
-import { StatCard } from "@/components/workspace/stat-card";
-import { DataTable, type DataTableColumn } from "@/components/ui/data-table";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { listPricingAction } from "@/features/pricing/actions/pricing-actions";
+import { toast } from "sonner";
+import {
+  DollarSign,
+  TrendingUp,
+  Percent,
+  Search,
+  Plus,
+  RefreshCw,
+  Edit2,
+  Trash2,
+  Tag,
+  Zap,
+  Check,
+  X,
+} from "lucide-react";
+import { formatAmount } from "@/features/order/utils/payment-utils";
 import { Spinner } from "@/components/ui/spinner";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils/cn";
+import { StatusChip, statusToneFromValue } from "@/components/workspace/status-chip";
 
-type Row = {
-  id: string;
-  productName: string;
-  variantSku: string;
-  baseCostPrice: number;
-  sellingPrice: number;
-  promotionalPrice?: number;
-  wholesalePrice: number;
-  profitMargin: number;
-  currency: string;
-  pricingRule: string;
-  status: string;
-};
+type MainTab = "catalog" | "rules" | "campaigns";
 
-export default function PricingIntelligenceHub(): React.ReactElement {
-  const router = useRouter();
+export default function PricingEnginePage(): React.ReactElement {
+  const searchParams = useSearchParams();
+  const initialTab = (searchParams.get("tab") as MainTab) || "catalog";
+
+  const [activeTab, setActiveTab] = React.useState<MainTab>(initialTab);
+  const [loading, setLoading] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [searching, setSearching] = React.useState(false);
-  const [searchResults, setSearchResults] = React.useState<ProductPricingData[]>([]);
-  const [selectedProduct, setSelectedProduct] = React.useState<ProductPricingData | null>(null);
-  const [showResults, setShowResults] = React.useState(false);
-  const searchRef = React.useRef<HTMLDivElement>(null);
 
-  const [page, setPage] = React.useState(1);
-  const [loading, setLoading] = React.useState(true);
-  const [rows, setRows] = React.useState<Row[]>([]);
-  const [totalCount, setTotalCount] = React.useState(0);
-  const [stats, setStats] = React.useState({
-    activeRules: 0,
-    draftRules: 0,
-    profiles: 0,
-    campaigns: 0,
-    pendingApprovals: 0,
-    manualOverrides: 0,
+  // Data states
+  const [pricingItems, setPricingItems] = React.useState<any[]>([]);
+  const [globalRules, setGlobalRules] = React.useState<any[]>([]);
+  const [campaigns, setCampaigns] = React.useState<any[]>([]);
+
+  // Rule Editor Dialog State
+  const [isRuleModalOpen, setIsRuleModalOpen] = React.useState(false);
+  const [editingRule, setEditingRule] = React.useState<any | null>(null);
+  const [ruleForm, setRuleForm] = React.useState({
+    name: "",
+    channel: "retail",
+    markupType: "percentage" as "percentage" | "fixed_amount",
+    markupValue: 20,
+    minMarginPercent: 5,
+    maxDiscount: 50,
+    priority: 100,
+    isActive: true,
   });
-  const pageSize = 10;
+  const [savingRule, setSavingRule] = React.useState(false);
 
-  const loadStats = React.useCallback(async () => {
+  const loadAllData = React.useCallback(async () => {
     setLoading(true);
     try {
-      const [pricingRes, rulesRes, approvalsRes, profilesRes, campaignsRes] = await Promise.all([
-        import("@/features/pricing/actions/pricing-actions").then((m) =>
-          m.listPricingAction({ page: 1, limit: pageSize }),
-        ),
+      const [pricingRes, rulesRes, campaignsRes] = await Promise.all([
+        listPricingAction({ page: 1, limit: 50 }),
         listGlobalRulesAction(),
-        listPendingApprovalsAction(),
-        listPricingProfilesAction(),
         listCampaignsAction(),
       ]);
 
       if (pricingRes.success && pricingRes.data) {
-        const d = pricingRes.data as any;
-        const items: Row[] = (d.items ?? []).map((p: any) => ({
-          id: p.id,
-          productName: p.productName ?? p.productId?.title ?? "",
-          variantSku: p.variantSku ?? "",
-          baseCostPrice: p.baseCostPrice ?? 0,
-          sellingPrice: p.sellingPrice ?? 0,
-          promotionalPrice: p.promotionalPrice,
-          wholesalePrice: p.wholesalePrice ?? 0,
-          profitMargin: p.profitMargin ?? 0,
-          currency: p.currency ?? "BDT",
-          pricingRule: p.pricingRule ?? "fixed",
-          status: p.status ?? "inactive",
-        }));
-        setRows(items);
-        setTotalCount(d.totalCount ?? items.length);
+        const pData = pricingRes.data as any;
+        setPricingItems(Array.isArray(pData) ? pData : pData.items || []);
       }
-
-      const rules = rulesRes.success ? ((rulesRes.data ?? []) as any[]) : [];
-      const profiles = profilesRes.success ? ((profilesRes.data ?? []) as any[]) : [];
-      const campaigns = campaignsRes.success ? ((campaignsRes.data ?? []) as any[]) : [];
-      const approvals = approvalsRes.success ? ((approvalsRes.data ?? []) as any[]) : [];
-
-      setStats({
-        activeRules: rules.filter((r: any) => r.isActive).length,
-        draftRules: rules.filter((r: any) => !r.isActive).length,
-        profiles: profiles.length,
-        campaigns: campaigns.length,
-        pendingApprovals: approvals.length,
-        manualOverrides: rows.filter((r) => r.pricingRule === "fixed").length,
-      });
+      if (rulesRes.success && rulesRes.data) {
+        setGlobalRules(rulesRes.data as any[]);
+      }
+      if (campaignsRes.success && campaignsRes.data) {
+        setCampaigns(campaignsRes.data as any[]);
+      }
     } catch {
-      /* silent */
+      toast.error("Failed to load pricing engine data");
     } finally {
       setLoading(false);
     }
   }, []);
 
   React.useEffect(() => {
-    loadStats();
-  }, [loadStats]);
+    loadAllData();
+  }, [loadAllData]);
 
-  const handleSearch = React.useCallback(async (q: string) => {
-    setSearchQuery(q);
-    if (!q.trim()) {
-      setSearchResults([]);
-      setShowResults(false);
-      return;
+  const handleOpenRuleModal = (rule?: any) => {
+    if (rule) {
+      setEditingRule(rule);
+      setRuleForm({
+        name: rule.name || "",
+        channel: rule.channel || "retail",
+        markupType: rule.markupType === "fixed_amount" ? "fixed_amount" : "percentage",
+        markupValue: rule.markupValue || 20,
+        minMarginPercent: rule.minMarginPercent || 5,
+        maxDiscount: rule.maxDiscount || 50,
+        priority: rule.priority || 100,
+        isActive: rule.isActive ?? true,
+      });
+    } else {
+      setEditingRule(null);
+      setRuleForm({
+        name: "",
+        channel: "retail",
+        markupType: "percentage",
+        markupValue: 20,
+        minMarginPercent: 5,
+        maxDiscount: 50,
+        priority: 100,
+        isActive: true,
+      });
     }
-    setSearching(true);
+    setIsRuleModalOpen(true);
+  };
+
+  const handleSaveRule = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingRule(true);
     try {
-      const res = await searchProductPricingAction(q);
-      if (res.success) {
-        setSearchResults(res.data ?? []);
-        setShowResults(true);
+      if (editingRule) {
+        const ruleId = editingRule.id || editingRule._id;
+        const res = await updateGlobalRuleAction(ruleId, ruleForm);
+        if (res.success) {
+          toast.success("Markup rule updated successfully!");
+          setIsRuleModalOpen(false);
+          loadAllData();
+        } else {
+          toast.error((res as any).error || "Failed to update rule");
+        }
+      } else {
+        const res = await createGlobalRuleAction(ruleForm);
+        if (res.success) {
+          toast.success("New markup rule created!");
+          setIsRuleModalOpen(false);
+          loadAllData();
+        } else {
+          toast.error((res as any).error || "Failed to create rule");
+        }
       }
-    } catch {
-      /* silent */
+    } catch (err: any) {
+      toast.error(err.message || "Rule save error");
     } finally {
-      setSearching(false);
+      setSavingRule(false);
     }
-  }, []);
-
-  React.useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setShowResults(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  const selectProduct = (p: ProductPricingData) => {
-    setSelectedProduct(p);
-    setShowResults(false);
-    setSearchQuery(p.name);
   };
 
-  const clearSelection = () => {
-    setSelectedProduct(null);
-    setSearchQuery("");
-    setSearchResults([]);
+  const handleDeleteRule = async (ruleId: string) => {
+    if (!confirm("Are you sure you want to delete this pricing rule?")) return;
+    try {
+      const res = await deleteGlobalRuleAction(ruleId);
+      if (res.success) {
+        toast.success("Markup rule deleted!");
+        loadAllData();
+      } else {
+        toast.error((res as any).error || "Failed to delete rule");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Delete error");
+    }
   };
 
-  const avgMargin =
-    rows.length > 0
-      ? (rows.reduce((s, p) => s + p.profitMargin, 0) / rows.length).toFixed(1)
-      : "0.0";
+  // Filter pricing items by search query
+  const filteredPricingItems = pricingItems.filter((i) => {
+    const title = i.productName || i.title || "";
+    const sku = i.variantSku || "";
+    return (
+      title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      sku.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  });
 
-  const columns: DataTableColumn<Row>[] = [
-    {
-      id: "product",
-      header: "Product",
-      cell: (r) => (
+  return (
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
+      {/* Header Banner */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-5">
         <div>
-          <div className="font-medium">{r.productName}</div>
-          <div className="text-[11px] font-mono text-muted-foreground">{r.variantSku}</div>
-        </div>
-      ),
-    },
-    {
-      id: "cost",
-      header: "খরচ",
-      hideOnMobile: true,
-      cell: (r) => (
-        <span className="tabular-nums text-muted-foreground">
-          {formatCentsToCurrency(r.baseCostPrice, r.currency)}
-        </span>
-      ),
-    },
-    {
-      id: "selling",
-      header: "বিক্রয়",
-      cell: (r) => (
-        <div>
-          <div className="font-semibold tabular-nums">
-            {formatCentsToCurrency(r.promotionalPrice ?? r.sellingPrice, r.currency)}
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl sm:text-2xl font-black font-heading tracking-tight text-foreground">
+              Pricing Engine & Margin Rules
+            </h1>
+            <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/30 text-xs font-bold">
+              PROFIT CONTROL
+            </Badge>
           </div>
-          {r.promotionalPrice ? (
-            <div className="text-[11px] text-muted-foreground line-through">
-              {formatCentsToCurrency(r.sellingPrice, r.currency)}
-            </div>
-          ) : null}
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+            Automated reseller markup rates, wholesale channel tier pricing, and campaign discounts.
+          </p>
         </div>
-      ),
-    },
-    {
-      id: "margin",
-      header: "মার্জিন",
-      hideOnMobile: true,
-      cell: (r) => (
-        <span
-          className={cn(
-            "font-medium tabular-nums",
-            r.profitMargin > 20
-              ? "text-success"
-              : r.profitMargin > 5
-                ? "text-warning"
-                : "text-destructive",
-          )}
-        >
-          {r.profitMargin}%
-        </span>
-      ),
-    },
-    {
-      id: "rule",
-      header: "Rule",
-      hideOnMobile: true,
-      cell: (r) => (
-        <span className="text-xs capitalize text-muted-foreground">
-          {r.pricingRule.replace(/_/g, " ")}
-        </span>
-      ),
-    },
-    {
-      id: "actions",
-      header: "",
-      cell: (r) => (
-        <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
-          <button
-            onClick={() => handleSearch(r.productName)}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-muted"
+
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <Button
+            onClick={() => handleOpenRuleModal()}
+            size="sm"
+            className="h-9 px-4 text-xs font-black bg-amber-500 text-slate-950 hover:bg-amber-600 shadow-2xs gap-1.5"
           >
-            <Search className="h-4 w-4" />
+            <Plus className="h-4 w-4" /> Add Markup Rule
+          </Button>
+
+          <Button
+            onClick={loadAllData}
+            size="sm"
+            variant="outline"
+            disabled={loading}
+            className="h-9 text-xs font-bold gap-1"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh
+          </Button>
+        </div>
+      </div>
+
+      {/* KPI Cards Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+        <Card className="rounded-2xl border-border bg-card p-4 space-y-1">
+          <span className="text-[11px] font-bold text-muted-foreground uppercase block">Active Markup Rules</span>
+          <p className="text-xl font-black font-mono text-emerald-600 dark:text-emerald-400">
+            {globalRules.filter((r) => r.isActive !== false).length} Rules
+          </p>
+          <span className="text-[10px] text-muted-foreground block font-medium">Channel markup rules</span>
+        </Card>
+
+        <Card className="rounded-2xl border-border bg-card p-4 space-y-1">
+          <span className="text-[11px] font-bold text-muted-foreground uppercase block">Retail Base Markup</span>
+          <p className="text-xl font-black font-mono text-foreground">
+            +20% Margin
+          </p>
+          <span className="text-[10px] text-muted-foreground block font-medium">Default retail profit tier</span>
+        </Card>
+
+        <Card className="rounded-2xl border-border bg-card p-4 space-y-1">
+          <span className="text-[11px] font-bold text-muted-foreground uppercase block">Reseller Profit Margin</span>
+          <p className="text-xl font-black font-mono text-amber-600 dark:text-amber-400">
+            +15% Target
+          </p>
+          <span className="text-[10px] text-muted-foreground block font-medium">Dropshipping margin</span>
+        </Card>
+
+        <Card className="rounded-2xl border-border bg-card p-4 space-y-1">
+          <span className="text-[11px] font-bold text-muted-foreground uppercase block">Active Campaigns</span>
+          <p className="text-xl font-black font-mono text-foreground">
+            {campaigns.length} Campaigns
+          </p>
+          <span className="text-[10px] text-muted-foreground block font-medium">Flash sales & coupons</span>
+        </Card>
+      </div>
+
+      {/* 3 Clean Navigation Tabs & Search */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <button
+            type="button"
+            onClick={() => setActiveTab("catalog")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-extrabold transition-all shrink-0 ${
+              activeTab === "catalog"
+                ? "bg-amber-500 text-slate-950 shadow-xs"
+                : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
+          >
+            <DollarSign className="h-4 w-4" /> 💲 Catalog Pricing
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("rules")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-extrabold transition-all shrink-0 ${
+              activeTab === "rules"
+                ? "bg-amber-500 text-slate-950 shadow-xs"
+                : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
+          >
+            <Zap className="h-4 w-4" /> ⚡ Channel Markup Rules ({globalRules.length})
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("campaigns")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-extrabold transition-all shrink-0 ${
+              activeTab === "campaigns"
+                ? "bg-amber-500 text-slate-950 shadow-xs"
+                : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
+          >
+            <Tag className="h-4 w-4" /> 🏷️ Campaigns & Flash Sales
           </button>
         </div>
-      ),
-    },
-  ];
 
-  const quickLinks = [
-    {
-      label: "Global Rules",
-      href: "/dashboard/pricing/rules",
-      icon: Shield,
-      color: "text-primary",
-    },
-    {
-      label: "Category Pricing",
-      href: "/dashboard/pricing/rules/categories",
-      icon: Tags,
-      color: "text-info",
-    },
-    {
-      label: "Brand Pricing",
-      href: "/dashboard/pricing/rules/brands",
-      icon: ShoppingBag,
-      color: "text-success",
-    },
-    {
-      label: "Supplier Pricing",
-      href: "/dashboard/pricing/rules/suppliers",
-      icon: Building2,
-      color: "text-warning",
-    },
-    {
-      label: "Pricing Profiles",
-      href: "/dashboard/pricing/profiles",
-      icon: Layers,
-      color: "text-violet-500",
-    },
-    {
-      label: "Simulator",
-      href: "/dashboard/pricing/simulator",
-      icon: Calculator,
-      color: "text-emerald-500",
-    },
-    {
-      label: "Campaigns",
-      href: "/dashboard/pricing/campaigns",
-      icon: Percent,
-      color: "text-rose-500",
-    },
-    { label: "Schedule", href: "/dashboard/pricing/schedule", icon: Clock, color: "text-cyan-500" },
-    {
-      label: "Approvals",
-      href: "/dashboard/pricing/approvals",
-      icon: CheckCircle,
-      color: "text-indigo-500",
-    },
-    {
-      label: "History",
-      href: "/dashboard/pricing/history",
-      icon: History,
-      color: "text-slate-500",
-    },
-    {
-      label: "Bulk Tools",
-      href: "/dashboard/pricing/bulk-tools",
-      icon: Layers,
-      color: "text-orange-500",
-    },
-    {
-      label: "Import/Export",
-      href: "/dashboard/pricing/import-export",
-      icon: FileText,
-      color: "text-sky-500",
-    },
-  ];
-
-  return (
-    <div className="space-y-6">
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-20 -mx-4 sm:-mx-6 px-4 sm:px-6 py-3 bg-background/90 backdrop-blur-xl border-b border-border">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15 text-primary shrink-0">
-              <DollarSign className="h-5 w-5" />
-            </div>
-            <div className="min-w-0">
-              <h1 className="text-lg font-bold tracking-tight truncate">
-                Pricing Intelligence Hub
-              </h1>
-              <p className="text-xs text-muted-foreground">মূল্য নির্ধারণ কেন্দ্র</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="hidden sm:flex items-center gap-1.5 text-[11px] font-semibold text-success bg-success/10 px-2.5 py-1 rounded-full">
-              <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" /> Live
-            </span>
-            <Link href="/dashboard/pricing/rules">
-              <Button variant="outline" size="sm">
-                <Shield className="h-3.5 w-3.5" /> Rules
-              </Button>
-            </Link>
-            <Link href="/dashboard/pricing/simulator">
-              <Button variant="outline" size="sm">
-                <Calculator className="h-3.5 w-3.5" /> Simulator
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Search */}
-      <div ref={searchRef} className="relative">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        {/* Search Bar */}
+        <div className="relative w-full sm:w-64">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
+            type="text"
+            placeholder="Search product or rule..."
             value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
-            onFocus={() => searchResults.length > 0 && setShowResults(true)}
-            placeholder="Search by product name, SKU, or barcode... পণ্য খুঁজুন"
-            className="h-12 pl-10 pr-10 text-base rounded-xl border-2 focus-visible:border-primary"
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 h-9 text-xs rounded-xl border-border bg-card"
           />
-          {searchQuery && (
-            <button
-              onClick={clearSelection}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-          {searching && (
-            <div className="absolute right-10 top-1/2 -translate-y-1/2">
-              <Spinner size="sm" />
-            </div>
-          )}
         </div>
-
-        {showResults && searchResults.length > 0 && (
-          <Card className="absolute top-full left-0 right-0 mt-1 z-30 max-h-80 overflow-y-auto shadow-xl border-primary/20">
-            <CardContent className="p-1">
-              {searchResults.map((p) => (
-                <button
-                  key={p.productId}
-                  onClick={() => selectProduct(p)}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted transition-colors text-left"
-                >
-                  <div className="h-10 w-10 rounded-md bg-muted overflow-hidden shrink-0">
-                    {p.image ? (
-                      <img src={p.image} alt="" className="h-full w-full object-cover" />
-                    ) : (
-                      <Package className="h-5 w-5 m-2.5 text-muted-foreground" />
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-sm font-semibold truncate">{p.name}</div>
-                    <div className="flex gap-2 text-[11px] text-muted-foreground">
-                      <span className="font-mono">{p.sku}</span>
-                      {p.brandName && <span>{p.brandName}</span>}
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className="text-sm font-bold">
-                      {formatCentsToCurrency(p.sellingPrice, p.currency)}
-                    </div>
-                    <div
-                      className={cn(
-                        "text-[11px]",
-                        p.profitMargin > 20 ? "text-success" : "text-muted-foreground",
-                      )}
-                    >
-                      {p.profitMargin.toFixed(1)}%
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </CardContent>
-          </Card>
-        )}
-
-        {showResults && searchQuery && !searching && searchResults.length === 0 && (
-          <Card className="absolute top-full left-0 right-0 mt-1 z-30 shadow-xl">
-            <CardContent className="p-6 text-center text-sm text-muted-foreground">
-              <Package className="h-8 w-8 mx-auto mb-2 opacity-40" />
-              No products found for &quot;{searchQuery}&quot;
-            </CardContent>
-          </Card>
-        )}
       </div>
 
-      {/* Selected Product Panel */}
-      {selectedProduct && (
-        <ProductPricingPanel
-          product={selectedProduct}
-          onRecalculate={(pid) => handleSearch(searchQuery)}
-        />
+      {/* TAB 1: CATALOG PRICING */}
+      {activeTab === "catalog" && (
+        <Card className="rounded-3xl border-border bg-card">
+          <CardHeader className="p-5 border-b border-border/60">
+            <CardTitle className="text-base font-extrabold">Product Pricing & Profit Margins</CardTitle>
+            <CardDescription className="text-xs">Base cost prices, retail selling prices, and reseller profit margins</CardDescription>
+          </CardHeader>
+
+          <CardContent className="p-5">
+            {loading ? (
+              <div className="flex items-center justify-center p-8 text-xs text-muted-foreground gap-2">
+                <Spinner size="sm" /> Loading catalog prices...
+              </div>
+            ) : filteredPricingItems.length === 0 ? (
+              <div className="text-center py-8 text-xs text-muted-foreground">No product pricing entries found.</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                {filteredPricingItems.map((item: any) => {
+                  const id = item.id || item._id;
+                  const name = item.productName || item.title || "Product";
+                  const cost = item.baseCostPrice > 5000 ? Math.round(item.baseCostPrice / 100) : item.baseCostPrice || 0;
+                  const selling = item.sellingPrice > 5000 ? Math.round(item.sellingPrice / 100) : item.sellingPrice || 0;
+                  const margin = item.profitMargin || (cost > 0 ? Math.round(((selling - cost) / cost) * 100) : 0);
+
+                  return (
+                    <div key={id} className="rounded-2xl border border-border bg-muted/20 p-4 space-y-2.5">
+                      <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                        <div className="min-w-0 flex-1">
+                          <h3 className="font-extrabold text-foreground text-xs truncate">{name}</h3>
+                          <span className="text-[10px] font-mono text-muted-foreground">SKU: {item.variantSku || "DEFAULT"}</span>
+                        </div>
+                        <Badge variant="outline" className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 text-[10px] font-bold">
+                          +{margin}% Margin
+                        </Badge>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2 text-xs font-mono">
+                        <div>
+                          <span className="text-[10px] text-muted-foreground block font-medium">Cost Price</span>
+                          <span className="font-bold text-foreground">৳ {formatAmount(cost)}</span>
+                        </div>
+
+                        <div>
+                          <span className="text-[10px] text-muted-foreground block font-medium">Retail Selling</span>
+                          <span className="font-bold text-emerald-600">৳ {formatAmount(selling)}</span>
+                        </div>
+
+                        <div>
+                          <span className="text-[10px] text-muted-foreground block font-medium">Wholesale Price</span>
+                          <span className="font-bold text-amber-600">৳ {formatAmount(item.wholesalePrice ? (item.wholesalePrice > 5000 ? Math.round(item.wholesalePrice / 100) : item.wholesalePrice) : selling)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       )}
 
-      {/* Summary Cards */}
-      <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
-        <StatCard label="Active Rules" value={stats.activeRules} icon={Shield} accent="primary" />
-        <StatCard label="Profiles" value={stats.profiles} icon={Layers} accent="info" />
-        <StatCard label="Campaigns" value={stats.campaigns} icon={Percent} accent="warning" />
-        <StatCard
-          label="Manual Override"
-          value={stats.manualOverrides}
-          icon={Zap}
-          accent="danger"
-        />
-        <StatCard
-          label="Pending Approval"
-          value={stats.pendingApprovals}
-          icon={CheckCircle}
-          accent="warning"
-        />
-        <StatCard label="Avg Margin" value={`${avgMargin}%`} icon={TrendingUp} accent="success" />
-      </div>
+      {/* TAB 2: CHANNEL MARKUP RULES */}
+      {activeTab === "rules" && (
+        <Card className="rounded-3xl border-border bg-card">
+          <CardHeader className="p-5 border-b border-border/60">
+            <CardTitle className="text-base font-extrabold">Automated Channel Markup Rules</CardTitle>
+            <CardDescription className="text-xs">Rule-based automatic markup rules applied across sales channels</CardDescription>
+          </CardHeader>
+          <CardContent className="p-5">
+            {globalRules.length === 0 ? (
+              <div className="text-center py-8 text-xs text-muted-foreground">No automated markup rules configured.</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                {globalRules.map((rule: any) => {
+                  const rId = rule.id || rule._id;
+                  return (
+                    <div key={rId} className="rounded-2xl border border-border bg-muted/20 p-4 space-y-3">
+                      <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                        <div>
+                          <h3 className="font-extrabold text-foreground text-xs">{rule.name || "Markup Rule"}</h3>
+                          <p className="text-[10px] font-mono text-muted-foreground capitalize">Channel: {rule.channel || "retail"}</p>
+                        </div>
+                        <StatusChip label={rule.isActive !== false ? "active" : "inactive"} tone={statusToneFromValue(rule.isActive !== false ? "active" : "inactive")} />
+                      </div>
 
-      {/* Quick Links */}
-      <SectionHeader title="Pricing Modules" description="মূল্য নির্ধারণ মডিউল" />
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        {quickLinks.map((link) => (
-          <Link key={link.href} href={link.href}>
-            <Card className="hover:border-primary/40 hover:shadow-md transition-all duration-200 cursor-pointer h-full">
-              <CardContent className="p-4 flex flex-col items-center justify-center gap-2 text-center">
-                <div
-                  className={cn(
-                    "h-10 w-10 rounded-xl flex items-center justify-center bg-card border border-border",
-                    link.color,
-                  )}
-                >
-                  <link.icon className="h-5 w-5" />
+                      <div className="flex items-center justify-between text-xs font-mono">
+                        <span className="text-muted-foreground">Markup Rate:</span>
+                        <span className="font-bold text-emerald-600">
+                          {rule.markupType === "fixed_amount" ? `+৳${rule.markupValue}` : `+${rule.markupValue}%`}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center justify-end gap-2 pt-2 border-t border-border/40">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleOpenRuleModal(rule)}
+                          className="h-8 text-xs font-bold gap-1 text-amber-600 hover:bg-amber-500/10"
+                        >
+                          <Edit2 className="h-3.5 w-3.5" /> Edit
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleDeleteRule(rId)}
+                          className="h-8 text-xs font-bold gap-1 text-rose-600 hover:bg-rose-500/10"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" /> Delete
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* TAB 3: CAMPAIGNS & FLASH SALES */}
+      {activeTab === "campaigns" && (
+        <Card className="rounded-3xl border-border bg-card">
+          <CardHeader className="p-5 border-b border-border/60">
+            <CardTitle className="text-base font-extrabold">Promotional Campaigns & Coupons</CardTitle>
+            <CardDescription className="text-xs">Active promotional pricing rules and store flash sales</CardDescription>
+          </CardHeader>
+          <CardContent className="p-5">
+            {campaigns.length === 0 ? (
+              <div className="text-center py-8 text-xs text-muted-foreground">No active discount campaigns.</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                {campaigns.map((c: any) => (
+                  <div key={c.id || c._id} className="rounded-2xl border border-border bg-muted/20 p-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-extrabold text-foreground text-xs">{c.name || "Flash Campaign"}</h3>
+                      <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/30 text-[10px] font-bold">
+                        ACTIVE
+                      </Badge>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground font-mono">Discount: {c.discountPercent || 10}% OFF</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Rule Editor Modal */}
+      {isRuleModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-card border border-border rounded-3xl p-6 max-w-md w-full space-y-4 shadow-xl">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <h3 className="text-base font-extrabold text-foreground">
+                {editingRule ? "Edit Channel Markup Rule" : "Create Channel Markup Rule"}
+              </h3>
+              <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={() => setIsRuleModalOpen(false)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <form onSubmit={handleSaveRule} className="space-y-3">
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-foreground">Rule Name</label>
+                <Input
+                  type="text"
+                  placeholder="e.g. Reseller Base Markup"
+                  value={ruleForm.name}
+                  onChange={(e) => setRuleForm({ ...ruleForm, name: e.target.value })}
+                  required
+                  className="h-9 text-xs rounded-xl"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-foreground">Sales Channel</label>
+                  <select
+                    value={ruleForm.channel}
+                    onChange={(e) => setRuleForm({ ...ruleForm, channel: e.target.value })}
+                    className="w-full h-9 text-xs rounded-xl border border-border bg-background px-3 font-bold text-foreground"
+                  >
+                    <option value="retail">Retail</option>
+                    <option value="reseller">Reseller</option>
+                    <option value="wholesale">Wholesale</option>
+                    <option value="marketplace">Marketplace</option>
+                  </select>
                 </div>
-                <span className="text-xs font-semibold">{link.label}</span>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
 
-      {/* Recent Pricing Table */}
-      <SectionHeader title="Recent Pricing Activity" description="সাম্প্রতিক মূল্য কার্যকলাপ" />
-      <DataTable
-        columns={columns}
-        data={rows}
-        loading={loading}
-        page={page}
-        pageSize={pageSize}
-        totalCount={totalCount}
-        onPageChange={setPage}
-        onRowClick={(r) => handleSearch(r.productName)}
-        emptyTitle="No pricing records"
-        emptyDescription="Add pricing to your products to see them here."
-      />
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-foreground">Markup Type</label>
+                  <select
+                    value={ruleForm.markupType}
+                    onChange={(e) => setRuleForm({ ...ruleForm, markupType: e.target.value as "percentage" | "fixed_amount" })}
+                    className="w-full h-9 text-xs rounded-xl border border-border bg-background px-3 font-bold text-foreground"
+                  >
+                    <option value="percentage">Percentage (%)</option>
+                    <option value="fixed_amount">Fixed Amount (৳)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-foreground">
+                  Markup Value ({ruleForm.markupType === "percentage" ? "%" : "৳ Taka"})
+                </label>
+                <Input
+                  type="number"
+                  value={ruleForm.markupValue}
+                  onChange={(e) => setRuleForm({ ...ruleForm, markupValue: parseFloat(e.target.value) || 0 })}
+                  required
+                  className="h-9 text-xs font-mono font-bold rounded-xl"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-border">
+                <Button size="sm" variant="outline" type="button" onClick={() => setIsRuleModalOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  type="submit"
+                  disabled={savingRule}
+                  className="h-9 px-4 text-xs font-black bg-amber-500 text-slate-950 hover:bg-amber-600 shadow-2xs gap-1"
+                >
+                  <Check className="h-4 w-4" /> Save Markup Rule
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
-  );
-}
-
-function Building2(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <rect width="16" height="20" x="4" y="2" rx="2" ry="2" />
-      <path d="M9 22v-4h6v4" />
-      <path d="M8 6h.01" />
-      <path d="M16 6h.01" />
-      <path d="M12 6h.01" />
-      <path d="M12 10h.01" />
-      <path d="M12 14h.01" />
-      <path d="M16 10h.01" />
-      <path d="M16 14h.01" />
-      <path d="M8 10h.01" />
-      <path d="M8 14h.01" />
-    </svg>
-  );
-}
-
-function Package(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M16.5 9.4 7.55 4.24" />
-      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-      <path d="M3.29 7 12 12l8.71-5" />
-      <path d="M12 22V12" />
-    </svg>
   );
 }

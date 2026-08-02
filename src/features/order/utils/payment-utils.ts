@@ -13,6 +13,7 @@ export interface PaymentDetails {
   advancePaid: number;
   dueAmount: number;
   grandTotal: number;
+  deliveryFee: number;
   badgeLabel: string;
   badgeCls: string;
   dueLabel: string;
@@ -26,10 +27,42 @@ function parseAdvancePaidFromNotes(notesStr?: string): number {
 }
 
 export function getOrderPaymentDetails(order: any): PaymentDetails {
-  const rawTotal = Math.max(0, Number(order?.pricing?.grandTotal ?? order?.total ?? order?.sellingPriceCents ?? 0));
-  
-  // Convert minor cents to major Taka if value exceeds 10,000 cents (৳100)
-  const grandTotal = rawTotal > 10000 ? Math.round(rawTotal / 100) : rawTotal;
+  const district =
+    order?.shipping?.district ||
+    order?.customer?.district ||
+    order?.shipping?.division ||
+    "Dhaka";
+  const isDhaka = String(district).toLowerCase().includes("dhaka");
+  const defaultDeliveryTaka = isDhaka ? 60 : 120;
+
+  const items = order?.items || order?.pricing?.items || [];
+  const rawSubtotal = Math.max(
+    0,
+    Number(
+      order?.pricing?.subtotal ??
+      order?.subtotal ??
+      (items.length > 0
+        ? items.reduce((sum: number, i: any) => {
+            const rawP = i.unitSellingPrice ?? i.unitPrice ?? i.price ?? 0;
+            const pTaka = rawP > 5000 ? Math.round(rawP / 100) : rawP;
+            return sum + pTaka * (i.quantity || 1);
+          }, 0)
+        : 0)
+    )
+  );
+  const subtotal = rawSubtotal > 10000 ? Math.round(rawSubtotal / 100) : rawSubtotal;
+
+  const rawDeliveryFee =
+    (order?.deliveryChargeCents && order?.deliveryChargeCents > 0 ? order?.deliveryChargeCents : undefined) ??
+    (order?.shipping?.deliveryFee && order?.shipping?.deliveryFee > 0 ? order?.shipping?.deliveryFee : undefined) ??
+    (order?.shipping?.deliveryCharge && order?.shipping?.deliveryCharge > 0 ? order?.shipping?.deliveryCharge : undefined) ??
+    (order?.pricing?.deliveryFee && order?.pricing?.deliveryFee > 0 ? order?.pricing?.deliveryFee : undefined) ??
+    (order?.shippingCost && order?.shippingCost > 0 ? order?.shippingCost : undefined) ??
+    defaultDeliveryTaka;
+
+  const deliveryFee = rawDeliveryFee > 1000 ? Math.round(rawDeliveryFee / 100) : rawDeliveryFee;
+
+  const grandTotal = subtotal + deliveryFee;
 
   const paymentMethodRaw = String(order?.shipping?.paymentMethod || order?.paymentMethod || "cod").toLowerCase();
   const isCod = paymentMethodRaw.includes("cod") || paymentMethodRaw.includes("cash");
@@ -111,6 +144,7 @@ export function getOrderPaymentDetails(order: any): PaymentDetails {
     advancePaid,
     dueAmount,
     grandTotal,
+    deliveryFee,
     badgeLabel,
     badgeCls,
     dueLabel,
