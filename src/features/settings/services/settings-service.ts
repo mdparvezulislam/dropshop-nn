@@ -310,6 +310,190 @@ export const DEFAULT_PLATFORM_SETTINGS: Array<
     defaultValue: 5,
     isPublic: false,
   },
+
+  // Contact Details & Social Media Links
+  {
+    category: "general",
+    key: "contact.hotline_phone",
+    value: "01898-888800",
+    dataType: "string",
+    name: "Hotline Phone Number",
+    description: "Public helpline & order contact number",
+    scope: "global",
+    defaultValue: "01898-888800",
+    isPublic: true,
+  },
+  {
+    category: "general",
+    key: "contact.whatsapp_number",
+    value: "8801898888800",
+    dataType: "string",
+    name: "WhatsApp Support Number",
+    description: "Direct WhatsApp order confirmation number",
+    scope: "global",
+    defaultValue: "8801898888800",
+    isPublic: true,
+  },
+  {
+    category: "general",
+    key: "contact.office_address",
+    value: "লেভেল ৫, হাউজ ১২, রোড ৮, সেক্টর ৪, উত্তরা, ঢাকা-১২৩০",
+    dataType: "string",
+    name: "Office & Store Address",
+    description: "Physical corporate office location",
+    scope: "global",
+    defaultValue: "লেভেল ৫, হাউজ ১২, রোড ৮, সেক্টর ৪, উত্তরা, ঢাকা-১২৩০",
+    isPublic: true,
+  },
+  {
+    category: "general",
+    key: "social.facebook_url",
+    value: "https://facebook.com/nnenterprise",
+    dataType: "string",
+    name: "Facebook Page URL",
+    description: "Official Facebook page link",
+    scope: "global",
+    defaultValue: "https://facebook.com/nnenterprise",
+    isPublic: true,
+  },
+  {
+    category: "general",
+    key: "social.instagram_url",
+    value: "https://instagram.com/nnenterprise",
+    dataType: "string",
+    name: "Instagram Profile URL",
+    description: "Official Instagram link",
+    scope: "global",
+    defaultValue: "https://instagram.com/nnenterprise",
+    isPublic: true,
+  },
+  {
+    category: "general",
+    key: "social.youtube_url",
+    value: "https://youtube.com/@nnenterprise",
+    dataType: "string",
+    name: "YouTube Channel URL",
+    description: "Official YouTube channel link",
+    scope: "global",
+    defaultValue: "https://youtube.com/@nnenterprise",
+    isPublic: true,
+  },
+  {
+    category: "general",
+    key: "social.tiktok_url",
+    value: "https://tiktok.com/@nnenterprise",
+    dataType: "string",
+    name: "TikTok Account URL",
+    description: "Official TikTok link",
+    scope: "global",
+    defaultValue: "https://tiktok.com/@nnenterprise",
+    isPublic: true,
+  },
+
+  // Logistics & Delivery Charges
+  {
+    category: "logistics",
+    key: "logistics.delivery_inside_dhaka",
+    value: 80,
+    dataType: "number",
+    name: "Inside Dhaka Delivery Fee (BDT)",
+    description: "Flat shipping charge inside Dhaka city",
+    scope: "global",
+    defaultValue: 80,
+    isPublic: true,
+  },
+  {
+    category: "logistics",
+    key: "logistics.delivery_outside_dhaka",
+    value: 150,
+    dataType: "number",
+    name: "Outside Dhaka Delivery Fee (BDT)",
+    description: "Flat shipping charge outside Dhaka district",
+    scope: "global",
+    defaultValue: 150,
+    isPublic: true,
+  },
+
+  // Courier Integration Secrets (Steadfast)
+  {
+    category: "courier",
+    key: "courier.steadfast_enabled",
+    value: true,
+    dataType: "boolean",
+    name: "Steadfast Courier Enabled",
+    description: "Enable Steadfast Courier integration",
+    scope: "global",
+    defaultValue: true,
+    isPublic: false,
+  },
+  {
+    category: "courier",
+    key: "courier.steadfast_api_key",
+    value: "",
+    dataType: "string",
+    name: "Steadfast API Key",
+    description: "Steadfast Courier API Key",
+    scope: "global",
+    defaultValue: "",
+    isPublic: false,
+  },
+  {
+    category: "courier",
+    key: "courier.steadfast_secret_key",
+    value: "",
+    dataType: "string",
+    name: "Steadfast Secret Key",
+    description: "Steadfast Courier Secret Key",
+    scope: "global",
+    defaultValue: "",
+    isPublic: false,
+  },
+  {
+    category: "courier",
+    key: "courier.steadfast_base_url",
+    value: "https://portal.packzy.com/api/v1",
+    dataType: "string",
+    name: "Steadfast Base URL",
+    description: "Steadfast Courier API Endpoint URL",
+    scope: "global",
+    defaultValue: "https://portal.packzy.com/api/v1",
+    isPublic: false,
+  },
+
+  // Image & Media Storage Configuration (ImageKit)
+  {
+    category: "storage",
+    key: "storage.imagekit_public_key",
+    value: "public_mock_key_12345",
+    dataType: "string",
+    name: "ImageKit Public Key",
+    description: "ImageKit CDN Public API Key",
+    scope: "global",
+    defaultValue: "public_mock_key_12345",
+    isPublic: true,
+  },
+  {
+    category: "storage",
+    key: "storage.imagekit_private_key",
+    value: "private_mock_key_12345",
+    dataType: "string",
+    name: "ImageKit Private Key",
+    description: "ImageKit Private API Key for Upload Authentication",
+    scope: "global",
+    defaultValue: "private_mock_key_12345",
+    isPublic: false,
+  },
+  {
+    category: "storage",
+    key: "storage.imagekit_url_endpoint",
+    value: "https://ik.imagekit.io/mock",
+    dataType: "string",
+    name: "ImageKit URL Endpoint",
+    description: "Base ImageKit CDN URL Endpoint",
+    scope: "global",
+    defaultValue: "https://ik.imagekit.io/mock",
+    isPublic: true,
+  },
 ];
 
 export class SettingsService {
@@ -419,12 +603,18 @@ export class SettingsService {
 
   async listSettings(): Promise<SettingEntry[]> {
     const dbSettings = await this.repository.listAllSettings();
-    if (dbSettings.length === 0) {
-      // Bootstrap default settings into DB
-      for (const def of DEFAULT_PLATFORM_SETTINGS) {
+    const dbKeys = new Set(dbSettings.map((s) => s.key));
+
+    let updated = false;
+    for (const def of DEFAULT_PLATFORM_SETTINGS) {
+      if (!dbKeys.has(def.key)) {
         await this.repository.upsertSetting(def as any);
         SETTING_CACHE.set(def.key, def.value);
+        updated = true;
       }
+    }
+
+    if (updated || dbSettings.length === 0) {
       return this.repository.listAllSettings();
     }
     return dbSettings;

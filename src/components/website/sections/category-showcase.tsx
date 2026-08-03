@@ -86,30 +86,17 @@ const DEFAULT_CATEGORIES = [
 ];
 
 export function CategoryShowcase({ categories }: CategoryShowcaseProps): React.ReactElement {
-  // Combine real DB top-level categories
+  // Use real DB top-level categories if available
   const realTopLevel = categories.filter((c) => c.parentCategoryId === null);
-  
-  // Fill remaining slots with default categories up to 10 if fewer DB categories exist
-  const displayItems = [...realTopLevel];
-  
-  DEFAULT_CATEGORIES.forEach((defCat) => {
-    if (displayItems.length < 10) {
-      const exists = displayItems.some(
-        (c) => c.slug === defCat.slug || c.name.toLowerCase() === defCat.name.toLowerCase()
-      );
-      if (!exists) {
-        displayItems.push({
-          id: defCat.id,
-          name: defCat.name,
-          slug: defCat.slug,
-          description: "",
-          image: undefined,
-          parentCategoryId: null,
-          productCount: 15,
-        });
-      }
-    }
-  });
+  const displayItems = realTopLevel.length > 0 ? realTopLevel : DEFAULT_CATEGORIES.map((defCat) => ({
+    id: defCat.id,
+    name: defCat.name,
+    slug: defCat.slug,
+    description: "",
+    image: undefined,
+    parentCategoryId: null,
+    productCount: 0,
+  }));
 
   return (
     <section

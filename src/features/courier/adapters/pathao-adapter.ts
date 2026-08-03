@@ -19,12 +19,7 @@ export class PathaoCourierAdapter implements CourierProvider {
   private tokenExpiresAt: number = 0;
 
   isConfigured(): boolean {
-    return Boolean(
-      env.PATHAO_CLIENT_ID &&
-        env.PATHAO_CLIENT_SECRET &&
-        env.PATHAO_USERNAME &&
-        env.PATHAO_PASSWORD,
-    );
+    return false;
   }
 
   private async getValidToken(): Promise<string> {
@@ -32,15 +27,16 @@ export class PathaoCourierAdapter implements CourierProvider {
       return this.accessToken;
     }
 
-    const url = `${env.PATHAO_BASE_URL.replace(/\/$/, "")}/aladdin/api/v1/issue-token`;
+    const baseUrl = process.env.PATHAO_BASE_URL || "https://api.pathao.com";
+    const url = `${baseUrl.replace(/\/$/, "")}/aladdin/api/v1/issue-token`;
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({
-        client_id: env.PATHAO_CLIENT_ID,
-        client_secret: env.PATHAO_CLIENT_SECRET,
-        username: env.PATHAO_USERNAME,
-        password: env.PATHAO_PASSWORD,
+        client_id: process.env.PATHAO_CLIENT_ID || "",
+        client_secret: process.env.PATHAO_CLIENT_SECRET || "",
+        username: process.env.PATHAO_USERNAME || "",
+        password: process.env.PATHAO_PASSWORD || "",
         grant_type: "password",
       }),
     });
@@ -57,7 +53,8 @@ export class PathaoCourierAdapter implements CourierProvider {
 
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const token = await this.getValidToken();
-    const url = `${env.PATHAO_BASE_URL.replace(/\/$/, "")}${endpoint}`;
+    const baseUrl = process.env.PATHAO_BASE_URL || "https://api.pathao.com";
+    const url = `${baseUrl.replace(/\/$/, "")}${endpoint}`;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 

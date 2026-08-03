@@ -108,12 +108,6 @@ const envSchema = z.object({
   STEADFAST_SECRET_KEY: z.string().optional().default(""),
   STEADFAST_BASE_URL: z.string().url().optional().default("https://portal.packzy.com/api/v1"),
 
-  PATHAO_CLIENT_ID: z.string().optional().default(""),
-  PATHAO_CLIENT_SECRET: z.string().optional().default(""),
-  PATHAO_USERNAME: z.string().optional().default(""),
-  PATHAO_PASSWORD: z.string().optional().default(""),
-  PATHAO_BASE_URL: z.string().url().optional().default("https://api.pathao.com"),
-
   REDX_API_TOKEN: z.string().optional().default(""),
   REDX_BASE_URL: z.string().url().optional().default("https://openapi.redx.com.bd/v1.0.0"),
 

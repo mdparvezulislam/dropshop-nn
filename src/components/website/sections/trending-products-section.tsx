@@ -77,11 +77,12 @@ export function TrendingProductsSection({
   products,
   title = "ট্রেন্ডিং প্রোডাক্ট",
   description = "এই সপ্তাহে ক্রেতাদের মধ্যে সবচেয়ে বেশি জনপ্রিয় প্রোডাক্টসমূহ",
-}: TrendingProductsSectionProps): React.ReactElement {
-  const displayProducts =
-    products.length >= 4
-      ? products.map((p) => ({ ...p, isFlashSale: false }))
-      : MOCK_TRENDING_PRODUCTS;
+}: TrendingProductsSectionProps): React.ReactElement | null {
+  const displayProducts = products.map((p) => ({ ...p, isFlashSale: false }));
+
+  if (displayProducts.length === 0) {
+    return null;
+  }
 
   return (
     <section

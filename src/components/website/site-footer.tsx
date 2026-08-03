@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BRAND } from "@/config/brand";
+import { BUSINESS_CONFIG } from "@/config/business-config";
 import type { PublicCategoryInfo } from "@/features/catalog/domain/public-catalog-types";
 import { Truck, Store, ShieldCheck, Zap } from "lucide-react";
 
@@ -80,10 +81,10 @@ const STATIC_COLUMNS: Array<{ title: string; links: FooterLink[] }> = [
 ];
 
 const SOCIAL_LINKS = [
-  { icon: FacebookIcon, label: "Facebook", href: "https://facebook.com/dropshopnn" },
-  { icon: YoutubeIcon, label: "YouTube", href: "https://youtube.com/dropshopnn" },
-  { icon: InstagramIcon, label: "Instagram", href: "https://instagram.com/dropshopnn" },
-  { icon: TiktokIcon, label: "TikTok", href: "https://tiktok.com/@dropshopnn" },
+  { icon: FacebookIcon, label: "Facebook", href: BUSINESS_CONFIG.socialLinks.facebook },
+  { icon: YoutubeIcon, label: "YouTube", href: BUSINESS_CONFIG.socialLinks.youtube },
+  { icon: InstagramIcon, label: "Instagram", href: BUSINESS_CONFIG.socialLinks.instagram },
+  { icon: TiktokIcon, label: "TikTok", href: BUSINESS_CONFIG.socialLinks.tiktok },
 ];
 
 export interface SiteFooterProps {
@@ -232,12 +233,9 @@ export function SiteFooter({ categories = [] }: SiteFooterProps): React.ReactEle
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="font-extrabold text-slate-200 dark:text-slate-300">কুরিয়ার নেটওয়ার্ক:</span>
+            <span className="font-extrabold text-slate-200 dark:text-slate-300">অফিশিয়াল কুরিয়ার পার্টনার:</span>
             <span className="px-3 py-1.5 rounded-xl bg-amber-500/15 text-amber-400 font-black border border-amber-500/30 text-xs flex items-center gap-1.5">
-              <span>⚡</span> Steadfast Courier
-            </span>
-            <span className="px-3 py-1.5 rounded-xl bg-red-500/15 text-red-400 font-bold border border-red-500/30 text-xs flex items-center gap-1.5">
-              <span>🚚</span> Pathao Courier
+              <span>⚡</span> Steadfast Courier (সারাদেশে সিওডি)
             </span>
           </div>
         </div>

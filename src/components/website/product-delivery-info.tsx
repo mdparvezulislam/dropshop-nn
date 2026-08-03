@@ -49,7 +49,7 @@ export function ProductDeliveryInfo({ notice, warehouseLocation }: ProductDelive
       <div className="flex items-center justify-between pt-2 border-t border-slate-200 text-[11px] text-slate-500 font-medium">
         <span className="flex items-center space-x-1">
           <CheckCircle2 className="w-3.5 h-3.5 text-red-600" />
-          <span>অফিশিয়াল কুরিয়ার পার্টনার: Pathao & Steadfast</span>
+          <span>অফিশিয়াল কুরিয়ার পার্টনার: Steadfast Courier</span>
         </span>
         {warehouseLocation && (
           <span className="flex items-center space-x-1 text-slate-400">

@@ -34,7 +34,7 @@ import {
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 
-type MainTab = "general" | "pricing" | "business" | "security";
+type MainTab = "general" | "contact" | "pricing" | "business" | "secrets" | "security";
 
 export function SettingsCenterUI(): React.ReactElement {
   const [activeTab, setActiveTab] = React.useState<MainTab>("general");
@@ -45,9 +45,10 @@ export function SettingsCenterUI(): React.ReactElement {
   const [flagsList, setFlagsList] = React.useState<any[]>([]);
   const [healthStatus, setHealthStatus] = React.useState<any>(null);
 
-  // Editing state maps
+  // Editing state maps & Secret Visibility map
   const [editValues, setEditValues] = React.useState<Record<string, any>>({});
   const [savingKey, setSavingKey] = React.useState<string | null>(null);
+  const [showSecrets, setShowSecrets] = React.useState<Record<string, boolean>>({});
 
   // Import file upload ref
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -227,7 +228,7 @@ export function SettingsCenterUI(): React.ReactElement {
         </div>
       </div>
 
-      {/* 4 Clean Modern Navigation Pills & Search */}
+      {/* 6 Clean Modern Navigation Pills & Search */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
           <button
@@ -240,6 +241,18 @@ export function SettingsCenterUI(): React.ReactElement {
             }`}
           >
             <Globe className="h-4 w-4" /> 🌐 General & Branding
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("contact")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-extrabold transition-all shrink-0 ${
+              activeTab === "contact"
+                ? "bg-amber-500 text-slate-950 shadow-xs"
+                : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
+          >
+            📞 Contact & Socials
           </button>
 
           <button
@@ -268,6 +281,18 @@ export function SettingsCenterUI(): React.ReactElement {
 
           <button
             type="button"
+            onClick={() => setActiveTab("secrets")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-extrabold transition-all shrink-0 ${
+              activeTab === "secrets"
+                ? "bg-amber-500 text-slate-950 shadow-xs"
+                : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+            }`}
+          >
+            🔑 API Keys & Secrets
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveTab("security")}
             className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-extrabold transition-all shrink-0 ${
               activeTab === "security"
@@ -275,7 +300,7 @@ export function SettingsCenterUI(): React.ReactElement {
                 : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            <Lock className="h-4 w-4" /> 🔒 Security & Feature Flags
+            <Lock className="h-4 w-4" /> 🔒 Security & Flags
           </button>
         </div>
 
@@ -337,6 +362,53 @@ export function SettingsCenterUI(): React.ReactElement {
                       </div>
                     </div>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* TAB 2: CONTACT & SOCIAL PROFILES */}
+          {activeTab === "contact" && (
+            <Card className="rounded-3xl border-border bg-card">
+              <CardHeader className="p-5 sm:p-6 border-b border-border/60">
+                <CardTitle className="text-base font-extrabold flex items-center gap-2">
+                  📞 Public Business Contact & Social Profiles
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Hotline, WhatsApp, support email, office address, and social media links
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-5 sm:p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {filteredSettings
+                    .filter((s) => s.key.startsWith("contact.") || s.key.startsWith("social."))
+                    .map((s) => (
+                      <div key={s.key} className="rounded-2xl border border-border/70 bg-muted/20 p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <label className="text-xs font-bold text-foreground">{s.name}</label>
+                          <Badge variant="outline" className="text-[9px] font-mono capitalize">
+                            {s.key.split(".")[0]}
+                          </Badge>
+                        </div>
+                        <p className="text-[11px] text-muted-foreground font-mono">{s.key}</p>
+                        <div className="flex items-center gap-2 pt-1">
+                          <Input
+                            type="text"
+                            value={editValues[s.key] ?? s.value ?? ""}
+                            onChange={(e) => setEditValues({ ...editValues, [s.key]: e.target.value })}
+                            className="h-9 text-xs font-mono rounded-xl bg-background"
+                          />
+                          <Button
+                            size="sm"
+                            disabled={savingKey === s.key}
+                            onClick={() => handleSaveSetting(s.key)}
+                            className="h-9 px-3 text-xs font-extrabold bg-amber-500 text-slate-950 hover:bg-amber-600 shadow-2xs shrink-0"
+                          >
+                            Save
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
                 </div>
               </CardContent>
             </Card>
@@ -426,6 +498,88 @@ export function SettingsCenterUI(): React.ReactElement {
                 </div>
               </CardContent>
             </Card>
+          )}
+
+          {/* TAB: SECRETS & INTEGRATION KEYS */}
+          {activeTab === "secrets" && (
+            <div className="space-y-6">
+              <Card className="rounded-3xl border-border bg-card">
+                <CardHeader className="p-5 sm:p-6 border-b border-border/60">
+                  <CardTitle className="text-base font-extrabold flex items-center gap-2">
+                    🔑 Environment Secrets & Storage Keys ({filteredSettings.filter((s) => s.category === "courier" || s.category === "storage" || s.key.startsWith("storage.")).length})
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    Configure Steadfast Courier API keys and ImageKit CDN credentials directly. Secrets are masked in UI and encrypted in database.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-5 sm:p-6 space-y-6">
+                  {filteredSettings.filter((s) => s.category === "courier" || s.category === "storage" || s.key.startsWith("storage.")).length === 0 ? (
+                    <div className="text-center py-8 text-xs text-muted-foreground">
+                      No secret entries found. Click <strong className="text-amber-500">Refresh</strong> above to load defaults.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {filteredSettings
+                        .filter((s) => s.category === "courier" || s.category === "storage" || s.key.startsWith("storage."))
+                        .map((s) => {
+                          const isVisible = showSecrets[s.key] ?? false;
+                          return (
+                            <div
+                              key={s.key}
+                              className="rounded-2xl border border-border/80 bg-muted/20 p-4 space-y-2 hover:border-amber-500/40 transition-colors"
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <label className="text-xs font-extrabold text-foreground truncate">
+                                  {s.name}
+                                </label>
+                                <Badge
+                                  variant="outline"
+                                  className="text-[9px] font-mono capitalize bg-amber-500/10 text-amber-600 border-amber-500/30 shrink-0"
+                                >
+                                  {s.category}
+                                </Badge>
+                              </div>
+                              <p className="text-[10px] text-muted-foreground font-mono truncate">{s.key}</p>
+                              <p className="text-[11px] text-muted-foreground leading-tight">{s.description}</p>
+                              <div className="flex items-center gap-2 pt-1">
+                                <div className="relative flex-1">
+                                  <Input
+                                    type={isVisible ? "text" : "password"}
+                                    placeholder={s.defaultValue ? String(s.defaultValue) : "Enter value..."}
+                                    value={editValues[s.key] ?? s.value ?? ""}
+                                    onChange={(e) =>
+                                      setEditValues({ ...editValues, [s.key]: e.target.value })
+                                    }
+                                    className="h-9 text-xs font-mono rounded-xl bg-background pr-9"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setShowSecrets((prev) => ({ ...prev, [s.key]: !prev[s.key] }))
+                                    }
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-xs p-1"
+                                    title={isVisible ? "Hide Secret" : "Show Secret"}
+                                  >
+                                    {isVisible ? "👁️" : "🔒"}
+                                  </button>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  disabled={savingKey === s.key}
+                                  onClick={() => handleSaveSetting(s.key)}
+                                  className="h-9 px-3 text-xs font-extrabold bg-amber-500 text-slate-950 hover:bg-amber-600 shadow-2xs shrink-0"
+                                >
+                                  {savingKey === s.key ? <Spinner size="sm" /> : "Save"}
+                                </Button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           )}
 
           {/* TAB 4: SECURITY & FEATURE FLAGS */}

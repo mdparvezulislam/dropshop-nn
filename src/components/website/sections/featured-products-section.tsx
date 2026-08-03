@@ -84,11 +84,13 @@ export function FeaturedProductsSection({
   title = "বাছাই করা প্রোডাক্ট",
   description = "আমাদের কোয়ালিটি চেকে সেরা রেটিং পাওয়া প্রোডাক্টসমূহ",
   priorityFirstRow = false,
-}: FeaturedProductsSectionProps): React.ReactElement {
+}: FeaturedProductsSectionProps): React.ReactElement | null {
   const [activeFilter, setActiveFilter] = useState<string>("সব");
+  const displayProducts = products;
 
-  const displayProducts =
-    products.length >= 4 ? products : MOCK_FEATURED_PRODUCTS;
+  if (displayProducts.length === 0) {
+    return null;
+  }
 
   return (
     <section

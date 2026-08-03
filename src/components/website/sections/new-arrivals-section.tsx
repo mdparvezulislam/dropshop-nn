@@ -105,11 +105,12 @@ const MOCK_NEW_PRODUCTS: PublicProductCard[] = [
 export function NewArrivalsSection({
   products,
   priorityFirstRow = false,
-}: NewArrivalsSectionProps): React.ReactElement {
-  const displayProducts =
-    products.length >= 4
-      ? products.map((p) => ({ ...p, isNew: true }))
-      : MOCK_NEW_PRODUCTS;
+}: NewArrivalsSectionProps): React.ReactElement | null {
+  const displayProducts = products.map((p) => ({ ...p, isNew: true }));
+
+  if (displayProducts.length === 0) {
+    return null;
+  }
 
   return (
     <section

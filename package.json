@@ -10,8 +10,9 @@
     "format": "prettier --write .",
     "type-check": "tsc --noEmit",
     "prepare": "husky",
-    "seed": "echo 'Seed scripts not available - seed/ directory not found'",
-    "seed:fresh": "echo 'Seed scripts not available - seed/ directory not found'"
+    "seed": "node scripts/seed-categories.js",
+    "seed:categories": "node scripts/seed-categories.js",
+    "seed:fresh": "node scripts/seed-categories.js"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.2.2",

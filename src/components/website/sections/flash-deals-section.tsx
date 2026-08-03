@@ -133,19 +133,44 @@ export function FlashDealsSection({
     return () => clearInterval(timer);
   }, []);
 
-  // Ensure minimum 6 distinct items for flash sale
-  const displayProducts =
-    products.length >= 4
-      ? products.map((p) => ({
-          ...p,
-          isFlashSale: true,
-          discountPercent:
-            p.discountPercent ??
-            (p.comparePrice && p.comparePrice > p.price
-              ? Math.round(((p.comparePrice - p.price) / p.comparePrice) * 100)
-              : 25),
-        }))
-      : MOCK_FLASH_PRODUCTS;
+  const displayProducts = products.map((p) => ({
+    ...p,
+    isFlashSale: true,
+    discountPercent:
+      p.discountPercent ??
+      (p.comparePrice && p.comparePrice > p.price
+        ? Math.round(((p.comparePrice - p.price) / p.comparePrice) * 100)
+        : 25),
+  }));
+
+  if (displayProducts.length === 0) {
+    return (
+      <section className="py-6 bg-slate-100/70 dark:bg-slate-900/60 border-y border-slate-200/80 dark:border-slate-800 text-slate-900 dark:text-slate-100">
+        <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/10 text-red-600">
+              <Flame className="h-5 w-5 animate-pulse" />
+            </div>
+            <div>
+              <h3 className="text-sm sm:text-base font-black text-slate-900 dark:text-slate-100">
+                নতুন ফ্ল্যাশ সেল অফার শীঘ্রই আসছে!
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold">
+                সব লাইভ প্রোডাক্টস দেখতে আমাদের শপ ক্যাটালগে ব্রাউজ করুন
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-black transition-all shadow-2xs shrink-0"
+          >
+            <span>সব প্রোডাক্ট দেখুন</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
