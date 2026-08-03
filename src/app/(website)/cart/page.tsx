@@ -7,6 +7,7 @@ import { CartItemRow, type CartItemData } from "@/components/website/cart-item-r
 import { CartSummary } from "@/components/website/cart-summary";
 import { EmptyCart } from "@/components/website/empty-cart";
 import { CartCouponSection, type CouponInfo } from "@/components/website/cart-coupon-section";
+import { FreeDeliveryBar } from "@/components/website/free-delivery-bar";
 import { useLocalCart } from "@/features/checkout/store/local-cart";
 
 export default function CartPage() {
@@ -108,6 +109,9 @@ export default function CartPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
           {/* Main Cart Items Column */}
           <div className="lg:col-span-2 space-y-4">
+            {/* Free Delivery Progress Bar (AOV Boost) */}
+            <FreeDeliveryBar subtotal={cart.subtotal} threshold={2000} />
+
             <div className="space-y-3">
               {items.map((item) => (
                 <CartItemRow

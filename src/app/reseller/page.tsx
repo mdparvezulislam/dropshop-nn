@@ -28,6 +28,7 @@ import { QuickActionsWidget } from "@/components/workspace/widget-grid";
 import { ResellerStatusGuard } from "@/features/reseller-workspace/components/reseller-status-guard";
 import { ResellerOnboardingCard } from "@/features/reseller-workspace/components/reseller-onboarding-card";
 import { ResellerSalesChartWidget } from "@/features/reseller-workspace/components/reseller-sales-chart-widget";
+import { ResellerCatalogExportModal } from "@/features/reseller-workspace/components/reseller-catalog-export-modal";
 
 interface DashboardData {
   ordersToday: number;
@@ -114,6 +115,7 @@ export default function ResellerDashboardPage(): React.ReactElement {
   const [recentOrders, setRecentOrders] = React.useState<RecentOrder[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [profileError, setProfileError] = React.useState<string | null>(null);
+  const [exportModalOpen, setExportModalOpen] = React.useState(false);
 
   React.useEffect(() => {
     async function load() {
@@ -239,7 +241,17 @@ export default function ResellerDashboardPage(): React.ReactElement {
                 </p>
               )}
             </div>
-            <div className="flex items-center gap-2.5 shrink-0">
+            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => setExportModalOpen(true)}
+                className="gap-2 font-black border-amber-500/40 text-amber-300 hover:bg-amber-500/20"
+              >
+                <ImageIcon className="h-4 w-4" />
+                ক্যাটালগ এক্সপোর্ট
+              </Button>
+
               <Link href="/reseller/orders/create">
                 <Button size="lg" className="gap-2 font-black shadow-md bg-amber-500 hover:bg-amber-600 text-slate-950 border-0">
                   <Plus className="h-4 w-4 stroke-[3]" />
@@ -249,6 +261,8 @@ export default function ResellerDashboardPage(): React.ReactElement {
             </div>
           </div>
         </div>
+
+        <ResellerCatalogExportModal open={exportModalOpen} onOpenChange={setExportModalOpen} />
 
         {/* Primary Reseller KPI Stats Grid (6 Focused Cards) */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">

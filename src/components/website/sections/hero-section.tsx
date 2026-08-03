@@ -5,246 +5,244 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
   ArrowRight,
-  Shield,
-  Truck,
-  RefreshCw,
   ChevronLeft,
   ChevronRight,
-  CheckCircle2,
-  TrendingUp,
-  Package,
-  Users,
+  Store,
+  Building2,
+  Sparkles,
+  ShoppingBag,
+  ShieldCheck,
+  Zap,
 } from "lucide-react";
+import { cn } from "@/lib/utils/cn";
 
 const HERO_SLIDES = [
   {
-    id: "1",
-    title: "Premium Products at Factory Prices",
-    subtitle:
-      "Source thousands of quality products directly from verified suppliers across Bangladesh and beyond.",
-    cta: "Browse Products",
-    href: "/products",
-    badge: "10,000+ Products",
-    message: "✨ Verified Suppliers, Direct Pricing",
+    id: "lifestyle-gadgets",
+    badge: "🔥 হট কালেকশন ২০২৬",
+    title: "অরিজিনাল গ্যাজেট ও স্মার্ট লাইফস্টাইল প্রোডাক্ট",
+    subtitle: "সেরা দামে সেরা মানের ব্র্যান্ডেড ইলেকট্রনিক্স ও হোম অ্যাপ্লায়েন্স শপিং করুন।",
+    category: "গ্যাজেট ও ইলেকট্রনিক্স",
+    gradient: "from-amber-500/20 via-amber-500/5 to-transparent",
+    accentColor: "bg-amber-500",
   },
   {
-    id: "2",
-    title: "Start Your Dropshipping Business Today",
-    subtitle:
-      "Zero inventory needed. List products, we handle storage, packing, and delivery across Bangladesh.",
-    cta: "Become a Reseller",
-    href: "/become-reseller",
-    badge: "Zero Inventory Required",
-    message: "💼 2,500+ Active Resellers",
+    id: "reseller-hub",
+    badge: "💼 রিসেলারদের প্রথম পছন্দ",
+    title: "স্টক ছাড়াই নিজের ই-কমার্স বিজনেস শুরু করুন",
+    subtitle: "২,৫০০+ রিসেলারের সাথে যুক্ত হন। আমরা সামলাবো প্যাকেজিং ও ডেলিভারি।",
+    category: "ড্রপশিপিং ও রিসেলিং",
+    gradient: "from-amber-500/20 via-amber-500/5 to-transparent",
+    accentColor: "bg-amber-500",
   },
   {
-    id: "3",
-    title: "Wholesale Pricing for Bulk Buyers",
-    subtitle:
-      "Unlock tiered discounts, MOQ flexibility, and dedicated account management for wholesale partners.",
-    cta: "Wholesale Program",
-    href: "/become-wholesale-partner",
-    badge: "Tiered Discounts",
-    message: "📦 Flexible MOQ, Best Rates",
+    id: "wholesale-deals",
+    badge: "📦 পাইকারি বাজার",
+    title: "হোলসেলারদের জন্য আকর্ষণীয় ডায়রেক্ট ফ্যাক্টরি রেট",
+    subtitle: "সরাসরি প্রস্তুতকারক ও ইম্পোর্টার থেকে কিনুন সর্বনিম্ন দামে বাল্ক অর্ডারে।",
+    category: "হোলসেল সাপ্লাই",
+    gradient: "from-amber-500/20 via-amber-500/5 to-transparent",
+    accentColor: "bg-amber-500",
   },
 ];
-
-const trustItems = [
-  { icon: Truck, label: "Fast Delivery", sub: "2-5 days" },
-  { icon: Shield, label: "Secure Payments", sub: "SSL protected" },
-  { icon: RefreshCw, label: "Easy Returns", sub: "7-day guarantee" },
-  { icon: CheckCircle2, label: "Verified Sellers", sub: "Quality assured" },
-];
-
-const businessStats = [
-  { value: "10,000+", label: "Products", icon: Package },
-  { value: "2,500+", label: "Resellers", icon: Users },
-  { value: "100K+", label: "Orders/Month", icon: TrendingUp },
-  { value: "24/7", label: "Support", icon: Shield },
-];
-
-function cn(...classes: (string | boolean | undefined | null)[]): string {
-  return classes.filter(Boolean).join(" ");
-}
 
 export function HeroSection() {
-  const [current, setCurrent] = useState(0);
+  const [currentSlide, setCurrentSlide] = useState(0);
 
-  const next = useCallback(() => {
-    setCurrent((c) => (c + 1) % HERO_SLIDES.length);
+  const nextSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
   }, []);
 
-  const prev = useCallback(() => {
-    setCurrent((c) => (c - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
+  const prevSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
   }, []);
 
   useEffect(() => {
-    const timer = setInterval(next, 5000);
+    const timer = setInterval(nextSlide, 5000);
     return () => clearInterval(timer);
-  }, [next]);
+  }, [nextSlide]);
+
+  const slide = HERO_SLIDES[currentSlide];
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-white via-white to-[hsl(0_0%_96%)]">
-      <div className="public-grid-bg absolute inset-0 pointer-events-none" />
-      <div className="absolute top-0 right-0 w-[1000px] h-[600px] bg-primary/[0.04] rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-primary/[0.02] rounded-full blur-3xl pointer-events-none" />
+    <section className="relative overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-100/60 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 pt-4 pb-8 lg:pt-10 lg:pb-16 border-b border-slate-200/60 dark:border-slate-800/60">
+      {/* Background Decorative Blur & Grid */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="relative mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-6 lg:gap-16 pt-6 pb-8 lg:pt-20 lg:pb-24 items-center">
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="flex flex-col gap-5 sm:gap-8"
-          >
-            <div className="space-y-3 sm:space-y-4">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={current}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.25 }}
-                >
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-[11px] sm:text-xs font-extrabold tracking-wider uppercase w-fit mb-2.5 sm:mb-4">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
-                    </span>
-                    {HERO_SLIDES[current].badge}
-                  </div>
-
-                  <h1 className="text-3xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.15] text-slate-900 dark:text-slate-100">
-                    {HERO_SLIDES[current].title}
-                  </h1>
-
-                  <p className="mt-3 sm:mt-6 text-sm sm:text-xl text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl font-medium">
-                    {HERO_SLIDES[current].subtitle}
-                  </p>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2.5 sm:gap-4 py-3 sm:py-4 border-t border-b border-slate-200 dark:border-slate-800">
-              {trustItems.map((item) => (
-                <div key={item.label} className="flex items-start gap-2.5">
-                  <div className="p-1.5 sm:p-2 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5">
-                    <item.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  </div>
-                  <div className="text-left">
-                    <p className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100">{item.label}</p>
-                    <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-bold">{item.sub}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
-              {businessStats.map((stat) => (
-                <div
-                  key={stat.label}
-                  className="rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-2.5 sm:p-4 text-center hover:border-amber-400 transition-all"
-                >
-                  <div className="inline-flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 mb-1.5 mx-auto">
-                    <stat.icon className="h-4 w-4 sm:h-5 sm:w-5" />
-                  </div>
-                  <p className="text-base sm:text-xl font-black text-slate-900 dark:text-slate-100">
-                    {stat.value}
-                  </p>
-                  <p className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400">{stat.label}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 pt-2 sm:pt-4">
-              <Link
-                href={HERO_SLIDES[current].href}
-                className="inline-flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl bg-amber-500 text-slate-950 font-black px-6 shadow-md hover:bg-amber-600 transition-all active:scale-[0.98] touch-manipulation"
+        <div className="grid lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+          
+          {/* Main Content Area (Text & CTA) */}
+          <div className="lg:col-span-7 flex flex-col justify-center gap-4 sm:gap-6 text-left">
+            
+            {/* Live Badge */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={slide.id + "-badge"}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.2 }}
+                className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-xs font-bold w-fit"
               >
-                {HERO_SLIDES[current].cta}
-                <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
-              </Link>
+                <Sparkles className="h-3.5 w-3.5 text-amber-500 animate-pulse" />
+                <span>{slide.badge}</span>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* Dynamic Animated Headline & Subtext */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={slide.id + "-text"}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-3"
+              >
+                <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-slate-100 tracking-tight leading-[1.25]">
+                  {slide.title}
+                </h1>
+                <p className="text-sm sm:text-lg text-slate-600 dark:text-slate-300 font-medium leading-relaxed max-w-2xl">
+                  {slide.subtitle}
+                </p>
+              </motion.div>
+            </AnimatePresence>
+
+            {/* SINGLE PROMINENT PRIMARY CTA */}
+            <div className="pt-2 sm:pt-4">
               <Link
                 href="/products"
-                className="inline-flex items-center justify-center gap-2 h-12 sm:h-14 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 font-bold px-6 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all active:scale-[0.98] touch-manipulation"
+                className="inline-flex items-center justify-center gap-2.5 h-12 sm:h-14 px-8 rounded-2xl bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-slate-950 text-base sm:text-lg font-black shadow-md hover:shadow-lg transition-all touch-manipulation group"
               >
-                Browse All Products
+                <ShoppingBag className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                <span>এখনই শপ করুন</span>
+                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
-          </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="relative hidden lg:flex items-center justify-center"
-          >
-            <div className="relative w-full aspect-square rounded-2xl overflow-hidden">
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 via-white to-primary/[0.03] border border-primary/10" />
+            {/* 2 SMALL SECONDARY CARDS (Low Visual Weight for Reseller & Wholesale) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-4 border-t border-slate-200/80 dark:border-slate-800/80">
+              <Link
+                href="/become-reseller"
+                className="group flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/50 hover:shadow-xs transition-all"
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400 shrink-0 group-hover:scale-105 transition-transform">
+                  <Store className="h-4 w-4" />
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-xs font-black text-slate-900 dark:text-slate-100 flex items-center gap-1">
+                    রিসেলার হাব <span className="text-amber-500">→</span>
+                  </span>
+                  <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 truncate">
+                    স্টক ছাড়াই আয় করার সুযোগ
+                  </span>
+                </div>
+              </Link>
 
+              <Link
+                href="/become-wholesale-partner"
+                className="group flex items-center gap-3 p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500/50 hover:shadow-xs transition-all"
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0 group-hover:scale-105 transition-transform">
+                  <Building2 className="h-4 w-4" />
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-xs font-black text-slate-900 dark:text-slate-100 flex items-center gap-1">
+                    হোলসেল পার্টনার <span className="text-amber-500">→</span>
+                  </span>
+                  <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 truncate">
+                    পাইকারি দামে বাল্ক অর্ডার
+                  </span>
+                </div>
+              </Link>
+            </div>
+
+          </div>
+
+          {/* Hero Banner Carousel (Right Side on Desktop / Stacked Bottom on Mobile) */}
+          <div className="lg:col-span-5 relative mt-4 lg:mt-0">
+            <div className="relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-[4/3] w-full rounded-2xl overflow-hidden bg-gradient-to-br from-amber-500/10 via-white to-slate-100 dark:from-amber-500/10 dark:via-slate-900 dark:to-slate-950 border border-amber-500/20 shadow-md">
+              
               <AnimatePresence mode="wait">
                 <motion.div
-                  key={current}
-                  initial={{ opacity: 0, scale: 1.05 }}
+                  key={slide.id}
+                  initial={{ opacity: 0, scale: 0.98 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.4 }}
-                  className="absolute inset-0 flex flex-col items-center justify-center p-8"
+                  exit={{ opacity: 0, scale: 1.02 }}
+                  transition={{ duration: 0.3 }}
+                  className="absolute inset-0 flex flex-col justify-between p-6 sm:p-8"
                 >
-                  <div className="text-center space-y-6">
-                    <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
-                      <div className="text-5xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                        {HERO_SLIDES[current].badge.charAt(0)}
-                      </div>
+                  <div className="flex items-center justify-between">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-slate-900 dark:text-slate-100 text-xs font-bold shadow-2xs border border-slate-200 dark:border-slate-800">
+                      <Zap className="h-3.5 w-3.5 text-amber-500" />
+                      {slide.category}
+                    </span>
+                    <span className="text-xs font-mono font-bold text-slate-400">
+                      0{currentSlide + 1} / 0{HERO_SLIDES.length}
+                    </span>
+                  </div>
+
+                  {/* Creative Illustration Card */}
+                  <div className="my-auto py-4 text-center">
+                    <div className="inline-flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-3xl bg-amber-500 text-slate-950 shadow-lg font-black text-3xl sm:text-4xl mb-4 transform -rotate-3 hover:rotate-0 transition-transform">
+                      NN
                     </div>
-                    <div className="space-y-3">
-                      <p className="text-2xl font-bold text-[hsl(222_47%_11%)]">
-                        {HERO_SLIDES[current].message}
-                      </p>
-                      <p className="text-base text-[hsl(215_16%_47%)] max-w-xs mx-auto leading-relaxed">
-                        {HERO_SLIDES[current].subtitle}
-                      </p>
+                    <p className="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 max-w-xs mx-auto leading-tight">
+                      {slide.title}
+                    </p>
+                    <div className="inline-flex items-center gap-1.5 mt-2 text-xs font-bold text-amber-600 dark:text-amber-400">
+                      <ShieldCheck className="h-4 w-4" />
+                      ১০০% অরিজিনাল ও দ্রুত ডেলিভারি
                     </div>
                   </div>
+
+                  {/* Carousel Dots & Controls */}
+                  <div className="flex items-center justify-between pt-2">
+                    <div className="flex items-center gap-1.5">
+                      {HERO_SLIDES.map((_, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setCurrentSlide(idx)}
+                          className={cn(
+                            "h-2 rounded-full transition-all duration-300",
+                            idx === currentSlide
+                              ? "w-7 bg-amber-500"
+                              : "w-2 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400",
+                          )}
+                          aria-label={`Go to slide ${idx + 1}`}
+                        />
+                      ))}
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={prevSlide}
+                        className="h-8 w-8 rounded-lg bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center justify-center transition-colors"
+                        aria-label="আগের স্লাইড"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={nextSlide}
+                        className="h-8 w-8 rounded-lg bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 flex items-center justify-center transition-colors"
+                        aria-label="পরের স্লাইড"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+
                 </motion.div>
               </AnimatePresence>
 
-              <button
-                type="button"
-                onClick={prev}
-                className="absolute left-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white shadow-lg border border-[hsl(0_0%_91%)] flex items-center justify-center text-[hsl(215_16%_47%)] hover:text-primary hover:bg-primary/5 transition-all"
-                aria-label="Previous slide"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </button>
-
-              <button
-                type="button"
-                onClick={next}
-                className="absolute right-4 top-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-white shadow-lg border border-[hsl(0_0%_91%)] flex items-center justify-center text-[hsl(215_16%_47%)] hover:text-primary hover:bg-primary/5 transition-all"
-                aria-label="Next slide"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </button>
-
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2">
-                {HERO_SLIDES.map((_, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => setCurrent(i)}
-                    className={cn(
-                      "rounded-full transition-all duration-300",
-                      i === current
-                        ? "h-2.5 w-8 bg-primary"
-                        : "h-2.5 w-2.5 bg-[hsl(0_0%_91%)] hover:bg-[hsl(215_16%_47%)]",
-                    )}
-                    aria-label={`Go to slide ${i + 1}`}
-                  />
-                ))}
-              </div>
             </div>
-          </motion.div>
+          </div>
+
         </div>
       </div>
     </section>

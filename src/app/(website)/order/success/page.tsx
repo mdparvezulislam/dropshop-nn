@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CheckCircle2, Phone, ArrowRight, ShoppingBag, Printer } from "lucide-react";
+import { CheckCircle2, Phone, ArrowRight, ShoppingBag, Printer, MessageCircle, UserCheck } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { getOrderByAccessTokenAction } from "@/features/order/actions/customer-order-actions";
 import {
@@ -137,8 +137,53 @@ export default async function OrderSuccessPage({ searchParams }: PageProps) {
               />
             )}
 
+            {/* WhatsApp Confirmation & Share Option */}
+            {order && (
+              <div className="p-4 rounded-3xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500 text-white shrink-0 shadow-2xs">
+                    <MessageCircle className="h-5 w-5 fill-white" aria-hidden />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-slate-900 dark:text-slate-100">WhatsApp-এ দ্রুত আপডেট পান</h3>
+                    <p className="font-semibold text-slate-600 dark:text-slate-400">
+                      আপনার অর্ডার নম্বরটি WhatsApp এ মেসেজ করে ডেলিভারির তাগাদা দিন।
+                    </p>
+                  </div>
+                </div>
+                <a
+                  href={`https://wa.me/8801898888800?text=${encodeURIComponent(`হ্যালো NN Enterprise! আমার অর্ডার নম্বর #${order.orderNumber} এর কনফার্মেশন ও আপডেট চাই।`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="shrink-0 inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition-colors shadow-2xs"
+                >
+                  <MessageCircle className="h-4 w-4 fill-white" />
+                  <span>WhatsApp এ কনফার্ম করুন</span>
+                </a>
+              </div>
+            )}
+
+            {/* Guest Account Creation Suggestion */}
+            {!isAuthenticated && order && (
+              <div className="p-4 rounded-3xl bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div>
+                  <h3 className="font-black text-slate-900 dark:text-slate-100">অ্যাকোউন্ট তৈরি করে রাখুন</h3>
+                  <p className="font-semibold text-slate-600 dark:text-slate-400">
+                    ভবিষ্যতে ১-ক্লিকে অর্ডার ও লাইব ট্র্যাকিং পেতে একটি পাসওয়ার্ড সেট করে দ্রুত সাইনআপ করুন।
+                  </p>
+                </div>
+                <Link
+                  href={`/register?phone=${encodeURIComponent(order.customerPhone)}`}
+                  className="shrink-0 inline-flex items-center gap-1.5 h-10 px-5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs transition-colors shadow-2xs"
+                >
+                  <span>অ্যাকোউন্ট খুলুন</span>
+                  <UserCheck className="h-4 w-4" />
+                </Link>
+              </div>
+            )}
+
             {/* Next steps */}
-            <div className="bg-amber-50/70 border border-amber-200 rounded-3xl p-5 text-xs font-bold text-amber-900 space-y-1">
+            <div className="bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-3xl p-5 text-xs font-bold text-amber-900 dark:text-amber-300 space-y-1">
               <p className="font-black">পরবর্তী ধাপ:</p>
               <p>১. আমাদের টিম ফোনে অর্ডার নিশ্চিত করবে ({order.customerPhone})।</p>
               <p>২. নিশ্চিত হওয়ার পর প্রোডাক্ট প্যাক হয়ে কুরিয়ারে যাবে।</p>

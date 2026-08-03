@@ -58,21 +58,22 @@ export function VariantSelector({ variants, onVariantChange }: VariantSelectorPr
   };
 
   return (
-    <div className="space-y-4 py-2">
+    <div className="space-y-4 py-2 border-t border-b border-slate-200 dark:border-slate-800">
       {attributeKeys.map((key) => {
-        // Collect unique values for this attribute key
         const uniqueValues = Array.from(
           new Set(
             variants.map((v) => v.attributes?.[key]).filter((val): val is string => Boolean(val)),
           ),
         );
 
+        const isColorKey = key.toLowerCase().includes("color") || key.includes("রং");
+
         return (
           <div key={key} className="space-y-2">
-            <label className="text-xs font-extrabold text-slate-900 flex items-center justify-between">
+            <label className="text-xs font-black text-slate-900 dark:text-slate-100 flex items-center justify-between">
               <span>
                 {key}:{" "}
-                <span className="text-red-600 font-black">
+                <span className="text-amber-600 dark:text-amber-400 font-black">
                   {selectedAttrs[key] || "পছন্দ করুন"}
                 </span>
               </span>
@@ -82,7 +83,6 @@ export function VariantSelector({ variants, onVariantChange }: VariantSelectorPr
               {uniqueValues.map((val) => {
                 const isSelected = selectedAttrs[key] === val;
 
-                // Check if any active variant with this attribute value has stock
                 const isAvailable = variants.some((v) => {
                   if (v.attributes?.[key] !== val) return false;
                   return v.isActive !== false && (v.stock ?? 0) > 0;
@@ -95,14 +95,33 @@ export function VariantSelector({ variants, onVariantChange }: VariantSelectorPr
                     disabled={!isAvailable}
                     onClick={() => handleSelectAttribute(key, val)}
                     className={cn(
-                      "px-3.5 py-1.5 rounded-xl border text-xs font-bold transition-all flex items-center space-x-1.5",
+                      "px-4 py-2 rounded-xl border text-xs font-black transition-all flex items-center gap-2 touch-manipulation active:scale-95",
                       !isAvailable &&
-                        "opacity-30 cursor-not-allowed line-through bg-slate-100 border-slate-200 text-slate-400",
+                        "opacity-30 cursor-not-allowed line-through bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500",
                       isSelected
-                        ? "border-red-600 bg-red-50 text-red-700 shadow-xs font-black ring-1 ring-red-600/30"
-                        : "border-slate-300 text-slate-800 hover:border-red-400 hover:bg-slate-50",
+                        ? "border-amber-500 bg-amber-500/10 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 font-black ring-2 ring-amber-500/40 shadow-xs"
+                        : "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 hover:border-amber-400 hover:bg-slate-50 dark:hover:bg-slate-800",
                     )}
                   >
+                    {isColorKey && (
+                      <span
+                        className="h-3 w-3 rounded-full border border-slate-400/40 shrink-0"
+                        style={{
+                          backgroundColor:
+                            val.toLowerCase() === "black" || val.toLowerCase() === "কালো"
+                              ? "#000000"
+                              : val.toLowerCase() === "white" || val.toLowerCase() === "সাদা"
+                                ? "#ffffff"
+                                : val.toLowerCase() === "red" || val.toLowerCase() === "লাল"
+                                  ? "#ef4444"
+                                  : val.toLowerCase() === "blue" || val.toLowerCase() === "নীল"
+                                    ? "#3b82f6"
+                                    : val.toLowerCase() === "green" || val.toLowerCase() === "সবুজ"
+                                      ? "#22c55e"
+                                      : "#d97706",
+                        }}
+                      />
+                    )}
                     <span>{val}</span>
                   </button>
                 );

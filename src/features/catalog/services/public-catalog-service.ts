@@ -185,9 +185,17 @@ export class PublicCatalogService {
 
   async listBadgeSection(badge: PublicBadgeSection, limit: number): Promise<PublicProductCard[]> {
     try {
-      const result = await this.listCards({ badge, limit, page: 1, sort: "newest" });
+      const sort: PublicCatalogSort =
+        badge === "flash_sale"
+          ? "discount_desc"
+          : badge === "trending"
+            ? "trending"
+            : badge === "featured"
+              ? "featured"
+              : "newest";
+      const result = await this.listCards({ badge, limit, page: 1, sort });
       if (result.items.length === 0) {
-        const fallback = await this.listCards({ limit, page: 1, sort: "newest" });
+        const fallback = await this.listCards({ limit, page: 1, sort });
         return fallback.items;
       }
       return result.items;
@@ -644,6 +652,9 @@ export class PublicCatalogService {
     const category = product.categoryId ? categoryMap.get(product.categoryId) : undefined;
     const rating = ratings?.get(product.id);
 
+    const resellerBdt = computedEngine ? computedEngine.resellerBasePrice : (pricing?.resellerPrice ? minorToBdt(pricing.resellerPrice) : undefined);
+    const wholesaleBdt = computedEngine ? computedEngine.wholesalePrice : (pricing?.wholesalePrice ? minorToBdt(pricing.wholesalePrice) : undefined);
+
     return {
       id: product.id,
       slug: product.slug,
@@ -657,6 +668,8 @@ export class PublicCatalogService {
       price,
       comparePrice,
       discountPercent: discountPercent && discountPercent > 0 ? discountPercent : undefined,
+      resellerPrice: resellerBdt,
+      wholesalePrice: wholesaleBdt,
       stockStatus: stockStatusOf(stockTotal),
       badges: product.badges ?? [],
       isNew: (product.badges ?? []).includes("new_arrival") || isRecent,

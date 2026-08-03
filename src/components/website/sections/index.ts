@@ -1,4 +1,4 @@
-export { HeroSection } from "./hero-section-enterprise";
+export { HeroSection } from "./hero-section";
 export { BusinessEntryCards } from "./business-entry-cards";
 export { CategoryShowcase } from "./category-showcase";
 export { FlashDealsSection } from "./flash-deals-section";

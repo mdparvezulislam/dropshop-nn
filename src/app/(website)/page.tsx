@@ -5,14 +5,13 @@ import { BRAND } from "@/config/brand";
 
 import {
   HeroSection,
-  BusinessEntryCards,
+  TrustSection,
   CategoryShowcase,
   FlashDealsSection,
   FeaturedProductsSection,
   NewArrivalsSection,
   TrendingProductsSection,
   BusinessSolutionsSection,
-  WhyChooseUsSection,
   TestimonialsSection,
   BrandSliderSection,
   FAQSection,
@@ -65,43 +64,40 @@ export default async function HomePage(): Promise<React.ReactElement> {
 
   return (
     <>
-      {/* 2. Hero Section */}
+      {/* 1. Hero Banner */}
       <HeroSection />
 
-      {/* 3. Business Entry Cards */}
-      <BusinessEntryCards />
+      {/* 2. Trust Pillars Strip */}
+      <TrustSection />
 
-      {/* 4. Popular Categories */}
+      {/* 3. Popular Categories Showcase */}
       <CategoryShowcase categories={categories} />
 
-      {/* 5. Flash Sale */}
+      {/* 4. Flash Sale Deals */}
       <FlashDealsSection products={flashDeals} priorityFirstRow={firstProductSection === "flash"} />
 
-      {/* 6. Featured Products */}
+      {/* 5. Featured Products */}
       <FeaturedProductsSection
         products={featuredProducts}
         priorityFirstRow={firstProductSection === "featured"}
       />
 
-      {/* 7. New Arrivals */}
+      {/* 6. New Arrivals */}
       <NewArrivalsSection products={newArrivals} priorityFirstRow={firstProductSection === "new"} />
 
-      {/* 8. Trending Products */}
+      {/* 7. Trending Products */}
       <TrendingProductsSection products={trendingProducts} />
 
-      {/* 9. Business Solutions */}
+      {/* 8. Merged Channel & Solutions Section */}
       <BusinessSolutionsSection />
 
-      {/* 10. Why NN Enterprise */}
-      <WhyChooseUsSection />
-
-      {/* 11. Customer Reviews */}
+      {/* 9. Customer Reviews & Testimonials */}
       <TestimonialsSection />
 
-      {/* 12. Brand Partners */}
+      {/* 10. Official Brand Partners */}
       <BrandSliderSection />
 
-      {/* 13. FAQ */}
+      {/* 11. Frequently Asked Questions (FAQ) */}
       <FAQSection />
     </>
   );

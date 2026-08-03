@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Menu, Search, ChevronDown, Store, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -11,7 +11,6 @@ import { SearchInput } from "./search-input";
 import { AccountMenu } from "./account-menu";
 import { CartButton } from "./cart-button";
 import { WishlistCounter } from "./wishlist/wishlist-counter";
-import { Button } from "@/components/ui/button";
 import type { PublicCategoryInfo } from "@/features/catalog/domain/public-catalog-types";
 
 const BANGLA_NAV_ITEMS = [
@@ -22,6 +21,14 @@ const BANGLA_NAV_ITEMS = [
   { label: "ব্র্যান্ড", href: "/brands" },
   { label: "ব্লগ", href: "/blog" },
   { label: "যোগাযোগ", href: "/contact" },
+] as const;
+
+const TRENDING_SEARCH_TERMS = [
+  "স্মার্টওয়াচ",
+  "ইয়ারবাড",
+  "রাইস কুকার",
+  "ব্লুটুথ স্পিকার",
+  "স্মার্ট টিভি",
 ] as const;
 
 const MEGA_MENU_ID = "site-mega-menu";
@@ -36,11 +43,19 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
   const [mobileOpen, setMobileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
+  const [searchTermIndex, setSearchTermIndex] = useState(0);
 
   useEffect(() => {
     const onScroll = (): void => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const searchTimer = setInterval(() => {
+      setSearchTermIndex((prev) => (prev + 1) % TRENDING_SEARCH_TERMS.length);
+    }, 3000);
+    return () => clearInterval(searchTimer);
   }, []);
 
   useEffect(() => {
@@ -74,18 +89,6 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
       >
         <div className="mx-auto max-w-(--content-max) px-2.5 sm:px-6 lg:px-8">
           <div className="flex h-14 lg:h-20 items-center justify-between gap-2.5 sm:gap-4">
-            {/* Mobile menu trigger */}
-            <button
-              type="button"
-              className="lg:hidden -ml-1 h-9 w-9 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-800 dark:text-slate-100 hover:text-amber-600 transition-colors touch-manipulation active:scale-95 focus-visible:outline-2 focus-visible:outline-amber-500 rounded-xl"
-              onClick={() => setMobileOpen(true)}
-              aria-label="মেনু খুলুন"
-              aria-expanded={mobileOpen}
-              aria-haspopup="dialog"
-            >
-              <Menu className="h-5 w-5" aria-hidden />
-            </button>
-
             {/* Brand Logo */}
             <Link href="/" className="flex items-center gap-2 shrink-0 group">
               <div className="flex h-8 w-8 lg:h-10 lg:w-10 items-center justify-center rounded-xl bg-amber-500 text-slate-950 font-black text-base lg:text-xl shadow-xs group-hover:scale-105 transition-transform">
@@ -102,7 +105,7 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
             </Link>
 
             {/* Desktop Navigation Links */}
-            <nav className="hidden xl:flex items-center gap-6 ml-6" aria-label="প্রধান নেভিগেশন">
+            <nav className="hidden xl:flex items-center gap-6 ml-4" aria-label="প্রধান নেভিগেশন">
               {BANGLA_NAV_ITEMS.map((item) =>
                 "hasMega" in item && item.hasMega ? (
                   <div
@@ -126,7 +129,7 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
                       aria-controls={MEGA_MENU_ID}
                       onFocus={() => setMegaOpen(true)}
                       onClick={() => setMegaOpen((open) => !open)}
-                      className="flex items-center gap-1 py-2 text-xs sm:text-sm font-black text-slate-800 dark:text-slate-200 hover:text-amber-600 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 rounded"
+                      className="flex items-center gap-1 py-2 text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-amber-600 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 rounded"
                     >
                       {item.label}
                       <ChevronDown
@@ -148,7 +151,7 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
                   <Link
                     key={item.label}
                     href={item.href}
-                    className="py-2 text-xs sm:text-sm font-black text-slate-800 dark:text-slate-200 hover:text-amber-600 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 rounded"
+                    className="py-2 text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 hover:text-amber-600 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 rounded"
                   >
                     {item.label}
                   </Link>
@@ -156,62 +159,81 @@ export function SiteHeader({ categories = [] }: SiteHeaderProps): React.ReactEle
               )}
             </nav>
 
-            <div className="flex-1" />
+            <div className="flex-1 hidden lg:block" />
 
-            {/* Search + CTAs + Cart + Account */}
-            <div className="flex items-center gap-1.5 sm:gap-3">
-              {/* Mobile Search Shortcut */}
+            {/* Desktop Search Bar (Prominent Center/Left-Center) */}
+            <button
+              type="button"
+              onClick={() => setSearchOpen(true)}
+              className="hidden lg:flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100/90 dark:bg-slate-800/90 border border-slate-300/80 dark:border-slate-700/80 rounded-xl hover:bg-white dark:hover:bg-slate-800 hover:border-amber-500 hover:text-slate-900 dark:hover:text-slate-100 transition-all w-60 xl:w-72 shadow-2xs group focus-visible:outline-2 focus-visible:outline-amber-500"
+            >
+              <Search
+                className="h-3.5 w-3.5 shrink-0 text-slate-500 group-hover:text-amber-500 transition-colors"
+                aria-hidden
+              />
+              <span className="truncate">
+                সার্চ করুন &quot;{TRENDING_SEARCH_TERMS[searchTermIndex]}&quot;...
+              </span>
+              <span className="ml-auto text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-700">
+                ⌘K
+              </span>
+            </button>
+
+            {/* Business Secondary Buttons */}
+            <div className="hidden sm:flex items-center gap-2">
+              <Link
+                href="/become-reseller"
+                className="inline-flex items-center h-8 px-3 text-xs font-bold text-slate-800 dark:text-slate-200 bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30 hover:bg-amber-500 hover:text-slate-950 rounded-lg transition-colors"
+              >
+                <Store className="h-3.5 w-3.5 mr-1 text-amber-600 dark:text-amber-400" aria-hidden />
+                রিসেলার হন
+              </Link>
+
+              <Link
+                href="/become-wholesale-partner"
+                className="hidden md:inline-flex items-center h-8 px-3 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+              >
+                <Building2 className="h-3.5 w-3.5 mr-1 text-slate-500" aria-hidden />
+                হোলসেলার হন
+              </Link>
+            </div>
+
+            {/* Desktop Wishlist Counter */}
+            <div className="hidden lg:block">
+              <WishlistCounter />
+            </div>
+
+            {/* Mobile Actions Header — STRICTLY 4 ITEMS ON MOBILE: Logo (already on left) | Search | Hamburger | Cart */}
+            <div className="flex items-center gap-1 sm:gap-2">
+              {/* 2. Mobile Search Icon */}
               <button
                 type="button"
                 onClick={() => setSearchOpen(true)}
-                className="lg:hidden p-2 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-800 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400 transition-colors rounded-xl touch-manipulation active:scale-95 focus-visible:outline-2 focus-visible:outline-amber-500"
+                className="lg:hidden p-2 h-9 w-9 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-800 dark:text-slate-200 hover:text-amber-600 dark:hover:text-amber-400 transition-colors rounded-xl touch-manipulation active:scale-95 focus-visible:outline-2 focus-visible:outline-amber-500"
                 aria-label="সার্চ প্রোডাক্ট"
               >
                 <Search className="h-5 w-5" aria-hidden />
               </button>
 
-              {/* Desktop Search Button */}
+              {/* 3. Mobile Hamburger Menu Trigger */}
               <button
                 type="button"
-                onClick={() => setSearchOpen(true)}
-                className="hidden lg:flex items-center gap-2.5 px-3.5 py-2 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100/90 dark:bg-slate-800/90 border border-slate-300/80 dark:border-slate-700/80 rounded-xl hover:bg-white dark:hover:bg-slate-800 hover:border-amber-500 hover:text-slate-900 dark:hover:text-slate-100 transition-all w-52 xl:w-64 shadow-2xs group focus-visible:outline-2 focus-visible:outline-amber-500"
+                className="lg:hidden h-9 w-9 min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-800 dark:text-slate-100 hover:text-amber-600 transition-colors touch-manipulation active:scale-95 focus-visible:outline-2 focus-visible:outline-amber-500 rounded-xl"
+                onClick={() => setMobileOpen(true)}
+                aria-label="মেনু খুলুন"
+                aria-expanded={mobileOpen}
+                aria-haspopup="dialog"
               >
-                <Search
-                  className="h-3.5 w-3.5 shrink-0 text-slate-500 group-hover:text-amber-500 transition-colors"
-                  aria-hidden
-                />
-                <span className="truncate">প্রোডাক্ট সার্চ করুন...</span>
-                <span className="ml-auto text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded border border-slate-300 dark:border-slate-700">
-                  ⌘K
-                </span>
+                <Menu className="h-5 w-5" aria-hidden />
               </button>
 
-              {/* Business Action Buttons */}
-              <Link href="/become-reseller" className="hidden sm:inline-flex">
-                <Button
-                  size="sm"
-                  className="h-9 px-4 text-xs font-black bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-xs rounded-xl"
-                >
-                  <Store className="h-3.5 w-3.5 mr-1.5" aria-hidden />
-                  রিসেলার হন
-                </Button>
-              </Link>
-
-              <Link
-                href="/become-wholesale-partner"
-                className="hidden md:inline-flex items-center h-9 px-3.5 text-xs font-black text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 hover:border-slate-400 hover:text-slate-950 dark:hover:text-white rounded-xl transition-all shadow-2xs focus-visible:outline-2 focus-visible:outline-amber-500"
-              >
-                <Building2 className="h-3.5 w-3.5 mr-1.5 text-slate-600 dark:text-slate-400" aria-hidden />
-                হোলসেলার হন
-              </Link>
-
-              <div className="hidden lg:block">
-                <WishlistCounter />
-              </div>
-
+              {/* 4. Cart Button */}
               <CartButton />
 
-              <AccountMenu />
+              {/* Account Menu (Desktop only in top header) */}
+              <div className="hidden lg:block">
+                <AccountMenu />
+              </div>
             </div>
           </div>
         </div>

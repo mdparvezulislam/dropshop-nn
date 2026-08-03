@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState, type ReactElement, type ReactNode } from "react";
 import Link from "next/link";
-import { RotateCcw, Search, X } from "lucide-react";
+import { RotateCcw, PackageSearch } from "lucide-react";
 import { ProductCard } from "./product-card";
 import { ShopToolbar, type CatalogViewMode } from "./shop-toolbar";
 import { CatalogFilterSidebar } from "./catalog-filter-sidebar";
+import { AppliedFilterChips } from "./applied-filter-chips";
 import { QuickViewDrawer } from "./quick-view-drawer";
 import { CompareDrawer } from "./compare-drawer";
 import { MobileBottomSheet } from "@/shared/components/mobile/mobile-bottom-sheet";
@@ -17,26 +18,16 @@ import type {
 } from "@/features/catalog/domain/public-catalog-types";
 
 export interface ProductsCatalogClientProps {
-  /** Server-fetched page of products; the grid re-renders via server navigation. */
   products: PublicProductCard[];
-  /** Real total from PublicListResult.totalCount. */
   totalCount: number;
   categories: PublicCategoryInfo[] | null;
   brands: PublicBrandInfo[] | null;
-  /** Server-rendered pagination links (ProductPagination). */
   pagination?: ReactNode;
   defaultSort?: "newest" | "relevance";
   showSearchBox?: boolean;
-  /** Where the "reset filters" empty-state link points. */
   resetHref?: string;
 }
 
-/**
- * Thin interactive shell around the server-rendered catalog. The only client
- * state here is presentation (view mode, drawers, mobile filter panel) —
- * filtering, sorting and paging all go through URL params and re-render on
- * the server. No client-side product fetching or duplicated product state.
- */
 export function ProductsCatalogClient({
   products,
   totalCount,
@@ -83,6 +74,7 @@ export function ProductsCatalogClient({
       {/* Mobile Horizontal Category Chips */}
       <PlpCategoryChips categories={categories} />
 
+      {/* Sticky Toolbar (Total count, sort dropdown, view mode toggle, mobile filter button) */}
       <ShopToolbar
         totalCount={totalCount}
         viewMode={viewMode}
@@ -93,7 +85,9 @@ export function ProductsCatalogClient({
       />
 
       <div className="grid grid-cols-1 items-start gap-6 lg:gap-8 lg:grid-cols-4">
-        <div className="hidden lg:col-span-1 lg:block">
+        
+        {/* Desktop Sticky Filter Sidebar */}
+        <div className="hidden lg:col-span-1 lg:block sticky top-24">
           <CatalogFilterSidebar categories={categories} brands={brands} />
         </div>
 
@@ -109,30 +103,44 @@ export function ProductsCatalogClient({
           </div>
         </MobileBottomSheet>
 
+        {/* Product Grid & Active Filter Chips Container */}
         <div className="lg:col-span-3">
+          
+          {/* Active Filter Chips with Individual Dismiss (x) */}
+          <AppliedFilterChips categories={categories} brands={brands} resetHref={resetHref} />
+
           {products.length === 0 ? (
-            <div className="space-y-4 rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 sm:p-12 text-center shadow-xs">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400">
-                <Search className="h-6 w-6" aria-hidden />
+            /* Enhanced Empty State with SVG Illustration */
+            <div className="space-y-4 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 bg-white dark:bg-slate-900 p-8 sm:p-14 text-center shadow-xs">
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                <PackageSearch className="h-10 w-10 stroke-[1.5]" aria-hidden />
               </div>
-              <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">কোনো প্রোডাক্ট পাওয়া যায়নি</h3>
-              <p className="mx-auto max-w-md text-xs font-semibold text-slate-500 dark:text-slate-400">
-                আপনার ফিল্টার অথবা অনুসন্ধানের কি-ওয়ার্ড পরিবর্তন করে পুনরায় চেষ্টা করুন।
-              </p>
-              <Link
-                href={resetHref}
-                className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-xs font-black text-slate-950 transition-colors hover:bg-amber-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600 active:scale-95 touch-manipulation"
-              >
-                <RotateCcw className="h-3.5 w-3.5" aria-hidden />
-                ফিল্টার রিসেট করুন
-              </Link>
+              <div className="space-y-1">
+                <h3 className="text-xl font-black text-slate-900 dark:text-slate-100">
+                  কোনো প্রোডাক্ট পাওয়া যায়নি
+                </h3>
+                <p className="mx-auto max-w-md text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400">
+                  আপনার নির্বাচিত ফিল্টার বা কি-ওয়ার্ডের জন্য কোনো ম্যাচিং প্রোডাক্ট খুঁজে পাওয়া যায়নি। অনুগ্রহ করে ফিল্টারগুলো শিথিল করুন।
+                </p>
+              </div>
+
+              <div className="pt-2">
+                <Link
+                  href={resetHref}
+                  className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-6 py-3 text-xs font-black text-slate-950 transition-all hover:bg-amber-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600 active:scale-95 touch-manipulation shadow-md"
+                >
+                  <RotateCcw className="h-4 w-4" aria-hidden />
+                  ফিল্টার রিসেট করুন
+                </Link>
+              </div>
             </div>
           ) : (
             <>
+              {/* Product Grid (Desktop 3-4 Cols | Mobile 2 Cols) */}
               <div
                 className={
                   viewMode === "grid"
-                    ? "grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4"
+                    ? "grid grid-cols-2 gap-2.5 sm:gap-4 md:grid-cols-3 xl:grid-cols-4"
                     : viewMode === "compact"
                       ? "grid grid-cols-2 gap-2.5 sm:gap-3.5 sm:grid-cols-3 lg:grid-cols-4"
                       : "space-y-3.5"
@@ -149,6 +157,8 @@ export function ProductsCatalogClient({
                   />
                 ))}
               </div>
+
+              {/* Server-Rendered Pagination & Load More Section */}
               <div className="mt-8">
                 {pagination}
               </div>

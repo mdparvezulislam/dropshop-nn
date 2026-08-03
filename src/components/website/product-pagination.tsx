@@ -58,10 +58,22 @@ export function ProductPagination({
   const items = pageWindow(page, totalPages);
 
   const linkBase =
-    "flex h-9 min-w-9 items-center justify-center rounded-xl border px-2 text-xs font-extrabold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600";
+    "flex h-9 min-w-9 items-center justify-center rounded-xl border px-3 text-xs font-bold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-600 active:scale-95";
 
   return (
-    <nav aria-label="পেজ নেভিগেশন" className={cn("flex justify-center py-8", className)}>
+    <nav aria-label="পেজ নেভিগেশন" className={cn("flex flex-col items-center gap-6 py-6", className)}>
+      {/* Intuitive Bangladeshi E-Commerce "আরও দেখুন" (Load More) Button */}
+      {page < totalPages && (
+        <Link
+          href={pageHref(basePath, searchParams, page + 1)}
+          className="inline-flex items-center justify-center gap-2 h-12 px-8 rounded-2xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs sm:text-sm shadow-md transition-all active:scale-95 touch-manipulation border border-amber-400"
+        >
+          <span>আরও প্রোডাক্ট দেখুন</span>
+          <ChevronRight className="h-4 w-4" />
+        </Link>
+      )}
+
+      {/* Numbered Pagination */}
       <ul className="flex flex-wrap items-center gap-1.5">
         <li>
           {page > 1 ? (
@@ -70,7 +82,7 @@ export function ProductPagination({
               aria-label="আগের পেজ"
               className={cn(
                 linkBase,
-                "border-slate-300 bg-white text-slate-800 hover:border-amber-400 hover:bg-amber-50",
+                "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40",
               )}
             >
               <ChevronLeft className="h-4 w-4" aria-hidden />
@@ -80,7 +92,7 @@ export function ProductPagination({
               aria-hidden
               className={cn(
                 linkBase,
-                "cursor-not-allowed border-slate-200 bg-white text-slate-300",
+                "cursor-not-allowed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-300 dark:text-slate-700",
               )}
             >
               <ChevronLeft className="h-4 w-4" aria-hidden />
@@ -91,7 +103,7 @@ export function ProductPagination({
         {items.map((item, index) =>
           item === "gap" ? (
             <li key={`gap-${index}`} aria-hidden>
-              <span className="flex h-9 min-w-9 items-center justify-center text-xs font-extrabold text-slate-400">
+              <span className="flex h-9 min-w-9 items-center justify-center text-xs font-bold text-slate-400">
                 …
               </span>
             </li>
@@ -100,7 +112,7 @@ export function ProductPagination({
               {item === page ? (
                 <span
                   aria-current="page"
-                  className={cn(linkBase, "border-amber-500 bg-amber-500 text-slate-950")}
+                  className={cn(linkBase, "border-amber-500 bg-amber-500 text-slate-950 font-black")}
                 >
                   {item}
                 </span>
@@ -110,7 +122,7 @@ export function ProductPagination({
                   aria-label={`পেজ ${item}`}
                   className={cn(
                     linkBase,
-                    "border-slate-300 bg-white text-slate-800 hover:border-amber-400 hover:bg-amber-50",
+                    "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40",
                   )}
                 >
                   {item}
@@ -127,7 +139,7 @@ export function ProductPagination({
               aria-label="পরের পেজ"
               className={cn(
                 linkBase,
-                "border-slate-300 bg-white text-slate-800 hover:border-amber-400 hover:bg-amber-50",
+                "border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 hover:border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/40",
               )}
             >
               <ChevronRight className="h-4 w-4" aria-hidden />
@@ -137,7 +149,7 @@ export function ProductPagination({
               aria-hidden
               className={cn(
                 linkBase,
-                "cursor-not-allowed border-slate-200 bg-white text-slate-300",
+                "cursor-not-allowed border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-300 dark:text-slate-700",
               )}
             >
               <ChevronRight className="h-4 w-4" aria-hidden />

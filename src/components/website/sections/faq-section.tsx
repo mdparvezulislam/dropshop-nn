@@ -64,20 +64,21 @@ const CATEGORIES = [
 ] as const;
 
 export function FAQSection(): React.ReactElement {
-  const [activeId, setActiveId] = useState<string>("1");
   const [activeCategory, setActiveCategory] = useState<"general" | "reseller" | "wholesale">("general");
-
   const filteredFaqs = FAQS.filter((faq) => faq.category === activeCategory);
+  const [activeId, setActiveId] = useState<string>("1");
 
   return (
     <section
-      className="w-full py-10 sm:py-16 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100"
+      className="w-full py-10 sm:py-16 bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-200/80 dark:border-slate-800/80 text-slate-900 dark:text-slate-100"
       aria-labelledby="faq-heading"
     >
       <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
+        
+        {/* Section Header */}
         <div className="text-center mb-8 max-w-xl mx-auto space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-xs font-black text-amber-700 dark:text-amber-400">
-            <HelpCircle className="h-3.5 w-3.5 text-amber-500" aria-hidden />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-black text-amber-600 dark:text-amber-400">
+            <HelpCircle className="h-4 w-4 text-amber-500" aria-hidden />
             <span>সাধারণ জিজ্ঞাসাসমূহ</span>
           </div>
           <h2
@@ -86,20 +87,23 @@ export function FAQSection(): React.ReactElement {
           >
             সচরাচর জিজ্ঞাসিত প্রশ্নসমূহ (FAQ)
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-bold">
-            {BRAND.publicName} সম্পর্কে আপনার প্রয়োজনীয় তথ্যাবলী
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-semibold">
+            {BRAND.publicName} প্ল্যাটফর্ম ব্যবহারের প্রয়োজনীয় নির্দেশিকা
           </p>
         </div>
 
+        {/* 3 Tab Buttons */}
         <div className="flex gap-2 justify-center mb-8 flex-wrap">
           {CATEGORIES.map((cat) => (
             <button
               key={cat.id}
+              type="button"
               onClick={() => {
                 setActiveCategory(cat.id);
-                setActiveId("");
+                const firstMatch = FAQS.find((f) => f.category === cat.id);
+                setActiveId(firstMatch ? firstMatch.id : "");
               }}
-              className={`px-4 py-2 rounded-xl text-xs font-black transition-all ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                 activeCategory === cat.id
                   ? "bg-amber-500 text-slate-950 shadow-xs"
                   : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-amber-400"
@@ -110,41 +114,46 @@ export function FAQSection(): React.ReactElement {
           ))}
         </div>
 
+        {/* Accordion Items */}
         <div className="max-w-2xl mx-auto space-y-3">
-          {filteredFaqs.map((faq) => (
-            <div
-              key={faq.id}
-              className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 overflow-hidden shadow-2xs"
-            >
-              <button
-                onClick={() => setActiveId(activeId === faq.id ? "" : faq.id)}
-                className="w-full text-left px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex items-center justify-between gap-3"
+          {filteredFaqs.map((faq) => {
+            const isOpen = activeId === faq.id;
+            return (
+              <div
+                key={faq.id}
+                className="border border-slate-200/80 dark:border-slate-800/80 rounded-2xl bg-white dark:bg-slate-900 overflow-hidden shadow-2xs transition-all"
               >
-                <span className="font-black text-xs sm:text-sm text-slate-900 dark:text-slate-100">
-                  {faq.question}
-                </span>
-                <ChevronDown
-                  className={`h-4 w-4 shrink-0 text-slate-400 transition-transform duration-200 ${
-                    activeId === faq.id ? "rotate-180 text-amber-500" : ""
-                  }`}
-                />
-              </button>
-
-              {activeId === faq.id && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="px-5 py-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50"
+                <button
+                  type="button"
+                  onClick={() => setActiveId(isOpen ? "" : faq.id)}
+                  className="w-full text-left px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex items-center justify-between gap-3 focus-visible:outline-2 focus-visible:outline-amber-500"
                 >
-                  <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed font-semibold">
-                    {faq.answer}
-                  </p>
-                </motion.div>
-              )}
-            </div>
-          ))}
+                  <span className="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-100">
+                    {faq.question}
+                  </span>
+                  <ChevronDown
+                    className={`h-4 w-4 shrink-0 text-slate-400 transition-transform duration-300 ${
+                      isOpen ? "rotate-180 text-amber-500" : ""
+                    }`}
+                  />
+                </button>
+
+                {isOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="px-5 py-4 border-t border-slate-100 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/50"
+                  >
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-semibold">
+                      {faq.answer}
+                    </p>
+                  </motion.div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

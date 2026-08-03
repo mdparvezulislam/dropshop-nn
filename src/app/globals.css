@@ -120,7 +120,7 @@
     --content-max: 92rem;
 
     /* ── Fonts ── */
-    --font-sans: "Inter", var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+    --font-sans: var(--font-hind-siliguri), "Inter", var(--font-geist-sans), system-ui, -apple-system, sans-serif;
     --font-mono: var(--font-geist-mono), ui-monospace, monospace;
   }
 

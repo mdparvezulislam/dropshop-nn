@@ -1,35 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { TrendingUp, AlertTriangle, Building2, Store, Info } from "lucide-react";
+import Link from "next/link";
+import { TrendingUp, AlertTriangle, Building2, Store, Info, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils/cn";
 import { PricingValidationService } from "@/features/pricing/services/pricing-validation-service";
 
-/**
- * Role-aware pricing block for the product detail panel.
- *
- * All prices are BDT major units. Tier prices arrive ONLY when the server
- * decided the viewer may see them (see PublicCatalogService.getProductDetail)
- * — this component renders what exists and fabricates nothing: no invented
- * cost basis, no synthetic wholesale tier matrix, no fake discounts.
- */
 export interface SmartPricingPanelProps {
-  /** BDT. The base retail price. */
   retailPrice: number;
-  /** Active promotional price (already validated < retailPrice server-side). */
   campaignPrice?: number;
-  /** Real strike-through price; only when greater than the current price. */
   comparePrice?: number;
-  /** Admin sessions only. */
   costPrice?: number;
-  /** Reseller sessions only. */
   resellerPrice?: number;
-  /** Wholesaler sessions only. */
   wholesalePrice?: number;
-  /** Real reseller floor price, when configured. */
   minResellerPrice?: number;
-  /** Real MOQ, when configured. */
   moq?: number;
   currency?: string;
   quantity?: number;
@@ -101,18 +86,16 @@ export function SmartPricingPanel({
 
   return (
     <div className="space-y-4">
-      {/* Retail price — every viewer. For resellers this same number is the
-          recommended selling price, so it is labelled as such rather than
-          duplicated into a separate (and inevitably divergent) figure. */}
-      <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 space-y-1">
+      {/* Retail price — every viewer */}
+      <div className="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/80 dark:border-amber-900/60 space-y-1">
         <div className="flex items-baseline justify-between gap-3 flex-wrap">
-          <span className="text-xs font-bold text-slate-600">
+          <span className="text-xs font-bold text-slate-600 dark:text-slate-400">
             {resellerPrice !== undefined
               ? "প্রস্তাবিত বিক্রয় মূল্য (MRP):"
               : "খুচরা বিক্রয় মূল্য:"}
           </span>
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-black text-slate-900 tabular-nums">
+            <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tabular-nums">
               {formatBdt(currentPrice)}
             </span>
             {hasDiscount && (
@@ -131,11 +114,29 @@ export function SmartPricingPanel({
           <p className="text-[11px] font-bold text-red-600">ক্যাম্পেইন মূল্য চলছে</p>
         )}
         {resellerPrice !== undefined && (
-          <p className="text-[11px] font-bold text-slate-600">
+          <p className="text-[11px] font-bold text-slate-600 dark:text-slate-400">
             এই দামেই কাস্টমাররা প্রোডাক্টটি দেখছেন — আপনি চাইলে নিজের দাম নির্ধারণ করতে পারেন।
           </p>
         )}
       </div>
+
+      {/* Guest/Customer CTA for Reseller / Wholesale Rates */}
+      {resellerPrice === undefined && wholesalePrice === undefined && (
+        <div className="p-3.5 rounded-2xl bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/30 flex items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2">
+            <Lock className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+            <span className="font-bold text-slate-800 dark:text-slate-200">
+              হোলসেল রেট ও রিসেলার মার্জিন পেতে লগইন করুন
+            </span>
+          </div>
+          <Link
+            href="/login"
+            className="shrink-0 px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs transition-colors shadow-2xs"
+          >
+            লগইন করুন
+          </Link>
+        </div>
+      )}
 
       {/* Reseller pricing tools — real reseller price only */}
       {resellerPrice !== undefined && (

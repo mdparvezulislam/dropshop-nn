@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Hind_Siliguri } from "next/font/google";
 import "./globals.css";
 import "@/features/public/styles/public-theme.css";
 import { ThemeProvider } from "@/providers/theme-provider";
@@ -16,6 +16,13 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const hindSiliguri = Hind_Siliguri({
+  variable: "--font-hind-siliguri",
+  subsets: ["bengali", "latin"],
+  weight: ["300", "400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -36,19 +43,15 @@ const themeBootstrapScript = `
 (function() {
   try {
     var stored = localStorage.getItem('dropshop-theme');
-    var theme = (stored === 'light' || stored === 'dark' || stored === 'system') ? stored : 'light';
-    var resolved = theme;
-    if (theme === 'system') {
-      resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
+    var theme = (stored === 'light' || stored === 'dark') ? stored : 'light';
     var root = document.documentElement;
-    if (resolved === 'dark') {
+    if (theme === 'dark') {
       root.classList.add('dark');
     } else {
       root.classList.remove('dark');
     }
-    root.style.colorScheme = resolved;
-    root.setAttribute('data-theme', resolved);
+    root.style.colorScheme = theme;
+    root.setAttribute('data-theme', theme);
   } catch (e) {}
 })();
 `;
@@ -67,7 +70,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${hindSiliguri.variable} ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body

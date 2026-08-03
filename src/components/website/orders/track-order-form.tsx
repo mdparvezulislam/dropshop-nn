@@ -138,13 +138,13 @@ export function TrackOrderForm() {
         <div
           ref={resultRef}
           tabIndex={-1}
-          className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-5 shadow-xs outline-none"
+          className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 space-y-5 shadow-xs outline-none"
           aria-label="ট্র্যাকিং ফলাফল"
         >
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <p className="text-sm font-black font-mono text-slate-900">{result.orderNumber}</p>
-              <p className="text-[11px] font-bold text-slate-500">
+              <p className="text-sm font-black font-mono text-slate-900 dark:text-slate-100">{result.orderNumber}</p>
+              <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
                 {formatOrderDate(result.placedAt)} • {result.district}
               </p>
             </div>
@@ -156,8 +156,24 @@ export function TrackOrderForm() {
           <ShipmentCard
             shipment={result.shipment}
             orderStatus={result.status}
-            className="border-slate-200"
+            className="border-slate-200 dark:border-slate-800"
           />
+
+          {/* Hotline & Rider Contact Option */}
+          <div className="p-4 rounded-2xl bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <div>
+              <h4 className="font-black text-slate-900 dark:text-slate-100">জরুরি সহায়তা বা পরিবর্তনের জন্য</h4>
+              <p className="font-semibold text-slate-600 dark:text-slate-400">
+                আমাদের কাস্টমার কেয়ার টিম ৮টা-১০টা পর্যন্ত ফোনে সচল থাকে।
+              </p>
+            </div>
+            <a
+              href="tel:01898888800"
+              className="shrink-0 inline-flex items-center gap-1.5 h-10 px-5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs transition-colors shadow-2xs"
+            >
+              <span>হটলাইন: 01898-888800</span>
+            </a>
+          </div>
 
           {result.timeline.length > 0 && <OrderEventTimeline steps={result.timeline} />}
         </div>

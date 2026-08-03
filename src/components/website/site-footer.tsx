@@ -172,8 +172,8 @@ export function SiteFooter({ categories = [] }: SiteFooterProps): React.ReactEle
               বাংলাদেশের শীর্ষস্থানীয় শপিং এবং সোর্সিং প্ল্যাটফর্ম। আপনার শপিং অভিজ্ঞতা ও ব্যবসায়িক উন্নতি আমাদের একমাত্র অগ্রাধিকার।
             </p>
 
-            {/* Direct Social Links */}
-            <div className="flex items-center gap-2.5 pt-1">
+            {/* Direct Social Links with enlarged touch targets */}
+            <div className="flex items-center gap-3 pt-1">
               {SOCIAL_LINKS.map((s) => (
                 <a
                   key={s.label}
@@ -181,9 +181,9 @@ export function SiteFooter({ categories = [] }: SiteFooterProps): React.ReactEle
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={s.label}
-                  className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-800 text-slate-300 hover:text-amber-400 hover:bg-slate-700 dark:bg-slate-800/80 dark:hover:bg-slate-800 transition-all border border-slate-700 dark:border-slate-700/80"
+                  className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 text-slate-300 hover:text-amber-400 hover:bg-slate-700 dark:bg-slate-800/80 dark:hover:bg-slate-800 transition-all border border-slate-700 dark:border-slate-700/80 hover:scale-105 active:scale-95 touch-manipulation"
                 >
-                  <s.icon className="h-4 w-4" aria-hidden />
+                  <s.icon className="h-5 w-5" aria-hidden />
                 </a>
               ))}
             </div>
@@ -211,34 +211,33 @@ export function SiteFooter({ categories = [] }: SiteFooterProps): React.ReactEle
           ))}
         </div>
 
-        {/* Payment & Courier Badges Bar */}
+        {/* Payment & Courier Brand Badges Bar */}
         <div className="py-4 border-b border-slate-800 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-300 dark:text-slate-400">
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="font-extrabold text-slate-200 dark:text-slate-300">পেমেন্ট মেথড:</span>
-            <span className="px-3 py-1 rounded-lg bg-slate-800 dark:bg-slate-900 text-amber-400 font-black border border-slate-700 dark:border-slate-800 text-[11px]">
-              bKash
+            <span className="font-extrabold text-slate-200 dark:text-slate-300">পেমেন্ট পার্টনার:</span>
+            <span className="px-3 py-1.5 rounded-xl bg-[#E2136E]/15 text-[#E2136E] dark:text-[#ff388e] font-black border border-[#E2136E]/30 text-xs flex items-center gap-1.5 shadow-2xs">
+              <span className="h-2 w-2 rounded-full bg-[#E2136E]" />
+              bKash (বিকাশ)
             </span>
-            <span className="px-3 py-1 rounded-lg bg-slate-800 dark:bg-slate-900 text-amber-400 font-black border border-slate-700 dark:border-slate-800 text-[11px]">
-              Nagad
+            <span className="px-3 py-1.5 rounded-xl bg-[#F7921E]/15 text-[#F7921E] font-black border border-[#F7921E]/30 text-xs flex items-center gap-1.5 shadow-2xs">
+              <span className="h-2 w-2 rounded-full bg-[#F7921E]" />
+              Nagad (নগদ)
             </span>
-            <span className="px-3 py-1 rounded-lg bg-slate-800 dark:bg-slate-900 text-slate-200 font-bold border border-slate-700 dark:border-slate-800 text-[11px]">
-              VISA
+            <span className="px-3 py-1.5 rounded-xl bg-blue-500/15 text-blue-400 font-bold border border-blue-500/30 text-xs">
+              VISA / Mastercard
             </span>
-            <span className="px-3 py-1 rounded-lg bg-slate-800 dark:bg-slate-900 text-slate-200 font-bold border border-slate-700 dark:border-slate-800 text-[11px]">
-              Mastercard
-            </span>
-            <span className="px-3 py-1 rounded-lg bg-slate-800 dark:bg-slate-900 text-emerald-400 font-bold border border-slate-700 dark:border-slate-800 text-[11px]">
-              Cash On Delivery
+            <span className="px-3 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-400 font-bold border border-emerald-500/30 text-xs flex items-center gap-1">
+              <span>💵</span> ক্যাশ অন ডেলিভারি
             </span>
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="font-extrabold text-slate-200 dark:text-slate-300">কুরিয়ার পার্টনার:</span>
-            <span className="px-3 py-1 rounded-lg bg-slate-800 dark:bg-slate-900 text-amber-400 font-black border border-slate-700 dark:border-slate-800 text-[11px]">
-              ⚡ Steadfast Courier
+            <span className="font-extrabold text-slate-200 dark:text-slate-300">কুরিয়ার নেটওয়ার্ক:</span>
+            <span className="px-3 py-1.5 rounded-xl bg-amber-500/15 text-amber-400 font-black border border-amber-500/30 text-xs flex items-center gap-1.5">
+              <span>⚡</span> Steadfast Courier
             </span>
-            <span className="px-3 py-1 rounded-lg bg-slate-800 dark:bg-slate-900 text-slate-200 font-bold border border-slate-700 dark:border-slate-800 text-[11px]">
-              Pathao Courier
+            <span className="px-3 py-1.5 rounded-xl bg-red-500/15 text-red-400 font-bold border border-red-500/30 text-xs flex items-center gap-1.5">
+              <span>🚚</span> Pathao Courier
             </span>
           </div>
         </div>

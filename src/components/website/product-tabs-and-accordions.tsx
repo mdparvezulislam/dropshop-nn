@@ -94,6 +94,32 @@ function SpecTable({ specifications }: { specifications: ProductSpecification[] 
   );
 }
 
+function TruncatedDescription({ content }: { content: string }): React.ReactElement {
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  const isLong = content.length > 400;
+
+  return (
+    <div className="space-y-2">
+      <div className={cn("relative overflow-hidden transition-all duration-300", !isExpanded && isLong && "max-h-48")}>
+        <RichContentRenderer content={content} />
+        {!isExpanded && isLong && (
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white dark:from-slate-900 to-transparent pointer-events-none" />
+        )}
+      </div>
+      {isLong && (
+        <button
+          type="button"
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="inline-flex items-center gap-1 text-xs font-black text-amber-700 dark:text-amber-400 hover:underline pt-1 focus-visible:outline-2 focus-visible:outline-amber-500"
+        >
+          <span>{isExpanded ? "সংক্ষেপ করুন" : "আরও পড়ুন"}</span>
+          <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", isExpanded && "rotate-180")} />
+        </button>
+      )}
+    </div>
+  );
+}
+
 /**
  * PDP content sections. One section model renders as ARIA tabs on desktop
  * and accordions on mobile. Sections only exist when their data exists.
@@ -116,21 +142,21 @@ export function ProductTabsAndAccordions({
         label: "বিবরণ",
         icon: <FileText className="w-4 h-4" aria-hidden />,
         content: (
-          <div className="space-y-4 text-sm text-slate-700 leading-relaxed">
-            {description && <RichContentRenderer content={description} />}
+          <div className="space-y-4 text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+            {description && <TruncatedDescription content={description} />}
             {features.length > 0 && (
-              <div className={cn("space-y-2", description && "pt-3 border-t border-slate-100")}>
-                <h3 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider">
+              <div className={cn("space-y-2", description && "pt-3 border-t border-slate-100 dark:border-slate-800")}>
+                <h3 className="font-extrabold text-slate-900 dark:text-slate-100 text-xs uppercase tracking-wider">
                   মূল ফিচারসমূহ
                 </h3>
                 <ul className="grid gap-2 sm:grid-cols-2">
                   {features.map((feature, i) => (
                     <li
                       key={i}
-                      className="flex items-start gap-2 text-xs font-medium text-slate-700"
+                      className="flex items-start gap-2 text-xs font-medium text-slate-700 dark:text-slate-300"
                     >
                       <CheckCircle2
-                        className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5"
+                        className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"
                         aria-hidden
                       />
                       <span>{feature}</span>
@@ -153,29 +179,36 @@ export function ProductTabsAndAccordions({
       });
     }
 
-    if (warranty || returnPolicy) {
-      list.push({
-        id: "warranty",
-        label: "ওয়ারেন্টি ও রিটার্ন",
-        icon: <ShieldCheck className="w-4 h-4" aria-hidden />,
-        content: (
-          <div className="space-y-3 text-xs text-slate-700 leading-relaxed">
-            {warranty && (
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                <h3 className="font-black text-slate-900 mb-1">ওয়ারেন্টি</h3>
-                <p className="font-medium">{warranty}</p>
-              </div>
-            )}
-            {returnPolicy && (
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                <h3 className="font-black text-slate-900 mb-1">রিটার্ন পলিসি</h3>
-                <p className="font-medium">{returnPolicy}</p>
-              </div>
-            )}
+    list.push({
+      id: "warranty",
+      label: "ডেলিভারি ও রিটার্ন পলিসি",
+      icon: <ShieldCheck className="w-4 h-4" aria-hidden />,
+      content: (
+        <div className="space-y-3 text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 space-y-1.5">
+              <h3 className="font-black text-slate-900 dark:text-slate-100 text-xs uppercase tracking-wider">
+                📦 ডেলিভারি চার্জ ও সময়সূচী
+              </h3>
+              <ul className="space-y-1 font-medium">
+                <li>• <strong>ঢাকার ভেতরে:</strong> ৳৮০ (১-২ কার্যদিবস)</li>
+                <li>• <strong>ঢাকার বাইরে:</strong> ৳১৫০ (২-৪ কার্যদিবস)</li>
+                <li>• <strong>ক্যাশ অন ডেলিভারি:</strong> সারাদেশে সার্ভিস এভেইলএবল।</li>
+              </ul>
+            </div>
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 space-y-1.5">
+              <h3 className="font-black text-slate-900 dark:text-slate-100 text-xs uppercase tracking-wider">
+                🔄 রিটার্ন ও ওয়ারেন্টি পলিসি
+              </h3>
+              <p className="font-medium">
+                {returnPolicy || "প্রোডাক্টে কোনো ত্রুটি থাকলে ডেলিভারি ম্যানের সামনে চেক করে ৩ দিনের মধ্যে রিটার্ন করতে পারবেন।"}
+              </p>
+              {warranty && <p className="font-bold text-amber-700 dark:text-amber-400 pt-1">ওয়ারেন্টি: {warranty}</p>}
+            </div>
           </div>
-        ),
-      });
-    }
+        </div>
+      ),
+    });
 
     if (notice) {
       list.push({
@@ -184,7 +217,7 @@ export function ProductTabsAndAccordions({
         icon: <Sparkles className="w-4 h-4" aria-hidden />,
         tone: "notice",
         content: (
-          <div className="bg-red-50 border border-red-200 text-red-900 p-4 rounded-2xl text-xs font-semibold">
+          <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 text-red-900 dark:text-red-300 p-4 rounded-2xl text-xs font-semibold">
             <p className="leading-relaxed">{notice}</p>
           </div>
         ),

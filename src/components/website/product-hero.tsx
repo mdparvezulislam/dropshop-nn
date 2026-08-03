@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Minus, Plus, ShoppingBag, Zap, ShieldCheck, Truck, RotateCcw } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Zap, ShieldCheck, Truck, RotateCcw, Bell } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ProductGallery, type GalleryMedia } from "@/components/website/product-gallery";
@@ -16,6 +16,7 @@ import { ProductDeliveryInfo } from "@/components/website/product-delivery-info"
 import { CompactRating } from "@/components/website/reviews/rating-stars";
 import { WishlistButton } from "@/components/website/wishlist/wishlist-button";
 import { ShareMenu } from "@/components/website/share/share-menu";
+import { NotifyMeModal } from "@/components/website/notify-me-modal";
 import { useLocalCart } from "@/features/checkout/store/local-cart";
 import { usePermissions } from "@/hooks/use-permissions";
 import { PricingValidationService } from "@/features/pricing/services/pricing-validation-service";
@@ -44,7 +45,6 @@ export interface ProductHeroData {
   variants: ProductVariantEntity[];
   warranty?: string;
   highlights?: string[];
-  /** Real published-review aggregate; omitted entirely when there are none. */
   rating?: { average: number; count: number };
 }
 
@@ -52,7 +52,6 @@ interface ProductHeroProps {
   data: ProductHeroData;
   pricing: PublicProductPricing;
   stockStatus: PublicStockStatus;
-  /** Summed available stock; null = untracked. */
   stockTotal: number | null;
 }
 
@@ -60,11 +59,6 @@ function formatBdt(value: number): string {
   return `৳${value.toLocaleString("en-BD", { maximumFractionDigits: 0 })}`;
 }
 
-/**
- * The PDP hero: gallery + information + purchase experience, sharing variant
- * state so image, price, stock ceiling, and cart line stay in sync.
- * Every value rendered here comes from the server payload — nothing invented.
- */
 export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductHeroProps) {
   const router = useRouter();
   const cart = useLocalCart();
@@ -72,6 +66,7 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
 
   const [variant, setVariant] = React.useState<ProductVariantEntity | null>(null);
   const [quantity, setQuantity] = React.useState(1);
+  const [notifyModalOpen, setNotifyModalOpen] = React.useState(false);
 
   const isReseller = userRole === "reseller";
   const isWholesaler = userRole === "wholesaler";
@@ -338,9 +333,19 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
           {/* Availability */}
           <div className="flex items-center gap-2">
             {effectiveStatus === "out_of_stock" && (
-              <span className="text-xs font-black text-red-700 bg-red-50 px-3 py-1.5 rounded-xl border border-red-200">
-                স্টক শেষ
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-black text-red-700 bg-red-50 px-3 py-1.5 rounded-xl border border-red-200">
+                  স্টক শেষ
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setNotifyModalOpen(true)}
+                  className="text-xs font-black text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-3 py-1.5 rounded-xl border border-amber-200 dark:border-amber-900 hover:bg-amber-100 transition-colors flex items-center gap-1.5"
+                >
+                  <Bell className="h-3.5 w-3.5" />
+                  <span>নোটিফাই মি</span>
+                </button>
+              </div>
             )}
             {effectiveStatus === "low_stock" && (
               <span className="text-xs font-black text-orange-800 bg-orange-50 px-3 py-1.5 rounded-xl border border-orange-300">
@@ -376,10 +381,7 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
             <VariantSelector variants={data.variants} onVariantChange={setVariant} />
           )}
 
-          {/* Quantity + CTAs.
-              Hidden on mobile: the sticky bottom bar carries the identical
-              stepper and both CTAs, and two live copies of the same controls on
-              one screen is a duplicate the user has to reason about. */}
+          {/* Quantity + CTAs */}
           <div className="space-y-3 pt-1">
             <div className="hidden md:flex items-center gap-3 flex-wrap">
               <div
@@ -457,20 +459,29 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
               />
             </div>
 
-            {/* In-page Order Now primary button (middle section non-sticky extra button) */}
+            {/* In-page Order Now primary button */}
             <Button
               type="button"
               size="lg"
-              onClick={buyNow}
-              disabled={outOfStock || isResellerInvalidPrice}
+              onClick={outOfStock ? () => setNotifyModalOpen(true) : buyNow}
+              disabled={isResellerInvalidPrice}
               className="w-full min-h-12 text-sm font-black bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-slate-950 rounded-2xl shadow-md transition-transform disabled:opacity-40"
             >
-              <Zap className="h-4.5 w-4.5 mr-2 text-slate-950 fill-slate-950" aria-hidden />
-              {outOfStock ? "স্টক শেষ" : `অর্ডার করুন — ${unitPrice > 0 ? formatBdt(unitPrice * quantity) : ""}`}
+              {outOfStock ? (
+                <>
+                  <Bell className="h-4.5 w-4.5 mr-2" aria-hidden />
+                  স্টক শেষ — নোটিফিকেশন পান
+                </>
+              ) : (
+                <>
+                  <Zap className="h-4.5 w-4.5 mr-2 text-slate-950 fill-slate-950" aria-hidden />
+                  অর্ডার করুন — {unitPrice > 0 ? formatBdt(unitPrice * quantity) : ""}
+                </>
+              )}
             </Button>
           </div>
 
-          {/* B2B tools for logged-in memberships with real tier prices */}
+          {/* B2B tools for logged-in memberships */}
           {isReseller && pricing.resellerPrice !== undefined && (
             <>
               <ResellerProfitCalculator
@@ -497,36 +508,31 @@ export function ProductHero({ data, pricing, stockStatus, stockTotal }: ProductH
           {/* Delivery + notice */}
           <ProductDeliveryInfo notice={data.notice} />
 
-          {/* Warranty summary — only when the product actually declares one */}
-          {data.warranty && (
-            <div className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200">
-              <ShieldCheck className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" aria-hidden />
-              <div className="text-xs">
-                <span className="font-black text-slate-900 block">ওয়ারেন্টি</span>
-                <span className="text-slate-600 font-medium">{data.warranty}</span>
-              </div>
-            </div>
-          )}
-
-          {/* Service points — icon over label on mobile so three items fit
-              without wrapping or shrinking the text below readable size. */}
-          <ul className="grid grid-cols-3 gap-1.5 sm:gap-2.5 pt-3 border-t border-slate-200 text-[10px] sm:text-[11px] font-black text-slate-900">
+          {/* 4-Point Trust Elements Strip */}
+          <ul className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3 border-t border-slate-200 text-[11px] font-black text-slate-900 dark:text-slate-100">
             {[
               { icon: ShieldCheck, label: "১০০% অরিজিনাল" },
-              { icon: Truck, label: "সারাদেশে ডেলিভারি" },
+              { icon: Truck, label: "ক্যাশ অন ডেলিভারি" },
               { icon: RotateCcw, label: "সহজ রিটার্ন" },
-            ].map(({ icon: Icon, label }) => (
+              { icon: ShieldCheck, label: "ব্র্যান্ড ওয়ারেন্টি" },
+            ].map(({ icon: Icon, label }, idx) => (
               <li
-                key={label}
-                className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 px-1.5 py-2 sm:p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-center"
+                key={idx}
+                className="flex items-center gap-1.5 p-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 text-center"
               >
-                <Icon className="h-4 w-4 text-amber-600 shrink-0" aria-hidden />
-                <span className="leading-tight">{label}</span>
+                <Icon className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" aria-hidden />
+                <span className="leading-tight text-[10px] font-bold">{label}</span>
               </li>
             ))}
           </ul>
         </div>
       </div>
+
+      <NotifyMeModal
+        isOpen={notifyModalOpen}
+        onClose={() => setNotifyModalOpen(false)}
+        productName={data.name}
+      />
 
       {/* Mobile sticky purchase bar.
           Carries the quantity stepper as well as the price and both CTAs, so a

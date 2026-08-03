@@ -1,57 +1,53 @@
-import { ShieldCheck, TrendingUp, Truck, CreditCard, Headset } from "lucide-react";
+import { ShieldCheck, Truck, Banknote, Wallet } from "lucide-react";
 
 const TRUST_ITEMS = [
   {
     icon: ShieldCheck,
-    label: "অরিজিনাল প্রোডাক্ট",
-    description: "১০০% অরিজিনাল প্রোডাক্ট",
-  },
-  {
-    icon: TrendingUp,
-    label: "সহজ ড্রপশিপিং",
-    description: "স্টক ছাড়াই ব্যবসা শুরু করুন",
+    title: "১০০% অরিজিনাল প্রোডাক্ট",
+    sub: "গ্যারান্টিযুক্ত সঠিক পণ্য",
   },
   {
     icon: Truck,
-    label: "সারাদেশে ডেলিভারি",
-    description: "৬৪ জেলায় ডেলিভারি",
+    title: "৬৪ জেলায় ডেলিভারি",
+    sub: "দ্রুততম সময়ে হোম ডেলিভারি",
   },
   {
-    icon: CreditCard,
-    label: "সিকিউর পেমেন্ট",
-    description: "বিকাশ, নগদ ও ক্যাশ অন ডেলিভারি",
+    icon: Banknote,
+    title: "ক্যাশ অন ডেলিভারি",
+    sub: "পণ্য দেখে বুঝে পেমেন্ট",
   },
   {
-    icon: Headset,
-    label: "কাস্টমার সাপোর্ট",
-    description: "প্রয়োজনে সহায়তা পান",
+    icon: Wallet,
+    title: "bKash / Nagad পেমেন্ট",
+    sub: "সহজ ও নিরাপদ পেমেন্ট",
   },
 ] as const;
 
 export function TrustSection(): React.ReactElement {
   return (
     <section
-      className="w-full py-5 lg:py-7 bg-white dark:bg-slate-950 border-y border-slate-200 dark:border-slate-800"
-      aria-label="Trust Bar"
+      className="w-full py-4 lg:py-6 bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-200/80 dark:border-slate-800/80"
+      aria-label="ট্রাস্ট ব্যাজ"
     >
       <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3 lg:gap-4">
+        {/* Desktop 4 Columns | Mobile 2x2 Grid */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
           {TRUST_ITEMS.map((item) => {
             const Icon = item.icon;
             return (
               <div
-                key={item.label}
-                className="flex items-center gap-2.5 p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-amber-400 dark:hover:border-amber-500 hover:shadow-xs transition-all duration-300 group"
+                key={item.title}
+                className="flex items-center gap-3 p-3 sm:p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 shadow-2xs hover:border-amber-400 dark:hover:border-amber-500/50 hover:shadow-xs transition-all duration-200 group"
               >
-                <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 shrink-0 group-hover:scale-110 transition-transform">
-                  <Icon className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden />
+                <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 shrink-0 group-hover:scale-105 group-hover:bg-amber-500 group-hover:text-slate-950 transition-all duration-200">
+                  <Icon className="h-5 w-5 sm:h-5 sm:w-5" aria-hidden />
                 </div>
-                <div>
-                  <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 leading-snug">
-                    {item.label}
+                <div className="flex flex-col min-w-0">
+                  <h3 className="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 tracking-tight leading-snug truncate">
+                    {item.title}
                   </h3>
-                  <p className="text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 leading-tight mt-0.5">
-                    {item.description}
+                  <p className="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 leading-tight mt-0.5 truncate">
+                    {item.sub}
                   </p>
                 </div>
               </div>

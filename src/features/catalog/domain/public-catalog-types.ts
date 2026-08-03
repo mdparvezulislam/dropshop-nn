@@ -31,6 +31,9 @@ export interface PublicProductCard {
   badges: string[];
   isNew: boolean;
   isFlashSale: boolean;
+  /** Role-specific pricing in BDT, present when session/pricing mappings exist. */
+  resellerPrice?: number;
+  wholesalePrice?: number;
   /** REAL average from published reviews; undefined when the product has none. */
   rating?: number;
   /** REAL published review count; undefined when the product has none. */

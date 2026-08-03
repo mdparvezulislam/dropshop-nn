@@ -84,39 +84,40 @@ const BUSINESS_SOLUTIONS: SolutionItem[] = [
 export function BusinessSolutionsSection(): React.ReactElement {
   return (
     <section
-      className="py-10 sm:py-16 lg:py-20 bg-slate-50 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100"
+      className="py-10 sm:py-16 bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-200/80 dark:border-slate-800/80 text-slate-900 dark:text-slate-100"
       aria-labelledby="business-solutions-heading"
     >
       <div className="mx-auto max-w-(--content-max) px-3 sm:px-6 lg:px-8">
-        <div className="text-center mb-10 sm:mb-14 max-w-2xl mx-auto space-y-2">
-          <span className="text-[11px] font-black uppercase tracking-widest text-amber-700 dark:text-amber-400 px-3.5 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800">
-            বিজনেস ও শপিং সলিউশনস
+        <div className="text-center mb-8 sm:mb-12 max-w-2xl mx-auto space-y-2">
+          <span className="text-[11px] font-black uppercase tracking-widest text-amber-700 dark:text-amber-400 px-3.5 py-1 rounded-full bg-amber-500/10 border border-amber-500/30">
+            চ্যানেল সলিউশনস
           </span>
           <h2
             id="business-solutions-heading"
-            className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight text-slate-900 dark:text-slate-100"
+            className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-slate-100"
           >
-            কেন বেছে নেবেন <span className="text-amber-500">{BRAND.publicName}</span>?
+            আপনার পছন্দের চ্যানেল বেছে নিন — <span className="text-amber-500">{BRAND.publicName}</span>
           </h2>
-          <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300 font-bold">
-            আপনার শপিং ও ব্যবসা প্রসারের জন্য সেরা প্ল্যাটফর্ম
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-semibold">
+            রিটেইল শপিং, রিসেলিং বা বাল্ক ইম্পোর্ট — আপনার সকল বিজনেসের বিশ্বস্ত প্ল্যাটফর্ম
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        {/* 2x2 Grid on Mobile | 4 Columns on Desktop with Lift Effect */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {BUSINESS_SOLUTIONS.map((solution) => {
             const Icon = solution.icon;
             return (
               <div
                 key={solution.id}
-                className="group relative rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 sm:p-6 flex flex-col justify-between hover:border-amber-400 dark:hover:border-amber-500 hover:shadow-xl transition-all duration-300 active:scale-[0.99] touch-manipulation"
+                className="group relative rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 sm:p-6 flex flex-col justify-between hover:border-amber-400 dark:hover:border-amber-500 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 active:scale-[0.99] touch-manipulation"
               >
-                <div className="space-y-4">
+                <div className="space-y-3.5">
                   <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-200 dark:border-amber-800 group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center border border-amber-500/20 group-hover:scale-110 transition-transform">
                       <Icon className="h-6 w-6" aria-hidden />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-md border border-amber-200 dark:border-amber-800">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
                       {solution.badge}
                     </span>
                   </div>

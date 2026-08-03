@@ -4,17 +4,17 @@ import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Home, Package, Search, ShoppingCart, User } from "lucide-react";
+import { Home, Package, ShoppingCart, User, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useLocalCart } from "@/features/checkout/store/local-cart";
 
 export interface MobileNavItem {
   id: string;
   label: string;
-  href?: string;
+  href: string;
   icon: React.ElementType;
   badgeCount?: number;
-  isAction?: boolean;
+  isExternal?: boolean;
 }
 
 export function MobileBottomNav(): React.ReactElement {
@@ -24,22 +24,22 @@ export function MobileBottomNav(): React.ReactElement {
 
   const isLoggedIn = status === "authenticated";
 
-  const handleSearchClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    window.dispatchEvent(new CustomEvent("open-global-search"));
-  };
-
   const navItems: MobileNavItem[] = React.useMemo(
     () => [
       { id: "home", label: "হোম", href: "/", icon: Home },
-      { id: "products", label: "প্রোডাক্ট", href: "/products", icon: Package },
-      { id: "search", label: "সার্চ", icon: Search, isAction: true },
+      { id: "products", label: "প্রোডাক্টস", href: "/products", icon: Package },
       { id: "cart", label: "কার্ট", href: "/cart", icon: ShoppingCart, badgeCount: cart.count },
       {
         id: "account",
         label: isLoggedIn ? "অ্যাকাউন্ট" : "লগইন",
         href: isLoggedIn ? "/account" : "/auth/login",
         icon: User,
+      },
+      {
+        id: "support",
+        label: "সাপোর্ট",
+        href: "/contact",
+        icon: MessageCircle,
       },
     ],
     [isLoggedIn, cart.count],
@@ -48,17 +48,15 @@ export function MobileBottomNav(): React.ReactElement {
   return (
     <nav
       aria-label="প্রধান মোবাইল নেভিগেশন"
-      className="fixed bottom-0 inset-x-0 z-40 md:hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200/80 dark:border-slate-800/80 shadow-[0_-6px_25px_rgba(0,0,0,0.1)] px-1.5 pt-0.5 pb-[max(0.25rem,env(safe-area-inset-bottom,0px))] rounded-t-xl"
+      className="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200/80 dark:border-slate-800/80 shadow-[0_-6px_25px_rgba(0,0,0,0.1)] px-1.5 pt-0.5 pb-[max(0.25rem,env(safe-area-inset-bottom,0px))] rounded-t-xl"
     >
       <div className="flex items-center justify-around h-12 max-w-md mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive =
-            !item.isAction &&
-            item.href &&
-            (item.href === "/"
+            item.href === "/"
               ? pathname === "/"
-              : pathname.startsWith(item.href));
+              : pathname.startsWith(item.href);
 
           const content = (
             <>
@@ -103,23 +101,10 @@ export function MobileBottomNav(): React.ReactElement {
             </>
           );
 
-          if (item.isAction) {
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={handleSearchClick}
-                className="group relative flex flex-col items-center justify-center flex-1 h-12 min-h-[44px] py-0.5 px-0.5 rounded-lg transition-all touch-manipulation active:scale-95 focus-visible:outline-2 focus-visible:outline-amber-500"
-              >
-                {content}
-              </button>
-            );
-          }
-
           return (
             <Link
               key={item.id}
-              href={item.href!}
+              href={item.href}
               className="group relative flex flex-col items-center justify-center flex-1 h-12 min-h-[44px] py-0.5 px-0.5 rounded-lg transition-all touch-manipulation active:scale-95 focus-visible:outline-2 focus-visible:outline-amber-500"
             >
               {content}
